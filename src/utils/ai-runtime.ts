@@ -51,6 +51,112 @@ const _pipelineCache = new Map<AiModelId, Promise<AiPipeline>>();
 const _resolvedPipelines = new Map<AiModelId, AiPipeline>();
 
 /**
+ * Per-model `AbortController`s for in-flight *network* downloads.
+ *
+ * Transformers.js doesn't take an abort signal in its `pipeline()` API,
+ * but it routes every network fetch through `env.fetch` — so we wrap
+ * that hook (see {@link createAbortableFetch}) and attach the matching
+ * model's signal to each request. Calling `controller.abort()` then
+ * tears down the in-flight fetches for real, instead of letting them
+ * stream to completion in the background after the user cancels.
+ *
+ * Keyed by model so a single model's cancel only kills that model's
+ * downloads — the request URL carries the model's `repo`, which is how
+ * the fetch wrapper maps a request back to its controller.
+ */
+const _loadAbortControllers = new Map<AiModelId, AbortController>();
+/** Wrap `env.fetch` exactly once so abort wiring survives re-imports. */
+let _abortableFetchInstalled = false;
+
+/**
+ * Register an in-flight download for `modelId` and return its
+ * `AbortController`. Aborts + replaces any stale controller still
+ * lingering for the same model (e.g. a retry after a failed attempt)
+ * so an old signal can't keep a previous fetch alive.
+ */
+export function beginDownload(modelId: AiModelId): AbortController {
+  _loadAbortControllers.get(modelId)?.abort();
+  const controller = new AbortController();
+  _loadAbortControllers.set(modelId, controller);
+  return controller;
+}
+
+/**
+ * Drop a finished download's controller — but only if it's still the
+ * one we registered. A concurrent retry may have installed a fresh
+ * controller we must not clobber.
+ */
+function endDownload(modelId: AiModelId, controller: AbortController): void {
+  if (_loadAbortControllers.get(modelId) === controller) {
+    _loadAbortControllers.delete(modelId);
+  }
+}
+
+/**
+ * Abort and forget the in-flight network download for `modelId`, if
+ * any. Used by the cancel / dispose / tier-swap paths so a download the
+ * user walked away from actually stops fetching.
+ */
+function abortDownload(modelId: AiModelId): void {
+  const controller = _loadAbortControllers.get(modelId);
+  if (!controller) return;
+  _loadAbortControllers.delete(modelId);
+  controller.abort();
+}
+
+/**
+ * Pick the `AbortSignal` (if any) that should govern a request to
+ * `url`. A model's weight/config/tokenizer files all live under its
+ * `repo` path, so we match the URL against every active download's repo
+ * and hand back that controller's signal. Distinct repos mean at most
+ * one match in practice; the multi-match branch is defensive only.
+ *
+ * Exported so the wiring can be unit-tested without standing up the
+ * whole Transformers.js runtime.
+ */
+export function abortSignalForUrl(url: string): AbortSignal | undefined {
+  const signals: AbortSignal[] = [];
+  for (const [modelId, controller] of _loadAbortControllers) {
+    if (url.includes(getModelInfo(modelId).repo)) signals.push(controller.signal);
+  }
+  if (signals.length === 0) return undefined;
+  if (signals.length === 1) return signals[0];
+  return typeof AbortSignal.any === "function" ? AbortSignal.any(signals) : signals[0];
+}
+
+/**
+ * Build the `env.fetch` replacement: a fetch that injects the matching
+ * model's {@link abortSignalForUrl} signal into every request so a
+ * cancel can abort the bytes mid-flight. Requests that don't belong to
+ * an active download (or after every download has finished) pass
+ * straight through to `baseFetch` untouched.
+ *
+ * Exported for unit tests; production wires it up inside
+ * {@link getTransformers}.
+ */
+export function createAbortableFetch(
+  baseFetch: typeof fetch,
+): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> {
+  return (input, init) => {
+    const url =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.href
+          : (input as Request).url;
+    const signal = abortSignalForUrl(url ?? "");
+    if (!signal) return baseFetch(input, init);
+    // Combine with any caller-supplied signal so we never drop one
+    // (transformers.js passes none today, but be defensive).
+    const combined =
+      init?.signal && typeof AbortSignal.any === "function"
+        ? AbortSignal.any([init.signal, signal])
+        : signal;
+    return baseFetch(input, { ...init, signal: combined });
+  };
+}
+
+/**
  * `localStorage` key used to remember that a model has loaded successfully
  * at least once in this browser. The `isModelMarkedReady` flag isn't proof
  * the bytes are still in CacheStorage (the browser can evict under storage
@@ -107,28 +213,34 @@ export function forgetModel(modelId: AiModelId): void {
 }
 
 /**
- * Sync-evict an in-flight {@link loadPipeline} promise so its
- * late-arrival check (inside the loader) trips and the resolved
- * pipeline is discarded without setting the ready flag or
- * re-populating runtime state.
+ * Abort the in-flight {@link loadPipeline} for `modelId` when the user
+ * explicitly bails out of a download via the consent dialog. Two things
+ * happen, in order:
  *
- * Used by {@link useAiModel.cancel} when the user explicitly bails
- * out of a download via the consent dialog — without this, the
- * underlying fetch (Transformers.js doesn't expose an abort signal)
- * runs to completion, sets `markModelReady`, and the user comes back
- * to a half-downloaded `localStorage` flag pointing at potentially-
- * incomplete `CacheStorage` bytes. Next visit auto-loads, fails
- * mid-construct, surfaces a generic error, and the user is stuck
- * until they hit "Delete cached models" — even though they thought
- * they'd already cancelled cleanly.
+ *   1. Sync-evict the in-flight promise from `_pipelineCache` so its
+ *      late-arrival check (inside the loader) trips — the resolved
+ *      pipeline, if it sneaks in before the abort lands, is discarded
+ *      without setting the ready flag or re-populating runtime state.
+ *   2. Abort the model's `AbortController`, which tears down the actual
+ *      network fetches via the wrapped `env.fetch` so the download
+ *      stops streaming in the background instead of running to
+ *      completion.
+ *
+ * Without (1), a cancel during a fresh download could let the fetch
+ * finish, call `markModelReady`, and leave the user with a half-
+ * downloaded `localStorage` flag pointing at potentially-incomplete
+ * `CacheStorage` bytes — next visit auto-loads, fails mid-construct,
+ * and the user is stuck until they hit "Delete cached models". (2) is
+ * the fix for "Cancel left the download running": before the
+ * `env.fetch` wrapper, the fetches Transformers.js issued had no signal
+ * and could not be stopped.
  *
  * Does not touch any `_resolvedPipelines` entry — only the in-flight
- * promise reference. If the pipeline somehow finished resolving
- * before this runs (race), the late-arrival check will see the
- * cleared cache slot and discard the pipe.
+ * promise reference and the controller.
  */
 export function abortPendingLoad(modelId: AiModelId): void {
   _pipelineCache.delete(modelId);
+  abortDownload(modelId);
 }
 
 /**
@@ -141,6 +253,10 @@ export function abortPendingLoad(modelId: AiModelId): void {
  * GC can reclaim the memory eventually.
  */
 export async function unloadModel(modelId: AiModelId): Promise<void> {
+  // Stop any in-flight network download for this model first — a
+  // tier-swap or "Free memory" mid-download should not leave bytes
+  // streaming in the background with no consumer.
+  abortDownload(modelId);
   const pipe = _resolvedPipelines.get(modelId);
   _resolvedPipelines.delete(modelId);
   _pipelineCache.delete(modelId);
@@ -180,12 +296,16 @@ export function getResolvedPipeline(modelId: AiModelId): AiPipeline | null {
  * without ~300 MB of pipelines resident.
  */
 export async function disposeAllModels(): Promise<void> {
-  // Cover both fully-loaded pipelines AND in-flight downloads. The
-  // download itself isn't abortable (Transformers.js doesn't expose
-  // one), but dropping our promise reference + cache entry means the
-  // resolved pipeline — if it eventually arrives — won't sit in memory
-  // without a consumer.
-  const ids = new Set<AiModelId>([..._resolvedPipelines.keys(), ..._pipelineCache.keys()]);
+  // Cover both fully-loaded pipelines AND in-flight downloads. Each
+  // `unloadModel` aborts the model's wrapped-`env.fetch` download so
+  // the bytes stop streaming, and drops our promise reference + cache
+  // entry so a pipeline that resolves in the abort gap won't sit in
+  // memory without a consumer.
+  const ids = new Set<AiModelId>([
+    ..._resolvedPipelines.keys(),
+    ..._pipelineCache.keys(),
+    ..._loadAbortControllers.keys(),
+  ]);
   await Promise.all([...ids].map((id) => unloadModel(id)));
 }
 
@@ -326,6 +446,16 @@ async function getTransformers(): Promise<typeof import("@huggingface/transforme
     // Persist downloads in the browser Cache API so repeat visits work
     // offline and the service worker can intercept them.
     _transformers.env.useBrowserCache = true;
+    // Wrap the fetch hook so an explicit cancel can abort in-flight
+    // downloads. Transformers.js routes every network fetch through
+    // `env.fetch`; the wrapper attaches the matching model's
+    // AbortSignal (see {@link createAbortableFetch}). Cache reads use
+    // the Cache API, not `env.fetch`, so warm loads are untouched.
+    if (!_abortableFetchInstalled) {
+      const base = (_transformers.env.fetch ?? globalThis.fetch.bind(globalThis)) as typeof fetch;
+      _transformers.env.fetch = createAbortableFetch(base) as typeof _transformers.env.fetch;
+      _abortableFetchInstalled = true;
+    }
   }
   return _transformers;
 }
@@ -375,6 +505,11 @@ export async function loadPipeline(
   handle.promise = (async () => {
     const t = await getTransformers();
     const useWebGpu = await detectWebGpu();
+    // Register this download so the wrapped `env.fetch` can attach an
+    // abort signal to its network requests. Must come *after*
+    // `getTransformers()` (which installs the wrapper) and *before*
+    // `t.pipeline(...)` fires the first fetch.
+    const abort = beginDownload(modelId);
 
     // Track per-file bytes so a model with N weight shards reports a
     // single rolled-up progress to the UI.
@@ -514,7 +649,25 @@ export async function loadPipeline(
       if (_pipelineCache.get(modelId) === handle.promise) {
         _pipelineCache.delete(modelId);
       }
+      // A deliberate cancel aborts this model's in-flight fetches, which
+      // bubbles up here as an AbortError. Re-label it as the same
+      // "load-cancelled" sentinel the late-arrival path uses so
+      // `useAiModel.startDownload` swallows it instead of flashing a
+      // generic error after the user already cancelled. `abort.signal.
+      // aborted` is the authoritative check (DOMException isn't reliably
+      // `instanceof Error`); the name check is belt-and-braces.
+      if (
+        abort.signal.aborted ||
+        (err != null && typeof err === "object" && (err as { name?: string }).name === "AbortError")
+      ) {
+        throw new Error("load-cancelled");
+      }
       throw err;
+    } finally {
+      // Drop our controller once the load settles (success, error, or
+      // cancel) — but only if it's still ours, so a retry that already
+      // registered a fresh controller isn't clobbered.
+      endDownload(modelId, abort);
     }
   })();
 
