@@ -10,6 +10,7 @@
 
 import {
   type PointerEvent as ReactPointerEvent,
+  type Ref,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -75,12 +76,24 @@ function InlineTextEditor({
   descriptor: InlineEditorDescriptor;
   fit: { w: number; h: number };
 }) {
-  const { xPct, yPct, fontCss, fontWeight, fontStyle, colorHex, sizeFrac, onCommit, onCancel } =
-    descriptor;
+  const {
+    xPct,
+    yPct,
+    fontCss,
+    fontWeight,
+    fontStyle,
+    colorHex,
+    sizeFrac,
+    boxWFrac,
+    boxHFrac,
+    onCommit,
+    onCancel,
+  } = descriptor;
+  const isBox = boxWFrac != null && boxHFrac != null;
   const [value, setValue] = useState(descriptor.initialText);
   const valueRef = useRef(value);
   valueRef.current = value;
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const committedRef = useRef(false);
   const escapedRef = useRef(false);
   // Latest callbacks via refs: the owning tool rebuilds onCommit/onCancel every
@@ -122,63 +135,85 @@ function InlineTextEditor({
   const truePx = sizeFrac * fit.h;
   const fontSizePx = Math.max(isCoarsePointer() ? 16 : 6, truePx);
   const font = `${fontStyle} ${fontWeight} ${fontSizePx}px ${fontCss}`;
-  const widthPx = Math.max(fontSizePx * 1.5, measureInlineWidth(value, font) + fontSizePx * 0.7);
+  const padX = fontSizePx * 0.12; // mirrors TEXT_BG_PAD_EM in the burn/preview path
 
-  // Keep the editing box inside the page so the stage's overflow-hidden doesn't
-  // clip the last characters — notably the 16px-floored, content-grown box near
-  // a right/bottom edge on a phone. VISUAL ONLY: the committed annotation anchor
-  // stays xPct/yPct, fully decoupled from the input's DOM position. When the box
-  // is wider than the page (very long text on a tiny page), Math.max(0, …) pins
-  // left at 0 and it still overflows right — the irreducible case, no worse than before.
-  const boxH = fontSizePx * 1.25;
+  // Box mode → the editor fills the drawn box (multi-line, word-wrapping);
+  // line mode → a single-line input that auto-grows with its content. Either way,
+  // keep the box inside the page so the stage's overflow-hidden doesn't clip it.
+  // VISUAL ONLY: the committed annotation anchor stays xPct/yPct.
+  const widthPx = isBox
+    ? (boxWFrac as number) * fit.w
+    : Math.max(fontSizePx * 1.5, measureInlineWidth(value, font) + fontSizePx * 0.7);
+  const boxH = isBox ? (boxHFrac as number) * fit.h : fontSizePx * 1.25;
   const left = Math.max(0, Math.min(xPct * fit.w, fit.w - widthPx));
   const top = Math.max(0, Math.min(yPct * fit.h, fit.h - boxH));
 
-  return (
+  const onKeyDown = (e: {
+    key: string;
+    preventDefault: () => void;
+    stopPropagation: () => void;
+  }) => {
+    // In box mode Enter inserts a newline (multi-line text); only Escape exits.
+    // In line mode Enter commits, matching a one-line label.
+    if (e.key === "Enter" && !isBox) {
+      e.preventDefault();
+      commit();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancel();
+    }
+    // Keep editor keystrokes (incl. Backspace) off the window-level
+    // delete-selected listener; that listener also bails on a focused input.
+    e.stopPropagation();
+  };
+  const shared = {
+    value,
+    onChange: (e: { target: { value: string } }) => setValue(e.target.value),
+    onKeyDown,
+    onBlur: commit,
+    // Only swallow PRIMARY pointers so a second finger still reaches the wrap
+    // and a pinch can form while editing.
+    onPointerDown: (e: ReactPointerEvent<HTMLElement>) => {
+      if (e.isPrimary) e.stopPropagation();
+    },
+    onPointerUp: (e: ReactPointerEvent<HTMLElement>) => {
+      if (e.isPrimary) e.stopPropagation();
+    },
+    style: {
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${widthPx}px`,
+      height: `${boxH}px`,
+      fontFamily: fontCss,
+      fontWeight,
+      fontStyle,
+      fontSize: `${fontSizePx}px`,
+      color: colorHex,
+      userSelect: "text" as const,
+      WebkitUserSelect: "text" as const,
+      touchAction: "auto" as const,
+    },
+    "aria-label": "Text annotation",
+  };
+
+  // Escape the wrap's `touch-none select-none`, which would otherwise suppress
+  // the caret / soft keyboard (notably on iOS Safari).
+  const baseClass =
+    "absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 outline-none";
+
+  return isBox ? (
+    <textarea
+      {...shared}
+      ref={inputRef as Ref<HTMLTextAreaElement>}
+      className={`${baseClass} resize-none leading-[1.2]`}
+      style={{ ...shared.style, padding: `0 ${padX}px`, overflowY: "auto", overflowX: "hidden" }}
+    />
+  ) : (
     <input
-      ref={inputRef}
+      {...shared}
+      ref={inputRef as Ref<HTMLInputElement>}
       type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          commit();
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          cancel();
-        }
-        // Keep editor keystrokes (incl. Backspace) off the window-level
-        // delete-selected listener; that listener also bails on a focused input.
-        e.stopPropagation();
-      }}
-      onBlur={commit}
-      // Only swallow PRIMARY pointers so a second finger still reaches the wrap
-      // and a pinch can form while editing.
-      onPointerDown={(e) => {
-        if (e.isPrimary) e.stopPropagation();
-      }}
-      onPointerUp={(e) => {
-        if (e.isPrimary) e.stopPropagation();
-      }}
-      // Escape the wrap's `touch-none select-none`, which would otherwise
-      // suppress the caret / soft keyboard (notably on iOS Safari).
-      className="absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 p-0 leading-tight outline-none"
-      style={{
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${widthPx}px`,
-        height: `${boxH}px`,
-        fontFamily: fontCss,
-        fontWeight,
-        fontStyle,
-        fontSize: `${fontSizePx}px`,
-        color: colorHex,
-        userSelect: "text",
-        WebkitUserSelect: "text",
-        touchAction: "auto",
-      }}
-      aria-label="Text annotation"
+      className={`${baseClass} p-0 leading-tight`}
     />
   );
 }

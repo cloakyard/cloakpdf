@@ -22,12 +22,15 @@
  * we keep it for the lifetime of the page so repeated runs don't pay
  * the cost again.
  *
- * Cancellation note: there is no way to abort the underlying fetches
- * that Transformers.js issues, so "cancel" really means "stop showing
- * progress and reject the consumer's promise". Files that have already
- * been written to the browser cache stay there, which means the next
- * download picks up where this one left off — only the file that was
- * mid-flight needs to be redownloaded.
+ * Cancellation note: "cancel" rejects the consumer's promise *and*
+ * aborts the underlying fetches. Transformers.js doesn't take an abort
+ * signal in its `pipeline()` API, but it routes every network request
+ * through `env.fetch`, which `ai-runtime` wraps to attach a per-model
+ * `AbortSignal` — so cancelling genuinely stops the download instead of
+ * letting it stream on in the background. Files already fully written
+ * to the browser cache stay there, so the next download resumes from
+ * where this one left off — only the file that was mid-flight (and now
+ * aborted) needs to be redownloaded.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type AiModelId, type AiModelInfo, getModelInfo } from "../utils/ai-models.ts";
@@ -268,15 +271,14 @@ export function useAiModel(modelId: AiModelId): UseAiModelReturn {
     const pending = pendingRef.current;
     pendingRef.current = [];
     for (const { reject } of pending) reject(new Error("cancelled"));
-    // Sync-evict any in-flight `loadPipeline` promise so the
-    // background fetch can't quietly set `markModelReady` after the
-    // user clicked Cancel. The promise itself can't be aborted
-    // (Transformers.js doesn't expose a signal), but the late-arrival
-    // check inside `loadPipeline` discards the resolved pipe + skips
-    // the flag/_resolvedPipelines population when its own promise
-    // isn't in `_pipelineCache` any more. Without this, a cancel
-    // during a fresh download would leave the user with a "ready"
-    // flag pointing at potentially-incomplete `CacheStorage` bytes.
+    // Abort any in-flight `loadPipeline` for this model. `abortPendingLoad`
+    // both (a) fires the model's AbortController so the wrapped `env.fetch`
+    // tears down the live network download — the fix for "Cancel left the
+    // download running" — and (b) sync-evicts the in-flight promise so its
+    // late-arrival check discards any pipe that resolves in the abort gap,
+    // skipping `markModelReady`. Without (b), a cancel during a fresh
+    // download could leave the user with a "ready" flag pointing at
+    // potentially-incomplete `CacheStorage` bytes.
     if (!pipelineRef.current) abortPendingLoad(modelId);
     if (!mountedRef.current) return;
     setStatus(pipelineRef.current ? "ready" : "idle");

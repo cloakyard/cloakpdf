@@ -110,9 +110,11 @@ export function AiConsentModal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      // Allow Escape to cancel from any state — the underlying download
-      // continues in the background but the dialog dismisses. Reopening
-      // re-shows the same state machine progress.
+      // Allow Escape to cancel from any state. `onCancel` aborts the
+      // in-flight download (via the wrapped `env.fetch`) and dismisses
+      // the dialog — the bytes stop streaming rather than running on in
+      // the background. Fully-cached files survive, so a later retry
+      // resumes from where this left off.
       if (e.key === "Escape") onCancel();
     };
     window.addEventListener("keydown", onKey);

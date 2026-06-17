@@ -45,6 +45,8 @@ import {
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,
+  TEXT_LINE_EM,
+  wrapTextToWidth,
 } from "../../utils/pdf-operations.ts";
 import { extractPageTextGeometry, type LayoutPage } from "../../utils/layout-extract.ts";
 import { docToFile } from "../doc.ts";
@@ -67,6 +69,31 @@ type TextAnnotation = Extract<Annotation, { kind: "text" }>;
 const PEN_THICK = 0.0035;
 const HIGHLIGHT_THICK = 0.022;
 const SHAPE_THICK = 0.004;
+/** Default text box (page fractions) when the text tool is tapped rather than
+ *  dragged — a sensible starting region the user can then resize. */
+const DEFAULT_TEXT_W = 0.34;
+const DEFAULT_TEXT_H = 0.1;
+/** Smallest box a drag must cover to count as a custom region (else a tap). */
+const MIN_DRAG_FRAC = 0.02;
+/** Min box size (fractions) a resize can shrink a rect/oval/text box to. */
+const MIN_BOX_FRAC = 0.015;
+/** Hit slop (device px) around a resize handle. */
+const HANDLE_TOL_PX = 11;
+/** Painted half-size (device px) of a resize handle square. */
+const HANDLE_HALF_PX = 4;
+/** The eight resize handles, by compass id. */
+type HandleId = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
+const HANDLE_IDS: HandleId[] = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
+const HANDLE_CURSOR: Record<HandleId, string> = {
+  nw: "nwse-resize",
+  n: "ns-resize",
+  ne: "nesw-resize",
+  e: "ew-resize",
+  se: "nwse-resize",
+  s: "ns-resize",
+  sw: "nesw-resize",
+  w: "ew-resize",
+};
 /** Pointer travel (device px) before a select-mode press counts as a drag, not a
  *  click — keeps a tap-to-select from committing a zero-distance move. */
 const MOVE_THRESHOLD_PX = 4;
@@ -154,8 +181,9 @@ function annotationBBox(a: Annotation, w: number, h: number) {
         h: Math.abs(a.y2 - a.y1),
       };
     case "text": {
-      // anchor is the box top-left; bbox mirrors the burn geometry exactly
-      // (measureText width + the shared bg padding/height ems).
+      // Box text: the bbox IS the box. Legacy point text: anchor + measured
+      // single line (mirrors the burn geometry — measureText width + bg ems).
+      if (a.w != null && a.h != null) return { x: a.x, y: a.y, w: a.w, h: a.h };
       const sizePx = a.sizeFrac * h;
       const padX = sizePx * TEXT_BG_PAD_EM;
       const textW = measureAnnText(a.text, cssFont(a.font, sizePx));
@@ -167,6 +195,94 @@ function annotationBBox(a: Annotation, w: number, h: number) {
       };
     }
   }
+}
+
+/** A mark whose bounding box can be freely resized via corner/edge handles
+ *  (rectangles, ovals, and box-mode text). Legacy point text and thin marks
+ *  (stroke/line/arrow) are move-only. */
+function isResizable(a: Annotation): boolean {
+  return (
+    a.kind === "rect" || a.kind === "ellipse" || (a.kind === "text" && a.w != null && a.h != null)
+  );
+}
+
+/** Device-px centres of the eight handles around a fraction bbox (+chrome pad). */
+function handleCenters(
+  b: { x: number; y: number; w: number; h: number },
+  w: number,
+  h: number,
+): Record<HandleId, { x: number; y: number }> {
+  const pad = 3;
+  const x0 = b.x * w - pad;
+  const y0 = b.y * h - pad;
+  const x1 = (b.x + b.w) * w + pad;
+  const y1 = (b.y + b.h) * h + pad;
+  const mx = (x0 + x1) / 2;
+  const my = (y0 + y1) / 2;
+  return {
+    nw: { x: x0, y: y0 },
+    n: { x: mx, y: y0 },
+    ne: { x: x1, y: y0 },
+    e: { x: x1, y: my },
+    se: { x: x1, y: y1 },
+    s: { x: mx, y: y1 },
+    sw: { x: x0, y: y1 },
+    w: { x: x0, y: my },
+  };
+}
+
+/** Which handle (if any) the device-px point lands on for the given bbox. */
+function hitHandle(
+  b: { x: number; y: number; w: number; h: number },
+  px: number,
+  py: number,
+  w: number,
+  h: number,
+): HandleId | null {
+  const centers = handleCenters(b, w, h);
+  for (const id of HANDLE_IDS) {
+    const c = centers[id];
+    if (Math.abs(px - c.x) <= HANDLE_TOL_PX && Math.abs(py - c.y) <= HANDLE_TOL_PX) return id;
+  }
+  return null;
+}
+
+/** Resize a fraction bbox by dragging `handle` by a fraction delta, keeping the
+ *  opposite edge(s) pinned and clamping to a minimum size within the page. */
+function resizeBBox(
+  orig: { x: number; y: number; w: number; h: number },
+  handle: HandleId,
+  dx: number,
+  dy: number,
+): { x: number; y: number; w: number; h: number } {
+  let { x, y, w, h } = orig;
+  const right = orig.x + orig.w;
+  const bottom = orig.y + orig.h;
+  if (handle.includes("w")) {
+    x = Math.min(orig.x + dx, right - MIN_BOX_FRAC);
+    x = Math.max(0, x);
+    w = right - x;
+  }
+  if (handle.includes("e")) {
+    w = Math.max(MIN_BOX_FRAC, Math.min(orig.w + dx, 1 - orig.x));
+  }
+  if (handle.includes("n")) {
+    y = Math.min(orig.y + dy, bottom - MIN_BOX_FRAC);
+    y = Math.max(0, y);
+    h = bottom - y;
+  }
+  if (handle.includes("s")) {
+    h = Math.max(MIN_BOX_FRAC, Math.min(orig.h + dy, 1 - orig.y));
+  }
+  return { x, y, w, h };
+}
+
+/** Write a new bbox back onto a resizable mark (rect/ellipse/box-text). */
+function applyBBox(a: Annotation, b: { x: number; y: number; w: number; h: number }): Annotation {
+  if (a.kind === "rect" || a.kind === "ellipse" || a.kind === "text") {
+    return { ...a, x: b.x, y: b.y, w: b.w, h: b.h };
+  }
+  return a;
 }
 
 /** Distance (px) from point (px,py) to segment (ax,ay)-(bx,by). */
@@ -355,32 +471,56 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number,
     ctx.save();
     ctx.font = cssFont(a.font, size);
     ctx.textBaseline = "alphabetic";
-    // Mirror annotate.ts's burn-in geometry exactly: anchor `y` is the box top,
-    // baseline one size below it, background spanning down past the descenders.
-    if (a.bg) {
+    if (a.w != null && a.h != null) {
+      // Box text: bg fills the box; lines wrap to the box width and stack down
+      // from the top (mirrors annotate.ts's burn geometry exactly).
       const padX = size * TEXT_BG_PAD_EM;
-      ctx.globalAlpha = a.bg.opacity ?? 1;
-      ctx.fillStyle = fillStyle(a.bg.color);
-      ctx.fillRect(
-        a.x * w - padX,
-        a.y * h,
-        ctx.measureText(a.text).width + padX * 2,
-        size * TEXT_BG_HEIGHT_EM,
+      if (a.bg) {
+        ctx.globalAlpha = a.bg.opacity ?? 1;
+        ctx.fillStyle = fillStyle(a.bg.color);
+        ctx.fillRect(a.x * w, a.y * h, a.w * w, a.h * h);
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = col;
+      const lines = wrapTextToWidth(
+        a.text,
+        Math.max(1, a.w * w - padX * 2),
+        (s) => ctx.measureText(s).width,
       );
-      ctx.globalAlpha = 1;
+      const lineH = size * TEXT_LINE_EM;
+      lines.forEach((ln, i) => {
+        if (ln) ctx.fillText(ln, a.x * w + padX, a.y * h + size + i * lineH);
+      });
+    } else {
+      // Legacy point text: anchor `y` is the box top, baseline one size below it,
+      // background spanning down past the descenders.
+      if (a.bg) {
+        const padX = size * TEXT_BG_PAD_EM;
+        ctx.globalAlpha = a.bg.opacity ?? 1;
+        ctx.fillStyle = fillStyle(a.bg.color);
+        ctx.fillRect(
+          a.x * w - padX,
+          a.y * h,
+          ctx.measureText(a.text).width + padX * 2,
+          size * TEXT_BG_HEIGHT_EM,
+        );
+        ctx.globalAlpha = 1;
+      }
+      ctx.fillStyle = col;
+      ctx.fillText(a.text, a.x * w, a.y * h + size);
     }
-    ctx.fillStyle = col;
-    ctx.fillText(a.text, a.x * w, a.y * h + size);
     ctx.restore();
   }
 }
 
-/** Dashed selection box + corner handles around a mark's bbox. */
+/** Dashed selection box around a mark's bbox, with square resize handles when
+ *  the mark is resizable (rect / oval / box-text) — corners only for thin marks. */
 function drawSelectionChrome(
   ctx: CanvasRenderingContext2D,
   b: { x: number; y: number; w: number; h: number },
   w: number,
   h: number,
+  resizable: boolean,
 ) {
   const pad = 3;
   const x = b.x * w - pad;
@@ -393,15 +533,38 @@ function drawSelectionChrome(
   ctx.setLineDash([4, 3]);
   ctx.strokeRect(x, y, bw, bh);
   ctx.setLineDash([]);
-  ctx.fillStyle = ACCENT;
-  const hs = 3;
-  for (const [hx, hy] of [
-    [x, y],
-    [x + bw, y],
-    [x, y + bh],
-    [x + bw, y + bh],
-  ]) {
-    ctx.fillRect(hx - hs, hy - hs, hs * 2, hs * 2);
+  if (resizable) {
+    // Eight grab handles (white fill + accent border so they read on any page).
+    const centers = handleCenters(b, w, h);
+    ctx.lineWidth = 1.5;
+    for (const id of HANDLE_IDS) {
+      const c = centers[id];
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(
+        c.x - HANDLE_HALF_PX,
+        c.y - HANDLE_HALF_PX,
+        HANDLE_HALF_PX * 2,
+        HANDLE_HALF_PX * 2,
+      );
+      ctx.strokeStyle = ACCENT;
+      ctx.strokeRect(
+        c.x - HANDLE_HALF_PX,
+        c.y - HANDLE_HALF_PX,
+        HANDLE_HALF_PX * 2,
+        HANDLE_HALF_PX * 2,
+      );
+    }
+  } else {
+    ctx.fillStyle = ACCENT;
+    const hs = 3;
+    for (const [hx, hy] of [
+      [x, y],
+      [x + bw, y],
+      [x, y + bh],
+      [x + bw, y + bh],
+    ]) {
+      ctx.fillRect(hx - hs, hy - hs, hs * 2, hs * 2);
+    }
   }
   ctx.restore();
 }
@@ -415,6 +578,9 @@ interface Editing {
   pageIndex: number;
   xPct: number;
   yPct: number;
+  /** Box size (fractions) — present for box-mode text, absent for legacy labels. */
+  wPct?: number;
+  hPct?: number;
   initialText: string;
 }
 
@@ -490,6 +656,19 @@ export function Stage() {
     moved: boolean;
   } | null>(null);
   const [dragGeom, setDragGeom] = useState<{ id: string; ann: Annotation } | null>(null);
+  // Select-mode resize: like the drag, a local live-preview geometry so the
+  // resize never touches the doc until pointerup (one history entry).
+  const resizeStartRef = useRef<{
+    id: string;
+    handle: HandleId;
+    sx: number;
+    sy: number;
+    orig: Annotation;
+    bbox: { x: number; y: number; w: number; h: number };
+  } | null>(null);
+  const [resizeGeom, setResizeGeom] = useState<{ id: string; ann: Annotation } | null>(null);
+  // Handle currently hovered in select mode → directional resize cursor.
+  const [hoverHandle, setHoverHandle] = useState<HandleId | null>(null);
   const lastTapRef = useRef<{ id: string; time: number } | null>(null);
   // Painted device-px dims, stashed each paint so hit-test can convert px tol.
   const paintWHRef = useRef<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -531,13 +710,22 @@ export function Stage() {
     return p;
   }, []);
 
-  // Open the inline editor for a fresh label at (x,y); suggest a size from
-  // nearby page text without blocking the caret.
+  // Open the inline editor for a fresh text box at (x,y) with size (boxW,boxH);
+  // suggest a size from nearby page text without blocking the caret.
   const openNewText = useCallback(
-    (x: number, y: number) => {
+    (x: number, y: number, boxW: number, boxH: number) => {
       const page = selectedPage;
       const editorId = `new-${(editSeqRef.current += 1)}`;
-      setEditing({ editorId, mode: "new", pageIndex: page, xPct: x, yPct: y, initialText: "" });
+      setEditing({
+        editorId,
+        mode: "new",
+        pageIndex: page,
+        xPct: x,
+        yPct: y,
+        wPct: boxW,
+        hPct: boxH,
+        initialText: "",
+      });
       const ph = docRef.current?.pages[page]?.heightPt ?? 0;
       const rotation = docRef.current?.pages[page]?.rotation ?? 0;
       // Skip the suggestion on rotated pages — pt→sizeFrac via heightPt skews.
@@ -565,6 +753,7 @@ export function Stage() {
       pageIndex: obj.pageIndex,
       xPct: a.x,
       yPct: a.y,
+      ...(a.w != null && a.h != null ? { wPct: a.w, hPct: a.h } : {}),
       initialText: a.text,
     });
   }, []);
@@ -591,10 +780,12 @@ export function Stage() {
       fontStyle: textItalic ? "italic" : "normal",
       colorHex,
       sizeFrac,
+      ...(ed.wPct != null && ed.hPct != null ? { boxWFrac: ed.wPct, boxHFrac: ed.hPct } : {}),
       onCommit: (text: string) => {
         const t = text.trim();
         setEditing(null);
         patchToolState(TOOL_ID, { sizeHint: undefined });
+        const box = ed.wPct != null && ed.hPct != null ? { w: ed.wPct, h: ed.hPct } : {};
         if (ed.mode === "new") {
           if (!t) return; // empty box → place nothing (accidental-add guard)
           const id = addObject({
@@ -605,6 +796,7 @@ export function Stage() {
               pageIndex: ed.pageIndex,
               x: ed.xPct,
               y: ed.yPct,
+              ...box,
               text: t,
               sizeFrac,
               color,
@@ -662,6 +854,9 @@ export function Stage() {
   useEffect(() => {
     setDragGeom(null);
     dragStartRef.current = null;
+    setResizeGeom(null);
+    resizeStartRef.current = null;
+    setHoverHandle(null);
     setEditing(null);
     patchToolState(TOOL_ID, { selectedId: undefined });
   }, [selectedPage, patchToolState]);
@@ -758,6 +953,10 @@ export function Stage() {
         if (o.kind !== "annotation" || o.pageIndex !== pageIndex || !o.payload) continue;
         // Hide the label being inline-edited (the input shows it instead).
         if (editing?.mode === "edit" && editing.objId === o.id) continue;
+        if (resizeGeom && resizeGeom.id === o.id) {
+          drawAnnotation(ctx, resizeGeom.ann, w, h);
+          continue;
+        }
         if (dragGeom && dragGeom.id === o.id) {
           drawAnnotation(ctx, dragGeom.ann, w, h);
           continue;
@@ -780,22 +979,32 @@ export function Stage() {
         );
       }
       if (draftBox) {
-        drawAnnotation(
-          ctx,
-          {
-            kind: mode === "ellipse" ? "ellipse" : "rect",
-            pageIndex,
-            x: draftBox.x,
-            y: draftBox.y,
-            w: draftBox.w,
-            h: draftBox.h,
-            color,
-            thicknessFrac: SHAPE_THICK,
-            ...(fill ? { fill } : {}),
-          },
-          w,
-          h,
-        );
+        if (textMode) {
+          // Text tool: preview the box you're dragging as a dashed accent rect.
+          ctx.save();
+          ctx.strokeStyle = ACCENT;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([5, 3]);
+          ctx.strokeRect(draftBox.x * w, draftBox.y * h, draftBox.w * w, draftBox.h * h);
+          ctx.restore();
+        } else {
+          drawAnnotation(
+            ctx,
+            {
+              kind: mode === "ellipse" ? "ellipse" : "rect",
+              pageIndex,
+              x: draftBox.x,
+              y: draftBox.y,
+              w: draftBox.w,
+              h: draftBox.h,
+              color,
+              thicknessFrac: SHAPE_THICK,
+              ...(fill ? { fill } : {}),
+            },
+            w,
+            h,
+          );
+        }
       }
       if (draftLine) {
         drawAnnotation(
@@ -819,8 +1028,13 @@ export function Stage() {
         sel.payload &&
         !(editing?.mode === "edit" && editing.objId === sel.id)
       ) {
-        const ann = dragGeom && dragGeom.id === sel.id ? dragGeom.ann : (sel.payload as Annotation);
-        drawSelectionChrome(ctx, annotationBBox(ann, w, h), w, h);
+        const live =
+          resizeGeom && resizeGeom.id === sel.id
+            ? resizeGeom.ann
+            : dragGeom && dragGeom.id === sel.id
+              ? dragGeom.ann
+              : (sel.payload as Annotation);
+        drawSelectionChrome(ctx, annotationBBox(live, w, h), w, h, isResizable(live));
       }
     },
     [
@@ -829,12 +1043,14 @@ export function Stage() {
       draftBox,
       draftLine,
       mode,
+      textMode,
       color,
       strokeThick,
       strokeOpacity,
       fill,
       selectedId,
       dragGeom,
+      resizeGeom,
       editing,
     ],
   );
@@ -844,6 +1060,25 @@ export function Stage() {
       startRef.current = { x: p.xPct, y: p.yPct };
       if (selectMode) {
         const { w, h } = paintWHRef.current;
+        // A handle of the currently-selected resizable mark wins over hit-testing
+        // other marks underneath — start a resize.
+        const selObj = doc?.objects.find((o) => o.id === selectedId);
+        const selAnn = selObj?.payload as Annotation | undefined;
+        if (selObj && selObj.pageIndex === selectedPage && selAnn && isResizable(selAnn)) {
+          const bbox = annotationBBox(selAnn, w, h);
+          const handle = hitHandle(bbox, p.xPct * w, p.yPct * h, w, h);
+          if (handle) {
+            resizeStartRef.current = {
+              id: selObj.id,
+              handle,
+              sx: p.xPct,
+              sy: p.yPct,
+              orig: selAnn,
+              bbox,
+            };
+            return;
+          }
+        }
         const objs = doc?.objects ?? [];
         let hit: (typeof objs)[number] | null = null;
         for (let i = objs.length - 1; i >= 0; i--) {
@@ -875,8 +1110,9 @@ export function Stage() {
         }
         return;
       }
-      if (textMode) return; // placed on release (a tap)
-      if (boxMode) setDraftBox({ x: p.xPct, y: p.yPct, w: 0, h: 0 });
+      // Text + shape boxes both drag out a rectangle; line/arrow drag a segment;
+      // pen accumulates points.
+      if (boxMode || textMode) setDraftBox({ x: p.xPct, y: p.yPct, w: 0, h: 0 });
       else if (lineMode) setDraftLine({ x1: p.xPct, y1: p.yPct, x2: p.xPct, y2: p.yPct });
       else {
         penBufferRef.current = [{ x: p.xPct, y: p.yPct }];
@@ -889,9 +1125,26 @@ export function Stage() {
   const onPointerMove = useCallback(
     (p: StagePoint) => {
       if (selectMode) {
-        const ds = dragStartRef.current;
-        if (!ds) return;
         const { w, h } = paintWHRef.current;
+        const rs = resizeStartRef.current;
+        if (rs) {
+          const nb = resizeBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy);
+          setResizeGeom({ id: rs.id, ann: applyBBox(rs.orig, nb) });
+          return;
+        }
+        const ds = dragStartRef.current;
+        if (!ds) {
+          // No drag in progress — update the hover cursor over the selected
+          // mark's handles so the user knows they can resize.
+          const selObj = doc?.objects.find((o) => o.id === selectedId);
+          const selAnn = selObj?.payload as Annotation | undefined;
+          const over =
+            selObj && selObj.pageIndex === selectedPage && selAnn && isResizable(selAnn)
+              ? hitHandle(annotationBBox(selAnn, w, h), p.xPct * w, p.yPct * h, w, h)
+              : null;
+          setHoverHandle((prev) => (prev === over ? prev : over));
+          return;
+        }
         const dxPct = p.xPct - ds.sx;
         const dyPct = p.yPct - ds.sy;
         if (!ds.moved) {
@@ -903,8 +1156,8 @@ export function Stage() {
         return;
       }
       const s = startRef.current;
-      if (!s || textMode) return;
-      if (boxMode) {
+      if (!s) return;
+      if (boxMode || textMode) {
         setDraftBox({
           x: Math.min(s.x, p.xPct),
           y: Math.min(s.y, p.yPct),
@@ -925,7 +1178,7 @@ export function Stage() {
         }
       }
     },
-    [selectMode, boxMode, lineMode, textMode],
+    [selectMode, boxMode, lineMode, textMode, doc, selectedId, selectedPage],
   );
 
   const onPointerUp = useCallback(
@@ -933,6 +1186,14 @@ export function Stage() {
       const s = startRef.current;
       startRef.current = null;
       if (selectMode) {
+        const rs = resizeStartRef.current;
+        if (rs) {
+          resizeStartRef.current = null;
+          setResizeGeom(null);
+          const nb = resizeBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy);
+          moveObject(rs.id, { payload: applyBBox(rs.orig, nb) }, "Resize annotation");
+          return;
+        }
         const ds = dragStartRef.current;
         dragStartRef.current = null;
         setDragGeom(null);
@@ -963,7 +1224,21 @@ export function Stage() {
       }
       if (!s) return;
       if (textMode) {
-        if (pageHeightPt > 0) openNewText(s.x, s.y);
+        const drag = {
+          x: Math.min(s.x, p.xPct),
+          y: Math.min(s.y, p.yPct),
+          w: Math.abs(p.xPct - s.x),
+          h: Math.abs(p.yPct - s.y),
+        };
+        setDraftBox(null);
+        // Drag → use the box you drew; tap (tiny) → a default box at the tap,
+        // clamped to stay on the page.
+        const custom = drag.w >= MIN_DRAG_FRAC && drag.h >= MIN_DRAG_FRAC;
+        const bw = custom ? drag.w : DEFAULT_TEXT_W;
+        const bh = custom ? drag.h : DEFAULT_TEXT_H;
+        const bx = custom ? drag.x : Math.min(s.x, Math.max(0, 1 - bw));
+        const by = custom ? drag.y : Math.min(s.y, Math.max(0, 1 - bh));
+        if (pageHeightPt > 0) openNewText(bx, by, Math.min(bw, 1 - bx), Math.min(bh, 1 - by));
         return;
       }
       if (boxMode) {
@@ -1055,16 +1330,24 @@ export function Stage() {
   const onPointerCancel = useCallback(() => {
     startRef.current = null;
     dragStartRef.current = null;
+    resizeStartRef.current = null;
     flushPenFrame();
     penBufferRef.current = [];
     setDragGeom(null);
+    setResizeGeom(null);
     setDraftBox(null);
     setDraftLine(null);
     setDraftPoints(null);
   }, [flushPenFrame]);
 
   useStageProps({
-    cursor: textMode ? "text" : selectMode ? "default" : "crosshair",
+    cursor: textMode
+      ? "crosshair"
+      : selectMode
+        ? hoverHandle
+          ? HANDLE_CURSOR[hoverHandle]
+          : "default"
+        : "crosshair",
     paintOverlay,
     onPointerDown,
     onPointerMove,
@@ -1466,10 +1749,10 @@ export function Panel() {
       <PrimaryAction label="Apply annotations" onApply={apply} disabled={count === 0} />
       <p className="text-xs text-slate-500 dark:text-dark-text-muted">
         {mode === "select"
-          ? "Tap a mark to select, drag or use arrow keys to move (Shift = bigger step), Delete to remove. Double-click a label to edit it."
+          ? "Tap a mark to select, drag to move (arrow keys nudge, Shift = bigger step), pull a handle to resize, Delete to remove. Double-click a text box to edit it."
           : mode === "text"
-            ? "Tap the page to type a label. Its size is matched to nearby text — adjust any time."
-            : "Draw on the page; the mark is selected so you can drag it into place. Page text stays selectable."}
+            ? "Drag a box on the page, then type inside it — text wraps to the box. Or tap for a default box. Drag or resize it any time."
+            : "Draw on the page; the mark is selected so you can drag or resize it. Page text stays selectable."}
       </p>
     </div>
   );

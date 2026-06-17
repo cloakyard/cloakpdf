@@ -11,9 +11,24 @@ import { useState } from "react";
 import { nupPages } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
+import { PageThumb } from "../PageThumb.tsx";
 import { Segmented, WholeDocPanel } from "./WholeDocPanel.tsx";
 
 type NupLayout = "2x1" | "1x2" | "2x2" | "3x3";
+
+/** Each layout's grid + a plain-language description of what it does, so the
+ *  picker reads as choices rather than bare numbers. */
+const NUP_OPTIONS: { value: NupLayout; label: string; sub: string; desc: string }[] = [
+  { value: "2x1", label: "2-up", sub: "wide", desc: "Two pages side by side on each sheet." },
+  {
+    value: "1x2",
+    label: "2-up",
+    sub: "tall",
+    desc: "Two pages stacked top and bottom on each sheet.",
+  },
+  { value: "2x2", label: "4-up", sub: "2 × 2", desc: "Four pages in a 2 × 2 grid on each sheet." },
+  { value: "3x3", label: "9-up", sub: "3 × 3", desc: "Nine pages in a 3 × 3 grid on each sheet." },
+];
 
 /** Live preview of how sheet 1 will look: the first cols×rows page thumbnails
  *  arranged in the chosen grid, using the already-rendered previews (no extra
@@ -42,22 +57,21 @@ function NupPreview({ layout }: { layout: NupLayout }) {
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: perSheet }, (_, i) => {
-            const url = pages[i]?.thumbUrl ?? null;
-            return (
+            const p = pages[i];
+            return p ? (
+              <PageThumb
+                key={i}
+                page={p}
+                alt=""
+                aspect={cellAspect}
+                className="rounded-sm border border-slate-200 dark:border-dark-border"
+              />
+            ) : (
               <div
                 key={i}
                 className="overflow-hidden rounded-sm border border-slate-200 dark:border-dark-border bg-white"
                 style={{ aspectRatio: String(cellAspect) }}
-              >
-                {url ? (
-                  <img
-                    src={url}
-                    alt=""
-                    className="h-full w-full object-contain"
-                    draggable={false}
-                  />
-                ) : null}
-              </div>
+              />
             );
           })}
         </div>
@@ -75,6 +89,7 @@ function NupPreview({ layout }: { layout: NupLayout }) {
 export function NupPanel() {
   const { applyTransform } = useEditorActions();
   const [layout, setLayout] = useState<NupLayout>("2x2");
+  const active = NUP_OPTIONS.find((o) => o.value === layout);
   return (
     <WholeDocPanel
       blurb="Arrange several pages onto each sheet for compact printing."
@@ -90,13 +105,11 @@ export function NupPanel() {
       <Segmented
         value={layout}
         onChange={setLayout}
-        options={[
-          { value: "2x1", label: "2", sub: "↔" },
-          { value: "1x2", label: "2", sub: "↕" },
-          { value: "2x2", label: "4" },
-          { value: "3x3", label: "9" },
-        ]}
+        options={NUP_OPTIONS.map((o) => ({ value: o.value, label: o.label, sub: o.sub }))}
       />
+      {active && (
+        <p className="-mt-1 text-xs text-slate-500 dark:text-dark-text-muted">{active.desc}</p>
+      )}
       <NupPreview layout={layout} />
     </WholeDocPanel>
   );
