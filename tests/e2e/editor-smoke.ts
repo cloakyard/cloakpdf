@@ -274,6 +274,61 @@ async function main() {
     await waitForText(page, /\b1 mark\b/, 5_000);
     console.log("  ✓ annotate draw");
 
+    // 3a. Text box: the revamped text tool drags a rectangle, then you type
+    //     inside it (multi-line textarea). Drawing a box → typing → blurring
+    //     (switch to Select) commits a second mark. The settle delay lets the
+    //     mode switch re-register the stage's pointer handlers before the drag
+    //     (a real user can't click-and-drag within one frame). While the text
+    //     editor is open its async size-suggest (a PDF.js text-geometry read)
+    //     delays puppeteer's rAF-based waitForSelector/waitForFunction past their
+    //     timeout — so this step polls via page.evaluate (immediate) instead.
+    const pollEval = async (fn: () => boolean, label = "", ms = 8000): Promise<void> => {
+      const end = Date.now() + ms;
+      for (;;) {
+        if (await page.evaluate(fn)) return;
+        if (Date.now() > end) {
+          const st = await page.evaluate(() => ({
+            ta: !!document.querySelector('textarea[aria-label="Text annotation"]'),
+            marks: (document.body.innerText.match(/\d+\s+marks?/i) ?? [])[0] ?? "?",
+            pressed: [...document.querySelectorAll('button[aria-pressed="true"]')].map((e) =>
+              (e.textContent ?? "").trim(),
+            ),
+          }));
+          fail(
+            `pollEval timed out [${label}] state=${JSON.stringify(st)} errs=${JSON.stringify(errors.slice(-3))}`,
+          );
+        }
+        await new Promise((r) => setTimeout(r, 150));
+      }
+    };
+    if (!(await clickByText(page, "Text"))) fail("Annotate Text sub-tool not found.");
+    // Wait for Text mode to be active (button pressed) so the stage's pointer
+    // handlers have re-registered before the drag.
+    await pollEval(
+      () =>
+        [...document.querySelectorAll('button[aria-pressed="true"]')].some(
+          (e) => (e.textContent ?? "").trim() === "Text",
+        ),
+      "text-mode",
+    );
+    await new Promise((r) => setTimeout(r, 200));
+    await drawOnPage(page, { x: 0.25, y: 0.2 }, { x: 0.7, y: 0.32 });
+    await pollEval(
+      () => !!document.querySelector('textarea[aria-label="Text annotation"]'),
+      "textarea",
+    );
+    await page.keyboard.type("Hello box");
+    // Blur to commit. (A real click elsewhere blurs the textarea; a synthetic
+    // el.click() doesn't move focus, so blur it directly.) Commit returns to
+    // Select mode and selects the new box → a second mark.
+    await page.evaluate(() =>
+      (
+        document.querySelector('textarea[aria-label="Text annotation"]') as HTMLElement | null
+      )?.blur(),
+    );
+    await pollEval(() => /\b2 marks\b/.test(document.body.innerText), "2-marks");
+    console.log("  ✓ annotate text box (draw → type → commit)");
+
     // 3b. Crop (drag a keep rect → per-page crop boxes). Page count unchanged.
     const cropBtn = await page.$('button[aria-label="Crop"]');
     if (!cropBtn) fail("Crop rail tool not found.");
@@ -437,8 +492,8 @@ async function main() {
     console.log("  ✓ bookmarks contents page apply");
 
     // 13. Attachments: list panel loads its async report on open.
-    const attBtn = await page.$('button[aria-label="Attachments"]');
-    if (!attBtn) fail("Attachments rail tool not found.");
+    const attBtn = await page.$('button[aria-label="Attach"]');
+    if (!attBtn) fail("Attach rail tool not found.");
     await attBtn.click();
     await waitForText(page, /No files attached yet|Reading attachments/i, 10_000);
     console.log("  ✓ attachments panel loads");

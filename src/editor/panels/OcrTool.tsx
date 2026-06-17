@@ -34,6 +34,7 @@ import {
 } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { PageThumb } from "../PageThumb.tsx";
 import { Segmented } from "./WholeDocPanel.tsx";
 
 export const OCR_ID = "ocr";
@@ -112,14 +113,14 @@ export function OcrPreview() {
           {text.trim() || "(No text detected on this page)"}
         </pre>
 
-        {/* Source page */}
+        {/* Source page — aspect-locked so it never stretches to the (taller)
+            recognised-text column beside it. */}
         <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-2">
-          {page?.thumbUrl ? (
-            <img
-              src={page.thumbUrl}
+          {page ? (
+            <PageThumb
+              page={page}
               alt={`Page ${selectedPage + 1}`}
-              className="max-h-full max-w-full object-contain"
-              draggable={false}
+              className="h-full max-w-full rounded-md"
             />
           ) : (
             <div className="h-full w-full bg-white" />

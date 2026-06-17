@@ -325,7 +325,7 @@ async function main() {
       "Header & footer",
       "Bates",
       "Bookmarks",
-      "Attachments",
+      "Attach",
     ];
     for (const name of sweep) {
       await pickTool(page, name); // also waits for the global ✓ (tool active)

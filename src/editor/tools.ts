@@ -265,7 +265,7 @@ export const EDITOR_TOOLS = [
   },
   {
     id: "file-attachment",
-    name: "Attachments",
+    name: "Attach",
     description: "Embed or remove file attachments inside the PDF.",
     icon: Paperclip,
     group: "document",

@@ -79,7 +79,9 @@ export {
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,
+  TEXT_LINE_EM,
   TEXT_FONT_IDS,
+  wrapTextToWidth,
 } from "./pdf/annotate.ts";
 
 export type { BookmarkEntry, BookmarkOptions } from "./pdf/bookmarks.ts";
