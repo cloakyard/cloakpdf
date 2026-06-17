@@ -113,11 +113,18 @@ export function OcrPreview() {
           {text.trim() || "(No text detected on this page)"}
         </pre>
 
-        {/* Source page — aspect-locked so it never stretches to the (taller)
-            recognised-text column beside it. */}
-        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-2">
+        {/* Source page — fit to the column, centred, with a ring + shadow so the
+            white page reads at its true bounds against the neutral card (without
+            them a portrait page on a white card looks vertically stretched: the
+            letterbox space below the page is the same white as the page). */}
+        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-2">
           {page ? (
-            <PageThumb fit page={page} alt={`Page ${selectedPage + 1}`} className="rounded-md" />
+            <PageThumb
+              fit
+              page={page}
+              alt={`Page ${selectedPage + 1}`}
+              className="rounded-md bg-white shadow-sm ring-1 ring-slate-200/80 dark:ring-dark-border"
+            />
           ) : (
             <div className="h-full w-full bg-white" />
           )}
