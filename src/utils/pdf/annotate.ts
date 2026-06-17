@@ -81,6 +81,12 @@ export type Annotation =
       /** Top-left anchor of the text, in page fractions (0–1, top-left origin). */
       x: number;
       y: number;
+      /** Text box size in page fractions. When set, the text wraps to `w` and the
+       *  box is the resizable/movable region; the background (when present) fills
+       *  it. Omitted on legacy point-anchored labels, which render as a single
+       *  auto-width line (the original behaviour). */
+      w?: number;
+      h?: number;
       text: string;
       sizeFrac: number;
       color: AnnotationColor;
@@ -142,6 +148,61 @@ export function decomposeTextFont(id: TextFontId): {
 // spans from the anchor down past the descenders, padded sideways off the glyphs.
 export const TEXT_BG_HEIGHT_EM = 1.25;
 export const TEXT_BG_PAD_EM = 0.12;
+/** Baseline-to-baseline spacing for wrapped text-box lines, in font ems. Shared
+ *  by the burn path and the on-canvas preview so wrapping matches what you place. */
+export const TEXT_LINE_EM = 1.2;
+
+/** Greedy word-wrap a string to `maxWidth`, honouring explicit `\n` and breaking
+ *  words longer than the box. `measure(s)` returns the rendered width of `s` in
+ *  the same unit as `maxWidth` — canvas `measureText` for the preview, pdf-lib's
+ *  `widthOfTextAtSize` for the burn — so both paths produce identical line breaks.
+ */
+export function wrapTextToWidth(
+  text: string,
+  maxWidth: number,
+  measure: (s: string) => number,
+): string[] {
+  if (maxWidth <= 0) return text.split("\n");
+  const breakWord = (word: string): string[] => {
+    const chunks: string[] = [];
+    let chunk = "";
+    for (const ch of word) {
+      if (chunk !== "" && measure(chunk + ch) > maxWidth) {
+        chunks.push(chunk);
+        chunk = ch;
+      } else {
+        chunk += ch;
+      }
+    }
+    if (chunk) chunks.push(chunk);
+    return chunks;
+  };
+  const out: string[] = [];
+  for (const para of text.split("\n")) {
+    if (para === "") {
+      out.push("");
+      continue;
+    }
+    let line = "";
+    for (const word of para.split(" ")) {
+      const candidate = line === "" ? word : `${line} ${word}`;
+      if (measure(candidate) <= maxWidth) {
+        line = candidate;
+      } else {
+        if (line !== "") out.push(line);
+        if (measure(word) <= maxWidth) {
+          line = word;
+        } else {
+          const parts = breakWord(word);
+          for (let i = 0; i < parts.length - 1; i++) out.push(parts[i]);
+          line = parts[parts.length - 1] ?? "";
+        }
+      }
+    }
+    out.push(line);
+  }
+  return out;
+}
 
 /**
  * Burn annotations onto a PDF as vector graphics.
@@ -261,24 +322,57 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
       try {
         const font = await getFont(a.font ?? "helvetica");
         const size = a.sizeFrac * H;
-        // `y` is the top of the text in fraction space; pdf-lib anchors text at
-        // its baseline, so drop one font size below the anchor.
-        const baseline = (1 - a.y) * H - size;
-        if (a.bg) {
-          // Opaque backing so the label masks whatever sits under it. Spans from
-          // the anchor down past the descenders; padded sideways off the glyphs.
+        const top = (1 - a.y) * H; // top edge of the text in pdf (bottom-left) space
+        if (a.w != null && a.h != null) {
+          // Box text: wrap to the box width, draw lines from the top down. The
+          // background (when present) fills the whole box; padded sideways so
+          // glyphs don't touch the edge.
           const padX = size * TEXT_BG_PAD_EM;
-          const bgH = size * TEXT_BG_HEIGHT_EM;
-          page.drawRectangle({
-            x: a.x * W - padX,
-            y: (1 - a.y) * H - bgH,
-            width: font.widthOfTextAtSize(a.text, size) + padX * 2,
-            height: bgH,
-            color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
-            opacity: a.bg.opacity ?? 1,
+          const boxW = a.w * W;
+          const boxH = a.h * H;
+          if (a.bg) {
+            page.drawRectangle({
+              x: a.x * W,
+              y: top - boxH,
+              width: boxW,
+              height: boxH,
+              color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
+              opacity: a.bg.opacity ?? 1,
+            });
+          }
+          const lines = wrapTextToWidth(a.text, Math.max(1, boxW - padX * 2), (s) =>
+            font.widthOfTextAtSize(s, size),
+          );
+          const lineH = size * TEXT_LINE_EM;
+          lines.forEach((ln, i) => {
+            if (ln)
+              page.drawText(ln, {
+                x: a.x * W + padX,
+                y: top - size - i * lineH,
+                size,
+                font,
+                color,
+              });
           });
+        } else {
+          // Legacy point-anchored single line: baseline one size below the anchor.
+          const baseline = top - size;
+          if (a.bg) {
+            // Opaque backing so the label masks whatever sits under it. Spans from
+            // the anchor down past the descenders; padded sideways off the glyphs.
+            const padX = size * TEXT_BG_PAD_EM;
+            const bgH = size * TEXT_BG_HEIGHT_EM;
+            page.drawRectangle({
+              x: a.x * W - padX,
+              y: top - bgH,
+              width: font.widthOfTextAtSize(a.text, size) + padX * 2,
+              height: bgH,
+              color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
+              opacity: a.bg.opacity ?? 1,
+            });
+          }
+          page.drawText(a.text, { x: a.x * W, y: baseline, size, font, color });
         }
-        page.drawText(a.text, { x: a.x * W, y: baseline, size, font, color });
       } catch {
         // Un-encodable label — skip it rather than failing every other mark.
       }

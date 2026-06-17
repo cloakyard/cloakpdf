@@ -1006,7 +1006,23 @@ function Composer({
     // scrolls cleanly without a clipped ring); the visible focus
     // indicator moves to this wrapper via `focus-within` so keyboard
     // users still get the one-accent ring around the whole composer.
-    <div className="p-3 rounded-lg focus-within:ring-2 focus-within:ring-primary-600 focus-within:ring-offset-1 dark:focus-within:ring-offset-dark-surface">
+    //
+    // The ring is `inset`, not offset: the composer is the full-bleed
+    // bottom section of the chat panel, whose `overflow-hidden rounded-2xl`
+    // box clips anything drawn outside its edges. An outset ring (the old
+    // `ring-offset-1`) got sheared off on the left/right/bottom, leaving
+    // only the top edge visible. An inset ring is painted inside the
+    // composer's own border-box, so it renders whole.
+    //
+    // The *bottom* corners must also match the panel's `rounded-2xl`
+    // radius (hence `rounded-b-2xl`, not a uniform `rounded-lg`). The
+    // composer's bottom edge coincides with the panel's bottom edge, so a
+    // sharper 8px corner here would poke into the area the panel's ~15px
+    // rounded-corner clip removes — shearing the ring's bottom corners.
+    // Matching the radius lets the inset ring follow the same arc as the
+    // clip and sit just inside it. The top corners sit at the mid-panel
+    // divider, nowhere near a clipped corner, so they keep the softer 8px.
+    <div className="p-3 rounded-t-lg rounded-b-2xl focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-600">
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}

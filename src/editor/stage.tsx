@@ -70,6 +70,11 @@ export interface InlineEditorDescriptor {
   colorHex: string;
   /** Text height as a fraction of page height; editor font-size = sizeFrac·fit.h. */
   sizeFrac: number;
+  /** Text-box size in page fractions. When set, the editor is a multi-line,
+   *  word-wrapping textarea filling the box; absent → a single-line auto-width
+   *  input (legacy point-anchored labels). */
+  boxWFrac?: number;
+  boxHFrac?: number;
   /** Commit the typed text (the owner trims + discards empties). */
   onCommit: (text: string) => void;
   /** Abandon the edit (Escape, or a page switch with empty text). */

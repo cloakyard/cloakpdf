@@ -83,13 +83,19 @@ export function useAsyncProcess(): UseAsyncProcessReturn {
   // mid-operation (a core flow). The work still runs to completion (no abort
   // wired here — that's a larger change), but its result must not poke a
   // component that's gone.
+  //
+  // The setup MUST re-arm the flag to `true`, not just clear it on cleanup.
+  // Under StrictMode the effect fires setup → cleanup → setup; a cleanup-only
+  // body would leave `mountedRef` latched `false` for the component's whole
+  // life, so the `finally` below would skip `setProcessing(false)` and the
+  // action button would hang in its busy state forever after the first run.
   const mountedRef = useRef(true);
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
       mountedRef.current = false;
-    },
-    [],
-  );
+    };
+  }, []);
 
   const run = useCallback(
     async (

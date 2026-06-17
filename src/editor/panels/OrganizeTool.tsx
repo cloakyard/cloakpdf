@@ -18,6 +18,7 @@ import { assemblePdf, type AssembleOp } from "../../utils/pdf-operations.ts";
 import { renderThumbnailsAndScores, revokeThumbnails } from "../../utils/pdf-renderer.ts";
 import { type CanvasObject, docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useEditorView, useToolSlice } from "../EditorContext.tsx";
+import { PageThumb } from "../PageThumb.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 export const ORGANIZE_ID = "organize-pages";
@@ -165,23 +166,14 @@ export function Board() {
                   : "border-slate-200 dark:border-dark-border"
               }`}
             >
-              <div
-                className="flex w-full items-center justify-center overflow-hidden rounded-md ring-1 ring-slate-200/70 dark:ring-dark-border"
-                style={{ aspectRatio: `${page.widthPt} / ${page.heightPt}` }}
-              >
-                {page.thumbUrl ? (
-                  <img
-                    src={page.thumbUrl}
-                    alt={`Page ${origIdx + 1}`}
-                    className="h-full w-full object-contain bg-white transition-transform"
-                    style={{ transform: `rotate(${rot}deg)` }}
-                    draggable={false}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-white" />
-                )}
-              </div>
+              <PageThumb
+                page={page}
+                alt={`Page ${origIdx + 1}`}
+                rotation={rot}
+                className="w-full rounded-md ring-1 ring-slate-200/70 dark:ring-dark-border"
+                imgClassName="transition-transform"
+                loading="lazy"
+              />
               <div className="flex w-full items-center justify-between px-0.5">
                 <span className="text-xs font-medium tabular-nums text-slate-500 dark:text-dark-text-muted">
                   {origIdx + 1}

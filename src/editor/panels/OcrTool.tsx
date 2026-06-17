@@ -34,6 +34,7 @@ import {
 } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { PageThumb } from "../PageThumb.tsx";
 import { Segmented } from "./WholeDocPanel.tsx";
 
 export const OCR_ID = "ocr";
@@ -82,7 +83,7 @@ export function OcrPreview() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-100 dark:bg-dark-bg p-4 sm:p-6">
-      <div className="mx-auto mb-3 flex w-full max-w-5xl items-center justify-between gap-2">
+      <div className="mx-auto mb-3 flex w-full max-w-[1600px] items-center justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
           Recognised text
         </span>
@@ -100,7 +101,10 @@ export function OcrPreview() {
         )}
       </div>
 
-      <div className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 gap-4 md:grid-cols-2">
+      {/* Mobile: stack into two equal rows — recognised text (scrollable) above
+          the page preview — so neither collapses. Desktop: two equal columns
+          side by side, each filling the height. */}
+      <div className="mx-auto grid min-h-0 w-full max-w-[1600px] flex-1 grid-rows-2 gap-4 md:grid-cols-2 md:grid-rows-1">
         {/* Recognised text */}
         <pre
           className={`thin-scrollbar min-h-0 min-w-0 overflow-auto rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-3 text-slate-700 dark:text-dark-text ${
@@ -112,14 +116,17 @@ export function OcrPreview() {
           {text.trim() || "(No text detected on this page)"}
         </pre>
 
-        {/* Source page */}
-        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-2">
-          {page?.thumbUrl ? (
-            <img
-              src={page.thumbUrl}
+        {/* Source page — fit to the column, centred, with a ring + shadow so the
+            white page reads at its true bounds against the neutral card (without
+            them a portrait page on a white card looks vertically stretched: the
+            letterbox space below the page is the same white as the page). */}
+        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-2">
+          {page ? (
+            <PageThumb
+              fit
+              page={page}
               alt={`Page ${selectedPage + 1}`}
-              className="max-h-full max-w-full object-contain"
-              draggable={false}
+              className="rounded-md bg-white shadow-sm ring-1 ring-slate-200/80 dark:ring-dark-border"
             />
           ) : (
             <div className="h-full w-full bg-white" />

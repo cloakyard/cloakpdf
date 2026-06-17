@@ -4,6 +4,7 @@
 // organize-pages tool; M0 ships read-only browse + jump-to-focus.
 
 import { useEditorActions, useEditorRead, useEditorView } from "./EditorContext.tsx";
+import { PageThumb } from "./PageThumb.tsx";
 
 export function OverviewGrid() {
   const { doc, selectedPage, layout } = useEditorRead();
@@ -44,22 +45,12 @@ export function OverviewGrid() {
                   : "border-slate-200 dark:border-dark-border hover:border-primary-300"
               }`}
             >
-              <div
-                className="w-full overflow-hidden rounded-md ring-1 ring-slate-200/70 dark:ring-dark-border"
-                style={{ aspectRatio: `${page.widthPt} / ${page.heightPt}` }}
-              >
-                {page.thumbUrl ? (
-                  <img
-                    src={page.thumbUrl}
-                    alt={`Page ${page.index + 1}`}
-                    className="h-full w-full object-contain bg-white"
-                    draggable={false}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-white" />
-                )}
-              </div>
+              <PageThumb
+                page={page}
+                alt={`Page ${page.index + 1}`}
+                className="w-full rounded-md ring-1 ring-slate-200/70 dark:ring-dark-border"
+                loading="lazy"
+              />
               <span className="text-xs font-medium tabular-nums text-slate-500 dark:text-dark-text-muted">
                 {page.index + 1}
               </span>
