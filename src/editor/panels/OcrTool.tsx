@@ -117,11 +117,7 @@ export function OcrPreview() {
             recognised-text column beside it. */}
         <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-2">
           {page ? (
-            <PageThumb
-              page={page}
-              alt={`Page ${selectedPage + 1}`}
-              className="h-full max-w-full rounded-md"
-            />
+            <PageThumb fit page={page} alt={`Page ${selectedPage + 1}`} className="rounded-md" />
           ) : (
             <div className="h-full w-full bg-white" />
           )}
