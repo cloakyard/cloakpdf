@@ -83,7 +83,7 @@ export function OcrPreview() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-100 dark:bg-dark-bg p-4 sm:p-6">
-      <div className="mx-auto mb-3 flex w-full max-w-5xl items-center justify-between gap-2">
+      <div className="mx-auto mb-3 flex w-full max-w-[1600px] items-center justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
           Recognised text
         </span>
@@ -101,7 +101,10 @@ export function OcrPreview() {
         )}
       </div>
 
-      <div className="mx-auto grid min-h-0 w-full max-w-5xl flex-1 gap-4 md:grid-cols-2">
+      {/* Mobile: stack into two equal rows — recognised text (scrollable) above
+          the page preview — so neither collapses. Desktop: two equal columns
+          side by side, each filling the height. */}
+      <div className="mx-auto grid min-h-0 w-full max-w-[1600px] flex-1 grid-rows-2 gap-4 md:grid-cols-2 md:grid-rows-1">
         {/* Recognised text */}
         <pre
           className={`thin-scrollbar min-h-0 min-w-0 overflow-auto rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-3 text-slate-700 dark:text-dark-text ${
