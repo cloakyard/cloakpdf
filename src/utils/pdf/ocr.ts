@@ -165,7 +165,11 @@ export async function createSearchablePdf(
     // so the text is embedded in the PDF for search/select but not visible.
     const lines = text.split("\n");
     const fontSize = 1;
-    const lineHeight = fontSize * 1.2;
+    // Shrink the line step so EVERY line fits within the page height — a long
+    // page (more lines than fit at 1.2pt) used to break out of the loop and drop
+    // the remaining text, leaving the tail un-searchable. The text is invisible
+    // (opacity 0), so exact positions don't matter — only that it's all embedded.
+    const lineHeight = Math.min(fontSize * 1.2, (height - fontSize) / Math.max(1, lines.length));
     let y = height - fontSize; // start from top
 
     for (const line of lines) {
@@ -174,12 +178,9 @@ export async function createSearchablePdf(
         continue;
       }
 
-      // Clamp y so we don't go below page bottom
-      if (y < 0) break;
-
       page.drawText(line, {
         x: 0,
-        y,
+        y: Math.max(0, y),
         size: fontSize,
         font,
         color: rgb(0, 0, 0),

@@ -137,6 +137,12 @@ export function Panel() {
   // edits / option toggles re-match without re-OCRing the same file.
   const geomRef = useRef<{ key: Uint8Array; pages: LayoutPage[]; scanned: boolean } | null>(null);
 
+  // The search runs OCR with no busy overlay, so the doc can change underneath;
+  // track the live id and drop a search whose results were computed against a
+  // stale doc (otherwise matches would be stored at coords that no longer align).
+  const docIdRef = useRef(doc?.id);
+  docIdRef.current = doc?.id;
+
   const enabled = matches.filter((m) => m.on);
   const pagesHit = new Set(matches.map((m) => m.pageIndex)).size;
 
@@ -164,6 +170,7 @@ export function Panel() {
   const runSearch = useCallback(
     async (termList: string[], opts: { caseSensitive: boolean; wholeWord: boolean }) => {
       if (!doc) return;
+      const startId = doc.id;
       const cleaned = dedupeTerms(termList, opts.caseSensitive);
       if (cleaned.length === 0) {
         patchToolState(TOOL_ID, { terms: [], matches: [], searched: false, scanned: false });
@@ -174,6 +181,7 @@ export function Panel() {
       setOcr(null);
       try {
         const { pages, scanned: sc } = await ensureGeometry();
+        if (docIdRef.current !== startId) return; // doc changed mid-search — drop stale results
         const found = findTextRects(pages, cleaned, opts);
         const stored: StoredMatch[] = found.map((m, i) => ({
           ...m,

@@ -55,9 +55,10 @@ export async function addWatermark(
     // pdf-lib rotates text around its draw origin (bottom-left of glyph).
     // To keep the visual center of the rotated text at the page center,
     // we reverse-rotate the text-center-to-origin offset from page center.
-    // Negate rotation: CSS uses clockwise-positive, pdf-lib uses
-    // counter-clockwise-positive.
-    const pdfRotation = -options.rotation;
+    // `rotation` follows the maths convention (counter-clockwise positive, so a
+    // positive angle gives the usual bottom-left→top-right diagonal), which is
+    // exactly pdf-lib's own convention — no sign flip needed.
+    const pdfRotation = options.rotation;
     const rad = (pdfRotation * Math.PI) / 180;
     const cos = Math.cos(rad);
     const sin = Math.sin(rad);

@@ -5,7 +5,7 @@
 // All are additive (page count/geometry unchanged) so overlay objects are
 // preserved. The result shows on the canvas immediately after Apply.
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type {
   BatesNumberOptions,
   HeaderFooterOptions,
@@ -20,7 +20,8 @@ import {
   addWatermark,
 } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
-import { useEditorActions } from "../EditorContext.tsx";
+import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { useStageProps } from "../stage.tsx";
 import { ColorRow, Labeled, PositionGrid, RangeField, TextField, Toggle } from "./controls.tsx";
 import { Segmented, WholeDocPanel } from "./WholeDocPanel.tsx";
 
@@ -242,16 +243,89 @@ export function BatesPanel() {
   );
 }
 
+// ── Watermark: live-previewed across the focused page ─────────────────────
+//
+// Unlike the other stamp tools, Watermark renders a real-time preview on the
+// canvas so Size / Opacity / Angle / colour read as WYSIWYG before you commit.
+// That needs the Panel's form state to be visible to a sibling Stage component,
+// so it lives in the shared tool slice (not local useState) — both read it via
+// readWatermark. Apply still burns it into the bytes through addWatermark, so
+// the preview geometry below mirrors that function's centre + rotation math.
+const WATERMARK_TOOL_ID = "stamp-pdf";
+
+const WATERMARK_DEFAULTS: WatermarkOptions = {
+  text: "CONFIDENTIAL",
+  fontSize: 48,
+  color: GREY,
+  opacity: 0.3,
+  rotation: 45,
+};
+
+function readWatermark(slice: Record<string, unknown>): WatermarkOptions {
+  return {
+    text: (slice.text as string) ?? WATERMARK_DEFAULTS.text,
+    fontSize: (slice.fontSize as number) ?? WATERMARK_DEFAULTS.fontSize,
+    color: (slice.color as WatermarkOptions["color"]) ?? WATERMARK_DEFAULTS.color,
+    opacity: (slice.opacity as number) ?? WATERMARK_DEFAULTS.opacity,
+    rotation: (slice.rotation as number) ?? WATERMARK_DEFAULTS.rotation,
+  };
+}
+
+/** Paint the watermark onto the overlay exactly as addWatermark will burn it:
+ *  Helvetica-Bold text centred on the page, rotated about that centre. `w` is
+ *  the overlay's (zoom-aware) width so fontSize-in-points maps to display px via
+ *  the page's point width — the preview tracks zoom for free. `rotation` is the
+ *  maths convention (counter-clockwise positive); canvas rotates clockwise for a
+ *  positive angle, so we negate it here to match the burned PDF. */
+function drawWatermarkPreview(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  widthPt: number,
+  o: WatermarkOptions,
+): void {
+  const fontPx = o.fontSize * (w / widthPt);
+  if (fontPx < 1) return;
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, Math.min(1, o.opacity));
+  ctx.fillStyle = `rgb(${o.color.r}, ${o.color.g}, ${o.color.b})`;
+  ctx.font = `bold ${fontPx}px Helvetica, Arial, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate((-o.rotation * Math.PI) / 180);
+  ctx.fillText(o.text, 0, 0);
+  ctx.restore();
+}
+
+export function WatermarkStage() {
+  const { doc, selectedPage } = useEditorRead();
+  const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
+  const page = doc?.pages[selectedPage] ?? null;
+  const widthPt = page?.widthPt ?? 0;
+  const { text, fontSize, opacity, rotation } = o;
+  const { r, g, b } = o.color;
+  const paintOverlay = useCallback(
+    (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+      if (!text.trim() || widthPt <= 0) return;
+      drawWatermarkPreview(ctx, w, h, widthPt, {
+        text,
+        fontSize,
+        color: { r, g, b },
+        opacity,
+        rotation,
+      });
+    },
+    [text, fontSize, r, g, b, opacity, rotation, widthPt],
+  );
+  useStageProps({ paintOverlay });
+  return null;
+}
+
 export function WatermarkPanel() {
-  const { applyTransform } = useEditorActions();
-  const [o, setO] = useState<WatermarkOptions>({
-    text: "CONFIDENTIAL",
-    fontSize: 48,
-    color: GREY,
-    opacity: 0.3,
-    rotation: -45,
-  });
-  const set = (p: Partial<WatermarkOptions>) => setO({ ...o, ...p });
+  const { applyTransform, patchToolState } = useEditorActions();
+  const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
+  const set = (p: Partial<WatermarkOptions>) => patchToolState(WATERMARK_TOOL_ID, p);
   return (
     <WholeDocPanel
       blurb="Stamp a diagonal text watermark across every page."

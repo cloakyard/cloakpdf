@@ -177,6 +177,9 @@ export function EditorProvider({
   // in, post-redesign) so the no-doc fallback never flashes before loadFile runs.
   const [loading, setLoading] = useState(initialFile != null);
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  // Synchronous in-flight flag for runBusy's re-entry lock (busyLabel is async
+  // state and updates a frame late, too slow to block a fast second invocation).
+  const busyRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   // The dropped PDF turned out to be password-protected — pdf-lib/PDF.js can't
   // parse it, so we surface the PDF Password tool instead of a raw load error.
@@ -257,6 +260,17 @@ export function EditorProvider({
       fn: (setLabel: (label: string) => void) => void | Promise<void>,
     ): Promise<void> => {
       return new Promise<void>((resolve, reject) => {
+        // Re-entry lock: every byte transform (Apply) and background task funnels
+        // through here, all branching off docRef.current. A second op started
+        // before the first resolves would race on the same base and the last
+        // commit would silently drop the other's edit. The busy overlay blocks
+        // most double-clicks, but not the 2-rAF window below nor tools that don't
+        // read busyLabel — so guard synchronously. Re-entrant calls no-op.
+        if (busyRef.current) {
+          resolve();
+          return;
+        }
+        busyRef.current = true;
         setError(null); // clear any stale error from a prior operation
         setBusyLabel(label);
         requestAnimationFrame(() => {
@@ -276,6 +290,7 @@ export function EditorProvider({
               setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
               reject(e);
             } finally {
+              busyRef.current = false;
               setBusyLabel(null);
             }
           });
@@ -357,6 +372,10 @@ export function EditorProvider({
   /** Commit a new doc state to history and make it live. */
   const commitDoc = useCallback((next: CanvasDoc, label: string) => {
     setDoc(next);
+    // A transform can shrink the page count (delete / extract / split) below the
+    // focused index; clamp it so the stage doesn't land on a missing page and
+    // render blank.
+    setSelectedPageState((p) => Math.min(p, Math.max(0, next.pageCount - 1)));
     historyRef.current.push({
       label,
       bytes: next.bytes,
@@ -381,6 +400,7 @@ export function EditorProvider({
     const cur = docRef.current;
     if (!entry || !cur) return;
     setDoc({ ...cur, bytes: entry.bytes, pages: entry.pages, objects: entry.objects });
+    setSelectedPageState((p) => Math.min(p, Math.max(0, entry.pages.length - 1)));
     setHistoryVersion((v) => v + 1);
   }, []);
 
@@ -410,6 +430,7 @@ export function EditorProvider({
     const cur = docRef.current;
     if (!base || !cur) return;
     setDoc({ ...cur, bytes: base.bytes, pages: base.pages, objects: base.objects });
+    setSelectedPageState((p) => Math.min(p, Math.max(0, base.pages.length - 1)));
     toolCheckpointRef.current = historyRef.current.index();
     setHistoryVersion((v) => v + 1);
   }, []);

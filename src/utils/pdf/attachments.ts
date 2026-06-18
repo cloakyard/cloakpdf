@@ -9,6 +9,7 @@ import {
   PDFName,
   PDFNumber,
   PDFRawStream,
+  PDFRef,
   PDFString,
   decodePDFRawStream,
 } from "@pdfme/pdf-lib";
@@ -144,7 +145,8 @@ export async function removeAttachmentsFromPdf(
   const namesArray = efDict.lookup(PDFName.of("Names"));
   if (!(namesArray instanceof PDFArray)) return pdf.save();
 
-  const keepIndices: number[] = [];
+  const context = pdf.context;
+  const newArray = context.obj([]) as PDFArray;
   for (let i = 0; i < namesArray.size(); i += 2) {
     const nameObj = namesArray.lookup(i);
     const name =
@@ -154,15 +156,27 @@ export async function removeAttachmentsFromPdf(
           ? nameObj.decodeText()
           : "";
     if (!namesToRemove.has(name)) {
-      keepIndices.push(i);
+      newArray.push(namesArray.get(i));
+      newArray.push(namesArray.get(i + 1));
+      continue;
     }
-  }
-
-  const context = pdf.context;
-  const newArray = context.obj([]);
-  for (const idx of keepIndices) {
-    (newArray as PDFArray).push(namesArray.get(idx));
-    (newArray as PDFArray).push(namesArray.get(idx + 1));
+    // Removed entry: physically delete the filespec dict and its embedded-file
+    // stream(s) from the context. pdf-lib never garbage-collects, so merely
+    // dropping the name-tree reference would leave the attachment bytes written
+    // into the output — gone from the list but trivially recoverable. (Same
+    // reasoning scrubPdf documents.)
+    const specRef = namesArray.get(i + 1);
+    const spec = namesArray.lookup(i + 1, PDFDict);
+    if (spec) {
+      const ef = spec.lookup(PDFName.of("EF"), PDFDict);
+      if (ef) {
+        for (const key of ["F", "UF", "DOS", "Mac", "Unix"]) {
+          const streamRef = ef.get(PDFName.of(key));
+          if (streamRef instanceof PDFRef) context.delete(streamRef);
+        }
+      }
+    }
+    if (specRef instanceof PDFRef) context.delete(specRef);
   }
 
   efDict.set(PDFName.of("Names"), newArray);

@@ -48,16 +48,23 @@ export async function splitPdf(file: File, ranges: PageRange[]): Promise<Uint8Ar
   const source = await PDFDocument.load(arrayBuffer);
   const result = await PDFDocument.create();
 
+  const pageCount = source.getPageCount();
   const seen = new Set<number>();
   const pageIndices: number[] = [];
   for (const range of ranges) {
-    for (let i = range.start; i <= range.end && i <= source.getPageCount(); i++) {
+    // Clamp the 1-based range into bounds; an inverted (start > end) or fully
+    // out-of-range range contributes nothing rather than reaching for index -1
+    // (which would make copyPages throw a raw assertion).
+    const start = Math.max(1, range.start);
+    const end = Math.min(range.end, pageCount);
+    for (let i = start; i <= end; i++) {
       if (!seen.has(i - 1)) {
         seen.add(i - 1);
         pageIndices.push(i - 1);
       }
     }
   }
+  if (pageIndices.length === 0) throw new Error("No valid pages selected.");
 
   const copiedPages = await result.copyPages(source, pageIndices);
   for (const page of copiedPages) {
@@ -82,7 +89,11 @@ export async function rotatePages(file: File, rotations: Map<number, number>): P
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
 
+  const pageCount = pdf.getPageCount();
   for (const [pageIndex, angle] of rotations) {
+    // Skip stale / out-of-range indices instead of letting getPage throw a raw
+    // pdf-lib assertion (e.g. a rotations map left over from a larger doc).
+    if (!Number.isInteger(pageIndex) || pageIndex < 0 || pageIndex >= pageCount) continue;
     const page = pdf.getPage(pageIndex);
     const currentRotation = page.getRotation().angle;
     page.setRotation(degrees(currentRotation + angle));
@@ -135,7 +146,11 @@ export async function reorderPages(file: File, newOrder: number[]): Promise<Uint
   const source = await PDFDocument.load(arrayBuffer);
   const result = await PDFDocument.create();
 
-  const copiedPages = await result.copyPages(source, newOrder);
+  const pageCount = source.getPageCount();
+  const valid = newOrder.filter((i) => Number.isInteger(i) && i >= 0 && i < pageCount);
+  if (valid.length === 0) throw new Error("No valid pages to reorder.");
+
+  const copiedPages = await result.copyPages(source, valid);
   for (const page of copiedPages) {
     result.addPage(page);
   }
@@ -160,7 +175,10 @@ export async function addBlankPage(file: File, position: number): Promise<Uint8A
   const refIndex = Math.min(Math.max(position, 0), pageCount - 1);
   const { width, height } =
     pageCount > 0 ? pdf.getPage(refIndex).getSize() : { width: 595, height: 842 };
-  pdf.insertPage(position, [width, height]);
+  // insertPage asserts position ∈ [0, pageCount]; clamp so an out-of-range
+  // request lands at the end instead of throwing a raw assertion.
+  const insertAt = Math.min(Math.max(position, 0), pageCount);
+  pdf.insertPage(insertAt, [width, height]);
   return pdf.save();
 }
 
@@ -180,10 +198,13 @@ export async function addBlankPages(file: File, positions: number[]): Promise<Ui
   const pageCount = pdf.getPageCount();
   const { width, height } = pageCount > 0 ? pdf.getPage(0).getSize() : { width: 595, height: 842 };
 
-  // Sort ascending so each offset is simply the loop index.
+  // Sort ascending so each offset is simply the loop index. Clamp every target
+  // into [0, currentCount] (the doc grows by one per insert) so a stray position
+  // can't trip insertPage's range assertion.
   const sorted = [...positions].sort((a, b) => a - b);
   for (let i = 0; i < sorted.length; i++) {
-    pdf.insertPage(sorted[i] + i, [width, height]);
+    const insertAt = Math.min(Math.max(sorted[i] + i, 0), pdf.getPageCount());
+    pdf.insertPage(insertAt, [width, height]);
   }
   return pdf.save();
 }
@@ -374,8 +395,22 @@ export async function assemblePdf(sources: Uint8Array[], ops: AssembleOp[]): Pro
       const page = out.addPage([op.width ?? 612, op.height ?? 792]);
       if (op.rotation) page.setRotation(degrees(norm(op.rotation)));
     } else {
-      const src = await getSource(op.sourceIndex ?? 0);
-      const [page] = await out.copyPages(src, [op.pageIndex ?? 0]);
+      // Validate indices rather than coercing a malformed op to source 0 / page
+      // 0 — that would silently splice the wrong page into the output.
+      if (
+        op.sourceIndex == null ||
+        op.sourceIndex < 0 ||
+        op.sourceIndex >= sources.length ||
+        op.pageIndex == null ||
+        op.pageIndex < 0
+      ) {
+        throw new Error("Malformed assembly plan: page op has an invalid source or page index.");
+      }
+      const src = await getSource(op.sourceIndex);
+      if (op.pageIndex >= src.getPageCount()) {
+        throw new Error("Malformed assembly plan: page index out of range.");
+      }
+      const [page] = await out.copyPages(src, [op.pageIndex]);
       if (op.rotation) {
         page.setRotation(degrees(norm(page.getRotation().angle + op.rotation)));
       }

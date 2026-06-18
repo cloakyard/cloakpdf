@@ -135,7 +135,12 @@ export function Stage() {
       // and the image's own aspect ratio so it never looks squashed.
       const page = doc?.pages[selectedPage];
       const img = imgCache.current.get(dataUrl);
-      const aspect = img?.naturalWidth ? img.naturalWidth / img.naturalHeight : FALLBACK_ASPECT;
+      // Guard naturalHeight too: a 0-height (corrupt) image would make aspect
+      // Infinity → a zero-height signature placed and embedded.
+      const aspect =
+        img?.naturalWidth && img.naturalHeight
+          ? img.naturalWidth / img.naturalHeight
+          : FALLBACK_ASPECT;
       const wPct = widthPct;
       const hPct =
         page && page.heightPt > 0

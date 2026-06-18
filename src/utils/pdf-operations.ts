@@ -67,7 +67,7 @@ export { extractTextOcr, createSearchablePdf, createSearchablePdfFromLayout } fr
 export { redactPdf } from "./pdf/redact.ts";
 
 export type { EraseMode, EraseRegion } from "./pdf/erase.ts";
-export { erasePdf } from "./pdf/erase.ts";
+export { erasePdf, renderErasePreview } from "./pdf/erase.ts";
 
 export type { ScrubCategory, ScrubAnalysis } from "./pdf/scrub.ts";
 export { SCRUB_CATEGORIES, analyzePdfHiddenData, scrubPdf } from "./pdf/scrub.ts";
