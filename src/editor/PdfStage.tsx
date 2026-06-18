@@ -48,10 +48,11 @@ function measureInlineWidth(text: string, font: string): number {
 function usePageBitmap(thumbUrl: string | null | undefined): HTMLCanvasElement | null {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   useEffect(() => {
-    if (!thumbUrl) {
-      setCanvas(null);
-      return;
-    }
+    // Drop the prior page's bitmap up front so a sampler (erase preview) never
+    // reads the wrong page during the async decode; it falls back to the
+    // placeholder for the frame or two until the new page decodes.
+    setCanvas(null);
+    if (!thumbUrl) return;
     let cancelled = false;
     const img = new Image();
     img.decoding = "async";
