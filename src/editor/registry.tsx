@@ -25,6 +25,7 @@ import {
   HeaderFooterPanel,
   PageNumbersPanel,
   WatermarkPanel,
+  WatermarkStage,
 } from "./panels/StampTools.tsx";
 import { NupPanel } from "./panels/SimpleTools.tsx";
 
@@ -61,7 +62,9 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
   "add-page-numbers": { Panel: PageNumbersPanel },
   "header-footer": { Panel: HeaderFooterPanel },
   "bates-numbering": { Panel: BatesPanel },
-  "stamp-pdf": { Panel: WatermarkPanel },
+  // Watermark: a live-preview Stage (paints the diagonal text as you tune it) +
+  // the options Panel; Apply still burns it into the bytes.
+  "stamp-pdf": { Stage: WatermarkStage, Panel: WatermarkPanel },
   // Document tools: panel-only field/list editors.
   "fill-pdf-form": { Panel: FillForm.Panel },
   "add-bookmarks": { Panel: Bookmarks.Panel },

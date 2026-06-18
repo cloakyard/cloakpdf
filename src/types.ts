@@ -20,7 +20,8 @@ export interface WatermarkOptions {
   color: { r: number; g: number; b: number };
   /** Opacity from 0 (fully transparent) to 1 (fully opaque). */
   opacity: number;
-  /** Rotation angle in degrees (negative = counter-clockwise). */
+  /** Rotation angle in degrees, maths convention: positive = counter-clockwise,
+   *  so +45 gives the usual bottom-left→top-right diagonal. */
   rotation: number;
 }
 
