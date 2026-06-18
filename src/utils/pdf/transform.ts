@@ -6,7 +6,7 @@
 import { PDFDocument, PDFName } from "@pdfme/pdf-lib";
 import type { CropMargins } from "../../types.ts";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
-import { getPdfJs, decodeImageToPngBytes } from "./raster.ts";
+import { clampScaleForCanvas, decodeImageToPngBytes, getPdfJs } from "./raster.ts";
 
 /**
  * Compress a PDF by re-rendering each page as a JPEG image.
@@ -47,7 +47,12 @@ export async function compressPdf(
   try {
     for (let i = 1; i <= sourcePdf.numPages; i++) {
       const page = await sourcePdf.getPage(i);
-      const viewport = page.getViewport({ scale });
+      // Clamp the render scale to the platform canvas ceiling (mobile ~4096
+      // px/side); a large page would otherwise render blank → a blank output
+      // page. Output size uses origViewport below, so this only affects fidelity.
+      const base = page.getViewport({ scale });
+      const safeScale = clampScaleForCanvas(base.width, base.height, scale);
+      const viewport = page.getViewport({ scale: safeScale });
 
       const canvas = document.createElement("canvas");
       canvas.width = viewport.width;
@@ -124,7 +129,11 @@ export async function grayscalePdf(
   try {
     for (let i = 1; i <= sourcePdf.numPages; i++) {
       const page = await sourcePdf.getPage(i);
-      const viewport = page.getViewport({ scale: SCALE });
+      // Clamp to the platform canvas ceiling so a large page doesn't render blank
+      // (output size comes from origViewport below, so fidelity-only).
+      const base = page.getViewport({ scale: SCALE });
+      const safeScale = clampScaleForCanvas(base.width, base.height, SCALE);
+      const viewport = page.getViewport({ scale: safeScale });
 
       const canvas = document.createElement("canvas");
       canvas.width = viewport.width;

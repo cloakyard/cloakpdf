@@ -46,6 +46,23 @@ export interface ScrubAnalysis {
  * @param file - The PDF file to inspect.
  * @returns Counts keyed by {@link ScrubCategory}.
  */
+/** Count the entries (name → value pairs) in a PDF name tree, walking the
+ *  intermediate `/Kids` nodes the spec allows for large trees. The flat-`/Names`
+ *  fast path covers the common case; without the recursion a kids-based tree
+ *  reports 0, under-counting hidden JavaScript / attachments. */
+function countNameTreeEntries(node: unknown): number {
+  if (!(node instanceof PDFDict)) return 0;
+  const names = node.lookup(PDFName.of("Names"));
+  if (names instanceof PDFArray) return Math.floor(names.size() / 2);
+  const kids = node.lookup(PDFName.of("Kids"));
+  if (kids instanceof PDFArray) {
+    let total = 0;
+    for (let i = 0; i < kids.size(); i++) total += countNameTreeEntries(kids.lookup(i));
+    return total;
+  }
+  return 0;
+}
+
 export async function analyzePdfHiddenData(file: File): Promise<ScrubAnalysis> {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer, {
@@ -90,11 +107,7 @@ export async function analyzePdfHiddenData(file: File): Promise<ScrubAnalysis> {
   // 3. Scripts & auto-actions.
   let javascript = 0;
   if (namesDict instanceof PDFDict) {
-    const jsTree = namesDict.lookup(PDFName.of("JavaScript"));
-    if (jsTree instanceof PDFDict) {
-      const arr = jsTree.lookup(PDFName.of("Names"));
-      if (arr instanceof PDFArray) javascript += Math.floor(arr.size() / 2);
-    }
+    javascript += countNameTreeEntries(namesDict.lookup(PDFName.of("JavaScript")));
   }
   if (catalog.lookup(PDFName.of("OpenAction"))) javascript++;
   if (catalog.lookup(PDFName.of("AA"))) javascript++;
@@ -105,11 +118,7 @@ export async function analyzePdfHiddenData(file: File): Promise<ScrubAnalysis> {
   // 4. Embedded files.
   let attachments = 0;
   if (namesDict instanceof PDFDict) {
-    const efTree = namesDict.lookup(PDFName.of("EmbeddedFiles"));
-    if (efTree instanceof PDFDict) {
-      const arr = efTree.lookup(PDFName.of("Names"));
-      if (arr instanceof PDFArray) attachments = Math.floor(arr.size() / 2);
-    }
+    attachments = countNameTreeEntries(namesDict.lookup(PDFName.of("EmbeddedFiles")));
   }
 
   // 5. Annotations & comments.
