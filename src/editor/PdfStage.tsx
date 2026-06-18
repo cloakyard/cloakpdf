@@ -40,6 +40,42 @@ function measureInlineWidth(text: string, font: string): number {
   return _measureCtx.measureText(text).width;
 }
 
+/** Decode a page's preview thumbnail into an offscreen canvas so the overlay
+ *  painters can sample its pixels (Smart-Erase paints a true fill / mosaic
+ *  preview from it). Re-decodes when the URL changes (page switch, re-render);
+ *  willReadFrequently because the erase preview reads it back with getImageData.
+ *  Same-origin blob: URL, so the canvas is never tainted. */
+function usePageBitmap(thumbUrl: string | null | undefined): HTMLCanvasElement | null {
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  useEffect(() => {
+    if (!thumbUrl) {
+      setCanvas(null);
+      return;
+    }
+    let cancelled = false;
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => {
+      if (cancelled) return;
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth;
+      c.height = img.naturalHeight;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      setCanvas(c);
+    };
+    img.onerror = () => {
+      if (!cancelled) setCanvas(null);
+    };
+    img.src = thumbUrl;
+    return () => {
+      cancelled = true;
+    };
+  }, [thumbUrl]);
+  return canvas;
+}
+
 /** Coarse-pointer (touch) primary input — phones/tablets, where the fit-to-screen
  *  page renders small and the OS soft keyboard is in play. `pointer: coarse` is
  *  true only when the PRIMARY input is touch (a touchscreen laptop with a
@@ -279,6 +315,9 @@ export function PdfStage() {
   );
 
   const page = doc?.pages[selectedPage] ?? null;
+  // Decoded raster of the focused page — fed to the overlay painters so erase
+  // marks render as a true fill / mosaic preview rather than a flat placeholder.
+  const pageBitmap = usePageBitmap(page?.thumbUrl);
 
   // Fit-contain: size the page box to the largest rect with the page's exact
   // aspect ratio that fits the available area — never stretches, in either
@@ -334,9 +373,9 @@ export function PdfStage() {
     // Always-on base layer: the pending destructive marks (redaction / erase),
     // so they stay visible no matter which tool is active — they aren't burned
     // into the page until export. The active tool's overlay paints on top.
-    paintDestructiveMarks(ctx, width, height, selectedPage, doc?.objects ?? []);
-    stageProps.paintOverlay?.(ctx, width, height, selectedPage);
-  }, [stageProps, selectedPage, doc?.objects]);
+    paintDestructiveMarks(ctx, width, height, selectedPage, doc?.objects ?? [], pageBitmap);
+    stageProps.paintOverlay?.(ctx, width, height, selectedPage, pageBitmap);
+  }, [stageProps, selectedPage, doc?.objects, pageBitmap]);
 
   // Always call the freshest repaint without re-subscribing the observer.
   const repaintRef = useRef(repaint);

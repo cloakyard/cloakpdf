@@ -71,12 +71,20 @@ export function Stage() {
   useEffect(() => cancelFrame, [cancelFrame]);
 
   // Committed regions paint as the PdfStage base layer; here we draw only the
-  // in-progress drag box.
+  // in-progress drag box — with a live preview of the chosen method/coarseness
+  // (sampled from the page bitmap PdfStage hands us) so the result is visible
+  // while you size it, not just after you let go.
   const paintOverlay = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-      if (box) drawEraseMark(ctx, box, w, h);
+    (
+      ctx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      _page: number,
+      src: HTMLCanvasElement | null,
+    ) => {
+      if (box) drawEraseMark(ctx, box, w, h, src, mode, BLOCK_FRAC[coarseness]);
     },
-    [box],
+    [box, mode, coarseness],
   );
 
   const onPointerDown = useCallback((p: StagePoint) => {

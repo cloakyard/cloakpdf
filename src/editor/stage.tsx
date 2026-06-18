@@ -30,8 +30,16 @@ export interface StagePoint {
 
 export interface PdfStageProps {
   /** Paint the active tool's overlay for `pageIndex` onto the overlay canvas.
-   *  `w`/`h` are the overlay canvas's device-pixel dimensions. */
-  paintOverlay?: (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => void;
+   *  `w`/`h` are the overlay canvas's CSS-px dimensions. `pageBitmap` is the
+   *  decoded page raster (Smart-Erase samples it for a WYSIWYG draft preview);
+   *  null until it finishes decoding. */
+  paintOverlay?: (
+    ctx: CanvasRenderingContext2D,
+    w: number,
+    h: number,
+    pageIndex: number,
+    pageBitmap: HTMLCanvasElement | null,
+  ) => void;
   onPointerDown?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
   onPointerMove?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
   onPointerUp?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
