@@ -15,10 +15,9 @@ Avoid for narrative brands. Catalogue treats every item as equal — wrong for p
 
 Reference: Klim Type Foundry, Pangram Pangram, Coolors palettes.
 
-**Sample opening lines** (imitate the _specificity_ — Catalogue openings are inventory headers, dated, with a count):
-
-> _"Today's loaves."_ — Maple Street Bread (test 03) — two words, ownership of the day
-> _"Five collections, in store now."_ — names the count and the where
-> _"Thirty-eight items · Spring 2026 · all hand-stitched."_ — count, date, qualifier; no adjectives
+**Sample opening lines** (imitate the *specificity* — Catalogue openings are inventory headers, dated, with a count):
+> *"Today's loaves."* — Maple Street Bread (test 03) — two words, ownership of the day
+> *"Five collections, in store now."* — names the count and the where
+> *"Thirty-eight items · Spring 2026 · all hand-stitched."* — count, date, qualifier; no adjectives
 
 ---

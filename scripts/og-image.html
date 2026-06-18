@@ -6,8 +6,9 @@
   scripts/build-og-image.mjs loads this file in headless Chrome and
   screenshots the #stage (a 1200 × 630 fixed-size box). The page
   mounts the same Grainient WebGL backdrop the live app uses, with
-  the brand's foreground SVG (mark, wordmark, tagline, feature tiles,
-  footer cluster) layered on top.
+  the brand's asymmetric foreground SVG — a left-anchored hero (brand
+  lockup, headline, subhead, trust line), a right-hand stack of four
+  capability cards, and a footer cluster — layered on top.
 
   Time is pinned to a fixed iTime value before screenshotting, so
   re-running the script always produces the same pixels — convenient
@@ -38,16 +39,24 @@
        params. Default 0.35; lower for louder, higher for quieter.
 
     4. The foreground <svg id="foreground"> contents — brand mark
-       (favicon shape), wordmark colours, tagline copy, feature
-       tiles, URL chip. Replace these per brand. The viewBox stays
-       1200 × 630.
+       (favicon shape), wordmark colours, headline + subhead copy,
+       capability cards, footer cluster, URL chip. Replace these per
+       brand. The viewBox stays 1200 × 630.
 
-       The bottom-right tile is reserved for the **headline
-       differentiator** of the app — for CloakPDF that's the
-       "Local AI" tile (on-device chat over your PDFs).
-       For other Cloak apps, swap that tile to whatever distinguishes
-       them from the field; keep the other three tiles as
-       category-level call-outs.
+       The layout is deliberately asymmetric — it mirrors the live
+       landing hero (copy left, surface right) rather than the older
+       mirror-centered stack. The LEFT column anchors the brand: a
+       top-left mark + wordmark lockup, then the headline "PDF tools
+       that **stay on your device.**" (the privacy clause carries the
+       ocean-blue accent — the same coloured-ink move as the wordmark's
+       "PDF" suffix, never italics), a two-line subhead, and the trust
+       line. The RIGHT column is a vertical stack of four capability
+       cards — Unified editor, Merge & Split, Redact & OCR, and the
+       headline differentiator **Local AI** (on-device chat over your
+       PDFs). The footer cluster (Cloakyard lockup) sits bottom-left,
+       the URL chip bottom-right. For other Cloak apps, swap the copy
+       + cards for whatever leads and distinguishes them; keep the
+       left-hero / right-cards skeleton.
 
   Re-render with: `node scripts/build-og-image.mjs`. The output lands
   at public/icons/og-image.png, which is what each Cloak app's
@@ -120,9 +129,9 @@
            shader output reaches the OG card softened, without having
            to touch saturation/contrast on the shader itself. -->
       <div id="tone-down"></div>
-      <!-- Foreground SVG — same content as the static og-image.svg
-           but with the backdrop layers stripped out. The Grainient
-           canvas behind it carries the gradient + grain. -->
+      <!-- Foreground SVG — the brand lockup, hero copy, capability
+           cards and footer cluster, with no backdrop layers of its
+           own. The Grainient canvas behind it carries gradient + grain. -->
       <svg
         id="foreground"
         xmlns="http://www.w3.org/2000/svg"
@@ -194,54 +203,149 @@
           </symbol>
         </defs>
 
-        <!-- Brand mark (top-center, 96 × 96) -->
-        <g transform="translate(552 56)">
-          <use href="#brandmark" width="96" height="96" />
-        </g>
+        <!-- ============================================================
+             DIRECTION A — Landing-faithful two-column split.
+             Brand lockup top-left, hero copy left, capability stack right,
+             footer cluster + URL chip along the bottom. Asymmetric,
+             left-anchored, generous negative space.
+             Safe area: x 64–1136 / y 56–574.
+        ============================================================ -->
 
-        <!-- Wordmark + tagline (font-size 56). The wordmark text must
-             stay on a single line — any line break introduces literal
-             whitespace between "Cloak" and "PDF" in SVG text content,
-             which would render as "Cloak PDF". prettier-ignore keeps
-             the formatter from re-wrapping it. -->
-        <g text-anchor="middle">
-          <!-- prettier-ignore -->
-          <text x="600" y="218" font-size="56" font-weight="700" letter-spacing="-1.4" fill="#1e293b">Cloak<tspan fill="#2563eb">PDF</tspan></text>
+        <!-- TOP-LEFT: brand lockup (mark + wordmark) -->
+        <g transform="translate(72 58)">
+          <use href="#brandmark" width="44" height="44" />
+        </g>
+        <!-- prettier-ignore -->
+        <text x="128" y="89" font-size="27" font-weight="700" letter-spacing="-1.2" fill="#1e293b">Cloak<tspan fill="#2563eb">PDF</tspan></text>
+
+        <!-- LEFT COLUMN: hero headline (2 lines, left-aligned) -->
+        <g text-anchor="start">
           <text
-            x="600"
-            y="256"
-            font-size="21"
+            x="72"
+            y="222"
+            font-size="52"
+            font-weight="700"
+            letter-spacing="-1.5"
+            fill="#0f172a"
+          >
+            PDF tools that
+          </text>
+          <text
+            x="72"
+            y="284"
+            font-size="52"
+            font-weight="700"
+            letter-spacing="-1.5"
+            fill="#2563eb"
+          >
+            stay on your device.
+          </text>
+
+          <!-- accent underline rule beneath the hero -->
+          <rect x="74" y="312" width="84" height="4" rx="2" fill="#2563eb" />
+
+          <!-- SUBHEAD (two lines to keep within the left column) -->
+          <text
+            x="72"
+            y="356"
+            font-size="19"
             font-weight="500"
-            letter-spacing="-0.3"
+            letter-spacing="-0.2"
             fill="#475569"
           >
-            PDF tools that stay on your device
+            Edit, merge, sign, redact &amp; convert PDFs
+          </text>
+          <text
+            x="72"
+            y="383"
+            font-size="19"
+            font-weight="500"
+            letter-spacing="-0.2"
+            fill="#475569"
+          >
+            — entirely in your browser.
+          </text>
+
+          <!-- TRUST LINE -->
+          <text
+            x="72"
+            y="436"
+            font-size="14.5"
+            font-weight="600"
+            letter-spacing="0.1"
+            fill="#334155"
+          >
+            On-device AI &#160;·&#160; No uploads &#160;·&#160; Works offline &#160;·&#160; Open
+            source
           </text>
         </g>
 
-        <!-- Feature tiles (2 × 2) -->
+        <!-- RIGHT COLUMN: vertical stack of four capability cards -->
+        <!-- Card geometry: x 648, width 488, height 92, gap 14, top y 138 -->
+
+        <!-- 1 · Unified editor -->
         <g>
           <rect
-            x="220"
-            y="310"
-            width="340"
-            height="62"
-            rx="14"
+            x="648"
+            y="134"
+            width="488"
+            height="86"
+            rx="16"
             fill="url(#card)"
-            stroke="rgba(37,99,235,0.20)"
+            stroke="rgba(37,99,235,0.18)"
             stroke-width="1"
           />
-          <rect x="240" y="326" width="30" height="30" rx="8" fill="#eff4ff" />
+          <rect x="672" y="155" width="44" height="44" rx="11" fill="#eff4ff" />
           <g
-            transform="translate(241 329)"
+            transform="translate(682 165) scale(1.04)"
             stroke="#2563eb"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <!-- Lucide `file-stack` — three stacked pages, reads as
-                 "PDF pages you can merge or split" at a glance. -->
+            <!-- Lucide layout-panel-left -->
+            <rect x="3" y="3" width="7" height="18" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </g>
+          <text
+            x="736"
+            y="171"
+            font-size="20"
+            font-weight="700"
+            letter-spacing="-0.4"
+            fill="#1e293b"
+          >
+            Unified editor
+          </text>
+          <text x="736" y="197" font-size="14.5" fill="#475569">
+            Annotate, sign, crop &amp; organize pages
+          </text>
+        </g>
+
+        <!-- 2 · Merge & Split -->
+        <g>
+          <rect
+            x="648"
+            y="234"
+            width="488"
+            height="86"
+            rx="16"
+            fill="url(#card)"
+            stroke="rgba(37,99,235,0.18)"
+            stroke-width="1"
+          />
+          <rect x="672" y="255" width="44" height="44" rx="11" fill="#eff4ff" />
+          <g
+            transform="translate(682 265) scale(1.04)"
+            stroke="#2563eb"
+            stroke-width="2"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <!-- Lucide file-stack -->
             <path d="M21 7h-3a2 2 0 0 1-2-2V2" />
             <path
               d="M21 6v6.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5v-9c0-.8.7-1.5 1.5-1.5H17Z"
@@ -249,65 +353,43 @@
             <path d="M7 8v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H15" />
             <path d="M3 12v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H11" />
           </g>
-          <text x="288" y="337" font-size="17" font-weight="700" fill="#1e293b">
+          <text
+            x="736"
+            y="271"
+            font-size="20"
+            font-weight="700"
+            letter-spacing="-0.4"
+            fill="#1e293b"
+          >
             Merge &amp; Split
           </text>
-          <text x="288" y="358" font-size="12.5" fill="#475569">
-            Combine, extract pages, reorder, delete
+          <text x="736" y="297" font-size="14.5" fill="#475569">
+            Combine, extract, reorder &amp; delete pages
           </text>
         </g>
 
+        <!-- 3 · Redact & OCR -->
         <g>
           <rect
-            x="640"
-            y="310"
-            width="340"
-            height="62"
-            rx="14"
+            x="648"
+            y="334"
+            width="488"
+            height="86"
+            rx="16"
             fill="url(#card)"
-            stroke="rgba(37,99,235,0.20)"
+            stroke="rgba(37,99,235,0.18)"
             stroke-width="1"
           />
-          <rect x="660" y="326" width="30" height="30" rx="8" fill="#eff4ff" />
+          <rect x="672" y="355" width="44" height="44" rx="11" fill="#eff4ff" />
           <g
-            transform="translate(663 329)"
+            transform="translate(683 366) scale(1.04)"
             stroke="#2563eb"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-            <path d="M9 12l2 2 4-4" />
-          </g>
-          <text x="708" y="337" font-size="17" font-weight="700" fill="#1e293b">
-            Sign &amp; Secure
-          </text>
-          <text x="708" y="358" font-size="12.5" fill="#475569">
-            Signatures, watermarks, password protect
-          </text>
-        </g>
-
-        <g>
-          <rect
-            x="220"
-            y="388"
-            width="340"
-            height="62"
-            rx="14"
-            fill="url(#card)"
-            stroke="rgba(37,99,235,0.20)"
-            stroke-width="1"
-          />
-          <rect x="240" y="404" width="30" height="30" rx="8" fill="#eff4ff" />
-          <g
-            transform="translate(243 407)"
-            stroke="#2563eb"
-            stroke-width="2"
-            fill="none"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+            <!-- Lucide eye-off -->
             <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
             <path
               d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
@@ -315,42 +397,43 @@
             <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
             <line x1="2" y1="2" x2="22" y2="22" />
           </g>
-          <text x="288" y="415" font-size="17" font-weight="700" fill="#1e293b">
+          <text
+            x="736"
+            y="371"
+            font-size="20"
+            font-weight="700"
+            letter-spacing="-0.4"
+            fill="#1e293b"
+          >
             Redact &amp; OCR
           </text>
-          <text x="288" y="436" font-size="12.5" fill="#475569">
+          <text x="736" y="397" font-size="14.5" fill="#475569">
             Black-bar redaction, searchable text via OCR
           </text>
         </g>
 
+        <!-- 4 · Local AI -->
         <g>
           <rect
-            x="640"
-            y="388"
-            width="340"
-            height="62"
-            rx="14"
+            x="648"
+            y="434"
+            width="488"
+            height="86"
+            rx="16"
             fill="url(#card)"
-            stroke="rgba(37,99,235,0.20)"
+            stroke="rgba(37,99,235,0.18)"
             stroke-width="1"
           />
-          <rect x="660" y="404" width="30" height="30" rx="8" fill="#eff4ff" />
+          <rect x="672" y="455" width="44" height="44" rx="11" fill="#eff4ff" />
           <g
-            transform="translate(663 407)"
+            transform="translate(683 466) scale(1.04)"
             stroke="#2563eb"
             stroke-width="2"
             fill="none"
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <!-- Lucide `bot` — robot head + antenna + side dots. Reads
-                 as "AI" at a glance for the Ask-your-PDF tile. The
-                 on-device chat model is the headline differentiator vs
-                 other browser PDF tools, so it earns a slot in the
-                 four-up tile grid instead of the more generic
-                 "Compress & Convert" call-out (which used to live
-                 here — every PDF tool does that, only we ship AI in
-                 the browser). -->
+            <!-- Lucide bot -->
             <path d="M12 8V4H8" />
             <rect width="16" height="12" x="4" y="8" rx="2" />
             <path d="M2 14h2" />
@@ -358,35 +441,32 @@
             <path d="M15 13v2" />
             <path d="M9 13v2" />
           </g>
-          <text x="708" y="415" font-size="17" font-weight="700" fill="#1e293b">Local AI</text>
-          <text x="708" y="436" font-size="12.5" fill="#475569">
+          <text
+            x="736"
+            y="471"
+            font-size="20"
+            font-weight="700"
+            letter-spacing="-0.4"
+            fill="#1e293b"
+          >
+            Local AI
+          </text>
+          <text x="736" y="497" font-size="14.5" fill="#475569">
             Ask your PDF · runs entirely on-device
           </text>
         </g>
 
-        <text
-          x="600"
-          y="488"
-          text-anchor="middle"
-          font-size="15"
-          font-weight="600"
-          fill="#334155"
-          letter-spacing="0.1"
-        >
-          On-device AI &#160;·&#160; No uploads &#160;·&#160; Works offline &#160;·&#160; Open
-          source
-        </text>
-
-        <g transform="translate(508 510)">
-          <use href="#cloakyardmark" width="40" height="40" />
-          <text x="52" y="26" font-size="15" font-weight="500" fill="#475569">Part of</text>
-          <text x="105" y="26" font-size="15" font-weight="700" fill="#1e293b">Cloakyard</text>
+        <!-- BOTTOM-LEFT: Cloakyard parent-brand cluster -->
+        <g transform="translate(72 524)">
+          <use href="#cloakyardmark" width="38" height="38" />
+          <text x="50" y="25" font-size="15" font-weight="500" fill="#475569">Part of</text>
+          <text x="102" y="25" font-size="15" font-weight="700" fill="#1e293b">Cloakyard</text>
         </g>
 
-        <g transform="translate(458 572)">
-          <rect x="0" y="3" width="284" height="36" rx="10" fill="#000000" fill-opacity="0.07" />
+        <!-- BOTTOM-RIGHT: URL chip -->
+        <g transform="translate(868 530)">
           <rect
-            width="284"
+            width="268"
             height="36"
             rx="10"
             fill="#ffffff"
@@ -396,7 +476,7 @@
             stroke-width="1"
           />
           <g
-            transform="translate(24 10)"
+            transform="translate(20 10)"
             stroke="#2563eb"
             stroke-width="1.7"
             fill="none"
@@ -407,7 +487,7 @@
             <path d="M4 6V4a4 4 0 0 1 8 0v2" />
           </g>
           <text y="23" font-size="14" letter-spacing="0.4">
-            <tspan x="54" font-weight="500" fill="#94a3b8">https://</tspan>
+            <tspan x="50" font-weight="500" fill="#94a3b8">https://</tspan>
             <tspan dx="4" font-weight="700" fill="#1e293b">pdf.cloakyard.com</tspan>
           </text>
         </g>

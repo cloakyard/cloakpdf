@@ -31,10 +31,11 @@ dist-ssr
 # they're throwaway documents the contributor supplies themselves.
 tests/fixtures/*.pdf
 
-# Puppeteer profile populated by the e2e runner (CacheStorage, IndexedDB,
+# Puppeteer profiles populated by the e2e runners (CacheStorage, IndexedDB,
 # shader caches, etc.). Reused across runs to keep the AI models cached
-# on disk; never checked in.
-tests/.puppeteer-profile/
+# on disk; never checked in. The glob covers the AI smoke's profile and the
+# editor smoke's separate `-editor` profile.
+tests/.puppeteer-profile*/
 
 # Debug artifacts written by tests/e2e/retrieval-probe.ts.
 tests/retrieval-debug/

@@ -27,16 +27,15 @@
     <!-- Optional: Safari pinned tab (nice touch for macOS) -->
     <link rel="mask-icon" href="/icons/favicon.svg" color="#2563EB" />
 
-    <!-- Viewport — `user-scalable=no, maximum-scale=1` disables the
-         browser's pinch-to-zoom on the page itself. Tool surfaces have
-         their own gesture handlers (pan/zoom on PDF previews); double-
-         tap zoom here would just fight them. The CSS `touch-action:
-         manipulation` rule on body further suppresses double-tap zoom
-         on browsers that historically ignored user-scalable=no. -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
+    <!-- Viewport — pinch-zoom is intentionally LEFT ENABLED (no
+         `maximum-scale`/`user-scalable=no`) so low-vision users can
+         magnify the UI; blocking it fails WCAG 2.1 SC 1.4.4 (Resize
+         Text). Double-tap-to-zoom and the legacy 300ms tap delay are
+         suppressed without disabling pinch by `touch-action: manipulation`
+         on body (src/index.css). PDF previews, signature and colour
+         surfaces own their own gestures via per-container
+         `touch-action: none`, so page zoom never fights them. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Theme -->
     <meta name="theme-color" content="#2563EB" />

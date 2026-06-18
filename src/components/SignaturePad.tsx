@@ -191,10 +191,10 @@ export function SignaturePad({ onSignature, color, width = 500, height = 200 }: 
   return (
     <div className="space-y-1.5">
       <div
-        className={`relative border rounded-xl overflow-hidden bg-white motion-safe:transition-[border-color,box-shadow] duration-200 ${
+        className={`relative border rounded-xl overflow-hidden bg-white transition-[border-color,box-shadow] duration-200 ${
           isDrawing
             ? "border-primary-400 dark:border-primary-500"
-            : "border-slate-300 dark:border-dark-border hover:border-slate-400 dark:hover:border-slate-600"
+            : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"
         }`}
         style={isDrawing ? { boxShadow: `0 0 0 3px ${focusRing}` } : undefined}
       >
@@ -229,7 +229,7 @@ export function SignaturePad({ onSignature, color, width = 500, height = 200 }: 
           <button
             onClick={clear}
             aria-label="Clear signature"
-            className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-dark-text-muted hover:text-red-500 dark:hover:text-red-400 motion-safe:transition-colors duration-150 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
+            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-dark-text-muted hover:text-red-500 dark:hover:text-red-400 motion-safe:transition-colors duration-150 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
           >
             <Trash2 className="w-3 h-3" aria-hidden="true" />
             Clear

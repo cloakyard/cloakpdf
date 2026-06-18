@@ -25,8 +25,9 @@
  * {@link AiModelDetailsModal}, so the two modals read as one system.
  *
  * **Visual pattern.** Mirrors `ToolPickerModal`'s translucent layout —
- * one painting layer for backdrop + close-button, sheet rises in via
- * `animate-slide-up-in`, `bg-white/85` for the see-through feel.
+ * one painting layer for backdrop + close-button, the sheet rises in and
+ * settles out through Motion (the shared `scrim`/`sheet` variants via
+ * AnimatePresence), `bg-white/85` for the see-through feel.
  * Bottom-sheet on mobile / centered card on desktop.
  *
  * **Download indicator.** The header swaps `Loader2` for a plain
@@ -38,16 +39,18 @@
  * is being downloaded then.
  */
 import { AlertCircle, ArrowDown, Check, Cpu, Loader2, ShieldCheck, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useFocusTrap } from "../utils/useFocusTrap";
 import { createPortal } from "react-dom";
 import type { AiModelStatus } from "../hooks/useAiModel.ts";
 import type { AiModelInfo } from "../utils/ai-models.ts";
 import type { AiProgress } from "../utils/ai-runtime.ts";
 import { formatFileSize } from "../utils/file-helpers.ts";
 import { ModelCard } from "./ModelCard.tsx";
+import { AnimatePresence, m, variants } from "./motion.tsx";
 
 interface AiConsentModalProps {
-  /** When `false` the dialog is unmounted entirely. */
+  /** When `false` the dialog animates out (AnimatePresence), then unmounts. */
   open: boolean;
   /**
    * Models the user is being asked to download together. `models[0]`
@@ -107,9 +110,11 @@ export function AiConsentModal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      // Allow Escape to cancel from any state — the underlying download
-      // continues in the background but the dialog dismisses. Reopening
-      // re-shows the same state machine progress.
+      // Allow Escape to cancel from any state. `onCancel` aborts the
+      // in-flight download (via the wrapped `env.fetch`) and dismisses
+      // the dialog — the bytes stop streaming rather than running on in
+      // the background. Fully-cached files survive, so a later retry
+      // resumes from where this left off.
       if (e.key === "Escape") onCancel();
     };
     window.addEventListener("keydown", onKey);
@@ -119,7 +124,9 @@ export function AiConsentModal({
     };
   }, [open, onCancel]);
 
-  if (!open) return null;
+  // Trap Tab within the dialog + restore focus to the trigger on close.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, open);
 
   // Backdrop click closes the dialog *unless* a download or warm-load
   // is mid-flight — an accidental click is a poor way to lose
@@ -131,65 +138,85 @@ export function AiConsentModal({
   const primary = models[0];
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="ai-consent-title"
-      style={{
-        // One painting layer for dim + blur — same pattern as
-        // ToolPickerModal so iOS Safari's hit-testing stays simple.
-        background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-      }}
-    >
-      <button
-        type="button"
-        onClick={dismissOnBackdrop ? onCancel : undefined}
-        aria-label="Close"
-        tabIndex={-1}
-        className="absolute inset-0"
-        style={{ background: "transparent" }}
-      />
+    <AnimatePresence>
+      {open && (
+        <m.div
+          ref={dialogRef}
+          className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-consent-title"
+          variants={variants.scrim}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          style={{
+            // One painting layer for dim + blur — same pattern as
+            // ToolPickerModal so iOS Safari's hit-testing stays simple.
+            background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={dismissOnBackdrop ? onCancel : undefined}
+            aria-label="Close"
+            tabIndex={-1}
+            className="absolute inset-0"
+            style={{ background: "transparent" }}
+          />
 
-      <div className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[88svh] sm:max-h-[min(720px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl animate-slide-up-in overscroll-contain">
-        {/* Mobile drag handle — purely visual, no drag-to-dismiss
+          <m.div
+            className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[88svh] sm:max-h-[min(720px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl overscroll-contain"
+            variants={variants.sheet}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {/* Mobile drag handle — purely visual, no drag-to-dismiss
             since the download flow has its own explicit Cancel CTA. */}
-        <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
-          <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
-        </div>
+            <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
+              <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
+            </div>
 
-        <ModalHeader
-          primary={primary}
-          models={models}
-          status={status}
-          onCancel={onCancel}
-          disableClose={disableClose}
-        />
-
-        <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 thin-scrollbar">
-          {status === "awaiting-consent" || status === "idle" ? (
-            <ConsentBody models={models} roles={roles} />
-          ) : status === "downloading" || status === "loading" ? (
-            <DownloadBody
+            <ModalHeader
               primary={primary}
               models={models}
-              roles={roles}
-              totalBytes={totalBytes}
-              progress={progress}
-              perModelStatus={perModelStatus}
-              perModelProgress={perModelProgress}
-              warm={status === "loading"}
+              status={status}
+              onCancel={onCancel}
+              disableClose={disableClose}
             />
-          ) : status === "error" ? (
-            <ErrorBody models={models} message={error} />
-          ) : null}
-        </div>
 
-        <ModalFooter status={status} onConfirm={onConfirm} onRetry={onRetry} onCancel={onCancel} />
-      </div>
-    </div>,
+            <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 thin-scrollbar">
+              {status === "awaiting-consent" || status === "idle" ? (
+                <ConsentBody models={models} roles={roles} />
+              ) : status === "downloading" || status === "loading" ? (
+                <DownloadBody
+                  primary={primary}
+                  models={models}
+                  roles={roles}
+                  totalBytes={totalBytes}
+                  progress={progress}
+                  perModelStatus={perModelStatus}
+                  perModelProgress={perModelProgress}
+                  warm={status === "loading"}
+                />
+              ) : status === "error" ? (
+                <ErrorBody models={models} message={error} />
+              ) : null}
+            </div>
+
+            <ModalFooter
+              status={status}
+              onConfirm={onConfirm}
+              onRetry={onRetry}
+              onCancel={onCancel}
+            />
+          </m.div>
+        </m.div>
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }
@@ -337,9 +364,9 @@ function DownloadBody({
     return (
       <div className="space-y-3">
         <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-dark-text">
-          <span
+          <Loader2
+            className="w-4 h-4 animate-spin text-primary-600 dark:text-primary-400"
             aria-hidden="true"
-            className="w-4 h-4 border-2 border-primary-200 border-t-primary-600 rounded-full animate-spin"
           />
           <span className="font-medium">
             {progress?.status ?? (multi ? "Loading models" : "Loading model")}
@@ -376,7 +403,7 @@ function DownloadBody({
   // only one model.
   if (!showBreakdown) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" role="status" aria-live="polite">
         <div className="flex items-center justify-between text-sm">
           <span className="text-slate-700 dark:text-dark-text font-medium">
             {progress?.status ?? "Downloading"}
@@ -426,7 +453,7 @@ function DownloadBody({
   const downloading = models.length - completed;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="status" aria-live="polite">
       {/* Tinted summary panel — big percent left, totals on the right.
           Replaces the old "Overall progress" + bar combo. The
           per-model bars below already show progress in detail; a
@@ -566,7 +593,7 @@ function ModelProgressCard({
       </span>
     );
   } else {
-    tail = <span className="text-slate-400 dark:text-dark-text-muted">Waiting</span>;
+    tail = <span className="text-slate-500 dark:text-dark-text-muted">Waiting</span>;
   }
 
   // Sub-tail under the bar: byte counter while downloading (the
@@ -602,7 +629,7 @@ function ModelProgressCard({
           style={{ width: `${barPercent}%` }}
         />
       </div>
-      <p className="mt-1.5 text-xxs tabular-nums text-slate-400 dark:text-dark-text-muted">
+      <p className="mt-1.5 text-xxs tabular-nums text-slate-500 dark:text-dark-text-muted">
         {subTail}
       </p>
     </div>

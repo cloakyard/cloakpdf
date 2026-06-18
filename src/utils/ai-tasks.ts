@@ -36,6 +36,31 @@ async function getTextStreamerCtor(): Promise<
   return _textStreamerCtor;
 }
 
+/** An abortable handle for an in-flight generation. */
+export interface Interruptable {
+  /** Stop the generation this handle was passed to, at the next token. */
+  interrupt(): void;
+  /** Re-arm the handle for reuse. */
+  reset(): void;
+}
+
+/**
+ * Build a fresh `InterruptableStoppingCriteria`. Dynamically imported (like the
+ * `TextStreamer` ctor above) so it doesn't drag the whole Transformers.js
+ * module into the bundle before the first on-device generation runs. Pass the
+ * returned handle as `stoppingCriteria` to {@link runChat}, then call
+ * `.interrupt()` to abort that generation early.
+ */
+let _stoppingCtor: typeof import("@huggingface/transformers").InterruptableStoppingCriteria | null =
+  null;
+export async function createInterruptable(): Promise<Interruptable> {
+  if (!_stoppingCtor) {
+    const mod = await import("@huggingface/transformers");
+    _stoppingCtor = mod.InterruptableStoppingCriteria;
+  }
+  return new _stoppingCtor();
+}
+
 // ── Chat / text-generation ────────────────────────────────────────
 
 export interface ChatMessage {
@@ -88,6 +113,14 @@ export interface ChatGenerationOptions {
    * (only the newly generated piece), not the cumulative text.
    */
   onToken?: (delta: string) => void;
+  /**
+   * Transformers.js `StoppingCriteria` (typically an
+   * `InterruptableStoppingCriteria`) merged with the internal eos / max-length
+   * criteria. Lets a caller abort generation early — e.g. when the chat UI
+   * unmounts mid-answer — so the model stops instead of running to the token
+   * cap in the background. Passed straight through to `generate`.
+   */
+  stoppingCriteria?: unknown;
 }
 
 /**
@@ -144,6 +177,7 @@ export async function runChat(
       ? { no_repeat_ngram_size: options.noRepeatNgramSize }
       : {}),
     ...(streamer ? { streamer } : {}),
+    ...(options.stoppingCriteria ? { stopping_criteria: options.stoppingCriteria } : {}),
   });
 
   const generated = result[0]?.generated_text;

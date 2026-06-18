@@ -1,4 +1,4 @@
-## 10 · Specimen _(no longer the default)_
+## 10 · Specimen *(no longer the default)*
 
 Numbered left-margin labels, huge serif display, asymmetric column spans, hairline rules, typographic-only CTA, generous whitespace. Editorial / type-foundry energy.
 
@@ -15,11 +15,10 @@ Reach for it ONLY when the brief is explicitly editorial, type-foundry, journal,
 
 Reference: type foundry homepages (Klim, Pangram Pangram, Production Type), some editorial portfolios.
 
-**Sample opening lines** (imitate the _specificity_ — Specimen openings are foundry-voice, treating type as material culture):
-
-> _"A thing well made."_ — klim.co.nz — refusal of the verb, treats design as material
-> _"Type, set with care."_ — Hallmark Specimen — three words, a colon implied
-> _"Creative direction, design and type for culture since 2003."_ — apracticeforeverydaylife.com — date-anchored, names verticals
+**Sample opening lines** (imitate the *specificity* — Specimen openings are foundry-voice, treating type as material culture):
+> *"A thing well made."* — klim.co.nz — refusal of the verb, treats design as material
+> *"Type, set with care."* — Hallmark Specimen — three words, a colon implied
+> *"Creative direction, design and type for culture since 2003."* — apracticeforeverydaylife.com — date-anchored, names verticals
 
 ```html
 <header class="specimen">

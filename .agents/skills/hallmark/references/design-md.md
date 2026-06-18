@@ -8,11 +8,11 @@ This file is **also** loaded by [`study.md`](study.md) when the user — after a
 
 Fire ONLY when the user says one of:
 
-- _"lock the system"_ / _"lock the design system"_ / _"lock the DNA"_ / _"lock this DNA"_
-- _"give me a design.md"_ / _"write a design.md"_ / _"export this as a design.md"_
-- _"extract this to a design system"_ / _"extract the tokens"_ / _"extract the DNA"_
-- _"make this portable"_ / _"make the DNA portable"_
-- _"I want to use this in another project"_
+- *"lock the system"* / *"lock the design system"* / *"lock the DNA"* / *"lock this DNA"*
+- *"give me a design.md"* / *"write a design.md"* / *"export this as a design.md"*
+- *"extract this to a design system"* / *"extract the tokens"* / *"extract the DNA"*
+- *"make this portable"* / *"make the DNA portable"*
+- *"I want to use this in another project"*
 
 For everything else — including the default build, the redesign verb on a single page, and free iteration on the same brief — skip. The single-page redesign and default verb stay token-portable via `tokens.css`; `design.md` is the explicit lock-in step.
 
@@ -20,13 +20,13 @@ For everything else — including the default build, the redesign verb on a sing
 
 The same `design.md` format is emitted from two different entry points. They differ in which signals seed the file and in how strict the refusal layer is.
 
-|                           | **Default-verb path** (lock the system)                                 | **Study-verb path** (lock the DNA)                                                                                         |
-| ------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Trigger context**       | After at least one build the user has iterated on and is satisfied with | After a successful `study` diagnosis (image or URL)                                                                        |
-| **Source of tokens**      | The build's in-memory token state                                       | The studied DNA — exact from CSS in URL mode, estimated from bands in image mode                                           |
-| **Refusal layer**         | None — the user owns the build they iterated on                         | Tighter — see [`study.md`](study.md) § Emission-refusal layer. URL mode requires attestation; third-party URLs are refused |
-| **`## Provenance` block** | Omitted (the system is the user's own work)                             | Required — records source mode, URL or "image", date, attestation answer, confidence note                                  |
-| **`## Notes` block**      | Optional — covers any decisions worth remembering                       | Required — carries the diagnosis's "anti-patterns to NOT carry over" list                                                  |
+| | **Default-verb path** (lock the system) | **Study-verb path** (lock the DNA) |
+| --- | --- | --- |
+| **Trigger context** | After at least one build the user has iterated on and is satisfied with | After a successful `study` diagnosis (image or URL) |
+| **Source of tokens** | The build's in-memory token state | The studied DNA — exact from CSS in URL mode, estimated from bands in image mode |
+| **Refusal layer** | None — the user owns the build they iterated on | Tighter — see [`study.md`](study.md) § Emission-refusal layer. URL mode requires attestation; third-party URLs are refused |
+| **`## Provenance` block** | Omitted (the system is the user's own work) | Required — records source mode, URL or "image", date, attestation answer, confidence note |
+| **`## Notes` block** | Optional — covers any decisions worth remembering | Required — carries the diagnosis's "anti-patterns to NOT carry over" list |
 
 Both paths produce a `design.md` Hallmark can read on subsequent runs; the file format is uniform once written.
 
@@ -34,13 +34,13 @@ Both paths produce a `design.md` Hallmark can read on subsequent runs; the file 
 
 - **Page-builds only.** Skip on component-scope — a single component is too small to be a system.
 - **Multi-page redesign keeps existing behaviour.** `hallmark redesign --multi-page` produces the heavyweight `design.md` per [`verbs/redesign.md`](verbs/redesign.md) § Multi-page flow. That flow already implies a locked system, so the rule there is unchanged.
-- **No-overwrite policy.** If `design.md` already exists at the project root, do NOT overwrite. Refresh its `## Exports` section instead and emit one line: _"design.md detected — refreshed Exports, system unchanged."_
+- **No-overwrite policy.** If `design.md` already exists at the project root, do NOT overwrite. Refresh its `## Exports` section instead and emit one line: *"design.md detected — refreshed Exports, system unchanged."*
 
 ## CTA — surface the offer in the Step 5 preview
 
 After every default + redesign page-build, append one quiet line at the bottom of the preview block:
 
-> _System portable? Say `lock the system` to extract this build's tokens + voice into a `design.md`._
+> *System portable? Say `lock the system` to extract this build's tokens + voice into a `design.md`.*
 
 Skip the CTA when (a) the build is component-scope, or (b) `design.md` already exists in the project (system is already locked).
 
@@ -55,62 +55,53 @@ Locked design system. Future Hallmark runs read this file first; pages defer
 to it. Amend intentionally — the file is the rule.
 
 ## System
-
 - Genre · <editorial / modern-minimal / atmospheric / playful>
 - Macrostructure · <name>
 - Theme · <catalog: NAME · or · custom (vibe: "<4–8 words>")>
 - Axes · <paper-band> / <display-style> / <accent-hue>
 
 ## Tokens (canonical · `tokens.css` is the source of truth)
-
 ```css
 :root {
-  --color-paper: oklch(<L> <C> <H>);
-  --color-paper-2: oklch(<L> <C> <H>);
-  --color-ink: oklch(<L> <C> <H>);
-  --color-ink-2: oklch(<L> <C> <H>);
-  --color-rule: oklch(<L> <C> <H>);
-  --color-accent: oklch(<L> <C> <H>);
+  --color-paper:      oklch(<L> <C> <H>);
+  --color-paper-2:    oklch(<L> <C> <H>);
+  --color-ink:        oklch(<L> <C> <H>);
+  --color-ink-2:      oklch(<L> <C> <H>);
+  --color-rule:       oklch(<L> <C> <H>);
+  --color-accent:     oklch(<L> <C> <H>);
   --color-accent-ink: oklch(<L> <C> <H>);
-  --color-focus: oklch(<L> <C> <H>);
+  --color-focus:      oklch(<L> <C> <H>);
 
   --font-display: "<face>", ...;
-  --font-body: "<face>", ...;
-  --font-mono: "<face>", ...;
+  --font-body:    "<face>", ...;
+  --font-mono:    "<face>", ...;
 
   /* 4-pt spacing scale, named: --space-3xs … --space-4xl. See tokens.css.   */
   /* Type scale, 1.25 (major-third) ratio: --text-xs … --text-display.       */
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-fast: 180ms;
-  --dur-base: 240ms;
-  --dur-slow: 320ms;
+  --dur-fast: 180ms;  --dur-base: 240ms;  --dur-slow: 320ms;
 
-  --radius-card: <px>;
-  --radius-pill: <px>;
-  --radius-input: <px>;
+  --radius-card: <px>;  --radius-pill: <px>;  --radius-input: <px>;
 }
 ```
 
 ## CTA voice
-
 - Primary · <fill colour> · <radius> · <padding rhythm>
 - Secondary · <outline / ghost> · <same radius>
 
 ## Motion stance
-
 - <silent · 1–2 reveal primitives · motion-cut>
 - Reduced-motion fallback · ≤150 ms opacity crossfade.
 
 ## Exports
-
 `tokens.css` (in this project) is the source of truth. For Tailwind v4
-`@theme`, DTCG `tokens.json`, or shadcn/ui CSS variables, ask _"extend
-design.md with Tailwind exports"_ (or the format you want) — Hallmark will
+`@theme`, DTCG `tokens.json`, or shadcn/ui CSS variables, ask *"extend
+design.md with Tailwind exports"* (or the format you want) — Hallmark will
 append them per [`export-formats.md`](export-formats.md).
 ````
 
-State the picks aloud BEFORE writing the file. _"Genre: editorial. Macrostructure: Long Document. Theme: catalog Editorial. Locking this as the project's system."_ Then write.
+State the picks aloud BEFORE writing the file. *"Genre: editorial. Macrostructure: Long Document. Theme: catalog Editorial. Locking this as the project's system."* Then write.
 
 ## After the file is written
 

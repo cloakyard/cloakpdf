@@ -15,22 +15,18 @@ Avoid when the message is a single hero idea — Bento spreads attention; one-id
 
 Reference: Apple in-page sections, Framer feature pages, Tailwind UI templates.
 
-**Sample opening lines** (imitate the _specificity_, not the wording):
-
-> _"Tracejam · v0.4 · for SREs. Distributed tracing that explains itself."_ — paraphrased from real observability tools
-> _"Resend is the email API for developers. Send transactional and marketing emails at scale."_ — resend.com
-> _"The product development system for teams and agents."_ — linear.app
+**Sample opening lines** (imitate the *specificity*, not the wording):
+> *"Tracejam · v0.4 · for SREs. Distributed tracing that explains itself."* — paraphrased from real observability tools
+> *"Resend is the email API for developers. Send transactional and marketing emails at scale."* — resend.com
+> *"The product development system for teams and agents."* — linear.app
 
 ```html
 <header class="hero-fixed">…</header>
 <section class="bento">
-  <article class="cell span-2x2">…</article>
-  <!-- hero feature -->
+  <article class="cell span-2x2">…</article>  <!-- hero feature -->
   <article class="cell span-1x1">…</article>
-  <article class="cell span-2x1">…</article>
-  <!-- wide stat -->
-  <article class="cell span-1x2">…</article>
-  <!-- tall image -->
+  <article class="cell span-2x1">…</article>  <!-- wide stat -->
+  <article class="cell span-1x2">…</article>  <!-- tall image -->
   <article class="cell span-1x1">…</article>
   <article class="cell span-1x1">…</article>
 </section>

@@ -17,7 +17,7 @@ const OPTIONS: readonly SegmentedOption<SortMode>[] = [
 export function SortByNameButton({ mode, onChange }: SortByNameButtonProps) {
   return (
     <div className="inline-flex items-center gap-2">
-      <span className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-dark-text-muted">
+      <span className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted">
         Sort
       </span>
       <SegmentedControl

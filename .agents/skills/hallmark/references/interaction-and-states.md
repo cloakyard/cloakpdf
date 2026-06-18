@@ -4,16 +4,16 @@ Every interactive element has eight states. Most AI-generated UI styles two (def
 
 ## The eight states
 
-| State            | When                                             | Treatment                                                       |
-| ---------------- | ------------------------------------------------ | --------------------------------------------------------------- |
-| Default          | At rest                                          | Base styling                                                    |
-| Hover            | Pointer over (only with `@media (hover: hover)`) | Small shift: colour, 1px translate, subtle border               |
-| Focus            | Keyboard or programmatic focus                   | Visible ring, `:focus-visible`                                  |
-| Active / Pressed | During press                                     | Pressed-in: darker, translate(0 1px)                            |
-| Disabled         | Not interactive                                  | Reduced opacity (0.5) + `cursor: not-allowed` + `aria-disabled` |
-| Loading          | Processing                                       | Inline spinner or progress, label stays readable                |
-| Error            | Failed state                                     | Red border, error icon, message, `aria-invalid`                 |
-| Success          | Completed                                        | Green check, confirmation, auto-dismiss                         |
+| State | When | Treatment |
+| --- | --- | --- |
+| Default | At rest | Base styling |
+| Hover | Pointer over (only with `@media (hover: hover)`) | Small shift: colour, 1px translate, subtle border |
+| Focus | Keyboard or programmatic focus | Visible ring, `:focus-visible` |
+| Active / Pressed | During press | Pressed-in: darker, translate(0 1px) |
+| Disabled | Not interactive | Reduced opacity (0.5) + `cursor: not-allowed` + `aria-disabled` |
+| Loading | Processing | Inline spinner or progress, label stays readable |
+| Error | Failed state | Red border, error icon, message, `aria-invalid` |
+| Success | Completed | Green check, confirmation, auto-dismiss |
 
 If any of these is missing on a production element, the element isn't finished.
 
@@ -22,9 +22,7 @@ If any of these is missing on a production element, the element isn't finished.
 Visible, always, on every interactive element. The default focus ring most browsers give you is fine; a custom one is better.
 
 ```css
-:focus {
-  outline: none;
-}
+:focus { outline: none; }
 :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -75,8 +73,8 @@ This is where the most "almost right" UIs lose. An input field with two states (
 
 ```css
 .input {
-  border: 1px solid var(--color-rule-2); /* 1px, always — every state */
-  outline: 2px solid transparent; /* reserved slot for focus ring; no shift on activate */
+  border: 1px solid var(--color-rule-2);   /* 1px, always — every state */
+  outline: 2px solid transparent;          /* reserved slot for focus ring; no shift on activate */
   outline-offset: 1px;
 }
 ```
@@ -85,17 +83,17 @@ The outline starts transparent at 2 px so when the focus ring appears, the box g
 
 ### State-by-state recipe
 
-| State                           | Treatment                                                                                                                                            | Why                                                                                                |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **Default**                     | `border: 1px solid var(--color-rule-2)` · `background: var(--color-paper)` · placeholder in `var(--color-muted)`                                     | Visible field, readable empty signal                                                               |
-| **Hover**                       | `background: var(--color-paper-2)` (4–6 % darker than paper) · border unchanged                                                                      | Subtle background shift, no border flash. Border colour changing alone is missable.                |
-| **Focus**                       | `outline: 2px solid var(--color-focus)` · `outline-offset: 1px` · border may deepen to `var(--color-ink-2)` but width stays 1 px                     | Outline is the focus signal; never animated; ≥ 3:1 contrast against page AND field.                |
-| **Active / typing**             | Same as focus. Don't add a separate "typing" state.                                                                                                  | Focus already says "active here". A second signal is noise.                                        |
-| **Filled**                      | Same as default — the value carries the state. Optionally a subtle ink-2 border to visually distinguish from empty.                                  | Don't fight the user's content with a styled chrome change.                                        |
-| **Disabled**                    | `opacity: 0.55` · `cursor: not-allowed` · placeholder `var(--color-rule-2)` · `aria-disabled="true"` · `tabindex="-1"`                               | Three independent signals (opacity + cursor + colour) so no single channel carries the whole load. |
-| **Error**                       | `border-color: var(--color-error, oklch(58% 0.20 25))` · helper-text replaced by error message · `aria-invalid="true"` · small ⚠ glyph at right edge | Border colour flip is OK _because_ helper-text and aria signal it too. Never colour alone.         |
-| **Success**                     | Subtle accent-coloured border (3 % chroma above default) · small ✓ glyph · auto-clear if user re-edits                                               | Quiet; success doesn't deserve celebration unless it was hard.                                     |
-| **Loading** (validating, async) | Inline spinner at the right edge replacing the standard glyph slot · field stays editable but submit disabled                                        | Don't lock the user out of the field. They may want to fix what they typed.                        |
+| State | Treatment | Why |
+| --- | --- | --- |
+| **Default** | `border: 1px solid var(--color-rule-2)` · `background: var(--color-paper)` · placeholder in `var(--color-muted)` | Visible field, readable empty signal |
+| **Hover** | `background: var(--color-paper-2)` (4–6 % darker than paper) · border unchanged | Subtle background shift, no border flash. Border colour changing alone is missable. |
+| **Focus** | `outline: 2px solid var(--color-focus)` · `outline-offset: 1px` · border may deepen to `var(--color-ink-2)` but width stays 1 px | Outline is the focus signal; never animated; ≥ 3:1 contrast against page AND field. |
+| **Active / typing** | Same as focus. Don't add a separate "typing" state. | Focus already says "active here". A second signal is noise. |
+| **Filled** | Same as default — the value carries the state. Optionally a subtle ink-2 border to visually distinguish from empty. | Don't fight the user's content with a styled chrome change. |
+| **Disabled** | `opacity: 0.55` · `cursor: not-allowed` · placeholder `var(--color-rule-2)` · `aria-disabled="true"` · `tabindex="-1"` | Three independent signals (opacity + cursor + colour) so no single channel carries the whole load. |
+| **Error** | `border-color: var(--color-error, oklch(58% 0.20 25))` · helper-text replaced by error message · `aria-invalid="true"` · small ⚠ glyph at right edge | Border colour flip is OK *because* helper-text and aria signal it too. Never colour alone. |
+| **Success** | Subtle accent-coloured border (3 % chroma above default) · small ✓ glyph · auto-clear if user re-edits | Quiet; success doesn't deserve celebration unless it was hard. |
+| **Loading** (validating, async) | Inline spinner at the right edge replacing the standard glyph slot · field stays editable but submit disabled | Don't lock the user out of the field. They may want to fix what they typed. |
 
 ### Heights and rhythm
 
@@ -114,7 +112,7 @@ The outline starts transparent at 2 px so when the focus ring appears, the box g
 
 - Don't transition `border-width`, `padding`, or `height` on any state. Always layout-shift.
 - Don't transition the focus ring's `opacity` or `transform`. Focus must be instant.
-- Don't put hover effects inside `@media (hover: hover)` — wait, _do_ put them inside `@media (hover: hover)` so touch users don't get stuck states.
+- Don't put hover effects inside `@media (hover: hover)` — wait, *do* put them inside `@media (hover: hover)` so touch users don't get stuck states.
 - Don't disable the field as a way to indicate "wait, loading" — use a loading state with the field still editable.
 - Don't change `cursor` on `:focus`. The pointer is already a beam; don't fight it.
 - Don't use `outline: none` on focus without an explicit replacement.
@@ -132,6 +130,7 @@ The outline starts transparent at 2 px so when the focus ring appears, the box g
 ## Modals and overlays
 
 - Use the native `<dialog>` element. It handles focus trap, escape to close, and `::backdrop` styling for free.
+- **Centre it explicitly.** A `<dialog>` opened with `showModal()` centres on its own — but the moment you add custom positioning (a `margin-top`, a `top`, a stray `transform`) it can snap to the viewport's top-left corner. Pin it: `position: fixed; inset: 0; margin: auto; height: fit-content; max-height: min(80vh, 40rem);`. A non-`<dialog>` overlay centres via its container instead: `position: fixed; inset: 0; display: grid; place-items: center;`. Never ship a modal or command palette stuck in the corner.
 - Set `inert` on the page content behind a modal so tab order doesn't leak.
 - Close on: escape key, backdrop click, explicit close button.
 - First focus goes to the first interactive element, not the close button.
@@ -171,9 +170,9 @@ The outline starts transparent at 2 px so when the focus ring appears, the box g
 
 ## Contrast discipline
 
-Hallmark output must pass slop-test gates 46–50 before shipping. Compute contrast for every `(color, background-color)` pair on the page. The common failures Hallmark output trips on:
+Hallmark output must pass slop-test gates 40–41 before shipping. Compute contrast for every `(color, background-color)` pair on the page. The common failures Hallmark output trips on:
 
-1. **Text on a flipped surface.** `.section--ink { background: var(--color-ink); }` flips the surface dark; nested text still inherits `color: var(--color-ink)` → ink-on-ink. Fix: any rule that sets a dark `background` must _also_ set `color: var(--color-paper)` in the same rule.
+1. **Text on a flipped surface.** `.section--ink { background: var(--color-ink); }` flips the surface dark; nested text still inherits `color: var(--color-ink)` → ink-on-ink. Fix: any rule that sets a dark `background` must *also* set `color: var(--color-paper)` in the same rule.
 2. **Button text on accent fill.** `background: var(--color-accent); color: white;` — but white is 4.5:1 against this accent only if `--color-accent` is dark enough. Use `var(--color-accent-ink)` instead, which the theme guarantees passes ≥ APCA Lc 60.
 3. **Muted text on tinted paper.** `color: var(--color-muted); background: var(--color-paper-3);` — both mid-lightness, often falls below 4.5:1. Use `--color-neutral` (darker) or lift the background to `--color-paper`.
 4. **Focus ring on accent-coloured button.** `outline: 2px solid var(--color-focus);` on a button whose fill is `--color-accent` — if `--color-focus = --color-accent`, the ring vanishes. Use the contrast pair: `--color-focus` set to a colour with ≥ 3:1 against both the element and the page.
@@ -197,9 +196,7 @@ The rule: **any rule that overrides `background-color` must also state the appro
 
 ```css
 /* WRONG — text inherits color: var(--color-ink); section is now dark; ink-on-ink */
-.section--manifesto {
-  background: var(--color-ink);
-}
+.section--manifesto { background: var(--color-ink); }
 
 /* RIGHT */
 .section--manifesto {

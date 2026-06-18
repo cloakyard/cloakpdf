@@ -114,6 +114,10 @@ export interface RagSession {
   chunkCount: number;
   /** Run one question through the graph. */
   ask: (options: AskOptions) => Promise<AskResult>;
+  /** Abort the in-flight answer (if any). Safe to call any time — no-op when
+   *  nothing is generating. Used by the UI to stop a background generation when
+   *  the chat unmounts or the model tier is swapped. */
+  interrupt: () => void;
 }
 
 /**
@@ -352,5 +356,6 @@ export async function createRagSession(options: CreateSessionOptions): Promise<R
         intent: result.intent ?? "question",
       };
     },
+    interrupt: () => chatModel.interrupt(),
   };
 }

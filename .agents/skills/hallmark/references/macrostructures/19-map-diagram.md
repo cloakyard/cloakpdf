@@ -1,6 +1,6 @@
 ## 19 · Map / Diagram
 
-A single large spatial diagram organises the page — flowchart, floor plan, network graph, system map. Information is laid out _spatially_, not linearly.
+A single large spatial diagram organises the page — flowchart, floor plan, network graph, system map. Information is laid out *spatially*, not linearly.
 
 - **Heading:** a small orientation phrase above or beside the map.
 - **Body:** the map itself; nodes and edges; a legend somewhere.
@@ -15,10 +15,9 @@ Avoid as a substitute for narrative. Some stories shouldn't be read spatially.
 
 Reference: process visualisation sites, ecosystem maps, knowledge-graph products.
 
-**Sample opening lines** (imitate the _specificity_ — Map / Diagram openings name the path or the territory):
-
-> _"Browser → API → Database. Where Tracejam fits."_ — names the layers, names the position
-> _"From stdin, through the pipe, into your dashboard."_ — labels the spatial flow on the page below
-> _"Three tiers · two regions · one ledger."_ — counts the system, geographic + structural
+**Sample opening lines** (imitate the *specificity* — Map / Diagram openings name the path or the territory):
+> *"Browser → API → Database. Where Tracejam fits."* — names the layers, names the position
+> *"From stdin, through the pipe, into your dashboard."* — labels the spatial flow on the page below
+> *"Three tiers · two regions · one ledger."* — counts the system, geographic + structural
 
 ---

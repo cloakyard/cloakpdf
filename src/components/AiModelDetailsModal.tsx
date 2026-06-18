@@ -17,15 +17,18 @@
  * **Visual pattern.** Mirrors `ToolPickerModal`'s translucent bottom-
  * sheet-on-mobile / centered-on-desktop layout — single `fixed inset-0`
  * wrapper paints both the dim-and-blur backdrop and the close-button
- * surface, with the inner sheet rising in via `animate-slide-up-in`.
+ * surface, with the inner sheet rising in and settling out through Motion
+ * (the shared `scrim`/`sheet` variants via AnimatePresence).
  * One painting layer keeps iOS Safari from getting confused about
  * which element should scroll.
  */
 import { AlertTriangle, HardDrive, MemoryStick, ShieldCheck, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "../utils/useFocusTrap";
 import { createPortal } from "react-dom";
 import { type AiModelInfo, formatApproxSize } from "../utils/ai-models.ts";
 import { ModelCard } from "./ModelCard.tsx";
+import { AnimatePresence, m, variants } from "./motion.tsx";
 
 interface AiModelDetailsModalProps {
   open: boolean;
@@ -98,8 +101,8 @@ export function AiModelDetailsModal({
   const [deleteArmed, setDeleteArmed] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // Lock body scroll + wire Escape while open. Matches the workflow
-  // ToolPickerModal pattern so the two dialogs feel like one system.
+  // Lock body scroll + wire Escape while open. Matches the app's other modals
+  // (ChatModelPickerModal, ExportModal) so the dialogs feel like one system.
   useEffect(() => {
     if (!open) return;
     setDeleteArmed(false);
@@ -116,7 +119,9 @@ export function AiModelDetailsModal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  // Trap Tab within the dialog + restore focus to the trigger on close.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, open);
 
   const totalBytes = models.reduce((sum, m) => sum + m.approxSizeBytes, 0);
   // An individual button shows iff its callback is wired AND there's
@@ -160,91 +165,106 @@ export function AiModelDetailsModal({
   }
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="ai-model-details-title"
-      style={{
-        // Single painting layer for dim + blur — same approach as
-        // ToolPickerModal so iOS Safari's hit-testing on the wrapper
-        // stays straightforward.
-        background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-      }}
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Close"
-        className="absolute inset-0"
-        style={{ background: "transparent" }}
-      />
-
-      <div className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[82svh] sm:max-h-[min(640px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl animate-slide-up-in overscroll-contain">
-        {/* Mobile drag handle — purely decorative here (no drag-to-dismiss).
-            Matches the visual cue used in ToolPickerModal so users coming
-            from the workflow flow recognise the sheet pattern. */}
-        <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
-          <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
-        </div>
-
-        <div className="flex items-start gap-4 px-4 md:px-7 pt-2 sm:pt-5 pb-3.5 border-b border-slate-200/70 dark:border-dark-border/70">
-          <div className="flex-1 min-w-0">
-            <h2
-              id="ai-model-details-title"
-              className="text-card-title sm:text-base font-semibold tracking-[-0.01em] text-slate-800 dark:text-dark-text"
-            >
-              {models.length > 1 ? "AI models in use" : "AI model in use"}
-            </h2>
-            <p className="text-card-desc text-slate-500 dark:text-dark-text-muted mt-0.5 leading-relaxed">
-              {models.length > 1
-                ? `${models.length} models load together — about ${formatApproxSize(totalBytes)} total. All run on your device; your PDFs are never uploaded.`
-                : "Runs on your device; your PDFs are never uploaded."}
-            </p>
-          </div>
+    <AnimatePresence>
+      {open && (
+        <m.div
+          ref={dialogRef}
+          className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-model-details-title"
+          variants={variants.scrim}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          style={{
+            // Single painting layer for dim + blur — same approach as
+            // ToolPickerModal so iOS Safari's hit-testing on the wrapper
+            // stays straightforward.
+            background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+          }}
+        >
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-9 h-9 rounded-lg grid place-items-center text-slate-400 dark:text-dark-text-muted hover:bg-slate-100 dark:hover:bg-dark-surface-alt hover:text-slate-700 dark:hover:text-dark-text transition-colors shrink-0"
+            className="absolute inset-0"
+            style={{ background: "transparent" }}
+          />
+
+          <m.div
+            className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[82svh] sm:max-h-[min(640px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl overscroll-contain"
+            variants={variants.sheet}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            {/* Mobile drag handle — purely decorative here (no drag-to-dismiss).
+            Matches the visual cue used across the app's bottom-sheet modals so
+            the pattern is familiar. */}
+            <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
+              <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
+            </div>
 
-        <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 space-y-3 thin-scrollbar">
-          <RequirementsLine totalBytes={totalBytes} />
+            <div className="flex items-start gap-4 px-4 md:px-7 pt-2 sm:pt-5 pb-3.5 border-b border-slate-200/70 dark:border-dark-border/70">
+              <div className="flex-1 min-w-0">
+                <h2
+                  id="ai-model-details-title"
+                  className="text-card-title sm:text-base font-semibold tracking-[-0.01em] text-slate-800 dark:text-dark-text"
+                >
+                  {models.length > 1 ? "AI models in use" : "AI model in use"}
+                </h2>
+                <p className="text-card-desc text-slate-500 dark:text-dark-text-muted mt-0.5 leading-relaxed">
+                  {models.length > 1
+                    ? `${models.length} models load together — about ${formatApproxSize(totalBytes)} total. All run on your device; your PDFs are never uploaded.`
+                    : "Runs on your device; your PDFs are never uploaded."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="w-9 h-9 rounded-lg grid place-items-center text-slate-400 dark:text-dark-text-muted hover:bg-slate-100 dark:hover:bg-dark-surface-alt hover:text-slate-700 dark:hover:text-dark-text transition-colors shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-          {models.map((info, i) => (
-            <ModelCard key={info.id} info={info} role={roles?.[i]} />
-          ))}
+            <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 space-y-3 thin-scrollbar">
+              <RequirementsLine totalBytes={totalBytes} />
 
-          <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-dark-text-muted leading-relaxed pt-1">
-            <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400" />
-            <p>
-              Model files are downloaded once from Hugging Face's CDN and cached in your browser.
-              After that, everything runs entirely on your device.
-            </p>
-          </div>
+              {models.map((info, i) => (
+                <ModelCard key={info.id} info={info} role={roles?.[i]} />
+              ))}
 
-          {showStorageActions && (
-            <StorageActions
-              totalBytes={totalBytes}
-              onFreeMemory={showFreeMemory ? onFreeMemory : undefined}
-              onDelete={showDelete ? onDelete : undefined}
-              deleteArmed={deleteArmed}
-              onDeleteClick={handleDeleteClick}
-              onCancelDelete={() => setDeleteArmed(false)}
-              onFreeMemoryClick={handleFreeMemory}
-              disabled={Boolean(storageActionsDisabled) || busy}
-              busy={busy}
-            />
-          )}
-        </div>
-      </div>
-    </div>,
+              <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-dark-text-muted leading-relaxed pt-1">
+                <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400" />
+                <p>
+                  Model files are downloaded once from Hugging Face's CDN and cached in your
+                  browser. After that, everything runs entirely on your device.
+                </p>
+              </div>
+
+              {showStorageActions && (
+                <StorageActions
+                  totalBytes={totalBytes}
+                  onFreeMemory={showFreeMemory ? onFreeMemory : undefined}
+                  onDelete={showDelete ? onDelete : undefined}
+                  deleteArmed={deleteArmed}
+                  onDeleteClick={handleDeleteClick}
+                  onCancelDelete={() => setDeleteArmed(false)}
+                  onFreeMemoryClick={handleFreeMemory}
+                  disabled={Boolean(storageActionsDisabled) || busy}
+                  busy={busy}
+                />
+              )}
+            </div>
+          </m.div>
+        </m.div>
+      )}
+    </AnimatePresence>,
     document.body,
   );
 }

@@ -11,10 +11,24 @@
  * deep-links into the PDF Password tool so users can unlock the file
  * and come back.
  */
-import type { ToolId } from "../types.ts";
+import type { ToolId } from "../config/tool-registry.ts";
 
 export const NAVIGATE_TOOL_EVENT = "cloakpdf:navigate-tool";
 
 export function navigateToTool(toolId: ToolId): void {
   window.dispatchEvent(new CustomEvent<ToolId>(NAVIGATE_TOOL_EVENT, { detail: toolId }));
+}
+
+export const OPEN_EDITOR_EVENT = "cloakpdf:open-editor";
+
+/**
+ * Open a freshly-produced PDF in the canvas editor. Backs the secondary
+ * "& edit" action on tools whose output is a single PDF (Merge, Images→PDF,
+ * PDF Password's unlock) — it saves the download-then-re-upload round trip
+ * when the user wants to keep working on the result. Same decoupling as
+ * {@link navigateToTool}: the tool fires an event, App owns the view state
+ * and subscribes.
+ */
+export function openEditorWithFile(file: File): void {
+  window.dispatchEvent(new CustomEvent<File>(OPEN_EDITOR_EVENT, { detail: file }));
 }

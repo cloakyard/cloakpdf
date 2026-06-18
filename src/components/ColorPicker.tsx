@@ -10,7 +10,9 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { colorPresets } from "../config/theme.ts";
+import { useAnchoredPopover } from "./useAnchoredPopover.ts";
 
 /* ------------------------------------------------------------------ */
 /*  Colour-space helpers                                               */
@@ -72,10 +74,18 @@ interface ColorPickerProps {
 
 export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const [open, setOpen] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const svAreaRef = useRef<HTMLDivElement>(null);
+  // Portal the popover to <body> so the editor's overflow-clipped panels / mobile
+  // sheet can't clip it; anchor it to the swatch row.
+  const { style: popoverStyle } = useAnchoredPopover(open, rootRef, { width: 256, height: 280 });
 
-  const isPreset = colorPresets.some((p) => p.hex === value);
+  // Hex compared case-insensitively: presets are stored uppercase (theme.ts)
+  // but values round-trip through rgbToHex / manual entry as lowercase, so a
+  // strict === would never flag a preset as selected.
+  const eqHex = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  const isPreset = colorPresets.some((p) => eqHex(p.hex, value));
 
   // Internal HSV state for the popover – synced from value when opening
   const [hsv, setHsv] = useState(() => hexToHsv(value));
@@ -97,9 +107,11 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      // The popover is portaled out of rootRef now, so a click inside it would
+      // read as "outside" — keep it open for clicks in either the row or popover.
+      if (rootRef.current?.contains(t) || menuRef.current?.contains(t)) return;
+      setOpen(false);
     };
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -181,25 +193,30 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const hueColor = hsvToHex(hsv.h, 1, 1);
 
   return (
-    <div className="relative" ref={popoverRef}>
+    <div className="relative" ref={rootRef}>
       <div className="flex items-center gap-2.5">
-        <span className="text-xs text-slate-400 dark:text-dark-text-muted shrink-0">Color:</span>
+        <span className="text-xs text-slate-500 dark:text-dark-text-muted shrink-0">Color:</span>
 
         {colorPresets.map((p) => (
           <button
             key={p.hex}
-            aria-label={`${p.label} color${value === p.hex ? " (selected)" : ""}`}
+            aria-label={`${p.label} color${eqHex(value, p.hex) ? " (selected)" : ""}`}
             onClick={() => {
               onChange(p.hex);
               setOpen(false);
             }}
-            className={`relative w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 touch-manipulation motion-safe:transition-transform ${
-              value === p.hex
-                ? "border-primary-500 scale-125"
-                : "border-slate-300 dark:border-dark-border hover:scale-110"
-            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1`}
-            style={{ backgroundColor: p.hex }}
-          />
+            className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            <span
+              className={`block w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 motion-safe:transition-transform ${
+                eqHex(value, p.hex)
+                  ? "border-primary-500 scale-125"
+                  : "border-slate-300 dark:border-dark-border"
+              }`}
+              style={{ backgroundColor: p.hex }}
+              aria-hidden="true"
+            />
+          </button>
         ))}
 
         {/* Custom colour trigger */}
@@ -207,91 +224,98 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
           aria-label={`Custom color${!isPreset ? ` (${value})` : ""}${open ? " — picker open" : ""}`}
           aria-expanded={open}
           onClick={toggleOpen}
-          className={`relative w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 touch-manipulation motion-safe:transition-transform flex items-center justify-center ${
-            open || !isPreset
-              ? "border-primary-500 scale-125"
-              : "border-slate-300 dark:border-dark-border hover:scale-110"
-          } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1`}
-          style={{
-            background: !isPreset
-              ? value
-              : "conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
-          }}
+          className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
-          {isPreset && (
-            <span
-              className="text-white text-[9px] font-bold drop-shadow-sm leading-none"
-              aria-hidden="true"
-            >
-              +
-            </span>
-          )}
+          <span
+            className={`flex items-center justify-center w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 motion-safe:transition-transform ${
+              open || !isPreset
+                ? "border-primary-500 scale-125"
+                : "border-slate-300 dark:border-dark-border"
+            }`}
+            style={{
+              background: !isPreset
+                ? value
+                : "conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
+            }}
+            aria-hidden="true"
+          >
+            {isPreset && (
+              <span className="text-white text-xxs font-bold drop-shadow-sm leading-none">+</span>
+            )}
+          </span>
         </button>
       </div>
 
-      {/* ---- Popover ---- */}
-      {open && (
-        <div className="absolute left-0 z-50 mt-2 w-64 max-w-[calc(100vw-1rem)] rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 space-y-3">
-          {/* Saturation / Brightness area */}
+      {/* ---- Popover (portaled to <body>, fixed-anchored) ---- */}
+      {open &&
+        popoverStyle &&
+        createPortal(
           <div
-            ref={svAreaRef}
-            role="presentation"
-            aria-label="Saturation and brightness picker"
-            className="relative w-full h-40 sm:h-36 rounded-lg cursor-crosshair touch-none select-none"
-            style={{
-              background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueColor})`,
-            }}
-            onPointerDown={handleSVPointerDown}
-            onPointerMove={handleSVPointerMove}
-            onPointerUp={handleSVPointerUp}
+            ref={menuRef}
+            style={popoverStyle}
+            className="z-900 w-64 rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface shadow-xl p-3 space-y-3"
           >
-            {/* Indicator */}
+            {/* Saturation / Brightness area */}
             <div
-              className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+              ref={svAreaRef}
+              role="presentation"
+              aria-label="Saturation and brightness picker"
+              className="relative w-full h-40 sm:h-36 rounded-lg cursor-crosshair touch-none select-none"
               style={{
-                left: `${hsv.s * 100}%`,
-                top: `${(1 - hsv.v) * 100}%`,
-                backgroundColor: value,
+                background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueColor})`,
+              }}
+              onPointerDown={handleSVPointerDown}
+              onPointerMove={handleSVPointerMove}
+              onPointerUp={handleSVPointerUp}
+            >
+              {/* Indicator */}
+              <div
+                className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  left: `${hsv.s * 100}%`,
+                  top: `${(1 - hsv.v) * 100}%`,
+                  backgroundColor: value,
+                }}
+              />
+            </div>
+
+            {/* Hue slider */}
+            <input
+              type="range"
+              aria-label="Hue"
+              min={0}
+              max={360}
+              value={Math.round(hsv.h)}
+              onChange={handleHueChange}
+              className="w-full h-3 rounded-full appearance-none cursor-pointer touch-manipulation [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-slate-300 [&::-moz-range-thumb]:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+              style={{
+                background: "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
               }}
             />
-          </div>
 
-          {/* Hue slider */}
-          <input
-            type="range"
-            aria-label="Hue"
-            min={0}
-            max={360}
-            value={Math.round(hsv.h)}
-            onChange={handleHueChange}
-            className="w-full h-3 rounded-full appearance-none cursor-pointer touch-manipulation [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-slate-300 [&::-moz-range-thumb]:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1"
-            style={{
-              background: "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
-            }}
-          />
-
-          {/* Hex input + preview */}
-          <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded-md border border-slate-200 dark:border-dark-border shrink-0"
-              style={{ backgroundColor: value }}
-              aria-hidden="true"
-            />
-            <input
-              type="text"
-              aria-label="Hex color value"
-              name="hex-color"
-              autoComplete="off"
-              value={hexInput}
-              onChange={handleHexInput}
-              maxLength={7}
-              spellCheck={false}
-              inputMode="text"
-              className="flex-1 min-w-0 px-2 py-1.5 text-sm sm:text-xs font-mono border border-slate-300 dark:border-dark-border dark:bg-dark-surface-alt dark:text-dark-text rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
-            />
-          </div>
-        </div>
-      )}
+            {/* Hex input + preview */}
+            <div className="flex items-center gap-2">
+              <div
+                className="w-8 h-8 rounded-md border border-slate-200 dark:border-dark-border shrink-0"
+                style={{ backgroundColor: value }}
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                aria-label="Hex color value"
+                name="hex-color"
+                autoComplete="off"
+                value={hexInput}
+                onChange={handleHexInput}
+                maxLength={7}
+                spellCheck={false}
+                inputMode="text"
+                className="flex-1 min-w-0 px-2 py-1.5 text-sm sm:text-card-desc font-mono border border-slate-300 dark:border-dark-border dark:bg-dark-surface-alt dark:text-dark-text rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500"
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

@@ -52,7 +52,10 @@ const FOCUS =
   "disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 
 const MINIMAL_BTN = `rounded text-slate-400 hover:text-slate-600 dark:hover:text-dark-text ${FOCUS}`;
-const SM_BTN = `p-1 ${MINIMAL_BTN}`;
+// `sm` stays a compact ~24px stepper on fine pointers but floors to a 44px tap
+// target on touch (pointer-coarse), so the muted corner stepper is still
+// reliably tappable on a phone without changing the desktop look.
+const SM_BTN = `p-1 pointer-coarse:min-w-11 pointer-coarse:min-h-11 pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center ${MINIMAL_BTN}`;
 const TOUCH_BTN = `min-w-11 min-h-11 flex items-center justify-center ${MINIMAL_BTN}`;
 const BORDERED_BTN = `p-1.5 rounded-lg border border-slate-200 dark:border-dark-border hover:bg-slate-50 dark:hover:bg-dark-surface-alt ${FOCUS}`;
 
@@ -73,7 +76,7 @@ export function PagePreviewNav({
   const chevronClass = bordered ? "w-4 h-4 text-slate-600 dark:text-dark-text-muted" : "w-4 h-4";
   const countClass = bordered
     ? "text-sm font-medium text-slate-700 dark:text-dark-text tabular-nums min-w-20 text-center"
-    : "text-xs text-slate-400 dark:text-dark-text-muted tabular-nums px-1";
+    : "text-xs text-slate-500 dark:text-dark-text-muted tabular-nums px-1";
 
   return (
     <div className={`flex items-center ${bordered ? "gap-2" : "gap-0.5"}`}>

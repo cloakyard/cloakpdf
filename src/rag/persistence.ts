@@ -96,8 +96,10 @@ function openDb(): Promise<IDBDatabase | null> {
 export async function getCachedIndex(documentId: string): Promise<CachedIndex | null> {
   const db = await openDb();
   if (!db) return null;
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_NAME, "readwrite");
+  const index = await new Promise<CachedIndex | null>((resolve) => {
+    // Read-only so the warm-start path never takes a writer lock on the
+    // multi-MB record. The LRU timestamp is bumped off this path below.
+    const tx = db.transaction(STORE_NAME, "readonly");
     const os = tx.objectStore(STORE_NAME);
     const req = os.get(documentId);
     req.onsuccess = () => {
@@ -106,8 +108,6 @@ export async function getCachedIndex(documentId: string): Promise<CachedIndex | 
         resolve(null);
         return;
       }
-      rec.touchedAt = Date.now();
-      os.put(rec);
       // Rehydrate `Document` instances — IndexedDB round-trips them as
       // plain objects, which would break LangChain's instanceof checks.
       resolve({
@@ -120,6 +120,38 @@ export async function getCachedIndex(documentId: string): Promise<CachedIndex | 
       });
     };
     req.onerror = () => resolve(null);
+  });
+  // Bump the LRU timestamp off the hot path — fire and forget so the read
+  // resolves immediately and never waits on a writer transaction to commit.
+  if (index) void touchIndex(documentId);
+  return index;
+}
+
+/**
+ * Best-effort LRU bump: open a short `readwrite` transaction and refresh
+ * `touchedAt` on the record. Read-modify-write is fine here because this
+ * runs off the read hot path. Errors are swallowed, mirroring
+ * {@link cacheIndex}/{@link evictOld}.
+ */
+async function touchIndex(documentId: string): Promise<void> {
+  const db = await openDb();
+  if (!db) return;
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const os = tx.objectStore(STORE_NAME);
+    const req = os.get(documentId);
+    req.onsuccess = () => {
+      const rec = req.result as CacheRecord | undefined;
+      if (!rec) {
+        resolve();
+        return;
+      }
+      rec.touchedAt = Date.now();
+      os.put(rec);
+    };
+    req.onerror = () => resolve();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
   });
 }
 

@@ -17,7 +17,6 @@ Hallmark redesigns visual and interaction layers. It does not delete production 
 Before anything else, decide whether the redesign is **single-page** or **multi-page**. The behaviour diverges hard.
 
 **Multi-page signals (any one fires):**
-
 - The target is a directory (e.g. `./app/`, `./pages/`, `./src/routes/`).
 - The target is a glob (`**/*.tsx`, `app/*/page.tsx`).
 - The user names more than one file in the brief (`./hero.tsx and ./pricing.tsx`).
@@ -31,7 +30,7 @@ If none fires → **single-page redesign**. Go to § Single-page flow.
 
 ## § Multi-page flow — design.md first, then redesign
 
-A web app needs a _design system_, not seventeen unrelated theme pickings. Hallmark's diversification rule is wrong here: across pages of the same product, **consistency is the goal, not variety**. If you redesign every page with a different macrostructure / theme / accent, you've shipped a slop split-personality app, even if each individual page is fine.
+A web app needs a *design system*, not seventeen unrelated theme pickings. Hallmark's diversification rule is wrong here: across pages of the same product, **consistency is the goal, not variety**. If you redesign every page with a different macrostructure / theme / accent, you've shipped a slop split-personality app, even if each individual page is fine.
 
 The flow is:
 
@@ -55,67 +54,57 @@ emitting code. Do not regenerate per page — extend or amend this file when the
 system needs to grow.
 
 ## Genre
-
 <editorial · modern-minimal · atmospheric · playful>
 
 ## Macrostructure family
-
 Pick one base macrostructure for marketing pages, one for app pages, one for
 content pages (if applicable). Pages within a family share the family's shape;
 they vary only in component archetypes.
 
 - Marketing pages: <macrostructure name + the 1–2 archetypes that vary>
-- App pages: <macrostructure name + variation knobs>
-- Content pages: <macrostructure name + variation knobs>
+- App pages:       <macrostructure name + variation knobs>
+- Content pages:   <macrostructure name + variation knobs>
 
 ## Theme
-
-- `--color-paper` oklch(<L> <C> <H>)
+- `--color-paper`   oklch(<L> <C> <H>)
 - `--color-paper-2` oklch(<L> <C> <H>)
-- `--color-ink` oklch(<L> <C> <H>)
-- `--color-ink-2` oklch(<L> <C> <H>)
-- `--color-rule` oklch(<L> <C> <H>)
-- `--color-accent` oklch(<L> <C> <H>)
-- `--color-focus` oklch(<L> <C> <H>)
+- `--color-ink`     oklch(<L> <C> <H>)
+- `--color-ink-2`   oklch(<L> <C> <H>)
+- `--color-rule`    oklch(<L> <C> <H>)
+- `--color-accent`  oklch(<L> <C> <H>)
+- `--color-focus`   oklch(<L> <C> <H>)
 
 ## Typography
-
 - Display: <face>, weight <N>, style <normal/italic>
-- Body: <face>, weight <N>
-- Mono: <face>, weight <N>
+- Body:    <face>, weight <N>
+- Mono:    <face>, weight <N>
 - Display tracking: <em>
 - Type scale anchor: <text-display> = clamp(...)
 
 ## Spacing
-
 4-point named scale. The values are in `tokens.css`. Pages must use named
 tokens (`var(--space-md)`), never raw values.
 
 ## Motion
-
 - Easings: cubic-bezier(<x>, <y>, <z>, <w>) named `--ease-out`, etc.
 - Reveal pattern: <fade only / fade + slide / none>
 - Reduced-motion fallback: opacity-only, ≤ 150 ms.
 
 ## Microinteractions stance
-
 - <silent success / celebratory toasts: never>
 - <hover delay 800 ms · focus delay 0 ms>
 - <other named choices>
 
 ## CTA voice
-
 - Primary CTA: <fill style, shape, copy pattern>
 - Secondary CTA: <outline style, shape, copy pattern>
 
 ## Per-page allowances
-
 - Marketing pages MAY use enrichment (Tier-A CSS art, Tier-B SVG, etc.).
 - App pages MUST NOT use enrichment — function carries the page.
 - Content pages: typography only.
 
 ## What pages MUST share
-
 - The wordmark / logotype.
 - The accent colour and its placement (≤ 5 % per viewport).
 - The display + body fonts.
@@ -123,7 +112,6 @@ tokens (`var(--space-md)`), never raw values.
 - Section heading rhythm (numeral + label + display heading pattern).
 
 ## What pages MAY differ on
-
 - Macrostructure within the page-type family (a marketing page can be Marquee
   Hero on one route and Long Document on another — both still use the system's
   type, colour, and CTA voice).
@@ -136,75 +124,60 @@ Drop-in formats for re-using this design system in other projects.
 See [`export-formats.md`](../export-formats.md) for the canonical mapping.
 
 ### tokens.css
-
 ```css
 :root {
-  --color-paper: oklch(<L> <C> <H>);
-  --color-paper-2: oklch(<L> <C> <H>);
-  --color-ink: oklch(<L> <C> <H>);
-  --color-ink-2: oklch(<L> <C> <H>);
-  --color-rule: oklch(<L> <C> <H>);
-  --color-accent: oklch(<L> <C> <H>);
+  --color-paper:      oklch(<L> <C> <H>);
+  --color-paper-2:    oklch(<L> <C> <H>);
+  --color-ink:        oklch(<L> <C> <H>);
+  --color-ink-2:      oklch(<L> <C> <H>);
+  --color-rule:       oklch(<L> <C> <H>);
+  --color-accent:     oklch(<L> <C> <H>);
   --color-accent-ink: oklch(<L> <C> <H>);
-  --color-focus: oklch(<L> <C> <H>);
+  --color-focus:      oklch(<L> <C> <H>);
 
   --font-display: "<face>", ...;
-  --font-body: "<face>", ...;
+  --font-body:    "<face>", ...;
   --font-outlier: "<face>", ...;
 
-  --space-3xs: 0.25rem;
-  --space-2xs: 0.5rem;
-  --space-xs: 0.75rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2rem;
-  --space-xl: 3rem;
-  --space-2xl: 4.5rem;
-  --space-3xl: 7rem;
+  --space-3xs: 0.25rem;  --space-2xs: 0.5rem;  --space-xs: 0.75rem;
+  --space-sm:  1rem;     --space-md:  1.5rem;  --space-lg: 2rem;
+  --space-xl:  3rem;     --space-2xl: 4.5rem;  --space-3xl: 7rem;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.25rem;
+  --text-xs: 0.75rem;  --text-sm: 0.875rem; --text-md: 1.125rem;
+  --text-lg: 1.375rem; --text-xl: 1.75rem;  --text-2xl: 2.25rem;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-short: 220ms;
-  --radius-card: <px>;
-  --radius-pill: <px>;
-  --radius-input: <px>;
+  --radius-card: <px>; --radius-pill: <px>; --radius-input: <px>;
 }
 ```
 
 ### Tailwind v4 `@theme`
-
 ```css
 @theme {
-  --color-paper: oklch(<L> <C> <H>);
-  --color-ink: oklch(<L> <C> <H>);
-  --color-accent: oklch(<L> <C> <H>);
-  --font-display: "<face>", sans-serif;
-  --font-body: "<face>", sans-serif;
-  --spacing-md: 1.5rem;
-  --text-md: 1.125rem;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --color-paper:   oklch(<L> <C> <H>);
+  --color-ink:     oklch(<L> <C> <H>);
+  --color-accent:  oklch(<L> <C> <H>);
+  --font-display:  "<face>", sans-serif;
+  --font-body:     "<face>", sans-serif;
+  --spacing-md:    1.5rem;
+  --text-md:       1.125rem;
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
   /* mirror the rest of tokens.css with `--spacing-*` for Tailwind's spacing utilities */
 }
 ```
 
 ### DTCG `tokens.json`
-
 ```json
 {
   "color": {
-    "paper": { "$value": "oklch(<L> <C> <H>)", "$type": "color" },
-    "ink": { "$value": "oklch(<L> <C> <H>)", "$type": "color" },
+    "paper":  { "$value": "oklch(<L> <C> <H>)", "$type": "color" },
+    "ink":    { "$value": "oklch(<L> <C> <H>)", "$type": "color" },
     "accent": { "$value": "oklch(<L> <C> <H>)", "$type": "color" }
   },
   "font": {
     "display": { "$value": "<face>", "$type": "fontFamily" },
-    "body": { "$value": "<face>", "$type": "fontFamily" }
+    "body":    { "$value": "<face>", "$type": "fontFamily" }
   },
   "space": {
     "md": { "$value": "1.5rem", "$type": "dimension" }
@@ -213,24 +186,23 @@ See [`export-formats.md`](../export-formats.md) for the canonical mapping.
 ```
 
 ### shadcn/ui CSS variables
-
 ```css
 :root {
-  --background: <L> <C> <H>; /* paper */
-  --foreground: <L> <C> <H>; /* ink */
-  --primary: <L> <C> <H>; /* accent */
-  --primary-foreground: <L> <C> <H>; /* accent-ink */
-  --muted: <L> <C> <H>; /* rule */
-  --muted-foreground: <L> <C> <H>; /* muted */
-  --border: <L> <C> <H>; /* rule */
-  --input: <L> <C> <H>; /* rule */
-  --ring: <L> <C> <H>; /* focus */
-  --radius: <px>;
+  --background:        <L>  <C>  <H>;   /* paper */
+  --foreground:        <L>  <C>  <H>;   /* ink */
+  --primary:           <L>  <C>  <H>;   /* accent */
+  --primary-foreground: <L> <C>  <H>;   /* accent-ink */
+  --muted:             <L>  <C>  <H>;   /* rule */
+  --muted-foreground:  <L>  <C>  <H>;   /* muted */
+  --border:            <L>  <C>  <H>;   /* rule */
+  --input:             <L>  <C>  <H>;   /* rule */
+  --ring:              <L>  <C>  <H>;   /* focus */
+  --radius:            <px>;
 }
 ```
 ````
 
-State the picks aloud in plain text BEFORE writing the file. _"Genre: modern-minimal. Theme: a custom OKLCH palette anchored on your brand teal. Display: Geist 600. Body: Geist 400. Three macrostructure families: Marquee Hero (marketing), Workbench (app), Long Document (content)."_ Then ask: _"Want me to proceed with this system across every page, or amend any of it first?"_
+State the picks aloud in plain text BEFORE writing the file. *"Genre: modern-minimal. Theme: a custom OKLCH palette anchored on your brand teal. Display: Geist 600. Body: Geist 400. Three macrostructure families: Marquee Hero (marketing), Workbench (app), Long Document (content)."* Then ask: *"Want me to proceed with this system across every page, or amend any of it first?"*
 
 Wait for confirmation. Only after the user confirms (or says "go ahead") do you write `design.md` and start redesigning pages.
 
@@ -247,7 +219,7 @@ For each target page:
 
 ### 4. Diversification rule — INVERTED for multi-page
 
-Across pages of the same app, the diversification rule is _inverted_: consecutive pages MUST share theme, accent, type pairing. They may differ on macrostructure within the family. The 55 slop-test gates that check "differs from previous Hallmark run" are skipped for `designed-as-app` outputs — the system overrides the catalog rotation here.
+Across pages of the same app, the diversification rule is *inverted*: consecutive pages MUST share theme, accent, type pairing. They may differ on macrostructure within the family. The 58 slop-test gates that check "differs from previous Hallmark run" are skipped for `designed-as-app` outputs — the system overrides the catalog rotation here.
 
 Pages that drift from `design.md` are slop. The audit verb flags `design.md` drift as a critical structural finding (`stamp-vs-design.md disagreement`).
 
@@ -262,7 +234,6 @@ If a page genuinely needs something `design.md` doesn't allow (e.g. a marketing 
 (The classic redesign behaviour — unchanged.)
 
 **What to preserve:**
-
 - The copy intent, factual claims, product names, and primary message. Preserve exact wording only when it already lives in the target UI or the user explicitly asks for verbatim copy.
 - The information architecture (which sections exist, in roughly what order)
 - The brand (colours and fonts they've named, if any)
@@ -270,25 +241,23 @@ If a page genuinely needs something `design.md` doesn't allow (e.g. a marketing 
 - The existing route/component ownership boundaries, unless the user has approved a full rebuild
 
 **What to replace:**
-
 - The structural fingerprint — pick a **different** combination from [`structure.md`](../structure.md) than the source had.
 - The component voice — different button style, different divider language, different image treatment.
 - The reveal pattern — if the original faded everything in on scroll, the new one might have no reveals at all.
 - The visual rhythm — different sections having different padding, different alignments, deliberate breaks.
 
 **What not to replace without confirmation:**
-
 - Route trees, production component directories, or the old website's file structure.
 - Working app logic, data fetching, auth, forms, analytics, or integration code.
 - Existing copy with pasted text from PDFs, docs, or markdown files unless the user requested verbatim copy.
 
 **Optional `--mood <name>` argument:**
 
-If the user specifies a mood (`hallmark redesign ./hero.tsx --mood luxury`), pick a tone aligned to that mood and let it drive the structural fingerprint. Mood names map to tones from [`typography.md`](../typography.md) and [`structure.md`](../structure.md). If no mood is given, ask the user what _feeling_ they want — one word — and proceed.
+If the user specifies a mood (`hallmark redesign ./hero.tsx --mood luxury`), pick a tone aligned to that mood and let it drive the structural fingerprint. Mood names map to tones from [`typography.md`](../typography.md) and [`structure.md`](../structure.md). If no mood is given, ask the user what *feeling* they want — one word — and proceed.
 
-**Genre escape hatch.** If the user explicitly asks for a _kind_ of design that the current genre doesn't fit (e.g. "redesign this editorial page as a modern SaaS hero"), switch genre too. Load [`genres/<new-genre>.md`](../genres/) and apply its rule overlay. Stamp the new genre into the output so future runs respect it.
+**Genre escape hatch.** If the user explicitly asks for a *kind* of design that the current genre doesn't fit (e.g. "redesign this editorial page as a modern SaaS hero"), switch genre too. Load [`genres/<new-genre>.md`](../genres/) and apply its rule overlay. Stamp the new genre into the output so future runs respect it.
 
-**Project-level check.** Before treating this as a true single-page redesign, look for `design.md` at the project root. If it exists, the project is being designed as an app and **the single-page rules don't apply** — read `design.md` and follow it instead. The diversification rule reverses (consistency wins). If you actually want to break from the locked system, _update `design.md` first_, then redesign.
+**Project-level check.** Before treating this as a true single-page redesign, look for `design.md` at the project root. If it exists, the project is being designed as an app and **the single-page rules don't apply** — read `design.md` and follow it instead. The diversification rule reverses (consistency wins). If you actually want to break from the locked system, *update `design.md` first*, then redesign.
 
 **Output:**
 

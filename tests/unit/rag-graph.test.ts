@@ -4,13 +4,19 @@
  * heavy (it needs a chat model + embedder); for the deterministic
  * pieces we test the helpers in isolation.
  */
+import type { Document } from "@langchain/core/documents";
+import type { BaseRetriever } from "@langchain/core/retrievers";
 import { describe, expect, it } from "vitest";
+import type { TransformersJsChatModel } from "../../src/rag/chat-model.ts";
+import type { ChunkMetadata } from "../../src/rag/chunking.ts";
 import {
+  buildRagGraph,
   CHITCHAT_PROMPT,
   extractCoreQuery,
   HYDE_PROMPT,
   looksLikePastedProse,
   OFF_TOPIC_REFUSAL,
+  RagStateAnnotation,
   SYSTEM_PROMPT,
 } from "../../src/rag/graph.ts";
 
@@ -249,4 +255,119 @@ describe("prompt hygiene (no by-example content)", () => {
       }
     });
   }
+});
+
+/**
+ * Runtime smoke test for the compiled LangGraph state machine.
+ *
+ * The helper-only tests above never build or invoke the graph, so the
+ * LangGraph API surface our app actually depends on — `StateGraph` +
+ * `Annotation.Root` channels/reducers, `addConditionalEdges` routing,
+ * `compile()`, and `.invoke()` — is otherwise only exercised by the
+ * heavyweight e2e (which downloads ~1 GB of model weights). Stubbing the
+ * retriever + chat model lets us drive the real graph through all three
+ * terminal branches in milliseconds, so a breaking LangGraph upgrade
+ * fails here instead of silently in production. Added when bumping
+ * `@langchain/langgraph` 1.3.7 → 1.4.1 (a clean, no-code-change bump).
+ */
+describe("buildRagGraph (LangGraph runtime)", () => {
+  /** Chat model stub: streams a fixed reply word-by-word via `.stream()`. */
+  function stubChatModel(reply: string): TransformersJsChatModel {
+    return {
+      stream(_messages: unknown) {
+        return (async function* () {
+          const words = reply.split(" ");
+          for (let i = 0; i < words.length; i++) {
+            // Re-prepend the split spaces so the accumulated text equals
+            // `reply` exactly (first word has no leading space).
+            yield { content: i === 0 ? words[i] : ` ${words[i]}` };
+          }
+        })();
+      },
+    } as unknown as TransformersJsChatModel;
+  }
+
+  function doc(pageContent: string, pageNumber: number, chunkId: string): Document<ChunkMetadata> {
+    return {
+      pageContent,
+      metadata: { pageNumber, ordinal: 0, chunkId, ocrUsed: false },
+    } as Document<ChunkMetadata>;
+  }
+
+  /** Retriever stub: returns a fixed hit list regardless of query. */
+  function stubRetriever(hits: Document<ChunkMetadata>[]): BaseRetriever {
+    return { invoke: async () => hits } as unknown as BaseRetriever;
+  }
+
+  it("exposes the Annotation.Root channel schema with working defaults", () => {
+    // The state spec drives every node's read/write surface; if the
+    // Annotation API changed shape this throws at construction time.
+    const initial = RagStateAnnotation.spec;
+    expect(initial).toBeDefined();
+    expect(Object.keys(initial)).toEqual(
+      expect.arrayContaining([
+        "question",
+        "searchQuery",
+        "intent",
+        "offTopic",
+        "docs",
+        "citedPages",
+        "answer",
+      ]),
+    );
+  });
+
+  it("routes small talk to the chitchat node (classify → chitchat → END)", async () => {
+    const graph = buildRagGraph({
+      retriever: stubRetriever([]),
+      chatModel: stubChatModel("Hello! Ask me anything about your document."),
+      // scoreRelevance/anchorChunks intentionally omitted — chitchat
+      // never reaches retrieve.
+    });
+    const result = await graph.invoke({ question: "hi" });
+    expect(result.intent).toBe("chitchat");
+    expect(result.answer).toBe("Hello! Ask me anything about your document.");
+    expect(result.citedPages).toEqual([]);
+  });
+
+  it("routes a grounded question to generate and surfaces cited pages", async () => {
+    const hit = doc(
+      "The annual report covers revenue growth, headcount, and key findings.",
+      3,
+      "p3-0",
+    );
+    const graph = buildRagGraph({
+      retriever: stubRetriever([hit]),
+      chatModel: stubChatModel("The report covers revenue growth and headcount."),
+      // Top score above RELEVANCE_THRESHOLD (0.5) and per-chunk score
+      // above PER_CHUNK_FLOOR (0.3) so the chunk survives both gates.
+      scoreRelevance: async () => ({ topScore: 0.82, chunkScores: new Map([["p3-0", 0.82]]) }),
+      anchorChunks: [],
+    });
+    const result = await graph.invoke({
+      question: "please summarise the annual report findings",
+    });
+    expect(result.intent).toBe("question");
+    expect(result.offTopic).toBe(false);
+    expect(result.answer).toBe("The report covers revenue growth and headcount.");
+    expect(result.citedPages).toEqual([3]);
+  });
+
+  it("routes an off-topic question to refuse via the relevance gate", async () => {
+    const hit = doc("Quarterly revenue and operating margin tables.", 2, "p2-0");
+    const graph = buildRagGraph({
+      retriever: stubRetriever([hit]),
+      chatModel: stubChatModel("(should never be called on the refuse path)"),
+      // Top score below RELEVANCE_THRESHOLD (0.5) → retrieve tags the
+      // state offTopic → conditional edge routes to refuse.
+      scoreRelevance: async () => ({ topScore: 0.18, chunkScores: new Map([["p2-0", 0.18]]) }),
+      anchorChunks: [],
+    });
+    const result = await graph.invoke({
+      question: "what is the capital of France",
+    });
+    expect(result.intent).toBe("off-topic");
+    expect(result.answer).toBe(OFF_TOPIC_REFUSAL);
+    expect(result.citedPages).toEqual([]);
+  });
 });

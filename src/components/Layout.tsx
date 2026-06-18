@@ -13,6 +13,7 @@
 import { ArrowUpRight, ChevronLeft, Scale, ShieldCheck } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import { GRAINIENT_DARK, GRAINIENT_LIGHT, GRAINIENT_MOTION } from "../config/grainient";
+import { APP_CONTAINER } from "../config/theme.ts";
 import { tools } from "../config/tool-registry.ts";
 import { Grainient } from "./Grainient";
 
@@ -95,8 +96,8 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
             of the viewport, sitting above the aurora. The wrapping
             <header> owns the bar visuals; the inner container constrains
             content to the page max-width. */}
-        <header className="sticky top-0 z-50 bg-white/80 dark:bg-dark-surface/80 backdrop-blur-xl border-b border-slate-200/70 dark:border-white/10">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <header className="sticky top-0 z-50 bg-white/80 dark:bg-dark-surface/80 backdrop-blur-lg border-b border-slate-200/70 dark:border-white/10">
+          <div className={`${APP_CONTAINER} mx-auto px-4 sm:px-6`}>
             <div className="py-3 flex items-center gap-2 sm:gap-3">
               {showBack && (
                 <button
@@ -163,7 +164,7 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
         <main
           id="main"
           tabIndex={-1}
-          className="relative z-10 flex-1 max-w-6xl mx-auto px-4 sm:px-6 py-8 w-full scroll-mt-20"
+          className={`relative z-10 flex-1 ${APP_CONTAINER} mx-auto px-4 sm:px-6 py-8 w-full scroll-mt-20`}
         >
           {children}
         </main>
@@ -176,7 +177,7 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
           className="relative mt-auto"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8">
+          <div className={`${APP_CONTAINER} mx-auto px-4 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8`}>
             {/* Bento cards only render on the home screen. On tool pages
                 (showBack=true) we collapse to a single attribution row. */}
             {!showBack && (
@@ -218,14 +219,14 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
                     {[
                       {
                         n: 1,
-                        title: "Pick a tool",
-                        description: `Browse ${tools.length}+ PDF utilities organised by what you want to do — all in one place.`,
+                        title: "Drop a PDF — or pick a utility",
+                        description: `PDFs open in the canvas editor; ${tools.length} focused cards cover multi-file, security, and AI jobs.`,
                       },
                       {
                         n: 2,
-                        title: "Drop your PDF",
+                        title: "Make your edits",
                         description:
-                          "Files are processed entirely in your browser. Nothing ever leaves your device.",
+                          "Annotate, redact, organise, OCR — everything runs on your device.",
                       },
                       {
                         n: 3,
@@ -245,7 +246,7 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
                           <div className="text-card-desc font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text">
                             {step.title}
                           </div>
-                          <div className="text-meta leading-[1.55] text-slate-500 dark:text-dark-text-muted">
+                          <div className="text-meta leading-[1.55] text-slate-500 dark:text-dark-text-muted max-w-prose">
                             {step.description}
                           </div>
                         </div>
@@ -301,7 +302,7 @@ export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
 
             <div className="border-t border-slate-200/60 dark:border-dark-border pt-5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-meta text-slate-500 dark:text-dark-text-muted">
               <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                <span>Built with care by</span>
+                <span>Built by</span>
                 <a
                   href={AUTHOR_URL}
                   target="_blank"

@@ -1,5 +1,6 @@
 import { AlertTriangle, Check, Copy, RefreshCw, ShieldCheck } from "lucide-react";
 import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
+import { APP_CONTAINER } from "../config/theme.ts";
 
 declare const __APP_VERSION__: string;
 
@@ -84,10 +85,11 @@ export class ErrorBoundary extends Component<Props, State> {
     )}&body=${encodeURIComponent(issueBody)}`;
 
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-primary-50/40 dark:from-dark-bg dark:via-dark-bg dark:to-dark-surface/60 flex flex-col">
-        {/* Header — mirrors Layout.tsx so users stay oriented even mid-crash */}
-        <header className="bg-white/85 dark:bg-dark-surface/85 backdrop-blur-md border-b border-slate-200/80 dark:border-dark-border sticky top-0 z-50 shadow-sm shadow-slate-100/50 dark:shadow-black/20">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+      <div className="min-h-screen flex flex-col" style={{ background: "var(--page-bg)" }}>
+        {/* Header — mirrors Layout.tsx so users stay oriented even mid-crash:
+            border-b hairline + backdrop-blur, no resting shadow (DESIGN.md #2). */}
+        <header className="bg-white/85 dark:bg-dark-surface/85 backdrop-blur-md border-b border-slate-200/80 dark:border-dark-border sticky top-0 z-50">
+          <div className={`${APP_CONTAINER} mx-auto px-4 sm:px-6 py-3 flex items-center gap-3`}>
             <button
               type="button"
               onClick={this.handleReload}
@@ -121,7 +123,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 href={REPO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text transition-colors duration-200"
+                className="text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text transition-colors duration-200"
                 aria-label="View source on GitHub"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -152,12 +154,12 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
 
           <div className="space-y-8 text-sm text-slate-600 dark:text-dark-text-muted leading-relaxed">
-            <section className="flex items-start gap-2.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-4">
+            <section className="flex items-start gap-2.5 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800/60 rounded-xl p-4">
               <ShieldCheck
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                className="w-5 h-5 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5"
                 aria-hidden="true"
               />
-              <p className="text-emerald-800 dark:text-emerald-200">
+              <p className="text-primary-800 dark:text-primary-200">
                 Your files were never uploaded — everything stays on your device.
               </p>
             </section>
@@ -189,7 +191,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <pre className="whitespace-pre-wrap text-xs bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg p-3 text-slate-700 dark:text-dark-text font-mono overflow-x-auto thin-scrollbar max-h-40">
                 {error.message}
               </pre>
-              <p className="mt-2 text-tag text-slate-400 dark:text-dark-text-muted">
+              <p className="mt-2 text-tag text-slate-500 dark:text-dark-text-muted">
                 CloakPDF {__APP_VERSION__} · {new Date().toLocaleString()}
               </p>
             </section>
@@ -222,7 +224,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   href={issueUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-600 dark:text-primary-400 hover:underline"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/50 rounded-sm"
                 >
                   report this issue on GitHub
                 </a>{" "}
@@ -232,8 +234,10 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
         </main>
 
-        <footer className="border-t border-slate-200/60 dark:border-dark-border bg-linear-to-b from-white/60 to-slate-50/80 dark:from-dark-surface/60 dark:to-dark-bg/80">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-center gap-2 flex-wrap text-tag text-slate-400 dark:text-dark-text-muted">
+        <footer className="border-t border-slate-200/60 dark:border-dark-border">
+          <div
+            className={`${APP_CONTAINER} mx-auto px-4 sm:px-6 py-4 flex items-center justify-center gap-2 flex-wrap text-tag text-slate-500 dark:text-dark-text-muted`}
+          >
             <span>© {new Date().getFullYear()} CloakPDF by Sumit Sahoo</span>
             <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">
               ·

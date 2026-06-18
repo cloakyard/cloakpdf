@@ -244,37 +244,65 @@ export function Grainient({
     ro.observe(container);
     setSize();
 
-    let raf = 0;
-    const t0 = performance.now();
-    // Accumulated time spent in the paused state. Subtracted from the
-    // wall-clock elapsed when computing `iTime` so the shader doesn't
-    // see a discontinuous jump when the user returns to the home view
-    // — the warp picks up exactly where it left off.
-    let pausedAccum = 0;
-    let pauseStartedAt = 0;
-    const loop = (t: number) => {
-      if (pausedRef.current) {
-        if (pauseStartedAt === 0) pauseStartedAt = t;
-      } else {
-        if (pauseStartedAt !== 0) {
-          pausedAccum += t - pauseStartedAt;
-          pauseStartedAt = 0;
-        }
-        program.uniforms.iTime.value = (t - t0 - pausedAccum) * 0.001;
-        renderer.render({ scene: mesh });
-      }
-      raf = requestAnimationFrame(loop);
+    // Honour prefers-reduced-motion: setSize() above already painted one
+    // static frame, so we simply skip the continuous warp loop — the backdrop
+    // stays (calm, still) instead of drifting.
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Pause the render loop while the tab is hidden — there's nothing to show,
+    // and the warp + grain would otherwise keep burning GPU/CPU in the
+    // background. Tracked in a closure flag the loop ORs into its pause check,
+    // so the existing pause-time accounting keeps `iTime` continuous on return
+    // (no remount, no shader recompile — same as the `paused` prop path).
+    let hidden = typeof document !== "undefined" && document.hidden;
+    const onVisibility = () => {
+      hidden = document.hidden;
     };
-    raf = requestAnimationFrame(loop);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    let raf = 0;
+    if (!reduceMotion) {
+      const t0 = performance.now();
+      // Accumulated time spent in the paused state. Subtracted from the
+      // wall-clock elapsed when computing `iTime` so the shader doesn't
+      // see a discontinuous jump when the user returns to the home view
+      // — the warp picks up exactly where it left off.
+      let pausedAccum = 0;
+      let pauseStartedAt = 0;
+      const loop = (t: number) => {
+        if (pausedRef.current || hidden) {
+          if (pauseStartedAt === 0) pauseStartedAt = t;
+        } else {
+          if (pauseStartedAt !== 0) {
+            pausedAccum += t - pauseStartedAt;
+            pauseStartedAt = 0;
+          }
+          program.uniforms.iTime.value = (t - t0 - pausedAccum) * 0.001;
+          renderer.render({ scene: mesh });
+        }
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    }
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       try {
         container.removeChild(canvas);
       } catch {
         // Ignore
       }
+      // Detaching the canvas does NOT free the WebGL2 context. Without an
+      // explicit release, every home↔editor round-trip and OS theme toggle
+      // (palette change → effect re-run) orphans one context toward Chrome's
+      // ~16-context cap, which then force-evicts the oldest and blanks the
+      // backdrop. Force the release here.
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
   }, [
     timeSpeed,

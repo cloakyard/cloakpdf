@@ -82,10 +82,15 @@ describe("PagePreviewNav — label reflects the 1-based page", () => {
 });
 
 describe("PagePreviewNav — size and variant", () => {
-  it("uses compact padding for the default sm size", () => {
+  it("uses compact padding for the default sm size, floored to 44px only on touch", () => {
     const tag = buttonTag(render({ page: 0, total: 3, onChange: noop }), "Previous page");
     expect(tag).toContain("p-1 ");
-    expect(tag).not.toContain("min-w-11");
+    // Compact on fine pointers; the 44px tap target only kicks in on coarse
+    // (touch) pointers via the pointer-coarse: variant.
+    expect(tag).toContain("pointer-coarse:min-w-11");
+    expect(tag).toContain("pointer-coarse:min-h-11");
+    // …but never an UNCONDITIONAL 44px min — that's the `size="touch"` variant.
+    expect(tag).not.toContain("min-w-11 min-h-11");
   });
 
   it("uses 44px touch targets for size=touch", () => {

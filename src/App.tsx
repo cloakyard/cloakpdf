@@ -1,55 +1,59 @@
 /**
  * Root application module.
  *
- * Manages which view is active (home / tool / privacy / workflows-home /
- * workflow-builder / workflow-runner) and delegates rendering to the
- * matching child component.
+ * Manages which view is active (home / tool / editor / privacy) and delegates
+ * rendering to the matching child component. The home page is editor-first:
+ * dropping a PDF opens the unified editor; only multi-input + special tools
+ * remain as standalone cards.
  *
- * Tool metadata and lazy components live in `config/tool-registry.ts`
- * so that workflow code can render any tool by id without pulling
- * App.tsx into its dependency graph.
+ * Tool metadata and lazy components live in `config/tool-registry.ts`.
  */
 
 import {
-  ArrowRight,
+  CloudOff,
+  Code2,
   Cpu,
-  GitFork,
+  FileArchive,
+  FileImage,
   MonitorSmartphone,
   Rocket,
-  LayoutGrid,
+  ScanSearch,
+  ScanText,
+  Scissors,
   Search,
   ShieldCheck,
   UserRoundCheck,
   WifiOff,
   EyeOff,
-  Workflow as WorkflowIcon,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FileDropZone } from "./components/FileDropZone.tsx";
 import { Layout } from "./components/Layout.tsx";
-import { useRevealOnScroll } from "./hooks/useRevealOnScroll.ts";
-import { useSpotlightGlow } from "./hooks/useSpotlightGlow.ts";
+import { AnimatePresence, m, variants } from "./components/motion.tsx";
 import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
 import { ReloadPrompt } from "./components/ReloadPrompt.tsx";
 import { ToolCard } from "./components/ToolCard.tsx";
-import { categories, findTool, findToolComponent, tools } from "./config/tool-registry.ts";
-import type { Tool, ToolId } from "./types.ts";
+import { categoryAccent, categoryGlow } from "./config/theme.ts";
+import {
+  categories,
+  findTool,
+  findToolComponent,
+  HOME_CARD_TOOLS,
+  tools,
+  type ToolId,
+} from "./config/tool-registry.ts";
+// Plain metadata (no editor component graph) — safe on the home critical path.
+import { EDITOR_TOOL_IDS, EDITOR_TOOLS } from "./editor/tools.ts";
+import type { Tool } from "./types.ts";
 import { isMobileDevice } from "./utils/device-memory.ts";
-import { NAVIGATE_TOOL_EVENT } from "./utils/nav.ts";
-// Workflow views are lazy-loaded: WorkflowRunner is the only static App.tsx
-// import that reaches pdf-lib (through step execution), so code-splitting the
-// three workflow views keeps the ~233 kB-gzip pdf-lib/pako graph off the
-// home-screen critical path. They render under a Suspense boundary below.
-const WorkflowBuilder = lazy(() =>
-  import("./workflow/WorkflowBuilder.tsx").then((m) => ({ default: m.WorkflowBuilder })),
-);
-const WorkflowRunner = lazy(() =>
-  import("./workflow/WorkflowRunner.tsx").then((m) => ({ default: m.WorkflowRunner })),
-);
-const WorkflowsHome = lazy(() =>
-  import("./workflow/WorkflowsHome.tsx").then((m) => ({ default: m.WorkflowsHome })),
-);
+import { NAVIGATE_TOOL_EVENT, OPEN_EDITOR_EVENT } from "./utils/nav.ts";
+// The canvas editor is the primary single-PDF surface (editor-first redesign).
+// Lazy-loaded so its pdf-lib / PDF.js graph stays off the home critical path,
+// and rendered full-screen outside <Layout> (it owns its own chrome).
+const EditorView = lazy(() => import("./editor/EditorView.tsx"));
 
 // ── Platform detection (module-level, computed once) ──────────────
 
@@ -86,6 +90,10 @@ interface ToolViewProps {
  * why the tool isn't available instead of mounting it — the home grid
  * already hides the card, but a saved URL / shared link could still
  * land a phone user here directly.
+ *
+ * No width wrapper here: every tool spans the same responsive shell as
+ * the home page (one container, uniform edges). Content-intrinsic caps
+ * (chat-bubble measure, diff-image width) live inside the tools.
  */
 function ToolView({ tool, Component }: ToolViewProps) {
   const Icon = tool.icon;
@@ -139,26 +147,73 @@ function DesktopOnlyNotice({ tool }: { tool: Tool }) {
   );
 }
 
+// ── Home search index ────────────────────────────────────────────
+
+/**
+ * Editor tools mapped to the home-card shape so the ⌘K search reaches the
+ * whole product, not just the 7 standalone cards. Clicking one routes through
+ * the existing editor path in `handleSelectTool` (opens the editor with the
+ * tool preselected). Derived from the same `EDITOR_TOOLS` constant the
+ * editor's rail renders from, so search can never drift from the product.
+ */
+const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.filter((t) => t.status === "ready").map((t) => ({
+  id: t.id,
+  title: t.name,
+  description: t.description,
+  icon: t.icon,
+}));
+
+/**
+ * Export-menu flows (compress / split / PDF→images) live in the editor's
+ * Export modal, not in `EDITOR_TOOLS` — without these aliases, "compress"
+ * and "split" would still dead-end in search. Their ids carry an `export-`
+ * prefix; clicking one opens the editor plain (the Export menu isn't
+ * tool-addressable).
+ */
+const EXPORT_FLOW_CARDS: Tool[] = [
+  {
+    id: "export-compress",
+    title: "Compress PDF",
+    description: "Shrink the file size — open the editor and export with compression",
+    icon: FileArchive,
+  },
+  {
+    id: "export-split",
+    title: "Split PDF",
+    description: "Split into separate PDFs — via the editor's Export menu",
+    icon: Scissors,
+  },
+  {
+    id: "export-images",
+    title: "PDF to images",
+    description: "Export pages as PNG or JPEG images — via the editor's Export menu",
+    icon: FileImage,
+  },
+];
+
+const EDITOR_SEARCH_INDEX: Tool[] = [...EDITOR_SEARCH_CARDS, ...EXPORT_FLOW_CARDS];
+
 // ── HomeScreen ───────────────────────────────────────────────────
 
 interface HomeScreenProps {
   /** Stable callback invoked with a tool ID when the user picks a tool. */
   onSelectTool: (id: ToolId) => void;
-  /** Open the workflows landing page. */
-  onOpenWorkflows: () => void;
+  /** Open the canvas editor (optionally with a file). The primary entry. */
+  onOpenEditor: (file?: File | null) => void;
 }
 
 /**
- * Landing page showing the hero headline, the workflow hero card, a
- * live-search bar with ⌘K / Ctrl+K shortcut, and a categorised grid
- * of tool cards.
+ * Landing page showing the hero headline, an editor drop zone, a live-search
+ * bar with ⌘K / Ctrl+K shortcut, and a categorised grid of the standalone
+ * tool cards (multi-input + special tools; everything else opens via the
+ * editor).
  *
  * Search state is local to this component so that typing never
  * re-renders the parent `App` or the `Layout` shell. When the user
  * navigates to a tool this component unmounts, naturally discarding
  * the query; returning to the home screen starts with a fresh search.
  */
-function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
+function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -179,14 +234,15 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
   }, [searchQuery]);
 
   /**
-   * Tools whose title or description matches the query (case-insensitive).
-   * `desktopOnly` tools (currently just Ask PDF) are also dropped on
-   * mobile so phones don't see cards for features that crash their
-   * tabs — see the `desktopOnly` rationale in `tool-registry.ts`.
+   * Standalone cards whose title or description matches the query
+   * (case-insensitive). Starts from {@link HOME_CARD_TOOLS} (the editor-first
+   * card set), not every tool. `desktopOnly` tools (currently just Ask PDF)
+   * are also dropped on mobile so phones don't see cards for features that
+   * crash their tabs — see the `desktopOnly` rationale in `tool-registry.ts`.
    */
   const filteredTools = useMemo(() => {
     const mobile = isMobileDevice();
-    const visible = mobile ? tools.filter((t) => !t.desktopOnly) : tools;
+    const visible = mobile ? HOME_CARD_TOOLS.filter((t) => !t.desktopOnly) : HOME_CARD_TOOLS;
     const q = searchQuery.trim().toLowerCase();
     if (!q) return visible;
     return visible.filter(
@@ -194,50 +250,117 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
     );
   }, [searchQuery]);
 
+  /**
+   * Editor tools + export flows matching the query — rendered as an extra
+   * "In the editor" section below the standalone results. Empty until the
+   * user types (the resting grid shows only the standalone cards; the
+   * editor's 18 tools are reached by dropping a PDF).
+   */
+  const editorMatches = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return EDITOR_SEARCH_INDEX.filter(
+      (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
+
+  /** Route a search-result card: `export-*` aliases open the editor plain;
+   *  everything else goes through the normal tool routing. */
+  const handleResultSelect = useCallback(
+    (id: ToolId) => {
+      if (id.startsWith("export-")) onOpenEditor();
+      else onSelectTool(id);
+    },
+    [onOpenEditor, onSelectTool],
+  );
+
   return (
     <div>
-      {/* ── Hero — asymmetric two-column. Headline + subhead live in the
-          left column (left-aligned); the Workflows promo card anchors the
-          right. On mobile the columns stack. When searchQuery is active
-          the right column is omitted; the left column keeps its width so
-          the page rhythm doesn't jump as the user types. ───────────── */}
-      <section className="pt-6 sm:pt-10 md:pt-14 pb-10 sm:pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-          <div className="lg:col-span-7">
-            <h1
-              className="text-[34px] sm:text-[44px] lg:text-[52px] xl:text-[58px] font-semibold text-slate-900 dark:text-dark-text tracking-[-0.03em] leading-[1.05] m-0 text-balance animate-fade-in-up"
-              style={{ animationDelay: "0ms" }}
-            >
-              PDF tools that{" "}
-              <em className="font-serif italic font-normal text-primary-600 dark:text-primary-400">
-                stay on your device
-              </em>
-              .
-            </h1>
+      {/* ── Hero — editor-first, asymmetric two-column. Copy + trust features
+          anchor the left; one large drop zone on the right is the single entry
+          point (dropping a PDF lands straight in the canvas editor). On mobile
+          the columns stack copy → drop zone → features so the primary action
+          stays high. The whole hero collapses during search so results lead. ── */}
+      {!searchQuery && (
+        <section className="pt-4 sm:pt-8 lg:pt-10 pb-10 sm:pb-12">
+          <div className="grid items-center gap-y-9 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-12 xl:gap-x-16">
+            {/* Copy */}
+            <div className="order-1 max-w-xl lg:col-start-1 lg:row-start-1">
+              {/* The privacy clause carries colour, not italics — the same
+                  coloured-ink move as the wordmark's "PDF" suffix, so the
+                  brand emphasis reads hand-set without an italic header. */}
+              <h1 className="text-[32px] sm:text-[40px] lg:text-[46px] xl:text-[52px] font-semibold text-slate-900 dark:text-dark-text tracking-[-0.03em] leading-[1.05] m-0 text-balance animate-fade-in-up">
+                PDF tools that{" "}
+                <span className="text-primary-600 dark:text-primary-400">stay on your device</span>.
+              </h1>
 
-            <p
-              className="text-slate-500 dark:text-dark-text-muted text-card-title sm:text-[16.5px] lg:text-[17px] leading-[1.55] mt-5 sm:mt-6 max-w-lg lg:max-w-xl text-pretty animate-fade-in-up"
-              style={{ animationDelay: "80ms" }}
-            >
-              Edit, merge, sign, secure, and convert PDFs entirely in your browser. No uploads, no
-              accounts, no tracking.
-            </p>
-          </div>
+              <p
+                className="mt-5 max-w-lg text-slate-500 dark:text-dark-text-muted text-card-title sm:text-[17px] leading-[1.55] text-pretty animate-fade-in-up"
+                style={{ animationDelay: "120ms" }}
+              >
+                Edit, merge, sign, redact &amp; convert PDFs — entirely in your browser.
+              </p>
 
-          {!searchQuery && (
-            <div className="lg:col-span-5 animate-fade-in-up" style={{ animationDelay: "120ms" }}>
-              <WorkflowHeroCard onOpen={onOpenWorkflows} />
+              {/* The honest zero: the only marketing-flavoured number on the
+                  page is a zero, and the counts are derived from the tool
+                  registries so they can never drift from the product. */}
+              <p
+                className="mt-4 text-meta text-slate-500 dark:text-dark-text-muted tabular-nums animate-fade-in-up"
+                style={{ animationDelay: "160ms" }}
+              >
+                {EDITOR_TOOL_IDS.size} editor tools · {tools.length} utilities ·{" "}
+                <span className="font-semibold text-slate-600 dark:text-dark-text">0 uploads</span>
+              </p>
             </div>
-          )}
-        </div>
-      </section>
+
+            {/* Drop zone — the single editor-first entry point. Vertically
+                centered beside the copy on desktop; second in the flow on mobile. */}
+            <div
+              className="order-2 animate-fade-in-up lg:col-start-2 lg:row-span-2 lg:row-start-1"
+              style={{ animationDelay: "160ms" }}
+            >
+              <FileDropZone
+                size="hero"
+                accept="application/pdf,.pdf"
+                onFiles={(files) => files[0] && onOpenEditor(files[0])}
+                glowColor={categoryGlow.organise}
+                iconColor={categoryAccent.organise}
+                label="Drop a PDF to start editing"
+                hint="or click to browse — opens in the editor"
+              />
+            </div>
+
+            {/* Mechanism trio — under the copy on desktop, after the drop zone
+                on mobile. Stack on phones, three across from sm up. The h1 and
+                header chip already carry the privacy promise, so these three
+                carry mechanisms: no upload step, live offline proof, and the
+                open-source receipt. */}
+            <div
+              className="order-3 grid grid-cols-1 gap-x-5 gap-y-4 animate-fade-in-up sm:grid-cols-3 lg:gap-x-3 xl:gap-x-5 lg:col-start-1 lg:row-start-2"
+              style={{ animationDelay: "200ms" }}
+            >
+              <HeroFeature
+                icon={CloudOff}
+                title="No upload step"
+                description="Files never leave your device — nothing to wait for."
+              />
+              <OfflineProof />
+              <HeroFeature
+                icon={Code2}
+                title="Open source"
+                description="MIT-licensed — audit every line on GitHub."
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Search Bar ──────────────────────────────────── */}
-      <div
-        className="max-w-3xl mb-12 sm:mb-14 animate-fade-in-up"
-        style={{ animationDelay: "160ms" }}
-      >
-        <div className="relative group">
+      <div className="mb-10 sm:mb-12 animate-fade-in-up" style={{ animationDelay: "160ms" }}>
+        {/* Capped + centered: an edge-to-edge text input reads stretched
+            once the shell widens past ~1100px — a search field is a
+            control, not a banner. */}
+        <div className="relative group max-w-3xl mx-auto">
           {/* Soft primary glow that intensifies on focus — gives the
               field presence without leaning on a heavy border. */}
           <div
@@ -249,7 +372,7 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
               visual anchor; the input fills the remaining space; the
               trailing slot holds either the clear button (when active)
               or the ⌘K affordance. */}
-          <div className="relative flex items-center w-full rounded-2xl bg-white/90 dark:bg-dark-surface/90 backdrop-blur-sm border border-slate-200 dark:border-dark-border shadow-sm hover:border-slate-300 dark:hover:border-dark-border focus-within:border-primary-300 dark:focus-within:border-primary-600 focus-within:shadow-md transition-[border-color,box-shadow] duration-200">
+          <div className="relative flex items-center w-full rounded-2xl bg-white/90 dark:bg-dark-surface/90 backdrop-blur-sm border border-slate-200 dark:border-dark-border hover:border-slate-300 dark:hover:border-dark-border focus-within:border-primary-300 dark:focus-within:border-primary-600 focus-within:shadow-md transition-[border-color,box-shadow] duration-200">
             <span
               aria-hidden="true"
               className="shrink-0 ml-2 my-2 w-10 h-10 flex items-center justify-center text-slate-700 dark:text-dark-text"
@@ -293,40 +416,44 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
 
         {searchQuery && (
           <p
-            className="text-center text-sm text-slate-400 dark:text-dark-text-muted mt-3 animate-fade-in-up"
+            className="text-center text-sm text-slate-600 dark:text-dark-text-muted mt-3 animate-fade-in-up"
             aria-live="polite"
           >
-            {filteredTools.length} {filteredTools.length === 1 ? "tool" : "tools"} found
+            {filteredTools.length + editorMatches.length}{" "}
+            {filteredTools.length + editorMatches.length === 1 ? "tool" : "tools"} found
           </p>
         )}
       </div>
 
       {/* ── Tool Grid / Empty State ─────────────────────── */}
-      {filteredTools.length === 0 ? (
-        <div className="text-center py-16 animate-fade-in-up">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-dark-surface rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Search className="w-8 h-8 text-slate-400 dark:text-dark-text-muted" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-600 dark:text-dark-text mb-2">
+      {filteredTools.length === 0 && editorMatches.length === 0 ? (
+        // Left-aligned to sit on the same left spine the category headings
+        // establish — the old centred icon-tile block was the one
+        // "centred-everything" island on an otherwise left-biased page.
+        <div className="py-16 animate-fade-in-up">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-dark-text mb-2">
             No tools found
           </h3>
-          <p className="text-sm text-slate-400 dark:text-dark-text-muted max-w-md mx-auto">
-            Try a different search term like &ldquo;merge&rdquo;, &ldquo;sign&rdquo;, or
-            &ldquo;compress&rdquo;
+          <p className="text-sm text-slate-600 dark:text-dark-text-muted max-w-md">
+            Try a different search term like &ldquo;redact&rdquo;, &ldquo;watermark&rdquo;, or
+            &ldquo;merge&rdquo;
           </p>
         </div>
       ) : (
-        <div className="space-y-12 sm:space-y-14">
+        <div className="space-y-10 sm:space-y-12">
           {categories.map((cat, catIdx) => {
             const catTools = filteredTools.filter((t) => t.category === cat.key);
             if (catTools.length === 0) return null;
             return (
               <section
                 key={cat.key}
-                className="animate-fade-in-up"
+                className="grid gap-x-8 gap-y-5 animate-fade-in-up lg:grid-cols-12 lg:items-start lg:gap-x-10"
                 style={{ animationDelay: `${catIdx * 80}ms` }}
               >
-                <div className="mb-5 sm:mb-6">
+                {/* Heading column — sits left of its cards on desktop, stacks
+                    above them on mobile/tablet. This asymmetric, left-aligned
+                    rhythm is the spine of the redesign. */}
+                <div className="lg:col-span-4 xl:col-span-3">
                   <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
                     {cat.label}
                     <span className="ml-2 text-slate-400 dark:text-dark-text-muted font-medium tracking-normal normal-case">
@@ -337,7 +464,14 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
                     {cat.description}.
                   </h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* 3-up at 2xl — except single-card categories (On-device
+                    AI, lone search hits), which keep the 2-col track so the
+                    one card reads half-width instead of a skinny orphan. */}
+                <div
+                  className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 ${
+                    catTools.length === 1 ? "" : "2xl:grid-cols-3"
+                  }`}
+                >
                   {catTools.map((tool) => (
                     <ToolCard key={tool.id} tool={tool} onSelect={onSelectTool} />
                   ))}
@@ -346,7 +480,39 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
             );
           })}
 
-          {/* ── Why CloakPDF — multi-colored feature grid ── */}
+          {/* ── "In the editor" search results — the 18 single-PDF tools +
+              export flows live in the editor, so they only surface when the
+              user is searching. Same rail anatomy as the category sections;
+              clicking opens the editor with the tool preselected. ── */}
+          {searchQuery && editorMatches.length > 0 && (
+            <section className="grid gap-x-8 gap-y-5 animate-fade-in-up lg:grid-cols-12 lg:items-start lg:gap-x-10">
+              <div className="lg:col-span-4 xl:col-span-3">
+                <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
+                  In the editor
+                  <span className="ml-2 text-slate-400 dark:text-dark-text-muted font-medium tracking-normal normal-case">
+                    · {editorMatches.length}
+                  </span>
+                </div>
+                {/* "Keep going", not "with the tool ready" — the export-*
+                    aliases open the editor plain (Export menu isn't
+                    tool-addressable), so the head must be true for both. */}
+                <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-[-0.02em] leading-[1.2] text-slate-900 dark:text-dark-text m-0 text-balance">
+                  Keep going in the canvas editor.
+                </h2>
+              </div>
+              <div
+                className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 ${
+                  editorMatches.length === 1 ? "" : "2xl:grid-cols-3"
+                }`}
+              >
+                {editorMatches.map((tool) => (
+                  <ToolCard key={tool.id} tool={tool} onSelect={handleResultSelect} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Why CloakPDF — feature grid ── */}
           {!searchQuery && <WhyCloakPdfSection />}
         </div>
       )}
@@ -354,53 +520,51 @@ function HomeScreen({ onSelectTool, onOpenWorkflows }: HomeScreenProps) {
   );
 }
 
+/**
+ * "Why CloakPDF" — left-aligned into the same 4/8 rail rhythm as the category
+ * sections (the centered-head + uniform grid shape was the page's most
+ * templated block). Renders statically: the first-paint cascade is the page's
+ * one entrance; a second scroll-triggered reveal here was motion for its own
+ * sake. Eight claims, each concrete and checkable — and none restating the
+ * hero trio (no upload step / works offline / open source): this section
+ * earns its scroll with claims the top of the page hasn't already made.
+ */
 function WhyCloakPdfSection() {
-  const { ref, revealed } = useRevealOnScroll<HTMLElement>();
   return (
-    <section
-      ref={ref}
-      className={`pt-6 sm:pt-10 motion-safe:transition-[opacity,transform] motion-safe:duration-700 ${
-        revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
-      }`}
-    >
-      <div className="text-center mb-8 sm:mb-12">
-        <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2.5">
+    <section className="grid gap-x-8 gap-y-6 pt-6 sm:pt-10 lg:grid-cols-12 lg:items-start lg:gap-x-10">
+      <div className="lg:col-span-4 xl:col-span-3">
+        <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
           Why CloakPDF
         </div>
-        <h2 className="text-[24px] sm:text-[30px] md:text-[36px] font-semibold tracking-[-0.02em] leading-[1.15] text-slate-900 dark:text-dark-text m-0 text-balance">
-          Everything you need, nothing you don&rsquo;t.
+        <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-[-0.02em] leading-[1.2] text-slate-900 dark:text-dark-text m-0 text-balance">
+          {tools.length} utilities, one editor, nothing uploaded.
         </h2>
-        <p className="text-slate-500 dark:text-dark-text-muted text-[14px] sm:text-[15.5px] leading-[1.55] max-w-140 mx-auto mt-3">
-          A modern PDF toolkit that respects your privacy — built for people who care about their
-          data and their craft.
+        <p className="mt-3 text-slate-500 dark:text-dark-text-muted text-card-title leading-[1.55] text-pretty">
+          Open the Network tab while you edit: the app downloads its own code, but your files never
+          go up. It&rsquo;s all public if you&rsquo;d rather read than watch.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-7 sm:gap-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-7 sm:gap-y-8 lg:col-span-8 xl:col-span-9">
         <FeatureItem
           icon={<UserRoundCheck className="w-5 h-5" />}
-          title="No sign-up"
-          description="No accounts, no email, no passwords. Start using the moment the page loads."
-        />
-        <FeatureItem
-          icon={<EyeOff className="w-5 h-5" />}
-          title="No tracking"
-          description="Zero analytics, zero telemetry, zero third-party scripts. You stay anonymous."
+          title="Free, no sign-up"
+          description="No accounts, no email, no paywalls. Start using the moment the page loads."
         />
         <FeatureItem
           icon={<ShieldCheck className="w-5 h-5" />}
-          title="Local-first"
-          description="Every byte stays in your browser. Nothing is ever uploaded to any server."
+          title="No tracking"
+          description="No analytics script, no cookies, no telemetry — nothing watches you work."
         />
         <FeatureItem
-          icon={<WifiOff className="w-5 h-5" />}
-          title="Works offline"
-          description="Once cached, keep editing and exporting without a connection — flights, trains, anywhere."
+          icon={<EyeOff className="w-5 h-5" />}
+          title="Redaction that deletes"
+          description="Redacted pages are rebuilt as pixels, so the text underneath is gone — not hidden under a black box."
         />
         <FeatureItem
           icon={<Rocket className="w-5 h-5" />}
-          title="Installable as a PWA"
-          description="Add CloakPDF to your home screen for a full-screen, app-like experience that launches in one tap."
+          title="Install as an app"
+          description="Add it to your home screen or dock as a PWA — it opens in its own window, like a native app."
         />
         <FeatureItem
           icon={<MonitorSmartphone className="w-5 h-5" />}
@@ -408,9 +572,9 @@ function WhyCloakPdfSection() {
           description="Every tool adapts fluidly across screen sizes — edit on the go, finalise at your desk."
         />
         <FeatureItem
-          icon={<LayoutGrid className="w-5 h-5" />}
-          title={`${tools.length}+ PDF tools`}
-          description="Merge, split, sign, redact, OCR, compress, convert — one workspace for every PDF chore."
+          icon={<ScanSearch className="w-5 h-5" />}
+          title="PII detection built in"
+          description="Redact spots emails, phone and card numbers, SSNs, IBANs and more on the page — and boxes them for you."
         />
         <FeatureItem
           icon={<Cpu className="w-5 h-5" />}
@@ -418,9 +582,9 @@ function WhyCloakPdfSection() {
           description="Ask questions about your PDF with a chat model that runs entirely in your browser — no API key, no server round-trip."
         />
         <FeatureItem
-          icon={<GitFork className="w-5 h-5" />}
-          title="Free & open source"
-          description="MIT-licensed and on GitHub. Fork it, self-host it, or audit every byte — every line is public."
+          icon={<ScanText className="w-5 h-5" />}
+          title="OCR built in"
+          description="Make scanned PDFs searchable — text recognition runs on your device, phones included."
         />
       </div>
     </section>
@@ -456,73 +620,68 @@ function FeatureItem({ icon, title, description }: FeatureItemProps) {
   );
 }
 
-// ── WorkflowHeroCard ─────────────────────────────────────────────
-
-interface WorkflowHeroCardProps {
-  onOpen: () => void;
+/**
+ * Live trust chip: invites the user to flip on airplane mode, then proves the
+ * offline claim the moment the browser actually disconnects (real
+ * `online`/`offline` events — the page demonstrates instead of asserting).
+ * The offline copy claims only the editor: AI model weights and OCR language
+ * data are runtime-cached on first use, so "everything" would overclaim on a
+ * cold cache. `aria-atomic` makes the title + line announce as one phrase.
+ */
+function OfflineProof() {
+  const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+  useEffect(() => {
+    const onOnline = () => setOnline(true);
+    const onOffline = () => setOnline(false);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, []);
+  return (
+    <div aria-live="polite" aria-atomic="true">
+      <HeroFeature
+        icon={WifiOff}
+        title={online ? "Works offline" : "You're offline"}
+        description={online ? "Flip on airplane mode. We'll wait." : "The editor still works."}
+      />
+    </div>
+  );
 }
 
 /**
- * Same primary-tinted spotlight glow used by `ToolCard`. Kept inline
- * here (not extracted) since the two cards share little else.
+ * Compact trust feature shown in the hero's left column (icon tile + title +
+ * one-line description). Smaller and denser than {@link FeatureItem} so three
+ * sit comfortably in the narrower hero column.
  */
-const WORKFLOW_HERO_GLOW = "rgba(37,99,235,0.16)";
-
-/**
- * A single prominent card on the home screen that introduces the
- * Workflows feature. Matches `ToolCard`'s design — white surface,
- * slate border, cursor-tracking spotlight glow on hover — but stays
- * full-width with a horizontal layout so the "New · Workflows" label
- * and supporting copy can breathe.
- */
-function WorkflowHeroCard({ onOpen }: WorkflowHeroCardProps) {
-  const { ref, glowStyle, handlers } = useSpotlightGlow({
-    color: WORKFLOW_HERO_GLOW,
-    radius: 420,
-  });
-
+function HeroFeature({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
   return (
-    <button
-      type="button"
-      ref={ref}
-      onClick={onOpen}
-      {...handlers}
-      className="group relative w-full overflow-hidden bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border px-5 py-5 sm:px-6 sm:py-6 text-left cursor-pointer transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-md active:-translate-y-0.5 active:border-primary-300 dark:active:border-primary-600 active:shadow-md"
-    >
-      {/* Cursor / touch spotlight glow */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
+    <div className="flex items-start gap-3">
+      <span
+        className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
         aria-hidden="true"
-        style={glowStyle}
-      />
-
-      <div className="relative z-10 flex items-start gap-4">
-        <span className="shrink-0 w-11 h-11 rounded-xl grid place-items-center bg-slate-100 dark:bg-dark-surface-alt text-slate-700 dark:text-dark-text transition-[transform,background-color,color] duration-200 group-hover:-translate-y-px group-hover:scale-105 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-active:bg-primary-50 dark:group-active:bg-primary-900/30 group-active:text-primary-600 dark:group-active:text-primary-400">
-          <WorkflowIcon className="w-5 h-5" />
-        </span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-tag font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
-              Workflows
-            </span>
-            <span className="inline-flex items-center rounded-full border border-primary-200 dark:border-primary-700/60 bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 text-xxs font-semibold uppercase tracking-[0.14em] text-primary-600 dark:text-primary-400">
-              New
-            </span>
-          </div>
-          <h3 className="text-card-title sm:text-[16px] font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text">
-            Chain tools together and run them in one go.
-          </h3>
-          <p className="text-meta sm:text-card-desc leading-normal text-slate-500 dark:text-dark-text-muted mt-0.5">
-            Build reusable sequences from supported tools and turn a multi-step PDF task into a
-            single click. A few tools — multi-file or non-PDF — stay standalone.
-          </p>
+      >
+        <Icon className="w-4.5 h-4.5" />
+      </span>
+      <div className="min-w-0">
+        <div className="text-card-desc font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text leading-tight">
+          {title}
         </div>
-        <ArrowRight
-          className="hidden sm:block shrink-0 self-end w-5 h-5 text-slate-400 dark:text-dark-text-muted transition-[transform,color] duration-200 group-hover:translate-x-0.5 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-active:text-primary-600 dark:group-active:text-primary-400"
-          aria-hidden="true"
-        />
+        <div className="mt-0.5 text-meta leading-snug text-slate-500 dark:text-dark-text-muted">
+          {description}
+        </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -532,7 +691,7 @@ function WorkflowHeroCard({ onOpen }: WorkflowHeroCardProps) {
 
 /**
  * View state for the app — discriminated union so the active payload
- * (active tool id, edited workflow id) lives next to the view tag.
+ * (active tool id, edited file) lives next to the view tag.
  *
  * Kept here at module scope rather than as a `type View = ...` inside
  * `App` so the union is easier to read in isolation.
@@ -540,10 +699,8 @@ function WorkflowHeroCard({ onOpen }: WorkflowHeroCardProps) {
 type View =
   | { kind: "home" }
   | { kind: "tool"; toolId: ToolId }
-  | { kind: "privacy" }
-  | { kind: "workflows-home" }
-  | { kind: "workflow-builder"; workflowId: string | null }
-  | { kind: "workflow-runner"; workflowId: string };
+  | { kind: "editor"; file: File | null; tool?: string | null }
+  | { kind: "privacy" };
 
 /**
  * Root application component.
@@ -555,33 +712,36 @@ type View =
 export function App() {
   const [view, setView] = useState<View>({ kind: "home" });
 
-  const goHome = useCallback(() => setView({ kind: "home" }), []);
-
-  const handleSelectTool = useCallback((id: ToolId) => {
-    setView({ kind: "tool", toolId: id });
+  // Every view transition routes through navigate() so scroll-to-top happens
+  // synchronously in the click/event path (before paint — no post-render scroll
+  // jump) instead of as a [view] effect that also re-ran on same-view setView.
+  const navigate = useCallback((next: View) => {
+    setView(next);
+    window.scrollTo(0, 0);
   }, []);
+
+  const goHome = useCallback(() => navigate({ kind: "home" }), [navigate]);
+
+  // Editor-first routing: single-PDF tools that live in the editor open it (with
+  // that tool preselected); multi-file / terminal / AI surfaces stay standalone.
+  const handleSelectTool = useCallback(
+    (id: ToolId) => {
+      if (EDITOR_TOOL_IDS.has(id)) navigate({ kind: "editor", file: null, tool: id });
+      else navigate({ kind: "tool", toolId: id });
+    },
+    [navigate],
+  );
+
+  const openEditor = useCallback(
+    (file: File | null = null, tool: string | null = null) => {
+      navigate({ kind: "editor", file, tool });
+    },
+    [navigate],
+  );
 
   const handlePrivacy = useCallback(() => {
-    setView({ kind: "privacy" });
-  }, []);
-
-  const openWorkflowsHome = useCallback(() => {
-    setView({ kind: "workflows-home" });
-  }, []);
-
-  const openWorkflowBuilder = useCallback((workflowId: string | null) => {
-    setView({ kind: "workflow-builder", workflowId });
-  }, []);
-
-  const openWorkflowRunner = useCallback((workflowId: string) => {
-    setView({ kind: "workflow-runner", workflowId });
-  }, []);
-
-  /** Scroll to top whenever the view changes. */
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- view is intentionally the trigger; identity changes per setView call
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [view]);
+    navigate({ kind: "privacy" });
+  }, [navigate]);
 
   // Cross-component deep-link: a tool fires `navigateToTool(id)` and we
   // route to it. Currently used by the encrypted-PDF notice in
@@ -589,25 +749,62 @@ export function App() {
   useEffect(() => {
     function onNavigate(event: Event) {
       const id = (event as CustomEvent<ToolId>).detail;
-      if (findTool(id)) setView({ kind: "tool", toolId: id });
+      if (findTool(id)) navigate({ kind: "tool", toolId: id });
+    }
+    // A tool's secondary "& edit" action finished and handed its output PDF
+    // to the editor (Merge / Images-to-PDF / PDF Password unlock).
+    function onOpenEditor(event: Event) {
+      const file = (event as CustomEvent<File>).detail;
+      navigate({ kind: "editor", file, tool: null });
     }
     window.addEventListener(NAVIGATE_TOOL_EVENT, onNavigate);
-    return () => window.removeEventListener(NAVIGATE_TOOL_EVENT, onNavigate);
-  }, []);
+    window.addEventListener(OPEN_EDITOR_EVENT, onOpenEditor);
+    return () => {
+      window.removeEventListener(NAVIGATE_TOOL_EVENT, onNavigate);
+      window.removeEventListener(OPEN_EDITOR_EVENT, onOpenEditor);
+    };
+  }, [navigate]);
+
+  // The editor owns the full viewport and its own chrome, so it renders
+  // outside <Layout> (no centered max-width, no app header/footer). Orientation
+  // is intentionally unlocked here — the editor adapts to landscape the way
+  // CloakIMG's does, rather than forcing portrait like the standalone tools.
+  if (view.kind === "editor") {
+    return (
+      <>
+        <Suspense fallback={<LoadingSpinner />}>
+          <EditorView initialFile={view.file} initialTool={view.tool ?? null} onExit={goHome} />
+        </Suspense>
+        <ReloadPrompt />
+      </>
+    );
+  }
 
   const showBack = view.kind !== "home";
+  // Key the view transition by identity — switching between two tools should
+  // cross-fade too, not just home↔tool. `initial={false}` suppresses the very
+  // first mount so the home hero's own entrance animation isn't doubled.
+  const viewKey = view.kind === "tool" ? `tool:${view.toolId}` : view.kind;
 
   return (
     <>
       <Layout onHome={goHome} showBack={showBack} onPrivacy={handlePrivacy}>
-        <ViewContent
-          view={view}
-          onSelectTool={handleSelectTool}
-          onOpenWorkflowsHome={openWorkflowsHome}
-          onOpenWorkflowBuilder={openWorkflowBuilder}
-          onOpenWorkflowRunner={openWorkflowRunner}
-          onGoHome={goHome}
-        />
+        <AnimatePresence mode="wait" initial={false}>
+          <m.div
+            key={viewKey}
+            variants={variants.view}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <ViewContent
+              view={view}
+              onSelectTool={handleSelectTool}
+              onOpenEditor={openEditor}
+              onGoHome={goHome}
+            />
+          </m.div>
+        </AnimatePresence>
       </Layout>
       <ReloadPrompt />
       <OrientationLock />
@@ -618,58 +815,27 @@ export function App() {
 interface ViewContentProps {
   view: View;
   onSelectTool: (id: ToolId) => void;
-  onOpenWorkflowsHome: () => void;
-  onOpenWorkflowBuilder: (workflowId: string | null) => void;
-  onOpenWorkflowRunner: (workflowId: string) => void;
+  onOpenEditor: (file?: File | null) => void;
   onGoHome: () => void;
 }
 
-function ViewContent({
-  view,
-  onSelectTool,
-  onOpenWorkflowsHome,
-  onOpenWorkflowBuilder,
-  onOpenWorkflowRunner,
-  onGoHome,
-}: ViewContentProps) {
+function ViewContent({ view, onSelectTool, onOpenEditor, onGoHome }: ViewContentProps) {
   switch (view.kind) {
     case "home":
-      return <HomeScreen onSelectTool={onSelectTool} onOpenWorkflows={onOpenWorkflowsHome} />;
+      return <HomeScreen onSelectTool={onSelectTool} onOpenEditor={onOpenEditor} />;
     case "tool": {
       const meta = findTool(view.toolId);
       const Component = findToolComponent(view.toolId);
       if (!meta || !Component)
-        return <HomeScreen onSelectTool={onSelectTool} onOpenWorkflows={onOpenWorkflowsHome} />;
+        return <HomeScreen onSelectTool={onSelectTool} onOpenEditor={onOpenEditor} />;
       return <ToolView tool={meta} Component={Component} />;
     }
+    case "editor":
+      // Rendered full-screen in App before <Layout>; never reached here. The
+      // case satisfies the exhaustiveness check below.
+      return null;
     case "privacy":
       return <PrivacyPolicy />;
-    case "workflows-home":
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <WorkflowsHome
-            onCreate={() => onOpenWorkflowBuilder(null)}
-            onEdit={(id) => onOpenWorkflowBuilder(id)}
-            onRun={(id) => onOpenWorkflowRunner(id)}
-          />
-        </Suspense>
-      );
-    case "workflow-builder":
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <WorkflowBuilder
-            workflowId={view.workflowId}
-            onCancel={onOpenWorkflowsHome}
-            onSaved={onOpenWorkflowsHome}
-          />
-        </Suspense>
-      );
-    case "workflow-runner":
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <WorkflowRunner workflowId={view.workflowId} onExit={onOpenWorkflowsHome} />
-        </Suspense>
-      );
     default: {
       // Exhaustiveness check — TypeScript will flag missing cases.
       const _exhaustive: never = view;

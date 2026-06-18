@@ -11,7 +11,6 @@ import { FileUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { categoryGlow } from "../config/theme.ts";
 import { useSpotlightGlow } from "../hooks/useSpotlightGlow.ts";
-import { useWorkflowSlot } from "../workflow/WorkflowContext.tsx";
 import { EncryptedPdfNotice } from "./EncryptedPdfNotice.tsx";
 
 interface FileDropZoneProps {
@@ -25,6 +24,12 @@ interface FileDropZoneProps {
   label?: string;
   /** Optional secondary hint text below the label. */
   hint?: string;
+  /**
+   * Visual scale. "hero" is the larger, more prominent variant used as the
+   * home-screen centerpiece (bigger padding, icon, and label); "default" is
+   * the in-tool size. Same drag/click behaviour and design language either way.
+   */
+  size?: "default" | "hero";
   /**
    * CSS color for the cursor/touch spotlight glow (e.g. "rgba(37,99,235,0.18)").
    * Defaults to a neutral blue matching the primary palette.
@@ -57,18 +62,13 @@ export function FileDropZone({
   onFiles,
   label = "Drop files here or click to browse",
   hint,
+  size = "default",
   glowColor = categoryGlow.organise,
   iconColor,
   encryptedFile = null,
   onClearEncrypted,
 }: FileDropZoneProps) {
-  // In workflow mode the file is injected by the runner, so the
-  // dropzone is unreachable. Skip rendering it entirely so the inflated
-  // tool's UI starts directly with its post-load controls. Hooks must
-  // run before this early-return — useWorkflowSlot is the only hook
-  // here; the rest of the component's hooks come after.
-  const inWorkflow = useWorkflowSlot() !== null;
-
+  const hero = size === "hero";
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const {
@@ -100,11 +100,6 @@ export function FileDropZone({
     [onFiles],
   );
 
-  // All hooks above run unconditionally; only the render result is
-  // gated. In workflow mode the runner has already injected a file, so
-  // there is nothing for the dropzone to do.
-  if (inWorkflow) return null;
-
   // The hook detected the user dropped an encrypted PDF — render the
   // notice (with a deep-link to PDF Password) in place of the dropzone.
   // Render only when the caller wired the clear callback, otherwise the
@@ -126,7 +121,8 @@ export function FileDropZone({
       onClick={() => inputRef.current?.click()}
       {...glowHandlers}
       style={{ touchAction: "manipulation" }}
-      className={`group relative w-full overflow-hidden border-2 border-dashed rounded-xl p-10 text-center cursor-pointer
+      className={`group relative w-full overflow-hidden border-2 border-dashed text-center cursor-pointer
+        ${hero ? "rounded-3xl p-8 sm:p-16" : "rounded-xl p-10"}
         transition-[border-color,background-color,transform] duration-200
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2
         ${
@@ -153,7 +149,8 @@ export function FileDropZone({
 
       {/* Icon container */}
       <div
-        className={`relative z-10 w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center
+        className={`relative z-10 mx-auto mb-4 rounded-2xl flex items-center justify-center
+          ${hero ? "w-20 h-20" : "w-16 h-16"}
           transition-[background-color,transform] duration-200
           motion-safe:group-hover:-translate-y-1 motion-safe:[&:has(~*)]:translate-y-0
           ${
@@ -162,28 +159,34 @@ export function FileDropZone({
               : "bg-slate-100 dark:bg-dark-surface group-hover:bg-primary-50 dark:group-hover:bg-primary-900/30"
           }`}
       >
+        {/* Rests at full opacity in a muted slate (a dimmed icon reads
+            disabled on the page's primary CTA); the accent colour arrives on
+            hover/drag via a CSS variable so the inline `iconColor` doesn't
+            override the resting class. */}
         <FileUp
-          className={`w-8 h-8 transition-[color,opacity] duration-200 ${
-            iconColor
-              ? isDragOver
-                ? "opacity-100"
-                : "opacity-50 group-hover:opacity-100"
-              : isDragOver
-                ? "text-primary-500"
-                : "text-slate-400 dark:text-dark-text-muted group-hover:text-primary-400"
+          className={`${hero ? "w-10 h-10" : "w-8 h-8"} transition-colors duration-200 ${
+            isDragOver
+              ? iconColor
+                ? "text-(--dz-accent)"
+                : "text-primary-500"
+              : `text-slate-400 dark:text-dark-text-muted ${
+                  iconColor ? "group-hover:text-(--dz-accent)" : "group-hover:text-primary-400"
+                }`
           }`}
-          style={iconColor ? { color: iconColor } : undefined}
+          style={iconColor ? ({ "--dz-accent": iconColor } as React.CSSProperties) : undefined}
           strokeWidth={1.5}
         />
       </div>
 
       <p
-        className={`relative z-10 font-medium transition-colors duration-200 ${isDragOver ? "text-primary-600 dark:text-primary-400" : "text-slate-600 dark:text-dark-text"}`}
+        className={`relative z-10 font-semibold transition-colors duration-200 ${hero ? "text-lg sm:text-xl" : "font-medium"} ${isDragOver ? "text-primary-600 dark:text-primary-400" : "text-slate-700 dark:text-dark-text"}`}
       >
         {label}
       </p>
       {hint && (
-        <p className="relative z-10 text-sm text-slate-500 dark:text-dark-text-muted mt-1">
+        <p
+          className={`relative z-10 text-slate-500 dark:text-dark-text-muted mt-1 ${hero ? "text-sm sm:text-card-title" : "text-sm"}`}
+        >
           {hint}
         </p>
       )}

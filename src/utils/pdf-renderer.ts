@@ -75,6 +75,7 @@ async function renderPage(
   pdf: PDFDocumentProxy,
   pageNum: number,
   scale: number,
+  cleanup = true,
 ): Promise<{ canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }> {
   const page = await pdf.getPage(pageNum);
   const viewport = page.getViewport({ scale });
@@ -88,6 +89,12 @@ async function renderPage(
   ctx.imageSmoothingQuality = "high";
 
   await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+  // Release this page's decoded fonts / operator list / images now, so a
+  // full-document render doesn't pile every page's cache onto the proxy until
+  // the final destroy() (peak-memory spike on large PDFs at retina scale).
+  // The OCR scan path passes cleanup=false: it re-reads the page's text layer
+  // straight after and runs its own cleanup() once it's done with both.
+  if (cleanup) page.cleanup();
   return { canvas, ctx };
 }
 
@@ -100,40 +107,19 @@ async function renderPage(
 export async function getPageCount(file: File): Promise<number> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const count = pdf.numPages;
-  void loadingTask.destroy();
-  return count;
-}
-
-/**
- * Render a single PDF page to a PNG Blob object URL thumbnail.
- *
- * @param data - Raw PDF bytes as an ArrayBuffer.
- * @param pageNum - 1-based page number to render.
- * @param scale - Render scale factor (default 0.5). Higher = better quality but slower.
- * @returns A `blob:…` URL of the rendered page. Caller must revoke when done.
- */
-export async function renderPageThumbnail(
-  data: ArrayBuffer,
-  pageNum: number,
-  scale = 0.5,
-): Promise<string> {
-  const loadingTask = pdfjsLib.getDocument({ data, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const { canvas } = await renderPage(pdf, pageNum, scale);
-  const url = await canvasToBlobUrl(canvas);
-  canvas.width = 0;
-  canvas.height = 0;
-  void loadingTask.destroy();
-  return url;
+  try {
+    const pdf = await loadingTask.promise;
+    return pdf.numPages;
+  } finally {
+    void loadingTask.destroy();
+  }
 }
 
 /**
  * Render specific pages of a PDF (1-based page numbers) from a single document
- * load. Use this instead of calling `renderPageThumbnail` multiple times, which
- * would fail because PDF.js transfers (detaches) the ArrayBuffer to its Web
- * Worker on the first call.
+ * load. Rendering from one load (rather than once per page) is required because
+ * PDF.js transfers (detaches) the ArrayBuffer to its Web Worker on the first
+ * call, so a second load of the same buffer would fail.
  *
  * @param file - The PDF file to render from.
  * @param pageNums - 1-based page numbers to render, in any order.
@@ -147,18 +133,21 @@ export async function renderSpecificThumbnails(
 ): Promise<string[]> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const results: string[] = [];
+  try {
+    const pdf = await loadingTask.promise;
+    const results: string[] = [];
 
-  for (const pageNum of pageNums) {
-    const { canvas } = await renderPage(pdf, pageNum, scale);
-    results.push(await canvasToBlobUrl(canvas));
-    canvas.width = 0;
-    canvas.height = 0;
+    for (const pageNum of pageNums) {
+      const { canvas } = await renderPage(pdf, pageNum, scale);
+      results.push(await canvasToBlobUrl(canvas));
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+
+    return results;
+  } finally {
+    void loadingTask.destroy();
   }
-
-  void loadingTask.destroy();
-  return results;
 }
 
 /**
@@ -186,33 +175,36 @@ export async function renderPagesToBlobs(
   const arrayBuffer = await file.arrayBuffer();
   const scale = dpi / 72;
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const results: { pageIndex: number; blob: Blob }[] = [];
+  try {
+    const pdf = await loadingTask.promise;
+    const results: { pageIndex: number; blob: Blob }[] = [];
 
-  for (let i = 0; i < pageIndices.length; i++) {
-    const pageIndex = pageIndices[i];
-    const { canvas } = await renderPage(pdf, pageIndex + 1, scale);
+    for (let i = 0; i < pageIndices.length; i++) {
+      const pageIndex = pageIndices[i];
+      const { canvas } = await renderPage(pdf, pageIndex + 1, scale);
 
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (b) => {
-          if (b) resolve(b);
-          else reject(new Error(`Failed to render page ${pageIndex + 1} to image`));
-        },
-        format,
-        quality,
-      );
-    });
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (b) => {
+            if (b) resolve(b);
+            else reject(new Error(`Failed to render page ${pageIndex + 1} to image`));
+          },
+          format,
+          quality,
+        );
+      });
 
-    canvas.width = 0;
-    canvas.height = 0;
+      canvas.width = 0;
+      canvas.height = 0;
 
-    results.push({ pageIndex, blob });
-    onProgress?.(i + 1, pageIndices.length);
+      results.push({ pageIndex, blob });
+      onProgress?.(i + 1, pageIndices.length);
+    }
+
+    return results;
+  } finally {
+    void loadingTask.destroy();
   }
-
-  void loadingTask.destroy();
-  return results;
 }
 
 /**
@@ -234,20 +226,23 @@ export async function renderAllThumbnails(
 ): Promise<string[]> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const thumbnails: string[] = [];
-  const total = pdf.numPages;
+  try {
+    const pdf = await loadingTask.promise;
+    const thumbnails: string[] = [];
+    const total = pdf.numPages;
 
-  for (let i = 1; i <= total; i++) {
-    const { canvas } = await renderPage(pdf, i, scale);
-    thumbnails.push(await canvasToBlobUrl(canvas));
-    canvas.width = 0;
-    canvas.height = 0;
-    onProgress?.(i, total);
+    for (let i = 1; i <= total; i++) {
+      const { canvas } = await renderPage(pdf, i, scale);
+      thumbnails.push(await canvasToBlobUrl(canvas));
+      canvas.width = 0;
+      canvas.height = 0;
+      onProgress?.(i, total);
+    }
+
+    return thumbnails;
+  } finally {
+    void loadingTask.destroy();
   }
-
-  void loadingTask.destroy();
-  return thumbnails;
 }
 
 /** Result of {@link renderThumbnailsAndScan}: previews + digital/scanned split. */
@@ -280,14 +275,18 @@ export async function renderThumbnailsAndScan(
 ): Promise<ThumbnailsScanResult> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const total = pdf.numPages;
   const thumbnails: string[] = [];
   const scannedPages: number[] = [];
+  let total = 0;
   try {
+    // Inside the try so the finally's destroy() also runs if the doc won't open.
+    const pdf = await loadingTask.promise;
+    total = pdf.numPages;
     for (let i = 1; i <= total; i++) {
       try {
-        const { canvas } = await renderPage(pdf, i, scale);
+        // cleanup=false: we re-read this same page's text layer just below and
+        // run page.cleanup() once after both, so renderPage must not clean early.
+        const { canvas } = await renderPage(pdf, i, scale, false);
         thumbnails.push(await canvasToBlobUrl(canvas));
         canvas.width = 0;
         canvas.height = 0;
@@ -336,36 +335,39 @@ export async function renderThumbnailsAndScores(
 ): Promise<{ thumbnails: string[]; scores: number[] }> {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const pdf = await loadingTask.promise;
-  const thumbnails: string[] = [];
-  const scores: number[] = [];
+  try {
+    const pdf = await loadingTask.promise;
+    const thumbnails: string[] = [];
+    const scores: number[] = [];
 
-  for (let i = 1; i <= pdf.numPages; i++) {
-    let canvas: HTMLCanvasElement;
-    let ctx: CanvasRenderingContext2D;
-    try {
-      ({ canvas, ctx } = await renderPage(pdf, i, scale));
-    } catch {
-      thumbnails.push("");
-      scores.push(0);
-      continue;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      let canvas: HTMLCanvasElement;
+      let ctx: CanvasRenderingContext2D;
+      try {
+        ({ canvas, ctx } = await renderPage(pdf, i, scale));
+      } catch {
+        thumbnails.push("");
+        scores.push(0);
+        continue;
+      }
+
+      thumbnails.push(await canvasToBlobUrl(canvas));
+
+      // Count pixels where all channels are near-white (≥ 240)
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let nearWhite = 0;
+      const totalPixels = canvas.width * canvas.height;
+      for (let p = 0; p < data.length; p += 4) {
+        if (data[p] >= 240 && data[p + 1] >= 240 && data[p + 2] >= 240) nearWhite++;
+      }
+      scores.push(totalPixels > 0 ? nearWhite / totalPixels : 0);
+
+      canvas.width = 0;
+      canvas.height = 0;
     }
 
-    thumbnails.push(await canvasToBlobUrl(canvas));
-
-    // Count pixels where all channels are near-white (≥ 240)
-    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    let nearWhite = 0;
-    const totalPixels = canvas.width * canvas.height;
-    for (let p = 0; p < data.length; p += 4) {
-      if (data[p] >= 240 && data[p + 1] >= 240 && data[p + 2] >= 240) nearWhite++;
-    }
-    scores.push(totalPixels > 0 ? nearWhite / totalPixels : 0);
-
-    canvas.width = 0;
-    canvas.height = 0;
+    return { thumbnails, scores };
+  } finally {
+    void loadingTask.destroy();
   }
-
-  void loadingTask.destroy();
-  return { thumbnails, scores };
 }

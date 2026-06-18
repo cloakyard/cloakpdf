@@ -2,13 +2,19 @@
 name: CloakPDF — Ocean Blue
 description: >-
   A privacy-first PDF toolkit that feels calm, modern, and trustworthy.
-  Glassy chrome floats over a slow-drifting aurora; every interactive
+  Glassy chrome floats over a slow-drifting Grainient field; every interactive
   surface uses a single ocean-blue accent so the home screen reads as
   one quiet system rather than a colour-coded grid. Light and dark
   themes share identical structure, swapping only surface tones and
   blend modes.
 mode: light-and-dark
 colors:
+  # NOTE: this map is the design palette of record — not a 1:1 list of Tailwind
+  # utilities. Only the primary-*, slate-*, surface/page/border/text and dark-*
+  # entries are registered as @theme tokens in src/index.css. The status,
+  # glow-*, focus-ring, canvas-* and preset-* values are raw Tailwind shades
+  # (e.g. red-50/red-700) or JS constants in src/config/theme.ts; reference them
+  # there, not via a `bg-danger-bg`-style utility that doesn't exist.
   # ── Primary — "Ocean Blue" scale derived from #2563EB ─────────
   primary-50:  "#eff4ff"   # page tints, badge backgrounds
   primary-100: "#dbeafe"   # icon flap, primary tints
@@ -49,8 +55,10 @@ colors:
   text-muted:     "#64748b"
 
   # ── Dark surfaces & text ──────────────────────────────────────
-  dark-bg:           "#060912"   # body solid (deep navy-black)
-  dark-page-bg:      "#0f172a"   # page gradient endpoint
+  # Only dark-bg is registered in @theme. The dark page backdrop is the
+  # --page-bg gradient (src/index.css), which runs #0f172a → #060912 (deepest
+  # navy-black) — those two values live in that gradient, not as standalone tokens.
+  dark-bg:           "#0f172a"   # --color-dark-bg: solid dark surface (stage / inset bg)
   dark-surface:      "#1e293b"   # cards, header, footer
   dark-surface-alt:  "#334155"   # hover, icon tile bg
   dark-border:       "#334155"
@@ -69,24 +77,18 @@ colors:
   warning-text:  "#92400e"      # amber-800
   success:       "#22c55e"
 
-  # ── Aurora — six-blob ambient palette (drifting backdrop) ─────
-  aurora-blue:    "#2563eb"
-  aurora-violet:  "#7c3aed"
-  aurora-pink:    "#db2777"
-  aurora-orange:  "#ea580c"
-  aurora-cyan:    "#0891b2"
-  aurora-emerald: "#059669"
+  # ── Backdrop — <Grainient> WebGL shader (src/config/grainient.ts) ─────
+  # The drifting backdrop is a near-monochrome blue gradient field: 3 stops,
+  # warped + film-grained in a shader, saturation knocked down ~70% so the brand
+  # blue reads as a hint. These are JS constants (grainient.ts), not @theme
+  # tokens. The earlier six-blob multi-colour aurora was retired.
+  grainient-light: ["#DBEAFE", "#97bcf7", "#EFF4FF"]   # flank · ribbon · flank
+  grainient-dark:  ["#162236", "#3B82F6", "#0A1020"]   # flank · ribbon · flank
 
-  # ── "Why CloakPDF" feature accents (one chip per feature) ─────
-  feature-emerald: "#059669"    # No sign-up
-  feature-violet:  "#7c3aed"    # No tracking
-  feature-teal:    "#0d9488"    # Local-first
-  feature-cyan:    "#0891b2"    # Works offline
-  feature-orange:  "#ea580c"    # Installable
-  feature-yellow:  "#ca8a04"    # All-screens
-  feature-pink:    "#db2777"    # 35+ tools
-  feature-indigo:  "#4f46e5"    # Light & dark
-  feature-slate:   "#475569"    # Open source
+  # ── "Why CloakPDF" feature grid ───────────────────────────────
+  # No per-feature colour: every chip is monochrome (bg-primary-50 /
+  # text-primary-600), per the one-accent rule. FeatureItem in src/App.tsx is
+  # the source of truth; the earlier per-feature hue tokens were removed.
 
   # ── Spotlight glow used by ToolCard / WorkflowHero / DropZone ─
   glow-primary:    "rgba(37,99,235,0.16)"
@@ -135,14 +137,15 @@ typography:
     moz: grayscale
   hero:
     fontFamily: "Inter"
-    fontSize: "clamp(34px, 5vw, 58px)"
+    fontSize: "32px / 40px (sm) / 46px (lg) / 52px (xl) — stepped, not clamp"
     fontWeight: "600"
     lineHeight: "1.05"
     letterSpacing: "-0.03em"
     notes: >-
-      Italic phrase ("stay on your device") swaps to system serif,
-      400 weight, primary-600/400, to feel editorial against the
-      geometric sans.
+      The privacy clause ("stay on your device") carries primary-600/400
+      colour at the same weight — roman, same family. It echoes the
+      wordmark's coloured "PDF" suffix; the earlier italic-serif
+      treatment was retired (italic display is an AI-landing tell).
   display:
     fontFamily: "Inter"
     fontSize: "clamp(24px, 3.4vw, 36px)"
@@ -236,10 +239,10 @@ spacing:
   12:   48px
   14:   56px
   16:   64px
-  container: 1152px        # max-w-6xl, the main content frame
+  container: "1152px / 1408px at xl+"  # APP_CONTAINER (src/config/theme.ts): max-w-6xl xl:max-w-[88rem]
   gutter: 16px             # standard grid gap between cards
   gutter-lg: 24px          # gap between hero columns
-  section-y: 48px          # space-y-12 between tool categories
+  section-y: "40px / 48px at sm+"  # space-y-10 sm:space-y-12 between tool categories
   page-x: 16px             # phone padding (px-4)
   page-x-lg: 24px          # tablet+ padding (sm:px-6)
 
@@ -287,36 +290,30 @@ motion:
     focus-ring-pulse: "ring 0 → 10px rgba(37,99,235,0.35 → 0)"
     error-pulse:    "ring 0 → 8px rgba(239,68,68,0.45 → 0), 2.5s infinite"
     warning-pulse:  "ring 0 → 8px rgba(245,158,11,0.45 → 0), 2.5s infinite"
-    aurora-morph:   "border-radius blob mutation, 17–22s ease-in-out infinite"
-    aurora-flow:    "translate(±60vw, ±70vh) + rotate(±290°) + scale(0.8–1.3), 44–62s linear infinite"
-    aurora-breathe: "opacity ×0.7 → ×1.3, 10–15s ease-in-out infinite"
+    grainient-warp: "continuous WebGL warp of the gradient field (time-speed 0.3, warp-speed 3); rAF-driven, pauses while the backdrop is hidden"
   reduced-motion: >-
-    Aurora animations halt; popover/fade/slide/error/warning pulses
-    drop to instant. Layout transitions still resolve in ≤200ms.
+    The Grainient warp is skipped (a single static frame paints instead);
+    popover/fade/slide/error/warning pulses drop to instant. Layout
+    transitions still resolve in ≤200ms.
   hover-lift:    "translateY(-2px) on cards / CTAs"
-  hover-shift-x: "translateX(2px) on card titles + chevrons"
+  hover-shift-x: "translateX(4px) on card chevrons (-translate-x-1 → 0; titles hold still)"
 
 effects:
-  aurora:
-    blob-count: 6
-    blob-blur:
-      desktop: "60px"
-      mobile:  "36px"
-    blob-opacity-base: "0.08"
-    blob-opacity-range: "0.056 – 0.104"
-    blend-mode-light: "multiply"
-    blend-mode-dark:  "screen"
-    grain-opacity-light: "0.045"
-    grain-opacity-dark:  "0.08"
-    grain-blend-light: "multiply"
-    grain-blend-dark:  "overlay"
-    mobile-mask: >-
-      vertical alpha mask fades blobs to transparent across the
-      bottom 200px so iOS Safari samples the slate page-bg
-      (not the blob hue) for its URL-bar tint.
+  grainient:                       # WebGL shader — src/config/grainient.ts + components/Grainient.tsx
+    stops: 3                       # two pale flanks around one brand-blue ribbon
+    palette-light: ["#DBEAFE", "#97bcf7", "#EFF4FF"]
+    palette-dark:  ["#162236", "#3B82F6", "#0A1020"]
+    saturation: 0.3                # chroma pulled down ~70%
+    time-speed: 0.3
+    warp-speed: 3
+    grain: "film-grain overlay baked into the shader"
+    pauses: "rAF loop halts while the backdrop is hidden (e.g. inside the editor)"
+    reduced-motion: "loop skipped — a single static frame is painted"
+    url-bar-tint: >-
+      the page-bg underlay (not the shader) seats a faint blue radial where iOS
+      Safari samples the viewport, so its URL bar tints to a calm near-grey.
   spotlight:
     radius: "320px"     # ToolCard
-    radius-hero: "420px" # WorkflowHero
     radius-drop: "300px" # FileDropZone
     color: "{colors.glow-primary}"
     falloff: "transparent at 70%"
@@ -334,6 +331,10 @@ effects:
     thumb-light: "rgba(100,116,139,0.30)"
     thumb-dark:  "rgba(148,163,184,0.30)"
     track: "transparent"
+    visibility: >-
+      thumb rests transparent and surfaces only on container hover /
+      focus-within; the 8px gutter is always reserved so revealing it
+      never shifts layout
 
 iconography:
   library: "lucide-react"
@@ -343,7 +344,7 @@ iconography:
   size-md: "20px"   # card icons, button icons
   size-lg: "24px"   # tool-page header icons
   tile-size: "44px" # 11×11 in 4px grid; rounded-xl, slate-100 bg
-  tile-hover: "primary-50 bg / primary-600 fg + scale(1.05) + -1px lift"
+  tile-hover: "primary-50 bg / primary-600 fg colour wash (no scale, no lift)"
   brand-mark: "shield + folded-corner document with redaction lines"
 
 components:
@@ -351,13 +352,31 @@ components:
     backgroundColor: "{colors.primary-600}"
     backgroundColorHover: "{colors.primary-700}"
     textColor: "#ffffff"
-    typography: "{typography.body}"
+    fontSize: "14px"
     fontWeight: "500"
     rounded: "{radii.xl}"
-    padding: "12px 32px"
+    padding: "12px 20px (32px from sm) — labels never wrap, so phones get the slack"
     minWidth: "220px"
-    trailingIcon: "ArrowRight (continue) | Download (terminal) | none"
+    trailingIcon: "Download when the label contains it | none — every tool CTA is terminal"
     disabled: "opacity 0.5, cursor not-allowed"
+  button-secondary:
+    backgroundColor: "{colors.surface}"
+    border: "1px solid {colors.slate-200}"
+    borderHover: "1px solid {colors.primary-300}"
+    textColor: "{colors.slate-700}"
+    textColorHover: "{colors.primary-700}"
+    fontSize: "14px"
+    rounded: "{radii.xl}"
+    padding: "matches button-primary (12px 20px, 32px from sm)"
+    trailingIcon: "SquarePen — the continue-in-editor affordance"
+    pairWidth: >-
+      equal to the primary — the pair renders in a 2-column 1fr grid that
+      shrink-wraps to the widest label, so both buttons always match.
+    usage: >-
+      the optional "& edit" action beside a tool's primary CTA: runs the
+      same operation but hands the output PDF to the unified editor
+      instead of downloading (Merge, Images→PDF, PDF Password unlock).
+      Stacks under the primary on phones; sits to its right from sm.
   button-danger:
     backgroundColor: "{colors.danger}"
     backgroundColorHover: "#b91c1c"
@@ -382,6 +401,7 @@ components:
     borderFocus: "1px solid {colors.primary-300}"
     rounded: "{radii.2xl}"
     height: "56px"
+    maxWidth: "768px (max-w-3xl), centred — a control, not a banner, in the wide shell"
     leadingIcon: "Search · slate-700 · 20px"
     trailingShortcut: "kbd ⌘K / CtrlK · slate-500 · 11px tabular"
     glow: "soft primary-500/20 outer halo on focus"
@@ -401,15 +421,9 @@ components:
     title: "{typography.card-title}"
     body:  "{typography.body-sm}"
     hover: "translateY(-2px) + shadow-md + spotlight glow + chevron slide-in"
-  workflow-hero-card:
-    extends: "tool-card"
-    layout: "horizontal"
-    eyebrow: "WORKFLOWS"
-    badge: "NEW (primary-50 pill, primary-600 text)"
-    glow-radius: "420px"
   feature-item:
     layout: "icon + title + description, gap-3.5"
-    iconTile: "40px rounded-lg, color-mix(<feature> 14%, transparent)"
+    iconTile: "40px rounded-lg, bg-primary-50 / text-primary-600 (monochrome, one-accent rule)"
     title: "14.5px / 600 / slate-800"
     body:  "13.5px / 400 / slate-500"
   file-drop-zone:
@@ -417,7 +431,7 @@ components:
     border: "2px dashed {colors.slate-200}"
     borderActive: "2px dashed {colors.primary-400}"
     rounded: "{radii.2xl}"
-    icon: "FileUp · primary-tinted"
+    icon: "FileUp · slate-400 at rest, accent on hover/drag (--dz-accent CSS var)"
     spotlightRadius: "300px"
   alert-error:
     backgroundColor: "{colors.danger-bg}"
@@ -495,17 +509,17 @@ breakpoints:
   lg: "1024px"
   xl: "1280px"
   "2xl": "1536px"
-  container-max: "1152px"
+  container-max: "1152px below xl; 1408px (88rem) from xl"
 
 grid:
-  hero: "12-col, 7 / 5 split (lg+); single column below"
-  tools: "1 / 2 / 3 columns at sm / md / lg breakpoints"
-  features: "1 / 2 / 3 columns at sm / md / lg breakpoints"
+  hero: "2-col (lg+), copy + trust row left / drop zone right; single column below"
+  tools: "1 / 2 / 3 columns at base / sm / 2xl, inside the category rail's 8–9-col span"
+  features: "1 / 2 columns at base / sm, inside the Why rail's 8–9-col span"
   bento-footer: "12-col, 7 / 5 split (sm+); stacks below"
 
 a11y:
   focus-ring: "2px primary-600 outline + rgba(37,99,235,0.18) glow"
-  reduced-motion: "honoured for fade/slide/scale/aurora/error+warning pulses"
+  reduced-motion: "honoured for fade/slide/scale/Grainient-warp/error+warning pulses"
   contrast: >-
     Slate-500 on white passes AA for body sizes; slate-800 on white
     and primary-600 on primary-50 both pass AA for headings.
@@ -521,19 +535,20 @@ CloakPDF is a privacy-first toolbox for editing, merging, signing,
 redacting, and converting PDFs entirely in the browser. The design
 system has to communicate two things at the same time: **calm
 confidence** ("nothing leaves your device") and **technical
-breadth** (35+ tools without feeling like a control panel). Ocean
+breadth** (25 tools without feeling like a control panel). Ocean
 Blue is the load-bearing visual idea — a single accent doing the
 work that lesser systems split across category colours.
 
 ## Brand & Voice
 
 The product personality is **quiet, modern, and deliberate**. The
-hero pairs a tight geometric sans with one editorial italic clause
-("*stay on your device*") to make the privacy promise feel
-hand-set rather than templated. The wordmark renders the "PDF"
-suffix in primary-600 against a slate-900 "Cloak" — same family,
-different ink — so the brand reads as a single word with a coloured
-emphasis rather than a logo+tag.
+hero sets its privacy clause ("stay on your device") in primary-600
+ink — roman, same family, same weight — the identical coloured-ink
+move the wordmark makes by rendering the "PDF" suffix in primary-600
+against a slate-900 "Cloak". One emphasis device, used twice, so the
+brand reads as a single word with a coloured emphasis rather than a
+logo+tag. (An earlier italic-serif hero clause was retired: italic
+display type is one of the most recognised generated-landing tells.)
 
 The shield-and-document logo carries a vertical primary-500 →
 primary-700 gradient. Three short redacted bars sit on the page
@@ -541,26 +556,28 @@ inside the shield: that's the whole privacy thesis in one mark.
 
 ## Look & Feel
 
-The page never sits on a flat colour. A six-blob **aurora** drifts
-beneath all chrome — blue, violet, pink, orange, cyan, emerald —
-each blob blurred to 60px on desktop, 36px on mobile, breathing
-between 5.6 % and 10.4 % opacity. Light mode mixes the aurora into
-the background with `multiply`; dark mode flips to `screen` so the
-blobs glow rather than tint. A static SVG fractal-noise grain sits
-over the blobs at 4–8 % opacity — kills the "CSS gradient" tell and
-gives surfaces a faint paper texture.
+The page never sits on a flat colour. A slow-drifting **Grainient**
+field sits beneath all chrome — a near-monochrome blue gradient (three
+stops: two pale flanks around one brand-blue ribbon) warped continuously
+in a WebGL shader, with a film-grain overlay that kills the "CSS
+gradient" tell. Saturation is pulled down ~70 % so the blue reads as a
+hint, not a wall, and translucent panels over it still pick up tint
+through `backdrop-blur`. Light mode keeps the flanks near-white; dark
+mode drops them to deep navy-black so the ribbon glows. Palette + motion
+live in `src/config/grainient.ts`; the component is
+`src/components/Grainient.tsx`.
 
-The aurora is the only place the system uses the full six-colour
-palette. Everything *interactive* — buttons, focus rings, hover
-borders, spotlight glows, the workflow badge — collapses to a single
-ocean-blue accent. The contrast between the multi-coloured ambient
-backdrop and the monochromatic UI is the design's signature move:
-the colour energy lives behind the glass, not on the controls.
+The backdrop is the only chromatic energy in the system. Everything
+*interactive* — buttons, focus rings, hover borders, spotlight glows,
+the workflow badge — collapses to a single ocean-blue accent. The
+contrast between the ambient field behind the glass and the monochromatic
+UI on top is the design's signature move: the colour energy lives behind
+the glass, not on the controls.
 
-A vertical alpha mask fades the aurora to transparent across the
-bottom 200 px on mobile so iOS Safari samples the slate page-bg
-(not a blob hue) for its URL-bar tint. This is the kind of
-invisible discipline the product runs on.
+The page-bg underlay (`src/index.css`) seats a faint blue radial where
+iOS Safari samples the viewport for its URL-bar tint, so a vivid icon
+scrolling into that zone mixes to a calm near-grey instead of saturating
+the bar — the kind of invisible discipline the product runs on.
 
 ## Colour
 
@@ -583,12 +600,11 @@ deepest readable colour is slate-800.
   surface anywhere in the UI except the literal Lucide check
   glyph.
 
-The "**Why CloakPDF**" feature grid is the one place per-feature
-colour is allowed: nine 40 px icon chips each at
-`color-mix(<hue> 14%, transparent)` — emerald, violet, teal, cyan,
-orange, yellow, pink, indigo, slate. They appear *once*, low on
-the home page, after the entire monochromatic tool grid has
-already established the calm tone.
+The "**Why CloakPDF**" feature grid holds the one-accent line too: its
+icon chips are monochrome (`bg-primary-50` / `text-primary-600`), the
+same tint as every other surface. (An earlier draft gave each feature
+its own hue; that was dropped — `FeatureItem` in `src/App.tsx` renders
+them all in primary.)
 
 Dark mode keeps the same structural decisions and swaps surfaces
 for slate-900 family + dark-text. Borders shift from solid slate to
@@ -598,15 +614,17 @@ text becomes primary-400 to maintain AA contrast.
 ## Typography
 
 The system runs on **Inter Variable** (self-hosted, weights 100-900)
-with the platform sans stack as fallback. One serif accent is
-permitted — a single italic phrase in the hero — and uses the
-default `font-serif` system stack so it inherits the user's
-operating-system serif rather than shipping another font.
+with the platform sans stack as fallback. Display type is always
+roman — no italic headings anywhere. Emphasis inside a heading is
+carried by primary-600 ink at the same weight (the wordmark move).
+The `font-serif` token remains defined for body-copy use, but no
+display surface uses it.
 
 Hierarchy:
 
-- **Hero (34–58 px / 600 / -0.03em / 1.05)** — the only place
-  size goes above 30 px. Animated in via `fade-in-up` 80 ms
+- **Hero (32–52 px / 600 / -0.03em / 1.05)** — the only place
+  size goes above 30 px. Stepped per breakpoint (32 / 40 / 46 / 52
+  at base / sm / lg / xl). Animated in via `fade-in-up` 80 ms
   staggered after the page paints.
 - **Section headline (22–26 px / 600 / -0.02em / 1.2)** — used
   once per category; always paired with an 11 px uppercase eyebrow
@@ -622,31 +640,54 @@ Hierarchy:
   jiggle as content updates.
 
 Antialiasing is on (`-webkit-font-smoothing: antialiased`) so the
-geometric sans stays crisp against the blurred aurora.
+geometric sans stays crisp against the blurred Grainient field.
 
 ## Spacing & Rhythm
 
 The grid is a **4 px base** with a strong cadence on multiples
-of 4: `4 / 8 / 12 / 16 / 24 / 32 / 48 / 64`. The container caps at
-`max-w-6xl` (1152 px) and uses `px-4` on phone, `sm:px-6` on
-tablet+. Vertical section rhythm is `space-y-12` to `space-y-14`
-between tool categories — generous, never crowded.
+of 4: `4 / 8 / 12 / 16 / 24 / 32 / 48 / 64`. The shell column caps
+at `max-w-6xl` (1152 px) below xl and `88rem` (1408 px) from xl up —
+one shared constant, `APP_CONTAINER` in `src/config/theme.ts`,
+consumed by the header, `<main>`, footer, and the ErrorBoundary
+chrome so their edges never drift. Padding is `px-4` on phone,
+`sm:px-6` on tablet+. Vertical section rhythm is `space-y-10` to
+`space-y-12` (sm+) between tool categories — generous, never crowded.
+
+**One container, uniform edges.** Every standalone tool spans the
+same responsive shell as the home page — no per-tool width caps, so
+the drop zones, panels, and grids of every view line up with the
+landing grid above them. (A per-tool "reading measure" variant was
+tried and rejected: tools at three different widths read as three
+different apps.) Width restraint lives at the *content* level
+instead: chat bubbles cap at `min(85%, 42rem)` and the Compare
+diff image at `max-w-4xl`. The Privacy Policy spans the shell via
+the same 4/8 rail as the home sections — title and overview in the
+left rail, the policy sections in a two-column grid on the right,
+so each prose column keeps a readable measure without a page-level
+cap.
 
 Inside cards, the icon tile is followed by a `mb-2` flush, then
 the title, then the body, with no hairline divider; the system
 relies on whitespace and the soft slate-200 outer border to
-contain the block. Hero columns use a 7 / 5 lg-grid split so the
-headline gets visual primacy and the workflow promo card balances
-the right edge.
+contain the block. The hero is a 2-col lg-grid: copy, the derived
+stat line, and the mechanism trio anchor the left; the editor drop
+zone — the single primary entry — balances the right edge.
+
+The hero trio and the "Why CloakPDF" grid split one rule: each
+claim appears on the page exactly once. The trio owns no upload
+step, works offline, and open source; the Why grid carries
+everything else (free/no sign-up, no tracking, destructive
+redaction, PWA install, responsive, PII detection, on-device AI,
+OCR). A claim that earns a hero slot leaves the grid — repeating
+it below reads as padding.
 
 ## Shape Language
 
 Three radii do almost all the work:
 
-- **`rounded-2xl` (16 px)** on tool cards, the workflow hero card,
-  the search bar, the file drop zone, modal surfaces, and primary
-  CTAs. This is the "page" radius — it carries the soft, modern
-  silhouette.
+- **`rounded-2xl` (16 px)** on tool cards, the search bar, the
+  file drop zone, modal surfaces, and primary CTAs. This is the
+  "page" radius — it carries the soft, modern silhouette.
 - **`rounded-xl` (12 px)** on icon tiles and ghost buttons.
 - **`rounded-full`** on eyebrow chips, the "NEW" pill, the step
   circles in the footer, and the kbd background.
@@ -655,15 +696,24 @@ Cards never have inner dividers; sections never have hairline
 rules. Borders are always 1 px slate-200 and become primary-300 on
 hover — the colour shift is the affordance.
 
+**One sanctioned exception:** read-only *data tables* — the
+key/value metadata lists in PDF Inspector, Edit Metadata, PDF
+Password, Merge, Add Bookmarks, File Attachment and Digital
+Signature — may stack rows with a `divide-y divide-slate-100`
+hairline. A scannable record of `label → value` pairs reads as a
+table, not a card, and the faint row rule aids the eye where pure
+whitespace would not. This applies only to genuine tabular data;
+it is not licence to add dividers inside ordinary content cards.
+
 ## Elevation & Depth
 
 The system layers in three planes:
 
-1. **Aurora + grain** — z-index 0/1, fixed, drifts under
+1. **Grainient field + grain** — z-index 0/1, fixed, drifts under
    everything else.
 2. **Page chrome** — sticky header at z-50, footer, and
    the centred main column. Header uses
-   `bg-white/80 backdrop-blur-xl` so the aurora reads through it
+   `bg-white/80 backdrop-blur-xl` so the field reads through it
    as a frosted band.
 3. **Surfaces & overlays** — cards (white, 1 px slate border, no
    shadow at rest), modals (white/85 + 14 px backdrop-blur, scaled
@@ -682,9 +732,11 @@ unit.
 
 Motion is **calm, layered, and short** by default. The home page
 has a fade-in-up choreography on first paint: hero h1 at 0 ms,
-subhead at 80 ms, workflow card at 120 ms, search at 160 ms, then
-each tool category at `index × 80 ms`. The cumulative effect is a
-gentle cascade rather than a slam-dunk reveal.
+subhead at 120 ms, stat line + drop zone + search at 160 ms, the
+trust trio at 200 ms, then each tool category at `index × 80 ms`.
+It is the page's only entrance — sections render statically after
+it. The cumulative effect is a gentle cascade rather than a
+slam-dunk reveal.
 
 Two **looping pulses** carry status:
 
@@ -692,9 +744,9 @@ Two **looping pulses** carry status:
   used on the only true error surface (`AlertBox`).
 - `warning-pulse` — same shape, amber, used on warning callouts.
 
-Both honour `prefers-reduced-motion` and pause completely; aurora,
-fade-in-up, scale-in, and popover-in animations also collapse to
-instant under the same media query.
+Both honour `prefers-reduced-motion` and pause completely; the
+Grainient warp, fade-in-up, scale-in, and popover-in animations also
+collapse to instant (or a single static frame) under the same media query.
 
 A scale-in modal entry uses the slight overshoot easing
 `cubic-bezier(0.34, 1.56, 0.64, 1)` so confirmations feel
@@ -707,8 +759,8 @@ All glyphs come from **Lucide** at default 2-weight stroke, except
 the home-page search icon which uses 2.25 to read confidently
 inside the chunky search bar. Standard sizes are 16 / 20 / 24 px,
 each riding inside a slate-100 rounded-xl tile (40–48 px) which
-swaps to a primary-50 / primary-600 wash on hover with a 1 px lift
-and a 1.05× scale.
+swaps to a primary-50 / primary-600 colour wash on hover — no
+scale, no lift; the card wakes as one unit.
 
 ## Components
 
@@ -719,11 +771,6 @@ that surfaces on hover. The cursor-tracking spotlight reads the
 mouse position via `getBoundingClientRect` and paints a 320 px
 radial gradient that follows; the same handler accepts touch
 events so the effect works on phones and tablets.
-
-**Workflow hero card** — same body as the tool card but laid out
-horizontally, prefixed by an uppercase "WORKFLOWS" eyebrow and a
-"NEW" pill in primary tints. The spotlight goes a touch larger
-(420 px) to suit the wider footprint.
 
 **Search bar** — 56 px tall, 16 px radius, white-90 surface with a
 subtle backdrop blur. A leading slate-700 magnifier and a trailing
@@ -751,27 +798,52 @@ overshoot on entry. Footer row sits in a slate-50/55 wash with a
 hairline top border. The danger tone swaps the icon chip and CTA
 to red while keeping the same shape.
 
-**Action button** — primary-600 fill, primary-700 hover, 32 px
-horizontal padding, 12 px vertical, 16 px radius, full-width on
-phones and minimum 220 px on tablet+. Trailing icon adapts to
-context: an arrow when continuing through a workflow step, a
-download glyph on the terminal step or any single-tool button
-labelled with "Download". Disabled drops opacity to 50 % and
-cuts pointer events.
+**Action button** — primary-600 fill, primary-700 hover, 20 px
+horizontal padding (32 px from sm), 12 px vertical, 16 px radius,
+14 px / 500 label, full-width on phones and minimum 220 px on
+tablet+. Labels never wrap and name the tool's terminal action with
+its count ("Merge 2 files & Download", "Combine 4 images &
+Download", "Unlock & Download"); a trailing download glyph appears
+whenever the label contains "Download". Disabled drops opacity to
+50 % and cuts pointer events.
+
+Tools whose output is a single editable PDF pair the primary with a
+**secondary "& edit" button** (white surface, slate-200 border,
+SquarePen glyph): same operation, but the result opens in the
+unified editor instead of downloading — no download-and-re-upload
+round trip. The pair sits in a two-column 1fr grid that shrink-wraps
+to the widest label, so both buttons always render at the same
+width. The spinner follows whichever button started the run.
+Deliberate omissions: Digital Signature (editing a signed PDF would
+invalidate the signature) and PDF Password's protect path (the
+output is encrypted, which the editor can't open).
+
+**Full-width is a phone affordance, not a desktop one.** Now that
+every tool spans the whole shell, a button that fills its container
+stretches edge-to-edge on a 1408 px viewport and reads as a banner,
+not a control. So action buttons go full-width only up to `sm`, then
+shrink to their content: the page-level `ActionButton` centres
+(min 220 px); a CTA living inside a card or modal — the AskPdf
+model-gate "Download model" button, the consent-modal footer —
+right-aligns (`flex flex-col sm:flex-row sm:justify-end`), matching
+the form-submit convention so the same download intent reads the
+same across the gate card and the dialog it opens. The exception is
+genuinely narrow columns — the editor tool rail, where a full-width
+button is correct because the column itself is the measure.
 
 ## Closing Notes
 
 The single hardest decision in this system is *not* using
-per-category colour. Every design that splits 35 tools by domain
+per-category colour. Every design that splits 25 tools by domain
 ends up looking like a control panel; the unified ocean-blue
-accent reads as one calm app instead. The aurora absorbs the
+accent reads as one calm app instead. The Grainient field absorbs the
 chromatic energy; the chrome stays monochromatic; the user's eye
 follows hierarchy and motion, not hue.
 
 Two invariants to preserve in any future revision:
 
 1. **One accent.** Per-tool / per-category colour stays out of
-   interactive surfaces. Two sanctioned exceptions: the nine
+   interactive surfaces. Two sanctioned exceptions: the eight
    illustrative chips in the "Why CloakPDF" grid (which appear
    once, below the fold), and **destructive primary actions**,
    which may use `bg-red-600 / hover:bg-red-700` (e.g. the Delete

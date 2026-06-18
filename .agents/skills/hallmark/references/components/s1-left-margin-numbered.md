@@ -1,8 +1,8 @@
-### S1 · Left-margin numbered
 
+### S1 · Left-margin numbered
 A narrow left column holds `01 — LABEL.`; the wide right column holds the heading and content.
-_Use when:_ the page is editorial / specimen.
-_Don't confuse with:_ S5 Bottom-anchored (which puts the label _under_ the section).
+*Use when:* the page is editorial / specimen.
+*Don't confuse with:* S5 Bottom-anchored (which puts the label *under* the section).
 
 ```html
 <header class="head-margin">
@@ -10,12 +10,6 @@ _Don't confuse with:_ S5 Bottom-anchored (which puts the label _under_ the secti
   <h2>…</h2>
 </header>
 ```
-
 ```css
-.head-margin {
-  display: grid;
-  grid-template-columns: 10rem 1fr;
-  gap: var(--space-xl);
-  align-items: baseline;
-}
+.head-margin { display: grid; grid-template-columns: 10rem 1fr; gap: var(--space-xl); align-items: baseline; }
 ```

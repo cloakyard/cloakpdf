@@ -1,6 +1,6 @@
 # Assets — sourcing canon for icons, logos, illustrations, photography, video
 
-This file is loaded when an enrichment archetype actually needs an external asset (load-on-demand). It catalogues the _3–5 canonical sources per category_, the licence terms, the import patterns, the rules for using them, and the sources to avoid.
+This file is loaded when an enrichment archetype actually needs an external asset (load-on-demand). It catalogues the *3–5 canonical sources per category*, the licence terms, the import patterns, the rules for using them, and the sources to avoid.
 
 **The reflex.** Before reaching here, ask two questions in order: (1) Does the brief actually need imagery at all? See [`hero-enrichment.md` § Image-need detection](hero-enrichment.md). (2) If yes, can it be hand-built? See [`custom-craft.md`](custom-craft.md). The assets in this file are for the moments when both answers send you here.
 
@@ -8,15 +8,15 @@ This file is loaded when an enrichment archetype actually needs an external asse
 
 ## Placeholder strategy
 
-When imagery is needed _and_ the user hasn't supplied real assets, pick from this canon — in order. Skipping tiers is the slop move.
+When imagery is needed *and* the user hasn't supplied real assets, pick from this canon — in order. Skipping tiers is the slop move.
 
-| #   | Source                                                                  | When                                                                                                                                                                                      |
-| --- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Hallmark imagery kit** ([`imagery-kit.md`](imagery-kit.md))           | Brief allows non-photographic imagery: SaaS landings, manifestos, agency / studio splash, type-led portfolio, editorial-led marketing. **Always preferred** when the kit's register fits. |
-| 2   | **Hand-built SVG composition** (Tier B from custom-craft.md)            | Editorial-typographic brief where "imagery" can be a stamp / wordmark / colour-blocked composition. Use when the kit doesn't carry the register.                                          |
-| 3   | **Picsum** — `https://picsum.photos/seed/<seed>/<w>/<h>`                | Generic photo slot, keyword anchoring not critical. Use a deterministic seed (brand-name + slot-name) so the same render produces the same image.                                         |
-| 4   | **Unsplash Source** — `https://source.unsplash.com/<w>x<h>/?<keywords>` | Keyword-anchored photo slot — food, travel, portrait, real product. Pass 1–2 specific keywords, never zero.                                                                               |
-| 5   | **Local `public/placeholder-<type>.{jpg,svg}`**                         | Self-contained projects with no third-party deps. Single neutral grey-block SVG checked into the repo.                                                                                    |
+| # | Source | When |
+| --- | --- | --- |
+| 1 | **Hallmark imagery kit** ([`imagery-kit.md`](imagery-kit.md)) | Brief allows non-photographic imagery: SaaS landings, manifestos, agency / studio splash, type-led portfolio, editorial-led marketing. **Always preferred** when the kit's register fits. |
+| 2 | **Hand-built SVG composition** (Tier B from custom-craft.md) | Editorial-typographic brief where "imagery" can be a stamp / wordmark / colour-blocked composition. Use when the kit doesn't carry the register. |
+| 3 | **Picsum** — `https://picsum.photos/seed/<seed>/<w>/<h>` | Generic photo slot, keyword anchoring not critical. Use a deterministic seed (brand-name + slot-name) so the same render produces the same image. |
+| 4 | **Unsplash Source** — `https://source.unsplash.com/<w>x<h>/?<keywords>` | Keyword-anchored photo slot — food, travel, portrait, real product. Pass 1–2 specific keywords, never zero. |
+| 5 | **Local `public/placeholder-<type>.{jpg,svg}`** | Self-contained projects with no third-party deps. Single neutral grey-block SVG checked into the repo. |
 
 **Swappability — non-negotiable:**
 
@@ -44,13 +44,13 @@ When imagery is needed _and_ the user hasn't supplied real assets, pick from thi
 
 ### Canon
 
-| Library                                         | URL                 | Count                                                                    | Best for                                                                                                            |
-| ----------------------------------------------- | ------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| **[Lucide](https://lucide.dev)**                | `lucide.dev`        | 1,600+                                                                   | Modern SaaS / dev-tool default. The 2026 baseline. Active maintenance.                                              |
-| **[Phosphor Icons](https://phosphoricons.com)** | `phosphoricons.com` | 9,000+ across 6 weights (thin / light / regular / bold / fill / duotone) | Tonal variants without mixing sets. The right pick when you need different _weights_ of the same icon for emphasis. |
-| **[Heroicons](https://heroicons.com)**          | `heroicons.com`     | ~300                                                                     | Tailwind / shadcn projects. Tightly curated, opinionated.                                                           |
-| **[Tabler Icons](https://tabler-icons.io)**     | `tabler-icons.io`   | 5,900+ on a 24×24 grid                                                   | Breadth — when neither Lucide nor Heroicons covers the symbol you need.                                             |
-| **[Iconoir](https://iconoir.com)**              | `iconoir.com`       | ~1,500                                                                   | Hand-drawn character with a generous free tier.                                                                     |
+| Library | URL | Count | Best for |
+| --- | --- | --- | --- |
+| **[Lucide](https://lucide.dev)** | `lucide.dev` | 1,600+ | Modern SaaS / dev-tool default. The 2026 baseline. Active maintenance. |
+| **[Phosphor Icons](https://phosphoricons.com)** | `phosphoricons.com` | 9,000+ across 6 weights (thin / light / regular / bold / fill / duotone) | Tonal variants without mixing sets. The right pick when you need different *weights* of the same icon for emphasis. |
+| **[Heroicons](https://heroicons.com)** | `heroicons.com` | ~300 | Tailwind / shadcn projects. Tightly curated, opinionated. |
+| **[Tabler Icons](https://tabler-icons.io)** | `tabler-icons.io` | 5,900+ on a 24×24 grid | Breadth — when neither Lucide nor Heroicons covers the symbol you need. |
+| **[Iconoir](https://iconoir.com)** | `iconoir.com` | ~1,500 | Hand-drawn character with a generous free tier. |
 
 ### The rules
 
@@ -65,19 +65,17 @@ When imagery is needed _and_ the user hasn't supplied real assets, pick from thi
 ```jsx
 // Lucide — React (most common)
 import { ArrowRight, Check, X } from "lucide-react";
-<ArrowRight size={20} strokeWidth={2} />;
+<ArrowRight size={20} strokeWidth={2} />
 
 // Phosphor — React, with weight prop
 import { ArrowRight } from "@phosphor-icons/react";
-<ArrowRight size={20} weight="regular" />;
+<ArrowRight size={20} weight="regular" />
 
 // Heroicons — React or static HTML
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 // Tabler — vanilla HTML via CDN
-<svg width="20" height="20">
-  <use href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/icons/arrow-right.svg" />
-</svg>;
+<svg width="20" height="20"><use href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/icons/arrow-right.svg" /></svg>
 ```
 
 ### Avoid
@@ -93,13 +91,13 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 ### Canon
 
-| Source                                      | URL               | Count                                         | Best for                                                                                                                                   |
-| ------------------------------------------- | ----------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| **[Simple Icons](https://simpleicons.org)** | `simpleicons.org` | 3,400+                                        | The industry standard. Monochrome SVG + official hex per brand. MIT licensed. The default for logo walls.                                  |
-| **[SVGL](https://svgl.app)**                | `svgl.app`        | 600+                                          | Curated, hand-picked, no spam. Higher quality bar than Simple Icons.                                                                       |
-| **[theSVG](https://thesvg.org)**            | `thesvg.org`      | 4,000+ with dark/light/mono/wordmark variants | npm + MCP server for AI. Superset over Simple Icons if your stack supports it.                                                             |
-| **[Brandfetch](https://brandfetch.com)**    | `brandfetch.com`  | 22M+ brands                                   | Paid API. Logo + colours + fonts + guardrails. Useful when building a CMS / form that asks "what's your domain?" and back-fills the brand. |
-| **Official brand asset pages**              | Per company       | —                                             | Always check first if accuracy matters. Most brands ship a media-kit page (e.g., `vercel.com/design`).                                     |
+| Source | URL | Count | Best for |
+| --- | --- | --- | --- |
+| **[Simple Icons](https://simpleicons.org)** | `simpleicons.org` | 3,400+ | The industry standard. Monochrome SVG + official hex per brand. MIT licensed. The default for logo walls. |
+| **[SVGL](https://svgl.app)** | `svgl.app` | 600+ | Curated, hand-picked, no spam. Higher quality bar than Simple Icons. |
+| **[theSVG](https://thesvg.org)** | `thesvg.org` | 4,000+ with dark/light/mono/wordmark variants | npm + MCP server for AI. Superset over Simple Icons if your stack supports it. |
+| **[Brandfetch](https://brandfetch.com)** | `brandfetch.com` | 22M+ brands | Paid API. Logo + colours + fonts + guardrails. Useful when building a CMS / form that asks "what's your domain?" and back-fills the brand. |
+| **Official brand asset pages** | Per company | — | Always check first if accuracy matters. Most brands ship a media-kit page (e.g., `vercel.com/design`). |
 
 ### The rules
 
@@ -112,17 +110,16 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 ```html
 <!-- Simple Icons via CDN — easiest -->
-<img src="https://cdn.simpleicons.org/github" alt="GitHub" height="32" />
-<img src="https://cdn.simpleicons.org/figma/aaaaaa" alt="Figma" height="32" />
-<!-- monochrome override -->
+<img src="https://cdn.simpleicons.org/github" alt="GitHub" height="32">
+<img src="https://cdn.simpleicons.org/figma/aaaaaa" alt="Figma" height="32"> <!-- monochrome override -->
 
 <!-- npm -->
 <!-- npm install simple-icons -->
 import { siGithub } from 'simple-icons/icons';
-<svg viewBox="0 0 24 24"><path d="{siGithub.path}" fill="currentColor" /></svg>
+<svg viewBox="0 0 24 24"><path d={siGithub.path} fill="currentColor" /></svg>
 
 <!-- SVGL via API -->
-<img src="https://api.svgl.app/?slug=vercel" alt="Vercel" />
+<img src="https://api.svgl.app/?slug=vercel" alt="Vercel">
 ```
 
 ### Avoid
@@ -140,12 +137,12 @@ When characters or specific scenes can't be hand-built economically. **Always po
 
 ### Canon
 
-| Model                                                                                               | URL                | Cost           | Best for                                                                                                                | Output                      |
-| --------------------------------------------------------------------------------------------------- | ------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| **[Nanobanana 2 / Gemini 2.5 Flash Image](https://ai.google.dev/gemini-api/docs/image-generation)** | Google AI          | $0.039 / image | Character consistency across panels, fast iteration, brand-style adherence via reference images, infographics with text | PNG (transparent supported) |
-| **[Recraft V4](https://www.recraft.ai/)**                                                           | recraft.ai         | ~$0.04 / image | **The only model with production-grade SVG output.** Logos, icons, illustrations that need to scale.                    | SVG + PNG                   |
-| **[Midjourney v8](https://www.midjourney.com)**                                                     | midjourney.com     | ~$0.14 / image | Aesthetic beauty, atmospheric stills, artistic direction                                                                | PNG                         |
-| **[Flux 2](https://blackforestlabs.ai/)**                                                           | blackforestlabs.ai | ~$0.03 / image | Photorealism — skin, fabric, product detail, hands                                                                      | PNG                         |
+| Model | URL | Cost | Best for | Output |
+| --- | --- | --- | --- | --- |
+| **[Nanobanana 2 / Gemini 2.5 Flash Image](https://ai.google.dev/gemini-api/docs/image-generation)** | Google AI | $0.039 / image | Character consistency across panels, fast iteration, brand-style adherence via reference images, infographics with text | PNG (transparent supported) |
+| **[Recraft V4](https://www.recraft.ai/)** | recraft.ai | ~$0.04 / image | **The only model with production-grade SVG output.** Logos, icons, illustrations that need to scale. | SVG + PNG |
+| **[Midjourney v8](https://www.midjourney.com)** | midjourney.com | ~$0.14 / image | Aesthetic beauty, atmospheric stills, artistic direction | PNG |
+| **[Flux 2](https://blackforestlabs.ai/)** | blackforestlabs.ai | ~$0.03 / image | Photorealism — skin, fabric, product detail, hands | PNG |
 
 ### The rules
 
@@ -186,13 +183,13 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon
 
-| Source                                      | URL                          | Licence                             | Best for                                                                                                                               |
-| ------------------------------------------- | ---------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **[Storyset](https://storyset.com)**        | storyset.com (Freepik)       | Free with attribution; paid removes | Animated SVG illustrations with toggleable element animation and on-site colour customisation. Onboarding flows, feature explanations. |
-| **[Humaaans](https://www.humaaans.com)**    | humaaans.com (Pablo Stanley) | CC0                                 | Mix-and-match characters with diverse poses / outfits / skin tones. Hero sections that need humans without stock-photo territory.      |
-| **[unDraw](https://undraw.co)**             | undraw.co                    | MIT                                 | Open SVG illustrations with on-export colour swap. Still respected if customised — saturated and instantly recognisable if not.        |
-| **[IRA Design](https://www.iradesign.io)**  | iradesign.io (Creative Tim)  | Free / paid                         | Moody, sophisticated, isometric scenes for B2B / enterprise.                                                                           |
-| **[Open Peeps](https://www.openpeeps.com)** | openpeeps.com                | CC0                                 | Hand-drawn character library, naive style. Sits between photography and illustration.                                                  |
+| Source | URL | Licence | Best for |
+| --- | --- | --- | --- |
+| **[Storyset](https://storyset.com)** | storyset.com (Freepik) | Free with attribution; paid removes | Animated SVG illustrations with toggleable element animation and on-site colour customisation. Onboarding flows, feature explanations. |
+| **[Humaaans](https://www.humaaans.com)** | humaaans.com (Pablo Stanley) | CC0 | Mix-and-match characters with diverse poses / outfits / skin tones. Hero sections that need humans without stock-photo territory. |
+| **[unDraw](https://undraw.co)** | undraw.co | MIT | Open SVG illustrations with on-export colour swap. Still respected if customised — saturated and instantly recognisable if not. |
+| **[IRA Design](https://www.iradesign.io)** | iradesign.io (Creative Tim) | Free / paid | Moody, sophisticated, isometric scenes for B2B / enterprise. |
+| **[Open Peeps](https://www.openpeeps.com)** | openpeeps.com | CC0 | Hand-drawn character library, naive style. Sits between photography and illustration. |
 
 ### The rules
 
@@ -215,13 +212,13 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon
 
-| Source                                       | URL              | Best for                                                                         |
-| -------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
+| Source | URL | Best for |
+| --- | --- | --- |
 | **[Browserframe](https://browserframe.com)** | browserframe.com | Browser + mobile device frames with annotation. Built for SaaS demo screenshots. |
-| **[Ray.so](https://ray.so)**                 | ray.so           | Code snippets in macOS window frames. Perfect for developer-tool landing pages.  |
-| **[Cleanmock](https://cleanmock.com)**       | cleanmock.com    | Mobile device frames; minimalist; good for app-store-listing-style heroes.       |
-| **[Mockup.style](https://mockup.style)**     | mockup.style     | Versatile device + browser builder, Figma-friendly export.                       |
-| **[Device Shots](https://deviceshots.com)**  | deviceshots.com  | Free device generator with multiple frame styles, fast turnaround.               |
+| **[Ray.so](https://ray.so)** | ray.so | Code snippets in macOS window frames. Perfect for developer-tool landing pages. |
+| **[Cleanmock](https://cleanmock.com)** | cleanmock.com | Mobile device frames; minimalist; good for app-store-listing-style heroes. |
+| **[Mockup.style](https://mockup.style)** | mockup.style | Versatile device + browser builder, Figma-friendly export. |
+| **[Device Shots](https://deviceshots.com)** | deviceshots.com | Free device generator with multiple frame styles, fast turnaround. |
 
 ### The rules
 
@@ -229,7 +226,7 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 2. **Floating-no-frame for clean splits.** When the screenshot is beautiful enough to stand naked. Demands a high-quality screenshot.
 3. **Device frame (iPhone / iPad) sparingly.** One hero mockup max — beyond that it reads as generic template work.
 4. **Tilt 1–3°.** Adds life. 0° reads as flat; 5°+ reads as drunk.
-5. **Numbered-pin annotations only.** Numbered circles (1, 2, 3) with a corresponding callout legend below. No arrow-and-label callouts (dated 2018 UX). Label only the _novel_ features, not the obvious.
+5. **Numbered-pin annotations only.** Numbered circles (1, 2, 3) with a corresponding callout legend below. No arrow-and-label callouts (dated 2018 UX). Label only the *novel* features, not the obvious.
 
 ### Avoid
 
@@ -244,30 +241,23 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon (when you don't have your own footage)
 
-| Source                                              | URL                | Licence                                             | Best for                                                  |
-| --------------------------------------------------- | ------------------ | --------------------------------------------------- | --------------------------------------------------------- |
-| **[Mixkit](https://mixkit.co)**                     | mixkit.co (Envato) | No registration, no attribution required, 1080p+ HD | The quality-to-effort sweet spot.                         |
-| **[Coverr](https://coverr.co)**                     | coverr.co          | Free commercial use                                 | Optimised for hero-section backgrounds and ambient loops. |
-| **[Pexels Videos](https://www.pexels.com/videos/)** | pexels.com/videos  | CC0                                                 | Largest free library; 4K available. Volume play.          |
-| **[Videvo](https://www.videvo.net)**                | videvo.net         | Tiered (free + pro)                                 | Community footage + motion graphics.                      |
+| Source | URL | Licence | Best for |
+| --- | --- | --- | --- |
+| **[Mixkit](https://mixkit.co)** | mixkit.co (Envato) | No registration, no attribution required, 1080p+ HD | The quality-to-effort sweet spot. |
+| **[Coverr](https://coverr.co)** | coverr.co | Free commercial use | Optimised for hero-section backgrounds and ambient loops. |
+| **[Pexels Videos](https://www.pexels.com/videos/)** | pexels.com/videos | CC0 | Largest free library; 4K available. Volume play. |
+| **[Videvo](https://www.videvo.net)** | videvo.net | Tiered (free + pro) | Community footage + motion graphics. |
 
 ### The rules
 
 1. **Codec chain in the `<source>` order: AV1 → WebM VP9 → MP4 H.264.** Browsers pick the first they support. AV1 is 30–50 % smaller than H.264 at equivalent quality; H.264 is the universal fallback.
 2. **Always autoplay-muted-loop-playsinline.**
    ```html
-   <video
-     autoplay
-     muted
-     loop
-     playsinline
-     preload="metadata"
-     poster="/hero-poster.webp"
-     fetchpriority="high"
-   >
-     <source src="/hero.av1.mp4" type='video/mp4; codecs="av01.0.05M.08"' />
-     <source src="/hero.vp9.webm" type="video/webm" />
-     <source src="/hero.h264.mp4" type="video/mp4" />
+   <video autoplay muted loop playsinline preload="metadata"
+          poster="/hero-poster.webp" fetchpriority="high">
+     <source src="/hero.av1.mp4"  type='video/mp4; codecs="av01.0.05M.08"'>
+     <source src="/hero.vp9.webm" type="video/webm">
+     <source src="/hero.h264.mp4" type="video/mp4">
    </video>
    ```
 3. **Always include a `poster=""`** — prevents layout shift, gives reduced-motion users a static fallback.
@@ -296,13 +286,13 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon
 
-| Source                                      | URL           | Licence     | Best for                                                                                  |
-| ------------------------------------------- | ------------- | ----------- | ----------------------------------------------------------------------------------------- |
-| **[Unsplash](https://unsplash.com)**        | unsplash.com  | CC0         | Largest free collection, moody / cinematic, weekly community uploads. The starting point. |
-| **[Pexels](https://www.pexels.com)**        | pexels.com    | CC0         | 3.5M+ free photos, diverse photographers.                                                 |
-| **[Nappy.co](https://www.nappy.co)**        | nappy.co      | Free + paid | Curated for diversity and representation. Premium visual direction.                       |
-| **[Shotstash](https://www.shotstash.com)**  | shotstash.com | Free        | Lifestyle / minimal aesthetic. Smaller but carefully curated.                             |
-| **[Open Peeps](https://www.openpeeps.com)** | openpeeps.com | CC0         | Illustrated character library when you want diversity without the photo-stock look.       |
+| Source | URL | Licence | Best for |
+| --- | --- | --- | --- |
+| **[Unsplash](https://unsplash.com)** | unsplash.com | CC0 | Largest free collection, moody / cinematic, weekly community uploads. The starting point. |
+| **[Pexels](https://www.pexels.com)** | pexels.com | CC0 | 3.5M+ free photos, diverse photographers. |
+| **[Nappy.co](https://www.nappy.co)** | nappy.co | Free + paid | Curated for diversity and representation. Premium visual direction. |
+| **[Shotstash](https://www.shotstash.com)** | shotstash.com | Free | Lifestyle / minimal aesthetic. Smaller but carefully curated. |
+| **[Open Peeps](https://www.openpeeps.com)** | openpeeps.com | CC0 | Illustrated character library when you want diversity without the photo-stock look. |
 
 ### The rules
 
@@ -324,12 +314,12 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon
 
-| Source                                                                                       | URL                  | Output                     | Best for                                                                                        |
-| -------------------------------------------------------------------------------------------- | -------------------- | -------------------------- | ----------------------------------------------------------------------------------------------- |
-| **CSS gradients (native)**                                                                   | n/a — write them     | Zero bytes, GPU-composited | The default. Linear or radial; 2–3 colour stops max.                                            |
-| **[Mesh Gradient Generator](https://www.learnui.design/tools/mesh-gradient-generator.html)** | learnui.design tools | Figma / SVG export         | Apple-style mesh gradients; export carries organic noise.                                       |
-| **[fffuel.co](https://www.fffuel.co/)**                                                      | fffuel.co            | SVG                        | `gggrain` for grain noise; `ffflux` for fluid gradients; `uuunion` for wavy meshes. Composable. |
-| **[CSS Gradient](https://cssgradient.io)**                                                   | cssgradient.io       | CSS strings                | Quick gradient picker; copy-paste ready.                                                        |
+| Source | URL | Output | Best for |
+| --- | --- | --- | --- |
+| **CSS gradients (native)** | n/a — write them | Zero bytes, GPU-composited | The default. Linear or radial; 2–3 colour stops max. |
+| **[Mesh Gradient Generator](https://www.learnui.design/tools/mesh-gradient-generator.html)** | learnui.design tools | Figma / SVG export | Apple-style mesh gradients; export carries organic noise. |
+| **[fffuel.co](https://www.fffuel.co/)** | fffuel.co | SVG | `gggrain` for grain noise; `ffflux` for fluid gradients; `uuunion` for wavy meshes. Composable. |
+| **[CSS Gradient](https://cssgradient.io)** | cssgradient.io | CSS strings | Quick gradient picker; copy-paste ready. |
 
 ### The rules
 
@@ -343,18 +333,16 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ```css
 .hero {
-  background: linear-gradient(
-    135deg,
-    color-mix(in oklch, var(--color-paper) 100%, var(--color-accent) 4%),
-    color-mix(in oklch, var(--color-paper) 100%, var(--color-paper-2) 50%)
-  );
+  background:
+    linear-gradient(135deg,
+      color-mix(in oklch, var(--color-paper) 100%, var(--color-accent) 4%),
+      color-mix(in oklch, var(--color-paper) 100%, var(--color-paper-2) 50%));
   position: relative;
 }
 
 .hero::after {
   content: "";
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   opacity: 0.06;
   mix-blend-mode: multiply;
@@ -376,15 +364,15 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ### Canon
 
-| Source                                     | URL             | Best for                                                                                                                |
-| ------------------------------------------ | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| **[LottieFiles](https://lottiefiles.com)** | lottiefiles.com | The Lottie ecosystem. Free + pro tiers; npm + CDN; Figma plugin; AI creator.                                            |
-| **[Rive](https://rive.app)**               | rive.app        | Interactive real-time animations with state machines. Native runtime; better for app UI micro-interactions than Lottie. |
+| Source | URL | Best for |
+| --- | --- | --- |
+| **[LottieFiles](https://lottiefiles.com)** | lottiefiles.com | The Lottie ecosystem. Free + pro tiers; npm + CDN; Figma plugin; AI creator. |
+| **[Rive](https://rive.app)** | rive.app | Interactive real-time animations with state machines. Native runtime; better for app UI micro-interactions than Lottie. |
 
 ### The rules
 
 1. **Lottie is last resort.** Reach for it only when complex character motion can't be hand-built. See [`custom-craft.md`](custom-craft.md) Tier F.
-2. **Custom-commissioned over library pulls.** A LottieFiles community animation that fits your brand exists; one that fits _and_ doesn't look like every other LottieFiles community animation is rare. Commission ($100–$300 on Upwork; $1,000+ from a studio) for hero work.
+2. **Custom-commissioned over library pulls.** A LottieFiles community animation that fits your brand exists; one that fits *and* doesn't look like every other LottieFiles community animation is rare. Commission ($100–$300 on Upwork; $1,000+ from a studio) for hero work.
 3. **< 2 MB file size.** Anything heavier loses to its own loading state.
 4. **Pause / resume support.** Required for accessibility (motion-sensitive users need control).
 5. **Reduced-motion fallback** to a static keyframe. Required.
@@ -401,18 +389,18 @@ When budget and timeline force a shortcut and even Tier C is overkill.
 
 ## Quick-reference: which source for which job
 
-| Need                                           | First reach              | Second reach                      |
-| ---------------------------------------------- | ------------------------ | --------------------------------- |
-| UI icon (chevron, check, X)                    | Lucide                   | Phosphor / Heroicons              |
-| Brand logo for a wall                          | Simple Icons             | SVGL / theSVG                     |
-| A hero illustration the brand owns             | Hand-build (Tier A or B) | Commission custom                 |
-| A hero illustration that's character-driven    | Nanobanana 2 (Tier C)    | Commission, then library          |
-| An SVG-format illustration that needs to scale | Recraft V4               | Hand-build in Figma → SVG         |
-| A photograph with diversity                    | Nappy.co                 | Unsplash with manual tone-tweak   |
-| A demo video of your product                   | Custom screen recording  | (skip; no stock fits)             |
-| A textured background                          | CSS gradient + SVG grain | Mesh Gradient Generator           |
-| A character animation                          | Custom Lottie commission | LottieFiles community + customise |
-| A loading spinner                              | CSS conic-gradient       | (don't reach for Lottie)          |
-| A checkmark draw on confirm                    | SVG `stroke-dasharray`   | (don't reach for Lottie)          |
+| Need | First reach | Second reach |
+| --- | --- | --- |
+| UI icon (chevron, check, X) | Lucide | Phosphor / Heroicons |
+| Brand logo for a wall | Simple Icons | SVGL / theSVG |
+| A hero illustration the brand owns | Hand-build (Tier A or B) | Commission custom |
+| A hero illustration that's character-driven | Nanobanana 2 (Tier C) | Commission, then library |
+| An SVG-format illustration that needs to scale | Recraft V4 | Hand-build in Figma → SVG |
+| A photograph with diversity | Nappy.co | Unsplash with manual tone-tweak |
+| A demo video of your product | Custom screen recording | (skip; no stock fits) |
+| A textured background | CSS gradient + SVG grain | Mesh Gradient Generator |
+| A character animation | Custom Lottie commission | LottieFiles community + customise |
+| A loading spinner | CSS conic-gradient | (don't reach for Lottie) |
+| A checkmark draw on confirm | SVG `stroke-dasharray` | (don't reach for Lottie) |
 
 When in doubt: build it. The path of least resistance and the path of least-AI-tell are the same path in 2026.

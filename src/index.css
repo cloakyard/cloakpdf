@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 /*
+ * Safelist for APP_CONTAINER (src/config/theme.ts) — the app-shell width
+ * classes live only in that string constant, so they'd silently vanish if
+ * source scanning were ever restricted (e.g. a future `@source` allowlist).
+ */
+@source inline("max-w-6xl");
+@source inline("xl:max-w-[88rem]");
+
+/*
  * Inter Variable — self-hosted (SIL Open Font License 1.1).
  * Source: https://rsms.me/inter — see public/fonts/LICENSE.txt.
  * Variable axis covers weights 100–900; italic file is loaded only when
@@ -111,20 +119,43 @@ body,
   background: #f1f5f9;
 }
 
-/* Disable browser-level zoom gestures on phones. The viewport meta in
-   index.html turns off pinch-zoom; `touch-action: manipulation` here
-   suppresses the double-tap-to-zoom that historic Safari versions
-   ignored even with `user-scalable=no`. Tool surfaces that need pinch
-   gestures (PDF previews, signature pads) opt back in via
-   `touch-action: none` on their own container. */
+/* `touch-action: manipulation` suppresses double-tap-to-zoom and the
+   legacy 300ms tap delay WITHOUT blocking intentional pinch-zoom — pinch
+   stays enabled for accessibility (the viewport meta no longer sets
+   `user-scalable=no`/`maximum-scale`). Tool surfaces that need pinch
+   gestures (PDF previews, signature pads, the colour wheel) opt out via
+   `touch-action: none` on their own container, so page zoom never fights
+   them. `overflow-x: clip` is a safety net against accidental horizontal
+   overflow at narrow widths — `clip`, not `hidden`, so the sticky header
+   still pins. */
 html,
 body {
   touch-action: manipulation;
+  overflow-x: clip;
+  /* Native elastic overscroll (macOS/iOS rubber-band) is left ON by deliberate
+     choice — the soft bounce reads far better than the hard stop a lock gives.
+     The accepted trade-off: over-pulling the top of a sticky-header page briefly
+     exposes the backdrop above the bar (the old "detached toolbar" look), and
+     mobile pull-to-refresh comes back (the editor's IndexedDB draft autosave
+     restores any in-flight edit a refresh would otherwise drop). Do NOT re-add
+     `overscroll-behavior-y: none` here without revisiting that call. */
   /* Belt-and-suspenders: text-size-adjust prevents Safari's automatic
      font upscaling in landscape, which would otherwise break the
      pixel-tuned panel chrome. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+/* iOS Safari auto-zooms any form control whose font-size is < 16px when it
+   gains focus. With pinch-zoom re-enabled (no `maximum-scale`), pin form
+   controls to 16px on coarse pointers so focusing a field never jumps the
+   viewport. Desktop keeps its pixel-tuned 13–14px chrome. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 @media (prefers-color-scheme: dark) {
   html,
@@ -160,6 +191,13 @@ body {
   70% {
     transform: rotate(-90deg);
   }
+}
+
+/* Class form of the rotate cue (was an inline style on the OrientationLock
+   glyph). Lifting it off inline style lets the reduced-motion rule below win
+   the cascade and disable it. */
+.animate-rotate-hint {
+  animation: ci-rotate-hint 2.4s ease-in-out infinite;
 }
 
 @keyframes fade-in-up {
@@ -240,7 +278,7 @@ body {
 @keyframes slide-up-in {
   from {
     opacity: 0;
-    transform: translateY(48px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -249,7 +287,7 @@ body {
 }
 
 .animate-slide-up-in {
-  animation: slide-up-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: slide-up-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -258,7 +296,15 @@ body {
   .animate-fade-in,
   .animate-fade-in-up,
   .animate-scale-in,
-  .animate-slide-up-in {
+  .animate-slide-up-in,
+  .animate-rotate-hint {
+    animation: none;
+  }
+  /* Tailwind's decorative pulse (streaming caret in Ask PDF, the "Detecting…"
+     hint in PDF Password) carries no information — silence it. animate-spin is
+     deliberately left running: loading spinners are essential status feedback
+     and are exempt under reduced-motion guidance. */
+  .animate-pulse {
     animation: none;
   }
 }
@@ -349,7 +395,12 @@ body {
  * Thin, theme-aware scrollbar for in-modal / in-card overflow areas.
  * The default browser bar looks chunky and out of place against
  * translucent surfaces (modals, glass cards). This class swaps it for
- * a slim slate thumb.
+ * a slim slate thumb that rests INVISIBLE and surfaces only while the
+ * user interacts with the container (hover / keyboard focus inside) —
+ * styling ::-webkit-scrollbar otherwise forces a permanently painted
+ * bar even where the OS would overlay-hide it. The 8px gutter is
+ * always reserved, so revealing the thumb never shifts layout; touch
+ * devices ignore these rules and keep their native auto-hiding bars.
  *
  * Use sparingly: only on overflow containers inside surfaces, never on
  * the page itself — users expect their browser's default scrollbar at
@@ -358,6 +409,10 @@ body {
 .thin-scrollbar {
   /* Firefox */
   scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.thin-scrollbar:hover,
+.thin-scrollbar:focus-within {
   scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
 }
 .thin-scrollbar::-webkit-scrollbar {
@@ -368,17 +423,55 @@ body {
   background: transparent;
 }
 .thin-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
+  background: transparent;
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+.thin-scrollbar:hover::-webkit-scrollbar-thumb,
+.thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  background-clip: padding-box;
+}
 @media (prefers-color-scheme: dark) {
-  .thin-scrollbar {
+  .thin-scrollbar:hover,
+  .thin-scrollbar:focus-within {
     scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
   }
-  .thin-scrollbar::-webkit-scrollbar-thumb {
+  .thin-scrollbar:hover::-webkit-scrollbar-thumb,
+  .thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
     background: rgba(148, 163, 184, 0.3);
     background-clip: padding-box;
   }
+}
+
+/*
+ * .no-scrollbar — a scroll container with no visible scrollbar at all. For
+ * chrome that scrolls but shouldn't show a track (the editor tool rail, the
+ * mobile tool picker). Content still scrolls via wheel/touch/keyboard.
+ */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/*
+ * .page-cell — applied to each page thumbnail cell in the unbounded page grids
+ * (editor Overview grid, Organize board). A PDF can carry hundreds–1000+ pages,
+ * so painting/laying-out every off-screen cell on entering overview janks the
+ * main thread. `content-visibility: auto` skips rendering work for cells that
+ * are off-screen; the `auto` keyword on contain-intrinsic-size makes the browser
+ * remember each cell's last real size, so the 240px estimate is only used before
+ * a cell has ever been on-screen (avoids scroll-length jumps with mixed page
+ * aspect ratios). Goes on the CELL, never on the .thin-scrollbar scroll
+ * container — the hidden-scrollbar design is untouched.
+ */
+.page-cell {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
 }

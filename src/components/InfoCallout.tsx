@@ -9,18 +9,17 @@ import type { ReactNode } from "react";
  * - `error` (red) → {@link AlertBox} · universal, attention-grabbing.
  * - `warning` (amber) → this component with `accent="warning"` · universal,
  *   amber regardless of tool so the caution signal is preserved.
- * - `info` / `success` → this component with `accent="primary"` (default).
+ * - `info` / `success` → this component with the default `primary` accent.
  *
- * The legacy per-category accent values (`organise` / `transform` /
- * `annotate` / `security`) are accepted for backwards compatibility but
- * all resolve to `primary` — per-category coloring was retired in
- * favour of a single, calmer accent.
+ * There is no per-category coloring — that was retired in favour of a
+ * single, calmer accent. Only two accents exist: the default `primary`
+ * and `warning`.
  *
  * Title is optional — omit it for short single-line success/info messages,
  * include it for richer multi-line callouts that benefit from a headline.
  */
 
-type Accent = "primary" | "organise" | "transform" | "annotate" | "security" | "warning";
+type Accent = "primary" | "warning";
 
 interface InfoCalloutProps {
   icon: LucideIcon;
@@ -31,22 +30,16 @@ interface InfoCalloutProps {
   children: ReactNode;
 }
 
-const PRIMARY_STYLE = {
-  container: "bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800/60",
-  icon: "text-primary-600 dark:text-primary-400",
-  title: "text-primary-800 dark:text-primary-200",
-  body: "text-primary-700/90 dark:text-primary-300/90",
-};
-
 const accentStyles: Record<
   Accent,
   { container: string; icon: string; title: string; body: string }
 > = {
-  primary: PRIMARY_STYLE,
-  organise: PRIMARY_STYLE,
-  transform: PRIMARY_STYLE,
-  annotate: PRIMARY_STYLE,
-  security: PRIMARY_STYLE,
+  primary: {
+    container: "bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800/60",
+    icon: "text-primary-600 dark:text-primary-400",
+    title: "text-primary-800 dark:text-primary-200",
+    body: "text-primary-700/90 dark:text-primary-300/90",
+  },
   warning: {
     container: "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/60",
     icon: "text-amber-600 dark:text-amber-400",

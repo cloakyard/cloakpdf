@@ -1,11 +1,11 @@
 /**
- * useSpotlightGlow — cursor/touch-tracking radial glow used by ToolCard,
- * WorkflowHeroCard, and FileDropZone. Spread `handlers` onto the target
+ * useSpotlightGlow — cursor/touch-tracking radial glow used by ToolCard and
+ * FileDropZone. Spread `handlers` onto the target
  * element and render an absolutely-positioned div with `glowStyle` inside
  * it for the painted gradient.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SpotlightGlowOptions {
   /** Radial gradient color (e.g. "rgba(37,99,235,0.16)"). */
@@ -21,20 +21,50 @@ export function useSpotlightGlow<E extends HTMLElement = HTMLButtonElement>({
   const ref = useRef<E>(null);
   const [glowStyle, setGlowStyle] = useState<React.CSSProperties>({ opacity: 0 });
 
+  // rAF-coalesce pointer moves: pointer events fire far more often than the
+  // display refreshes, so we stash the latest coordinates and flush at most
+  // one setState per frame.
+  const pendingPos = useRef<{ x: number; y: number } | null>(null);
+  const rafId = useRef<number | null>(null);
+
+  const flushGlow = useCallback(() => {
+    rafId.current = null;
+    const pos = pendingPos.current;
+    const el = ref.current;
+    if (!pos || !el) return;
+    const rect = el.getBoundingClientRect();
+    setGlowStyle({
+      opacity: 1,
+      background: `radial-gradient(${radius}px circle at ${pos.x - rect.left}px ${pos.y - rect.top}px, ${color}, transparent 70%)`,
+    });
+  }, [color, radius]);
+
   const setGlowAt = useCallback(
     (clientX: number, clientY: number) => {
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      setGlowStyle({
-        opacity: 1,
-        background: `radial-gradient(${radius}px circle at ${clientX - rect.left}px ${clientY - rect.top}px, ${color}, transparent 70%)`,
-      });
+      pendingPos.current = { x: clientX, y: clientY };
+      if (rafId.current === null) {
+        rafId.current = requestAnimationFrame(flushGlow);
+      }
     },
-    [color, radius],
+    [flushGlow],
   );
 
-  const clearGlow = useCallback(() => setGlowStyle({ opacity: 0 }), []);
+  const clearGlow = useCallback(() => {
+    if (rafId.current !== null) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
+    pendingPos.current = null;
+    setGlowStyle({ opacity: 0 });
+  }, []);
+
+  // Cancel any pending frame on unmount.
+  useEffect(
+    () => () => {
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current);
+    },
+    [],
+  );
 
   const handlers = {
     onMouseMove: (e: React.MouseEvent<E>) => setGlowAt(e.clientX, e.clientY),

@@ -1,249 +1,92 @@
 <div align="center">
 
-  <img src="public/icons/og-image.png" alt="CloakPDF — Free Offline PDF Toolkit" width="800" />
+  <img src="public/icons/og-image.png" alt="CloakPDF — private, in-browser PDF toolkit" width="800" />
 
-  <p>A fast, modern, and privacy-focused PDF toolkit that runs entirely in your browser.<br>
-  No uploads, no servers, no tracking — your files never leave your device.</p>
+  <p><strong>A fast, private PDF toolkit that runs entirely in your browser.</strong></p>
+  <p>No uploads, no servers, no tracking — your files never leave your device.</p>
 
-  <p><strong>Try it here →</strong> <a href="https://pdf.cloakyard.com/">pdf.cloakyard.com</a></p>
+  <p><a href="https://pdf.cloakyard.com/">pdf.cloakyard.com</a></p>
 
   <p>
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT License" /></a>
-    <img src="https://img.shields.io/badge/deploy-Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=white" alt="Deployed on Cloudflare Workers" />
     <img src="https://img.shields.io/badge/platform-Web%20%7C%20PWA-blue" alt="Platform: Web & PWA" />
-  </p>
-  <p>
-    <img src="https://img.shields.io/github/actions/workflow/status/cloakyard/cloakpdf/security.yml?label=security%20audit" alt="Security audit" />
     <a href="https://securityscorecards.dev/viewer/?uri=github.com/cloakyard/cloakpdf"><img src="https://api.securityscorecards.dev/projects/github.com/cloakyard/cloakpdf/badge" alt="OpenSSF Scorecard" /></a>
   </p>
 
 </div>
 
 <p align="center">
-  <img src="public/screenshots/iPad.png" alt="CloakPDF Interface" width="800">
+  <img src="public/screenshots/iPad.png" alt="CloakPDF editor" width="800">
 </p>
 
 ---
 
-## ✨ Features
+## ✨ What it does
 
-CloakPDF offers **36 powerful PDF tools**, all running 100% client-side. Features are grouped by what they do; the order roughly tracks day-to-day usefulness, with the differentiating on-device AI feature leading.
+Drop a PDF and it opens in a single, canvas-based **editor** — a Photoshop-like workspace for one document at a time:
 
-### 🤖 AI Tools _(on-device)_
+- **✏️ Annotate & sign** — draw, highlight, shapes, text, signatures, fill & flatten forms
+- **📄 Pages** — reorder, rotate, delete, crop, N-up, OCR, plus split / extract / contact-sheet on export
+- **🔒 Privacy** — redact (burned into the page), find & box text, scrub hidden data, edit or strip metadata
+- **🏷️ Stamps & numbering** — watermarks, page numbers, headers & footers, Bates numbering, bookmarks
 
-_Chat with your PDF using a small AI model running entirely in your browser — no API keys, no server round-trips_
+Export to PDF, images (ZIP), a contact sheet, or split pages — with optional compress / grayscale / flatten / repair / strip-metadata.
 
-| Tool                      | Description                                                                                                                                                                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Ask your PDF** _(beta)_ | Ask natural-language questions about any PDF and get grounded answers extracted from the document text. Powered by a downloadable small chat model (1.2B or 2.6B parameter tier, your choice). See [Local AI](#-local-ai-on-device-rag) below. |
+A few **standalone tools** cover the jobs the single-PDF editor can't — these mirror the categories on the home screen:
 
-### 🗂️ Organise & Edit
-
-_Rearrange, combine, and manage your PDF pages_
-
-| Tool                   | Description                                                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------ |
-| **Merge PDFs**         | Combine multiple PDF files into a single document with drag-to-reorder support                   |
-| **Split PDF**          | Divide a PDF into multiple separate files — split every page, every N pages, or at custom points |
-| **Extract Pages**      | Select pages visually or by range (e.g., `1-3, 5, 7-9`) and save as a new PDF                    |
-| **Reorder Pages**      | Drag and drop to rearrange page order with smooth animations                                     |
-| **Delete Pages**       | Select and remove unwanted pages visually                                                        |
-| **Rotate Pages**       | Rotate individual pages by 90°, -90°, or 180° — or rotate all at once                            |
-| **Reverse Pages**      | Flip the entire page order of a PDF in one click                                                 |
-| **Add Blank Page**     | Insert a blank page at any position — dimensions match the adjacent page                         |
-| **Duplicate Page**     | Copy any page and insert it at a chosen position in the document                                 |
-| **Remove Blank Pages** | Auto-detect and remove empty pages — adjustable sensitivity with manual override                 |
-| **Add Bookmarks**      | Add a clickable outline so readers can jump to any page instantly                                |
-| **File Attachments**   | View, add, extract, or remove files embedded in a PDF                                            |
-
-### ⚡ Transform & Convert
-
-_Compress, convert, and extract content_
-
-| Tool               | Description                                                                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| **Compress PDF**   | Reduce file size with 3 quality levels — Light, Balanced, and Maximum                                                              |
-| **PDF to Image**   | Export pages as PNG or JPEG at 72 / 150 / 300 DPI — single file or ZIP                                                             |
-| **Images to PDF**  | Convert images (PNG, JPEG) to PDF with A4, Letter, or Fit-to-Image page sizes                                                      |
-| **OCR PDF**        | Extract text from scanned or image-based PDFs using Tesseract.js OCR                                                               |
-| **Extract Images** | Pull all embedded raster images from a PDF — preview, select, and download individually or as a ZIP                                |
-| **Crop Pages**     | Trim page margins by setting a crop box (mm input, uniform or per-side); also removes existing crop boxes to restore the full page |
-| **Flatten PDF**    | Remove interactive form fields and annotations, making the PDF non-editable                                                        |
-| **Grayscale PDF**  | Convert all pages to grayscale — useful for print cost savings and black-and-white output                                          |
-| **N-up Pages**     | Arrange multiple pages onto a single sheet (2-up, 4-up, 9-up) for compact printing                                                 |
-| **Contact Sheet**  | Render all pages as a thumbnail grid for quick visual review — export as PNG or PDF                                                |
-| **Repair PDF**     | Fix structural issues in corrupted or malformed PDFs by re-parsing and rebuilding the file                                         |
-
-### ✍️ Annotate & Sign
-
-_Add watermarks, signatures, and overlays_
-
-| Tool                  | Description                                                                                                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Add Signature**     | Draw or upload a custom signature image and place it on any page with adjustable size and position                                                                 |
-| **Fill PDF Form**     | Fill text fields, checkboxes, dropdowns, and radio groups in interactive PDF forms                                                                                 |
-| **Stamp & Watermark** | Apply pre-built stamps (DRAFT, APPROVED, CONFIDENTIAL, etc.) in text or seal style, or add a custom text watermark with configurable colour, rotation, and opacity |
-| **Add Page Numbers**  | Insert page numbers with 6 position options, 4 formats, and custom styling                                                                                         |
-| **Header & Footer**   | Add repeating text (with `{{page}}` / `{{total}}` tokens) at the top and bottom of every page                                                                      |
-| **Bates Numbering**   | Stamp sequential identifiers (prefix + zero-padded number + suffix) for legal and compliance workflows                                                             |
-
-### 🔐 Security & Properties
-
-_Protect your PDFs and manage metadata_
-
-| Tool                  | Description                                                                                  |
-| --------------------- | -------------------------------------------------------------------------------------------- |
-| **PDF Password**      | Add or remove a password and control print, copy, and edit rights                            |
-| **Redact PDF**        | Permanently black out sensitive text and images                                              |
-| **Edit Metadata**     | View, edit, or redact document properties like title, author, subject, keywords, and dates   |
-| **Digital Signature** | Sign PDFs with a PKCS#12 certificate or a generated self-signed certificate for authenticity |
-| **Compare PDFs**      | Visual side-by-side diff of two PDFs with pixel-level change detection and diff overlay      |
-| **PDF Inspector**     | View version, page count, dimensions, metadata, and encryption status without modifying      |
+- **🧩 Combine & Convert** — merge PDFs, build a PDF from images, or extract embedded images
+- **🔑 Secure & Sign** — add a password & permissions, sign with a certificate, or compare two PDFs
+- **🤖 On-device AI** — _Ask your PDF_: chat with a document using a small model that runs entirely in your browser, no API key or server
 
 ---
 
-## 🔒 Privacy First
+## 🛡️ Privacy first
 
-|                               |                                                                                                      |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **No file uploads**           | Everything is processed locally in your browser                                                      |
-| **No server-side processing** | Zero network requests for your files                                                                 |
-| **On-device AI**              | The Ask-your-PDF chat model runs entirely in the browser — no API key, no inference server, no quota |
-| **No data collection**        | No analytics, no tracking, no cookies                                                                |
-| **Fully offline capable**     | Works without an internet connection after the initial model + asset load                            |
+Everything runs client-side — there is no server to upload to. No accounts, no analytics, no tracking. It's an installable PWA that keeps working offline once loaded, and the on-device AI needs no API key or inference server.
 
 ---
 
-## 🛠️ Tech Stack
+## 🧰 Tech stack
 
-| Category         | Technology                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Framework        | [React 19](https://react.dev/)                                                                                            |
-| Styling          | [Tailwind CSS 4](https://tailwindcss.com/)                                                                                |
-| Build Tool       | [Vite+](https://vite.dev/) (Vite + Rolldown unified toolchain)                                                            |
-| Language         | [TypeScript 6](https://www.typescriptlang.org/)                                                                           |
-| PDF Manipulation | [@pdfme/pdf-lib](https://github.com/pdfme/pdf-lib)                                                                        |
-| PDF Rendering    | [PDF.js](https://mozilla.github.io/pdf.js/)                                                                               |
-| On-device AI     | [Transformers.js](https://github.com/huggingface/transformers.js) + [LangChain.js](https://js.langchain.com/) / LangGraph |
-| Drag & Drop      | [dnd-kit](https://dndkit.com/)                                                                                            |
-| Icons            | [Lucide React](https://lucide.dev/)                                                                                       |
-| OCR Engine       | [Tesseract.js](https://tesseract.projectnaptha.com/)                                                                      |
-| ZIP Export       | [JSZip](https://stuk.github.io/jszip/)                                                                                    |
-| Toolchain CLI    | [Vite+ (`vp`)](https://viteplus.dev/)                                                                                     |
+| Area             | Technology                                                                                                                   |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | [React 19](https://react.dev/) + [TypeScript 6](https://www.typescriptlang.org/)                                             |
+| Styling          | [Tailwind CSS 4](https://tailwindcss.com/)                                                                                   |
+| Build & tooling  | [Vite+ (`vp`)](https://viteplus.dev/)                                                                                        |
+| PDF manipulation | [@pdfme/pdf-lib](https://github.com/pdfme/pdf-lib)                                                                           |
+| PDF rendering    | [PDF.js](https://mozilla.github.io/pdf.js/)                                                                                  |
+| Layout-aware OCR | [LlamaIndex LiteParse](https://www.llamaindex.ai/liteparse) + [Tesseract.js](https://tesseract.projectnaptha.com/)           |
+| On-device AI     | [Transformers.js](https://github.com/huggingface/transformers.js) + [LangGraph](https://langchain-ai.github.io/langgraphjs/) |
+| Deployment       | [Cloudflare Workers](https://workers.cloudflare.com/)                                                                        |
 
 ---
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** ≥ 24.x (LTS recommended)
-- **Vite+ (`vp`)** — install globally via `npm i -g vite-plus`
-
-### Installation
+## 🚀 Getting started
 
 ```bash
-# Clone the repository
 git clone https://github.com/cloakyard/cloakpdf.git
 cd cloakpdf
-
-# Install dependencies
-vp install
-
-# Start the development server
-vp dev
+vp install   # needs Node ≥ 24 and `npm i -g vite-plus`
+vp dev       # http://localhost:5173
 ```
 
-### Available Commands
-
-| Command      | Description                               |
-| ------------ | ----------------------------------------- |
-| `vp dev`     | Start the Vite dev server with hot reload |
-| `vp build`   | TypeScript check + production build       |
-| `vp preview` | Preview the production build locally      |
-| `vp check`   | Run format, lint, and type checks         |
-| `vp test`    | Run tests                                 |
+| Command    | Description                   |
+| ---------- | ----------------------------- |
+| `vp dev`   | Dev server with hot reload    |
+| `vp build` | Type-check + production build |
+| `vp check` | Format, lint, type-check      |
+| `vp test`  | Run unit tests                |
 
 ---
 
-## 📁 Project Structure
+## 🤖 On-device AI
 
-```
-cloakpdf/
-├── public/                 # Static assets
-├── src/
-│   ├── main.tsx            # App entry point
-│   ├── App.tsx             # Root component with lazy-loaded tools
-│   ├── index.css           # Global styles & Tailwind theme
-│   ├── types.ts            # TypeScript type definitions
-│   ├── assets/             # Images & icons
-│   ├── components/         # Reusable UI components (layout, drop zone, thumbnails, etc.)
-│   ├── config/             # Color palette & theme tokens
-│   ├── tools/              # One component per tool (merge, split, compress, etc.)
-│   └── utils/              # Core PDF operations, file helpers, rendering
-├── index.html              # HTML entry point
-├── vite.config.ts          # Vite + Tailwind configuration
-├── tsconfig.json           # TypeScript configuration
-└── package.json
-```
+**Ask your PDF** runs a full retrieval-augmented Q&A pipeline in the browser — the model weights download once from Hugging Face, cache, and work offline after. For the architecture (LangGraph state machine, hybrid retrieval, model choices), see **[docs/local-ai.md](docs/local-ai.md)**.
 
 ---
 
-## ⚙️ How It Works
+## 🤝 Contributing & license
 
-CloakPDF leverages two complementary libraries for full PDF support:
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the [MIT License](LICENSE).
 
-- **[@pdfme/pdf-lib](https://github.com/pdfme/pdf-lib)** — Handles all PDF manipulation: merging, splitting, rotation, page deletion, watermarking, signature embedding, image-to-PDF conversion, and metadata editing.
-- **[PDF.js](https://mozilla.github.io/pdf.js/)** — Renders PDF pages to canvas for visual previews and thumbnail generation.
-
-All operations happen in-memory using the browser's `FileReader` API and `ArrayBuffer`s. Processed files are delivered as downloadable blobs — no data ever touches a remote server.
-
----
-
-## 🤖 Local AI (on-device RAG)
-
-**Ask your PDF** runs a full retrieval-augmented question-answering
-pipeline **entirely in your browser** — no API key, no inference
-server, no usage quota. The model weights download once from Hugging
-Face's CDN, get cached, and work offline forever after.
-
-Three small models work together on first use (~1.15 GB total on the
-default Compact chat tier; ~1.9 GB on Quality):
-
-- **Chat** — [LFM2.5-1.2B-Instruct](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct) _(Compact, default)_ or [LFM2-2.6B](https://huggingface.co/LiquidAI/LFM2-2.6B) _(Quality)_
-- **Retrieval** — [EmbeddingGemma-300M](https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX)
-- **Reranking** — [MS MARCO MiniLM-L-6-v2](https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2)
-
-For everything else — the LangGraph state machine, the BM25 + dense
-hybrid retriever, the three deterministic fast-paths, sampling
-profiles, caching layers, WebGPU vs WASM choices, and the rationale
-behind every model swap — see the implementation deep-dive:
-
-**→ [docs/local-ai.md](docs/local-ai.md)** _(with diagrams of the
-graph + ingest pipeline)_
-
----
-
-## 🚢 Deployment
-
-CloakPDF is deployed to **Cloudflare Workers** (with [Static Assets](https://developers.cloudflare.com/workers/static-assets/)) at [pdf.cloakyard.com](https://pdf.cloakyard.com/). Cloudflare's Workers Builds Git integration auto-builds and deploys every push to `main`, with preview deployments for pull requests.
-
-The deploy is driven by [`wrangler.jsonc`](./wrangler.jsonc) — Cloudflare reads this file, runs the build, and serves the `dist/` folder as static assets straight from the Worker runtime on Cloudflare's edge network.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! See the [Contributing Guide](CONTRIBUTING.md) for details on how to get started.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** — feel free to use it for both personal and commercial purposes. See the [LICENSE](LICENSE) file for details.
-
----
-
-<p align="center">
-  Built with ❤️ by <a href="https://github.com/sumitsahoo">Sumit Sahoo</a>
-</p>
+<p align="center">Built with ❤️ by <a href="https://github.com/sumitsahoo">Sumit Sahoo</a></p>

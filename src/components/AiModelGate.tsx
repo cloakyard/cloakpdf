@@ -174,7 +174,7 @@ export function AiModelGate({
 
   return (
     <>
-      <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border shadow-sm p-5">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border p-5">
         <div className="flex items-start gap-3">
           <span
             aria-hidden="true"
@@ -208,36 +208,43 @@ export function AiModelGate({
             />
           </div>
         )}
-        <button
-          type="button"
-          onClick={() => {
-            const trigger = onDownload ?? (() => ai.ensureReady());
-            try {
-              const out = trigger();
-              if (out && typeof (out as Promise<unknown>).catch === "function") {
-                (out as Promise<unknown>).catch(() => {
-                  /* dialog shows the error */
-                });
+        {/* Full-width stacked on phones, natural-width + right-aligned from
+            sm — matching the AiConsentModal footer this CTA flows into, so a
+            single download intent reads consistently across both surfaces.
+            A full-shell-wide button looked stretched once tools span the
+            whole container. */}
+        <div className="mt-4 flex flex-col sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              const trigger = onDownload ?? (() => ai.ensureReady());
+              try {
+                const out = trigger();
+                if (out && typeof (out as Promise<unknown>).catch === "function") {
+                  (out as Promise<unknown>).catch(() => {
+                    /* dialog shows the error */
+                  });
+                }
+              } catch {
+                /* dialog shows the error */
               }
-            } catch {
-              /* dialog shows the error */
-            }
-          }}
-          disabled={loading}
-          className="mt-4 w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Loading model…
-            </>
-          ) : (
-            <>
-              <Download className="w-4 h-4" />
-              Download model
-            </>
-          )}
-        </button>
+            }}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading model…
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Download model
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <AiModelDetailsModal

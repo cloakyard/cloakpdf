@@ -76,6 +76,18 @@ export interface Tool {
    * mobile experience.
    */
   desktopOnly?: boolean;
+  /**
+   * Keep this tool as a standalone home-screen card. The home page is
+   * editor-first — a PDF dropped on the home dropzone opens the unified
+   * editor, which already reaches every single-PDF edit/transform tool
+   * (plus PDF→image / contact-sheet / split via its Export menu). Only
+   * tools that can't be a single-PDF "edit then export" flow stay as
+   * cards: multi-input constructors (merge, images→PDF), the dual-input
+   * compare, and special single-input tools (AI chat, image extraction,
+   * security cert/password). Tools without this flag are not shown as
+   * cards — they live inside the editor.
+   */
+  standaloneOnly?: boolean;
 }
 
 /** Position of page numbers on the page. */
@@ -144,42 +156,6 @@ export interface BatesNumberOptions {
   margin: number;
 }
 
-/** Union of all valid tool identifiers. */
-export type ToolId =
-  | "merge"
-  | "compress"
-  | "rotate"
-  | "delete"
-  | "reorder"
-  | "images-to-pdf"
-  | "watermark"
-  | "signature"
-  | "metadata"
-  | "ocr"
-  | "pdf-password"
-  | "flatten"
-  | "add-blank-page"
-  | "duplicate-page"
-  | "add-page-numbers"
-  | "header-footer"
-  | "crop-pages"
-  | "pdf-to-image"
-  | "fill-pdf-form"
-  | "extract-pages"
-  | "reverse-pages"
-  | "redact-pdf"
-  | "stamp-pdf"
-  | "add-bookmarks"
-  | "pdf-inspector"
-  | "repair-pdf"
-  | "nup-pages"
-  | "remove-blank-pages"
-  | "bates-numbering"
-  | "contact-sheet"
-  | "grayscale"
-  | "file-attachment"
-  | "split-pdf"
-  | "extract-images"
-  | "compare-pdf"
-  | "digital-signature"
-  | "ask-pdf";
+// NOTE: `ToolId` is no longer hand-written here — it's derived from the tool
+// data (the home cards + the editor roster) in `src/config/tool-registry.ts`,
+// so it can never drift from the actual tool list. Import it from there.

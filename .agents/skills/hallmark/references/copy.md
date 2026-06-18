@@ -26,7 +26,7 @@ Three parts:
 2. **Why, if known.** "Your bank flagged the charge."
 3. **What to do.** Imperative. "Try another card, or contact your bank."
 
-Never apologetic for the _user's_ input. Don't say "Oops!" on a validation error. A form that won't accept a value should explain the value, not perform embarrassment.
+Never apologetic for the *user's* input. Don't say "Oops!" on a validation error. A form that won't accept a value should explain the value, not perform embarrassment.
 
 ## Empty states
 
@@ -51,7 +51,7 @@ Three beats:
 - Humour in frustration paths (forgot-password, payment-failed, account-locked).
 - Stock placeholder names: Jane Doe, John Smith, Lorem Ipsum (unless the page is a lorem-ipsum tool).
 - Startup clichés in product copy: Acme, Nexus, Unleash, Seamless, Supercharge, Transform, Elevate, Empower, Delight, Magical.
-- Marketing copy that promises a feeling without naming a feature. "Experience the power of \_\_\_" is empty.
+- Marketing copy that promises a feeling without naming a feature. "Experience the power of ___" is empty.
 
 ## Proper typography
 
@@ -67,98 +67,98 @@ If the text is loaded from a CMS, configure Smart Quotes in the CMS. If it's har
 
 ## Voice samples per tone
 
-The skill bends toward distribution-default copy ("Built for the modern team", "Unleash your X", "Where A meets B") unless given non-default voices to imitate. The samples below are _real opening lines_ from sites that defy that distribution. **Imitate the kind of specificity** — named places, named dates, named verticals, refusal of metaphor, refusal of the verb — not the wording. The tone column maps to the seven tones the design-context gate (see [`SKILL.md`](../SKILL.md) Step 1) commits the user to.
+The skill bends toward distribution-default copy ("Built for the modern team", "Unleash your X", "Where A meets B") unless given non-default voices to imitate. The samples below are *real opening lines* from sites that defy that distribution. **Imitate the kind of specificity** — named places, named dates, named verticals, refusal of metaphor, refusal of the verb — not the wording. The tone column maps to the seven tones the design-context gate (see [`SKILL.md`](../SKILL.md) Step 1) commits the user to.
 
 ### Editorial
 
-Three voice patterns: _date-anchored_, _refusal of the verb_, _enumerative_.
+Three voice patterns: *date-anchored*, *refusal of the verb*, *enumerative*.
 
-- _"Creative direction, design and type for culture since 2003."_ — apracticeforeverydaylife.com — date + named verticals
-- _"A monthly art publication featuring contributions by some of the most engaged thinkers working today."_ — e-flux.com/journal — uses cadence (_monthly_) and a verb (_featuring_) that's specific
-- _"A thing well made."_ — klim.co.nz — refusal of the verb, treats design as material
-- _"Frieze elevates the provocative and brilliant leading voices who shape and challenge today's art world."_ — frieze.com — uses _challenge_ instead of _empower_
-- _"We design everything for everyone."_ — pentagram.com — refusal of marketing verbs; democratic claim
-- _"Writer + Photographer."_ — craigmod.com — three words, two roles, no padding
-- _"Type, set with care."_ — Hallmark Specimen — three words; the comma is the design
-- _"I'm a French design technologist based in London. I make websites and fonts, amongst other physical and digital artefacts."_ — mathieutriay.com — named place, named deliverables, "artefacts" signals craft
+- *"Creative direction, design and type for culture since 2003."* — apracticeforeverydaylife.com — date + named verticals
+- *"A monthly art publication featuring contributions by some of the most engaged thinkers working today."* — e-flux.com/journal — uses cadence (*monthly*) and a verb (*featuring*) that's specific
+- *"A thing well made."* — klim.co.nz — refusal of the verb, treats design as material
+- *"Frieze elevates the provocative and brilliant leading voices who shape and challenge today's art world."* — frieze.com — uses *challenge* instead of *empower*
+- *"We design everything for everyone."* — pentagram.com — refusal of marketing verbs; democratic claim
+- *"Writer + Photographer."* — craigmod.com — three words, two roles, no padding
+- *"Type, set with care."* — Hallmark Specimen — three words; the comma is the design
+- *"I'm a French design technologist based in London. I make websites and fonts, amongst other physical and digital artefacts."* — mathieutriay.com — named place, named deliverables, "artefacts" signals craft
 
 ### Brutalist
 
-Three voice patterns: _flat declarative_, _refusal of metaphor_, _direct address with consequence_.
+Three voice patterns: *flat declarative*, *refusal of metaphor*, *direct address with consequence*.
 
-- _"The product development system for teams and agents."_ — linear.app — flat declarative; no flourish, no "powered by AI"
-- _"Resend is the email API for developers. Send transactional and marketing emails at scale with a simple, modern API."_ — resend.com — names the form factor, the audience, and what it does
-- _"Purpose-built for planning and building products. Designed for the AI era."_ — linear.app — names the era plainly, no euphemism
-- _"WE ARE A STUDIO. WE ARE NOT A PLATFORM."_ — Hallmark Meridian (test 04) — defines by refusal, all caps
-- _"We design products that last twelve years. We do not design products that need replacing every two."_ — concrete number, paired declaration
-- _"A toolkit for assembling new worlds from the scraps of the old."_ — are.na — second-position copy that breaks template
-- _"NO COMPROMISE."_ — Hallmark Brutal — two words; the period is the design
-- _"We will not put our work behind a chatbot. We will answer the email ourselves."_ — declarative refusal, two short sentences
+- *"The product development system for teams and agents."* — linear.app — flat declarative; no flourish, no "powered by AI"
+- *"Resend is the email API for developers. Send transactional and marketing emails at scale with a simple, modern API."* — resend.com — names the form factor, the audience, and what it does
+- *"Purpose-built for planning and building products. Designed for the AI era."* — linear.app — names the era plainly, no euphemism
+- *"WE ARE A STUDIO. WE ARE NOT A PLATFORM."* — Hallmark Meridian (test 04) — defines by refusal, all caps
+- *"We design products that last twelve years. We do not design products that need replacing every two."* — concrete number, paired declaration
+- *"A toolkit for assembling new worlds from the scraps of the old."* — are.na — second-position copy that breaks template
+- *"NO COMPROMISE."* — Hallmark Brutal — two words; the period is the design
+- *"We will not put our work behind a chatbot. We will answer the email ourselves."* — declarative refusal, two short sentences
 
 ### Soft
 
-Three voice patterns: _poetic restraint_, _passion via enumeration_, _vulnerability with proof_.
+Three voice patterns: *poetic restraint*, *passion via enumeration*, *vulnerability with proof*.
 
-- _"It's about time."_ — cron.com — pun without winking; restraint
-- _"Time is our most precious resource."_ — Notion Calendar — opens on the philosophical premise, then gets concrete
-- _"Designer for the Web (v. XIX)."_ — lynnandtonic.com — version number signals craft-in-progress
-- _"Design engineer creating software that makes people feel something."_ — rauno.me — emotional outcome over feature list; "feel something" avoids genre cliché
-- _"All I want to do is build websites. Typography, motion design, copywriting, performance — the web is an endless medium of opportunity."_ — paco.me — passion via enumeration; vulnerability ("scratched the surface")
-- _"I craft UI demos that explore the power of the web and help others sharpen their skills."_ — jhey.dev — names the verb (_craft_), names the audience (_others_)
-- _"Soft, but exact."_ — Hallmark Plume — two short adjectives, one comma, full stop
-- _"This page is soft because the surface should be soft. The rules underneath are not."_ — pairs claim with refusal
+- *"It's about time."* — cron.com — pun without winking; restraint
+- *"Time is our most precious resource."* — Notion Calendar — opens on the philosophical premise, then gets concrete
+- *"Designer for the Web (v. XIX)."* — lynnandtonic.com — version number signals craft-in-progress
+- *"Design engineer creating software that makes people feel something."* — rauno.me — emotional outcome over feature list; "feel something" avoids genre cliché
+- *"All I want to do is build websites. Typography, motion design, copywriting, performance — the web is an endless medium of opportunity."* — paco.me — passion via enumeration; vulnerability ("scratched the surface")
+- *"I craft UI demos that explore the power of the web and help others sharpen their skills."* — jhey.dev — names the verb (*craft*), names the audience (*others*)
+- *"Soft, but exact."* — Hallmark Hum — two short adjectives, one comma, full stop
+- *"This page is soft because the surface should be soft. The rules underneath are not."* — pairs claim with refusal
 
 ### Technical
 
-Three voice patterns: _spec-embedded prose_, _measured language_, _data-first opening_.
+Three voice patterns: *spec-embedded prose*, *measured language*, *data-first opening*.
 
-- _"The 14-inch MacBook Pro with M5 brings serious speed and advanced on-device AI to the personal, professional, and creative work you do every day."_ — apple.com — spec embedded in prose; "serious speed" is measured language
-- _"434 total posts. New CSS you feel like you could use today."_ — nerdy.dev (Adam Argyle) — data-first; "feel like" suggests genuine utility
-- _"$ streampipe parse access.log --filter status=5xx | jq"_ — Streampipe (test 02) — open on a real command, not a marketing claim
-- _"Open the trace, find the span, fix the regression. No glossary required."_ — Tracejam (test 05) — three concrete verbs, then a refusal
-- _"From stdin, through the pipe, into your dashboard."_ — names the data path; refuses abstraction
-- _"23 spans · 4 services · 482 ms."_ — Tracejam mockup — data is the headline
-- _"Read anything that emits lines. Files, pipes, sockets, kubectl logs."_ — names the inputs, refuses generality
-- _"Drop-in OTLP. No agent, no sidecar."_ — pairs claim with refusal of common alternatives
+- *"The 14-inch MacBook Pro with M5 brings serious speed and advanced on-device AI to the personal, professional, and creative work you do every day."* — apple.com — spec embedded in prose; "serious speed" is measured language
+- *"434 total posts. New CSS you feel like you could use today."* — nerdy.dev (Adam Argyle) — data-first; "feel like" suggests genuine utility
+- *"$ streampipe parse access.log --filter status=5xx | jq"* — Streampipe (test 02) — open on a real command, not a marketing claim
+- *"Open the trace, find the span, fix the regression. No glossary required."* — Tracejam (test 05) — three concrete verbs, then a refusal
+- *"From stdin, through the pipe, into your dashboard."* — names the data path; refuses abstraction
+- *"23 spans · 4 services · 482 ms."* — Tracejam mockup — data is the headline
+- *"Read anything that emits lines. Files, pipes, sockets, kubectl logs."* — names the inputs, refuses generality
+- *"Drop-in OTLP. No agent, no sidecar."* — pairs claim with refusal of common alternatives
 
 ### Luxury
 
-Three voice patterns: _heritage with specifics_, _refusal as sophistication_, _named scale_.
+Three voice patterns: *heritage with specifics*, *refusal as sophistication*, *named scale*.
 
-- _"The world's most acclaimed creative collective, where 23 partners work independently and collaboratively to shape the future of design."_ — pentagram.com — heritage (implied longevity), named scale (23 partners)
-- _"By appointment."_ — atelier-style — refusal as gatekeeping
-- _"A salon for the senses."_ — Hallmark Salon — single nominal phrase, comma-free
-- _"A page should arrive like a person — composed, deliberate, in good clothes."_ — Hallmark Salon — analogy treats the page as social
-- _"With pleasure, you are most welcome."_ — Hallmark Salon salutation — formal address
-- _"Restraint, repeated, becomes a signature."_ — Hallmark Atelier — three commas, four words, philosophical
-- _"A studied hand."_ — three words; the determiner does the work
-- _"A small, opinionated craftsmanship engine that argues with your AI assistant on your behalf — and wins."_ — Hallmark Atelier — names the role precisely, embraces the conflict
+- *"The world's most acclaimed creative collective, where 23 partners work independently and collaboratively to shape the future of design."* — pentagram.com — heritage (implied longevity), named scale (23 partners)
+- *"By appointment."* — atelier-style — refusal as gatekeeping
+- *"A study in the senses."* — Hallmark Atelier — single nominal phrase, comma-free
+- *"A page should arrive like a person — composed, deliberate, in good clothes."* — Hallmark Atelier — analogy treats the page as social
+- *"With pleasure, you are most welcome."* — Hallmark Editorial salutation — formal address
+- *"Restraint, repeated, becomes a signature."* — Hallmark Atelier — three commas, four words, philosophical
+- *"A studied hand."* — three words; the determiner does the work
+- *"A small, opinionated craftsmanship engine that argues with your AI assistant on your behalf — and wins."* — Hallmark Atelier — names the role precisely, embraces the conflict
 
 ### Playful
 
-Three voice patterns: _analogy via pop-culture_, _food/sensory metaphor_, _anticipated reaction_.
+Three voice patterns: *analogy via pop-culture*, *food/sensory metaphor*, *anticipated reaction*.
 
-- _"Playlists, but for ideas."_ — are.na — analogy that's also useful
-- _"Internet memory palace."_ — are.na — three-word noun phrase, structural metaphor
-- _"Devouring details. Nourishing novelty. Deploying excellence."_ — rauno.me — alliteration; food + tech metaphor
-- _"The kind that make you say, 'Wait, how did you do that?'"_ — jhey.dev — direct address, anticipates the reader's reaction
-- _"Built to ship."_ — Hallmark Sport — three words, declarative, with a verb that's a verb
-- _"Ready? You are two minutes from shipping."_ — Hallmark Sport — a question, then a number
-- _"design like print: warm, off-register, intentional."_ — Hallmark Riso — lowercase + colon + three modifiers
-- _"this is not a page that pretends to be paper. it is a page that remembers paper."_ — Riso — refuses the imitation framing
+- *"Playlists, but for ideas."* — are.na — analogy that's also useful
+- *"Internet memory palace."* — are.na — three-word noun phrase, structural metaphor
+- *"Devouring details. Nourishing novelty. Deploying excellence."* — rauno.me — alliteration; food + tech metaphor
+- *"The kind that make you say, 'Wait, how did you do that?'"* — jhey.dev — direct address, anticipates the reader's reaction
+- *"Built to ship."* — Hallmark Sport — three words, declarative, with a verb that's a verb
+- *"Ready? You are two minutes from shipping."* — Hallmark Sport — a question, then a number
+- *"design like print: warm, off-register, intentional."* — Hallmark Riso — lowercase + colon + three modifiers
+- *"this is not a page that pretends to be paper. it is a page that remembers paper."* — Riso — refuses the imitation framing
 
 ### Austere
 
-Three voice patterns: _extreme abbreviation_, _principle as opening_, _refusal of marketing language_.
+Three voice patterns: *extreme abbreviation*, *principle as opening*, *refusal of marketing language*.
 
-- _"Hello."_ — Hallmark Quiet salutation — one word; the period is the design
-- _"This is a page that doesn't try."_ — Quiet — declares the position openly
-- _"Things Become Other Things."_ — craigmod.com — three words; treats brand as essay title
-- _"Lightness above weightiness, elevate everyone you encounter."_ — craigmod.com — principle-first positioning
-- _"A quiet skill."_ — Hallmark Quiet — three words; the article is doing work
-- _"Software can be soft and exact at once. That's the trick."_ — Hallmark Plume — names the contradiction, names the resolution
-- _"One HTML file."_ — Anya (test 06) footer — three words; the count is the boast
-- _"This page doesn't move."_ — names the design decision openly
+- *"Hello."* — Hallmark Coral salutation — one word; the period is the design
+- *"This is a page that doesn't try."* — Coral — declares the position openly
+- *"Things Become Other Things."* — craigmod.com — three words; treats brand as essay title
+- *"Lightness above weightiness, elevate everyone you encounter."* — craigmod.com — principle-first positioning
+- *"A quiet skill."* — Hallmark Coral — three words; the article is doing work
+- *"Software can be soft and exact at once. That's the trick."* — Hallmark Hum — names the contradiction, names the resolution
+- *"One HTML file."* — Anya (test 06) footer — three words; the count is the boast
+- *"This page doesn't move."* — names the design decision openly
 
 ---
 
@@ -166,17 +166,17 @@ Three voice patterns: _extreme abbreviation_, _principle as opening_, _refusal o
 
 These phrases appear across distribution-default LLM copy and reach for none of the specificity above. **Banned outright** — if you find yourself reaching for one, replace it with one of the patterns from the tone above.
 
-| Phrase                           | Why it fails                                              |
-| -------------------------------- | --------------------------------------------------------- |
-| _"Built for the modern team"_    | Vague; assumes no specifics; temporal marketing           |
-| _"Unleash your [X]"_             | Hyperbolic; software can't unleash anything               |
-| _"Where X meets Y"_              | False synthesis; creative laziness                        |
-| _"Empower your..."_              | Missionary language; avoids concrete benefit              |
-| _"Reimagine the way you..."_     | Suggests dissatisfaction before explaining need           |
-| _"Supercharge your workflow"_    | Energy metaphor without mechanics                         |
-| _"Innovative solutions"_         | Meaningless; every product claims innovation              |
-| _"Seamless integration"_         | "Seamless" has no antonym; signals non-specificity        |
-| _"In today's digital landscape"_ | Temporal hand-wave; assumes the reader needs orientation  |
-| _"Next-generation"_              | Implies predecessor inadequacy; offers no differentiation |
+| Phrase | Why it fails |
+| --- | --- |
+| *"Built for the modern team"* | Vague; assumes no specifics; temporal marketing |
+| *"Unleash your [X]"* | Hyperbolic; software can't unleash anything |
+| *"Where X meets Y"* | False synthesis; creative laziness |
+| *"Empower your..."* | Missionary language; avoids concrete benefit |
+| *"Reimagine the way you..."* | Suggests dissatisfaction before explaining need |
+| *"Supercharge your workflow"* | Energy metaphor without mechanics |
+| *"Innovative solutions"* | Meaningless; every product claims innovation |
+| *"Seamless integration"* | "Seamless" has no antonym; signals non-specificity |
+| *"In today's digital landscape"* | Temporal hand-wave; assumes the reader needs orientation |
+| *"Next-generation"* | Implies predecessor inadequacy; offers no differentiation |
 
-If the brief gives you nothing to work with for an opening line, _say so to the user_ and ask one question that elicits a specific noun, verb, or place. The user knows their product; the model is not allowed to invent specificity.
+If the brief gives you nothing to work with for an opening line, *say so to the user* and ask one question that elicits a specific noun, verb, or place. The user knows their product; the model is not allowed to invent specificity.

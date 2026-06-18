@@ -2,7 +2,7 @@
 
 Most AI-generated motion is scattered — hover lifts on every card, fade-in on every scroll, bouncing icons. Quiet it. One orchestrated moment beats ten small ones.
 
-> For per-interaction recipes (button press, focus, modal, toast, optimistic update, command palette, drag handle, etc.), see [`microinteractions.md`](microinteractions.md). This file is the _language_ of motion; that file is the _vocabulary_.
+> For per-interaction recipes (button press, focus, modal, toast, optimistic update, command palette, drag handle, etc.), see [`microinteractions.md`](microinteractions.md). This file is the *language* of motion; that file is the *vocabulary*.
 
 ## Principles
 
@@ -18,9 +18,9 @@ Use these three. Name them as tokens.
 
 ```css
 :root {
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* elements entering */
-  --ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* elements leaving  */
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* state toggles     */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);        /* elements entering */
+  --ease-in:  cubic-bezier(0.7,  0, 0.84, 0);       /* elements leaving  */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* state toggles     */
 }
 ```
 
@@ -30,21 +30,17 @@ Use these three. Name them as tokens.
 
 ```css
 :root {
-  --dur-micro: 120ms; /* button press, toggle tick, color shift  */
-  --dur-short: 220ms; /* hover lift, tooltip, menu open          */
-  --dur-long: 420ms; /* modal, drawer, accordion, page reveal   */
+  --dur-micro: 120ms;   /* button press, toggle tick, color shift  */
+  --dur-short: 220ms;   /* hover lift, tooltip, menu open          */
+  --dur-long:  420ms;   /* modal, drawer, accordion, page reveal   */
 }
 ```
 
 Exits use roughly 75% of the enter:
 
 ```css
-.menu.is-open {
-  transition: transform var(--dur-short) var(--ease-out);
-}
-.menu.is-close {
-  transition: transform calc(var(--dur-short) * 0.75) var(--ease-in);
-}
+.menu.is-open  { transition: transform var(--dur-short) var(--ease-out); }
+.menu.is-close { transition: transform calc(var(--dur-short) * 0.75) var(--ease-in); }
 ```
 
 ## Page-load orchestration
@@ -65,10 +61,7 @@ One sequence on page load. Stagger by DOM index using a CSS custom property, not
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 @keyframes reveal {
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  to { opacity: 1; transform: none; }
 }
 ```
 
@@ -77,7 +70,7 @@ Cap total stagger at ~500ms. Beyond that the page feels slow to settle.
 ## Scroll-linked motion
 
 - Use IntersectionObserver, **never** `scroll` event listeners.
-- Use it only for _reveal once_ effects. No parallax. No scroll-scrubbed animations unless there is a specific reason.
+- Use it only for *reveal once* effects. No parallax. No scroll-scrubbed animations unless there is a specific reason.
 - Every scroll-triggered motion must have a reduced-motion fallback.
 
 ## State transitions
@@ -91,22 +84,13 @@ Cap total stagger at ~500ms. Beyond that the page feels slow to settle.
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 150ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 150ms !important;
   }
-  .reveal {
-    animation: reveal-reduced 150ms linear forwards;
-  }
-  @keyframes reveal-reduced {
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
+  .reveal { animation: reveal-reduced 150ms linear forwards; }
+  @keyframes reveal-reduced { to { opacity: 1; transform: none; } }
 }
 ```
 

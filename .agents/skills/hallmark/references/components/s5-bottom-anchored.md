@@ -1,8 +1,7 @@
 ### S5 · Bottom-anchored
-
-The label or heading sits _below_ the section's content. Inverts hierarchy.
-_Use when:_ the content is the primary act and the label is a footer to it.
-_Don't confuse with:_ S1 Left-margin (which leads with the label).
+The label or heading sits *below* the section's content. Inverts hierarchy.
+*Use when:* the content is the primary act and the label is a footer to it.
+*Don't confuse with:* S1 Left-margin (which leads with the label).
 
 ```html
 <section>

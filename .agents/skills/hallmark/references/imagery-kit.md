@@ -14,14 +14,14 @@ The skill doesn't ship the binaries — it ships the manifest. References are ab
 
 ## Categories
 
-| Category        | What                                                                            | Format | Example uses                                                                     |
-| --------------- | ------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------- |
-| **watercolor**  | Full-bleed soft-edge painterly fields. Warm + cool variants per palette family. | WebP   | Section background accent; hero-half flood; behind-quote wash.                   |
-| **transparent** | Organic blob / brushstroke / stylized mark on transparent background.           | PNG    | Layered hero composition (large, off-centre, behind text). The masterclass move. |
-| **ornament**    | Small hand-drawn stamps, plates, roman numerals, decorative flourishes.         | SVG    | Beside a quote; in the section-label gutter; closing a letter.                   |
-| **texture**     | Subtle paper, weave, riso-dot, cross-hatch fields. Tile-able.                   | WebP   | Body grain via `mix-blend-mode: multiply`; section-divider banding.              |
-| **silhouette**  | Abstract bottle / box / device / book / mug / card shapes.                      | PNG    | Empty product slots before user uploads photos; comparison rows.                 |
-| **pattern**     | Repeating motifs that read as fabric / paper / printed material.                | WebP   | Section-band texture; full-bleed fills behind decorative text.                   |
+| Category | What | Format | Example uses |
+| --- | --- | --- | --- |
+| **watercolor** | Full-bleed soft-edge painterly fields. Warm + cool variants per palette family. | WebP | Section background accent; hero-half flood; behind-quote wash. |
+| **transparent** | Organic blob / brushstroke / stylized mark on transparent background. | PNG | Layered hero composition (large, off-centre, behind text). The masterclass move. |
+| **ornament** | Small hand-drawn stamps, plates, roman numerals, decorative flourishes. | SVG | Beside a quote; in the section-label gutter; closing a letter. |
+| **texture** | Subtle paper, weave, riso-dot, cross-hatch fields. Tile-able. | WebP | Body grain via `mix-blend-mode: multiply`; section-divider banding. |
+| **silhouette** | Abstract bottle / box / device / book / mug / card shapes. | PNG | Empty product slots before user uploads photos; comparison rows. |
+| **pattern** | Repeating motifs that read as fabric / paper / printed material. | WebP | Section-band texture; full-bleed fills behind decorative text. |
 
 **Naming:** `<category>-<palette-family>-<variant>.<ext>` — e.g. `watercolor-warm-01.webp`, `transparent-brush-cool-03.png`, `ornament-stamp-01.svg`, `texture-grain-paper-02.webp`. Palette families: `warm` · `cool` · `neutral` · `chromatic`.
 
@@ -54,10 +54,7 @@ The skill picks an asset by matching the active theme's palette family + the bri
 A transparent abstract object behind hero text. The image is bigger than you think it should be — that's what makes it feel intentional, not decorative.
 
 ```css
-.hero {
-  position: relative;
-  isolation: isolate;
-}
+.hero { position: relative; isolation: isolate; }
 
 .hero__art {
   position: absolute;
@@ -73,15 +70,9 @@ A transparent abstract object behind hero text. The image is bigger than you thi
   opacity: 0.85;
 }
 
-.hero__art--bias-left {
-  right: auto;
-  left: -10%;
-}
+.hero__art--bias-left  { right: auto; left: -10%; }
 
-.hero > * {
-  position: relative;
-  z-index: 1;
-}
+.hero > * { position: relative; z-index: 1; }
 ```
 
 Bias to one side (left or right, never centred). The text sits at `z-index: 1`, the art at `z-index: 0`. Test mobile: art may need to scale down or shift to avoid the headline at 320 px.
@@ -91,16 +82,12 @@ Bias to one side (left or right, never centred). The text sits at `z-index: 1`, 
 A watercolor file as a full-bleed section accent. One section per page, never global.
 
 ```css
-.section--wash {
-  position: relative;
-  isolation: isolate;
-}
+.section--wash { position: relative; isolation: isolate; }
 .section--wash::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("https://www.usehallmark.com/imagery/watercolor/watercolor-warm-01.webp") center /
-    cover no-repeat;
+  background: url("https://www.usehallmark.com/imagery/watercolor/watercolor-warm-01.webp") center / cover no-repeat;
   opacity: 0.6;
   z-index: -1;
   pointer-events: none;
@@ -114,22 +101,13 @@ Inline ornament beside a quote or in the section-label gutter. Small. No border,
 ```html
 <p class="section-label">
   <span class="num">02</span>
-  <img
-    class="section-label__ornament"
-    src="…/imagery/ornament/ornament-stamp-01.svg"
-    alt=""
-    aria-hidden="true"
-  />
+  <img class="section-label__ornament" src="…/imagery/ornament/ornament-stamp-01.svg" alt="" aria-hidden="true" />
   <span>Examples</span>
 </p>
 ```
 
 ```css
-.section-label__ornament {
-  width: 1.5em;
-  height: auto;
-  vertical-align: middle;
-}
+.section-label__ornament { width: 1.5em; height: auto; vertical-align: middle; }
 ```
 
 ### Texture overlay
@@ -139,9 +117,7 @@ Grain over a solid colour. Always opacity-capped at `0.15`.
 ```css
 .texture-grain {
   background-image: url("…/imagery/texture/texture-grain-paper-01.webp"), var(--paper-fill);
-  background-size:
-    256px 256px,
-    cover;
+  background-size: 256px 256px, cover;
   background-blend-mode: multiply;
   opacity: 1; /* the grain texture is at 0.15 in the source asset */
 }
@@ -154,10 +130,7 @@ Generic silhouette in unfilled data slots, greyscale-tinted, with a "Replace wit
 ```html
 <!-- TODO: Replace with real product photo, target size: 600×900 -->
 <picture class="product-card__photo product-card__photo--empty">
-  <img
-    src="…/imagery/silhouette/silhouette-bottle-01.png"
-    alt="Hand-poured ceramic vessel, studio lighting"
-  />
+  <img src="…/imagery/silhouette/silhouette-bottle-01.png" alt="Hand-poured ceramic vessel, studio lighting" />
 </picture>
 ```
 
@@ -165,7 +138,7 @@ Generic silhouette in unfilled data slots, greyscale-tinted, with a "Replace wit
 
 ## Anti-patterns
 
-- **Don't use kit imagery as the literal subject.** An abstract bottle is _not_ a stand-in for an actual coffee-shop hero — those need photographic placeholders (Picsum / Unsplash). The kit is for atmosphere / composition / decoration, not subject replacement.
+- **Don't use kit imagery as the literal subject.** An abstract bottle is *not* a stand-in for an actual coffee-shop hero — those need photographic placeholders (Picsum / Unsplash). The kit is for atmosphere / composition / decoration, not subject replacement.
 - **Don't layer 3+ kit pieces on one page.** Restraint. One transparent object in the hero + one wash in a later section is the cap.
 - **Don't apply the same watercolor wash to multiple sections.** It's a section accent, not a global treatment.
 - **Don't use kit imagery in modern-minimal genre** (Stripe / Linear / ElevenLabs school). That genre's whole point is the absence of decorative imagery.

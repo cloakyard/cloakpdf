@@ -52,7 +52,7 @@ export function ChatModelPicker({ value, onChange, disabled }: ChatModelPickerPr
             disabled={disabled}
             aria-pressed={selected}
             className={[
-              "w-full text-left rounded-xl border p-3 transition-colors flex items-start gap-3",
+              "w-full text-left rounded-xl border p-3 transition-colors flex items-start gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
               selected
                 ? "border-primary-500 dark:border-primary-400 bg-primary-50/70 dark:bg-primary-900/20"
                 : "border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface hover:border-slate-300 dark:hover:border-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt",

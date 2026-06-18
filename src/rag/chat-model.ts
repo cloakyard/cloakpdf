@@ -30,7 +30,12 @@ import {
 import { ChatGenerationChunk } from "@langchain/core/outputs";
 import type { AiModelInfo, ChatGenerationParams } from "../utils/ai-models.ts";
 import type { AiPipeline } from "../utils/ai-runtime.ts";
-import { type ChatMessage, runChat } from "../utils/ai-tasks.ts";
+import {
+  type ChatMessage,
+  createInterruptable,
+  type Interruptable,
+  runChat,
+} from "../utils/ai-tasks.ts";
 
 export interface TransformersJsChatModelOptions extends BaseChatModelParams {
   /** Resolved Transformers.js `text-generation` pipeline. */
@@ -124,6 +129,9 @@ export class TransformersJsChatModel extends SimpleChatModel {
     minP?: number;
     noRepeatNgramSize?: number;
   };
+  /** Interrupt handle for the generation currently running (if any), so the UI
+   *  can abort an in-flight answer when it unmounts or the tier is swapped. */
+  private activeStopper: Interruptable | null = null;
 
   constructor(options: TransformersJsChatModelOptions) {
     super(options);
@@ -150,6 +158,15 @@ export class TransformersJsChatModel extends SimpleChatModel {
     return "transformers-js";
   }
 
+  /**
+   * Abort the generation currently running (if any). The active stream resolves
+   * early; callers that have already moved on (e.g. the chat UI unmounted)
+   * simply discard the partial result. No-op when nothing is generating.
+   */
+  interrupt(): void {
+    this.activeStopper?.interrupt();
+  }
+
   /** Build the option bag passed to `runChat` — one definition, used by both call paths. */
   private genOptions() {
     return {
@@ -168,7 +185,12 @@ export class TransformersJsChatModel extends SimpleChatModel {
    */
   async _call(messages: BaseMessage[]): Promise<string> {
     const chatMessages = toChatMessages(messages);
-    return runChat(this.pipeline, chatMessages, this.genOptions());
+    const stopper = await createInterruptable();
+    this.activeStopper = stopper;
+    return runChat(this.pipeline, chatMessages, {
+      ...this.genOptions(),
+      stoppingCriteria: stopper,
+    });
   }
 
   /**
@@ -216,9 +238,12 @@ export class TransformersJsChatModel extends SimpleChatModel {
 
     // Kick off generation. We don't await here so we can yield tokens
     // through the async generator as they arrive.
+    const stopper = await createInterruptable();
+    this.activeStopper = stopper;
     const generationPromise = runChat(this.pipeline, chatMessages, {
       ...this.genOptions(),
       onToken: (delta) => push(delta),
+      stoppingCriteria: stopper,
     })
       .then(() => {
         done = true;

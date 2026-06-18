@@ -1,10 +1,9 @@
 ### H9 · Custom Illustration Centerpiece
-
 A single hand-built SVG (Tier B in the enrichment hierarchy — or pure CSS at Tier A for simpler shapes) sitting on the hero as one illustrative element. The bakery loaf, the studio's mascot, the workflow diagram.
-_Use when:_ the brand has a _thing_ that benefits from being drawn — a craft, a character, a process.
-_Don't confuse with:_ H6 Photographic (real photography) or H8 Mockup (a product screenshot, not artwork).
+*Use when:* the brand has a *thing* that benefits from being drawn — a craft, a character, a process.
+*Don't confuse with:* H6 Photographic (real photography) or H8 Mockup (a product screenshot, not artwork).
 
-The illustration itself is _built_, not picked from Storyset / Humaaans / unDraw / Lottie. See [`custom-craft.md`](custom-craft.md) for full recipes (CSS art, hand-built SVG, declarative animation). The cookbook entry below is the page-level structural sketch.
+The illustration itself is *built*, not picked from Storyset / Humaaans / unDraw / Lottie. See [`custom-craft.md`](../custom-craft.md) for full recipes (CSS art, hand-built SVG, declarative animation). The cookbook entry below is the page-level structural sketch.
 
 ```html
 <section class="hero-art">
@@ -19,23 +18,10 @@ The illustration itself is _built_, not picked from Storyset / Humaaans / unDraw
   </svg>
 </section>
 ```
-
 ```css
-.hero-art {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2xl);
-  align-items: center;
-}
-.loaf__body {
-  fill: oklch(72% 0.14 50);
-}
-.loaf__score {
-  stroke: oklch(38% 0.1 35);
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-}
+.hero-art   { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); align-items: center; }
+.loaf__body { fill: oklch(72% 0.14 50); }
+.loaf__score{ stroke: oklch(38% 0.10 35); stroke-width: 2; fill: none; stroke-linecap: round; }
 ```
 
 ---

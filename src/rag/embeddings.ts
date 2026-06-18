@@ -63,6 +63,14 @@ const QUERY_PREFIX = "task: search result | query: ";
 export class TransformersJsEmbeddings extends Embeddings {
   private pipeline: AiPipeline;
   private batchSize: number;
+  // One-entry cache of the most recent query embedding. Within a single
+  // `retrieve` the dense retriever and the off-topic relevance gate both call
+  // embedQuery() with the same query, concurrently — caching the in-flight
+  // promise collapses that into one WASM forward pass on the single-threaded
+  // 300M encoder. The model is deterministic, so caching by exact string is
+  // always correct; bounded to one entry so it can't grow.
+  private lastQuery: string | null = null;
+  private lastQueryVec: Promise<number[]> | null = null;
 
   constructor(options: TransformersJsEmbeddingsOptions) {
     super(options);
@@ -81,8 +89,19 @@ export class TransformersJsEmbeddings extends Embeddings {
     return out;
   }
 
-  async embedQuery(text: string): Promise<number[]> {
-    const [vec] = await runEmbed(this.pipeline, [QUERY_PREFIX + text]);
-    return Array.from(vec);
+  embedQuery(text: string): Promise<number[]> {
+    if (text === this.lastQuery && this.lastQueryVec) return this.lastQueryVec;
+    const vec = runEmbed(this.pipeline, [QUERY_PREFIX + text]).then(([v]) => Array.from(v));
+    this.lastQuery = text;
+    this.lastQueryVec = vec;
+    // Don't let a failed embed stay cached — a later retry of the same query
+    // should recompute rather than replay the rejection.
+    vec.catch(() => {
+      if (this.lastQueryVec === vec) {
+        this.lastQuery = null;
+        this.lastQueryVec = null;
+      }
+    });
+    return vec;
   }
 }

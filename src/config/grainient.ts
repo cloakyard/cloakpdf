@@ -4,11 +4,12 @@
 // applied everywhere.
 //
 // Palette is anchored to the brand mark in public/icons/logo.svg
-// (Tailwind blue-500 → blue-700). Both modes use blue-500 as
-// `color2` so the ribbon weaving through the field is the logo hue.
-// Flanking stops are pushed to extreme luminance — pale-on-pale in
-// light, deep-cool-on-near-black in dark — so `color2` stands alone
-// as the only chromatic anchor.
+// (Tailwind blue-500 → blue-700). `color2` carries the logo hue as the
+// ribbon weaving through the field: dark mode uses blue-500 (#3B82F6)
+// straight, light mode uses a pale tint of it (#97bcf7) so the ribbon
+// stays calm against the near-white field. Flanking stops are pushed to
+// extreme luminance — pale-on-pale in light, deep-cool-on-near-black in
+// dark — so `color2` stands alone as the only chromatic anchor.
 
 export const GRAINIENT_LIGHT = {
   color1: "#DBEAFE",

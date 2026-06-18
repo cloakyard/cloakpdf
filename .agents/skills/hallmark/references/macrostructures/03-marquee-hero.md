@@ -6,20 +6,19 @@ The hero IS the page above the fold. A single bold statement or visual fills the
 - **Body:** below-fold becomes a list of work or a single content block; the hero doesn't continue.
 - **Divider:** a thick rule between hero and below-fold, OR a hard colour change.
 - **Button:** none in fold; first CTA arrives below.
-- **Image:** none in fold (typography is the visual), OR a single full-bleed photograph as the fold _background_.
+- **Image:** none in fold (typography is the visual), OR a single full-bleed photograph as the fold *background*.
 - **Reveal:** the fold is static; below-fold may sweep in horizontally.
 
-Reach for it when the brand or person _is_ the message — designer/director portfolios, indie products with a single declarative voice, any "this is who we are" page.
+Reach for it when the brand or person *is* the message — designer/director portfolios, indie products with a single declarative voice, any "this is who we are" page.
 
 Avoid for products whose value requires explanation in seconds. Marquee makes the user scroll before they understand.
 
 Reference: 14islands.com, destroytoday.com, many design studio homepages.
 
-**Sample opening lines** (imitate the _specificity_, not the wording):
-
-> _"Type, set with care."_ — Hallmark Specimen — refusal of the verb, treats type as material
-> _"A studio for what's next."_ — italic editorial display, names the practice without explaining it
-> _"Design like print: warm, off-register, intentional."_ — Hallmark Riso — declarative, three modifiers, full stop
+**Sample opening lines** (imitate the *specificity*, not the wording):
+> *"Type, set with care."* — Hallmark Specimen — refusal of the verb, treats type as material
+> *"A studio for what's next."* — italic editorial display, names the practice without explaining it
+> *"Design like print: warm, off-register, intentional."* — Hallmark Riso — declarative, three modifiers, full stop
 
 ```html
 <section class="marquee">

@@ -16,16 +16,16 @@ Layout is where "AI-generated" gets caught. Equal columns, everything centred, e
 
 ```css
 :root {
-  --space-3xs: 0.125rem; /*  2px */
-  --space-2xs: 0.25rem; /*  4px */
-  --space-xs: 0.5rem; /*  8px */
-  --space-sm: 0.75rem; /* 12px */
-  --space-md: 1rem; /* 16px */
-  --space-lg: 1.5rem; /* 24px */
-  --space-xl: 2.5rem; /* 40px */
-  --space-2xl: 4rem; /* 64px */
-  --space-3xl: 6rem; /* 96px */
-  --space-4xl: 9rem; /* 144px */
+  --space-3xs: 0.125rem;  /*  2px */
+  --space-2xs: 0.25rem;   /*  4px */
+  --space-xs:  0.5rem;    /*  8px */
+  --space-sm:  0.75rem;   /* 12px */
+  --space-md:  1rem;      /* 16px */
+  --space-lg:  1.5rem;    /* 24px */
+  --space-xl:  2.5rem;    /* 40px */
+  --space-2xl: 4rem;      /* 64px */
+  --space-3xl: 6rem;      /* 96px */
+  --space-4xl: 9rem;      /* 144px */
 }
 ```
 
@@ -36,16 +36,17 @@ Layout is where "AI-generated" gets caught. Equal columns, everything centred, e
 
 - **Prefer CSS Grid** for page layout, **Flexbox** for component internals.
 - `grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))` for fluid responsive grids without media queries.
-- **Don't default to 3 columns of equal cards with icon-above-heading-above-copy.** This is _the_ AI feature-grid. Break it: vary column widths with `grid-template-columns: 1.2fr 1fr 0.8fr`, or use a 12-column underlying grid and give each item a different span, or use 4-up with a 2-span hero, etc.
+- **Don't default to 3 columns of equal cards with icon-above-heading-above-copy.** This is *the* AI feature-grid. Break it: vary column widths with `grid-template-columns: 1.2fr 1fr 0.8fr`, or use a 12-column underlying grid and give each item a different span, or use 4-up with a 2-span hero, etc.
 - Use **named grid areas** for complex layouts and rename them at breakpoints.
 
 ## Asymmetry techniques
 
-- **Wide left margin.** Treat the left as a permanent negative space — narrow column of labels, wide column of content. **Labels must NOT be section eyebrows / numbers paired with the heading** — that's gate-66-banned. Reserve this technique for body-level micro-labels (caption, footnote, date) alongside body copy.
-- **Hanging headers.** ⚠️ **Opt-in only.** Section labels sit in the left margin; content flows to the right. Permitted only when the user explicitly asks for an editorial / hanging-header layout AND no eyebrow / number / chapter tag sits in the left margin. The eyebrow-left / heading-right pattern is banned by slop-test gate 66 — it's the most reliable templated-editorial AI tell. Default to a stacked single-column section head.
+- **Wide left margin.** Treat the left as a permanent negative space — narrow column of labels, wide column of content. **Labels must NOT be section eyebrows / numbers paired with the heading** — that's gate-54-banned. Reserve this technique for body-level micro-labels (caption, footnote, date) alongside body copy.
+- **Hanging headers.** ⚠️ **Opt-in only.** Section labels sit in the left margin; content flows to the right. Permitted only when the user explicitly asks for an editorial / hanging-header layout AND no eyebrow / number / chapter tag sits in the left margin. The eyebrow-left / heading-right pattern is banned by slop-test gate 54 — it's the most reliable templated-editorial AI tell. Default to a stacked single-column section head.
 - **Offset grids.** Odd columns wider than even. Or the other way.
 - **Grid-breaks.** One element that deliberately extends past a column boundary: a pull-quote, a photograph, a rule, a number.
 - **Generous top, tight bottom** (or vice-versa). Sections don't need to be evenly padded.
+- **Alignment coherence.** A section head's horizontal alignment should be a deliberate choice that *coheres* with the body it introduces — match it (left head over left-flush body; centred head over symmetric / centred body) or break from it on purpose (a head that escapes an asymmetric grid). What reads as an AI mistake is the *accidental* mismatch: a narrow head block auto-centred (`margin-inline: auto` plus a `max-width` / `ch` cap) left floating over full-width, left-flush content beneath it. Centred, hanging, bottom-aligned, and asymmetric heads all stay on the table — the guard is intentionality, not uniformity.
 
 ## Depth
 
@@ -58,13 +59,13 @@ Layout is where "AI-generated" gets caught. Equal columns, everything centred, e
 
 ```css
 :root {
-  --z-base: 1;
-  --z-raised: 10;
+  --z-base:     1;
+  --z-raised:   10;
   --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-modal: 400;
-  --z-toast: 500;
-  --z-tooltip: 600;
+  --z-sticky:   200;
+  --z-modal:    400;
+  --z-toast:    500;
+  --z-tooltip:  600;
 }
 ```
 
@@ -73,26 +74,22 @@ Layout is where "AI-generated" gets caught. Equal columns, everything centred, e
 - **Centre-aligned everything.** Headings + body + CTA all centred is the landing-page template every LLM emits.
 - **`min-height: 100vh` hero with one centred sentence.** Stop.
 - **Card-in-card.** A bordered container inside a bordered container. Pick one.
-- **Identical feature grid.** Three columns, three icons, three two-line headings, three three-line bodies. Change _something_.
+- **Identical feature grid.** Three columns, three icons, three two-line headings, three three-line bodies. Change *something*.
 - **Equal padding on everything.** If the card padding equals the section padding equals the page padding, the rhythm is flat.
 - **`z-index: 9999`** and other ad-hoc z values. Use the scale.
 - **Shadow-on-dark accidental glow.** A drop shadow on a dark card creates a glow; that's wrong.
 
 ## Page-edge clipping
 
-The clipped-edge enrichment archetype (E1) — and any other deliberately overflowing element (full-bleed marquee, oversized headline that exceeds the viewport on small screens, a tilted figure that pushes past a column) — needs a parent that _visually_ shows the overflow without letting the document scroll horizontally.
+The clipped-edge enrichment archetype (E1) — and any other deliberately overflowing element (full-bleed marquee, oversized headline that exceeds the viewport on small screens, a tilted figure that pushes past a column) — needs a parent that *visually* shows the overflow without letting the document scroll horizontally.
 
-The default is unsafe: a `width: calc(100% + 12vw)` figure inside a section with `overflow: visible` makes the document scroll horizontally on every viewport. The page feels broken on touch devices. Slop-test gate 36 fails on this.
+The default is unsafe: a `width: calc(100% + 12vw)` figure inside a section with `overflow: visible` makes the document scroll horizontally on every viewport. The page feels broken on touch devices. Slop-test gate 34 fails on this.
 
 **Always pair clipped-edge with a global clip.** At the top of the stylesheet:
 
 ```css
-html {
-  overflow-x: clip;
-}
-body {
-  overflow-x: clip;
-} /* fallback for older Safari */
+html { overflow-x: clip; }
+body { overflow-x: clip; }   /* fallback for older Safari */
 ```
 
 Use `overflow-x: clip` rather than `overflow-x: hidden`:
@@ -102,7 +99,7 @@ Use `overflow-x: clip` rather than `overflow-x: hidden`:
 
 The clipped-edge mockup keeps its visual extension; the page no longer scrolls horizontally. Same pattern works for full-bleed marquees, oversized headlines, and any deliberately-decorative overflow.
 
-The hero or section that _contains_ the overflowing element keeps `overflow: visible` (so the figure renders past the parent edge); the global clip on `html` and `body` is the only safety net needed.
+The hero or section that *contains* the overflowing element keeps `overflow: visible` (so the figure renders past the parent edge); the global clip on `html` and `body` is the only safety net needed.
 
 ## When in doubt
 

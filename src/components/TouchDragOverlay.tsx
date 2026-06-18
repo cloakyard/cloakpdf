@@ -21,9 +21,13 @@ export function TouchDragOverlay({ touchPos, children }: TouchDragOverlayProps) 
     <div
       style={{
         position: "fixed",
-        left: touchPos.x,
-        top: touchPos.y,
-        transform: "translate(-50%, -60%)",
+        // Move via a compositor-only transform instead of left/top so each
+        // finger move doesn't dirty layout. translate3d positions the box at the
+        // finger, then translate(-50%, -60%) offsets by the element's own size —
+        // visually identical to the old left/top + percentage-translate.
+        left: 0,
+        top: 0,
+        transform: `translate3d(${touchPos.x}px, ${touchPos.y}px, 0) translate(-50%, -60%)`,
         pointerEvents: "none",
         zIndex: 9999,
       }}

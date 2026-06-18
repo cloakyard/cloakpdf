@@ -12,9 +12,15 @@ import { describe, expect, it } from "vitest";
 import {
   detectHeadings,
   detectPiiRects,
+  detectRunningFurniture,
+  findTextRects,
+  type FurnitureGroup,
+  furnitureCropMargins,
   itemFractionRect,
   type LayoutItem,
   type LayoutPage,
+  layoutToMarkdown,
+  layoutToPlainText,
   layoutToReadingOrderText,
   normalizeParseResult,
   substringFractionRect,
@@ -304,5 +310,320 @@ describe("detectPiiRects", () => {
     expect(rect).toBeDefined();
     expect(rect.wPct).toBeGreaterThan(0);
     expect(rect.hPct).toBeGreaterThan(0);
+  });
+});
+
+describe("findTextRects", () => {
+  it("finds every case-insensitive occurrence with page geometry + context", () => {
+    const p = page({
+      pageNumber: 3,
+      width: 600,
+      height: 800,
+      items: [
+        item({
+          text: "Contact John about the John Deere invoice",
+          x: 0,
+          y: 100,
+          width: 420,
+          height: 10,
+        }),
+      ],
+    });
+    const hits = findTextRects([p], ["john"]);
+    expect(hits).toHaveLength(2);
+    expect(hits[0]).toMatchObject({ pageIndex: 2, pageNumber: 3, term: "john", value: "John" });
+    // both land on the same row, and the second occurrence sits further right
+    expect(hits.every((h) => Math.abs(h.yPct - 100 / 800) < 0.02)).toBe(true);
+    expect(hits[1].xPct).toBeGreaterThan(hits[0].xPct);
+  });
+
+  it("respects caseSensitive", () => {
+    const p = page({
+      items: [item({ text: "John and john", x: 0, y: 10, width: 120, height: 10 })],
+    });
+    expect(findTextRects([p], ["John"], { caseSensitive: true })).toHaveLength(1);
+    expect(findTextRects([p], ["John"], { caseSensitive: false })).toHaveLength(2);
+  });
+
+  it("wholeWord skips the term inside larger words", () => {
+    const p = page({
+      items: [item({ text: "Sam met Samuel and Samantha", x: 0, y: 10, width: 260, height: 10 })],
+    });
+    expect(findTextRects([p], ["Sam"], { wholeWord: false }).length).toBeGreaterThanOrEqual(3);
+    const whole = findTextRects([p], ["Sam"], { wholeWord: true });
+    expect(whole).toHaveLength(1);
+    expect(whole[0].value).toBe("Sam");
+  });
+
+  it("matches a term split across word-items on a row (OCR / PDF.js split)", () => {
+    const p = page({
+      width: 600,
+      height: 800,
+      items: [
+        item({ text: "John", x: 0, y: 100, width: 40, height: 12 }),
+        item({ text: "Doe", x: 50, y: 100, width: 30, height: 12 }),
+      ],
+    });
+    const hits = findTextRects([p], ["John Doe"]);
+    expect(hits).toHaveLength(1);
+    expect(hits[0].value).toBe("John Doe");
+    expect(hits[0].xPct).toBeLessThan(0.05);
+    expect(hits[0].xPct + hits[0].wPct).toBeGreaterThan(50 / 600);
+  });
+
+  it("searches several terms, deduped, ordered by page then top-to-bottom", () => {
+    const p1 = page({
+      pageNumber: 1,
+      width: 600,
+      height: 800,
+      items: [
+        item({ text: "alpha", x: 0, y: 400, width: 50, height: 10 }),
+        item({ text: "beta", x: 0, y: 100, width: 40, height: 10 }),
+      ],
+    });
+    const p2 = page({
+      pageNumber: 2,
+      width: 600,
+      height: 800,
+      items: [item({ text: "alpha again", x: 0, y: 50, width: 90, height: 10 })],
+    });
+    const hits = findTextRects([p1, p2], ["alpha", "beta", "alpha"]);
+    expect(hits.map((h) => h.value)).toEqual(["beta", "alpha", "alpha"]);
+    expect(hits.map((h) => h.pageNumber)).toEqual([1, 1, 2]);
+  });
+
+  it("collapses case-variant terms in a case-insensitive search (no doubled hits)", () => {
+    const p = page({
+      items: [item({ text: "John and john", x: 0, y: 10, width: 120, height: 10 })],
+    });
+    // Case-insensitive: "John" and "john" fold to one term → each occurrence once.
+    expect(findTextRects([p], ["John", "john"])).toHaveLength(2);
+    // Case-sensitive: they stay distinct, but each still matches exactly once.
+    expect(findTextRects([p], ["John", "john"], { caseSensitive: true })).toHaveLength(2);
+  });
+
+  it("ignores blank terms and returns nothing on a miss", () => {
+    const p = page({
+      items: [item({ text: "nothing here", x: 0, y: 10, width: 100, height: 10 })],
+    });
+    expect(findTextRects([p], ["  ", ""])).toHaveLength(0);
+    expect(findTextRects([p], ["zzz"])).toHaveLength(0);
+  });
+
+  it("captures the line + match offsets for the hit-list", () => {
+    const p = page({
+      items: [item({ text: "Email: bob@x.com now", x: 0, y: 10, width: 200, height: 10 })],
+    });
+    const [hit] = findTextRects([p], ["bob@x.com"]);
+    expect(hit.line).toBe("Email: bob@x.com now");
+    expect(hit.line.slice(hit.matchStart, hit.matchEnd)).toBe("bob@x.com");
+  });
+});
+
+describe("layoutToPlainText", () => {
+  it("joins pages' reading-order text, separated by a blank line", () => {
+    const p1 = page({
+      pageNumber: 1,
+      items: [
+        item({ text: "Hello", x: 0, y: 10, width: 50, height: 10 }),
+        item({ text: "World", x: 0, y: 40, width: 50, height: 10 }),
+      ],
+    });
+    const p2 = page({
+      pageNumber: 2,
+      items: [item({ text: "Second page", x: 0, y: 10, width: 90, height: 10 })],
+    });
+    expect(layoutToPlainText([p1, p2])).toBe("Hello\nWorld\n\nSecond page\n");
+  });
+
+  it("returns an empty string when there is no text", () => {
+    expect(layoutToPlainText([page({ items: [] })])).toBe("");
+  });
+
+  it("reads two columns top-to-bottom each (not interleaved across the gutter)", () => {
+    const p = page({
+      width: 600,
+      height: 800,
+      items: [
+        item({ text: "Left one", x: 20, y: 100, width: 200, height: 11 }),
+        item({ text: "Right one", x: 340, y: 100, width: 200, height: 11 }),
+        item({ text: "Left two", x: 20, y: 130, width: 200, height: 11 }),
+        item({ text: "Right two", x: 340, y: 130, width: 200, height: 11 }),
+        item({ text: "Left three", x: 20, y: 160, width: 200, height: 11 }),
+        item({ text: "Right three", x: 340, y: 160, width: 200, height: 11 }),
+      ],
+    });
+    expect(layoutToPlainText([p])).toBe(
+      "Left one\nLeft two\nLeft three\nRight one\nRight two\nRight three\n",
+    );
+  });
+
+  it("keeps a single-column page in y-order (no false split)", () => {
+    const p = page({
+      width: 600,
+      height: 800,
+      items: [
+        item({ text: "First line of the paragraph", x: 20, y: 100, width: 400, height: 11 }),
+        item({ text: "Second line of the paragraph", x: 20, y: 130, width: 400, height: 11 }),
+        item({ text: "Third line of the paragraph", x: 20, y: 160, width: 400, height: 11 }),
+      ],
+    });
+    expect(layoutToPlainText([p])).toBe(
+      "First line of the paragraph\nSecond line of the paragraph\nThird line of the paragraph\n",
+    );
+  });
+});
+
+describe("layoutToMarkdown", () => {
+  // A long body line (≥25 chars) so it votes for the body font size.
+  const bodyLine = (y: number) =>
+    item({
+      text: "This is an ordinary paragraph line of body copy, well over twenty-five characters.",
+      x: 0,
+      y,
+      width: 400,
+      height: 11,
+    });
+
+  it("promotes detected headings to ATX headings, banded by size, and keeps body text", () => {
+    const p = page({
+      items: [
+        item({ text: "Big Title", x: 0, y: 10, width: 200, height: 24 }),
+        item({ text: "SECTION", x: 0, y: 60, width: 120, height: 14 }),
+        bodyLine(90),
+        bodyLine(110),
+        bodyLine(130),
+      ],
+    });
+    const md = layoutToMarkdown([p]);
+    expect(md).toContain("# Big Title");
+    expect(md).toContain("## SECTION");
+    expect(md).toContain("This is an ordinary paragraph line");
+  });
+
+  it("emits plain paragraphs (no #) when heading inference is disabled", () => {
+    const p = page({
+      items: [
+        item({ text: "Big Title", x: 0, y: 10, width: 200, height: 24 }),
+        bodyLine(60),
+        bodyLine(80),
+        bodyLine(100),
+      ],
+    });
+    const md = layoutToMarkdown([p], { headings: false });
+    expect(md).not.toContain("#");
+    expect(md).toContain("Big Title");
+  });
+
+  it("does not promote a wordless ligature fragment to a heading", () => {
+    // Some PDFs emit stray "fi"/"fl" ligature glyphs as their own larger-set
+    // items; they must stay body text, never become `# fi`.
+    const p = page({
+      items: [
+        item({ text: "fi", x: 0, y: 10, width: 20, height: 24 }),
+        bodyLine(60),
+        bodyLine(80),
+        bodyLine(100),
+      ],
+    });
+    const md = layoutToMarkdown([p]);
+    expect(md).not.toContain("# fi");
+    expect(md).toContain("fi");
+  });
+});
+
+describe("detectRunningFurniture", () => {
+  // Four pages sharing a top header + a bottom page number; body text differs.
+  const built = (pageNumber: number, body: string) =>
+    page({
+      pageNumber,
+      width: 600,
+      height: 800,
+      items: [
+        item({ text: "Annual Report 2025", x: 40, y: 24, width: 220, height: 12 }),
+        item({ text: body, x: 40, y: 300, width: 400, height: 11 }),
+        item({ text: String(pageNumber), x: 300, y: 770, width: 12, height: 12 }),
+      ],
+    });
+  const pages = [
+    built(1, "Intro paragraph one"),
+    built(2, "Body paragraph two"),
+    built(3, "Body paragraph three"),
+    built(4, "Body paragraph four"),
+  ];
+
+  it("detects a running header and recurring page numbers, ignoring body text", () => {
+    const groups = detectRunningFurniture(pages);
+    const header = groups.find((g) => g.region === "top");
+    const folio = groups.find((g) => g.region === "bottom");
+    expect(header).toBeDefined();
+    expect(header?.kind).toBe("header");
+    expect(header?.sampleText).toBe("Annual Report 2025");
+    expect(header?.pageCount).toBe(4);
+    expect(folio?.kind).toBe("page-number");
+    expect(folio?.pageCount).toBe(4);
+    // No body line became furniture (each page's body text is unique).
+    expect(groups).toHaveLength(2);
+  });
+
+  it("reports margins that trim into the margin but never the body", () => {
+    const { topPct, bottomPct } = furnitureCropMargins(detectRunningFurniture(pages));
+    expect(topPct).toBeGreaterThan(0.04);
+    expect(bottomPct).toBeGreaterThan(0);
+    // header bottom ≈ 36/800 = 0.045; body top = 300/800 = 0.375 — the cut sits
+    // between them, well clear of the body.
+    expect(topPct).toBeLessThan(0.375);
+  });
+
+  it("returns nothing when text does not recur (body-only pages)", () => {
+    const bodyOnly = [1, 2, 3].map((n) =>
+      page({
+        pageNumber: n,
+        width: 600,
+        height: 800,
+        items: [item({ text: `Unique line ${n}`, x: 40, y: 300, width: 400, height: 11 })],
+      }),
+    );
+    expect(detectRunningFurniture(bodyOnly)).toHaveLength(0);
+  });
+
+  it("needs at least 3 pages to call something running", () => {
+    expect(detectRunningFurniture([pages[0], pages[1]])).toHaveLength(0);
+  });
+});
+
+describe("furnitureCropMargins", () => {
+  it("takes the deepest selected band on each edge", () => {
+    const groups: FurnitureGroup[] = [
+      {
+        id: "top-0",
+        region: "top",
+        kind: "header",
+        sampleText: "h",
+        pageCount: 5,
+        marginPct: 0.05,
+      },
+      {
+        id: "top-1",
+        region: "top",
+        kind: "page-number",
+        sampleText: "",
+        pageCount: 5,
+        marginPct: 0.09,
+      },
+      {
+        id: "bottom-0",
+        region: "bottom",
+        kind: "footer",
+        sampleText: "f",
+        pageCount: 5,
+        marginPct: 0.07,
+      },
+    ];
+    expect(furnitureCropMargins(groups)).toEqual({ topPct: 0.09, bottomPct: 0.07 });
+  });
+
+  it("returns zero margins for an empty selection", () => {
+    expect(furnitureCropMargins([])).toEqual({ topPct: 0, bottomPct: 0 });
   });
 });

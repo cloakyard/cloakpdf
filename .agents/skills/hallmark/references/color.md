@@ -22,14 +22,14 @@ Example (warm-oat anchor, hue 80):
 
 ```css
 :root {
-  --color-paper: oklch(96% 0.012 80);
-  --color-paper-2: oklch(93% 0.014 80);
-  --color-rule: oklch(82% 0.01 80);
-  --color-neutral: oklch(56% 0.008 80);
-  --color-muted: oklch(40% 0.008 70);
-  --color-ink: oklch(18% 0.01 60);
-  --color-accent: #fc4c02; /* signal orange */
-  --color-focus: oklch(55% 0.19 55);
+  --color-paper:    oklch(96%  0.012 80);
+  --color-paper-2:  oklch(93%  0.014 80);
+  --color-rule:     oklch(82%  0.010 80);
+  --color-neutral:  oklch(56%  0.008 80);
+  --color-muted:    oklch(40%  0.008 70);
+  --color-ink:      oklch(18%  0.010 60);
+  --color-accent:   #FC4C02;                   /* signal orange */
+  --color-focus:    oklch(55%  0.19  55);
 }
 ```
 
@@ -37,14 +37,14 @@ Example (midnight anchor, hue 40):
 
 ```css
 :root {
-  --color-paper: oklch(14% 0.008 40);
-  --color-paper-2: oklch(18% 0.01 40);
-  --color-rule: oklch(30% 0.008 40);
-  --color-neutral: oklch(58% 0.008 40);
-  --color-muted: oklch(72% 0.006 40);
-  --color-ink: oklch(94% 0.006 80);
-  --color-accent: #fc4c02;
-  --color-focus: oklch(70% 0.19 55);
+  --color-paper:    oklch(14%  0.008 40);
+  --color-paper-2:  oklch(18%  0.010 40);
+  --color-rule:     oklch(30%  0.008 40);
+  --color-neutral:  oklch(58%  0.008 40);
+  --color-muted:    oklch(72%  0.006 40);
+  --color-ink:      oklch(94%  0.006 80);
+  --color-accent:   #FC4C02;
+  --color-focus:    oklch(70%  0.19  55);
 }
 ```
 
@@ -52,12 +52,12 @@ Example (midnight anchor, hue 40):
 
 Use the APCA contrast check when you can; otherwise WCAG 2.1 ratios.
 
-| Content                             | Minimum | Target |
-| ----------------------------------- | ------- | ------ |
-| Body text                           | 4.5:1   | 7:1    |
-| Large text (≥ 18.66px bold or 24px) | 3:1     | 4.5:1  |
-| UI component boundaries             | 3:1     | 4.5:1  |
-| Placeholder / helper text           | 4.5:1   | 4.5:1  |
+| Content | Minimum | Target |
+| --- | --- | --- |
+| Body text | 4.5:1 | 7:1 |
+| Large text (≥ 18.66px bold or 24px) | 3:1 | 4.5:1 |
+| UI component boundaries | 3:1 | 4.5:1 |
+| Placeholder / helper text | 4.5:1 | 4.5:1 |
 
 Verify with the browser devtools vision-deficiency emulator before shipping.
 
@@ -67,7 +67,7 @@ Verify with the browser devtools vision-deficiency emulator before shipping.
 - Ink: lightness 92–96% (not `#fff`).
 - Body font-weight: reduce by 50 units (400 → 350) to compensate for the optical weight of light text on dark.
 - Accent: reduce chroma by 0.02–0.04; increase lightness by 5–10%.
-- Elevation: higher surfaces are _lighter_, not darker. Add ~3% lightness per level.
+- Elevation: higher surfaces are *lighter*, not darker. Add ~3% lightness per level.
 - Never switch the hue between modes. Keep the anchor. Only lightness and chroma move.
 
 ## Bans
@@ -79,7 +79,7 @@ Verify with the browser devtools vision-deficiency emulator before shipping.
 - **Accent as background fill** covering more than ~5% of any view.
 - **Grey text on coloured background.** Always reads washed out.
 - **Red–green pairing as the only signal.** Add an icon or pattern.
-- **Alpha transparency as the definition of a colour.** If it's a named token, it's opaque. Transparency is a _modifier_ for overlays and shadows, not a palette.
+- **Alpha transparency as the definition of a colour.** If it's a named token, it's opaque. Transparency is a *modifier* for overlays and shadows, not a palette.
 - **Three-colour gradients.** Two-stop gradients only. The third stop is vanity.
 
 ## Use of the accent

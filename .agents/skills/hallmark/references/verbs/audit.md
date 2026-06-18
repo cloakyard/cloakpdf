@@ -9,7 +9,7 @@ Read the file(s) the user pointed at. For each finding, return:
 
 Group by severity. Do not edit. Do not redesign. End with a count: `N critical · M major · K minor`.
 
-Audit _also_ checks structural fingerprint: if the page uses the AI template (centered hero, 3 equal feature cards, CTA, footer, with no asymmetry or surprise), flag it as a critical structural finding even if the visual treatment is fine.
+Audit *also* checks structural fingerprint: if the page uses the AI template (centered hero, 3 equal feature cards, CTA, footer, with no asymmetry or surprise), flag it as a critical structural finding even if the visual treatment is fine.
 
 **Stamp-vs-page check.** If the audited file contains a `/* Hallmark · macrostructure: <name> · ... */` stamp, verify the page actually matches that name. If the stamp says **Bento Grid** but the page is a centered single-column hero with a CTA, flag it as a critical structural finding: `stamp lies` — the stamp must reflect what shipped or be removed. This catches drift where a previous Hallmark run stamped one thing and a later edit pulled the page back toward the AI template.
 
@@ -22,4 +22,4 @@ Audit _also_ checks structural fingerprint: if the page uses the AI template (ce
 - **Stamp mismatch.** The page's CSS stamp says `designed-as-app` but reads `design-system: design.md` and the page actually drifts from `design.md` → flag as `critical: stamp lies`. The stamp claims compliance the code doesn't deliver.
 - **No stamp at all on a system-managed project** → flag as `major: missing system reference`. Every page on a `design.md` project must stamp its allegiance to the system.
 
-Inversely, on a project _without_ `design.md`, the standard diversification rule applies — flag pages that share macrostructure / theme with a previous Hallmark output as `minor: variety drift`.
+Inversely, on a project *without* `design.md`, the standard diversification rule applies — flag pages that share macrostructure / theme with a previous Hallmark output as `minor: variety drift`.

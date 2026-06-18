@@ -25,21 +25,31 @@ CloakPDF is a **100% client-side** React 19 + TypeScript 6 single-page app serve
 
 ### View routing
 
-There is no router library. [src/App.tsx](src/App.tsx) is a state machine over five views: home grid, tool view, privacy, workflows home, workflow builder, workflow runner. The active view is derived from `useState` + URL hash. Each tool renders as a top-level lazy chunk; the chunk loads under a `Suspense` boundary.
+There is no router library. [src/App.tsx](src/App.tsx) is a state machine over four views: home grid, standalone tool view, the unified **editor**, and privacy. The active view is plain `useState` — no URL hash (cross-component navigation goes through `CustomEvent`s in [src/utils/nav.ts](src/utils/nav.ts)). The home is **editor-first**: dropping a PDF on the home drop zone opens the canvas editor. Standalone tools and the editor each render as a top-level lazy chunk under a `Suspense` boundary.
 
-### Tool registry — the single source of truth
+### Two tool surfaces, one derived id
 
-[src/config/tool-registry.ts](src/config/tool-registry.ts) is the only file that knows which tools exist. It exports `tools`, `categories`, `findTool`, and `findToolComponent`. App.tsx and the workflow runner both render tools by id through this registry — neither imports a tool component directly. When adding a tool, add the lazy import + metadata here and that's it.
+There are two places a tool can live:
+
+- **Standalone home cards** — [src/config/tool-registry.ts](src/config/tool-registry.ts) exports `tools`, `categories`, `findTool`, `findToolComponent`, and `HOME_CARD_TOOLS`; the card components live in [src/standalone/](src/standalone/). Only tools that **can't** be a single-PDF "edit then export" flow stay as cards (`standaloneOnly: true`): the multi-input constructors (merge, images→PDF), the dual-input compare, terminal-output extract-images, the security flows (password, digital signature), the read-only inspector, and on-device AI chat.
+- **Editor panels** — every other single-PDF tool lives inside the editor. Its rail metadata is in [src/editor/tools.ts](src/editor/tools.ts) (`EDITOR_TOOLS`) and its `{ Stage?, Panel }` implementation is bound by id in [src/editor/registry.tsx](src/editor/registry.tsx), with the panels under [src/editor/panels/](src/editor/panels/).
+
+The app-wide `ToolId` union is **derived from both rosters** in tool-registry.ts (`(typeof tools)[number]["id"] | EditorToolId`) — it is not hand-maintained, so it can't drift. Adding a tool means adding it to exactly one roster.
 
 Tool metadata flags worth knowing:
 
+- `standaloneOnly` — keep the tool as a home card rather than an editor flow (see above).
 - `desktopOnly` — hides the card on mobile and shows a "desktop only" placeholder if a phone hits the URL directly. Used for on-device AI tools (RAM/WebGPU constraints).
 - `beta` — renders a beta chip next to the title.
 - `requirements` — free-form note (e.g. "Requires ≥ 4 GB free RAM") shown on the card and inside the tool.
 
+### The unified editor
+
+The primary surface is the canvas editor ([src/editor/](src/editor/)) — a Photoshop-like single-PDF workspace. [EditorShell.tsx](src/editor/EditorShell.tsx) hosts a persistent [PdfStage.tsx](src/editor/PdfStage.tsx) that never tears down on tool switch; the active tool registers its overlay paint + pointer handlers (incl. `onPointerCancel`) through the `useStageProps` seam in [src/editor/stage.tsx](src/editor/stage.tsx). [EditorContext.tsx](src/editor/EditorContext.tsx) owns the `CanvasDoc`, history (byte + object snapshots, not rasters), and view state. The Export menu ([src/editor/ExportMenu.tsx](src/editor/ExportMenu.tsx)) covers PDF / images / contact-sheet / split and the Organize panel covers reverse / extract / remove-blank — which is why those have no standalone cards.
+
 ### Two PDF libraries, two jobs
 
-- **`@pdfme/pdf-lib`** — every structural manipulation (merge, split, rotate, redact, sign, metadata, watermark, form-fill). Lives in [src/utils/pdf-operations.ts](src/utils/pdf-operations.ts).
+- **`@pdfme/pdf-lib`** — every structural manipulation (merge, split, rotate, redact, sign, metadata, watermark, form-fill). Lives in [src/utils/pdf/](src/utils/pdf/): cohesive modules (`pages`, `forms`, `transform`, `stamps`, `metadata`, `ocr`, `redact`, `scrub`, `annotate`, `bookmarks`, `attachments`) plus a shared `raster` PDF.js/canvas layer, all re-exported through the [src/utils/pdf-operations.ts](src/utils/pdf-operations.ts) barrel (the stable import path every tool uses).
 - **`pdfjs-dist`** (PDF.js) — rendering pages to canvas for previews and thumbnails. Plus the raster path of Compress PDF. Lives in [src/utils/pdf-renderer.ts](src/utils/pdf-renderer.ts).
 
 These never get conflated. Adding a "modify the bytes" tool → use pdf-lib. Adding a "show me the page" UI → use PDF.js.
@@ -54,17 +64,6 @@ These never get conflated. Adding a "modify the bytes" tool → use pdf-lib. Add
 **PII detection** lives in [src/utils/pii.ts](src/utils/pii.ts) — the single source of truth for email/url/phone/SSN/card(Luhn)/IBAN/IP/date patterns. `EMAIL_RE`/`PHONE_RE` are imported by the RAG fast-paths (relocated, behaviour unchanged); `detectPii` is the broader page-sweep. `detectPiiRects` (layout-extract) maps each PII span to a fraction rect via `substringFractionRect`. **Names are not auto-detected** (would need an NER model → desktop-only); users box those by hand.
 
 **Redaction is destructive.** `redactPdf` rasterises every page that carries a box and burns the boxes into the pixels, rebuilding those pages as image-only — the underlying text is physically gone, not just covered (verified by OCR'ing the output). Untouched pages are copied through as vectors. The trade-off (redacted pages lose selectable text, file grows) is surfaced in the UI.
-
-### Standalone vs. workflow execution (`useToolOutput`)
-
-Tools have two execution modes:
-
-1. **Standalone** — user opens the tool directly, processes a file, downloads the result.
-2. **Workflow** — the tool is one step in a chain; its output becomes the next step's input without a download.
-
-The seam is [src/hooks/useToolOutput.ts](src/hooks/useToolOutput.ts). A tool calls `output.deliver(bytes, "_suffix", sourceFile)` exactly where it used to call `downloadPdf(...)`; the hook routes to either a browser download or the workflow runner's `onComplete`. Standalone behavior is byte-for-byte unchanged. A tool can read `output.inWorkflow` / `output.isLastStep` / `output.deliveryWord` (`"Download"` vs `"Continue"`) to label buttons correctly.
-
-A tool is workflow-eligible only when (a) it consumes one PDF and produces one PDF, AND (b) it's been migrated to `useToolOutput.deliver`. The allow-list is in [src/workflow/registry.ts](src/workflow/registry.ts) — see the file header for which tools are excluded and why.
 
 ### On-device AI (Ask PDF)
 

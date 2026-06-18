@@ -65,6 +65,19 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 /**
+ * App-shell content column — the single source of truth for the centred
+ * max-width shared by the header, `<main>`, footer (Layout.tsx) and the
+ * ErrorBoundary chrome. 1152px (`max-w-6xl`) through lg, widening to
+ * 1408px (`88rem`) from xl up so preview-heavy tools get real estate;
+ * phones and tablets are untouched. Always paired with
+ * `mx-auto px-4 sm:px-6` at the call-site. Mirrored in DESIGN.md
+ * (`spacing.container` / `breakpoints.container-max`) and safelisted via
+ * `@source inline(…)` in src/index.css — keep this a plain string literal
+ * so Tailwind's scanner can read the class names.
+ */
+export const APP_CONTAINER = "max-w-6xl xl:max-w-[88rem]";
+
+/**
  * Unified primary glow color used for the cursor/touch spotlight on
  * FileDropZone and ToolCard. Per-category coloring was retired in
  * favour of a single, calmer accent — the keys remain so call-sites

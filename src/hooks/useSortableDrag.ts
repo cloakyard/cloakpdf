@@ -123,6 +123,40 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
   );
 
   useEffect(() => {
+    // Coalesce per-touchmove work into one animation frame: a raw touch stream
+    // fires ~120Hz, and each event did a synchronous layout-reading
+    // elementFromPoint hit-test PLUS two state setters (→ two SortableGrid
+    // re-renders). Buffer the latest finger position and flush at most once per
+    // frame. preventDefault stays synchronous in handleTouchMove so page scroll
+    // is still suppressed mid-drag.
+    let latestTouch: { x: number; y: number } | null = null;
+    let rafId: number | null = null;
+
+    const flush = () => {
+      rafId = null;
+      const p = latestTouch;
+      if (!p || touchStartSlot.current === null) return;
+      setTouchPos(p);
+      const el = document.elementFromPoint(p.x, p.y);
+      const zone = el?.closest("[data-drop-slot]") as HTMLElement | null;
+      if (zone) {
+        const slot = parseInt(zone.dataset.dropSlot!, 10);
+        const from = touchStartSlot.current;
+        const isAdjacent = slot === from || slot === from + 1;
+        setDragOverSlot(isAdjacent ? null : slot);
+      } else {
+        setDragOverSlot(null);
+      }
+    };
+
+    const cancelFrame = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      latestTouch = null;
+    };
+
     const handleTouchMove = (e: TouchEvent) => {
       if (touchStartSlot.current === null || touchStartPos.current === null) return;
 
@@ -140,23 +174,16 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
       // Prevent page scroll while reordering.
       e.preventDefault();
 
-      // Track finger position for the drag overlay.
-      setTouchPos({ x: touch.clientX, y: touch.clientY });
-
-      // Find which drop-zone slot is under the finger.
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const zone = el?.closest("[data-drop-slot]") as HTMLElement | null;
-      if (zone) {
-        const slot = parseInt(zone.dataset.dropSlot!, 10);
-        const from = touchStartSlot.current!;
-        const isAdjacent = slot === from || slot === from + 1;
-        setDragOverSlot(isAdjacent ? null : slot);
-      } else {
-        setDragOverSlot(null);
-      }
+      // Defer the hit-test + state writes to the next frame (see above).
+      latestTouch = { x: touch.clientX, y: touch.clientY };
+      if (rafId === null) rafId = requestAnimationFrame(flush);
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
+      // Drop a pending frame first so it can't re-set touchPos/dragOverSlot after
+      // the end-reset below and flash a stale overlay. handleTouchEnd recomputes
+      // the drop from changedTouches, so it never reads touchmove's state.
+      cancelFrame();
       if (isDragActive.current && touchStartSlot.current !== null) {
         const touch = e.changedTouches[0];
         const el = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -179,6 +206,7 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
     };
 
     const handleTouchCancel = () => {
+      cancelFrame();
       isDragActive.current = false;
       touchStartSlot.current = null;
       touchStartPos.current = null;
@@ -193,6 +221,7 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
     document.addEventListener("touchcancel", handleTouchCancel);
 
     return () => {
+      cancelFrame();
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
       document.removeEventListener("touchcancel", handleTouchCancel);
