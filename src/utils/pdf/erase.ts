@@ -20,7 +20,7 @@
 
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
-import { canvasToImageBytes, getPdfJs } from "./raster.ts";
+import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
 export type EraseMode = "fill" | "pixelate";
 
@@ -304,7 +304,12 @@ export async function erasePdf(
 
       const page = await pdfjsDoc.getPage(i + 1);
       try {
-        const viewport = page.getViewport({ scale });
+        // Clamp to the platform canvas ceiling (mobile ~4096 px/side) so a large-
+        // format page at 150 DPI doesn't render blank and erase onto nothing; the
+        // output page keeps its true point size (ptW/ptH divide by safeScale).
+        const base = page.getViewport({ scale });
+        const safeScale = clampScaleForCanvas(base.width, base.height, scale);
+        const viewport = page.getViewport({ scale: safeScale });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -331,8 +336,8 @@ export async function erasePdf(
 
         const jpeg = await canvasToImageBytes(canvas, "image/jpeg", 0.92);
         const img = await out.embedJpg(jpeg);
-        const ptW = viewport.width / scale;
-        const ptH = viewport.height / scale;
+        const ptW = viewport.width / safeScale;
+        const ptH = viewport.height / safeScale;
         const outPage = out.addPage([ptW, ptH]);
         outPage.drawImage(img, { x: 0, y: 0, width: ptW, height: ptH });
 
