@@ -175,6 +175,13 @@ export function Panel() {
   // which invalidates it automatically (the reference comparison fails).
   const geomRef = useRef<{ key: Uint8Array; pages: LayoutPage[] } | null>(null);
 
+  // Detect/Find run a (possibly long) OCR pass with NO busy overlay, so the user
+  // can undo / switch tools / apply another transform meanwhile. Track the live
+  // doc id so a scan that started against an old doc drops its results instead of
+  // committing redaction boxes at fraction coords that no longer line up.
+  const docIdRef = useRef(doc?.id);
+  docIdRef.current = doc?.id;
+
   const ensureGeometry = useCallback(async (): Promise<LayoutPage[]> => {
     if (!doc) return [];
     const cached = geomRef.current;
@@ -200,11 +207,13 @@ export function Panel() {
 
   const detect = useCallback(async () => {
     if (!doc || piiTypes.size === 0) return;
+    const startId = doc.id;
     setDetecting(true);
     setSummary(null);
     setOcr(null);
     try {
       const pages = await ensureGeometry();
+      if (docIdRef.current !== startId) return; // doc changed mid-scan — drop stale results
       const found = detectPiiRects(pages, [...piiTypes]);
       if (found.length === 0) {
         setSummary({
@@ -237,11 +246,13 @@ export function Panel() {
   const find = useCallback(async () => {
     const q = term.trim();
     if (!doc || !q) return;
+    const startId = doc.id;
     setFinding(true);
     setSummary(null);
     setOcr(null);
     try {
       const pages = await ensureGeometry();
+      if (docIdRef.current !== startId) return; // doc changed mid-search — drop stale results
       const rects = findTextRects(pages, [q], { caseSensitive, wholeWord });
       if (rects.length === 0) {
         setSummary({
