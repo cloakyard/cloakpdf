@@ -20,7 +20,7 @@
 
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
-import { canvasToImageBytes, getPdfJs } from "./raster.ts";
+import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
 export type EraseMode = "fill" | "pixelate";
 
@@ -151,6 +151,108 @@ function pixelateRegion(
 }
 
 /**
+ * Render a WYSIWYG preview of how one erase region will look after export, onto
+ * an arbitrary destination context (the editor's overlay canvas).
+ *
+ * It reuses the very same {@link fillRegion} / {@link pixelateRegion} the export
+ * path runs, so the on-canvas preview and the burned-in result can't drift: we
+ * lift the region (plus, for fill, the surrounding ring the sampler needs) out
+ * of the already-rendered page bitmap into a small offscreen canvas, run the
+ * real erase op on it, then blit just the box onto the overlay at display scale.
+ *
+ * The mosaic's block COUNT is resolution-invariant (block size scales with the
+ * region's smaller dimension), so working at the page bitmap's native region
+ * resolution — capped for safety — reproduces the export's granularity exactly.
+ *
+ * @param dst - Destination 2D context (drawn in the overlay's CSS-px space).
+ * @param r - Region box in page fractions (0–1) from the top-left.
+ * @param dstW - Overlay width in the same units `r` maps into (CSS px).
+ * @param dstH - Overlay height.
+ * @param src - The rendered page bitmap to sample (same-origin, never tainted).
+ * @param mode - "fill" or "pixelate".
+ * @param blockFrac - Pixelate block fraction; ignored for fill.
+ * @returns true if a preview was painted; false if the caller should fall back
+ *          to a placeholder (degenerate box, unreadable bitmap).
+ */
+const PREVIEW_MAX_DIM = 1400;
+
+export function renderErasePreview(
+  dst: CanvasRenderingContext2D,
+  r: { xPct: number; yPct: number; wPct: number; hPct: number },
+  dstW: number,
+  dstH: number,
+  src: HTMLCanvasElement,
+  mode: EraseMode,
+  blockFrac: number | undefined,
+): boolean {
+  const srcW = src.width;
+  const srcH = src.height;
+  if (srcW <= 0 || srcH <= 0) return false;
+
+  const dx = r.xPct * dstW;
+  const dy = r.yPct * dstH;
+  const dw = r.wPct * dstW;
+  const dh = r.hPct * dstH;
+  if (dw < 1 || dh < 1) return false;
+
+  // Box in source-bitmap pixels.
+  const sx = r.xPct * srcW;
+  const sy = r.yPct * srcH;
+  const sbw = r.wPct * srcW;
+  const sbh = r.hPct * srcH;
+  if (sbw < 1 || sbh < 1) return false;
+
+  if (mode === "fill") {
+    // fillRegion samples a ring just OUTSIDE the box, so the offscreen canvas
+    // must include that ring. Mirror the export's 8%-of-smaller-dim ring and
+    // its edge clamping so the sampled colour matches.
+    const ring = Math.max(2, Math.round(Math.min(sbw, sbh) * 0.08));
+    const ox = Math.max(0, Math.floor(sx - ring));
+    const oy = Math.max(0, Math.floor(sy - ring));
+    const ex = Math.min(srcW, Math.ceil(sx + sbw + ring));
+    const ey = Math.min(srcH, Math.ceil(sy + sbh + ring));
+    const ow = ex - ox;
+    const oh = ey - oy;
+    if (ow < 1 || oh < 1) return false;
+    const off = document.createElement("canvas");
+    off.width = ow;
+    off.height = oh;
+    const octx = off.getContext("2d", { willReadFrequently: true });
+    if (!octx) return false;
+    octx.drawImage(src, ox, oy, ow, oh, 0, 0, ow, oh);
+    const bx = Math.round(sx - ox);
+    const by = Math.round(sy - oy);
+    const bw = Math.round(sbw);
+    const bh = Math.round(sbh);
+    fillRegion(octx, ow, oh, bx, by, bw, bh);
+    dst.drawImage(off, bx, by, bw, bh, dx, dy, dw, dh);
+    return true;
+  }
+
+  // Pixelate: blit the box alone, mosaic it, then upscale crisply to the overlay.
+  let pw = Math.round(sbw);
+  let ph = Math.round(sbh);
+  const cap = Math.max(pw, ph);
+  if (cap > PREVIEW_MAX_DIM) {
+    const k = PREVIEW_MAX_DIM / cap;
+    pw = Math.max(1, Math.round(pw * k));
+    ph = Math.max(1, Math.round(ph * k));
+  }
+  const off = document.createElement("canvas");
+  off.width = pw;
+  off.height = ph;
+  const octx = off.getContext("2d", { willReadFrequently: true });
+  if (!octx) return false;
+  octx.drawImage(src, sx, sy, sbw, sbh, 0, 0, pw, ph);
+  pixelateRegion(octx, 0, 0, pw, ph, blockFrac ?? 0.12);
+  const smooth = dst.imageSmoothingEnabled;
+  dst.imageSmoothingEnabled = false; // keep mosaic block edges hard when upscaled
+  dst.drawImage(off, 0, 0, pw, ph, dx, dy, dw, dh);
+  dst.imageSmoothingEnabled = smooth;
+  return true;
+}
+
+/**
  * Permanently erase regions of a PDF — destructively, mirroring redactPdf's
  * rasterise-touched-pages approach so the covered content can't be recovered.
  *
@@ -202,7 +304,12 @@ export async function erasePdf(
 
       const page = await pdfjsDoc.getPage(i + 1);
       try {
-        const viewport = page.getViewport({ scale });
+        // Clamp to the platform canvas ceiling (mobile ~4096 px/side) so a large-
+        // format page at 150 DPI doesn't render blank and erase onto nothing; the
+        // output page keeps its true point size (ptW/ptH divide by safeScale).
+        const base = page.getViewport({ scale });
+        const safeScale = clampScaleForCanvas(base.width, base.height, scale);
+        const viewport = page.getViewport({ scale: safeScale });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -229,8 +336,8 @@ export async function erasePdf(
 
         const jpeg = await canvasToImageBytes(canvas, "image/jpeg", 0.92);
         const img = await out.embedJpg(jpeg);
-        const ptW = viewport.width / scale;
-        const ptH = viewport.height / scale;
+        const ptW = viewport.width / safeScale;
+        const ptH = viewport.height / safeScale;
         const outPage = out.addPage([ptW, ptH]);
         outPage.drawImage(img, { x: 0, y: 0, width: ptW, height: ptH });
 

@@ -4,7 +4,7 @@
 
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
-import { getPdfJs, canvasToImageBytes } from "./raster.ts";
+import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
 /** One redaction box, in page fractions, with an optional burned-in appearance.
  *  `fillColor` / `borderColor` are any CSS colour string; defaults keep the
@@ -90,7 +90,14 @@ export async function redactPdf(
 
       const page = await pdfjsDoc.getPage(i + 1);
       try {
-        const viewport = page.getViewport({ scale });
+        // Clamp to the platform canvas ceiling (mobile ~4096 px/side): a large-
+        // format page at 150 DPI can exceed it and render BLANK, which for a
+        // redaction would silently burn boxes onto an empty page — destroying the
+        // content while producing a wrong result. The output page keeps its true
+        // point size because ptW/ptH divide by this same safeScale.
+        const base = page.getViewport({ scale });
+        const safeScale = clampScaleForCanvas(base.width, base.height, scale);
+        const viewport = page.getViewport({ scale: safeScale });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -101,11 +108,18 @@ export async function redactPdf(
         await page.render({ canvasContext: ctx, viewport, canvas }).promise;
 
         // Burn the redaction boxes into the pixels, each with its own colours.
+        // Snap to whole pixels and round OUTWARD: a fractional fillRect edge gets
+        // antialiased, blending the fill with the original pixel beneath and
+        // leaving a faint sliver of the redacted content along the border. Over-
+        // covering by <1px on each side keeps the redaction opaque to the edge.
         for (const r of rects) {
-          const x = r.xPct * canvas.width;
-          const y = r.yPct * canvas.height;
-          const w = r.wPct * canvas.width;
-          const h = r.hPct * canvas.height;
+          const x = Math.max(0, Math.floor(r.xPct * canvas.width));
+          const y = Math.max(0, Math.floor(r.yPct * canvas.height));
+          const x2 = Math.min(canvas.width, Math.ceil((r.xPct + r.wPct) * canvas.width));
+          const y2 = Math.min(canvas.height, Math.ceil((r.yPct + r.hPct) * canvas.height));
+          const w = x2 - x;
+          const h = y2 - y;
+          if (w <= 0 || h <= 0) continue;
           ctx.fillStyle = r.fillColor ?? "#000000";
           ctx.fillRect(x, y, w, h);
           if (r.borderColor) {
@@ -117,8 +131,8 @@ export async function redactPdf(
 
         const jpeg = await canvasToImageBytes(canvas, "image/jpeg", 0.92);
         const img = await out.embedJpg(jpeg);
-        const ptW = viewport.width / scale;
-        const ptH = viewport.height / scale;
+        const ptW = viewport.width / safeScale;
+        const ptH = viewport.height / safeScale;
         const outPage = out.addPage([ptW, ptH]);
         outPage.drawImage(img, { x: 0, y: 0, width: ptW, height: ptH });
 

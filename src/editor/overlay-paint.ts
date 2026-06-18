@@ -12,10 +12,12 @@
 // the preview renders those (fill at reduced opacity so you can still see what
 // you're covering) and the burn (redactPdf) lays them down solid.
 
+import { type EraseMode, renderErasePreview } from "../utils/pdf-operations.ts";
 import {
   type CanvasObject,
   DEFAULT_REDACTION_BORDER,
   DEFAULT_REDACTION_FILL,
+  type ErasePayload,
   type RedactionPayload,
   type RgbColor,
 } from "./doc.ts";
@@ -42,22 +44,32 @@ export function drawRedactionMark(
   ctx.strokeRect(x, y, bw, bh);
 }
 
-/** An erase region — translucent slate fill + a dashed outline, so it reads as
- *  a soft "patch" clearly distinct from the hard redaction box. */
+/** An erase region. When the page bitmap is available we paint a true WYSIWYG
+ *  preview of the fill / mosaic exactly as it will export (see renderErasePreview)
+ *  with a soft dashed outline so it still reads as an editable mark; otherwise
+ *  (bitmap still decoding) we fall back to the translucent slate placeholder. */
 export function drawEraseMark(
   ctx: CanvasRenderingContext2D,
   r: FractionRect,
   w: number,
   h: number,
+  src?: HTMLCanvasElement | null,
+  mode: EraseMode = "fill",
+  blockFrac?: number,
 ): void {
   const x = r.xPct * w;
   const y = r.yPct * h;
   const bw = r.wPct * w;
   const bh = r.hPct * h;
+  const previewed = src ? renderErasePreview(ctx, r, w, h, src, mode, blockFrac) : false;
   ctx.save();
-  ctx.fillStyle = "rgba(100, 116, 139, 0.30)";
-  ctx.fillRect(x, y, bw, bh);
-  ctx.strokeStyle = "rgba(71, 85, 105, 0.9)";
+  if (!previewed) {
+    ctx.fillStyle = "rgba(100, 116, 139, 0.30)";
+    ctx.fillRect(x, y, bw, bh);
+  }
+  // Editable-region affordance: dashed slate outline — softer once the real
+  // preview is showing through it, stronger over the bare placeholder.
+  ctx.strokeStyle = previewed ? "rgba(71, 85, 105, 0.55)" : "rgba(71, 85, 105, 0.9)";
   ctx.lineWidth = 1.5;
   ctx.setLineDash([4, 3]);
   ctx.strokeRect(x, y, bw, bh);
@@ -73,6 +85,7 @@ export function paintDestructiveMarks(
   h: number,
   pageIndex: number,
   objects: readonly CanvasObject[],
+  pageBitmap?: HTMLCanvasElement | null,
 ): void {
   for (const o of objects) {
     if (o.pageIndex !== pageIndex || !o.rect) continue;
@@ -80,7 +93,8 @@ export function paintDestructiveMarks(
       const p = (o.payload ?? {}) as Partial<RedactionPayload>;
       drawRedactionMark(ctx, o.rect, w, h, p.fill, p.border);
     } else if (o.kind === "erase") {
-      drawEraseMark(ctx, o.rect, w, h);
+      const p = (o.payload ?? {}) as Partial<ErasePayload>;
+      drawEraseMark(ctx, o.rect, w, h, pageBitmap, p.mode ?? "fill", p.blockFrac);
     }
   }
 }

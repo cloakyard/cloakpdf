@@ -342,7 +342,7 @@ export function Panel() {
       const newIndex = new Map<number, number>();
       survivors.forEach((origIdx, pos) => newIndex.set(origIdx, pos));
       const objects: CanvasObject[] = d.objects
-        .filter((o) => newIndex.has(o.pageIndex) && !(rotations[o.pageIndex] % 360))
+        .filter((o) => newIndex.has(o.pageIndex) && (rotations[o.pageIndex] ?? 0) % 360 === 0)
         .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
       return { bytes, label: "Organize pages", objects };
     });
