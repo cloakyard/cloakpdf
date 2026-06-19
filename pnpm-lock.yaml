@@ -27,11 +27,11 @@ importers:
         specifier: ^1.4.4
         version: 1.4.4(@langchain/core@1.2.0(openai@6.43.0(ws@8.21.0)(zod@4.4.3))(ws@8.21.0))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(zod-to-json-schema@3.25.2(zod@4.4.3))(zod@4.4.3)
       '@llamaindex/liteparse-wasm':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.1
+        version: 2.1.1
       '@pdfme/pdf-lib':
-        specifier: ^6.1.6
-        version: 6.1.6
+        specifier: ^6.1.8
+        version: 6.1.8
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -1391,8 +1391,8 @@ packages:
     peerDependencies:
       '@langchain/core': ^1.0.0
 
-  '@llamaindex/liteparse-wasm@2.1.0':
-    resolution: {integrity: sha512-HKCDhd7sLWiUDLVGwEgc3cNPNrWSV64bUbpbWucZ5opaMlASxjAWDTjxRs7kER7Qv/0vW3StmSVsJ1DL2M44ZA==}
+  '@llamaindex/liteparse-wasm@2.1.1':
+    resolution: {integrity: sha512-vOoBPgD4v0mvvvWZ7zDkr3A8Td2RhmWRD0etl+Jrl13WPvD2tRfeDUbiyU+LxZedpzv3MzCY6dPSJuf++qkbJQ==}
     engines: {node: '>=18.0.0'}
 
   '@napi-rs/canvas-android-arm64@1.0.0':
@@ -1761,8 +1761,8 @@ packages:
   '@pdf-lib/upng@1.0.1':
     resolution: {integrity: sha512-dQK2FUMQtowVP00mtIksrlZhdFXQZPC+taih1q4CvPZ5vqdxR/LKBaFg0oAfzd1GlHZXXSPdQfzQnt+ViGvEIQ==}
 
-  '@pdfme/pdf-lib@6.1.6':
-    resolution: {integrity: sha512-rwtd7UnrZx7cHd2dR3t0kcPAzGkNE+wa8raD9JGU1ekZqtUSl1W0TWrw67YrYPViJ1FpZFCnDpkT9CMv0sbRUA==}
+  '@pdfme/pdf-lib@6.1.8':
+    resolution: {integrity: sha512-eCQUTW/rLj0L3RsvY2WV0hJsTNsFsfsO42A+wKfvUle1ijPUaifFrcNTC1EOmhocEpOAaFCDzoLCxSceHzreqQ==}
 
   '@playwright/test@1.60.0':
     resolution: {integrity: sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==}
@@ -5497,7 +5497,7 @@ snapshots:
       '@langchain/core': 1.2.0(openai@6.43.0(ws@8.21.0)(zod@4.4.3))(ws@8.21.0)
       js-tiktoken: 1.0.21
 
-  '@llamaindex/liteparse-wasm@2.1.0': {}
+  '@llamaindex/liteparse-wasm@2.1.1': {}
 
   '@napi-rs/canvas-android-arm64@1.0.0':
     optional: true
@@ -5693,7 +5693,7 @@ snapshots:
     dependencies:
       pako: 1.0.11
 
-  '@pdfme/pdf-lib@6.1.6':
+  '@pdfme/pdf-lib@6.1.8':
     dependencies:
       '@pdf-lib/standard-fonts': 1.0.0
       '@pdf-lib/upng': 1.0.1
