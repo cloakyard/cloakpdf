@@ -24,7 +24,6 @@ import {
   FileCode2,
   FileText,
   FileX2,
-  Hash,
   Image as ImageIcon,
   Layers,
   type LucideIcon,
@@ -39,7 +38,7 @@ import { useFocusTrap } from "../utils/useFocusTrap";
 import { createPortal } from "react-dom";
 import { AnimatePresence, m, variants } from "../components/motion.tsx";
 import { downloadBlob, downloadPdf, pdfFilename } from "../utils/file-helpers.ts";
-import { extractLayout, layoutToMarkdown, layoutToPlainText } from "../utils/layout-extract.ts";
+import { extractLayout, extractMarkdown, layoutToPlainText } from "../utils/layout-extract.ts";
 import {
   compressPdf,
   flattenPdf,
@@ -51,7 +50,8 @@ import {
 } from "../utils/pdf-operations.ts";
 import { renderPagesToBlobs } from "../utils/pdf-renderer.ts";
 import { flattenDestructiveObjects, hasPendingDestructive } from "./doc.ts";
-import { useEditorActions, useEditorRead } from "./EditorContext.tsx";
+import { useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
+import { hasPendingPageChanges, ORGANIZE_ID } from "./panels/OrganizeTool.tsx";
 import { Segmented } from "./panels/WholeDocPanel.tsx";
 
 const IMAGE_DPI = 150;
@@ -75,7 +75,7 @@ const FORMATS: { value: Format; icon: LucideIcon; label: string; hint: string }[
     value: "markdown",
     icon: FileCode2,
     label: "Markdown (.md)",
-    hint: "Headings + text, on-device",
+    hint: "Headings, lists & links",
   },
 ];
 
@@ -233,8 +233,6 @@ export function ExportButton() {
   const [flatten, setFlatten] = useState(false);
   const [repair, setRepair] = useState(false);
   const [stripMeta, setStripMeta] = useState(false);
-  // Markdown export: infer headings from font-size bands (off → plain paragraphs).
-  const [mdHeadings, setMdHeadings] = useState(true);
 
   const busy = busyLabel !== null;
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -281,6 +279,11 @@ export function ExportButton() {
   const pendingMarks = doc
     ? doc.objects.filter((o) => o.kind === "redaction" || o.kind === "erase").length
     : 0;
+  // Unapplied Organize changes (rotate / reorder / delete) live in tool state,
+  // not the bytes — export builds from the committed bytes, so without an "Apply
+  // changes" they'd be silently dropped from the download. Warn so they aren't.
+  const organizeSlice = useToolSlice(ORGANIZE_ID);
+  const pendingPageChanges = hasPendingPageChanges(organizeSlice);
 
   // The document with every destructive mark burned in, wrapped as a File for
   // the writers. The single source of bytes for every export format.
@@ -385,10 +388,12 @@ export function ExportButton() {
       return;
     }
 
-    // Text / Markdown — reconstruct reading-order text on-device (liteparse +
-    // Tesseract for scanned pages), then serialise. The wasm + OCR engine stay
-    // lazy inside extractLayout, so importing it costs nothing until used.
-    // Extracts from the FLATTENED bytes so any pending redaction is gone first.
+    // Text / Markdown — reconstruct the document on-device, then serialise.
+    // Markdown uses liteparse's native renderer (real heading levels, lists,
+    // [text](url) links); text uses the column-aware reading-order reflow. Both
+    // OCR scanned pages with Tesseract. The wasm + OCR engine stay lazy inside
+    // the extractors, so importing them costs nothing until used. Extracts from
+    // the FLATTENED bytes so any pending redaction is gone first.
     if (format === "text" || format === "markdown") {
       const isMd = format === "markdown";
       void runTask(isMd ? "Building Markdown…" : "Extracting text…", async (setLabel) => {
@@ -396,13 +401,13 @@ export function ExportButton() {
         // take many seconds; surface determinate progress in the overlay so a
         // long extraction doesn't read as a hang. Wording matches OcrTool so the
         // two surfaces read identically. Digital PDFs skip OCR and keep the
-        // static "Extracting text…" label.
-        const pages = await extractLayout(await flattenedFile(), {
-          onOcrPage: (done, total) => setLabel(`Recognising page ${done} / ${total}…`),
-        });
+        // static "Building Markdown…" / "Extracting text…" label.
+        const onOcrPage = (done: number, total: number) =>
+          setLabel(`Recognising page ${done} / ${total}…`);
+        const file = await flattenedFile();
         const content = isMd
-          ? layoutToMarkdown(pages, { headings: mdHeadings })
-          : layoutToPlainText(pages);
+          ? await extractMarkdown(file, { onOcrPage })
+          : layoutToPlainText(await extractLayout(file, { onOcrPage }));
         downloadBlob(
           new Blob([content], {
             type: isMd ? "text/markdown;charset=utf-8" : "text/plain;charset=utf-8",
@@ -437,7 +442,6 @@ export function ExportButton() {
     flatten,
     repair,
     stripMeta,
-    mdHeadings,
     baseName,
     runTask,
     buildPdf,
@@ -522,6 +526,16 @@ export function ExportButton() {
                       </span>
                     </div>
                   )}
+                  {pendingPageChanges && (
+                    <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-900/15 dark:text-amber-300">
+                      <Layers className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>
+                        You have unapplied page changes (rotate / reorder / delete). Close this and
+                        hit <strong>Apply changes</strong> in Organize first, or they won't be in
+                        the download.
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-col gap-2">
                     <SectionLabel>Format</SectionLabel>
                     <div
@@ -570,22 +584,12 @@ export function ExportButton() {
 
                   {isText && (
                     <p className="-mt-1 px-0.5 text-xs text-slate-500 dark:text-dark-text-muted">
-                      Reading order is reconstructed on-device. Scanned pages are read with OCR
-                      (one-time engine download) — nothing leaves your browser.
+                      {format === "markdown"
+                        ? "Headings, lists, and links are detected on-device. "
+                        : "Reading order is reconstructed on-device. "}
+                      Scanned pages are read with OCR (one-time engine download) — nothing leaves
+                      your browser.
                     </p>
-                  )}
-
-                  {format === "markdown" && (
-                    <div className="flex flex-col gap-2">
-                      <SectionLabel>Markdown</SectionLabel>
-                      <OptionRow
-                        icon={Hash}
-                        label="Infer headings"
-                        hint="Use font sizes to add #, ##, ### headings"
-                        checked={mdHeadings}
-                        onChange={setMdHeadings}
-                      />
-                    </div>
                   )}
 
                   {isPdf && (

@@ -25,8 +25,9 @@
  * Run:  node --experimental-strip-types tests/e2e/editor-smoke-mobile.ts
  */
 
-import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import type { Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
 
@@ -45,6 +46,20 @@ function fail(msg: string): never {
 
 if (!existsSync(CHROME_PATH)) fail(`Chrome not found at ${CHROME_PATH} (set CHROME_PATH).`);
 if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
+
+/** Poll a directory until a finished (non-.crdownload) file matching `re`
+ *  appears with non-zero size. Returns its name. */
+async function waitForFile(dir: string, re: RegExp, timeout = 30_000): Promise<string> {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const hit = readdirSync(dir).find(
+      (f) => re.test(f) && !f.endsWith(".crdownload") && statSync(join(dir, f)).size > 0,
+    );
+    if (hit) return hit;
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  fail(`No file matching ${re} appeared in ${dir} within ${timeout}ms.`);
+}
 
 /** Click the first element whose trimmed text equals `label` (case-insensitive). */
 async function clickByText(page: Page, label: string): Promise<boolean> {
@@ -184,6 +199,12 @@ async function main() {
     page.on("pageerror", (e: unknown) =>
       errors.push(`pageerror: ${e instanceof Error ? e.message : String(e)}`),
     );
+
+    // Route downloads to a temp dir so the Export step can verify a file lands
+    // (headless Chrome blocks downloads unless told otherwise).
+    const downloadDir = mkdtempSync(join(tmpdir(), "editor-smoke-mobile-dl-"));
+    const cdp = await page.target().createCDPSession();
+    await cdp.send("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: downloadDir });
 
     console.log(`→ Loading ${DEV_URL} (390×844 mobile)`);
     await page.goto(DEV_URL, { waitUntil: "networkidle2" });
@@ -369,6 +390,28 @@ async function main() {
     if (!bodyScrolls) fail("OCR sheet body is not a scroll container.");
     console.log("  ✓ OCR enabled on mobile (Extract visible, scrollable body)");
 
+    // 11. Export modal renders as a bottom sheet on mobile: close the OCR tool,
+    //     open Export, pick Markdown, Download, and verify a real liteparse-
+    //     native .md lands. The Export trigger's text label is hidden on mobile
+    //     (icon only), so target the dialog-popup button — with no tool open it
+    //     is unambiguous (the only other aria-haspopup=dialog is a date input).
+    if (await page.$('button[aria-label="Cancel"]')) {
+      await page.click('button[aria-label="Cancel"]'); // close the OCR sheet
+      await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    }
+    await page.click('button[aria-haspopup="dialog"]'); // Export (icon-only on mobile)
+    await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
+    await page.click('button[aria-label="Markdown (.md)"]');
+    if (await hasExactText(page, "Infer headings"))
+      fail("Stale 'Infer headings' switch still rendered (should be removed).");
+    if (!(await clickByText(page, "Download")))
+      fail("Download button not found (mobile markdown).");
+    const dlMd = await waitForFile(downloadDir, /\.md$/i, 60_000);
+    const mdText = readFileSync(join(downloadDir, dlMd), "utf8");
+    if (!/^#{1,6} \S/m.test(mdText))
+      fail(`Mobile markdown export carries no ATX heading:\n${mdText.slice(0, 300)}`);
+    console.log(`  ✓ export sheet · markdown (liteparse native, ${mdText.length} chars) → ${dlMd}`);
+
     if (errors.length > 0) {
       console.error("✗ Console/page errors during mobile smoke:");
       for (const e of errors) console.error(`   ${e}`);
@@ -376,7 +419,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 10 more tools; 60:40 cap holds throughout.",
+      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 10 more tools; export sheet → Markdown (liteparse native); 60:40 cap holds throughout.",
     );
   } catch (e) {
     console.error(`✗ Mobile smoke failed: ${e instanceof Error ? e.message : String(e)}`);
