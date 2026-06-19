@@ -23,6 +23,21 @@ import { PrimaryAction } from "./PrimaryAction.tsx";
 
 export const ORGANIZE_ID = "organize-pages";
 
+/**
+ * True when the Organize slice holds page changes (reorder / rotate / delete)
+ * not yet baked into `doc.bytes` — i.e. "Apply changes" hasn't been pressed.
+ * The Export modal reads this to warn that a download would otherwise silently
+ * drop them (export builds from the committed bytes, not the pending plan).
+ */
+export function hasPendingPageChanges(slice: Record<string, unknown>): boolean {
+  const order = slice.order as number[] | undefined;
+  const rotations = (slice.rotations as Record<number, number> | undefined) ?? {};
+  const deleted = (slice.deleted as number[] | undefined) ?? [];
+  const reordered = !!order && order.some((v, i) => v !== i);
+  const rotated = Object.values(rotations).some((d) => d % 360 !== 0);
+  return reordered || rotated || deleted.length > 0;
+}
+
 // Fraction of near-white pixels above which a page is treated as blank. High so
 // a faint header/footer isn't swept up. (Absorbed from the old Remove-blank.)
 const BLANK_THRESHOLD = 0.995;
@@ -325,11 +340,12 @@ export function Panel() {
   }, [patchToolState, pageCount]);
 
   const apply = useCallback(() => {
+    const order =
+      (slice.order as number[] | undefined) ?? Array.from({ length: pageCount }, (_, i) => i);
+    const deleted = (slice.deleted as number[] | undefined) ?? [];
+    const rotations = (slice.rotations as Record<number, number> | undefined) ?? {};
+    const survivors = order.filter((i) => !deleted.includes(i));
     void applyTransform(async (d) => {
-      const order = (slice.order as number[] | undefined) ?? d.pages.map((p) => p.index);
-      const deleted = (slice.deleted as number[] | undefined) ?? [];
-      const rotations = (slice.rotations as Record<number, number> | undefined) ?? {};
-      const survivors = order.filter((i) => !deleted.includes(i));
       const ops: AssembleOp[] = survivors.map((i) => ({
         kind: "page",
         sourceIndex: 0,
@@ -345,8 +361,22 @@ export function Panel() {
         .filter((o) => newIndex.has(o.pageIndex) && (rotations[o.pageIndex] ?? 0) % 360 === 0)
         .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
       return { bytes, label: "Organize pages", objects };
+    }).then(() => {
+      // The plan is now baked into the rebuilt doc's bytes. Reset it to a clean
+      // identity plan for the new doc — otherwise the board would re-apply the
+      // (now-baked) rotation / reorder a SECOND time on the fresh raster (a
+      // double-rotated preview), and the tool would read as permanently "dirty"
+      // so a second Apply would bake yet another rotation. `doc.id` is preserved
+      // across applyTransform and a rotate/reorder keeps the page count, so the
+      // auto-init effect (which keys on page count) can't catch this on its own.
+      patchToolState(ORGANIZE_ID, {
+        order: Array.from({ length: survivors.length }, (_, i) => i),
+        rotations: {},
+        deleted: [],
+        baseCount: survivors.length,
+      });
     });
-  }, [applyTransform, slice]);
+  }, [applyTransform, slice, pageCount, patchToolState]);
 
   return (
     <div className="flex flex-col gap-4">

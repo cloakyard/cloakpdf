@@ -50,7 +50,8 @@ import {
 } from "../utils/pdf-operations.ts";
 import { renderPagesToBlobs } from "../utils/pdf-renderer.ts";
 import { flattenDestructiveObjects, hasPendingDestructive } from "./doc.ts";
-import { useEditorActions, useEditorRead } from "./EditorContext.tsx";
+import { useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
+import { hasPendingPageChanges, ORGANIZE_ID } from "./panels/OrganizeTool.tsx";
 import { Segmented } from "./panels/WholeDocPanel.tsx";
 
 const IMAGE_DPI = 150;
@@ -278,6 +279,11 @@ export function ExportButton() {
   const pendingMarks = doc
     ? doc.objects.filter((o) => o.kind === "redaction" || o.kind === "erase").length
     : 0;
+  // Unapplied Organize changes (rotate / reorder / delete) live in tool state,
+  // not the bytes — export builds from the committed bytes, so without an "Apply
+  // changes" they'd be silently dropped from the download. Warn so they aren't.
+  const organizeSlice = useToolSlice(ORGANIZE_ID);
+  const pendingPageChanges = hasPendingPageChanges(organizeSlice);
 
   // The document with every destructive mark burned in, wrapped as a File for
   // the writers. The single source of bytes for every export format.
@@ -517,6 +523,16 @@ export function ExportButton() {
                       <span>
                         {pendingMarks} redaction/erase mark{pendingMarks === 1 ? "" : "s"} will be
                         permanently burned into the pages on export.
+                      </span>
+                    </div>
+                  )}
+                  {pendingPageChanges && (
+                    <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-900/15 dark:text-amber-300">
+                      <Layers className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                      <span>
+                        You have unapplied page changes (rotate / reorder / delete). Close this and
+                        hit <strong>Apply changes</strong> in Organize first, or they won't be in
+                        the download.
                       </span>
                     </div>
                   )}
