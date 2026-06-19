@@ -1051,6 +1051,45 @@ function pageTextLength(page: LayoutPage): number {
   return n;
 }
 
+/** Page numbers whose extracted text is too thin to trust — OCR candidates. */
+function sparsePageNumbers(pages: LayoutPage[]): number[] {
+  return pages.filter((p) => pageTextLength(p) < MIN_TEXT_CHARS).map((p) => p.pageNumber);
+}
+
+/**
+ * Run one liteparse parse with the standard browser guards: lazy wasm load,
+ * `ocrEnabled: false` (we OCR ourselves — the in-browser path traps), a hang
+ * timeout, and a guaranteed `free()`. Callers supply the format-specific config
+ * (`outputFormat`, `extractLinks`, …) and read what they need off `result`.
+ */
+async function parseWithLiteParse(
+  file: File,
+  config: Record<string, unknown>,
+  options: ExtractLayoutOptions,
+): Promise<{ result: { text?: string; pages?: RawLiteParsePage[] } | null; pages: LayoutPage[] }> {
+  const mod = await getLiteParse();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  const fullConfig: Record<string, unknown> = {
+    ocrEnabled: false, // liteparse in-browser OCR is broken; we OCR ourselves
+    quiet: true,
+    ...config,
+  };
+  if (options.password) fullConfig.password = options.password;
+
+  const parser = new mod.LiteParse(fullConfig);
+  try {
+    const result = (await withTimeout(
+      parser.parse(bytes),
+      PARSE_TIMEOUT_MS,
+      "liteparse parse",
+    )) as { text?: string; pages?: RawLiteParsePage[] } | null;
+    return { result, pages: normalizeParseResult(result) };
+  } finally {
+    (parser as { free?: () => void }).free?.();
+  }
+}
+
 /**
  * OCR the given page numbers with Tesseract and write positioned items back
  * onto the matching {@link LayoutPage}s. We render each page with PDF.js at
@@ -1172,29 +1211,11 @@ export async function extractLayout(
   options: ExtractLayoutOptions = {},
 ): Promise<LayoutPage[]> {
   const language = options.language ?? "eng";
-  const ocrEnabled = options.ocr !== false;
   const dpi = options.dpi ?? 200;
-  const mod = await getLiteParse();
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { pages } = await parseWithLiteParse(file, { outputFormat: "json" }, options);
 
-  const config: Record<string, unknown> = {
-    ocrEnabled: false, // liteparse in-browser OCR is broken; we OCR ourselves
-    outputFormat: "json",
-    quiet: true,
-  };
-  if (options.password) config.password = options.password;
-
-  const parser = new mod.LiteParse(config);
-  let pages: LayoutPage[];
-  try {
-    const result = await withTimeout(parser.parse(bytes), PARSE_TIMEOUT_MS, "liteparse parse");
-    pages = normalizeParseResult(result);
-  } finally {
-    (parser as { free?: () => void }).free?.();
-  }
-
-  if (ocrEnabled) {
-    const sparse = pages.filter((p) => pageTextLength(p) < MIN_TEXT_CHARS).map((p) => p.pageNumber);
+  if (options.ocr !== false) {
+    const sparse = sparsePageNumbers(pages);
     if (sparse.length > 0) {
       await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage);
     }
@@ -1229,34 +1250,19 @@ export async function extractMarkdown(
   options: ExtractLayoutOptions = {},
 ): Promise<string> {
   const language = options.language ?? "eng";
-  const ocrEnabled = options.ocr !== false;
   const dpi = options.dpi ?? 200;
-  const mod = await getLiteParse();
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const { result, pages } = await parseWithLiteParse(
+    file,
+    {
+      outputFormat: "markdown",
+      extractLinks: true, // render hyperlink annotations as [text](url)
+      imageMode: "off", // no images in a text export; "embed" traps the wasm
+    },
+    options,
+  );
+  const markdown = result?.text ?? "";
 
-  const config: Record<string, unknown> = {
-    ocrEnabled: false, // liteparse in-browser OCR is broken; we OCR ourselves
-    outputFormat: "markdown",
-    extractLinks: true, // render hyperlink annotations as [text](url)
-    imageMode: "off", // no images in a text export; "embed" traps the wasm
-    quiet: true,
-  };
-  if (options.password) config.password = options.password;
-
-  const parser = new mod.LiteParse(config);
-  let markdown: string;
-  let pages: LayoutPage[];
-  try {
-    const result = await withTimeout(parser.parse(bytes), PARSE_TIMEOUT_MS, "liteparse parse");
-    markdown = (result as { text?: string } | null)?.text ?? "";
-    pages = normalizeParseResult(result);
-  } finally {
-    (parser as { free?: () => void }).free?.();
-  }
-
-  const sparse = ocrEnabled
-    ? pages.filter((p) => pageTextLength(p) < MIN_TEXT_CHARS).map((p) => p.pageNumber)
-    : [];
+  const sparse = options.ocr !== false ? sparsePageNumbers(pages) : [];
 
   // Fully digital (or OCR off): liteparse's native Markdown already covers the
   // whole document — use it verbatim.
@@ -1266,8 +1272,15 @@ export async function extractMarkdown(
   }
 
   // Some pages are scanned: liteparse can't read them (in-browser OCR disabled),
-  // so OCR them ourselves and serialise digital + OCR'd pages with the
+  // so OCR them ourselves and serialise the whole document with the
   // geometry-based writer so nothing is dropped.
+  //
+  // TRADE-OFF: this drops liteparse's *native* Markdown (real heading levels,
+  // lists, [text](url) links) and re-serialises EVERY page — digital ones
+  // included — through the font-size-heuristic layoutToMarkdown. The native
+  // renderer emits one document-wide markdown blob that can't be positionally
+  // merged with our separately-OCR'd pages, so native structure only survives
+  // for 100 %-digital PDFs. A single scanned page degrades the whole export.
   await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage);
   return layoutToMarkdown(pages);
 }
