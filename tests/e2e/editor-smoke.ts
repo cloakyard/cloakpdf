@@ -19,7 +19,7 @@
  * Run:  node --experimental-strip-types tests/e2e/editor-smoke.ts
  */
 
-import { existsSync, mkdtempSync, readdirSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Page } from "puppeteer-core";
@@ -517,9 +517,10 @@ async function main() {
     const dl2 = await waitForFile(downloadDir, /_grayscale\.pdf$/i, 60_000);
     console.log(`  ✓ export modal · grayscale → ${dl2}`);
 
-    // 13c. Export · Text + Markdown — reconstruct reading-order text on-device
-    //      (digital fixture → liteparse text layer, no model weights) and write
-    //      .txt + .md. The Markdown branch also surfaces the Infer-headings switch.
+    // 13c. Export · Text + Markdown — reconstruct the document on-device (digital
+    //      fixture → liteparse text layer, no model weights) and write .txt + .md.
+    //      Text uses the reading-order reflow; Markdown uses liteparse's native
+    //      renderer (real ATX headings / lists), so we assert the .md carries it.
     if (!(await clickByText(page, "Export"))) fail("Export button not found (text).");
     await page.waitForSelector('button[aria-label="Text (.txt)"]', { timeout: 5_000 });
     await page.click('button[aria-label="Text (.txt)"]');
@@ -530,10 +531,15 @@ async function main() {
     if (!(await clickByText(page, "Export"))) fail("Export button not found (markdown).");
     await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
     await page.click('button[aria-label="Markdown (.md)"]');
-    await waitForText(page, /Infer headings/i, 5_000); // markdown-only option rendered
     if (!(await clickByText(page, "Download"))) fail("Download button not found (markdown).");
     const dlMd = await waitForFile(downloadDir, /\.md$/i, 60_000);
-    console.log(`  ✓ export modal · markdown (+ infer-headings toggle) → ${dlMd}`);
+    const mdText = readFileSync(join(downloadDir, dlMd), "utf8");
+    // liteparse's native Markdown emits ATX headings (`# …`); the old font-size
+    // heuristic could too, but an empty/structureless file means the wasm
+    // markdown path didn't run — so a heading is the signal it worked.
+    if (!/^#{1,6} \S/m.test(mdText))
+      fail(`Markdown export carries no ATX heading:\n${mdText.slice(0, 300)}`);
+    console.log(`  ✓ export modal · markdown (liteparse native, ${mdText.length} chars) → ${dlMd}`);
 
     if (errors.length > 0) {
       console.error("✗ Console/page errors during smoke:");

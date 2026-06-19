@@ -12,8 +12,9 @@
  *      rectangle on the page.
  *
  * liteparse runs 100 % client-side as a ~4 MB Rust→WASM module. It extracts
- * the native text layer of digital PDFs directly (no OCR, no model weights).
- * Its *in-browser* OCR/rasterisation path is broken on the published 2.0.4
+ * the native text layer of digital PDFs directly (no OCR, no model weights),
+ * and renders structured Markdown from it ({@link extractMarkdown}).
+ * Its *in-browser* OCR/rasterisation path is broken on the published 2.1.1
  * wasm (it traps and hangs — see the orchestration section), so for scanned /
  * text-sparse pages we OCR ourselves with PDF.js + Tesseract.js — the same
  * engine the rest of the app already uses — and convert the word boxes back to
@@ -990,11 +991,13 @@ export function findTextRects(
 // ── browser orchestration (wasm + Tesseract) ──────────────────────────────
 //
 // IMPORTANT: liteparse extracts the digital text layer + geometry perfectly
-// in the browser, but its *in-browser OCR/rasterisation* path traps
-// (`RuntimeError: unreachable`) on the published 2.0.4 wasm and leaves the
-// parse promise hung — verified in a real browser. So we run liteparse with
-// `ocrEnabled: false` (text layer only) and OCR scanned / text-sparse pages
-// ourselves with PDF.js + Tesseract, capturing word boxes so geometry is
+// in the browser (and renders Markdown from it), but its *in-browser
+// OCR/rasterisation* path traps (`RuntimeError: unreachable`) on the published
+// 2.1.1 wasm and leaves the parse promise hung — verified in a real browser;
+// the Markdown `imageMode:"embed"` raster path traps the same way. So we run
+// liteparse with `ocrEnabled: false` (text layer only) and OCR scanned /
+// text-sparse pages ourselves with PDF.js + Tesseract, capturing word boxes so
+// geometry is
 // preserved on either path. A timeout guard turns any future wasm hang into a
 // recoverable rejection instead of a frozen UI.
 
@@ -1198,6 +1201,75 @@ export async function extractLayout(
   }
 
   return pages;
+}
+
+/**
+ * Render a PDF to Markdown, 100 % in-browser — the engine behind the editor's
+ * "Export → Markdown".
+ *
+ * Digital pages use liteparse's **native** Markdown renderer
+ * (`outputFormat: "markdown"`), which detects real structure — heading levels,
+ * bold, ordered / unordered lists, and `[text](url)` links (`extractLinks`) —
+ * far beyond the font-size-band heuristic in {@link layoutToMarkdown}. Images
+ * are dropped (`imageMode: "off"`): a Markdown export is text, "placeholder"
+ * would emit broken `![](image_pN.png)` refs to files we never produce, and
+ * "embed" trips the same wasm raster trap as liteparse's OCR (see the
+ * orchestration note above).
+ *
+ * Scanned / text-sparse pages have no text layer for liteparse to render, so
+ * when any are present we OCR them ourselves (PDF.js + Tesseract, as
+ * everywhere else) and serialise the whole document — the digital pages'
+ * parsed items plus the OCR'd ones — through the geometry-based
+ * {@link layoutToMarkdown}. The single Markdown parse already returns per-page
+ * `textItems`, so this needs no second extraction pass. Everything stays
+ * local; no file ever leaves the browser.
+ */
+export async function extractMarkdown(
+  file: File,
+  options: ExtractLayoutOptions = {},
+): Promise<string> {
+  const language = options.language ?? "eng";
+  const ocrEnabled = options.ocr !== false;
+  const dpi = options.dpi ?? 200;
+  const mod = await getLiteParse();
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  const config: Record<string, unknown> = {
+    ocrEnabled: false, // liteparse in-browser OCR is broken; we OCR ourselves
+    outputFormat: "markdown",
+    extractLinks: true, // render hyperlink annotations as [text](url)
+    imageMode: "off", // no images in a text export; "embed" traps the wasm
+    quiet: true,
+  };
+  if (options.password) config.password = options.password;
+
+  const parser = new mod.LiteParse(config);
+  let markdown: string;
+  let pages: LayoutPage[];
+  try {
+    const result = await withTimeout(parser.parse(bytes), PARSE_TIMEOUT_MS, "liteparse parse");
+    markdown = (result as { text?: string } | null)?.text ?? "";
+    pages = normalizeParseResult(result);
+  } finally {
+    (parser as { free?: () => void }).free?.();
+  }
+
+  const sparse = ocrEnabled
+    ? pages.filter((p) => pageTextLength(p) < MIN_TEXT_CHARS).map((p) => p.pageNumber)
+    : [];
+
+  // Fully digital (or OCR off): liteparse's native Markdown already covers the
+  // whole document — use it verbatim.
+  if (sparse.length === 0) {
+    const md = markdown.trim();
+    return md ? `${md}\n` : "";
+  }
+
+  // Some pages are scanned: liteparse can't read them (in-browser OCR disabled),
+  // so OCR them ourselves and serialise digital + OCR'd pages with the
+  // geometry-based writer so nothing is dropped.
+  await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage);
+  return layoutToMarkdown(pages);
 }
 
 /**
