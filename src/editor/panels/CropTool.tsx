@@ -7,9 +7,10 @@
 // trim is non-destructive (hidden content stays in the file). Reuses the crop
 // geometry the standalone Crop Pages tool proved. See CLAUDE.md.
 
+import { Loader2, Scan, Wand2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CropMargins } from "../../types.ts";
-import { cropPagesIndividual } from "../../utils/pdf-operations.ts";
+import { cropPagesIndividual, detectContentBox, deskewPdf } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { type StagePoint, useStageProps } from "../stage.tsx";
@@ -124,11 +125,53 @@ export function Stage() {
 }
 
 export function Panel() {
-  const { selectedPage } = useEditorRead();
+  const { doc, selectedPage } = useEditorRead();
   const { patchToolState, applyTransform } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
   const keep = (slice.keep as FractionRect | null) ?? null;
   const scope = (slice.scope as "all" | "page") ?? "all";
+
+  // Auto clean-ups (content trim / straighten) run an async PDF.js render with no
+  // global busy overlay, so track their own state for the buttons + status line.
+  const [busy, setBusy] = useState<"content" | "deskew" | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+
+  // Detect the focused page's ink bounding box and set it as the keep rect — the
+  // user can then nudge it and Apply through the normal crop flow.
+  const trimToContent = useCallback(async () => {
+    if (!doc) return;
+    setBusy("content");
+    setStatus(null);
+    try {
+      const box = await detectContentBox(docToFile(doc), selectedPage);
+      if (!box) {
+        setStatus("This page already fills the frame — nothing to trim.");
+        return;
+      }
+      patchToolState(TOOL_ID, { keep: box });
+      setStatus(`Set a crop to the content of page ${selectedPage + 1}. Adjust or Apply.`);
+    } catch {
+      setStatus("Couldn't analyse this page.");
+    } finally {
+      setBusy(null);
+    }
+  }, [doc, selectedPage, patchToolState]);
+
+  // Detect skew and rotate skewed pages upright (destructive — affected pages
+  // become images). Undoable, so a misfire is one ⌘Z away.
+  const straighten = useCallback(() => {
+    if (!doc) return;
+    setBusy("deskew");
+    setStatus(null);
+    const indices = scope === "all" ? undefined : [selectedPage];
+    void applyTransform(async (d) => {
+      const { bytes, deskewed } = await deskewPdf(docToFile(d), { pageIndices: indices });
+      return { bytes, label: "Straighten pages", objects: deskewed > 0 ? [] : undefined };
+    })
+      .then(() => setStatus("Straightened skewed pages."))
+      .catch(() => setStatus("Couldn't straighten the pages."))
+      .finally(() => setBusy(null));
+  }, [doc, scope, selectedPage, applyTransform]);
 
   const apply = useCallback(() => {
     if (!keep) return;
@@ -169,6 +212,43 @@ export function Panel() {
           ]}
         />
       </Labeled>
+
+      {/* One-tap clean-ups for scans: trim white margins, or straighten skew. */}
+      <Labeled label="Auto">
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            type="button"
+            onClick={() => void trimToContent()}
+            disabled={busy !== null}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 pointer-coarse:min-h-11 text-sm font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
+            {busy === "content" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Scan className="h-4 w-4" />
+            )}
+            Trim to content
+          </button>
+          <button
+            type="button"
+            onClick={straighten}
+            disabled={busy !== null}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 pointer-coarse:min-h-11 text-sm font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
+            {busy === "deskew" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Wand2 className="h-4 w-4" />
+            )}
+            Straighten
+          </button>
+        </div>
+      </Labeled>
+      {status && (
+        <p role="status" className="-mt-1 text-xs text-slate-500 dark:text-dark-text-muted">
+          {status}
+        </p>
+      )}
 
       <div className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
         {keep ? (

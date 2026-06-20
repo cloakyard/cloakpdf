@@ -3,7 +3,7 @@
  * images-to-PDF, N-up, and crop/uncrop.
  */
 
-import { PDFDocument, PDFName } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFName, rgb } from "@pdfme/pdf-lib";
 import type { CropMargins } from "../../types.ts";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { clampScaleForCanvas, decodeImageToPngBytes, getPdfJs } from "./raster.ts";
@@ -260,21 +260,94 @@ export async function imagesToPdf(
   return pdf.save();
 }
 
+/** The N-up arrangements: fixed grids, plus saddle-stitch booklet imposition. */
+export type NupLayout = "2x1" | "1x2" | "2x2" | "3x3" | "booklet";
+
+export interface NupOptions {
+  /** Draw a dashed centre fold line + corner trim ticks on each booklet sheet
+   *  to guide folding and trimming. Ignored for the fixed grids. */
+  cropMarks?: boolean;
+}
+
 /**
- * Arrange multiple PDF pages onto single sheets in an N-up grid layout.
+ * Saddle-stitch booklet imposition order for `pageCount` pages.
  *
- * Each output sheet has the same dimensions as the first source page. Source
- * pages are scaled down to fill the grid cells while preserving their aspect
- * ratio within each cell.
+ * Returns the 0-based source page indices in the sequence they are placed into
+ * the 2-up cells (left, then right, for each printed side), padded with `-1`
+ * blank leaves so the count is a multiple of 4. Printing the result
+ * double-sided (flip on the short edge) and folding the stack in half yields
+ * the pages in reading order. Pure and exported for unit testing.
+ *
+ * For an 8-page document the (1-based) side order is 8|1, 2|7, 6|3, 4|5.
+ */
+export function bookletOrder(pageCount: number): number[] {
+  const P = Math.max(4, Math.ceil(pageCount / 4) * 4);
+  const order: number[] = [];
+  for (let k = 0; k < P / 2; k++) {
+    // Sides alternate which source page sits on the left of the spread.
+    const left = k % 2 === 0 ? P - k : k + 1;
+    const right = k % 2 === 0 ? k + 1 : P - k;
+    order.push(left - 1, right - 1); // 1-based spec → 0-based indices
+  }
+  // Padding leaves (index ≥ real page count) print as blanks.
+  return order.map((i) => (i >= pageCount ? -1 : i));
+}
+
+/** Draw a dashed centre fold line and small corner trim ticks on a booklet
+ *  sheet — printer's marks that help fold down the middle and trim square. */
+function drawBookletMarks(page: ReturnType<PDFDocument["addPage"]>, w: number, h: number): void {
+  const gray = rgb(0.55, 0.55, 0.55);
+  // Centre fold line (dashed), full height.
+  page.drawLine({
+    start: { x: w / 2, y: 0 },
+    end: { x: w / 2, y: h },
+    thickness: 0.5,
+    color: gray,
+    dashArray: [3, 3],
+  });
+  // L-shaped trim ticks just inside each corner.
+  const t = 12;
+  const corners: Array<[number, number, number, number]> = [
+    [0, 0, 1, 1],
+    [w, 0, -1, 1],
+    [0, h, 1, -1],
+    [w, h, -1, -1],
+  ];
+  for (const [cx, cy, sx, sy] of corners) {
+    page.drawLine({
+      start: { x: cx, y: cy },
+      end: { x: cx + sx * t, y: cy },
+      thickness: 0.5,
+      color: gray,
+    });
+    page.drawLine({
+      start: { x: cx, y: cy },
+      end: { x: cx, y: cy + sy * t },
+      thickness: 0.5,
+      color: gray,
+    });
+  }
+}
+
+/**
+ * Arrange multiple PDF pages onto single sheets — fixed N-up grids or a
+ * saddle-stitch booklet.
+ *
+ * Each output sheet has the same dimensions as the first source page; source
+ * pages are scaled to fit their cell, preserving aspect ratio (letterboxed).
+ * `"booklet"` reorders + pads the pages (see {@link bookletOrder}) and lays them
+ * 2-up so the printed, folded stack reads in order — with optional fold/trim
+ * marks via `options.cropMarks`.
  *
  * @param file - The source PDF file.
- * @param layout - Grid arrangement: "2x1" (2 cols, 1 row), "1x2" (1 col, 2 rows),
- *                 "2x2" (4 pages per sheet), or "3x3" (9 pages per sheet).
- * @returns A new PDF with pages arranged in the chosen grid layout.
+ * @param layout - "2x1", "1x2", "2x2", "3x3", or "booklet".
+ * @param options - Booklet print-mark options.
+ * @returns A new PDF with pages arranged in the chosen layout.
  */
 export async function nupPages(
   file: File,
-  layout: "2x1" | "1x2" | "2x2" | "3x3",
+  layout: NupLayout,
+  options: NupOptions = {},
 ): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
   const source = await PDFDocument.load(arrayBuffer);
@@ -283,17 +356,38 @@ export async function nupPages(
   const pageCount = source.getPageCount();
   if (pageCount === 0) throw new Error("The PDF has no pages.");
 
+  const { width: outW, height: outH } = source.getPage(0).getSize();
+  // Embed all source pages into the result document as reusable XObjects.
+  const embeddedPages = await Promise.all(source.getPages().map((page) => result.embedPage(page)));
+
+  // ── Booklet: 2-up in imposition order, padded to a multiple of 4 ──────────
+  if (layout === "booklet") {
+    const cellW = outW / 2;
+    const order = bookletOrder(pageCount);
+    for (let side = 0; side < order.length / 2; side++) {
+      const outPage = result.addPage([outW, outH]);
+      for (let slot = 0; slot < 2; slot++) {
+        const srcIdx = order[side * 2 + slot];
+        if (srcIdx < 0) continue; // blank padding leaf
+        const { width: pw, height: ph } = source.getPage(srcIdx).getSize();
+        const scale = Math.min(cellW / pw, outH / ph);
+        const drawW = pw * scale;
+        const drawH = ph * scale;
+        const x = slot * cellW + (cellW - drawW) / 2;
+        const y = (outH - drawH) / 2;
+        outPage.drawPage(embeddedPages[srcIdx], { x, y, width: drawW, height: drawH });
+      }
+      if (options.cropMarks) drawBookletMarks(outPage, outW, outH);
+    }
+    return result.save();
+  }
+
+  // ── Fixed grids ──────────────────────────────────────────────────────────
   const cols = layout === "1x2" ? 1 : layout === "3x3" ? 3 : 2;
   const rows = layout === "2x1" ? 1 : layout === "3x3" ? 3 : 2;
   const perSheet = cols * rows;
-
-  const { width: outW, height: outH } = source.getPage(0).getSize();
   const cellW = outW / cols;
   const cellH = outH / rows;
-
-  // Embed all source pages into the result document as reusable XObjects
-  const embeddedPages = await Promise.all(source.getPages().map((page) => result.embedPage(page)));
-
   const totalSheets = Math.ceil(pageCount / perSheet);
 
   for (let sheet = 0; sheet < totalSheets; sheet++) {

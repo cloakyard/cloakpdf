@@ -19,6 +19,7 @@ import type {
   HeaderFooterOptions,
   BatesNumberOptions,
 } from "../../types.ts";
+import { baseFileName, resolveStampTokens, type TokenContext } from "./tokens.ts";
 
 /**
  * Add a text watermark to pages of a PDF.
@@ -45,11 +46,26 @@ export async function addWatermark(
 
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
 
-  const pages = pageIndices ? pageIndices.map((i) => pdf.getPage(i)) : pdf.getPages();
+  // Token context shared across pages: {title}/{filename}/{date} are constant,
+  // {page}/{total} vary, so the text is resolved per page below.
+  const allPages = pdf.getPages();
+  const ctxBase = {
+    total: allPages.length,
+    title: pdf.getTitle() ?? "",
+    filename: baseFileName(file.name),
+    date: new Date(),
+  };
+  const targets = pageIndices
+    ? pageIndices
+        .filter((i) => i >= 0 && i < allPages.length)
+        .map((i) => ({ page: allPages[i], index: i }))
+    : allPages.map((page, index) => ({ page, index }));
 
-  for (const page of pages) {
+  for (const { page, index } of targets) {
+    const text = resolveStampTokens(options.text, { ...ctxBase, page: index + 1 });
+    if (!text) continue;
     const { width, height } = page.getSize();
-    const textWidth = font.widthOfTextAtSize(options.text, options.fontSize);
+    const textWidth = font.widthOfTextAtSize(text, options.fontSize);
     const textHeight = font.heightAtSize(options.fontSize);
 
     // pdf-lib rotates text around its draw origin (bottom-left of glyph).
@@ -65,7 +81,7 @@ export async function addWatermark(
     const x = width / 2 - (textWidth / 2) * cos + (textHeight / 2) * sin;
     const y = height / 2 - (textWidth / 2) * sin - (textHeight / 2) * cos;
 
-    page.drawText(options.text, {
+    page.drawText(text, {
       x,
       y,
       size: options.fontSize,
@@ -375,16 +391,21 @@ export async function addHeaderFooter(
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const pages = pdf.getPages();
   const totalPages = pages.length;
+  // {title}/{filename}/{date} are constant; {page}/{total} vary per page.
+  const ctxBase: Omit<TokenContext, "page"> = {
+    total: totalPages,
+    title: pdf.getTitle() ?? "",
+    filename: baseFileName(file.name),
+    date: new Date(),
+  };
 
   for (let i = 0; i < totalPages; i++) {
     if (options.skipFirstPage && i === 0) continue;
 
     const page = pages[i];
     const { width, height } = page.getSize();
-    const pageNum = i + 1;
 
-    const resolve = (t: string) =>
-      t.replace(/\{\{page\}\}/g, String(pageNum)).replace(/\{\{total\}\}/g, String(totalPages));
+    const resolve = (t: string) => resolveStampTokens(t, { ...ctxBase, page: i + 1 });
 
     const drawSlot = (raw: string, x: number, y: number) => {
       if (!raw.trim()) return;

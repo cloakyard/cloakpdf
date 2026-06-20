@@ -4,8 +4,10 @@
 // one accent, no cramped rows.
 
 import type { LucideIcon } from "lucide-react";
+import { type FocusEvent as ReactFocusEvent, useCallback, useRef } from "react";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 import { Select } from "../../components/Select.tsx";
+import { STAMP_TOKENS } from "../../utils/pdf-operations.ts";
 
 export interface Rgb {
   r: number;
@@ -189,6 +191,73 @@ export function Labeled({
       </p>
       {children}
     </div>
+  );
+}
+
+/**
+ * Tap-to-insert dynamic-field tokens for free-text stamp slots (header/footer,
+ * watermark). `useTokenInsert` tracks the last-focused text field inside the
+ * spread `containerProps` wrapper and `insert()` splices a token at its caret —
+ * working for any controlled input/textarea without prop-drilling, by writing
+ * through the native value setter and dispatching a real `input` event (so the
+ * field's React `onChange` fires and state stays the single source of truth).
+ */
+export function useTokenInsert(): {
+  containerProps: { onFocusCapture: (e: ReactFocusEvent) => void };
+  insert: (token: string) => void;
+} {
+  const activeRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+
+  const onFocusCapture = useCallback((e: ReactFocusEvent) => {
+    const t = e.target;
+    if (t instanceof HTMLTextAreaElement || (t instanceof HTMLInputElement && t.type === "text")) {
+      activeRef.current = t;
+    }
+  }, []);
+
+  const insert = useCallback((token: string) => {
+    const el = activeRef.current;
+    if (!el) return;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? start;
+    const next = el.value.slice(0, start) + token + el.value.slice(end);
+    const proto =
+      el instanceof HTMLTextAreaElement
+        ? HTMLTextAreaElement.prototype
+        : HTMLInputElement.prototype;
+    // Write through the native value setter (with explicit `this`), then drive
+    // React's onChange via a real input event so component state matches the DOM.
+    Object.getOwnPropertyDescriptor(proto, "value")?.set?.call(el, next);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    const caret = start + token.length;
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(caret, caret);
+    });
+  }, []);
+
+  return { containerProps: { onFocusCapture }, insert };
+}
+
+/** A wrapped row of token chips. Pairs with {@link useTokenInsert}; chips keep
+ *  the field's focus + caret (mousedown preventDefault) so insert lands in place. */
+export function TokenBar({ onInsert }: { onInsert: (token: string) => void }) {
+  return (
+    <Labeled label="Insert field">
+      <div className="flex flex-wrap gap-1.5">
+        {STAMP_TOKENS.map((t) => (
+          <button
+            key={t.token}
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => onInsert(t.token)}
+            className="rounded-full border border-slate-200 dark:border-dark-border bg-slate-100 dark:bg-dark-bg px-2.5 py-1 pointer-coarse:min-h-9 text-xs font-medium text-slate-600 dark:text-dark-text-muted hover:bg-primary-50 hover:text-primary-700 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </Labeled>
   );
 }
 
