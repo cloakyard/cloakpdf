@@ -190,18 +190,6 @@ function patternModuleWidth(pattern: string): number {
 
 // ── geometry ───────────────────────────────────────────────────────────────
 
-/** Footprint (width × height in points) a stamp will occupy, so the corner
- *  maths can place it without overflowing the page edge. */
-function codeFootprint(opts: CodeStampOptions, captionHeight: number): { w: number; h: number } {
-  if (opts.type === "qr") return { w: opts.size, h: opts.size };
-  // Barcode: a fixed module width keyed off the bar height gives a sensible
-  // aspect; the quiet zone (10 modules each side) is part of the drawn width.
-  const pattern = encodeCode128B(opts.content);
-  const modules = patternModuleWidth(pattern) + 20; // + quiet zones
-  const moduleW = Math.max(0.8, opts.size / 34);
-  return { w: modules * moduleW, h: opts.size + captionHeight };
-}
-
 /** Bottom-left origin (PDF points) for a footprint at the chosen corner. */
 function cornerOrigin(
   position: PageNumberPosition,
@@ -251,8 +239,6 @@ export async function addCodeStamp(
   const captionBlock = captionFontSize > 0 ? captionFontSize + captionGap : 0;
   const font = captionFontSize > 0 ? await pdf.embedFont(StandardFonts.Helvetica) : null;
 
-  const { w: boxW, h: boxH } = codeFootprint(options, captionBlock);
-
   const allPages = pdf.getPages();
   const targets = pageIndices
     ? pageIndices.filter((i) => i >= 0 && i < allPages.length).map((i) => allPages[i])
@@ -269,21 +255,26 @@ export async function addCodeStamp(
     qrIsDark = (row, col) => qr.isDark(row, col);
   }
 
-  // Precompute the barcode pattern once.
+  // Precompute the barcode pattern once; its module count drives the per-page
+  // width (the quiet zones are 10 modules each side).
   const barPattern = options.type === "barcode" ? encodeCode128B(content) : "";
+  const barTotalModules = barPattern ? patternModuleWidth(barPattern) + 20 : 0;
+  const idealModuleW = Math.max(0.8, options.size / 34);
 
   for (const page of targets) {
     const { width: pageW, height: pageH } = page.getSize();
-    const { x: ox, y: oy } = cornerOrigin(
-      options.position,
-      pageW,
-      pageH,
-      boxW,
-      boxH,
-      options.margin,
-    );
 
     if (options.type === "qr") {
+      const boxW = options.size;
+      const boxH = options.size;
+      const { x: ox, y: oy } = cornerOrigin(
+        options.position,
+        pageW,
+        pageH,
+        boxW,
+        boxH,
+        options.margin,
+      );
       // White backing square so the QR reads over dark page content, then the
       // dark modules with a 4-module quiet zone (the QR spec minimum).
       page.drawRectangle({ x: ox, y: oy, width: boxW, height: boxH, color: white });
@@ -303,10 +294,22 @@ export async function addCodeStamp(
         }
       }
     } else {
+      // Clamp the module width so the whole code — bars + quiet zones — never
+      // overflows the page; a long Code 128 payload otherwise drew off the edge.
+      const avail = Math.max(0, pageW - 2 * options.margin);
+      const moduleW = Math.max(0.1, Math.min(idealModuleW, avail / barTotalModules));
+      const boxW = barTotalModules * moduleW;
+      const boxH = options.size + captionBlock;
+      const { x: ox, y: oy } = cornerOrigin(
+        options.position,
+        pageW,
+        pageH,
+        boxW,
+        boxH,
+        options.margin,
+      );
       // White backing covers bars + quiet zones + caption block.
       page.drawRectangle({ x: ox, y: oy, width: boxW, height: boxH, color: white });
-      const totalModules = patternModuleWidth(barPattern) + 20;
-      const moduleW = boxW / totalModules;
       const barH = options.size;
       const barBottom = oy + captionBlock;
       let cursor = ox + 10 * moduleW; // left quiet zone
@@ -320,11 +323,17 @@ export async function addCodeStamp(
         isBar = !isBar;
       }
       if (font && captionFontSize > 0) {
-        const tw = font.widthOfTextAtSize(content, captionFontSize);
+        // Shrink the caption if it would be wider than the (clamped) code.
+        let capSize = captionFontSize;
+        let tw = font.widthOfTextAtSize(content, capSize);
+        if (tw > boxW && tw > 0) {
+          capSize = Math.max(4, (capSize * boxW) / tw);
+          tw = font.widthOfTextAtSize(content, capSize);
+        }
         page.drawText(content, {
           x: ox + (boxW - tw) / 2,
           y: oy,
-          size: captionFontSize,
+          size: capSize,
           font,
           color: fg,
         });

@@ -96,6 +96,16 @@ export function Stage() {
     // bytes identity changes when the doc is transformed → re-extract.
   }, [bytes, selectedPage, doc]);
 
+  // Drop a committed selection once the user navigates to a different page — its
+  // overlay already hides there, but otherwise the Panel keeps acting on the old
+  // page's selection while you're looking at another. (The stage is single-page,
+  // so this only fires on explicit navigation, never on scroll.)
+  useEffect(() => {
+    if (committed.rects.length > 0 && committed.pageIndex !== selectedPage) {
+      patchToolState(TOOL_ID, { rects: [], text: "", pageIndex: selectedPage });
+    }
+  }, [selectedPage, committed.pageIndex, committed.rects.length, patchToolState]);
+
   // rAF-coalesce drag updates (mirrors the other drag tools).
   const pendingRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);

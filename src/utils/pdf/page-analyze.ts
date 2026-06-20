@@ -14,6 +14,7 @@
  */
 
 import { PDFDocument, degrees } from "@pdfme/pdf-lib";
+import type { PDFPageProxy } from "pdfjs-dist";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
@@ -121,7 +122,43 @@ export function detectSkewAngle(
 
 // ── browser orchestration (PDF.js render) ──────────────────────────────────
 
-/** Render one page to a downscaled grayscale buffer for analysis. */
+/**
+ * Render an already-open PDF.js page proxy to a downscaled grayscale buffer.
+ * Pure of any document lifecycle — the caller owns opening/destroying the doc —
+ * so a multi-page pass (e.g. deskew) can reuse ONE parsed document instead of
+ * re-opening the file per page. Releases its scratch canvas before returning.
+ */
+async function pageToGray(
+  page: PDFPageProxy,
+  maxDim: number,
+): Promise<{ gray: Uint8Array; w: number; h: number } | null> {
+  const base = page.getViewport({ scale: 1 });
+  const s = Math.min(1, maxDim / Math.max(base.width, base.height));
+  const viewport = page.getViewport({ scale: s });
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(viewport.width));
+  canvas.height = Math.max(1, Math.round(viewport.height));
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const w = canvas.width;
+  const h = canvas.height;
+  const gray = new Uint8Array(w * h);
+  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    // Rec. 601 luma.
+    gray[j] = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
+  }
+  // Release the scratch canvas's backing store promptly (it can be large).
+  canvas.width = canvas.height = 0;
+  return { gray, w, h };
+}
+
+/** Open the file, render one page to grayscale, and tear the document down.
+ *  For one-off analysis (content trim / single-page skew); multi-page callers
+ *  should open a document once and use {@link pageToGray} directly. */
 async function renderPageGray(
   file: File,
   pageIndex: number,
@@ -135,24 +172,7 @@ async function renderPageGray(
     if (pageIndex < 0 || pageIndex >= doc.numPages) return null;
     const page = await doc.getPage(pageIndex + 1);
     try {
-      const base = page.getViewport({ scale: 1 });
-      const s = Math.min(1, maxDim / Math.max(base.width, base.height));
-      const viewport = page.getViewport({ scale: s });
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(viewport.width));
-      canvas.height = Math.max(1, Math.round(viewport.height));
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return null;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const gray = new Uint8Array(canvas.width * canvas.height);
-      for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-        // Rec. 601 luma.
-        gray[j] = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
-      }
-      return { gray, w: canvas.width, h: canvas.height };
+      return await pageToGray(page, maxDim);
     } finally {
       page.cleanup();
     }
@@ -227,15 +247,9 @@ export async function deskewPdf(
   const pageCount = src.getPageCount();
   const targets = new Set(options.pageIndices ?? src.getPages().map((_, i) => i));
 
-  // Detect skew per target page first (cheap, low-res).
-  const angles = new Map<number, number>();
-  for (const i of targets) {
-    if (i < 0 || i >= pageCount) continue;
-    const a = await detectPageSkew(file, i);
-    if (Math.abs(a) >= minAngle) angles.set(i, a);
-  }
-  if (angles.size === 0) return { bytes: await src.save(), deskewed: 0 };
-
+  // Open the rendered document ONCE and reuse it for both skew detection and the
+  // rotate render — re-opening the file per page made a multi-page straighten
+  // re-parse the whole PDF dozens of times.
   const pdfjs = await getPdfJs();
   const task = pdfjs.getDocument({ data: ab.slice(0), wasmUrl: PDFJS_WASM_URL });
   const pdfjsDoc = await task.promise;
@@ -245,6 +259,23 @@ export async function deskewPdf(
   const total = pageCount;
   let done = 0;
   try {
+    // Detect skew per target page first (cheap, low-res), reusing pdfjsDoc.
+    const angles = new Map<number, number>();
+    for (const i of targets) {
+      if (i < 0 || i >= pageCount) continue;
+      const page = await pdfjsDoc.getPage(i + 1);
+      try {
+        const gray = await pageToGray(page, 900);
+        if (gray) {
+          const a = detectSkewAngle(gray.gray, gray.w, gray.h);
+          if (Math.abs(a) >= minAngle) angles.set(i, a);
+        }
+      } finally {
+        page.cleanup();
+      }
+    }
+    if (angles.size === 0) return { bytes: await src.save(), deskewed: 0 };
+
     for (let i = 0; i < pageCount; i++) {
       const angle = angles.get(i);
       if (angle === undefined) {

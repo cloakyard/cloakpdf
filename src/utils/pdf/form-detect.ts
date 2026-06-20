@@ -200,11 +200,27 @@ export async function fillFlatFormFields(file: File, fills: FieldFill[]): Promis
     const { width: W, height: H } = page.getSize();
     const boxTop = f.rect.yPct * H;
     const boxH = f.rect.hPct * H;
-    const size = Math.min(14, Math.max(8, boxH * 0.85));
     const x = f.rect.xPct * W + 1;
+    // Fit the value within the blank: start from a height-keyed size, shrink to a
+    // floor, then truncate with an ellipsis if it still overflows — so a long
+    // answer never runs across neighbouring text or off the page.
+    const avail = Math.max(1, f.rect.wPct * W - 2);
+    let size = Math.min(14, Math.max(8, boxH * 0.85));
+    let drawn = text;
+    if (font.widthOfTextAtSize(drawn, size) > avail) {
+      const floor = 6;
+      const shrunk = (size * avail) / font.widthOfTextAtSize(drawn, size);
+      size = Math.max(floor, shrunk);
+      if (font.widthOfTextAtSize(drawn, size) > avail) {
+        while (drawn.length > 1 && font.widthOfTextAtSize(`${drawn}…`, size) > avail) {
+          drawn = drawn.slice(0, -1);
+        }
+        drawn = `${drawn}…`;
+      }
+    }
     // top-left box → pdf-lib bottom-left baseline, nudged up off the line.
     const y = H - (boxTop + boxH) + boxH * 0.22;
-    page.drawText(text, { x, y, size, font, color: ink });
+    page.drawText(drawn, { x, y, size, font, color: ink });
   }
 
   return pdf.save();

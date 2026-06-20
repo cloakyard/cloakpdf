@@ -71,4 +71,22 @@ describe("addCodeStamp", () => {
       /Nothing to encode/,
     );
   });
+
+  it("clamps a long barcode onto a small page without overflowing or throwing", async () => {
+    // A narrow page + a long payload would, unclamped, draw bars far past the
+    // edge (negative origin for a right-anchored code). The width clamp keeps the
+    // whole code on-page; assert it still produces a loadable, grown PDF.
+    const doc = await PDFDocument.create();
+    doc.addPage([200, 300]);
+    const small = new File([await doc.save()], "small.pdf", { type: "application/pdf" });
+    const before = (await small.arrayBuffer()).byteLength;
+    const out = await addCodeStamp(small, {
+      ...BASE,
+      type: "barcode",
+      content: "CASE-2026-000123456789-REV-A",
+    });
+    const loaded = await PDFDocument.load(out);
+    expect(loaded.getPageCount()).toBe(1);
+    expect(out.byteLength).toBeGreaterThan(before);
+  });
 });

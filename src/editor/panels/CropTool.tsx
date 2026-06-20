@@ -149,13 +149,17 @@ export function Panel() {
         return;
       }
       patchToolState(TOOL_ID, { keep: box });
-      setStatus(`Set a crop to the content of page ${selectedPage + 1}. Adjust or Apply.`);
+      setStatus(
+        scope === "all"
+          ? `Cropped to page ${selectedPage + 1}'s content — this box applies to all pages. Switch to “This page” to crop only this one.`
+          : `Set a crop to the content of page ${selectedPage + 1}. Adjust or Apply.`,
+      );
     } catch {
       setStatus("Couldn't analyse this page.");
     } finally {
       setBusy(null);
     }
-  }, [doc, selectedPage, patchToolState]);
+  }, [doc, selectedPage, scope, patchToolState]);
 
   // Detect skew and rotate skewed pages upright (destructive — affected pages
   // become images). Undoable, so a misfire is one ⌘Z away.

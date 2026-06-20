@@ -154,7 +154,9 @@ export function Panel() {
   };
 
   const filledCount = fields.filter((_, i) => (values[i] ?? "").trim()).length;
-  const hasProfileMatch = fields.some((f) => f.profileKey && loadProfile()[f.profileKey]);
+  // Read from the in-memory profile state (kept in sync on edit) rather than
+  // hitting localStorage on every render.
+  const hasProfileMatch = fields.some((f) => f.profileKey && profile[f.profileKey]);
 
   const apply = () => {
     const fills: FieldFill[] = fields

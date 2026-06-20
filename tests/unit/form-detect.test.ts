@@ -110,4 +110,18 @@ describe("fillFlatFormFields", () => {
     ]);
     expect((await PDFDocument.load(out)).getPageCount()).toBe(1);
   });
+
+  it("fits a long value into a narrow blank without throwing", async () => {
+    // A long answer in a tiny blank exercises the shrink-then-truncate path.
+    const file = await blankPdf();
+    const out = await fillFlatFormFields(file, [
+      {
+        pageIndex: 0,
+        rect: { xPct: 0.1, yPct: 0.1, wPct: 0.06, hPct: 0.015 },
+        text: "An extremely long answer that cannot possibly fit the blank",
+      },
+    ]);
+    expect((await PDFDocument.load(out)).getPageCount()).toBe(1);
+    expect(out.byteLength).toBeGreaterThan(0);
+  });
 });
