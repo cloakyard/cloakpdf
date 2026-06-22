@@ -8,7 +8,9 @@
 import type { ComponentType } from "react";
 import * as Annotate from "./panels/AnnotateTool.tsx";
 import * as Attachments from "./panels/AttachmentsTool.tsx";
+import * as AutoFill from "./panels/AutoFillTool.tsx";
 import * as Bookmarks from "./panels/BookmarksTool.tsx";
+import * as CodeStamp from "./panels/CodeStampTool.tsx";
 import * as Crop from "./panels/CropTool.tsx";
 import * as FillForm from "./panels/FillFormTool.tsx";
 import * as FindAct from "./panels/FindActTool.tsx";
@@ -17,6 +19,7 @@ import * as Ocr from "./panels/OcrTool.tsx";
 import * as Organize from "./panels/OrganizeTool.tsx";
 import * as Redact from "./panels/RedactTool.tsx";
 import * as Scrub from "./panels/ScrubTool.tsx";
+import * as SelectText from "./panels/SelectTextTool.tsx";
 import * as Signature from "./panels/SignatureTool.tsx";
 import * as SmartErase from "./panels/SmartEraseTool.tsx";
 import * as StripFurniture from "./panels/StripFurnitureTool.tsx";
@@ -43,6 +46,8 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
   // Smart Erase: destructive-drag like Redact, but fills/pixelates the box.
   "smart-erase": { Stage: SmartErase.Stage, Panel: SmartErase.Panel },
   "annotate-pdf": { Stage: Annotate.Stage, Panel: Annotate.Panel },
+  // Real text selection: drag-select the page's text, then highlight/box/redact/copy.
+  "select-text": { Stage: SelectText.Stage, Panel: SelectText.Panel },
   // Canvas-placement tools: a Stage to place/drag on the page + a Panel.
   signature: { Stage: Signature.Stage, Panel: Signature.Panel },
   "crop-pages": { Stage: Crop.Stage, Panel: Crop.Panel },
@@ -62,11 +67,15 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
   "add-page-numbers": { Panel: PageNumbersPanel },
   "header-footer": { Panel: HeaderFooterPanel },
   "bates-numbering": { Panel: BatesPanel },
+  // QR / barcode: options-only panel that vector-stamps a scannable code.
+  "qr-stamp": { Panel: CodeStamp.Panel },
   // Watermark: a live-preview Stage (paints the diagonal text as you tune it) +
   // the options Panel; Apply still burns it into the bytes.
   "stamp-pdf": { Stage: WatermarkStage, Panel: WatermarkPanel },
   // Document tools: panel-only field/list editors.
   "fill-pdf-form": { Panel: FillForm.Panel },
+  // Auto-fill: detect + fill flat (non-AcroForm) form blanks, with a saved profile.
+  "auto-fill": { Stage: AutoFill.Stage, Panel: AutoFill.Panel },
   "add-bookmarks": { Panel: Bookmarks.Panel },
   "file-attachment": { Panel: Attachments.Panel },
   // OCR: desktop-only searchable-text pipeline (panel-only).

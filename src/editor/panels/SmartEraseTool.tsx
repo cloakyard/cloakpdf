@@ -28,7 +28,11 @@ const TOOL_ID = "smart-erase";
 type Coarseness = "subtle" | "medium" | "strong";
 
 const BLOCK_FRAC: Record<Coarseness, number> = { subtle: 0.06, medium: 0.12, strong: 0.22 };
-const MODE_LABEL: Record<EraseMode, string> = { fill: "Fill", pixelate: "Pixelate" };
+const MODE_LABEL: Record<EraseMode, string> = {
+  fill: "Fill",
+  pixelate: "Pixelate",
+  inpaint: "Blend",
+};
 
 interface EraseSettings {
   mode: EraseMode;
@@ -167,6 +171,7 @@ export function Panel() {
           onChange={(m: EraseMode) => patchToolState(TOOL_ID, { mode: m })}
           options={[
             { value: "fill", label: "Fill", sub: "solid bg" },
+            { value: "inpaint", label: "Blend", sub: "gradient" },
             { value: "pixelate", label: "Pixelate", sub: "faces" },
           ]}
         />
@@ -239,8 +244,9 @@ export function Panel() {
       )}
 
       <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        Fill matches a solid surrounding colour; for textured areas or faces, use Pixelate. Erased
-        pages are flattened to images on export, so the covered content is permanently removed.
+        Fill matches a solid surrounding colour; Blend reconstructs a gradient or soft background;
+        for faces or busy texture, use Pixelate. Erased pages are flattened to images on export, so
+        the covered content is permanently removed.
       </p>
     </div>
   );

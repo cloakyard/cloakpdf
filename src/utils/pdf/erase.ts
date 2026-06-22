@@ -16,13 +16,17 @@
  *                  a flat rectangle, so the UI steers those cases to pixelate.
  *   • "pixelate" — mosaic the region into coarse blocks, de-identifying a face
  *                  or licence plate while keeping the surrounding page legible.
+ *   • "inpaint"  — content-aware fill: diffuse the surrounding pixels inward so
+ *                  the patch blends into gradients / soft texture instead of a
+ *                  flat rectangle. Best when the background isn't one solid
+ *                  colour (a tinted page, a soft shadow, a subtle gradient).
  */
 
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
-export type EraseMode = "fill" | "pixelate";
+export type EraseMode = "fill" | "pixelate" | "inpaint";
 
 export interface EraseRegion {
   /** 0-based page index. */
@@ -151,6 +155,134 @@ function pixelateRegion(
 }
 
 /**
+ * Content-aware fill: reconstruct the box by diffusing the surrounding pixels
+ * inward (a Laplace / "heat" solve with the box boundary held fixed), so the
+ * patch matches a gradient or soft-textured background instead of reading as a
+ * flat rectangle. Unlike {@link fillRegion} (one average colour) this preserves
+ * the left-to-right / top-to-bottom colour drift around the box.
+ *
+ * The solve runs on a downscaled copy (≤ {@link INPAINT_MAX} px on the long
+ * edge) for speed, then the result is upscaled back over the box — smoothing
+ * blends it seamlessly. A border of real surrounding pixels is included so the
+ * diffusion has something to pull from. Returns false when the box is too small
+ * or the canvas is unreadable, so the caller can fall back to a flat fill.
+ */
+const INPAINT_MAX = 96;
+
+function inpaintRegion(
+  ctx: CanvasRenderingContext2D,
+  canvasW: number,
+  canvasH: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): boolean {
+  // Expand the box by a border of known surrounding pixels for the solve to use.
+  const border = Math.max(3, Math.round(Math.min(w, h) * 0.12));
+  const ax = Math.max(0, Math.floor(x - border));
+  const ay = Math.max(0, Math.floor(y - border));
+  const aex = Math.min(canvasW, Math.ceil(x + w + border));
+  const aey = Math.min(canvasH, Math.ceil(y + h + border));
+  const areaW = aex - ax;
+  const areaH = aey - ay;
+  if (areaW < 3 || areaH < 3) return false;
+
+  const scale = Math.min(1, INPAINT_MAX / Math.max(areaW, areaH));
+  const lw = Math.max(3, Math.round(areaW * scale));
+  const lh = Math.max(3, Math.round(areaH * scale));
+  const work = document.createElement("canvas");
+  work.width = lw;
+  work.height = lh;
+  const wctx = work.getContext("2d", { willReadFrequently: true });
+  if (!wctx) return false;
+  let img: ImageData;
+  try {
+    wctx.drawImage(ctx.canvas, ax, ay, areaW, areaH, 0, 0, lw, lh);
+    img = wctx.getImageData(0, 0, lw, lh);
+  } catch {
+    return false; // tainted canvas
+  }
+  const data = img.data;
+
+  // Hole = the box, mapped into low-res cells (kept ≥ 1 cell from each edge so
+  // the diffusion always has a known boundary to read).
+  const sxScale = lw / areaW;
+  const syScale = lh / areaH;
+  const hx0 = Math.max(1, Math.floor((x - ax) * sxScale));
+  const hy0 = Math.max(1, Math.floor((y - ay) * syScale));
+  const hx1 = Math.min(lw - 1, Math.ceil((x - ax + w) * sxScale));
+  const hy1 = Math.min(lh - 1, Math.ceil((y - ay + h) * syScale));
+  if (hx1 <= hx0 || hy1 <= hy0) return false;
+
+  const n = lw * lh;
+  const hole = new Uint8Array(n);
+  for (let yy = hy0; yy < hy1; yy++) for (let xx = hx0; xx < hx1; xx++) hole[yy * lw + xx] = 1;
+
+  // Per-channel float buffers; holes seeded with the average known colour so the
+  // solve starts from a sensible mid-tone and converges in fewer iterations.
+  const cur: Float32Array[] = [new Float32Array(n), new Float32Array(n), new Float32Array(n)];
+  let sr = 0;
+  let sg = 0;
+  let sb = 0;
+  let kn = 0;
+  for (let i = 0; i < n; i++) {
+    const o = i * 4;
+    cur[0][i] = data[o];
+    cur[1][i] = data[o + 1];
+    cur[2][i] = data[o + 2];
+    if (!hole[i]) {
+      sr += data[o];
+      sg += data[o + 1];
+      sb += data[o + 2];
+      kn++;
+    }
+  }
+  const seed = kn > 0 ? [sr / kn, sg / kn, sb / kn] : [255, 255, 255];
+  for (let i = 0; i < n; i++) if (hole[i]) for (let c = 0; c < 3; c++) cur[c][i] = seed[c];
+
+  // Jacobi iteration: each hole cell becomes the mean of its 4 neighbours, with
+  // known cells fixed. Iterations scale with the hole so colour reaches the
+  // centre. Both buffers start equal, and only hole cells are ever written, so
+  // the fixed boundary stays correct across ping-pong swaps.
+  const next: Float32Array[] = [cur[0].slice(), cur[1].slice(), cur[2].slice()];
+  let a = cur;
+  let b = next;
+  const iters = Math.min(400, lw + lh + 20);
+  for (let it = 0; it < iters; it++) {
+    for (let yy = 1; yy < lh - 1; yy++) {
+      for (let xx = 1; xx < lw - 1; xx++) {
+        const i = yy * lw + xx;
+        if (!hole[i]) continue;
+        for (let c = 0; c < 3; c++) {
+          b[c][i] = 0.25 * (a[c][i - 1] + a[c][i + 1] + a[c][i - lw] + a[c][i + lw]);
+        }
+      }
+    }
+    const t = a;
+    a = b;
+    b = t;
+  }
+
+  for (let i = 0; i < n; i++) {
+    if (!hole[i]) continue;
+    const o = i * 4;
+    data[o] = a[0][i];
+    data[o + 1] = a[1][i];
+    data[o + 2] = a[2][i];
+    data[o + 3] = 255;
+  }
+  wctx.putImageData(img, 0, 0);
+
+  // Upscale the box region of the solved low-res canvas back over the box.
+  const prevSmooth = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(work, (x - ax) * sxScale, (y - ay) * syScale, w * sxScale, h * syScale, x, y, w, h);
+  ctx.imageSmoothingEnabled = prevSmooth;
+  return true;
+}
+
+/**
  * Render a WYSIWYG preview of how one erase region will look after export, onto
  * an arbitrary destination context (the editor's overlay canvas).
  *
@@ -202,11 +334,12 @@ export function renderErasePreview(
   const sbh = r.hPct * srcH;
   if (sbw < 1 || sbh < 1) return false;
 
-  if (mode === "fill") {
-    // fillRegion samples a ring just OUTSIDE the box, so the offscreen canvas
-    // must include that ring. Mirror the export's 8%-of-smaller-dim ring and
-    // its edge clamping so the sampled colour matches.
-    const ring = Math.max(2, Math.round(Math.min(sbw, sbh) * 0.08));
+  if (mode === "fill" || mode === "inpaint") {
+    // Both sample pixels OUTSIDE the box, so the offscreen must include a ring of
+    // surroundings. Inpaint needs a wider border to diffuse from; mirror the
+    // export's edge clamping so the preview matches the burn.
+    const ringFrac = mode === "inpaint" ? 0.15 : 0.08;
+    const ring = Math.max(2, Math.round(Math.min(sbw, sbh) * ringFrac));
     const ox = Math.max(0, Math.floor(sx - ring));
     const oy = Math.max(0, Math.floor(sy - ring));
     const ex = Math.min(srcW, Math.ceil(sx + sbw + ring));
@@ -224,7 +357,11 @@ export function renderErasePreview(
     const by = Math.round(sy - oy);
     const bw = Math.round(sbw);
     const bh = Math.round(sbh);
-    fillRegion(octx, ow, oh, bx, by, bw, bh);
+    if (mode === "inpaint") {
+      if (!inpaintRegion(octx, ow, oh, bx, by, bw, bh)) fillRegion(octx, ow, oh, bx, by, bw, bh);
+    } else {
+      fillRegion(octx, ow, oh, bx, by, bw, bh);
+    }
     dst.drawImage(off, bx, by, bw, bh, dx, dy, dw, dh);
     return true;
   }
@@ -330,8 +467,16 @@ export async function erasePdf(
           const w = Math.min(canvas.width - x, Math.round(r.wPct * canvas.width));
           const h = Math.min(canvas.height - y, Math.round(r.hPct * canvas.height));
           if (w <= 0 || h <= 0) continue;
-          if (r.mode === "pixelate") pixelateRegion(ctx, x, y, w, h, r.blockFrac ?? 0.12);
-          else fillRegion(ctx, canvas.width, canvas.height, x, y, w, h);
+          if (r.mode === "pixelate") {
+            pixelateRegion(ctx, x, y, w, h, r.blockFrac ?? 0.12);
+          } else if (r.mode === "inpaint") {
+            // Fall back to a flat fill if the box is too small/edge-bound to solve.
+            if (!inpaintRegion(ctx, canvas.width, canvas.height, x, y, w, h)) {
+              fillRegion(ctx, canvas.width, canvas.height, x, y, w, h);
+            }
+          } else {
+            fillRegion(ctx, canvas.width, canvas.height, x, y, w, h);
+          }
         }
 
         const jpeg = await canvasToImageBytes(canvas, "image/jpeg", 0.92);
