@@ -17,7 +17,7 @@
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
     "@langchain/community": "^1.1.29",
-    "@langchain/core": "^1.2.0",
+    "@langchain/core": "^1.2.1",
     "@langchain/langgraph": "^1.4.4",
     "@llamaindex/liteparse-wasm": "^2.1.1",
     "@pdfme/pdf-lib": "^6.1.9",
