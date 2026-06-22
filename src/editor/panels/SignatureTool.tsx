@@ -44,13 +44,84 @@ const MOVE_THRESHOLD_PX = 4;
 
 interface SigPayload {
   dataUrl: string;
-  /** Opaque background colour (hex) painted behind the ink; absent = transparent. */
+  /** Legacy: older placed signatures may carry a baked-in bgHex. The background
+   *  is now a single global panel setting (bgEnabled/bgHex in the slice) applied
+   *  to every signature, so this field is ignored on paint/apply. Kept optional
+   *  only so docs persisted before the change still deserialise. */
   bgHex?: string;
 }
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 const rectToBox = (r: FractionRect): Box => ({ x: r.xPct, y: r.yPct, w: r.wPct, h: r.hPct });
 const boxToRect = (b: Box): FractionRect => ({ xPct: b.x, yPct: b.y, wPct: b.w, hPct: b.h });
+
+/** Normalise an UPLOADED image so it behaves like a drawn signature: transparent
+ *  everywhere except the ink/logo. A drawn pad signature is already a transparent
+ *  PNG, but uploads vary — and we must handle every combination:
+ *
+ *   • Transparent PNG (already a cutout, incl. a WHITE logo on transparency) →
+ *     respect it untouched. Knocking out white here would erase a white logo.
+ *   • Opaque scan / JPEG / logo on white paper → knock the near-white paper out
+ *     so the "Ink only — transparent" switch actually shows ink only.
+ *
+ *  The gate: if the image ALREADY carries meaningful transparency, trust it and
+ *  return as-is. Only when it is effectively fully opaque do we remove white.
+ *
+ *  White removal gates on the MIN channel so saturated colours and dark ink stay
+ *  fully opaque (red 255,0,0 → min 0 → kept) while only neutral white/grey paper
+ *  ramps out (255,255,255 → min 255 → removed). Returns the original on a
+ *  tainted-canvas read or a decode failure. */
+function whiteToAlpha(dataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const w = img.naturalWidth || 1;
+      const h = img.naturalHeight || 1;
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return resolve(dataUrl);
+      ctx.drawImage(img, 0, 0);
+      let data: ImageData;
+      try {
+        data = ctx.getImageData(0, 0, w, h);
+      } catch {
+        return resolve(dataUrl); // cross-origin taint — keep the original
+      }
+      const px = data.data;
+      const total = px.length / 4;
+
+      // Pass 1 — does the upload already carry its own transparency? Count pixels
+      // that aren't fully opaque; a genuine cutout has a large transparent region
+      // while a flat scan/JPEG has ~none. If it's already a cutout, respect it
+      // (this preserves a white logo sitting on transparency).
+      let translucent = 0;
+      for (let i = 3; i < px.length; i += 4) {
+        if (px[i] < 250) translucent++;
+      }
+      if (translucent / total > 0.005) return resolve(dataUrl);
+
+      // Pass 2 — fully opaque upload: knock the near-white paper out to alpha.
+      const HI = 245; // min channel ≥ this (near-white) → fully transparent
+      const LO = 210; // min channel ≤ this → fully opaque (ink/logo kept)
+      for (let i = 0; i < px.length; i += 4) {
+        const m = Math.min(px[i], px[i + 1], px[i + 2]);
+        if (m >= HI) {
+          px[i + 3] = 0;
+        } else if (m > LO) {
+          // Soft edge: ramp the existing alpha down across the neutral band.
+          const t = (m - LO) / (HI - LO);
+          px[i + 3] = Math.round(px[i + 3] * (1 - t));
+        }
+      }
+      ctx.putImageData(data, 0, 0);
+      resolve(c.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
 
 /** Composite the (transparent) signature onto an opaque background of `bgHex`,
  *  returning a new PNG data-URL. Used at Apply so the embedded image already
@@ -76,7 +147,7 @@ function withBackground(dataUrl: string, bgHex: string): Promise<string> {
 
 export function Stage() {
   const { doc, selectedPage } = useEditorRead();
-  const { addObject, updateObject, moveObject, removeObject, patchToolState } = useEditorActions();
+  const { addObject, moveObject, removeObject, patchToolState } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
   const dataUrl = (slice.dataUrl as string) ?? "";
   const selectedId = slice.selectedId as string | undefined;
@@ -186,9 +257,12 @@ export function Stage() {
         const bw = r.wPct * w;
         const bh = r.hPct * h;
         const payload = o.payload as SigPayload | undefined;
-        if (payload?.bgHex) {
+        // Background is a single global setting: paint the chosen colour behind
+        // EVERY placed signature the instant the switch is on, so the live
+        // preview always matches what Apply will bake — no selection required.
+        if (bgEnabled) {
           ctx.save();
-          ctx.fillStyle = payload.bgHex;
+          ctx.fillStyle = bgHex;
           ctx.fillRect(x, y, bw, bh);
           ctx.restore();
         }
@@ -208,7 +282,7 @@ export function Stage() {
         }
       }
     },
-    [doc, getImg, imgVersion, selectedId, rectOf],
+    [doc, getImg, imgVersion, selectedId, rectOf, bgEnabled, bgHex],
   );
 
   // Find the topmost signature on this page whose box contains the point.
@@ -284,7 +358,7 @@ export function Stage() {
         kind: "signature",
         pageIndex: selectedPage,
         rect,
-        payload: { dataUrl, ...(bgEnabled ? { bgHex } : {}) },
+        payload: { dataUrl },
       });
       // Select the new signature so its resize handles appear immediately.
       if (id) patchToolState(TOOL_ID, { selectedId: id });
@@ -377,22 +451,6 @@ export function Stage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedId, selectedPage, removeObject, patchToolState]);
 
-  // Toggling background on/off (or its colour) updates the SELECTED signature so
-  // the panel control edits the placed mark, not just the next placement.
-  const prevBgRef = useRef<{ enabled: boolean; hex: string } | null>(null);
-  useEffect(() => {
-    const prev = prevBgRef.current;
-    prevBgRef.current = { enabled: bgEnabled, hex: bgHex };
-    if (!prev || (prev.enabled === bgEnabled && prev.hex === bgHex)) return;
-    if (!selectedId) return;
-    const obj = docRef.current?.objects.find((o) => o.id === selectedId);
-    if (obj?.kind !== "signature") return;
-    const payload = obj.payload as SigPayload;
-    updateObject(selectedId, {
-      payload: { dataUrl: payload.dataUrl, ...(bgEnabled ? { bgHex } : {}) },
-    });
-  }, [bgEnabled, bgHex, selectedId, updateObject]);
-
   return null;
 }
 
@@ -446,10 +504,14 @@ export function Panel() {
     (file: File | undefined) => {
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () =>
-        patchToolState(TOOL_ID, {
-          dataUrl: typeof reader.result === "string" ? reader.result : "",
-        });
+      reader.onload = async () => {
+        const raw = typeof reader.result === "string" ? reader.result : "";
+        // Knock out the white paper background so an uploaded signature/logo is
+        // transparent ink, matching the drawn-pad path. The Background switch
+        // then composites a solid colour behind it just like a drawn signature.
+        const url = raw ? await whiteToAlpha(raw) : "";
+        patchToolState(TOOL_ID, { dataUrl: url });
+      };
       reader.readAsDataURL(file);
     },
     [patchToolState],
@@ -464,11 +526,9 @@ export function Panel() {
         if (!page) continue;
         const r = o.rect!;
         const payload = o.payload as SigPayload;
-        // Bake an opaque backing into the image when one was chosen, so the
-        // embedded signature matches the on-canvas preview exactly.
-        const url = payload.bgHex
-          ? await withBackground(payload.dataUrl, payload.bgHex)
-          : payload.dataUrl;
+        // Bake the global opaque backing into the image when the switch is on, so
+        // the embedded signature matches the on-canvas preview exactly.
+        const url = bgEnabled ? await withBackground(payload.dataUrl, bgHex) : payload.dataUrl;
         const widthPt = r.wPct * page.widthPt;
         const heightPt = r.hPct * page.heightPt;
         const x = r.xPct * page.widthPt;
@@ -488,7 +548,7 @@ export function Panel() {
         objects: d.objects.filter((o) => o.kind !== "signature"),
       };
     });
-  }, [applyTransform]);
+  }, [applyTransform, bgEnabled, bgHex]);
 
   const modes: { id: "draw" | "upload"; label: string }[] = [
     { id: "draw", label: "Draw" },
