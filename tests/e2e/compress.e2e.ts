@@ -1,14 +1,20 @@
 /**
- * Regression smoke for the Compress tool (compressPdf in src/utils/pdf/transform.ts).
+ * Regression smoke for the smart Compress tool (compressPdf in
+ * src/utils/pdf/transform.ts).
  *
- * Guards the two bugs fixed in this area:
- *   1. The render-scale axis was inverted — "high / smallest file" rendered at
- *      2× (4× the pixels of "low"), so it routinely produced a LARGER + slower
- *      result than "low". Corrected so more compression = lower render scale.
- *      Assert: high <= medium <= low in output size for an image-heavy PDF.
- *   2. No size guard — rasterising a text/vector PDF produced a bigger file than
- *      the original and handed it back as "compressed". Now we keep the smaller
- *      of (original, rasterised). Assert: no preset ever exceeds the original.
+ * compressPdf picks the best strategy per page by measured bytes: light
+ * text/vector pages are copied through losslessly (selectable text preserved,
+ * ~15-25% structural shrink), while heavy pages (scans, photo pages, Type3 /
+ * vector-dense pages) are rasterised to a JPEG and kept only when that's
+ * actually smaller. A final guard returns the original if nothing shrank.
+ *
+ * This guards:
+ *   1. Size guard — no preset ever yields a file larger than the original.
+ *   2. Monotonicity — higher compression never weighs more than lower.
+ *   3. Text preservation — text-dominant PDFs keep (nearly) all their
+ *      selectable text AND still shrink (the lossless structural win), instead
+ *      of being rasterised to image-only as the old whole-doc rasteriser did.
+ *   4. Image win — an image/Type3-heavy PDF compresses substantially at high.
  *
  * Calls compressPdf directly through the Vite dev module graph (real browser
  * canvas + PDF.js), rather than driving the editor UI.
@@ -27,9 +33,16 @@ const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const USER_DATA_DIR = resolve(import.meta.dirname, "../.puppeteer-profile-editor");
 
-const FIXTURES = ["sample.pdf", "multipage.pdf", "The Complete Generative AI Leader.pdf"];
 type Quality = "low" | "medium" | "high";
 const QUALITIES: Quality[] = ["low", "medium", "high"];
+
+// `textDominant`: text-heavy PDFs that must stay selectable and still shrink.
+// `imageWin`: heavy (Type3-font) PDF where rasterising should win big at high.
+const FIXTURES: { name: string; textDominant: boolean; imageWin: boolean }[] = [
+  { name: "multipage.pdf", textDominant: true, imageWin: false },
+  { name: "The Complete Generative AI Leader.pdf", textDominant: true, imageWin: false },
+  { name: "sample.pdf", textDominant: false, imageWin: true },
+];
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);
@@ -41,6 +54,8 @@ function kb(n: number): string {
   return `${(n / 1024).toFixed(1)} KB`;
 }
 
+type Result = { size: number; textLen: number };
+
 async function main() {
   const browser = await launch({
     executablePath: CHROME_PATH,
@@ -51,68 +66,103 @@ async function main() {
   const page = await browser.newPage();
   const errors: string[] = [];
   try {
-    page.setDefaultTimeout(60_000);
+    page.setDefaultTimeout(90_000);
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e: unknown) => errors.push(String(e instanceof Error ? e.message : e)));
 
     await page.goto(DEV_URL, { waitUntil: "networkidle2" });
 
     let allOk = true;
-    for (const name of FIXTURES) {
-      const path = resolve(import.meta.dirname, "../fixtures", name);
+    for (const fx of FIXTURES) {
+      const path = resolve(import.meta.dirname, "../fixtures", fx.name);
       if (!existsSync(path)) fail(`Fixture not found at ${path}.`);
       const bytes = readFileSync(path);
       const original = bytes.byteLength;
 
-      // Push the bytes into the page and call compressPdf via the dev module
-      // graph for each preset.
-      const sizes = (await page.evaluate(
+      // In the page: compress at each preset and measure output size + the
+      // total selectable-text length of the compressed result (via PDF.js).
+      const { origTextLen, results } = (await page.evaluate(
         async (b64: string, fileName: string, qualities: Quality[]) => {
           const bin = atob(b64);
           const u8 = new Uint8Array(bin.length);
           for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-          // Specifier kept in a variable so tsc doesn't try to resolve this
-          // browser-only dev-server URL; Vite serves it from the module graph.
-          const spec = "/src/utils/pdf-operations.ts";
-          const mod = await import(/* @vite-ignore */ spec);
-          const out: Record<string, number> = {};
+
+          const opsSpec = "/src/utils/pdf-operations.ts";
+          const rasterSpec = "/src/utils/pdf/raster.ts";
+          const ops = await import(/* @vite-ignore */ opsSpec);
+          const { getPdfJs } = await import(/* @vite-ignore */ rasterSpec);
+          const pdfjsLib = await getPdfJs();
+
+          const textLenOf = async (data: Uint8Array): Promise<number> => {
+            const task = pdfjsLib.getDocument({ data: data.slice(0) });
+            const doc = await task.promise;
+            let len = 0;
+            for (let i = 1; i <= doc.numPages; i++) {
+              const tc = await (await doc.getPage(i)).getTextContent();
+              for (const it of tc.items) if ("str" in it) len += it.str.length;
+            }
+            await task.destroy();
+            return len;
+          };
+
+          const origTextLen = await textLenOf(u8);
+          const results: Record<string, { size: number; textLen: number }> = {};
           for (const q of qualities) {
             const file = new File([u8], fileName, { type: "application/pdf" });
-            const result = await mod.compressPdf(file, q);
-            out[q] = result.byteLength;
+            const out = await ops.compressPdf(file, q);
+            results[q] = { size: out.byteLength, textLen: await textLenOf(out) };
           }
-          return out;
+          return { origTextLen, results };
         },
         bytes.toString("base64"),
-        name,
+        fx.name,
         QUALITIES,
-      )) as Record<Quality, number>;
+      )) as { origTextLen: number; results: Record<Quality, Result> };
 
-      console.log(`\n${name}  (original ${kb(original)})`);
+      console.log(`\n${fx.name}  (original ${kb(original)}, ${origTextLen} chars)`);
       for (const q of QUALITIES) {
-        const pct = (((original - sizes[q]) / original) * 100).toFixed(1);
-        console.log(`  ${q.padEnd(7)} → ${kb(sizes[q]).padStart(11)}  (${pct}% smaller)`);
+        const r = results[q];
+        const pct = (((original - r.size) / original) * 100).toFixed(1);
+        const txt = origTextLen ? ((100 * r.textLen) / origTextLen).toFixed(0) : "—";
+        console.log(
+          `  ${q.padEnd(7)} → ${kb(r.size).padStart(11)}  (${pct}% smaller, text ${txt}%)`,
+        );
       }
 
-      // Assertion 1: size guard — no preset may exceed the original.
+      // 1. Size guard — no preset may exceed the original.
       for (const q of QUALITIES) {
-        if (sizes[q] > original) {
-          console.error(
-            `  ✗ ${q} (${kb(sizes[q])}) exceeds original (${kb(original)}) — guard failed`,
-          );
+        if (results[q].size > original) {
+          console.error(`  ✗ ${q} (${kb(results[q].size)}) exceeds original — guard failed`);
           allOk = false;
         }
       }
-      // Assertion 2: scale axis correct — more compression never weighs more.
-      // (Equality is allowed: the guard can return the original for both.)
-      if (sizes.high > sizes.low) {
-        console.error(
-          `  ✗ high (${kb(sizes.high)}) > low (${kb(sizes.low)}) — axis still inverted`,
-        );
+      // 2. Monotonicity — more compression never weighs more.
+      if (results.high.size > results.low.size) {
+        console.error(`  ✗ high > low — axis inverted`);
         allOk = false;
       }
-      if (sizes.medium > sizes.low) {
-        console.error(`  ✗ medium (${kb(sizes.medium)}) > low (${kb(sizes.low)}) — axis inverted`);
+      if (results.medium.size > results.low.size) {
+        console.error(`  ✗ medium > low — axis inverted`);
+        allOk = false;
+      }
+      // 3. Text-dominant PDFs must stay (nearly) fully selectable AND shrink.
+      if (fx.textDominant) {
+        for (const q of QUALITIES) {
+          if (results[q].textLen < origTextLen * 0.95) {
+            console.error(
+              `  ✗ ${q} kept only ${results[q].textLen}/${origTextLen} chars — text not preserved`,
+            );
+            allOk = false;
+          }
+        }
+        if (results.medium.size >= original) {
+          console.error(`  ✗ text PDF did not shrink at medium (lossless win missing)`);
+          allOk = false;
+        }
+      }
+      // 4. Image/Type3-heavy PDFs should compress substantially at high.
+      if (fx.imageWin && results.high.size > original * 0.6) {
+        console.error(`  ✗ image-heavy PDF only reached ${kb(results.high.size)} at high`);
         allOk = false;
       }
     }
@@ -123,7 +173,7 @@ async function main() {
       process.exit(1);
     }
     if (!allOk) fail("Compress smoke failed — see assertions above.");
-    console.log("\n✓ Compress smoke passed — size guard holds, scale axis correct.");
+    console.log("\n✓ Compress smoke passed — guard holds, text preserved, images crushed.");
   } catch (e) {
     console.error(`✗ Compress smoke failed: ${e instanceof Error ? e.message : String(e)}`);
     process.exitCode = 1;

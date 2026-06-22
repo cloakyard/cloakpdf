@@ -3,36 +3,111 @@
  * images-to-PDF, N-up, and crop/uncrop.
  */
 
-import { PDFDocument, PDFName, rgb } from "@pdfme/pdf-lib";
+import {
+  PDFArray,
+  PDFDict,
+  PDFDocument,
+  type PDFPage,
+  PDFName,
+  PDFRawStream,
+  PDFRef,
+  rgb,
+} from "@pdfme/pdf-lib";
 import type { CropMargins } from "../../types.ts";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { clampScaleForCanvas, decodeImageToPngBytes, getPdfJs } from "./raster.ts";
 
 /**
- * Compress a PDF by re-rendering each page as a JPEG image.
+ * Below this lossless byte weight, rasterising a page can't plausibly beat
+ * copying it through (a rasterised Letter page rarely encodes under ~30-90 KB),
+ * so such pages skip the render entirely. Heavier pages get rendered and kept
+ * only if the JPEG actually comes out smaller (see {@link compressPdf}).
+ */
+const COMPRESS_RENDER_GATE_BYTES = 50 * 1024;
+
+/**
+ * Sum the lossless byte weight a page contributes: its content stream(s), the
+ * image/form XObjects it references, and any Type3 font glyph programs
+ * (CharProcs). This is what rasterising would replace, so it's the bar a page's
+ * JPEG must beat to be worth rasterising. Shared resources are counted per page
+ * (a slight over-count), which only biases toward rasterising heavy pages — the
+ * per-page and whole-document guards keep that honest.
+ */
+function pageLosslessWeight(doc: PDFDocument, page: PDFPage): number {
+  const ctx = doc.context;
+  let weight = 0;
+  const seen = new Set<string>();
+  const addStream = (v: unknown): void => {
+    let obj = v;
+    if (v instanceof PDFRef) {
+      if (seen.has(v.tag)) return;
+      seen.add(v.tag);
+      obj = ctx.lookup(v);
+    }
+    if (obj instanceof PDFRawStream) weight += obj.contents.length;
+  };
+  const resolveDict = (dict: PDFDict, key: string): unknown => {
+    const v = dict.get(PDFName.of(key));
+    return v instanceof PDFRef ? ctx.lookup(v) : v;
+  };
+
+  // Content stream(s) — a single stream or an array of them.
+  const contents = resolveDict(page.node, "Contents");
+  if (contents instanceof PDFRawStream) weight += contents.contents.length;
+  else if (contents instanceof PDFArray) for (const e of contents.asArray()) addStream(e);
+
+  const res = resolveDict(page.node, "Resources");
+  if (res instanceof PDFDict) {
+    const xobjects = resolveDict(res, "XObject");
+    if (xobjects instanceof PDFDict) for (const [, v] of xobjects.entries()) addStream(v);
+    const fonts = resolveDict(res, "Font");
+    if (fonts instanceof PDFDict) {
+      for (const [, fv] of fonts.entries()) {
+        const fontDict = fv instanceof PDFRef ? ctx.lookup(fv) : fv;
+        if (fontDict instanceof PDFDict) {
+          const charProcs = resolveDict(fontDict, "CharProcs");
+          if (charProcs instanceof PDFDict) for (const [, pv] of charProcs.entries()) addStream(pv);
+        }
+      }
+    }
+  }
+  return weight;
+}
+
+/**
+ * Compress a PDF, picking the best strategy *per page* by measured bytes:
  *
- * This is a lossy compression strategy: every page is rasterised via PDF.js
- * at a configurable scale, converted to JPEG at a given quality, and then
- * re-embedded into a brand-new PDF document. Vector content and selectable
- * text are lost, but the file size can be dramatically reduced.
+ *  - **Light pages** (lossless weight under {@link COMPRESS_RENDER_GATE_BYTES})
+ *    are copied through losslessly without even rendering — rasterising them
+ *    couldn't win. Selectable text is preserved.
+ *  - **Heavy pages** (scans, photo pages, Type3-font / vector-dense pages) are
+ *    rendered to a JPEG and kept **only if that JPEG is smaller** than the
+ *    page's lossless weight; otherwise the page is copied through too. This is
+ *    the big win on scanned and image-heavy documents.
  *
- * The render `scale` is pure supersampling — the output page is always sized
- * at 1.0× (`origViewport` below), so `scale` only sets how many pixels the JPEG
- * carries. More pixels → bigger JPEG. Higher compression therefore renders at a
- * *lower* scale (fewer pixels, also faster + less memory), not a higher one.
+ * The structural rebuild itself (a single `copyPages` into a fresh doc, saved
+ * with object streams) drops unreachable objects and dedupes shared resources,
+ * reclaiming ~15-25% on typical text PDFs with no quality loss.
  *
- * Quality presets:
- *   - `low`    → scale 2.0×, JPEG quality 82% (sharpest pages, lightest drop)
+ * The render `scale` for rasterised pages is pure supersampling — the output
+ * page is sized at 1.0× (`origViewport`), so `scale` only sets the JPEG's pixel
+ * count. More pixels → bigger JPEG. Higher compression therefore renders at a
+ * *lower* scale (fewer pixels, also faster + less memory). The level also tunes
+ * how aggressively pages rasterise: bigger JPEGs at `low` clear fewer pages'
+ * weight bars, so more text is kept; smaller JPEGs at `high` rasterise more.
+ *
+ * Quality presets (apply to rasterised pages):
+ *   - `low`    → scale 2.0×, JPEG quality 82% (sharpest, lightest drop)
  *   - `medium` → scale 1.5×, JPEG quality 68% (balanced)
- *   - `high`   → scale 1.0×, JPEG quality 50% (smallest file, softest pages)
+ *   - `high`   → scale 1.0×, JPEG quality 50% (smallest, softest)
  *
- * Rasterising a text/vector PDF can produce a *larger* file than the original
- * at any preset, so we keep the smaller of (original, rasterised) and never
- * hand back an inflated "compressed" file.
+ * As a final guard the result is compared against the source: if the rebuild
+ * didn't actually shrink the file (already-optimised input), the original bytes
+ * are returned untouched rather than a larger "compressed" file.
  *
  * @param file - The PDF file to compress.
  * @param quality - Compression preset: "low", "medium", or "high".
- * @returns Compressed PDF bytes.
+ * @returns Compressed PDF bytes (or the original bytes if no gain was possible).
  */
 export async function compressPdf(
   file: File,
@@ -48,69 +123,105 @@ export async function compressPdf(
   const { scale, jpegQuality } = qualitySettings[quality];
 
   const pdfjsLib = await getPdfJs();
-  const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
+  const loadingTask = pdfjsLib.getDocument({
+    data: new Uint8Array(await file.arrayBuffer()),
+    wasmUrl: PDFJS_WASM_URL,
+  });
   const sourcePdf = await loadingTask.promise;
+  // Separate pdf-lib parse (its own buffer) for the lossless copy path + weight
+  // analysis — the PDF.js worker may detach the buffer it was handed.
+  const srcLib = await PDFDocument.load(new Uint8Array(await file.arrayBuffer()), {
+    updateMetadata: false,
+    throwOnInvalidObject: false,
+    ignoreEncryption: true,
+  });
   const newPdf = await PDFDocument.create();
+  const total = sourcePdf.numPages;
+  const srcPages = srcLib.getPages();
+
+  // Render a single source page to JPEG bytes at the active preset; null if the
+  // page can't be acquired. Releases its canvas before returning.
+  const renderPageJpeg = async (pageNum: number): Promise<Uint8Array> => {
+    const page = await sourcePdf.getPage(pageNum);
+    // Clamp the render scale to the platform canvas ceiling (mobile ~4096
+    // px/side); a large page would otherwise render blank. Output size uses
+    // origViewport below, so this only affects fidelity.
+    const base = page.getViewport({ scale });
+    const safeScale = clampScaleForCanvas(base.width, base.height, scale);
+    const viewport = page.getViewport({ scale: safeScale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error(`Failed to acquire 2D canvas context for page ${pageNum}`);
+
+    await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+    // Convert to JPEG via toBlob (avoids the overhead of a data-URL round-trip).
+    const jpegBytes = await new Promise<Uint8Array>((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error("Canvas toBlob returned null"));
+          blob.arrayBuffer().then((ab) => resolve(new Uint8Array(ab)), reject);
+        },
+        "image/jpeg",
+        jpegQuality,
+      );
+    });
+    canvas.width = 0; // release bitmap memory
+    canvas.height = 0;
+    return jpegBytes;
+  };
 
   try {
-    for (let i = 1; i <= sourcePdf.numPages; i++) {
-      const page = await sourcePdf.getPage(i);
-      // Clamp the render scale to the platform canvas ceiling (mobile ~4096
-      // px/side); a large page would otherwise render blank → a blank output
-      // page. Output size uses origViewport below, so this only affects fidelity.
-      const base = page.getViewport({ scale });
-      const safeScale = clampScaleForCanvas(base.width, base.height, scale);
-      const viewport = page.getViewport({ scale: safeScale });
+    // --- Phase 1: decide per page — rasterise only when it measurably wins. ---
+    // A light page is copied losslessly without rendering. A heavy page is
+    // rendered and rasterised only if the JPEG beats its lossless weight.
+    const rasterJpeg = new Map<number, Uint8Array>(); // 0-based page index → JPEG
+    for (let i = 0; i < total; i++) {
+      const weight = pageLosslessWeight(srcLib, srcPages[i]);
+      if (weight >= COMPRESS_RENDER_GATE_BYTES) {
+        const jpeg = await renderPageJpeg(i + 1);
+        if (jpeg.byteLength < weight) rasterJpeg.set(i, jpeg);
+      }
+    }
 
-      const canvas = document.createElement("canvas");
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error(`Failed to acquire 2D canvas context for page ${i}`);
+    // --- Phase 2: copy ALL lossless pages in a SINGLE copyPages call. ---
+    // One call dedupes shared resources (fonts) and drops unreachable objects;
+    // copying per-page instead re-embeds shared fonts and bloats the output 4-5×.
+    const losslessIdx: number[] = [];
+    for (let i = 0; i < total; i++) if (!rasterJpeg.has(i)) losslessIdx.push(i);
+    const copied = losslessIdx.length ? await newPdf.copyPages(srcLib, losslessIdx) : [];
+    const copiedByIndex = new Map<number, (typeof copied)[number]>();
+    losslessIdx.forEach((idx, k) => copiedByIndex.set(idx, copied[k]));
 
-      await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-
-      // Convert to JPEG via toBlob (avoids the overhead of a data-URL round-trip)
-      const jpegBytes = await new Promise<Uint8Array>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) return reject(new Error("Canvas toBlob returned null"));
-            blob.arrayBuffer().then((ab) => resolve(new Uint8Array(ab)), reject);
-          },
-          "image/jpeg",
-          jpegQuality,
-        );
-      });
-
-      // Release canvas bitmap memory
-      canvas.width = 0;
-      canvas.height = 0;
-
-      const image = await newPdf.embedJpg(jpegBytes);
-
-      // Use original page dimensions (in PDF points)
-      const origViewport = page.getViewport({ scale: 1.0 });
-      const newPage = newPdf.addPage([origViewport.width, origViewport.height]);
-      newPage.drawImage(image, {
-        x: 0,
-        y: 0,
-        width: origViewport.width,
-        height: origViewport.height,
-      });
-
-      onProgress?.(i, sourcePdf.numPages);
+    // --- Phase 3: assemble the output in original page order. ---
+    for (let i = 0; i < total; i++) {
+      const lossless = copiedByIndex.get(i);
+      if (lossless) {
+        newPdf.addPage(lossless);
+      } else {
+        const jpeg = rasterJpeg.get(i);
+        if (!jpeg) throw new Error(`Missing rasterised page ${i + 1}`);
+        const image = await newPdf.embedJpg(jpeg);
+        // Draw into a page sized at the original dimensions (in PDF points).
+        const origViewport = (await sourcePdf.getPage(i + 1)).getViewport({ scale: 1.0 });
+        const newPage = newPdf.addPage([origViewport.width, origViewport.height]);
+        newPage.drawImage(image, {
+          x: 0,
+          y: 0,
+          width: origViewport.width,
+          height: origViewport.height,
+        });
+      }
+      onProgress?.(i + 1, total);
       await new Promise((r) => setTimeout(r, 0));
     }
 
-    const compressed = await newPdf.save({
-      useObjectStreams: true,
-    });
+    const compressed = await newPdf.save({ useObjectStreams: true });
 
-    // Rasterising a text/vector PDF can weigh more than the original. If we
-    // didn't actually shrink it, return the source bytes untouched rather than
-    // hand back a bigger "compressed" file. Re-read from the File — the
-    // arrayBuffer above may have been detached by the PDF.js worker.
+    // If the rebuild didn't actually shrink the file (already-optimised input),
+    // return the source bytes untouched rather than a larger "compressed" file.
     if (compressed.byteLength >= file.size) {
       return new Uint8Array(await file.arrayBuffer());
     }
