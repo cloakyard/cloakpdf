@@ -33,11 +33,21 @@ export {
 
 export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
 
+export type {
+  FlatField,
+  ProfileKey,
+  FieldFill,
+  DetectFlatFieldsOptions,
+} from "./pdf/form-detect.ts";
+export { detectFlatFields, fillFlatFormFields, profileKeyForLabel } from "./pdf/form-detect.ts";
+
+export type { NupLayout, NupOptions } from "./pdf/transform.ts";
 export {
   compressPdf,
   grayscalePdf,
   imagesToPdf,
   nupPages,
+  bookletOrder,
   cropPages,
   cropPagesIndividual,
   uncropPages,
@@ -53,6 +63,12 @@ export {
   addBatesNumbers,
 } from "./pdf/stamps.ts";
 
+export type { CodeStampType, CodeStampOptions } from "./pdf/codes.ts";
+export { addCodeStamp, encodeCode128B } from "./pdf/codes.ts";
+
+export type { TokenContext, TokenDef } from "./pdf/tokens.ts";
+export { STAMP_TOKENS, resolveStampTokens, hasStampToken, baseFileName } from "./pdf/tokens.ts";
+
 export type { PdfInfo } from "./pdf/metadata.ts";
 export {
   getPdfMetadata,
@@ -65,6 +81,15 @@ export {
 export { extractTextOcr, createSearchablePdf, createSearchablePdfFromLayout } from "./pdf/ocr.ts";
 
 export { redactPdf } from "./pdf/redact.ts";
+
+export type { ContentBox, SkewOptions, DeskewOptions } from "./pdf/page-analyze.ts";
+export {
+  inkBoundingBox,
+  detectSkewAngle,
+  detectContentBox,
+  detectPageSkew,
+  deskewPdf,
+} from "./pdf/page-analyze.ts";
 
 export type { EraseMode, EraseRegion } from "./pdf/erase.ts";
 export { erasePdf, renderErasePreview } from "./pdf/erase.ts";

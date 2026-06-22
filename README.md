@@ -25,10 +25,10 @@
 
 Drop a PDF and it opens in a single, canvas-based **editor** — a Photoshop-like workspace for one document at a time:
 
-- **✏️ Annotate & sign** — draw, highlight, shapes, text, signatures, fill & flatten forms
-- **📄 Pages** — reorder, rotate, delete, crop, N-up, OCR, plus split / extract / contact-sheet on export
-- **🔒 Privacy** — redact (burned into the page), find & box text, scrub hidden data, edit or strip metadata
-- **🏷️ Stamps & numbering** — watermarks, page numbers, headers & footers, Bates numbering, bookmarks
+- **✏️ Annotate & sign** — draw, highlight, shapes, text, signatures, fill & flatten forms (or auto-fill flat printed ones)
+- **📄 Pages** — reorder, rotate, delete, crop (auto-trim & straighten), N-up & booklet, OCR, plus split / extract / contact-sheet on export
+- **🔒 Privacy** — redact (burned into the page), select or find & box text, erase regions (fill / blend / pixelate), scrub hidden data, edit or strip metadata
+- **🏷️ Stamps & numbering** — watermarks (with dynamic date/page tokens), QR & barcode stamps, page numbers, headers & footers, Bates numbering, bookmarks
 
 Export to PDF, images (ZIP), a contact sheet, or split pages — with optional compress / grayscale / flatten / repair / strip-metadata.
 

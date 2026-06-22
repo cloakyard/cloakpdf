@@ -86,6 +86,16 @@ export function MobileEditorSurface() {
     if (activeTool) headingRef.current?.focus({ preventScroll: true });
   }, [activeTool]);
 
+  // The body is a single persistent scroll box reused across every view, so a
+  // scroll offset left over from one panel survives into the next — which would
+  // open the next tool (or the picker, hiding its "Reset to original" top row)
+  // mid-scrolled. Snap it back to the top on any view change: when the sheet
+  // opens and whenever the active tool switches.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (open) bodyRef.current?.scrollTo({ top: 0 });
+  }, [open, activeTool]);
+
   return (
     <div
       data-testid="mobile-tool-sheet"
@@ -155,10 +165,18 @@ export function MobileEditorSurface() {
       </div>
 
       {/* Body — fills the space under the header inside the 40% cap and scrolls,
-          so long panels stay reachable. Hidden scrollbar (gesture/wheel scroll);
-          collapses with the sheet when closed. */}
+          so long panels stay reachable. Hidden scrollbar (gesture/wheel scroll).
+          Closed, its max-height collapses to 0 (in step with the outer slide) so
+          nothing peeks below the pinned header — the outer's 64px cap alone left
+          a gap that clipped the first body row (e.g. the "Reset to original"
+          label). The vertical padding is open-only: with border-box, pt/pb would
+          hold the body open to ~12px even at max-h-0, re-exposing the peek. flex-1
+          fills the open sheet; the max-h-screen cap never binds (outer is capped). */}
       <div
-        className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-4 pb-2 pt-1"
+        ref={bodyRef}
+        className={`no-scrollbar min-h-0 overflow-y-auto px-4 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:transition-[max-height] motion-safe:duration-300 ${
+          open ? "max-h-screen flex-1 pb-2 pt-1" : "max-h-0"
+        }`}
         aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
       >
         {view.kind === "tool" ? (

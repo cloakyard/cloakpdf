@@ -18,11 +18,22 @@ import {
   addHeaderFooter,
   addPageNumbers,
   addWatermark,
+  baseFileName,
+  resolveStampTokens,
 } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
-import { ColorRow, Labeled, PositionGrid, RangeField, TextField, Toggle } from "./controls.tsx";
+import {
+  ColorRow,
+  Labeled,
+  PositionGrid,
+  RangeField,
+  TextField,
+  Toggle,
+  TokenBar,
+  useTokenInsert,
+} from "./controls.tsx";
 import { Segmented, WholeDocPanel } from "./WholeDocPanel.tsx";
 
 const INK = { r: 30, g: 41, b: 59 };
@@ -121,6 +132,7 @@ function TripleRow({
 
 export function HeaderFooterPanel() {
   const { applyTransform } = useEditorActions();
+  const { containerProps, insert } = useTokenInsert();
   const [o, setO] = useState<HeaderFooterOptions>({
     headerLeft: "",
     headerCenter: "",
@@ -153,16 +165,19 @@ export function HeaderFooterPanel() {
         }))
       }
     >
-      <TripleRow
-        label="Header"
-        values={[o.headerLeft, o.headerCenter, o.headerRight]}
-        onChange={([l, c, r]) => set({ headerLeft: l, headerCenter: c, headerRight: r })}
-      />
-      <TripleRow
-        label="Footer"
-        values={[o.footerLeft, o.footerCenter, o.footerRight]}
-        onChange={([l, c, r]) => set({ footerLeft: l, footerCenter: c, footerRight: r })}
-      />
+      <div className="flex flex-col gap-4" {...containerProps}>
+        <TripleRow
+          label="Header"
+          values={[o.headerLeft, o.headerCenter, o.headerRight]}
+          onChange={([l, c, r]) => set({ headerLeft: l, headerCenter: c, headerRight: r })}
+        />
+        <TripleRow
+          label="Footer"
+          values={[o.footerLeft, o.footerCenter, o.footerRight]}
+          onChange={([l, c, r]) => set({ footerLeft: l, footerCenter: c, footerRight: r })}
+        />
+        <TokenBar onInsert={insert} />
+      </div>
       <ColorRow value={o.color} onChange={(color) => set({ color })} />
       <RangeField
         label="Size"
@@ -305,18 +320,27 @@ export function WatermarkStage() {
   const widthPt = page?.widthPt ?? 0;
   const { text, fontSize, opacity, rotation } = o;
   const { r, g, b } = o.color;
+  // Resolve {page}/{date}/… for the focused page so the preview shows the real
+  // burned text, not the raw template. {title} isn't in the doc model → "".
+  const resolved = resolveStampTokens(text, {
+    page: selectedPage + 1,
+    total: doc?.pageCount ?? 1,
+    title: "",
+    filename: baseFileName(doc?.fileName ?? ""),
+    date: new Date(),
+  });
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-      if (!text.trim() || widthPt <= 0) return;
+      if (!resolved.trim() || widthPt <= 0) return;
       drawWatermarkPreview(ctx, w, h, widthPt, {
-        text,
+        text: resolved,
         fontSize,
         color: { r, g, b },
         opacity,
         rotation,
       });
     },
-    [text, fontSize, r, g, b, opacity, rotation, widthPt],
+    [resolved, fontSize, r, g, b, opacity, rotation, widthPt],
   );
   useStageProps({ paintOverlay });
   return null;
@@ -324,6 +348,7 @@ export function WatermarkStage() {
 
 export function WatermarkPanel() {
   const { applyTransform, patchToolState } = useEditorActions();
+  const { containerProps, insert } = useTokenInsert();
   const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
   const set = (p: Partial<WatermarkOptions>) => patchToolState(WATERMARK_TOOL_ID, p);
   return (
@@ -338,12 +363,15 @@ export function WatermarkPanel() {
         }))
       }
     >
-      <TextField
-        label="Text"
-        value={o.text}
-        onChange={(text) => set({ text })}
-        placeholder="CONFIDENTIAL"
-      />
+      <div className="flex flex-col gap-4" {...containerProps}>
+        <TextField
+          label="Text"
+          value={o.text}
+          onChange={(text) => set({ text })}
+          placeholder="CONFIDENTIAL"
+        />
+        <TokenBar onInsert={insert} />
+      </div>
       <ColorRow value={o.color} onChange={(color) => set({ color })} />
       <RangeField
         label="Size"
