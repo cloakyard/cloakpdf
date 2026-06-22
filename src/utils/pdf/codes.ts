@@ -265,8 +265,16 @@ export async function addCodeStamp(
     const { width: pageW, height: pageH } = page.getSize();
 
     if (options.type === "qr") {
-      const boxW = options.size;
-      const boxH = options.size;
+      // Clamp the square to fit the page (minus margins) on both axes, so a
+      // large size on a small page can't push the origin negative and draw the
+      // QR off the edge — the same overflow the barcode path guards against.
+      const side = Math.min(
+        options.size,
+        Math.max(1, pageW - 2 * options.margin),
+        Math.max(1, pageH - 2 * options.margin),
+      );
+      const boxW = side;
+      const boxH = side;
       const { x: ox, y: oy } = cornerOrigin(
         options.position,
         pageW,
@@ -279,14 +287,14 @@ export async function addCodeStamp(
       // dark modules with a 4-module quiet zone (the QR spec minimum).
       page.drawRectangle({ x: ox, y: oy, width: boxW, height: boxH, color: white });
       const quiet = 4;
-      const ms = options.size / (qrCount + quiet * 2);
+      const ms = side / (qrCount + quiet * 2);
       for (let row = 0; row < qrCount; row++) {
         for (let col = 0; col < qrCount; col++) {
           if (!qrIsDark(row, col)) continue;
           page.drawRectangle({
             x: ox + (quiet + col) * ms,
             // row 0 is the top; PDF y grows upward.
-            y: oy + options.size - (quiet + row + 1) * ms,
+            y: oy + side - (quiet + row + 1) * ms,
             width: ms,
             height: ms,
             color: fg,
@@ -332,7 +340,9 @@ export async function addCodeStamp(
         }
         page.drawText(content, {
           x: ox + (boxW - tw) / 2,
-          y: oy,
+          // Lift the baseline off the bottom edge so descenders (g, p, y, ',')
+          // stay within the white backing instead of bleeding onto page content.
+          y: oy + capSize * 0.25,
           size: capSize,
           font,
           color: fg,

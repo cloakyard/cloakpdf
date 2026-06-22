@@ -64,7 +64,13 @@ function BarcodePreview({ content, valid }: { content: string; valid: boolean })
       let isBar = true;
       for (const ch of pattern) {
         const runW = Number(ch) * moduleW;
-        if (isBar) ctx.fillRect(cursor, 0, Math.ceil(runW), H);
+        // Snap both edges to integer pixels so sub-pixel bars (long payloads on
+        // the fixed-width canvas) don't overlap and eat the quiet zone — ceiling
+        // each width independently drifted the layout rightward.
+        if (isBar) {
+          const x0 = Math.round(cursor);
+          ctx.fillRect(x0, 0, Math.max(1, Math.round(cursor + runW) - x0), H);
+        }
         cursor += runW;
         isBar = !isBar;
       }

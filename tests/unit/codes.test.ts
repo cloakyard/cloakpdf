@@ -89,4 +89,23 @@ describe("addCodeStamp", () => {
     expect(loaded.getPageCount()).toBe(1);
     expect(out.byteLength).toBeGreaterThan(before);
   });
+
+  it("clamps an oversized QR onto a small page without overflowing or throwing", async () => {
+    // A QR larger than the page (size 200 on a 200×300 page, right-anchored)
+    // would, unclamped, push the origin negative and draw off the edge. The
+    // square clamp keeps it on-page; assert it still produces a grown PDF.
+    const doc = await PDFDocument.create();
+    doc.addPage([200, 300]);
+    const small = new File([await doc.save()], "small.pdf", { type: "application/pdf" });
+    const before = (await small.arrayBuffer()).byteLength;
+    const out = await addCodeStamp(small, {
+      ...BASE,
+      type: "qr",
+      size: 200,
+      content: "https://cloakpdf.app/verify/CASE-2026-000123456789",
+    });
+    const loaded = await PDFDocument.load(out);
+    expect(loaded.getPageCount()).toBe(1);
+    expect(out.byteLength).toBeGreaterThan(before);
+  });
 });
