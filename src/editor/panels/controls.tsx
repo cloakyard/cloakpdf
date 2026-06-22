@@ -261,6 +261,9 @@ export function TokenBar({ onInsert }: { onInsert: (token: string) => void }) {
   );
 }
 
+/** A labelled binary setting: text on the left, an on/off {@link Switch} on the
+ *  right. Renders the same pill switch everywhere (the look the design system
+ *  standardised on), so every settings toggle across the editor reads alike. */
 export function Toggle({
   label,
   checked,
@@ -271,15 +274,10 @@ export function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-text-muted">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus-visible:ring-primary-500"
-      />
-      {label}
-    </label>
+    <div className="flex items-center justify-between gap-3 text-sm text-slate-600 dark:text-dark-text-muted">
+      <span className="min-w-0">{label}</span>
+      <Switch checked={checked} onChange={onChange} label={label} />
+    </div>
   );
 }
 

@@ -22,6 +22,7 @@ import { PrimaryAction } from "./PrimaryAction.tsx";
 import { useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
 import {
+  ACCENT,
   type Box,
   CORNER_IDS,
   drawSelectionChrome,
@@ -37,8 +38,6 @@ const DEFAULT_WIDTH_PCT = 0.28;
 const FALLBACK_ASPECT = 2.5; // typical signature is wider than tall
 const DEFAULT_INK = "#1e293b";
 const DEFAULT_BG = "#ffffff";
-/** Selection chrome + handle affordances use the single Ocean-Blue accent. */
-const ACCENT = "#2563eb";
 /** Pointer travel (device px) before a press counts as a drag, not a tap. */
 const MOVE_THRESHOLD_PX = 4;
 

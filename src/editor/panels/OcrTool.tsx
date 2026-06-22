@@ -255,8 +255,10 @@ export function Panel() {
             type="button"
             onClick={makeSearchable}
             disabled={busy}
+            aria-busy={busy}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
+            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
             {busy ? "Working…" : "Make searchable"}
           </button>
           <button

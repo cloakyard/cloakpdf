@@ -22,6 +22,7 @@ import { PrimaryAction } from "./PrimaryAction.tsx";
 import { useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
 import {
+  ACCENT,
   type Box,
   CORNER_IDS,
   drawSelectionChrome,
@@ -35,7 +36,6 @@ import { Segmented } from "./WholeDocPanel.tsx";
 
 const TOOL_ID = "qr-stamp";
 const DEFAULT_COLOR = "#111827";
-const ACCENT = "#2563eb";
 const MOVE_THRESHOLD_PX = 4;
 /** Default placement width as a fraction of page width (QR is square-ish; a
  *  barcode is wide, so it starts wider). */

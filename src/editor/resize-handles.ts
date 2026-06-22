@@ -8,6 +8,11 @@
 // painting take the overlay canvas's device-px size so handle slop is constant
 // on screen regardless of zoom. See AnnotateTool / SignatureTool / CodeStampTool.
 
+/** The single Ocean-Blue accent (primary-600) every overlay tool paints its
+ *  selection chrome + handle affordances in. One source of truth so the canvas
+ *  layer can't drift from the design token. */
+export const ACCENT = "#2563eb";
+
 /** The eight resize handles, by compass id. */
 export type HandleId = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
 
@@ -176,7 +181,7 @@ export function drawSelectionChrome(
   h: number,
   opts: { handles?: HandleId[]; accent?: string } = {},
 ): void {
-  const accent = opts.accent ?? "#2563eb";
+  const accent = opts.accent ?? ACCENT;
   const handles = opts.handles ?? HANDLE_IDS;
   const x = b.x * w - SELECT_PAD;
   const y = b.y * h - SELECT_PAD;

@@ -300,7 +300,10 @@ export default function DigitalSignature() {
 
           {/* Existing signatures */}
           {detectingSignatures && (
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-dark-text-muted py-2">
+            <div
+              role="status"
+              className="flex items-center gap-2 text-sm text-slate-500 dark:text-dark-text-muted py-2"
+            >
               <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               Checking for existing signatures…
             </div>
