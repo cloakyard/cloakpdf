@@ -601,7 +601,7 @@ export function ExportButton() {
                       <OptionRow
                         icon={Archive}
                         label="Compress"
-                        hint="Shrink by re-rendering pages as images"
+                        hint="Shrink smartly — keep text, re-render image pages"
                         checked={compress}
                         onChange={setCompress}
                       >

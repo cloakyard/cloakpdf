@@ -37,11 +37,13 @@ type Quality = "low" | "medium" | "high";
 const QUALITIES: Quality[] = ["low", "medium", "high"];
 
 // `textDominant`: text-heavy PDFs that must stay selectable and still shrink.
-// `imageWin`: heavy (Type3-font) PDF where rasterising should win big at high.
+// `imageWin`: image/Type3-heavy PDF where rasterising should win big at high.
 const FIXTURES: { name: string; textDominant: boolean; imageWin: boolean }[] = [
   { name: "multipage.pdf", textDominant: true, imageWin: false },
   { name: "The Complete Generative AI Leader.pdf", textDominant: true, imageWin: false },
   { name: "sample.pdf", textDominant: false, imageWin: true },
+  // A genuine multi-page scanned document (Acrobat Distiller, ~200 chars).
+  { name: "Sample Scanned Doc.pdf", textDominant: false, imageWin: true },
 ];
 
 function fail(msg: string): never {
