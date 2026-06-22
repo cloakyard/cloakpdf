@@ -74,6 +74,18 @@ function LoadingSpinner() {
   );
 }
 
+/** Loading fallback for the editor route. Deliberately mirrors EditorShell's own
+ *  centred "Opening PDF…" spinner (same size, same viewport-centred position) so
+ *  the chunk-load → PDF-parse handoff shows ONE loader in ONE place — never a
+ *  top-anchored spinner followed by a centred one. */
+function EditorLoadingFallback() {
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-50 dark:bg-dark-bg">
+      <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600" />
+    </div>
+  );
+}
+
 // ── ToolView ─────────────────────────────────────────────────────
 
 interface ToolViewProps {
@@ -254,7 +266,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
    * Editor tools + export flows matching the query — rendered as an extra
    * "In the editor" section below the standalone results. Empty until the
    * user types (the resting grid shows only the standalone cards; the
-   * editor's 18 tools are reached by dropping a PDF).
+   * editor's tools are reached by dropping a PDF).
    */
   const editorMatches = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -772,7 +784,7 @@ export function App() {
   if (view.kind === "editor") {
     return (
       <>
-        <Suspense fallback={<LoadingSpinner />}>
+        <Suspense fallback={<EditorLoadingFallback />}>
           <EditorView initialFile={view.file} initialTool={view.tool ?? null} onExit={goHome} />
         </Suspense>
         <ReloadPrompt />
