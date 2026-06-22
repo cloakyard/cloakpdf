@@ -35,6 +35,11 @@ const post = (msg: CryptoWorkerResponse): void =>
   (self as unknown as { postMessage: (m: CryptoWorkerResponse) => void }).postMessage(msg);
 
 self.onmessage = (e: MessageEvent<GenerateCertRequest>) => {
+  // A dedicated worker only ever receives messages from the same-origin document
+  // that spawned it (its MessageEvent.origin is the empty string). Reject any
+  // message carrying a foreign origin before touching the payload — defence in
+  // depth against a misrouted/forged event.
+  if (e.origin && e.origin !== self.location.origin) return;
   const data = e.data;
   if (!data || data.type !== "generateCert") return;
   try {

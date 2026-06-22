@@ -25,8 +25,11 @@ import * as SmartErase from "./panels/SmartEraseTool.tsx";
 import * as StripFurniture from "./panels/StripFurnitureTool.tsx";
 import {
   BatesPanel,
+  BatesStage,
   HeaderFooterPanel,
+  HeaderFooterStage,
   PageNumbersPanel,
+  PageNumbersStage,
   WatermarkPanel,
   WatermarkStage,
 } from "./panels/StampTools.tsx";
@@ -63,12 +66,14 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
   // Security panels: load an async report on open, then apply.
   metadata: { Panel: Metadata.Panel },
   "pdf-scrub": { Panel: Scrub.Panel },
-  // Content-additive stamp-family option tools.
-  "add-page-numbers": { Panel: PageNumbersPanel },
-  "header-footer": { Panel: HeaderFooterPanel },
-  "bates-numbering": { Panel: BatesPanel },
-  // QR / barcode: options-only panel that vector-stamps a scannable code.
-  "qr-stamp": { Panel: CodeStamp.Panel },
+  // Content-additive stamp-family tools — each paints a live preview on the
+  // focused page (Stage) before Apply burns the same text into the bytes.
+  "add-page-numbers": { Stage: PageNumbersStage, Panel: PageNumbersPanel },
+  "header-footer": { Stage: HeaderFooterStage, Panel: HeaderFooterPanel },
+  "bates-numbering": { Stage: BatesStage, Panel: BatesPanel },
+  // QR / barcode: place on the page (tap), drag to move, corner-drag to resize;
+  // a vector code burns in at Apply.
+  "qr-stamp": { Stage: CodeStamp.Stage, Panel: CodeStamp.Panel },
   // Watermark: a live-preview Stage (paints the diagonal text as you tune it) +
   // the options Panel; Apply still burns it into the bytes.
   "stamp-pdf": { Stage: WatermarkStage, Panel: WatermarkPanel },

@@ -8,7 +8,13 @@
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { describe, expect, it } from "vitest";
-import { addCodeStamp, type CodeStampOptions, encodeCode128B } from "../../src/utils/pdf/codes.ts";
+import {
+  addCodeStamp,
+  addCodeStampAt,
+  type CodeArtOptions,
+  type CodeStampOptions,
+  encodeCode128B,
+} from "../../src/utils/pdf/codes.ts";
 
 async function makePdf(n: number): Promise<File> {
   const doc = await PDFDocument.create();
@@ -107,5 +113,65 @@ describe("addCodeStamp", () => {
     const loaded = await PDFDocument.load(out);
     expect(loaded.getPageCount()).toBe(1);
     expect(out.byteLength).toBeGreaterThan(before);
+  });
+});
+
+describe("addCodeStampAt", () => {
+  const ART: CodeArtOptions = {
+    type: "qr",
+    content: "https://cloakpdf.app",
+    color: { r: 0, g: 0, b: 0 },
+    caption: true,
+  };
+
+  it("draws a QR at an explicit box on the target page only", async () => {
+    const file = await makePdf(3);
+    const before = (await file.arrayBuffer()).byteLength;
+    const out = await addCodeStampAt(file, ART, [
+      { pageIndex: 1, x: 100, y: 100, width: 120, height: 120 },
+    ]);
+    const doc = await PDFDocument.load(out);
+    expect(doc.getPageCount()).toBe(3);
+    expect(out.byteLength).toBeGreaterThan(before);
+  });
+
+  it("draws a barcode (with caption) into its box", async () => {
+    const file = await makePdf(1);
+    const before = (await file.arrayBuffer()).byteLength;
+    const out = await addCodeStampAt(file, { ...ART, type: "barcode", content: "ABC-0001" }, [
+      { pageIndex: 0, x: 40, y: 60, width: 260, height: 90 },
+    ]);
+    const doc = await PDFDocument.load(out);
+    expect(doc.getPageCount()).toBe(1);
+    expect(out.byteLength).toBeGreaterThan(before);
+  });
+
+  it("burns one code per placement across several pages in one call", async () => {
+    const file = await makePdf(4);
+    const out = await addCodeStampAt(file, ART, [
+      { pageIndex: 0, x: 20, y: 20, width: 80, height: 80 },
+      { pageIndex: 2, x: 400, y: 600, width: 100, height: 100 },
+    ]);
+    const doc = await PDFDocument.load(out);
+    expect(doc.getPageCount()).toBe(4);
+  });
+
+  it("skips out-of-range pages instead of throwing", async () => {
+    const file = await makePdf(1);
+    const out = await addCodeStampAt(file, ART, [
+      { pageIndex: 9, x: 0, y: 0, width: 80, height: 80 },
+    ]);
+    // No valid placement → loadable PDF, unchanged page count.
+    const doc = await PDFDocument.load(out);
+    expect(doc.getPageCount()).toBe(1);
+  });
+
+  it("throws on empty content", async () => {
+    const file = await makePdf(1);
+    await expect(
+      addCodeStampAt(file, { ...ART, content: "  " }, [
+        { pageIndex: 0, x: 0, y: 0, width: 80, height: 80 },
+      ]),
+    ).rejects.toThrow(/Nothing to encode/);
   });
 });

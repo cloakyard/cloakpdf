@@ -261,6 +261,9 @@ export function TokenBar({ onInsert }: { onInsert: (token: string) => void }) {
   );
 }
 
+/** A labelled binary setting: text on the left, an on/off {@link Switch} on the
+ *  right. Renders the same pill switch everywhere (the look the design system
+ *  standardised on), so every settings toggle across the editor reads alike. */
 export function Toggle({
   label,
   checked,
@@ -271,14 +274,50 @@ export function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-text-muted">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus-visible:ring-primary-500"
-      />
-      {label}
-    </label>
+    <div className="flex items-center justify-between gap-3 text-sm text-slate-600 dark:text-dark-text-muted">
+      <span className="min-w-0">{label}</span>
+      <Switch checked={checked} onChange={onChange} label={label} />
+    </div>
   );
 }
+
+/** Accessible on/off pill switch — the editor's nicer alternative to a bare
+ *  checkbox for a binary mode (matches the Export modal's switch). */
+export function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-[color,background-color,transform] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+        checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
+      }`}
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+}
+
+/** A checkerboard CSS background so a transparent image reads as "no background"
+ *  in a preview swatch (instead of an opaque white card that misrepresents it). */
+export const TRANSPARENCY_CHECKER: React.CSSProperties = {
+  backgroundImage:
+    "linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%)",
+  backgroundSize: "12px 12px",
+  backgroundPosition: "0 0,0 6px,6px -6px,-6px 0",
+  backgroundColor: "#f8fafc",
+};

@@ -51,6 +51,7 @@ import {
 import { renderPagesToBlobs } from "../utils/pdf-renderer.ts";
 import { flattenDestructiveObjects, hasPendingDestructive } from "./doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
+import { Switch } from "./panels/controls.tsx";
 import { hasPendingPageChanges, ORGANIZE_ID } from "./panels/OrganizeTool.tsx";
 import { Segmented } from "./panels/WholeDocPanel.tsx";
 
@@ -135,36 +136,6 @@ function FormatCard({
         </span>
       </span>
       {selected && <Check className="h-4 w-4 shrink-0 text-primary-600 dark:text-primary-400" />}
-    </button>
-  );
-}
-
-/** Accessible on/off switch. */
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-[color,background-color,transform] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
-        checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
-      }`}
-    >
-      <span
-        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
     </button>
   );
 }

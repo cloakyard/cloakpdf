@@ -41,7 +41,11 @@ function formatDateForInput(date: Date | undefined): string {
  */
 export async function getPdfMetadata(file: File): Promise<PdfMetadata> {
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer, { updateMetadata: false });
+  // Tolerate encrypted files on read, matching getPdfInfo / scrub / compress.
+  const pdf = await PDFDocument.load(arrayBuffer, {
+    updateMetadata: false,
+    ignoreEncryption: true,
+  });
 
   return {
     title: pdf.getTitle() ?? "",
@@ -73,13 +77,19 @@ export async function setPdfMetadata(file: File, metadata: PdfMetadata): Promise
   pdf.setTitle(metadata.title);
   pdf.setAuthor(metadata.author);
   pdf.setSubject(metadata.subject);
-  pdf.setKeywords([metadata.keywords]);
   pdf.setCreator(metadata.creator);
   pdf.setProducer(metadata.producer);
 
-  // Access the Info dictionary to allow removing date entries.
+  // Access the Info dictionary to allow removing entries.
   // getInfoDict() is private on PDFDocument but available at runtime.
   const infoDict = (pdf as unknown as { getInfoDict(): PDFDict }).getInfoDict();
+  // Empty Keywords should clear the entry, not write a non-empty [""] (which a
+  // reader shows as a single blank keyword). Mirrors the date handling below.
+  if (metadata.keywords) {
+    pdf.setKeywords([metadata.keywords]);
+  } else {
+    infoDict.delete(PDFName.of("Keywords"));
+  }
   if (metadata.creationDate) {
     pdf.setCreationDate(new Date(metadata.creationDate));
   } else {

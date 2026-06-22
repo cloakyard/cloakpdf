@@ -353,3 +353,132 @@ export async function addCodeStamp(
 
   return pdf.save();
 }
+
+// ── explicit-rect placement (canvas editor) ─────────────────────────────────
+
+/** A code's target box on one page, in PDF points (bottom-left origin) — the
+ *  geometry the editor's place-then-drag-resize flow produces. */
+export interface CodePlacement {
+  pageIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** The symbology + payload + look, without the corner/size/margin fields
+ *  addCodeStamp uses for auto-placement (the box is supplied per placement). */
+export interface CodeArtOptions {
+  type: CodeStampType;
+  content: string;
+  color: { r: number; g: number; b: number };
+  caption: boolean;
+}
+
+/** Caption block height as a fraction of barcode bar height (font + gap) — the
+ *  same proportion addCodeStamp uses (0.16 font, 0.5·font gap). */
+const BARCODE_CAPTION_RATIO = 0.16 * 1.5;
+
+/**
+ * Stamp a QR code or Code 128 barcode into EXPLICIT per-page boxes, drawn as the
+ * same sharp vector art as {@link addCodeStamp} but sized to fill each box. This
+ * is the editor's place-then-drag-resize path (one box per placed object),
+ * versus addCodeStamp's corner-anchored, fixed-size, multi-page placement.
+ *
+ * @param file - The source PDF.
+ * @param options - Symbology, payload, colour, caption.
+ * @param placements - Per-page target boxes in PDF points.
+ */
+export async function addCodeStampAt(
+  file: File,
+  options: CodeArtOptions,
+  placements: CodePlacement[],
+): Promise<Uint8Array> {
+  const content = options.content.trim();
+  if (!content) throw new Error("Nothing to encode — enter the text or URL for the code.");
+
+  const pdf = await PDFDocument.load(await file.arrayBuffer());
+  const fg = rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255);
+  const white = rgb(1, 1, 1);
+  const allPages = pdf.getPages();
+
+  // Precompute the matrix / pattern once (identical for every placement).
+  let qrCount = 0;
+  let qrIsDark: (row: number, col: number) => boolean = () => false;
+  if (options.type === "qr") {
+    const qr = qrcode(0, "M");
+    qr.addData(content);
+    qr.make();
+    qrCount = qr.getModuleCount();
+    qrIsDark = (row, col) => qr.isDark(row, col);
+  }
+  const barPattern = options.type === "barcode" ? encodeCode128B(content) : "";
+  const barTotalModules = barPattern ? patternModuleWidth(barPattern) + 20 : 0;
+  const needFont = options.type === "barcode" && options.caption;
+  const font = needFont ? await pdf.embedFont(StandardFonts.Helvetica) : null;
+
+  for (const pl of placements) {
+    const page = allPages[pl.pageIndex];
+    if (!page) continue;
+
+    if (options.type === "qr") {
+      // QR is square: use the box's smaller side, top-left anchored within it.
+      const side = Math.max(1, Math.min(pl.width, pl.height));
+      const ox = pl.x;
+      const oy = pl.y + (pl.height - side); // box top
+      page.drawRectangle({ x: ox, y: oy, width: side, height: side, color: white });
+      const quiet = 4;
+      const ms = side / (qrCount + quiet * 2);
+      for (let row = 0; row < qrCount; row++) {
+        for (let col = 0; col < qrCount; col++) {
+          if (!qrIsDark(row, col)) continue;
+          page.drawRectangle({
+            x: ox + (quiet + col) * ms,
+            y: oy + side - (quiet + row + 1) * ms,
+            width: ms,
+            height: ms,
+            color: fg,
+          });
+        }
+      }
+    } else {
+      const boxW = Math.max(1, pl.width);
+      const boxH = Math.max(1, pl.height);
+      // Split the box height into the bar band + (optional) caption block, with
+      // the same proportions addCodeStamp uses so a placed code looks the same.
+      const barH = options.caption ? boxH / (1 + BARCODE_CAPTION_RATIO) : boxH;
+      const captionFontSize = options.caption ? barH * 0.16 : 0;
+      const captionBlock = boxH - barH;
+      const moduleW = boxW / barTotalModules;
+      page.drawRectangle({ x: pl.x, y: pl.y, width: boxW, height: boxH, color: white });
+      const barBottom = pl.y + captionBlock;
+      let cursor = pl.x + 10 * moduleW; // left quiet zone
+      let isBar = true;
+      for (const ch of barPattern) {
+        const runW = Number(ch) * moduleW;
+        if (isBar) {
+          page.drawRectangle({ x: cursor, y: barBottom, width: runW, height: barH, color: fg });
+        }
+        cursor += runW;
+        isBar = !isBar;
+      }
+      if (font && captionFontSize > 0) {
+        let capSize = captionFontSize;
+        let tw = font.widthOfTextAtSize(content, capSize);
+        if (tw > boxW && tw > 0) {
+          capSize = Math.max(4, (capSize * boxW) / tw);
+          tw = font.widthOfTextAtSize(content, capSize);
+        }
+        page.drawText(content, {
+          x: pl.x + (boxW - tw) / 2,
+          y: pl.y + capSize * 0.25,
+          size: capSize,
+          font,
+          color: fg,
+        });
+      }
+    }
+  }
+
+  return pdf.save();
+}

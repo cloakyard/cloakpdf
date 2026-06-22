@@ -14,6 +14,7 @@
 // OCR (Extract / Make searchable), Attachments (add / remove), Redact & Erase
 // (marks persist and burn at export — the ✓ closes, keeping them).
 
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
 
@@ -66,12 +67,14 @@ export function PrimaryAction({
       type="button"
       onClick={onApply}
       disabled={!ready}
+      aria-busy={busy}
       className={`inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
         danger
           ? "bg-red-600 hover:bg-red-700 focus-visible:ring-red-500"
           : "bg-primary-600 hover:bg-primary-700 focus-visible:ring-primary-500"
       } ${className}`}
     >
+      {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
       {busy ? "Working…" : label}
     </button>
   );
