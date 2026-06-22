@@ -59,10 +59,13 @@ const IMAGE_DPI = 150;
 type Quality = "low" | "medium" | "high";
 type Format = "pdf" | "images" | "contact" | "split" | "text" | "markdown";
 
+// Compression is smart per-page: light text/vector pages are kept lossless
+// (text stays selectable), and scanned / image-heavy pages are re-rendered only
+// when that's actually smaller — so the level below controls those pages' detail.
 const COMPRESS_INFO: Record<Quality, string> = {
-  low: "Sharpest pages, modest size drop (1× render, JPEG 85%).",
-  medium: "Balanced size vs quality — suits most documents (1.5× render, JPEG 70%).",
-  high: "Smallest file, softest pages (2× render, JPEG 50%).",
+  low: "Text pages kept sharp & selectable; image pages at high detail (2×, JPEG 82%).",
+  medium: "Text pages kept selectable; image pages balanced (1.5×, JPEG 68%).",
+  high: "Text pages kept selectable; image pages smallest & softest (1×, JPEG 50%).",
 };
 
 const FORMATS: { value: Format; icon: LucideIcon; label: string; hint: string }[] = [
@@ -598,7 +601,7 @@ export function ExportButton() {
                       <OptionRow
                         icon={Archive}
                         label="Compress"
-                        hint="Shrink by re-rendering pages as images"
+                        hint="Shrink smartly — keep text, re-render image pages"
                         checked={compress}
                         onChange={setCompress}
                       >
