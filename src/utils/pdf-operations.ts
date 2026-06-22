@@ -102,10 +102,18 @@ export { erasePdf, renderErasePreview } from "./pdf/erase.ts";
 export type { ScrubCategory, ScrubAnalysis } from "./pdf/scrub.ts";
 export { SCRUB_CATEGORIES, analyzePdfHiddenData, scrubPdf } from "./pdf/scrub.ts";
 
-export type { AnnotationColor, Annotation, TextFontId, FontFamily } from "./pdf/annotate.ts";
+export type {
+  AnnotationColor,
+  Annotation,
+  IconId,
+  IconGeometry,
+  TextFontId,
+  FontFamily,
+} from "./pdf/annotate.ts";
 export {
   annotatePdf,
   decomposeTextFont,
+  iconGeometry,
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,

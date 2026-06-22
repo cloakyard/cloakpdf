@@ -20,15 +20,19 @@
 import {
   ArrowUpRight,
   Bold,
+  Check,
   Circle,
+  CircleDot,
   Highlighter,
   Italic,
   Minus,
   MousePointer2,
   Pen,
   Square,
+  SquareCheck,
   Trash2,
   Type,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
@@ -37,11 +41,13 @@ import type {
   Annotation,
   AnnotationColor,
   FontFamily,
+  IconId,
   TextFontId,
 } from "../../utils/pdf-operations.ts";
 import {
   annotatePdf,
   decomposeTextFont,
+  iconGeometry,
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,
@@ -54,12 +60,16 @@ import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.
 import { PrimaryAction } from "./PrimaryAction.tsx";
 import { type StagePoint, useInlineEditor, useStageProps } from "../stage.tsx";
 import {
+  ACCENT,
+  type Box,
+  CORNER_IDS,
   drawSelectionChrome,
   type HandleId,
   HANDLE_CURSOR,
   HANDLE_IDS,
   hitHandle,
   resizeBBox,
+  resizeBBoxAspect,
 } from "../resize-handles.ts";
 import { Labeled, RangeField, Toggle } from "./controls.tsx";
 
@@ -68,11 +78,29 @@ const DEFAULT_HEX = "#1e293b";
 const DEFAULT_FILL_HEX = "#2563eb";
 const DEFAULT_BG_HEX = "#ffffff";
 const DEFAULT_TEXT_PT = 16;
-/** Selection chrome + drag affordances use the single Ocean-Blue accent. */
-const ACCENT = "#2563eb";
 
-type Mode = "select" | "pen" | "highlight" | "line" | "arrow" | "rect" | "ellipse" | "text";
+type Mode =
+  | "select"
+  | "pen"
+  | "highlight"
+  | "line"
+  | "arrow"
+  | "rect"
+  | "ellipse"
+  | "text"
+  | "icon";
 type TextAnnotation = Extract<Annotation, { kind: "text" }>;
+
+/** Default stamped-icon box, as a fraction of page WIDTH (kept square via the
+ *  page aspect at placement). ~5% ≈ a checkbox-sized tick on a Letter page. */
+const ICON_DEFAULT_W = 0.05;
+/** The form-glyph palette shown when the Icon tool is armed. */
+const ICON_CHOICES: { id: IconId; label: string; icon: typeof Check }[] = [
+  { id: "check", label: "Tick", icon: Check },
+  { id: "cross", label: "Cross", icon: X },
+  { id: "dot", label: "Filled dot", icon: CircleDot },
+  { id: "circle", label: "Circle", icon: Circle },
+];
 
 const PEN_THICK = 0.0035;
 const HIGHLIGHT_THICK = 0.022;
@@ -160,6 +188,7 @@ function annotationBBox(a: Annotation, w: number, h: number) {
     }
     case "rect":
     case "ellipse":
+    case "icon":
       return { x: a.x, y: a.y, w: a.w, h: a.h };
     case "line":
     case "arrow":
@@ -191,16 +220,30 @@ function annotationBBox(a: Annotation, w: number, h: number) {
  *  (stroke/line/arrow) are move-only. */
 function isResizable(a: Annotation): boolean {
   return (
-    a.kind === "rect" || a.kind === "ellipse" || (a.kind === "text" && a.w != null && a.h != null)
+    a.kind === "rect" ||
+    a.kind === "ellipse" ||
+    a.kind === "icon" ||
+    (a.kind === "text" && a.w != null && a.h != null)
   );
 }
 
-/** Write a new bbox back onto a resizable mark (rect/ellipse/box-text). */
+/** Write a new bbox back onto a resizable mark (rect/ellipse/icon/box-text). */
 function applyBBox(a: Annotation, b: { x: number; y: number; w: number; h: number }): Annotation {
-  if (a.kind === "rect" || a.kind === "ellipse" || a.kind === "text") {
+  if (a.kind === "rect" || a.kind === "ellipse" || a.kind === "text" || a.kind === "icon") {
     return { ...a, x: b.x, y: b.y, w: b.w, h: b.h };
   }
   return a;
+}
+
+/** Icons are aspect-true (a square glyph) → corner-only handles + aspect-locked
+ *  resize, exactly like a placed signature/QR stamp, so they never distort. Every
+ *  other resizable mark uses the full eight-handle free resize. */
+const handlesFor = (a: Annotation): HandleId[] => (a.kind === "icon" ? CORNER_IDS : HANDLE_IDS);
+function resizeAnnBBox(orig: Box, handle: HandleId, dx: number, dy: number, a: Annotation): Box {
+  if (a.kind === "icon") {
+    return resizeBBoxAspect(orig, handle, dx, dy, orig.h > 0 ? orig.w / orig.h : 1);
+  }
+  return resizeBBox(orig, handle, dx, dy);
 }
 
 /** Distance (px) from point (px,py) to segment (ax,ay)-(bx,by). */
@@ -250,6 +293,7 @@ function translateAnnotation(a: Annotation, dx: number, dy: number): Annotation 
       return { ...a, points: a.points.map((p) => ({ x: p.x + dx, y: p.y + dy })) };
     case "rect":
     case "ellipse":
+    case "icon":
       return { ...a, x: a.x + dx, y: a.y + dy };
     case "line":
     case "arrow":
@@ -316,6 +360,50 @@ function drawEllipsePath(
 ) {
   ctx.beginPath();
   ctx.ellipse(x + w / 2, y + h / 2, Math.abs(w / 2), Math.abs(h / 2), 0, 0, Math.PI * 2);
+}
+
+/** Paint a stamped form glyph into the largest centred square of its box, from
+ *  the shared unit-square geometry — the same description the pdf-lib burn uses,
+ *  so the preview matches the output. */
+function drawIconGlyph(
+  ctx: CanvasRenderingContext2D,
+  a: Extract<Annotation, { kind: "icon" }>,
+  w: number,
+  h: number,
+) {
+  const bx = a.x * w;
+  const by = a.y * h;
+  const bw = a.w * w;
+  const bh = a.h * h;
+  const s = Math.min(bw, bh);
+  const ox = bx + (bw - s) / 2;
+  const oy = by + (bh - s) / 2;
+  const ux = (u: number) => ox + u * s;
+  const uy = (v: number) => oy + v * s;
+  const g = iconGeometry(a.icon);
+  const col = fillStyle(a.color);
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.fillStyle = col;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = Math.max(1.5, g.weight * s);
+  for (const stroke of g.strokes) {
+    ctx.beginPath();
+    stroke.forEach((p, i) => (i ? ctx.lineTo(ux(p.x), uy(p.y)) : ctx.moveTo(ux(p.x), uy(p.y))));
+    ctx.stroke();
+  }
+  if (g.disc) {
+    ctx.beginPath();
+    ctx.arc(ux(g.disc.cx), uy(g.disc.cy), g.disc.r * s, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if (g.ring) {
+    ctx.beginPath();
+    ctx.arc(ux(g.ring.cx), uy(g.ring.cy), g.ring.r * s, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number, h: number) {
@@ -428,6 +516,8 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number,
       ctx.fillText(a.text, a.x * w, a.y * h + size);
     }
     ctx.restore();
+  } else if (a.kind === "icon") {
+    drawIconGlyph(ctx, a, w, h);
   }
 }
 
@@ -466,10 +556,12 @@ export function Stage() {
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG_HEX;
   const bgOpacity = (slice.bgOpacity as number) ?? 1;
+  const iconId = (slice.iconId as IconId) ?? "check";
 
   const color = useMemo(() => hexToRgb(colorHex), [colorHex]);
   const fillColor = useMemo(() => hexToRgb(fillHex), [fillHex]);
   const bgColor = useMemo(() => hexToRgb(bgHex), [bgHex]);
+  const pageWidthPt = doc?.pages[selectedPage]?.widthPt ?? 0;
   const pageHeightPt = doc?.pages[selectedPage]?.heightPt ?? 0;
 
   // Latch the live doc so stable handlers/effects read the freshest objects.
@@ -548,6 +640,7 @@ export function Stage() {
   const lineMode = mode === "line" || mode === "arrow";
   const textMode = mode === "text";
   const selectMode = mode === "select";
+  const iconMode = mode === "icon";
 
   const strokeOpacity = mode === "highlight" ? 0.4 : 1;
   const strokeThick = mode === "highlight" ? HIGHLIGHT_THICK : PEN_THICK;
@@ -897,7 +990,7 @@ export function Stage() {
               ? dragGeom.ann
               : (sel.payload as Annotation);
         drawSelectionChrome(ctx, annotationBBox(live, w, h), w, h, {
-          handles: isResizable(live) ? HANDLE_IDS : [],
+          handles: isResizable(live) ? handlesFor(live) : [],
           accent: ACCENT,
         });
       }
@@ -923,7 +1016,12 @@ export function Stage() {
   const onPointerDown = useCallback(
     (p: StagePoint) => {
       startRef.current = { x: p.xPct, y: p.yPct };
-      if (selectMode) {
+      // Select AND Icon mode share the interactive path: a handle starts a
+      // resize, a hit starts a drag. They differ only on a miss — Select just
+      // deselects; Icon stamps a new glyph on the tap-up (handled in onPointerUp),
+      // so an icon can be placed, then immediately moved or resized like a
+      // signature/QR stamp, all without leaving the tool.
+      if (selectMode || iconMode) {
         const { w, h } = paintWHRef.current;
         // A handle of the currently-selected resizable mark wins over hit-testing
         // other marks underneath — start a resize.
@@ -931,7 +1029,7 @@ export function Stage() {
         const selAnn = selObj?.payload as Annotation | undefined;
         if (selObj && selObj.pageIndex === selectedPage && selAnn && isResizable(selAnn)) {
           const bbox = annotationBBox(selAnn, w, h);
-          const handle = hitHandle(bbox, p.xPct * w, p.yPct * h, w, h);
+          const handle = hitHandle(bbox, p.xPct * w, p.yPct * h, w, h, handlesFor(selAnn));
           if (handle) {
             resizeStartRef.current = {
               id: selObj.id,
@@ -948,10 +1046,13 @@ export function Stage() {
         let hit: (typeof objs)[number] | null = null;
         for (let i = objs.length - 1; i >= 0; i--) {
           const o = objs[i];
+          // In Icon mode only existing icons are grabbable, so a tap on empty
+          // page (or over other marks) still stamps a new glyph.
           if (
             o.kind === "annotation" &&
             o.pageIndex === selectedPage &&
             o.payload &&
+            (selectMode || (o.payload as Annotation).kind === "icon") &&
             hitTest(o.payload as Annotation, p.xPct, p.yPct, w, h)
           ) {
             hit = o;
@@ -984,16 +1085,26 @@ export function Stage() {
         setDraftPoints([{ x: p.xPct, y: p.yPct }]);
       }
     },
-    [selectMode, boxMode, lineMode, textMode, doc, selectedPage, selectedId, patchToolState],
+    [
+      selectMode,
+      boxMode,
+      lineMode,
+      textMode,
+      iconMode,
+      doc,
+      selectedPage,
+      selectedId,
+      patchToolState,
+    ],
   );
 
   const onPointerMove = useCallback(
     (p: StagePoint) => {
-      if (selectMode) {
+      if (selectMode || iconMode) {
         const { w, h } = paintWHRef.current;
         const rs = resizeStartRef.current;
         if (rs) {
-          const nb = resizeBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy);
+          const nb = resizeAnnBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy, rs.orig);
           setResizeGeom({ id: rs.id, ann: applyBBox(rs.orig, nb) });
           return;
         }
@@ -1005,7 +1116,14 @@ export function Stage() {
           const selAnn = selObj?.payload as Annotation | undefined;
           const over =
             selObj && selObj.pageIndex === selectedPage && selAnn && isResizable(selAnn)
-              ? hitHandle(annotationBBox(selAnn, w, h), p.xPct * w, p.yPct * h, w, h)
+              ? hitHandle(
+                  annotationBBox(selAnn, w, h),
+                  p.xPct * w,
+                  p.yPct * h,
+                  w,
+                  h,
+                  handlesFor(selAnn),
+                )
               : null;
           setHoverHandle((prev) => (prev === over ? prev : over));
           return;
@@ -1043,26 +1161,53 @@ export function Stage() {
         }
       }
     },
-    [selectMode, boxMode, lineMode, textMode, doc, selectedId, selectedPage],
+    [selectMode, boxMode, lineMode, textMode, iconMode, doc, selectedId, selectedPage],
   );
 
   const onPointerUp = useCallback(
     (p: StagePoint, e: { timeStamp: number }) => {
       const s = startRef.current;
       startRef.current = null;
-      if (selectMode) {
+      if (selectMode || iconMode) {
         const rs = resizeStartRef.current;
         if (rs) {
           resizeStartRef.current = null;
           setResizeGeom(null);
-          const nb = resizeBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy);
+          const nb = resizeAnnBBox(rs.bbox, rs.handle, p.xPct - rs.sx, p.yPct - rs.sy, rs.orig);
           moveObject(rs.id, { payload: applyBBox(rs.orig, nb) }, "Resize annotation");
           return;
         }
         const ds = dragStartRef.current;
         dragStartRef.current = null;
         setDragGeom(null);
-        if (!ds) return;
+        if (!ds) {
+          // Nothing was grabbed. In Icon mode that's a tap on empty page → stamp
+          // a new glyph (sized square via the page aspect), staying armed so a
+          // form's many ticks go down one tap each. It is NOT auto-selected: tap
+          // it again to select/move/resize it.
+          if (iconMode && s) {
+            const aspect = pageWidthPt > 0 && pageHeightPt > 0 ? pageWidthPt / pageHeightPt : 1;
+            const wPct = ICON_DEFAULT_W;
+            const hPct = wPct * aspect;
+            const x = Math.min(Math.max(0, p.xPct - wPct / 2), Math.max(0, 1 - wPct));
+            const y = Math.min(Math.max(0, p.yPct - hPct / 2), Math.max(0, 1 - hPct));
+            addObject({
+              kind: "annotation",
+              pageIndex: selectedPage,
+              payload: {
+                kind: "icon",
+                icon: iconId,
+                pageIndex: selectedPage,
+                x,
+                y,
+                w: wPct,
+                h: hPct,
+                color,
+              },
+            });
+          }
+          return;
+        }
         if (ds.moved) {
           // Recompute the final geometry from the start ref + this point (like
           // the draft-box commit) so it never depends on the live dragGeom state.
@@ -1175,6 +1320,8 @@ export function Stage() {
       boxMode,
       lineMode,
       textMode,
+      iconMode,
+      iconId,
       mode,
       color,
       fill,
@@ -1186,6 +1333,7 @@ export function Stage() {
       patchToolState,
       flushPenFrame,
       doc,
+      pageWidthPt,
       pageHeightPt,
       openNewText,
       openEditText,
@@ -1206,13 +1354,16 @@ export function Stage() {
   }, [flushPenFrame]);
 
   useStageProps({
-    cursor: textMode
-      ? "crosshair"
+    // Over a selected mark's resize handle → directional cursor (Select + Icon).
+    // Otherwise: Select rests at default; Icon shows "copy" (tap to drop a stamp,
+    // like signature/QR); the drawing tools show a crosshair.
+    cursor: hoverHandle
+      ? HANDLE_CURSOR[hoverHandle]
       : selectMode
-        ? hoverHandle
-          ? HANDLE_CURSOR[hoverHandle]
-          : "default"
-        : "crosshair",
+        ? "default"
+        : iconMode
+          ? "copy"
+          : "crosshair",
     paintOverlay,
     onPointerDown,
     onPointerMove,
@@ -1232,6 +1383,7 @@ const MODES: { id: Mode; label: string; icon: typeof Pen }[] = [
   { id: "rect", label: "Rectangle", icon: Square },
   { id: "ellipse", label: "Oval", icon: Circle },
   { id: "text", label: "Text", icon: Type },
+  { id: "icon", label: "Icons", icon: SquareCheck },
 ];
 
 /** A square Bold / Italic toggle, matching the selected-look used across pickers. */
@@ -1325,6 +1477,7 @@ export function Panel() {
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG_HEX;
   const bgOpacity = (slice.bgOpacity as number) ?? 1;
+  const iconId = (slice.iconId as IconId) ?? "check";
   const sizeHint = slice.sizeHint as string | undefined;
 
   const objects = doc?.objects ?? [];
@@ -1332,6 +1485,7 @@ export function Panel() {
   const selObj = selectedId ? objects.find((o) => o.id === selectedId) : undefined;
   const selAnn = selObj?.payload as Annotation | undefined;
   const isTextSel = selAnn?.kind === "text";
+  const isIconMode = mode === "icon";
   const selPageHeightPt = selObj ? (doc?.pages[selObj.pageIndex]?.heightPt ?? 0) : 0;
 
   // Coalesce live object edits into one undo step (a slider drag = one entry).
@@ -1573,6 +1727,42 @@ export function Panel() {
       ) : (
         showShapeColor && (
           <>
+            {isIconMode && (
+              <Labeled label="Icon">
+                <div className="grid grid-cols-4 gap-1.5">
+                  {ICON_CHOICES.map((c) => {
+                    const Ico = c.icon;
+                    // When an icon is selected, the palette reflects (and edits)
+                    // THAT glyph; otherwise it sets the next-placed glyph.
+                    const selIcon = selAnn?.kind === "icon" ? selAnn.icon : undefined;
+                    const on = (selIcon ?? iconId) === c.id;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          patchToolState(TOOL_ID, { iconId: c.id });
+                          if (selObj && selAnn?.kind === "icon") {
+                            updateObject(selObj.id, { payload: { ...selAnn, icon: c.id } });
+                            scheduleCommit("Change icon");
+                          }
+                        }}
+                        aria-pressed={on}
+                        aria-label={c.label}
+                        title={c.label}
+                        className={`flex h-10 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                          on
+                            ? "border-primary-600 bg-primary-600 text-white"
+                            : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
+                        }`}
+                      >
+                        <Ico className="h-5 w-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </Labeled>
+            )}
             <Labeled label={showFill ? "Stroke" : "Colour"}>
               <ColorPicker value={colorHex} onChange={onShapeColor} />
             </Labeled>
@@ -1617,7 +1807,9 @@ export function Panel() {
           ? "Tap a mark to select, drag to move (arrow keys nudge, Shift = bigger step), pull a handle to resize, Delete to remove. Double-click a text box to edit it."
           : mode === "text"
             ? "Drag a box on the page, then type inside it — text wraps to the box. Or tap for a default box. Drag or resize it any time."
-            : "Draw on the page; the mark is selected so you can drag or resize it. Page text stays selectable."}
+            : mode === "icon"
+              ? "Tap the page to stamp the chosen icon — great for ticking boxes or filling radios on a printed form. Tap an existing icon to select it, then drag to move or pull a corner to resize. Delete removes the selected one."
+              : "Draw on the page; the mark is selected so you can drag or resize it. Page text stays selectable."}
       </p>
     </div>
   );
