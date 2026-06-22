@@ -153,18 +153,20 @@ export function resizeBBoxAspect(
   const targetY = (north ? orig.y : bottom) + dy;
 
   // Free width/height from the anchor to the pointer, then "contain" to aspect
-  // (follow whichever axis moved least so the box stays under the cursor).
+  // (follow whichever axis moved least so the box stays under the cursor). When
+  // the pointer is wider than the aspect, constrain width to the height; when
+  // taller, keep the width as-is — height is derived from the clamped width below
+  // either way, so there's nothing to assign in the "taller" case.
   let nw = Math.abs(targetX - anchorX);
-  let nh = Math.abs(targetY - anchorY);
-  if (nw / nh > aspect) nw = nh * aspect;
-  else nh = nw / aspect;
+  const nh0 = Math.abs(targetY - anchorY);
+  if (nw / nh0 > aspect) nw = nh0 * aspect;
 
   // Clamp to the page: room available from the anchor in the drag direction.
   const roomX = west ? anchorX : 1 - anchorX;
   const roomY = north ? anchorY : 1 - anchorY;
   const maxW = Math.min(roomX, roomY * aspect);
   nw = Math.min(Math.max(minFrac, nw), Math.max(minFrac, maxW));
-  nh = nw / aspect;
+  const nh = nw / aspect;
 
   const x = west ? anchorX - nw : anchorX;
   const y = north ? anchorY - nh : anchorY;

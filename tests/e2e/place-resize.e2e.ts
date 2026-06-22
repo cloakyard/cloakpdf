@@ -16,7 +16,7 @@
  * Run:  node --experimental-strip-types tests/e2e/place-resize.e2e.ts
  */
 
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { deflateSync } from "node:zlib";
@@ -29,7 +29,9 @@ const CHROME_PATH =
 const FIXTURE_PATH = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
 const USER_DATA_DIR =
   process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile-editor");
-const SHOT_DIR = process.env.SHOT_DIR ?? tmpdir();
+// A per-run unique temp dir (not a predictable path in the shared temp dir) so
+// the screenshots/fixtures can't collide or be pre-created by another process.
+const SHOT_DIR = process.env.SHOT_DIR ?? mkdtempSync(join(tmpdir(), "cloakpdf-e2e-"));
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);
