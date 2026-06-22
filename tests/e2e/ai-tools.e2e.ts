@@ -580,14 +580,29 @@ async function main() {
     // selector timeout to 90 s so we don't false-fail on slower
     // disks.
     console.log("→ Waiting for warm-cache auto-load + file drop zone (no clicks)…");
-    const fileInput2 = await page
-      .waitForSelector('input[type="file"]', { timeout: 90_000 })
+    // CRITICAL: confirm we're on the Ask PDF TOOL (its models-ready drop hint)
+    // before grabbing any file input. After a reload the home grid is the first
+    // thing painted and the card-click navigation is async, so a bare
+    // `input[type=file]` selector can match the HOME drop zone (still in the DOM
+    // during the view transition). Uploading there opens the EDITOR, not Ask
+    // PDF — and the composer never appears, which used to read as a false
+    // "stuck at Preparing" regression. The hint is tool-only (it isn't the
+    // home card's "runs entirely on-device" description), so it pins us to the
+    // tool with models ready.
+    await page
+      .waitForFunction(() => /drop a PDF to start chatting/i.test(document.body.innerText), {
+        timeout: 90_000,
+      })
       .catch(() =>
         bail(
-          "Warm-cache file input never appeared — auto-load stalled before rag.status reached 'ready'.",
+          "Warm-cache: Ask PDF tool (models-ready) never rendered after reload — auto-load stalled before rag.status reached 'ready'.",
         ),
       );
-    if (!fileInput2) bail("File input not found after reload.");
+    // Now the home view is gone; the only remaining file input is Ask PDF's.
+    // Take the last one defensively in case any hidden input lingers.
+    const askInputs = await page.$$('input[type="file"]');
+    const fileInput2 = askInputs.at(-1) ?? null;
+    if (!fileInput2) bail("Ask PDF file input not found after reload.");
     console.log("→ Re-uploading fixture…");
     await (fileInput2 as { uploadFile: (...p: string[]) => Promise<void> }).uploadFile(
       FIXTURE_PATH,
