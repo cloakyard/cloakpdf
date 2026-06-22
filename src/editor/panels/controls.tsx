@@ -282,3 +282,44 @@ export function Toggle({
     </label>
   );
 }
+
+/** Accessible on/off pill switch — the editor's nicer alternative to a bare
+ *  checkbox for a binary mode (matches the Export modal's switch). */
+export function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-[color,background-color,transform] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+        checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
+      }`}
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+}
+
+/** A checkerboard CSS background so a transparent image reads as "no background"
+ *  in a preview swatch (instead of an opaque white card that misrepresents it). */
+export const TRANSPARENCY_CHECKER: React.CSSProperties = {
+  backgroundImage:
+    "linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%)",
+  backgroundSize: "12px 12px",
+  backgroundPosition: "0 0,0 6px,6px -6px,-6px 0",
+  backgroundColor: "#f8fafc",
+};

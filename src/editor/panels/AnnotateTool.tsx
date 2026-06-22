@@ -53,6 +53,14 @@ import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 import { type StagePoint, useInlineEditor, useStageProps } from "../stage.tsx";
+import {
+  drawSelectionChrome,
+  type HandleId,
+  HANDLE_CURSOR,
+  HANDLE_IDS,
+  hitHandle,
+  resizeBBox,
+} from "../resize-handles.ts";
 import { Labeled, RangeField, Toggle } from "./controls.tsx";
 
 const TOOL_ID = "annotate-pdf";
@@ -75,25 +83,6 @@ const DEFAULT_TEXT_W = 0.34;
 const DEFAULT_TEXT_H = 0.1;
 /** Smallest box a drag must cover to count as a custom region (else a tap). */
 const MIN_DRAG_FRAC = 0.02;
-/** Min box size (fractions) a resize can shrink a rect/oval/text box to. */
-const MIN_BOX_FRAC = 0.015;
-/** Hit slop (device px) around a resize handle. */
-const HANDLE_TOL_PX = 11;
-/** Painted half-size (device px) of a resize handle square. */
-const HANDLE_HALF_PX = 4;
-/** The eight resize handles, by compass id. */
-type HandleId = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
-const HANDLE_IDS: HandleId[] = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
-const HANDLE_CURSOR: Record<HandleId, string> = {
-  nw: "nwse-resize",
-  n: "ns-resize",
-  ne: "nesw-resize",
-  e: "ew-resize",
-  se: "nwse-resize",
-  s: "ns-resize",
-  sw: "nesw-resize",
-  w: "ew-resize",
-};
 /** Pointer travel (device px) before a select-mode press counts as a drag, not a
  *  click — keeps a tap-to-select from committing a zero-distance move. */
 const MOVE_THRESHOLD_PX = 4;
@@ -204,77 +193,6 @@ function isResizable(a: Annotation): boolean {
   return (
     a.kind === "rect" || a.kind === "ellipse" || (a.kind === "text" && a.w != null && a.h != null)
   );
-}
-
-/** Device-px centres of the eight handles around a fraction bbox (+chrome pad). */
-function handleCenters(
-  b: { x: number; y: number; w: number; h: number },
-  w: number,
-  h: number,
-): Record<HandleId, { x: number; y: number }> {
-  const pad = 3;
-  const x0 = b.x * w - pad;
-  const y0 = b.y * h - pad;
-  const x1 = (b.x + b.w) * w + pad;
-  const y1 = (b.y + b.h) * h + pad;
-  const mx = (x0 + x1) / 2;
-  const my = (y0 + y1) / 2;
-  return {
-    nw: { x: x0, y: y0 },
-    n: { x: mx, y: y0 },
-    ne: { x: x1, y: y0 },
-    e: { x: x1, y: my },
-    se: { x: x1, y: y1 },
-    s: { x: mx, y: y1 },
-    sw: { x: x0, y: y1 },
-    w: { x: x0, y: my },
-  };
-}
-
-/** Which handle (if any) the device-px point lands on for the given bbox. */
-function hitHandle(
-  b: { x: number; y: number; w: number; h: number },
-  px: number,
-  py: number,
-  w: number,
-  h: number,
-): HandleId | null {
-  const centers = handleCenters(b, w, h);
-  for (const id of HANDLE_IDS) {
-    const c = centers[id];
-    if (Math.abs(px - c.x) <= HANDLE_TOL_PX && Math.abs(py - c.y) <= HANDLE_TOL_PX) return id;
-  }
-  return null;
-}
-
-/** Resize a fraction bbox by dragging `handle` by a fraction delta, keeping the
- *  opposite edge(s) pinned and clamping to a minimum size within the page. */
-function resizeBBox(
-  orig: { x: number; y: number; w: number; h: number },
-  handle: HandleId,
-  dx: number,
-  dy: number,
-): { x: number; y: number; w: number; h: number } {
-  let { x, y, w, h } = orig;
-  const right = orig.x + orig.w;
-  const bottom = orig.y + orig.h;
-  if (handle.includes("w")) {
-    x = Math.min(orig.x + dx, right - MIN_BOX_FRAC);
-    x = Math.max(0, x);
-    w = right - x;
-  }
-  if (handle.includes("e")) {
-    w = Math.max(MIN_BOX_FRAC, Math.min(orig.w + dx, 1 - orig.x));
-  }
-  if (handle.includes("n")) {
-    y = Math.min(orig.y + dy, bottom - MIN_BOX_FRAC);
-    y = Math.max(0, y);
-    h = bottom - y;
-  }
-  if (handle.includes("s")) {
-    h = Math.max(MIN_BOX_FRAC, Math.min(orig.h + dy, 1 - orig.y));
-  }
-  return { x, y, w, h };
 }
 
 /** Write a new bbox back onto a resizable mark (rect/ellipse/box-text). */
@@ -511,62 +429,6 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number,
     }
     ctx.restore();
   }
-}
-
-/** Dashed selection box around a mark's bbox, with square resize handles when
- *  the mark is resizable (rect / oval / box-text) — corners only for thin marks. */
-function drawSelectionChrome(
-  ctx: CanvasRenderingContext2D,
-  b: { x: number; y: number; w: number; h: number },
-  w: number,
-  h: number,
-  resizable: boolean,
-) {
-  const pad = 3;
-  const x = b.x * w - pad;
-  const y = b.y * h - pad;
-  const bw = b.w * w + pad * 2;
-  const bh = b.h * h + pad * 2;
-  ctx.save();
-  ctx.strokeStyle = ACCENT;
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 3]);
-  ctx.strokeRect(x, y, bw, bh);
-  ctx.setLineDash([]);
-  if (resizable) {
-    // Eight grab handles (white fill + accent border so they read on any page).
-    const centers = handleCenters(b, w, h);
-    ctx.lineWidth = 1.5;
-    for (const id of HANDLE_IDS) {
-      const c = centers[id];
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(
-        c.x - HANDLE_HALF_PX,
-        c.y - HANDLE_HALF_PX,
-        HANDLE_HALF_PX * 2,
-        HANDLE_HALF_PX * 2,
-      );
-      ctx.strokeStyle = ACCENT;
-      ctx.strokeRect(
-        c.x - HANDLE_HALF_PX,
-        c.y - HANDLE_HALF_PX,
-        HANDLE_HALF_PX * 2,
-        HANDLE_HALF_PX * 2,
-      );
-    }
-  } else {
-    ctx.fillStyle = ACCENT;
-    const hs = 3;
-    for (const [hx, hy] of [
-      [x, y],
-      [x + bw, y],
-      [x, y + bh],
-      [x + bw, y + bh],
-    ]) {
-      ctx.fillRect(hx - hs, hy - hs, hs * 2, hs * 2);
-    }
-  }
-  ctx.restore();
 }
 
 /** What the inline editor is anchored to. Style is read live from the slice so
@@ -1034,7 +896,10 @@ export function Stage() {
             : dragGeom && dragGeom.id === sel.id
               ? dragGeom.ann
               : (sel.payload as Annotation);
-        drawSelectionChrome(ctx, annotationBBox(live, w, h), w, h, isResizable(live));
+        drawSelectionChrome(ctx, annotationBBox(live, w, h), w, h, {
+          handles: isResizable(live) ? HANDLE_IDS : [],
+          accent: ACCENT,
+        });
       }
     },
     [

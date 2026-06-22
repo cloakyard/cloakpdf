@@ -63,8 +63,13 @@ export {
   addBatesNumbers,
 } from "./pdf/stamps.ts";
 
-export type { CodeStampType, CodeStampOptions } from "./pdf/codes.ts";
-export { addCodeStamp, encodeCode128B } from "./pdf/codes.ts";
+export type {
+  CodeStampType,
+  CodeStampOptions,
+  CodeArtOptions,
+  CodePlacement,
+} from "./pdf/codes.ts";
+export { addCodeStamp, addCodeStampAt, encodeCode128B } from "./pdf/codes.ts";
 
 export type { TokenContext, TokenDef } from "./pdf/tokens.ts";
 export { STAMP_TOKENS, resolveStampTokens, hasStampToken, baseFileName } from "./pdf/tokens.ts";
