@@ -60,9 +60,9 @@ type Quality = "low" | "medium" | "high";
 type Format = "pdf" | "images" | "contact" | "split" | "text" | "markdown";
 
 const COMPRESS_INFO: Record<Quality, string> = {
-  low: "Sharpest pages, modest size drop (1× render, JPEG 85%).",
-  medium: "Balanced size vs quality — suits most documents (1.5× render, JPEG 70%).",
-  high: "Smallest file, softest pages (2× render, JPEG 50%).",
+  low: "Sharpest pages, modest size drop (2× render, JPEG 82%).",
+  medium: "Balanced size vs quality — suits most documents (1.5× render, JPEG 68%).",
+  high: "Smallest file, softest pages (1× render, JPEG 50%).",
 };
 
 const FORMATS: { value: Format; icon: LucideIcon; label: string; hint: string }[] = [

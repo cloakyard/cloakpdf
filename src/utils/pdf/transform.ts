@@ -16,10 +16,19 @@ import { clampScaleForCanvas, decodeImageToPngBytes, getPdfJs } from "./raster.t
  * re-embedded into a brand-new PDF document. Vector content and selectable
  * text are lost, but the file size can be dramatically reduced.
  *
+ * The render `scale` is pure supersampling — the output page is always sized
+ * at 1.0× (`origViewport` below), so `scale` only sets how many pixels the JPEG
+ * carries. More pixels → bigger JPEG. Higher compression therefore renders at a
+ * *lower* scale (fewer pixels, also faster + less memory), not a higher one.
+ *
  * Quality presets:
- *   - `low`    → scale 1.0×, JPEG quality 85% (lightest compression)
- *   - `medium` → scale 1.5×, JPEG quality 70% (balanced)
- *   - `high`   → scale 2.0×, JPEG quality 50% (maximum compression)
+ *   - `low`    → scale 2.0×, JPEG quality 82% (sharpest pages, lightest drop)
+ *   - `medium` → scale 1.5×, JPEG quality 68% (balanced)
+ *   - `high`   → scale 1.0×, JPEG quality 50% (smallest file, softest pages)
+ *
+ * Rasterising a text/vector PDF can produce a *larger* file than the original
+ * at any preset, so we keep the smaller of (original, rasterised) and never
+ * hand back an inflated "compressed" file.
  *
  * @param file - The PDF file to compress.
  * @param quality - Compression preset: "low", "medium", or "high".
@@ -31,9 +40,9 @@ export async function compressPdf(
   onProgress?: (rendered: number, total: number) => void,
 ): Promise<Uint8Array> {
   const qualitySettings = {
-    low: { scale: 1.0, jpegQuality: 0.85 },
-    medium: { scale: 1.5, jpegQuality: 0.7 },
-    high: { scale: 2.0, jpegQuality: 0.5 },
+    low: { scale: 2.0, jpegQuality: 0.82 },
+    medium: { scale: 1.5, jpegQuality: 0.68 },
+    high: { scale: 1.0, jpegQuality: 0.5 },
   };
 
   const { scale, jpegQuality } = qualitySettings[quality];
@@ -94,9 +103,18 @@ export async function compressPdf(
       await new Promise((r) => setTimeout(r, 0));
     }
 
-    return await newPdf.save({
+    const compressed = await newPdf.save({
       useObjectStreams: true,
     });
+
+    // Rasterising a text/vector PDF can weigh more than the original. If we
+    // didn't actually shrink it, return the source bytes untouched rather than
+    // hand back a bigger "compressed" file. Re-read from the File — the
+    // arrayBuffer above may have been detached by the PDF.js worker.
+    if (compressed.byteLength >= file.size) {
+      return new Uint8Array(await file.arrayBuffer());
+    }
+    return compressed;
   } finally {
     // Always release the PDF.js document + worker session, even on a mid-page throw.
     void loadingTask.destroy();
