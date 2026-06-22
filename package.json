@@ -20,7 +20,7 @@
     "@langchain/core": "^1.2.0",
     "@langchain/langgraph": "^1.4.4",
     "@llamaindex/liteparse-wasm": "^2.1.1",
-    "@pdfme/pdf-lib": "^6.1.8",
+    "@pdfme/pdf-lib": "^6.1.9",
     "jszip": "^3.10.1",
     "lucide-react": "^1.21.0",
     "motion": "^12.40.0",
