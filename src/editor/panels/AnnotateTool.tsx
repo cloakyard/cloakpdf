@@ -158,7 +158,11 @@ const decomposeFont = decomposeTextFont;
  *  box matches what's drawn (and burned). */
 function cssFont(id: TextFontId | undefined, sizePx: number): string {
   const { family, bold, italic } = decomposeFont(id ?? "helvetica");
-  return `${italic ? "italic " : ""}${bold ? 700 : 400} ${sizePx}px ${FAMILY_CSS[family]}`;
+  // Only synthesize italic when the family actually ships one — otherwise the
+  // browser fakes an oblique that the PDF burn can't (it falls back to upright),
+  // which would break WYSIWYG for e.g. an old `oswald-italic` draft.
+  const useItalic = italic && FAMILY_HAS_ITALIC[family];
+  return `${useItalic ? "italic " : ""}${bold ? 700 : 400} ${sizePx}px ${FAMILY_CSS[family]}`;
 }
 
 // One reused offscreen 2d ctx for measuring label widths in hit-testing (kept
@@ -1506,7 +1510,11 @@ function FontControls({
         <div className="min-w-0 flex-1">
           <Select
             value={family}
-            onChange={(f) => onChange({ family: f })}
+            // Switching to a family with no italic clears a stale italic flag, so
+            // it doesn't silently re-apply when switching back to one that has it.
+            onChange={(f) =>
+              onChange(FAMILY_HAS_ITALIC[f] ? { family: f } : { family: f, italic: false })
+            }
             ariaLabel="Font family"
             options={FAMILIES.map((f) => ({
               value: f,

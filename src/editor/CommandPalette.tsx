@@ -130,21 +130,28 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     setActive((a) => (a >= results.length ? 0 : a));
   }, [results.length]);
 
-  // Scroll-lock + focus the input while open. Mirrors ExportModal's idiom.
+  // Scroll-lock + focus the input while open. Mirrors ExportModal's idiom. On
+  // close, return focus to whatever opened the palette (the rail's Search button
+  // or the canvas) so keyboard users aren't dumped back on <body>.
   useEffect(() => {
     if (!open) return;
+    const restoreTo = document.activeElement as HTMLElement | null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     inputRef.current?.focus();
     return () => {
       document.body.style.overflow = prev;
+      restoreTo?.focus?.();
     };
   }, [open]);
 
-  // Keep the highlighted row in view as the user arrows through a long list.
+  // Keep the highlighted row in view as the user arrows through a long list,
+  // honouring a reduced-motion preference (matches the tool rail's auto-scroll).
   useEffect(() => {
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     listRef.current?.querySelector<HTMLElement>(`[data-idx="${active}"]`)?.scrollIntoView({
       block: "nearest",
+      behavior: reduce ? "auto" : "smooth",
     });
   }, [active]);
 
@@ -198,6 +205,10 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             }}
             onKeyDown={onKeyDown}
             type="text"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-listbox"
+            aria-activedescendant={results.length ? `command-palette-opt-${active}` : undefined}
             placeholder="Search tools and actions…"
             aria-label="Search tools and actions"
             className="h-12 min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-dark-text dark:placeholder:text-dark-text-muted"
@@ -209,7 +220,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
         <div
           ref={listRef}
+          id="command-palette-listbox"
           role="listbox"
+          aria-label="Tools and actions"
           className="thin-scrollbar min-h-0 flex-1 overflow-y-auto p-1.5"
         >
           {results.length === 0 ? (
@@ -223,6 +236,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
               return (
                 <button
                   key={cmd.id}
+                  id={`command-palette-opt-${i}`}
                   type="button"
                   data-idx={i}
                   role="option"
