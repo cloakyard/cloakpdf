@@ -109,16 +109,23 @@ export type {
   IconGeometry,
   TextFontId,
   FontFamily,
+  FontCategory,
+  FontFamilyMeta,
 } from "./pdf/annotate.ts";
 export {
   annotatePdf,
   decomposeTextFont,
+  embeddedFontUrl,
+  FONT_FAMILIES,
+  fontFamilyMeta,
   iconGeometry,
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,
   TEXT_LINE_EM,
   TEXT_FONT_IDS,
+  UNDERLINE_DROP_EM,
+  UNDERLINE_WEIGHT_EM,
   wrapTextToWidth,
 } from "./pdf/annotate.ts";
 

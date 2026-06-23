@@ -32,6 +32,7 @@ import {
   SquareCheck,
   Trash2,
   Type,
+  Underline,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -47,11 +48,14 @@ import type {
 import {
   annotatePdf,
   decomposeTextFont,
+  FONT_FAMILIES,
   iconGeometry,
   resolveTextFont,
   TEXT_BG_HEIGHT_EM,
   TEXT_BG_PAD_EM,
   TEXT_LINE_EM,
+  UNDERLINE_DROP_EM,
+  UNDERLINE_WEIGHT_EM,
   wrapTextToWidth,
 } from "../../utils/pdf-operations.ts";
 import { extractPageTextGeometry, type LayoutPage } from "../../utils/layout-extract.ts";
@@ -126,18 +130,23 @@ const ARROW_DIRS: Record<string, [number, number]> = {
   ArrowDown: [0, 1],
 };
 
-/** CSS family stack mirroring each standard-14 family for the on-canvas preview. */
-const FAMILY_CSS: Record<FontFamily, string> = {
-  helvetica: "Helvetica, Arial, sans-serif",
-  times: '"Times New Roman", Times, serif',
-  courier: '"Courier New", Courier, monospace',
-};
-const FAMILY_LABEL: Record<FontFamily, string> = {
-  helvetica: "Helvetica",
-  times: "Times",
-  courier: "Courier",
-};
-const FAMILIES: FontFamily[] = ["helvetica", "times", "courier"];
+// Font picker data, derived from the single FONT_FAMILIES registry in annotate.ts
+// so the UI, the on-canvas preview, and the PDF burn can never disagree. Each
+// family's CSS stack mirrors what gets embedded; the @font-face that backs an
+// embedded family is declared in src/fonts.css.
+const FAMILY_CSS = Object.fromEntries(FONT_FAMILIES.map((f) => [f.id, f.cssStack])) as Record<
+  FontFamily,
+  string
+>;
+const FAMILY_LABEL = Object.fromEntries(FONT_FAMILIES.map((f) => [f.id, f.label])) as Record<
+  FontFamily,
+  string
+>;
+/** Whether a family ships italic variants (false → Italic toggle is a no-op). */
+const FAMILY_HAS_ITALIC = Object.fromEntries(
+  FONT_FAMILIES.map((f) => [f.id, f.hasItalic]),
+) as Record<FontFamily, boolean>;
+const FAMILIES: FontFamily[] = FONT_FAMILIES.map((f) => f.id);
 
 // Font id ↔ (family, bold, italic) resolution lives with the font model in
 // annotate.ts so the burn path and this UI agree (and it's unit-tested there).
@@ -495,7 +504,17 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number,
       );
       const lineH = size * TEXT_LINE_EM;
       lines.forEach((ln, i) => {
-        if (ln) ctx.fillText(ln, a.x * w + padX, a.y * h + size + i * lineH);
+        if (!ln) return;
+        const bx = a.x * w + padX;
+        const by = a.y * h + size + i * lineH;
+        ctx.fillText(ln, bx, by);
+        if (a.underline)
+          ctx.fillRect(
+            bx,
+            by + size * UNDERLINE_DROP_EM,
+            ctx.measureText(ln).width,
+            Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
+          );
       });
     } else {
       // Legacy point text: anchor `y` is the box top, baseline one size below it,
@@ -513,7 +532,15 @@ function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number,
         ctx.globalAlpha = 1;
       }
       ctx.fillStyle = col;
-      ctx.fillText(a.text, a.x * w, a.y * h + size);
+      const by = a.y * h + size;
+      ctx.fillText(a.text, a.x * w, by);
+      if (a.underline)
+        ctx.fillRect(
+          a.x * w,
+          by + size * UNDERLINE_DROP_EM,
+          ctx.measureText(a.text).width,
+          Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
+        );
     }
     ctx.restore();
   } else if (a.kind === "icon") {
@@ -552,6 +579,7 @@ export function Stage() {
   const textFamily = (slice.textFamily as FontFamily) ?? "helvetica";
   const textBold = (slice.textBold as boolean) ?? false;
   const textItalic = (slice.textItalic as boolean) ?? false;
+  const textUnderline = (slice.textUnderline as boolean) ?? false;
   const textSizePt = (slice.textSizePt as number) ?? DEFAULT_TEXT_PT;
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG_HEX;
@@ -569,6 +597,35 @@ export function Stage() {
   docRef.current = doc;
   const textSizePtRef = useRef(textSizePt);
   textSizePtRef.current = textSizePt;
+
+  // Embedded fonts paint on the overlay canvas only once their FontFace has
+  // loaded (the inline-edit textarea auto-loads via @font-face; the canvas can't
+  // wait, so it'd fall back). Load the faces every placed text label needs (plus
+  // the current placement font), and bump `fontTick` to repaint when one lands.
+  const [fontTick, setFontTick] = useState(0);
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.fonts) return;
+    const ids = new Set<string>();
+    for (const o of doc?.objects ?? []) {
+      const ann = o.kind === "annotation" ? (o.payload as Annotation | undefined) : undefined;
+      if (ann?.kind === "text" && ann.font) ids.add(ann.font);
+    }
+    ids.add(resolveFont(textFamily, textBold, textItalic));
+    let cancelled = false;
+    for (const id of ids) {
+      const f = cssFont(id as TextFontId, 16);
+      if (document.fonts.check(f)) continue;
+      document.fonts
+        .load(f)
+        .then(() => {
+          if (!cancelled) setFontTick((t) => t + 1);
+        })
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [doc, textFamily, textBold, textItalic]);
 
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const [draftPoints, setDraftPoints] = useState<{ x: number; y: number }[] | null>(null);
@@ -732,7 +789,8 @@ export function Stage() {
       initialText: ed.initialText,
       fontCss: FAMILY_CSS[textFamily],
       fontWeight: textBold ? 700 : 400,
-      fontStyle: textItalic ? "italic" : "normal",
+      fontStyle: textItalic && FAMILY_HAS_ITALIC[textFamily] ? "italic" : "normal",
+      textDecoration: textUnderline ? "underline" : "none",
       colorHex,
       sizeFrac,
       ...(ed.wPct != null && ed.hPct != null ? { boxWFrac: ed.wPct, boxHFrac: ed.hPct } : {}),
@@ -756,6 +814,7 @@ export function Stage() {
               sizeFrac,
               color,
               font: fontId,
+              ...(textUnderline ? { underline: true } : {}),
               ...(bgEnabled ? { bg: { color: bgColor, opacity: bgOpacity } } : {}),
             },
           });
@@ -785,6 +844,7 @@ export function Stage() {
     textFamily,
     textBold,
     textItalic,
+    textUnderline,
     textSizePt,
     colorHex,
     color,
@@ -832,6 +892,7 @@ export function Stage() {
       textFamily: family,
       textBold: bold,
       textItalic: italic,
+      textUnderline: !!ann.underline,
       ...(ph > 0 ? { textSizePt: Math.round(ann.sizeFrac * ph) } : {}),
       colorHex: rgbToHex(ann.color.r, ann.color.g, ann.color.b),
       bgEnabled: !!ann.bg,
@@ -1010,6 +1071,7 @@ export function Stage() {
       dragGeom,
       resizeGeom,
       editing,
+      fontTick,
     ],
   );
 
@@ -1392,19 +1454,22 @@ function StyleToggle({
   onClick,
   label,
   icon: Icon,
+  disabled = false,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   icon: typeof Bold;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={active}
       aria-label={label}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:pointer-events-none ${
         active
           ? "border-primary-600 bg-primary-600 text-white"
           : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
@@ -1420,13 +1485,21 @@ function FontControls({
   family,
   bold,
   italic,
+  underline,
   onChange,
 }: {
   family: FontFamily;
   bold: boolean;
   italic: boolean;
-  onChange: (patch: { family?: FontFamily; bold?: boolean; italic?: boolean }) => void;
+  underline: boolean;
+  onChange: (patch: {
+    family?: FontFamily;
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+  }) => void;
 }) {
+  const italicAvailable = FAMILY_HAS_ITALIC[family];
   return (
     <Labeled label="Font">
       <div className="flex items-center gap-1.5">
@@ -1449,10 +1522,17 @@ function FontControls({
           icon={Bold}
         />
         <StyleToggle
-          active={italic}
+          active={italic && italicAvailable}
           onClick={() => onChange({ italic: !italic })}
-          label="Italic"
+          label={italicAvailable ? "Italic" : "Italic (unavailable for this font)"}
           icon={Italic}
+          disabled={!italicAvailable}
+        />
+        <StyleToggle
+          active={underline}
+          onClick={() => onChange({ underline: !underline })}
+          label="Underline"
+          icon={Underline}
         />
       </div>
     </Labeled>
@@ -1473,6 +1553,7 @@ export function Panel() {
   const textFamily = (slice.textFamily as FontFamily) ?? "helvetica";
   const textBold = (slice.textBold as boolean) ?? false;
   const textItalic = (slice.textItalic as boolean) ?? false;
+  const textUnderline = (slice.textUnderline as boolean) ?? false;
   const textSizePt = (slice.textSizePt as number) ?? DEFAULT_TEXT_PT;
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG_HEX;
@@ -1516,6 +1597,7 @@ export function Panel() {
       family: FontFamily;
       bold: boolean;
       italic: boolean;
+      underline: boolean;
       sizePt: number;
       colorHex: string;
       bgEnabled: boolean;
@@ -1526,6 +1608,7 @@ export function Panel() {
       const payload: TextAnnotation = {
         ...selAnn,
         font: resolveFont(next.family, next.bold, next.italic),
+        underline: next.underline,
         sizeFrac: next.sizePt / selPageHeightPt,
         color: hexToRgb(next.colorHex),
         bg: next.bgEnabled ? { color: hexToRgb(next.bgHex), opacity: next.bgOpacity } : undefined,
@@ -1544,6 +1627,7 @@ export function Panel() {
         family: FontFamily;
         bold: boolean;
         italic: boolean;
+        underline: boolean;
         sizePt: number;
         colorHex: string;
         bgEnabled: boolean;
@@ -1555,6 +1639,7 @@ export function Panel() {
         family: textFamily,
         bold: textBold,
         italic: textItalic,
+        underline: textUnderline,
         sizePt: textSizePt,
         colorHex,
         bgEnabled,
@@ -1566,6 +1651,7 @@ export function Panel() {
         textFamily: merged.family,
         textBold: merged.bold,
         textItalic: merged.italic,
+        textUnderline: merged.underline,
         textSizePt: merged.sizePt,
         colorHex: merged.colorHex,
         bgEnabled: merged.bgEnabled,
@@ -1579,6 +1665,7 @@ export function Panel() {
       textFamily,
       textBold,
       textItalic,
+      textUnderline,
       textSizePt,
       colorHex,
       bgEnabled,
@@ -1685,6 +1772,7 @@ export function Panel() {
             family={textFamily}
             bold={textBold}
             italic={textItalic}
+            underline={textUnderline}
             onChange={(patch) => onTextChange(patch)}
           />
           <RangeField

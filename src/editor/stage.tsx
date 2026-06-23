@@ -71,10 +71,11 @@ export interface InlineEditorDescriptor {
   yPct: number;
   /** Seed text — empty for a fresh placement, the object's text when editing. */
   initialText: string;
-  /** Resolved CSS family stack, weight, and slant for a WYSIWYG box. */
+  /** Resolved CSS family stack, weight, slant, and decoration for a WYSIWYG box. */
   fontCss: string;
   fontWeight: number;
   fontStyle: "normal" | "italic";
+  textDecoration?: "none" | "underline";
   colorHex: string;
   /** Text height as a fraction of page height; editor font-size = sizeFrac·fit.h. */
   sizeFrac: number;

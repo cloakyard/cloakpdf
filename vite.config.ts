@@ -133,6 +133,22 @@ export default defineConfig({
         navigationPreload: true,
         runtimeCaching: [
           {
+            // Annotate text fonts — bundled TTFs (not precached, since the glob
+            // omits .ttf to keep the install lean). Fetched on demand for the
+            // on-canvas preview and PDF embedding; CacheFirst so a font used once
+            // keeps rendering/exporting offline. Immutable per-file.
+            urlPattern: /\/fonts\/.*\.ttf$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "annotate-fonts-cache",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             // pdfjs WASM image decoders — immutable per pdfjs version, fetched
             // on demand. CacheFirst so scanned-document decoding keeps working
             // offline after the first use.

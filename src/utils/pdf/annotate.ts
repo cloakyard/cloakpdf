@@ -3,6 +3,7 @@
  */
 
 import { PDFDocument, rgb, LineCapStyle, StandardFonts } from "@pdfme/pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 
 // ── Annotate — vector overlay (pen / highlighter / shapes / text) ─
 
@@ -68,29 +69,21 @@ export function iconGeometry(icon: IconId): IconGeometry {
   }
 }
 
-/** Font for a text annotation: one of three standard-14 families × Bold × Italic
- *  (12 combinations), which every viewer renders natively — no embedding, no
- *  licensing, no file bloat, and the on-canvas preview matches the output via
- *  each family's CSS stack.
+/** Font for a text annotation: a {@link FontFamily} × Bold × Italic. The three
+ *  standard-14 families (Helvetica/Times/Courier) render natively with no
+ *  embedding; the curated open-source families embed a bundled TTF at burn time.
  *
- *  Ids use a UNIFORM `-bold`/`-italic` suffix scheme: the all-off case is the
- *  bare family (`helvetica`), so the original 6 ids stay byte-identical and
- *  persisted drafts keep resolving. The Helvetica/Courier "Oblique" vs Times
- *  "Italic" naming asymmetry is absorbed entirely by {@link STANDARD_FONT} — the
- *  id scheme never branches on family. */
+ *  Ids use a UNIFORM `-bold`/`-italic` suffix scheme over a hyphen-free family
+ *  id: the all-off case is the bare family (`helvetica`, `roboto`), so the
+ *  original standard ids stay byte-identical and persisted drafts keep
+ *  resolving. The Helvetica/Courier "Oblique" vs Times "Italic" naming asymmetry
+ *  is absorbed entirely by {@link STANDARD_FONT} — the id scheme never branches
+ *  on family. */
 export type TextFontId =
-  | "helvetica"
-  | "helvetica-bold"
-  | "helvetica-italic"
-  | "helvetica-bold-italic"
-  | "times"
-  | "times-bold"
-  | "times-italic"
-  | "times-bold-italic"
-  | "courier"
-  | "courier-bold"
-  | "courier-italic"
-  | "courier-bold-italic";
+  | FontFamily
+  | `${FontFamily}-bold`
+  | `${FontFamily}-italic`
+  | `${FontFamily}-bold-italic`;
 
 /**
  * A single annotation, in page-relative fraction coordinates (0–1 from the
@@ -145,8 +138,11 @@ export type Annotation =
       text: string;
       sizeFrac: number;
       color: AnnotationColor;
-      /** One of the standard-14 families; defaults to Helvetica when absent. */
+      /** Family × bold × italic; defaults to Helvetica when absent. */
       font?: TextFontId;
+      /** Draw an underline under each text line. Independent of the font (a drawn
+       *  rule), so it works for every family. Omit/false for none. */
+      underline?: boolean;
       /** Optional opaque background drawn behind the text — lets a label sit on
        *  top of (and mask) existing page content. Omit for transparent text. */
       bg?: { color: AnnotationColor; opacity?: number };
@@ -168,7 +164,7 @@ export type Annotation =
 /** Text-font id → the pdf-lib standard font it embeds as. The only place the
  *  Oblique-vs-Italic naming asymmetry lives (Helvetica/Courier use `-Oblique`,
  *  Times uses `-Italic`). */
-const STANDARD_FONT: Record<TextFontId, StandardFonts> = {
+const STANDARD_FONT: Record<string, StandardFonts> = {
   helvetica: StandardFonts.Helvetica,
   "helvetica-bold": StandardFonts.HelveticaBold,
   "helvetica-italic": StandardFonts.HelveticaOblique,
@@ -186,12 +182,182 @@ const STANDARD_FONT: Record<TextFontId, StandardFonts> = {
 /** Every valid {@link TextFontId}, for exhaustiveness checks / tests. */
 export const TEXT_FONT_IDS: readonly TextFontId[] = Object.keys(STANDARD_FONT) as TextFontId[];
 
-/** The three standard-14 families a text annotation can use. */
-export type FontFamily = "helvetica" | "times" | "courier";
+/** Families a text annotation can use. The first three are standard-14 (rendered
+ *  natively, no embedding); the rest are curated open-source families embedded
+ *  from bundled Latin-subset TTFs. Ids are HYPHEN-FREE so the `${family}-bold`
+ *  TextFontId scheme stays unambiguous to split on. */
+export type FontFamily =
+  | "helvetica"
+  | "times"
+  | "courier"
+  | "roboto"
+  | "opensans"
+  | "lato"
+  | "montserrat"
+  | "poppins"
+  | "merriweather"
+  | "lora"
+  | "playfairdisplay"
+  | "robotomono"
+  | "sourcecodepro"
+  | "oswald";
+
+export type FontCategory = "sans" | "serif" | "mono" | "display";
+
+export interface FontFamilyMeta {
+  id: FontFamily;
+  /** Human label for the picker. */
+  label: string;
+  category: FontCategory;
+  /** `standard` → a built-in PDF font (no file); `embedded` → a bundled TTF. */
+  kind: "standard" | "embedded";
+  /** Whether the family ships italic variants (Oswald has none). */
+  hasItalic: boolean;
+  /** CSS stack for the on-canvas/inline preview — the leading quoted name must
+   *  match the `@font-face` family declared in `index.css`. */
+  cssStack: string;
+}
+
+/** The full text-font roster (picker order: built-ins first, then sans / serif /
+ *  mono / display). Embedded families load `/fonts/<id>/<weight>-<style>.ttf`. */
+export const FONT_FAMILIES: readonly FontFamilyMeta[] = [
+  {
+    id: "helvetica",
+    label: "Helvetica",
+    category: "sans",
+    kind: "standard",
+    hasItalic: true,
+    cssStack: "Helvetica, Arial, sans-serif",
+  },
+  {
+    id: "times",
+    label: "Times",
+    category: "serif",
+    kind: "standard",
+    hasItalic: true,
+    cssStack: '"Times New Roman", Times, serif',
+  },
+  {
+    id: "courier",
+    label: "Courier",
+    category: "mono",
+    kind: "standard",
+    hasItalic: true,
+    cssStack: '"Courier New", Courier, monospace',
+  },
+  {
+    id: "roboto",
+    label: "Roboto",
+    category: "sans",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Roboto", Arial, sans-serif',
+  },
+  {
+    id: "opensans",
+    label: "Open Sans",
+    category: "sans",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Open Sans", Arial, sans-serif',
+  },
+  {
+    id: "lato",
+    label: "Lato",
+    category: "sans",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Lato", Arial, sans-serif',
+  },
+  {
+    id: "montserrat",
+    label: "Montserrat",
+    category: "sans",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Montserrat", Arial, sans-serif',
+  },
+  {
+    id: "poppins",
+    label: "Poppins",
+    category: "sans",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Poppins", Arial, sans-serif',
+  },
+  {
+    id: "merriweather",
+    label: "Merriweather",
+    category: "serif",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Merriweather", Georgia, serif',
+  },
+  {
+    id: "lora",
+    label: "Lora",
+    category: "serif",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Lora", Georgia, serif',
+  },
+  {
+    id: "playfairdisplay",
+    label: "Playfair Display",
+    category: "serif",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Playfair Display", Georgia, serif',
+  },
+  {
+    id: "robotomono",
+    label: "Roboto Mono",
+    category: "mono",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Roboto Mono", "Courier New", monospace',
+  },
+  {
+    id: "sourcecodepro",
+    label: "Source Code Pro",
+    category: "mono",
+    kind: "embedded",
+    hasItalic: true,
+    cssStack: '"Source Code Pro", "Courier New", monospace',
+  },
+  {
+    id: "oswald",
+    label: "Oswald",
+    category: "display",
+    kind: "embedded",
+    hasItalic: false,
+    cssStack: '"Oswald", Arial, sans-serif',
+  },
+];
+
+const FAMILY_META: Record<string, FontFamilyMeta> = Object.fromEntries(
+  FONT_FAMILIES.map((f) => [f.id, f]),
+);
+
+/** Metadata for a family id (Helvetica fallback for unknown ids). */
+export function fontFamilyMeta(family: string): FontFamilyMeta {
+  return FAMILY_META[family] ?? FAMILY_META.helvetica;
+}
+
+/** Local URL of the bundled TTF for an EMBEDDED family + style, or null for a
+ *  standard family / unknown id. Italic falls back to normal when the family
+ *  ships no italic (e.g. Oswald), so a stray italic flag never 404s. */
+export function embeddedFontUrl(family: string, bold: boolean, italic: boolean): string | null {
+  const meta = FAMILY_META[family];
+  if (!meta || meta.kind !== "embedded") return null;
+  const weight = bold ? "700" : "400";
+  const style = italic && meta.hasItalic ? "italic" : "normal";
+  return `/fonts/${family}/${weight}-${style}.ttf`;
+}
 
 /** (family, bold, italic) → the resolved {@link TextFontId}. Uniform suffix
  *  scheme: the all-off case is the bare family, byte-identical to the original
- *  6 ids — so persisted drafts keep resolving. The Oblique-vs-Italic naming
+ *  ids — so persisted drafts keep resolving. The Oblique-vs-Italic naming
  *  asymmetry lives only in {@link STANDARD_FONT}, never here. */
 export function resolveTextFont(family: FontFamily, bold: boolean, italic: boolean): TextFontId {
   return `${family}${bold ? "-bold" : ""}${italic ? "-italic" : ""}` as TextFontId;
@@ -219,6 +385,10 @@ export const TEXT_BG_PAD_EM = 0.12;
 /** Baseline-to-baseline spacing for wrapped text-box lines, in font ems. Shared
  *  by the burn path and the on-canvas preview so wrapping matches what you place. */
 export const TEXT_LINE_EM = 1.2;
+/** Underline geometry, in font ems: how far the rule sits below the baseline and
+ *  its thickness. Shared by the burn and the on-canvas preview so they match. */
+export const UNDERLINE_DROP_EM = 0.12;
+export const UNDERLINE_WEIGHT_EM = 0.06;
 
 /** Greedy word-wrap a string to `maxWidth`, honouring explicit `\n` and breaking
  *  words longer than the box. `measure(s)` returns the rendered width of `s` in
@@ -272,6 +442,27 @@ export function wrapTextToWidth(
   return out;
 }
 
+/** Cache of fetched embedded-font bytes (one network hit per TTF per session,
+ *  shared across burns). Keyed by the `/fonts/...` URL. */
+const _embeddedFontBytes = new Map<string, Promise<Uint8Array>>();
+function loadEmbeddedFontBytes(url: string): Promise<Uint8Array> {
+  let p = _embeddedFontBytes.get(url);
+  if (!p) {
+    p = fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`font ${url} → ${r.status}`);
+        return r.arrayBuffer();
+      })
+      .then((b) => new Uint8Array(b))
+      .catch((e) => {
+        _embeddedFontBytes.delete(url); // don't cache a failure — allow a retry
+        throw e;
+      });
+    _embeddedFontBytes.set(url, p);
+  }
+  return p;
+}
+
 /**
  * Burn annotations onto a PDF as vector graphics.
  *
@@ -292,18 +483,35 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
   const pages = pdf.getPages();
   // Embed each text font at most once, lazily — only the families actually used.
   const fontCache = new Map<TextFontId, Awaited<ReturnType<typeof pdf.embedFont>>>();
+  // fontkit is only needed for embedded (custom) families; register it once, the
+  // first time one is used, so docs with only standard fonts pay nothing.
+  let fontkitReady = false;
   const getFont = async (id: TextFontId) => {
     let f = fontCache.get(id);
-    if (!f) {
-      // A font id absent from the map (e.g. a corrupt draft) would otherwise make
-      // embedFont(undefined) throw inside the per-label try/catch below and drop
-      // the label silently — indistinguishable from an un-encodable-glyph skip.
-      // Surface it and fall back to Helvetica so the text still renders.
-      const std = STANDARD_FONT[id] as StandardFonts | undefined;
-      if (!std) console.warn(`annotatePdf: unknown text font id "${id}", using Helvetica`);
-      f = await pdf.embedFont(std ?? StandardFonts.Helvetica);
-      fontCache.set(id, f);
+    if (f) return f;
+    const std = STANDARD_FONT[id] as StandardFonts | undefined;
+    if (std) {
+      f = await pdf.embedFont(std);
+    } else {
+      // Embedded family: fetch the bundled TTF and subset-embed it. On any
+      // failure (unknown id from a corrupt draft, fetch/embeds error) fall back
+      // to Helvetica so the text still renders rather than vanishing.
+      const { family, bold, italic } = decomposeTextFont(id);
+      const url = embeddedFontUrl(family, bold, italic);
+      try {
+        if (!url) throw new Error(`no embedded font for "${id}"`);
+        const bytes = await loadEmbeddedFontBytes(url);
+        if (!fontkitReady) {
+          pdf.registerFontkit(fontkit);
+          fontkitReady = true;
+        }
+        f = await pdf.embedFont(bytes, { subset: true });
+      } catch (e) {
+        console.warn(`annotatePdf: could not embed "${id}" (${String(e)}); using Helvetica`);
+        f = await pdf.embedFont(StandardFonts.Helvetica);
+      }
     }
+    fontCache.set(id, f);
     return f;
   };
 
@@ -413,14 +621,18 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
           );
           const lineH = size * TEXT_LINE_EM;
           lines.forEach((ln, i) => {
-            if (ln)
-              page.drawText(ln, {
-                x: a.x * W + padX,
-                y: top - size - i * lineH,
-                size,
-                font,
+            if (!ln) return;
+            const lx = a.x * W + padX;
+            const ly = top - size - i * lineH;
+            page.drawText(ln, { x: lx, y: ly, size, font, color });
+            if (a.underline) {
+              page.drawLine({
+                start: { x: lx, y: ly - size * UNDERLINE_DROP_EM },
+                end: { x: lx + font.widthOfTextAtSize(ln, size), y: ly - size * UNDERLINE_DROP_EM },
+                thickness: Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
                 color,
               });
+            }
           });
         } else {
           // Legacy point-anchored single line: baseline one size below the anchor.
@@ -440,6 +652,17 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
             });
           }
           page.drawText(a.text, { x: a.x * W, y: baseline, size, font, color });
+          if (a.underline) {
+            page.drawLine({
+              start: { x: a.x * W, y: baseline - size * UNDERLINE_DROP_EM },
+              end: {
+                x: a.x * W + font.widthOfTextAtSize(a.text, size),
+                y: baseline - size * UNDERLINE_DROP_EM,
+              },
+              thickness: Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
+              color,
+            });
+          }
         }
       } catch {
         // Un-encodable label — skip it rather than failing every other mark.
