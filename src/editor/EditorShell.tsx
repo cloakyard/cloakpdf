@@ -7,7 +7,9 @@
 // the growth axes is load-bearing.
 
 import { AlertTriangle, History, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { CommandPalette } from "./CommandPalette.tsx";
 import { EncryptedPdfNotice } from "../components/EncryptedPdfNotice.tsx";
 import { useActiveTool, useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
 import { EditorToolStage } from "./EditorToolStage.tsx";
@@ -28,14 +30,66 @@ function Spinner({ label }: { label: string }) {
   );
 }
 
+/** True when the keystroke landed in a text field — let native text undo/redo
+ *  win there rather than hijacking it for document history. */
+function isEditableTarget(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+}
+
 export function EditorShell() {
-  const { doc, loading, busyLabel, error, encryptedFile, layout, viewMode, pendingDraft } =
-    useEditorRead();
-  const { restoreDraft, dismissDraft, clearError, exit } = useEditorActions();
+  const {
+    doc,
+    loading,
+    busyLabel,
+    error,
+    encryptedFile,
+    layout,
+    viewMode,
+    pendingDraft,
+    canUndo,
+    canRedo,
+  } = useEditorRead();
+  const { restoreDraft, dismissDraft, clearError, exit, undo, redo } = useEditorActions();
   const activeTool = useActiveTool();
   const ocrSlice = useToolSlice(OCR_ID);
   const isMobile = layout === "mobile";
   const isTablet = layout === "tablet";
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+
+  // Editor-level keyboard shortcuts. ⌘/Ctrl-K toggles the command palette (any
+  // focus); ⌘/Ctrl-Z and ⌘/Ctrl-(Shift-)Z / ⌘/Ctrl-Y drive document undo/redo,
+  // but only when not typing in a field — there native text history must win.
+  // Only armed once a doc is open; per-tool handlers (Escape/Delete) are
+  // untouched since none of them bind ⌘-Z/K.
+  useEffect(() => {
+    if (!doc) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+        return;
+      }
+      if (isEditableTarget(e.target)) return;
+      if (key === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (canRedo) redo();
+        } else if (canUndo) {
+          undo();
+        }
+      } else if (key === "y") {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [doc, canUndo, canRedo, undo, redo]);
 
   // OCR's side-by-side preview takes over the center once an extraction exists
   // for the current doc, regardless of focus/overview; otherwise the normal
@@ -132,7 +186,7 @@ export function EditorShell() {
         </div>
       ) : (
         <div className="flex min-h-0 flex-1">
-          {!isMobile && <ToolRail />}
+          {!isMobile && <ToolRail onOpenPalette={openPalette} />}
 
           <div className="flex min-w-0 flex-1 flex-col">
             {center}
@@ -142,6 +196,8 @@ export function EditorShell() {
           {!isMobile && <PropertiesPanel collapsed={isTablet} />}
         </div>
       )}
+
+      {doc && <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />}
 
       {/* Busy overlay is portaled to <body> at z-250 so a long-running op (export
           / render) always paints ABOVE the export modal (z-200) — the editor
