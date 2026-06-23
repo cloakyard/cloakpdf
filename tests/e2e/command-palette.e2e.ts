@@ -153,6 +153,16 @@ async function main() {
     await pressMeta(page, "k");
     await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
     await page.type(`${PALETTE} input`, "page numbers");
+    // Wait for the filtered list to render the Page numbers row (typing updates
+    // React state async — reading the options immediately races the re-render).
+    await page.waitForFunction(
+      (sel) =>
+        Array.from(document.querySelectorAll(`${sel} [role=option]`)).some((o) =>
+          (o.textContent ?? "").trim().startsWith("Page numbers"),
+        ),
+      { timeout: 5_000 },
+      PALETTE,
+    );
     const clickedPn = await page.evaluate((sel) => {
       const opt = Array.from(document.querySelectorAll(`${sel} [role=option]`)).find((o) =>
         (o.textContent ?? "").trim().startsWith("Page numbers"),
@@ -197,6 +207,57 @@ async function main() {
       { timeout: 10_000 },
     );
     console.log("  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)");
+
+    // 5. Auto-scroll: selecting a tool below the rail's fold (Attach is last)
+    //    must scroll it into view. Assert it starts off-screen, then sits inside
+    //    the rail viewport after selection.
+    const attachVisible = () =>
+      page.evaluate(() => {
+        const rail = document.querySelector('button[aria-label="Search tools"]')
+          ?.parentElement as HTMLElement | null;
+        const btn = rail?.querySelector('button[aria-label="Attach"]') as HTMLElement | null;
+        if (!rail || !btn) return null;
+        const r = rail.getBoundingClientRect();
+        const b = btn.getBoundingClientRect();
+        return {
+          overflows: rail.scrollHeight > rail.clientHeight,
+          inView: b.top >= r.top - 1 && b.bottom <= r.bottom + 1,
+        };
+      });
+    const pre = await attachVisible();
+    if (!pre?.overflows) fail("Rail does not overflow at this viewport — can't test auto-scroll.");
+    if (pre.inView) fail("Attach is already visible before selection — test precondition broken.");
+    await pressMeta(page, "k");
+    await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
+    await page.type(`${PALETTE} input`, "attach");
+    await page.waitForFunction(
+      (sel) =>
+        Array.from(document.querySelectorAll(`${sel} [role=option]`)).some((o) =>
+          (o.textContent ?? "").trim().startsWith("Attach"),
+        ),
+      { timeout: 5_000 },
+      PALETTE,
+    );
+    await page.evaluate((sel) => {
+      const opt = Array.from(document.querySelectorAll(`${sel} [role=option]`)).find((o) =>
+        (o.textContent ?? "").trim().startsWith("Attach"),
+      );
+      (opt as HTMLElement)?.click();
+    }, PALETTE);
+    await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
+    await page.waitForFunction(
+      () => {
+        const rail = document.querySelector('button[aria-label="Search tools"]')
+          ?.parentElement as HTMLElement | null;
+        const btn = rail?.querySelector('button[aria-label="Attach"]') as HTMLElement | null;
+        if (!rail || !btn) return false;
+        const r = rail.getBoundingClientRect();
+        const b = btn.getBoundingClientRect();
+        return b.top >= r.top - 1 && b.bottom <= r.bottom + 1;
+      },
+      { timeout: 5_000 },
+    );
+    console.log("  ✓ selecting a bottom tool auto-scrolls it into view");
 
     if (errors.length > 0) {
       console.error("✗ Console/page errors:");

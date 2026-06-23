@@ -5,7 +5,7 @@
 // per DESIGN.md), mirroring CloakIMG's reduced-cue rail.
 
 import { Command } from "lucide-react";
-import { memo } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useActiveTool, useEditorActions } from "./EditorContext.tsx";
 import { editorToolGroups } from "./tools.ts";
 
@@ -13,6 +13,20 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
   const activeTool = useActiveTool();
   const { setActiveTool, setViewMode } = useEditorActions();
   const groups = editorToolGroups();
+
+  // Selecting a tool from the command palette (⌘K) can target one below the
+  // fold of this scrollable rail — bring the active button into view so the
+  // selection is always visible. `block: "nearest"` scrolls the minimum amount
+  // and no-ops when it's already on screen (e.g. a normal rail click).
+  const activeBtnRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!activeTool) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    activeBtnRef.current?.scrollIntoView({
+      block: "nearest",
+      behavior: reduce ? "auto" : "smooth",
+    });
+  }, [activeTool]);
 
   return (
     <div className="no-scrollbar flex w-18 shrink-0 flex-col overflow-y-auto border-r border-slate-200/70 dark:border-dark-border py-2 pr-1 pl-0">
@@ -40,6 +54,7 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
             return (
               <button
                 key={tool.id}
+                ref={active ? activeBtnRef : undefined}
                 type="button"
                 onClick={() => {
                   if (active) {
