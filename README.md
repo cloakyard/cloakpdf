@@ -23,14 +23,16 @@
 
 ## ✨ What it does
 
-Drop a PDF and it opens in a single, canvas-based **editor** — a Photoshop-like workspace for one document at a time:
+Drop a PDF and it opens in a single, canvas-based **editor** — a Photoshop-like workspace for one document at a time. **22 editor tools and 7 standalone utilities** cover everything from a quick tick on a printed form to redaction, OCR, and on-device AI:
 
-- **✏️ Annotate & sign** — draw, highlight, shapes, text, signatures, fill & flatten forms (or auto-fill flat printed ones)
-- **📄 Pages** — reorder, rotate, delete, crop (auto-trim & straighten), N-up & booklet, OCR, plus split / extract / contact-sheet on export
+- **✏️ Annotate & sign** — draw, highlight, shapes, text, form-filling icons (tick / cross / dot / circle), signatures (draw with a real-pen ink feel, or a pressure-sensitive stylus — Apple Pencil, Wacom, S-Pen), fill & flatten forms (or auto-fill flat printed ones)
+- **📄 Pages** — reorder, rotate, delete, crop (auto-trim & straighten), strip repeating headers/footers, N-up & booklet, OCR, plus split / extract / contact-sheet on export
 - **🔒 Privacy** — redact (burned into the page), select or find & box text, erase regions (fill / blend / pixelate), scrub hidden data, edit or strip metadata
-- **🏷️ Stamps & numbering** — watermarks (with dynamic date/page tokens), QR & barcode stamps, page numbers, headers & footers, Bates numbering, bookmarks
+- **🏷️ Stamps & numbering** — watermarks (with dynamic date/page tokens), QR & barcode stamps, page numbers, headers & footers, Bates numbering, bookmarks, file attachments
 
 Export to PDF, images (ZIP), a contact sheet, or split pages — with optional compress / grayscale / flatten / repair / strip-metadata.
+
+The editor is keyboard-friendly: press **⌘K / Ctrl+K** to jump to any tool from a command palette, and undo/redo with the usual shortcuts.
 
 A few **standalone tools** cover the jobs the single-PDF editor can't — these mirror the categories on the home screen:
 

@@ -287,8 +287,10 @@ export async function addSignature(
     : await pdf.embedPng(signatureBytes);
 
   const isMap = position instanceof Map;
+  const pageCount = pdf.getPageCount();
 
   for (const idx of pageIndices) {
+    if (idx < 0 || idx >= pageCount) continue; // skip stale/out-of-range indices
     const fallback = isMap ? position.values().next().value : position;
     const pos = isMap ? (position.get(idx) ?? fallback) : position;
     if (!pos) continue;

@@ -278,10 +278,11 @@ export const EDITOR_TOOLS = [
     id: "qr-stamp",
     name: "QR / barcode",
     railLabel: "QR code",
-    description: "Stamp a scannable QR code or barcode from a URL, ID, or hash.",
+    description:
+      "Place a scannable QR code or barcode from a URL, ID, or hash, then drag to size it.",
     icon: QrCode,
+    mode: "focus",
     group: "stamps",
-    mode: "either",
     status: "ready",
   },
 

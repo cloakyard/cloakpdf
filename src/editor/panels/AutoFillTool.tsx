@@ -242,7 +242,10 @@ export function Panel() {
                 )}
               </div>
 
-              <div className="thin-scrollbar flex max-h-72 flex-col gap-2 overflow-y-auto pr-1">
+              {/* px-1 py-1: room for each input's focus ring inside the scroll
+                  box — overflow-y-auto also clips overflow-x, so a flush-left
+                  input had its focus ring cropped on the left edge. */}
+              <div className="thin-scrollbar flex max-h-72 flex-col gap-2 overflow-y-auto px-1 py-1">
                 {fields.map((f, i) => (
                   <Labeled key={`${f.pageIndex}-${i}`} label={f.label || "Field"} normalCase>
                     <div className="flex items-center gap-1.5">

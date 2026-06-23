@@ -13,6 +13,61 @@ export interface AnnotationColor {
   b: number;
 }
 
+/** Form-filling glyphs the annotate tool can stamp onto a page — the marks you
+ *  reach for filling a PRINTED (non-interactive) form by hand: tick a checkbox,
+ *  cross a box, fill a radio bubble, or circle a choice. */
+export type IconId = "check" | "cross" | "dot" | "circle";
+
+/** A stampable icon's vector geometry, defined ONCE in a unit square (0–1, with
+ *  y pointing DOWN like screen/canvas space). Both the on-canvas preview and the
+ *  pdf-lib burn consume this same description, so what you place is exactly what
+ *  exports. The glyph is drawn into the largest centred square of its box, so it
+ *  never distorts when the box is resized non-square. */
+export interface IconGeometry {
+  /** Polyline strokes (open paths) — each an array of unit-square points. */
+  strokes: { x: number; y: number }[][];
+  /** Optional filled disc (a radio-bubble fill). */
+  disc?: { cx: number; cy: number; r: number };
+  /** Optional outlined ring (circle a choice). */
+  ring?: { cx: number; cy: number; r: number };
+  /** Stroke/ring weight as a fraction of the square side. */
+  weight: number;
+}
+
+export function iconGeometry(icon: IconId): IconGeometry {
+  switch (icon) {
+    case "check":
+      return {
+        weight: 0.14,
+        strokes: [
+          [
+            { x: 0.16, y: 0.54 },
+            { x: 0.4, y: 0.8 },
+            { x: 0.84, y: 0.22 },
+          ],
+        ],
+      };
+    case "cross":
+      return {
+        weight: 0.14,
+        strokes: [
+          [
+            { x: 0.2, y: 0.2 },
+            { x: 0.8, y: 0.8 },
+          ],
+          [
+            { x: 0.8, y: 0.2 },
+            { x: 0.2, y: 0.8 },
+          ],
+        ],
+      };
+    case "circle":
+      return { weight: 0.1, strokes: [], ring: { cx: 0.5, cy: 0.5, r: 0.4 } };
+    case "dot":
+      return { weight: 0, strokes: [], disc: { cx: 0.5, cy: 0.5, r: 0.32 } };
+  }
+}
+
 /** Font for a text annotation: one of three standard-14 families × Bold × Italic
  *  (12 combinations), which every viewer renders natively — no embedding, no
  *  licensing, no file bloat, and the on-canvas preview matches the output via
@@ -95,6 +150,19 @@ export type Annotation =
       /** Optional opaque background drawn behind the text — lets a label sit on
        *  top of (and mask) existing page content. Omit for transparent text. */
       bg?: { color: AnnotationColor; opacity?: number };
+    }
+  | {
+      kind: "icon";
+      pageIndex: number;
+      /** Which form glyph to stamp. */
+      icon: IconId;
+      /** Box (page fractions, top-left origin). The glyph fills the largest
+       *  centred square of this box. */
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      color: AnnotationColor;
     };
 
 /** Text-font id → the pdf-lib standard font it embeds as. The only place the
@@ -375,6 +443,54 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
         }
       } catch {
         // Un-encodable label — skip it rather than failing every other mark.
+      }
+    } else if (a.kind === "icon") {
+      // Stamp the glyph into the largest centred square of the box, mapping the
+      // unit-square geometry (y-DOWN) into pdf space (y-UP). Same geometry the
+      // canvas preview paints, so placement and output match exactly.
+      const boxX = a.x * W;
+      const topY = (1 - a.y) * H; // top edge of the box in pdf (y-up) space
+      const boxW = a.w * W;
+      const boxH = a.h * H;
+      const s = Math.min(boxW, boxH);
+      const ox = boxX + (boxW - s) / 2; // square's left
+      const oyTop = topY - (boxH - s) / 2; // square's top edge (y-up)
+      const ux = (u: number) => ox + u * s;
+      const uy = (v: number) => oyTop - v * s; // v=0 → top, v=1 → bottom
+      const g = iconGeometry(a.icon);
+      const thickness = Math.max(0.75, g.weight * s);
+      for (const stroke of g.strokes) {
+        for (let i = 1; i < stroke.length; i++) {
+          page.drawLine({
+            start: { x: ux(stroke[i - 1].x), y: uy(stroke[i - 1].y) },
+            end: { x: ux(stroke[i].x), y: uy(stroke[i].y) },
+            thickness,
+            color,
+            lineCap: LineCapStyle.Round,
+          });
+        }
+      }
+      if (g.disc) {
+        page.drawEllipse({
+          x: ux(g.disc.cx),
+          y: uy(g.disc.cy),
+          xScale: g.disc.r * s,
+          yScale: g.disc.r * s,
+          color,
+          borderWidth: 0,
+        });
+      }
+      if (g.ring) {
+        page.drawEllipse({
+          x: ux(g.ring.cx),
+          y: uy(g.ring.cy),
+          xScale: g.ring.r * s,
+          yScale: g.ring.r * s,
+          borderColor: color,
+          borderWidth: Math.max(0.75, g.weight * s),
+          opacity: 0,
+          borderOpacity: 1,
+        });
       }
     }
   }
