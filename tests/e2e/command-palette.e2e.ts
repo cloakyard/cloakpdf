@@ -146,35 +146,34 @@ async function main() {
     await waitForText(page, /area to keep/i, 8_000); // Crop panel mounted = tool selected
     console.log("  ✓ ⌘K search → Enter selects the Crop tool");
 
-    // 3b. ⌘K → fuzzy query across descriptions → click the exact row. "page
-    //     numbers" also matches Strip furniture's description (whose blurb says
-    //     "page numbers") — proving the search reaches descriptions — so we click
-    //     the row whose label is the Page numbers tool rather than the top hit.
+    // 3b. Name-first ranking. "page numbers" also matches Strip furniture's
+    //     description ("…page numbers"), but the NAME match must rank first — so
+    //     the top row is Page numbers (Strip furniture still appears, lower), and
+    //     a plain Enter selects the right tool.
     await pressMeta(page, "k");
     await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
     await page.type(`${PALETTE} input`, "page numbers");
-    // Wait for the filtered list to render the Page numbers row (typing updates
-    // React state async — reading the options immediately races the re-render).
+    // Wait for the filtered list to settle with the name match on top (typing
+    // updates React state async — reading options immediately races the render).
     await page.waitForFunction(
       (sel) =>
-        Array.from(document.querySelectorAll(`${sel} [role=option]`)).some((o) =>
-          (o.textContent ?? "").trim().startsWith("Page numbers"),
-        ),
+        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "")
+          .trim()
+          .startsWith("Page numbers"),
       { timeout: 5_000 },
       PALETTE,
     );
-    const clickedPn = await page.evaluate((sel) => {
-      const opt = Array.from(document.querySelectorAll(`${sel} [role=option]`)).find((o) =>
-        (o.textContent ?? "").trim().startsWith("Page numbers"),
-      );
-      if (!opt) return false;
-      (opt as HTMLElement).click();
-      return true;
-    }, PALETTE);
-    if (!clickedPn) fail("Page numbers row not found in palette results.");
+    const labels = await page.$$eval(`${PALETTE} [role=option]`, (els) =>
+      els.map((e) => (e.textContent ?? "").trim()),
+    );
+    if (!labels[0]?.startsWith("Page numbers"))
+      fail(`Expected Page numbers ranked first, got: ${labels[0]}`);
+    if (!labels.some((l) => l.startsWith("Strip furniture")))
+      fail("Strip furniture should still appear via description match.");
+    await page.keyboard.press("Enter"); // top result = Page numbers
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
     await waitForText(page, /Add page numbers/i, 8_000); // panel mounted = tool selected
-    console.log("  ✓ ⌘K fuzzy (desc) search → click selects the Page numbers tool");
+    console.log("  ✓ name-first ranking: Page numbers tops the desc match (Strip furniture)");
 
     // 4. Undo/redo keyboard shortcuts. At base both should be disabled; applying
     //    page numbers commits one history entry → Undo lights.
@@ -230,20 +229,17 @@ async function main() {
     await pressMeta(page, "k");
     await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
     await page.type(`${PALETTE} input`, "attach");
+    // "attach" also hits Scrub's description ("…attachments…"); name-first
+    // ranking must still put the Attach tool on top, so Enter selects it.
     await page.waitForFunction(
       (sel) =>
-        Array.from(document.querySelectorAll(`${sel} [role=option]`)).some((o) =>
-          (o.textContent ?? "").trim().startsWith("Attach"),
-        ),
+        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "")
+          .trim()
+          .startsWith("Attach"),
       { timeout: 5_000 },
       PALETTE,
     );
-    await page.evaluate((sel) => {
-      const opt = Array.from(document.querySelectorAll(`${sel} [role=option]`)).find((o) =>
-        (o.textContent ?? "").trim().startsWith("Attach"),
-      );
-      (opt as HTMLElement)?.click();
-    }, PALETTE);
+    await page.keyboard.press("Enter"); // top result = Attach
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
     await page.waitForFunction(
       () => {

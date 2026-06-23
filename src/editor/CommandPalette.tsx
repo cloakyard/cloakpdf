@@ -26,6 +26,27 @@ interface PaletteCommand {
   search: string;
 }
 
+/** Relevance of a command to a query, name-first: a match in the tool NAME
+ *  always outranks one only in the description, so typing "attach" surfaces the
+ *  Attach tool above Scrub (whose blurb merely mentions "attachments"). An exact
+ *  / prefix name hit ranks highest; per-token, name beats hint beats
+ *  description. Returns 0 for non-matches (filtered out by the caller). */
+function scoreCommand(cmd: PaletteCommand, q: string, tokens: string[]): number {
+  const label = cmd.label.toLowerCase();
+  const hint = cmd.hint.toLowerCase();
+  const desc = (cmd.description ?? "").toLowerCase();
+  let score = 0;
+  if (label === q) score += 1000;
+  else if (label.startsWith(q)) score += 500;
+  else if (label.includes(q)) score += 250;
+  for (const t of tokens) {
+    if (label.includes(t)) score += 100;
+    else if (hint.includes(t)) score += 20;
+    else if (desc.includes(t)) score += 10;
+  }
+  return score;
+}
+
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { canUndo, canRedo, canReset } = useEditorRead();
   const { setActiveTool, setViewMode, undo, redo, reset } = useEditorActions();
@@ -94,7 +115,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     // Each whitespace-separated token must appear somewhere in the haystack, so
     // "page num" matches "Page numbers" without caring about token order.
     const tokens = q.split(/\s+/);
-    return commands.filter((c) => tokens.every((tok) => c.search.includes(tok)));
+    return (
+      commands
+        .map((c, i) => ({ c, i, score: scoreCommand(c, q, tokens) }))
+        .filter((r) => tokens.every((tok) => r.c.search.includes(tok)))
+        // Rank by relevance (name matches first); keep the roster order on ties.
+        .sort((a, b) => b.score - a.score || a.i - b.i)
+        .map((r) => r.c)
+    );
   }, [query, commands]);
 
   // Clamp the highlight whenever the result set shrinks past it.
