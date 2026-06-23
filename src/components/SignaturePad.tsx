@@ -34,9 +34,12 @@ interface SignaturePadProps {
   color: string;
   /** Render with the realistic pen look (pressure/speed weight + ink bleed). */
   inkBleed?: boolean;
-  /** Intrinsic canvas width in pixels (default 500). */
+  /** Intrinsic canvas width in pixels (default 600). */
   width?: number;
-  /** Intrinsic canvas height in pixels (default 200). */
+  /** Intrinsic canvas height in pixels (default 360). The display width is
+   *  bound by the panel, so height follows the intrinsic ratio — a taller
+   *  ~5:3 ratio (vs the old 5:2) gives more room to sign on a tablet/pencil,
+   *  and the higher resolution keeps strokes crisp on hi-DPI screens. */
   height?: number;
 }
 
@@ -154,8 +157,8 @@ export function SignaturePad({
   onSignature,
   color,
   inkBleed = false,
-  width = 500,
-  height = 200,
+  width = 600,
+  height = 360,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
