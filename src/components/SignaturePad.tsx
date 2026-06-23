@@ -34,9 +34,12 @@ interface SignaturePadProps {
   color: string;
   /** Render with the realistic pen look (pressure/speed weight + ink bleed). */
   inkBleed?: boolean;
-  /** Intrinsic canvas width in pixels (default 500). */
+  /** Intrinsic canvas width in pixels (default 600). */
   width?: number;
-  /** Intrinsic canvas height in pixels (default 200). */
+  /** Intrinsic canvas height in pixels (default 360). The display width is
+   *  bound by the panel, so height follows the intrinsic ratio — a taller
+   *  ~5:3 ratio (vs the old 5:2) gives more room to sign on a tablet/pencil,
+   *  and the higher resolution keeps strokes crisp on hi-DPI screens. */
   height?: number;
 }
 
@@ -154,8 +157,8 @@ export function SignaturePad({
   onSignature,
   color,
   inkBleed = false,
-  width = 500,
-  height = 200,
+  width = 600,
+  height = 360,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -241,6 +244,44 @@ export function SignaturePad({
     [renderInk],
   );
 
+  /** Export the signature as a PNG cropped to the ink's bounding box (plus a
+   *  small padding for stroke weight + bleed). The pad is a generous 600×360 to
+   *  sign comfortably on a tablet, but a signature rarely fills it — exporting
+   *  the whole canvas would wrap the ink in wide transparent margins, so when
+   *  placed (aspect-locked) it lands undersized and offset. Cropping to the ink
+   *  makes the placed image match what was drawn. */
+  const exportSignature = useCallback((): string => {
+    const canvas = canvasRef.current;
+    if (!canvas) return "";
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const s of strokesRef.current) {
+      for (const pt of s) {
+        if (pt.x < minX) minX = pt.x;
+        if (pt.y < minY) minY = pt.y;
+        if (pt.x > maxX) maxX = pt.x;
+        if (pt.y > maxY) maxY = pt.y;
+      }
+    }
+    // No points (shouldn't happen on an export path) → fall back to the canvas.
+    if (!Number.isFinite(minX)) return canvas.toDataURL("image/png");
+    const pad = MAX_W + BLEED_BLUR + 6;
+    const bx = Math.max(0, Math.floor(minX - pad));
+    const by = Math.max(0, Math.floor(minY - pad));
+    const bw = Math.min(canvas.width, Math.ceil(maxX + pad)) - bx;
+    const bh = Math.min(canvas.height, Math.ceil(maxY + pad)) - by;
+    if (bw <= 0 || bh <= 0) return canvas.toDataURL("image/png");
+    const out = document.createElement("canvas");
+    out.width = bw;
+    out.height = bh;
+    const octx = out.getContext("2d");
+    if (!octx) return canvas.toDataURL("image/png");
+    octx.drawImage(canvas, bx, by, bw, bh, 0, 0, bw, bh);
+    return out.toDataURL("image/png");
+  }, []);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -260,11 +301,11 @@ export function SignaturePad({
     if (!ctx) return;
     if (strokesRef.current.length > 0) {
       replayStrokes(color);
-      onSignature(canvasRef.current!.toDataURL("image/png"));
+      onSignature(exportSignature());
     } else {
       ctx.strokeStyle = color;
     }
-  }, [color, inkBleed, replayStrokes, onSignature]);
+  }, [color, inkBleed, replayStrokes, onSignature, exportSignature]);
 
   const startDrawing = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -379,9 +420,9 @@ export function SignaturePad({
       // Realistic mode: one final clean render of the committed strokes (drops
       // the now-merged in-progress copy) before exporting.
       if (inkBleedRef.current) renderInk(strokesRef.current, color);
-      onSignature(canvas.toDataURL("image/png"));
+      onSignature(exportSignature());
     },
-    [isDrawing, onSignature, color, renderInk],
+    [isDrawing, onSignature, color, renderInk, exportSignature],
   );
 
   const clear = useCallback(() => {

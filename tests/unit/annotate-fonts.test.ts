@@ -15,7 +15,10 @@ import { describe, expect, it } from "vitest";
 import {
   annotatePdf,
   decomposeTextFont,
+  embeddedFontUrl,
+  FONT_FAMILIES,
   type FontFamily,
+  fontFamilyMeta,
   resolveTextFont,
   TEXT_FONT_IDS,
   type TextFontId,
@@ -23,8 +26,8 @@ import {
 
 const FAMILIES: FontFamily[] = ["helvetica", "times", "courier"];
 
-/** id → the BaseFont string pdf-lib embeds (the StandardFonts enum value). */
-const EXPECTED_BASEFONT: Record<TextFontId, string> = {
+/** Standard-14 id → the BaseFont string pdf-lib embeds (StandardFonts value). */
+const EXPECTED_BASEFONT: Record<string, string> = {
   helvetica: "Helvetica",
   "helvetica-bold": "Helvetica-Bold",
   "helvetica-italic": "Helvetica-Oblique",
@@ -92,8 +95,65 @@ describe("resolveTextFont / decomposeTextFont", () => {
     }
   });
 
-  it("exposes exactly the twelve ids", () => {
+  it("exposes exactly the twelve standard ids", () => {
     expect([...TEXT_FONT_IDS].sort()).toEqual(Object.keys(EXPECTED_BASEFONT).sort());
+  });
+});
+
+describe("font family registry", () => {
+  it("offers at least 10 families across categories", () => {
+    expect(FONT_FAMILIES.length).toBeGreaterThanOrEqual(10);
+    const cats = new Set(FONT_FAMILIES.map((f) => f.category));
+    expect(cats).toContain("sans");
+    expect(cats).toContain("serif");
+    expect(cats).toContain("mono");
+    // the three built-ins must remain, as standard (no-embed) families.
+    for (const id of ["helvetica", "times", "courier"] as const) {
+      const m = fontFamilyMeta(id);
+      expect(m.kind).toBe("standard");
+    }
+  });
+
+  it("uses hyphen-free family ids so the id scheme stays unambiguous", () => {
+    for (const f of FONT_FAMILIES) {
+      expect(f.id).not.toContain("-");
+      // round-trips through the id scheme for every style.
+      for (const bold of [false, true]) {
+        for (const italic of [false, true]) {
+          expect(decomposeTextFont(resolveTextFont(f.id, bold, italic)).family).toBe(f.id);
+        }
+      }
+    }
+  });
+
+  it("maps embedded families to bundled TTF urls (standard → null)", () => {
+    expect(embeddedFontUrl("helvetica", false, false)).toBeNull();
+    expect(embeddedFontUrl("roboto", false, false)).toBe("/fonts/roboto/400-normal.ttf");
+    expect(embeddedFontUrl("roboto", true, true)).toBe("/fonts/roboto/700-italic.ttf");
+    // Oswald has no italic → italic falls back to the normal file (never 404s).
+    expect(embeddedFontUrl("oswald", false, true)).toBe("/fonts/oswald/400-normal.ttf");
+    expect(embeddedFontUrl("oswald", true, false)).toBe("/fonts/oswald/700-normal.ttf");
+    // unknown id → null (burn falls back to Helvetica).
+    expect(embeddedFontUrl("nope", false, false)).toBeNull();
+  });
+});
+
+describe("annotatePdf — underline", () => {
+  it("renders an underlined label without throwing", async () => {
+    const out = await annotatePdf(toFile(await blankPdf()), [
+      {
+        kind: "text",
+        pageIndex: 0,
+        x: 0.2,
+        y: 0.2,
+        text: "Underlined",
+        sizeFrac: 0.05,
+        color: { r: 0, g: 0, b: 0 },
+        font: "helvetica",
+        underline: true,
+      },
+    ]);
+    expect(baseFonts(await PDFDocument.load(out))).toContain("Helvetica");
   });
 });
 

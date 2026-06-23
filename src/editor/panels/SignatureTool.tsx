@@ -32,6 +32,7 @@ import {
   resizeBBoxAspect,
 } from "../resize-handles.ts";
 import { Switch, TRANSPARENCY_CHECKER } from "./controls.tsx";
+import { Segmented } from "./WholeDocPanel.tsx";
 
 const TOOL_ID = "signature";
 const DEFAULT_WIDTH_PCT = 0.28;
@@ -550,35 +551,18 @@ export function Panel() {
     });
   }, [applyTransform, bgEnabled, bgHex]);
 
-  const modes: { id: "draw" | "upload"; label: string }[] = [
-    { id: "draw", label: "Draw" },
-    { id: "upload", label: "Upload" },
-  ];
-
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-1.5">
-        {modes.map((m) => {
-          const on = mode === m.id;
-          return (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => patchToolState(TOOL_ID, { mode: m.id })}
-              aria-pressed={on}
-              // Selected = solid primary fill, matching the rest of the editor's
-              // pick-one controls (Segmented / PositionGrid / Annotate's modes).
-              className={`rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                on
-                  ? "border-primary-600 bg-primary-600 text-white"
-                  : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-              }`}
-            >
-              {m.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Source toggle — a sliding-thumb tab control (same Segmented as Crop's
+          "All pages / This page"), not two separate buttons. */}
+      <Segmented
+        value={mode}
+        onChange={(v) => patchToolState(TOOL_ID, { mode: v })}
+        options={[
+          { value: "draw", label: "Draw" },
+          { value: "upload", label: "Upload" },
+        ]}
+      />
 
       {mode === "draw" ? (
         <div className="space-y-2">

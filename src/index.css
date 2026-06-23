@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 /*
  * Safelist for APP_CONTAINER (src/config/theme.ts) — the app-shell width
