@@ -459,6 +459,7 @@ export function Panel() {
   const slice = useToolSlice(TOOL_ID);
   const dataUrl = (slice.dataUrl as string) ?? "";
   const inkHex = (slice.inkHex as string) ?? DEFAULT_INK;
+  const inkBleed = (slice.inkBleed as boolean) ?? false;
   const mode = (slice.mode as "draw" | "upload") ?? "draw";
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG;
@@ -581,11 +582,29 @@ export function Panel() {
 
       {mode === "draw" ? (
         <div className="space-y-2">
-          <SignaturePad onSignature={onPadSignature} color={inkHex} />
+          <SignaturePad onSignature={onPadSignature} color={inkHex} inkBleed={inkBleed} />
           <ColorPicker
             value={inkHex}
             onChange={(hex) => patchToolState(TOOL_ID, { inkHex: hex })}
           />
+          {/* Realistic ink: speed-varied stroke weight + a soft bleed halo, so a
+              drawn signature reads like real pen on paper rather than a clean
+              vector line. Off by default to keep the crisp look as the baseline. */}
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-dark-border px-3 py-2">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
+                Realistic ink
+              </p>
+              <p className="text-xs text-slate-500 dark:text-dark-text-muted">
+                Pen-like weight and ink bleed
+              </p>
+            </div>
+            <Switch
+              checked={inkBleed}
+              onChange={(v) => patchToolState(TOOL_ID, { inkBleed: v })}
+              label="Realistic ink"
+            />
+          </div>
         </div>
       ) : (
         <div className="space-y-2">
