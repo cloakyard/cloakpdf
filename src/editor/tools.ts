@@ -238,7 +238,7 @@ export const EDITOR_TOOLS = [
   {
     id: "stamp-pdf",
     name: "Stamp",
-    description: "Add a diagonal text watermark across every page.",
+    description: "Stamp text across every page — boxed or sealed, digital or inked.",
     icon: Stamp,
     group: "stamps",
     mode: "either",

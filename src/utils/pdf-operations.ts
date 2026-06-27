@@ -55,9 +55,7 @@ export {
 
 export {
   addWatermark,
-  addSealStamp,
   addSignature,
-  addRectangleStamp,
   addPageNumbers,
   addHeaderFooter,
   addBatesNumbers,

@@ -3,15 +3,7 @@
  * signature placement, page numbers, headers/footers, and Bates numbering.
  */
 
-import {
-  PDFDocument,
-  PDFNumber,
-  PDFOperator,
-  PDFOperatorNames,
-  rgb,
-  degrees,
-  StandardFonts,
-} from "@pdfme/pdf-lib";
+import { PDFDocument, rgb, degrees, StandardFonts } from "@pdfme/pdf-lib";
 import type {
   WatermarkOptions,
   Position,
@@ -20,21 +12,35 @@ import type {
   BatesNumberOptions,
 } from "../../types.ts";
 import { baseFileName, resolveStampTokens, type TokenContext } from "./tokens.ts";
+import { renderStampDataUrl } from "./stamp-render.ts";
+
+/** Decode a `data:image/png;base64,…` URL to raw bytes (no fetch round-trip). */
+function dataUrlToBytes(dataUrl: string): Uint8Array {
+  const comma = dataUrl.indexOf(",");
+  const b64 = comma === -1 ? dataUrl : dataUrl.slice(comma + 1);
+  return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+}
 
 /**
- * Add a text watermark to pages of a PDF.
+ * Stamp text across the centre of each target page.
  *
- * The watermark is drawn at the centre of each target page using Helvetica Bold.
- * Colour is specified in 0–255 RGB and converted to the 0–1 range required
- * by pdf-lib. Opacity and rotation are applied as-is.
+ * Two visual modes share this entry point:
+ *   • Plain watermark (`shape:"none"`, `finish:"digital"`, the default) — crisp
+ *     Helvetica-Bold vector text, drawn directly with pdf-lib.
+ *   • Shaped and/or inked stamp — a rounded box / circular seal around the text,
+ *     and/or a distressed rubber-stamp "ink" finish. These are rendered to a
+ *     supersampled PNG by the shared canvas painter (`renderStampDataUrl`) and
+ *     embedded, because the border + ink-bleed look can't be expressed as plain
+ *     pdf-lib vector ops. The same painter drives the editor's live preview, so
+ *     preview and output match.
  *
- * When `pageIndices` is provided, only the specified pages receive the
- * watermark. Otherwise every page is watermarked.
+ * Colour is 0–255 RGB; opacity and rotation are applied as-is. When `pageIndices`
+ * is provided only those pages are stamped, otherwise every page is.
  *
- * @param file - The PDF file to watermark.
- * @param options - Watermark settings (text, fontSize, color, opacity, rotation).
- * @param pageIndices - Optional array of 0-based page indices to watermark.
- * @returns PDF bytes with the watermark applied.
+ * @param file - The PDF file to stamp.
+ * @param options - Stamp settings (text, fontSize, color, opacity, rotation, shape, finish).
+ * @param pageIndices - Optional array of 0-based page indices to stamp.
+ * @returns PDF bytes with the stamp applied.
  */
 export async function addWatermark(
   file: File,
@@ -43,8 +49,6 @@ export async function addWatermark(
 ): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
-
-  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
 
   // Token context shared across pages: {title}/{filename}/{date} are constant,
   // {page}/{total} vary, so the text is resolved per page below.
@@ -61,26 +65,69 @@ export async function addWatermark(
         .map((i) => ({ page: allPages[i], index: i }))
     : allPages.map((page, index) => ({ page, index }));
 
+  const shape = options.shape ?? "none";
+  const finish = options.finish ?? "digital";
+
+  // Reverse-rotate the centre-to-origin offset so the stamp's visual centre stays
+  // at the page centre after pdf-lib rotates about the draw origin (bottom-left).
+  // `rotation` is the maths convention (counter-clockwise positive) — exactly
+  // pdf-lib's own, so no sign flip.
+  const place = (w: number, h: number, pageW: number, pageH: number) => {
+    const rad = (options.rotation * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    return {
+      x: pageW / 2 - (w / 2) * cos + (h / 2) * sin,
+      y: pageH / 2 - (w / 2) * sin - (h / 2) * cos,
+    };
+  };
+
+  // Shaped / inked stamps render to a raster the canvas painter produces; plain
+  // digital watermarks stay crisp vector text.
+  if (shape !== "none" || finish === "ink") {
+    const cache = new Map<
+      string,
+      { image: Awaited<ReturnType<typeof pdf.embedPng>>; widthPt: number; heightPt: number }
+    >();
+    for (const { page, index } of targets) {
+      const text = resolveStampTokens(options.text, { ...ctxBase, page: index + 1 });
+      if (!text.trim()) continue;
+      let entry = cache.get(text);
+      if (!entry) {
+        const rendered = renderStampDataUrl(options.fontSize, {
+          text,
+          color: options.color,
+          shape,
+          finish,
+          texture: options.inkTexture,
+        });
+        if (!rendered) continue;
+        const image = await pdf.embedPng(dataUrlToBytes(rendered.dataUrl));
+        entry = { image, widthPt: rendered.widthPt, heightPt: rendered.heightPt };
+        cache.set(text, entry);
+      }
+      const { width, height } = page.getSize();
+      const { x, y } = place(entry.widthPt, entry.heightPt, width, height);
+      page.drawImage(entry.image, {
+        x,
+        y,
+        width: entry.widthPt,
+        height: entry.heightPt,
+        rotate: degrees(options.rotation),
+        opacity: options.opacity,
+      });
+    }
+    return pdf.save();
+  }
+
+  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
   for (const { page, index } of targets) {
     const text = resolveStampTokens(options.text, { ...ctxBase, page: index + 1 });
     if (!text) continue;
     const { width, height } = page.getSize();
     const textWidth = font.widthOfTextAtSize(text, options.fontSize);
     const textHeight = font.heightAtSize(options.fontSize);
-
-    // pdf-lib rotates text around its draw origin (bottom-left of glyph).
-    // To keep the visual center of the rotated text at the page center,
-    // we reverse-rotate the text-center-to-origin offset from page center.
-    // `rotation` follows the maths convention (counter-clockwise positive, so a
-    // positive angle gives the usual bottom-left→top-right diagonal), which is
-    // exactly pdf-lib's own convention — no sign flip needed.
-    const pdfRotation = options.rotation;
-    const rad = (pdfRotation * Math.PI) / 180;
-    const cos = Math.cos(rad);
-    const sin = Math.sin(rad);
-    const x = width / 2 - (textWidth / 2) * cos + (textHeight / 2) * sin;
-    const y = height / 2 - (textWidth / 2) * sin - (textHeight / 2) * cos;
-
+    const { x, y } = place(textWidth, textHeight, width, height);
     page.drawText(text, {
       x,
       y,
@@ -88,164 +135,8 @@ export async function addWatermark(
       font,
       color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
       opacity: options.opacity,
-      rotate: degrees(pdfRotation),
+      rotate: degrees(options.rotation),
     });
-  }
-
-  return pdf.save();
-}
-
-/**
- * Apply a seal-style stamp to pages of a PDF.
- *
- * Draws a classic rubber-seal graphic: two concentric circles forming a
- * border ring, two small decorative "★" markers at the 9-o'clock and
- * 3-o'clock positions, and the stamp text centered horizontally inside
- * the inner circle. All elements inherit the caller's colour and opacity.
- *
- * @param file - The PDF file to stamp.
- * @param text - The stamp label (e.g. "APPROVED").
- * @param fontSize - Font size in PDF points for the label.
- * @param color - RGB colour with values in the 0–255 range.
- * @param opacity - Opacity from 0 (fully transparent) to 1 (fully opaque).
- * @param pageIndices - Optional array of 0-based page indices to stamp.
- * @returns PDF bytes with the seal stamp applied.
- */
-export async function addSealStamp(
-  file: File,
-  text: string,
-  fontSize: number,
-  color: { r: number; g: number; b: number },
-  opacity: number,
-  pageIndices?: number[],
-): Promise<Uint8Array> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
-
-  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-
-  const pages = pageIndices ? pageIndices.map((i) => pdf.getPage(i)) : pdf.getPages();
-
-  const pdfColor = rgb(color.r / 255, color.g / 255, color.b / 255);
-
-  // Measure the text so we can size the seal around it
-  const textWidth = font.widthOfTextAtSize(text, fontSize);
-  const textHeight = font.heightAtSize(fontSize);
-
-  // The inner radius must be large enough that the full text fits inside
-  // with comfortable padding on each side.
-  const horizontalPadding = fontSize * 0.8;
-  const innerRadius = textWidth / 2 + horizontalPadding;
-  const outerRadius = innerRadius + fontSize * 0.6;
-  const borderThickness = fontSize * 0.15;
-
-  // Rotation angle in degrees — positive here because PDF Y-axis points up,
-  // which mirrors the visual direction vs SVG/CSS (which use -12).
-  const rotationDeg = 12;
-  const rotationRad = (rotationDeg * Math.PI) / 180;
-  const cos = Math.cos(rotationRad);
-  const sin = Math.sin(rotationRad);
-
-  for (const page of pages) {
-    const { width, height } = page.getSize();
-    const cx = width / 2;
-    const cy = height / 2;
-
-    // Apply rotation around page center using a content stream transform.
-    // The cm operator sets a transformation matrix: [cos sin -sin cos tx ty]
-    // We translate origin to center, rotate, then translate back.
-    const tx = cx - cos * cx + sin * cy;
-    const ty = cy - sin * cx - cos * cy;
-    page.pushOperators(
-      PDFOperator.of(PDFOperatorNames.PushGraphicsState),
-      PDFOperator.of(PDFOperatorNames.ConcatTransformationMatrix, [
-        PDFNumber.of(cos),
-        PDFNumber.of(sin),
-        PDFNumber.of(-sin),
-        PDFNumber.of(cos),
-        PDFNumber.of(tx),
-        PDFNumber.of(ty),
-      ]),
-    );
-
-    // Outer circle
-    page.drawCircle({
-      x: cx,
-      y: cy,
-      size: outerRadius,
-      borderColor: pdfColor,
-      borderWidth: borderThickness,
-      opacity: 0,
-      borderOpacity: opacity,
-    });
-
-    // Inner circle
-    page.drawCircle({
-      x: cx,
-      y: cy,
-      size: innerRadius,
-      borderColor: pdfColor,
-      borderWidth: borderThickness * 0.7,
-      opacity: 0,
-      borderOpacity: opacity,
-    });
-
-    // Horizontal divider lines above and below the text
-    const lineHalfWidth = innerRadius * 0.75;
-    const lineGap = textHeight * 1.2;
-
-    // Line above text
-    page.drawLine({
-      start: { x: cx - lineHalfWidth, y: cy + lineGap },
-      end: { x: cx + lineHalfWidth, y: cy + lineGap },
-      thickness: borderThickness * 0.5,
-      color: pdfColor,
-      opacity,
-    });
-
-    // Line below text
-    page.drawLine({
-      start: { x: cx - lineHalfWidth, y: cy - lineGap },
-      end: { x: cx + lineHalfWidth, y: cy - lineGap },
-      thickness: borderThickness * 0.5,
-      color: pdfColor,
-      opacity,
-    });
-
-    // Decorative dots at 9-o'clock and 3-o'clock
-    const midRingRadius = (innerRadius + outerRadius) / 2;
-    const dotRadius = fontSize * 0.12;
-
-    // Left dot (9-o'clock)
-    page.drawCircle({
-      x: cx - midRingRadius,
-      y: cy,
-      size: dotRadius,
-      color: pdfColor,
-      opacity,
-    });
-
-    // Right dot (3-o'clock)
-    page.drawCircle({
-      x: cx + midRingRadius,
-      y: cy,
-      size: dotRadius,
-      color: pdfColor,
-      opacity,
-    });
-
-    // Main stamp text — centered
-    page.drawText(text, {
-      x: cx - textWidth / 2,
-      y: cy - textHeight / 2,
-      size: fontSize,
-      font,
-      color: pdfColor,
-      opacity,
-    });
-
-    // Restore graphics state (end rotation)
-    page.pushOperators(PDFOperator.of(PDFOperatorNames.PopGraphicsState));
   }
 
   return pdf.save();
@@ -500,87 +391,6 @@ export async function addBatesNumbers(
       font,
       color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
     });
-  }
-
-  return pdf.save();
-}
-
-/**
- * Add a rectangle stamp with rounded corners to PDF pages.
- *
- * Uses the @pdfme/pdf-lib `radius` option on `drawRectangle`.
- */
-export async function addRectangleStamp(
-  file: File,
-  text: string,
-  fontSize: number,
-  color: { r: number; g: number; b: number },
-  opacity: number,
-  pageIndices?: number[],
-): Promise<Uint8Array> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
-
-  const font = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const pages = pageIndices ? pageIndices.map((i) => pdf.getPage(i)) : pdf.getPages();
-  const pdfColor = rgb(color.r / 255, color.g / 255, color.b / 255);
-
-  const textWidth = font.widthOfTextAtSize(text, fontSize);
-  const textHeight = font.heightAtSize(fontSize);
-  const padX = fontSize * 1.2;
-  const padY = fontSize * 0.6;
-  const rectWidth = textWidth + padX * 2;
-  const rectHeight = textHeight + padY * 2;
-  const borderThickness = fontSize * 0.12;
-  const cornerRadius = fontSize * 0.4;
-
-  const rotationDeg = -12;
-  const rotationRad = (rotationDeg * Math.PI) / 180;
-  const cos = Math.cos(rotationRad);
-  const sin = Math.sin(rotationRad);
-
-  for (const page of pages) {
-    const { width, height } = page.getSize();
-    const cx = width / 2;
-    const cy = height / 2;
-
-    const tx = cx - cos * cx + sin * cy;
-    const ty = cy - sin * cx - cos * cy;
-    page.pushOperators(
-      PDFOperator.of(PDFOperatorNames.PushGraphicsState),
-      PDFOperator.of(PDFOperatorNames.ConcatTransformationMatrix, [
-        PDFNumber.of(cos),
-        PDFNumber.of(sin),
-        PDFNumber.of(-sin),
-        PDFNumber.of(cos),
-        PDFNumber.of(tx),
-        PDFNumber.of(ty),
-      ]),
-    );
-
-    page.drawRectangle({
-      x: cx - rectWidth / 2,
-      y: cy - rectHeight / 2,
-      width: rectWidth,
-      height: rectHeight,
-      borderColor: pdfColor,
-      borderWidth: borderThickness,
-      borderOpacity: opacity,
-      color: pdfColor,
-      opacity: opacity * 0.08,
-      radius: cornerRadius,
-    });
-
-    page.drawText(text, {
-      x: cx - textWidth / 2,
-      y: cy - textHeight / 2,
-      size: fontSize,
-      font,
-      color: pdfColor,
-      opacity,
-    });
-
-    page.pushOperators(PDFOperator.of(PDFOperatorNames.PopGraphicsState));
   }
 
   return pdf.save();

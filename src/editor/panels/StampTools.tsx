@@ -19,8 +19,11 @@ import type {
   PageNumberFormat,
   PageNumberOptions,
   PageNumberPosition,
+  StampFinish,
+  StampShape,
   WatermarkOptions,
 } from "../../types.ts";
+import { paintStamp } from "../../utils/pdf/stamp-render.ts";
 import {
   addBatesNumbers,
   addHeaderFooter,
@@ -544,21 +547,27 @@ export function BatesPanel() {
 // centre + rotation math.
 const WATERMARK_TOOL_ID = "stamp-pdf";
 
-const WATERMARK_DEFAULTS: WatermarkOptions = {
+const WATERMARK_DEFAULTS: Required<WatermarkOptions> = {
   text: "CONFIDENTIAL",
   fontSize: 48,
   color: GREY,
   opacity: 0.3,
   rotation: 45,
+  shape: "none",
+  finish: "digital",
+  inkTexture: 0.25,
 };
 
-function readWatermark(slice: Record<string, unknown>): WatermarkOptions {
+function readWatermark(slice: Record<string, unknown>): Required<WatermarkOptions> {
   return {
     text: (slice.text as string) ?? WATERMARK_DEFAULTS.text,
     fontSize: (slice.fontSize as number) ?? WATERMARK_DEFAULTS.fontSize,
     color: (slice.color as WatermarkOptions["color"]) ?? WATERMARK_DEFAULTS.color,
     opacity: (slice.opacity as number) ?? WATERMARK_DEFAULTS.opacity,
     rotation: (slice.rotation as number) ?? WATERMARK_DEFAULTS.rotation,
+    shape: (slice.shape as StampShape) ?? WATERMARK_DEFAULTS.shape,
+    finish: (slice.finish as StampFinish) ?? WATERMARK_DEFAULTS.finish,
+    inkTexture: (slice.inkTexture as number) ?? WATERMARK_DEFAULTS.inkTexture,
   };
 }
 
@@ -594,7 +603,7 @@ export function WatermarkStage() {
   const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
   const page = doc?.pages[selectedPage] ?? null;
   const widthPt = page?.widthPt ?? 0;
-  const { text, fontSize, opacity, rotation } = o;
+  const { text, fontSize, opacity, rotation, shape, finish, inkTexture } = o;
   const { r, g, b } = o.color;
   // Resolve {page}/{date}/… for the focused page so the preview shows the real
   // burned text, not the raw template. {title} isn't in the doc model → "".
@@ -608,15 +617,28 @@ export function WatermarkStage() {
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number) => {
       if (!resolved.trim() || widthPt <= 0) return;
-      drawWatermarkPreview(ctx, w, h, widthPt, {
+      // Plain watermark → direct vector-style text (mirrors the pdf-lib burn).
+      // Any shape or the ink finish → the shared raster painter that also draws
+      // the burned PNG, so the box/seal/ink-bleed preview matches the output.
+      if (shape === "none" && finish === "digital") {
+        drawWatermarkPreview(ctx, w, h, widthPt, {
+          text: resolved,
+          fontSize,
+          color: { r, g, b },
+          opacity,
+          rotation,
+        });
+        return;
+      }
+      paintStamp(ctx, w / 2, h / 2, fontSize * (w / widthPt), rotation, opacity, {
         text: resolved,
-        fontSize,
         color: { r, g, b },
-        opacity,
-        rotation,
+        shape,
+        finish,
+        texture: inkTexture,
       });
     },
-    [resolved, fontSize, r, g, b, opacity, rotation, widthPt],
+    [resolved, fontSize, r, g, b, opacity, rotation, shape, finish, inkTexture, widthPt],
   );
   useStageProps({ paintOverlay });
   return null;
@@ -629,8 +651,8 @@ export function WatermarkPanel() {
   const set = (p: Partial<WatermarkOptions>) => patchToolState(WATERMARK_TOOL_ID, p);
   return (
     <WholeDocPanel
-      blurb="Stamp a diagonal text watermark across every page."
-      applyLabel="Add watermark"
+      blurb="Stamp text across every page — plain, in a box or seal, with a crisp digital or distressed ink-stamp finish."
+      applyLabel="Add stamp"
       disabled={!o.text.trim()}
       onApply={() =>
         void applyTransform(async (d) => ({
@@ -648,6 +670,38 @@ export function WatermarkPanel() {
         />
         <TokenBar onInsert={insert} />
       </div>
+      <Labeled label="Shape">
+        <Segmented<StampShape>
+          value={o.shape}
+          onChange={(shape) => set({ shape })}
+          options={[
+            { value: "none", label: "None" },
+            { value: "rect", label: "Box" },
+            { value: "circle", label: "Circle" },
+          ]}
+        />
+      </Labeled>
+      <Labeled label="Finish">
+        <Segmented<StampFinish>
+          value={o.finish}
+          onChange={(finish) => set({ finish })}
+          options={[
+            { value: "digital", label: "Digital" },
+            { value: "ink", label: "Ink stamp" },
+          ]}
+        />
+      </Labeled>
+      {o.finish === "ink" && (
+        <RangeField
+          label="Texture"
+          value={Math.round(o.inkTexture * 100)}
+          min={0}
+          max={50}
+          step={5}
+          suffix="%"
+          onChange={(v) => set({ inkTexture: v / 100 })}
+        />
+      )}
       <ColorRow value={o.color} onChange={(color) => set({ color })} />
       <RangeField
         label="Size"
