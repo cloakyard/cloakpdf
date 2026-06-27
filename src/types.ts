@@ -4,13 +4,14 @@
 
 import type { ComponentType } from "react";
 
-/** A 1-based inclusive page range used by the Split PDF tool. */
-export interface PageRange {
-  start: number;
-  end: number;
-}
+/** Shape drawn around the stamp text. `"none"` is the plain diagonal watermark. */
+export type StampShape = "none" | "rect" | "circle";
 
-/** Configuration options for the Add Watermark tool. */
+/** Stamp finish: `"digital"` is crisp vector ink; `"ink"` adds a distressed,
+ *  softly-bleeding rubber-stamp texture (rendered raster, embedded as an image). */
+export type StampFinish = "digital" | "ink";
+
+/** Configuration options for the Stamp / watermark tool. */
 export interface WatermarkOptions {
   /** The watermark text to display. */
   text: string;
@@ -23,6 +24,13 @@ export interface WatermarkOptions {
   /** Rotation angle in degrees, maths convention: positive = counter-clockwise,
    *  so +45 gives the usual bottom-left→top-right diagonal. */
   rotation: number;
+  /** Border drawn around the text. Defaults to `"none"` (plain watermark). */
+  shape?: StampShape;
+  /** Ink finish. Defaults to `"digital"` (crisp). `"ink"` distresses + bleeds. */
+  finish?: StampFinish;
+  /** Ink-texture amount 0–1 (light → heavy grunge); only used when `finish` is
+   *  `"ink"`. Defaults to a medium level. */
+  inkTexture?: number;
 }
 
 /** Standard PDF document metadata fields. */
@@ -137,7 +145,7 @@ export interface CropMargins {
 }
 
 /** Position of Bates numbers on the page. */
-export type BatesPosition =
+type BatesPosition =
   | "top-left"
   | "top-center"
   | "top-right"

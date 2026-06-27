@@ -6,30 +6,13 @@
  * (compression). No files are uploaded to any server.
  *
  * This file is a thin re-export barrel over the cohesive modules in
- * `./pdf/*`. The public surface is identical to the pre-split module — the
- * shared private helpers in `./pdf/raster.ts` (getPdfJs, renderPageToCanvas,
- * preprocessCanvasForOcr, canvasToImageBytes, decodeImageToPngBytes) and
- * `./pdf/forms.ts` (clonePageFormFields) are intentionally NOT re-exported so
- * that importing `../utils/pdf-operations.ts` exposes exactly the same names as
- * before.
+ * `./pdf/*`. Shared private helpers in `./pdf/raster.ts` (getPdfJs,
+ * renderPageToCanvas, canvasToImageBytes, decodeImageToPngBytes) and the
+ * per-module private helpers are intentionally NOT re-exported.
  */
 
 export type { AssembleOp } from "./pdf/pages.ts";
-export {
-  mergePdfs,
-  splitPdf,
-  splitPdfIntoParts,
-  rotatePages,
-  deletePages,
-  reorderPages,
-  reversePages,
-  extractPages,
-  addBlankPage,
-  addBlankPages,
-  duplicatePage,
-  duplicatePages,
-  assemblePdf,
-} from "./pdf/pages.ts";
+export { mergePdfs, splitPdfIntoParts, assemblePdf } from "./pdf/pages.ts";
 
 export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
 
@@ -48,31 +31,22 @@ export {
   imagesToPdf,
   nupPages,
   bookletOrder,
-  cropPages,
   cropPagesIndividual,
-  uncropPages,
 } from "./pdf/transform.ts";
 
 export {
   addWatermark,
-  addSealStamp,
   addSignature,
-  addRectangleStamp,
   addPageNumbers,
   addHeaderFooter,
   addBatesNumbers,
 } from "./pdf/stamps.ts";
 
-export type {
-  CodeStampType,
-  CodeStampOptions,
-  CodeArtOptions,
-  CodePlacement,
-} from "./pdf/codes.ts";
-export { addCodeStamp, addCodeStampAt, encodeCode128B } from "./pdf/codes.ts";
+export type { CodeStampType, CodeArtOptions, CodePlacement } from "./pdf/codes.ts";
+export { addCodeStampAt, encodeCode128B } from "./pdf/codes.ts";
 
 export type { TokenContext, TokenDef } from "./pdf/tokens.ts";
-export { STAMP_TOKENS, resolveStampTokens, hasStampToken, baseFileName } from "./pdf/tokens.ts";
+export { STAMP_TOKENS, resolveStampTokens, baseFileName } from "./pdf/tokens.ts";
 
 export type { PdfInfo } from "./pdf/metadata.ts";
 export {
@@ -92,7 +66,6 @@ export {
   inkBoundingBox,
   detectSkewAngle,
   detectContentBox,
-  detectPageSkew,
   deskewPdf,
 } from "./pdf/page-analyze.ts";
 

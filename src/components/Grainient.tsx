@@ -331,5 +331,3 @@ export function Grainient({
 
   return <div ref={containerRef} className={`grainient-container ${className}`.trim()} />;
 }
-
-export default Grainient;

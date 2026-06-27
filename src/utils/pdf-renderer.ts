@@ -99,58 +99,6 @@ async function renderPage(
 }
 
 /**
- * Return the total number of pages in a PDF file.
- *
- * @param file - The PDF file to inspect.
- * @returns Total page count.
- */
-export async function getPageCount(file: File): Promise<number> {
-  const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  try {
-    const pdf = await loadingTask.promise;
-    return pdf.numPages;
-  } finally {
-    void loadingTask.destroy();
-  }
-}
-
-/**
- * Render specific pages of a PDF (1-based page numbers) from a single document
- * load. Rendering from one load (rather than once per page) is required because
- * PDF.js transfers (detaches) the ArrayBuffer to its Web Worker on the first
- * call, so a second load of the same buffer would fail.
- *
- * @param file - The PDF file to render from.
- * @param pageNums - 1-based page numbers to render, in any order.
- * @param scale - Render scale factor (default 0.4).
- * @returns Blob object URLs in the same order as `pageNums`. Caller must revoke when done.
- */
-export async function renderSpecificThumbnails(
-  file: File,
-  pageNums: number[],
-  scale = 0.4,
-): Promise<string[]> {
-  const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  try {
-    const pdf = await loadingTask.promise;
-    const results: string[] = [];
-
-    for (const pageNum of pageNums) {
-      const { canvas } = await renderPage(pdf, pageNum, scale);
-      results.push(await canvasToBlobUrl(canvas));
-      canvas.width = 0;
-      canvas.height = 0;
-    }
-
-    return results;
-  } finally {
-    void loadingTask.destroy();
-  }
-}
-
-/**
  * Render selected pages of a PDF to image Blobs at a given DPI.
  *
  * Pages are rendered sequentially to avoid excessive memory usage.
@@ -243,79 +191,6 @@ export async function renderAllThumbnails(
   } finally {
     void loadingTask.destroy();
   }
-}
-
-/** Result of {@link renderThumbnailsAndScan}: previews + digital/scanned split. */
-export interface ThumbnailsScanResult {
-  thumbnails: string[];
-  /** Total page count. */
-  total: number;
-  /** 1-based page numbers with no usable text layer (need Tesseract OCR). */
-  scannedPages: number[];
-}
-
-/**
- * Render thumbnails AND classify each page (digital vs scanned) in a single
- * pass over one decoded document.
- *
- * Used by the OCR tool so it can be upfront about what was uploaded and hide
- * the Tesseract engine/language download UI for fully-digital PDFs — without
- * paying a second `getDocument()` decode (the previous "render, then classify
- * separately" path opened the file twice). Per-page work is wrapped so a single
- * page that fails to render or whose text layer can't be read degrades that one
- * page (blank thumbnail / treated as scanned) instead of failing the whole
- * load. A document that won't open at all still rejects — it can't be OCR'd
- * either way.
- */
-export async function renderThumbnailsAndScan(
-  file: File,
-  scale = 0.4,
-  minTextChars = 16,
-  onProgress?: (rendered: number, total: number) => void,
-): Promise<ThumbnailsScanResult> {
-  const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-  const thumbnails: string[] = [];
-  const scannedPages: number[] = [];
-  let total = 0;
-  try {
-    // Inside the try so the finally's destroy() also runs if the doc won't open.
-    const pdf = await loadingTask.promise;
-    total = pdf.numPages;
-    for (let i = 1; i <= total; i++) {
-      try {
-        // cleanup=false: we re-read this same page's text layer just below and
-        // run page.cleanup() once after both, so renderPage must not clean early.
-        const { canvas } = await renderPage(pdf, i, scale, false);
-        thumbnails.push(await canvasToBlobUrl(canvas));
-        canvas.width = 0;
-        canvas.height = 0;
-      } catch {
-        // One unrenderable page shouldn't blank the whole preview strip.
-        thumbnails.push("");
-      }
-      try {
-        // pdf.js caches getPage, so this re-uses the page renderPage just fetched.
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        let chars = 0;
-        for (const raw of content.items as Array<{ str?: string }>) {
-          chars += (raw.str ?? "").replace(/\s+/g, "").length;
-          if (chars >= minTextChars) break;
-        }
-        if (chars < minTextChars) scannedPages.push(i);
-        page.cleanup();
-      } catch {
-        // Unreadable text layer → treat the page as scanned (conservative: the
-        // user gets the OCR controls rather than a wrong "digital" banner).
-        scannedPages.push(i);
-      }
-      onProgress?.(i, total);
-    }
-  } finally {
-    void loadingTask.destroy();
-  }
-  return { thumbnails, total, scannedPages };
 }
 
 /**
