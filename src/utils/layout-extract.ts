@@ -537,7 +537,7 @@ export function layoutToMarkdown(pages: LayoutPage[], options: MarkdownOptions =
 const PAGE_NUMBER_RE =
   /^[\s.–—-]*(?:p(?:age|g)?\.?\s*)?[0-9ivxlcdm]+(?:\s*(?:of|\/|–|—|-)\s*[0-9ivxlcdm]+)?[\s.–—-]*$/i;
 
-export type FurnitureRegion = "top" | "bottom";
+type FurnitureRegion = "top" | "bottom";
 
 /** One cluster of recurring page furniture, ready for the tool's checklist. */
 export interface FurnitureGroup {

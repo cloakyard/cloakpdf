@@ -75,12 +75,6 @@ export function resolveStampTokens(text: string, ctx: TokenContext): string {
   });
 }
 
-/** Does `text` contain at least one resolvable token? (Lets a UI show a hint.) */
-export function hasStampToken(text: string): boolean {
-  TOKEN_RE.lastIndex = 0;
-  return TOKEN_RE.test(text);
-}
-
 /** Strip the trailing ".pdf" (case-insensitive) for a clean {filename} value. */
 export function baseFileName(name: string): string {
   return name.replace(/\.pdf$/i, "");

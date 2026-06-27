@@ -674,15 +674,3 @@ export async function loadPipeline(
   _pipelineCache.set(modelId, handle.promise);
   return handle.promise;
 }
-
-/**
- * `true` when the pipeline for `modelId` is already resolved in this
- * tab — i.e. a previous call to {@link loadPipeline} succeeded and the
- * weights are in memory. We can't cheaply check whether the *browser
- * cache* has the weights without kicking off a fetch, so this only
- * detects the in-memory case; first-time loads still go through the
- * full consent flow.
- */
-export function isPipelineReady(modelId: AiModelId): boolean {
-  return _pipelineCache.has(modelId);
-}

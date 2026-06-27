@@ -45,15 +45,12 @@ export type { Variants };
  * same hand as the CSS animations it sits beside.
  */
 export const EASE_CALM = [0.22, 1, 0.36, 1] as const;
-/** Symmetric ease for moves that both enter and leave (e.g. crossfades). */
-export const EASE_INOUT = [0.4, 0, 0.2, 1] as const;
 
 /** Duration scale (seconds). Deliberately short — calm, not sluggish. */
 export const DUR = { fast: 0.16, base: 0.26, slow: 0.4 } as const;
 
 export const calm: Transition = { duration: DUR.base, ease: EASE_CALM };
 export const calmFast: Transition = { duration: DUR.fast, ease: EASE_CALM };
-export const calmSlow: Transition = { duration: DUR.slow, ease: EASE_CALM };
 
 /**
  * Shared variant vocabulary. Each carries `initial`/`animate`/`exit` so the
@@ -104,20 +101,6 @@ export const variants = {
     exit: { opacity: 0, transition: calmFast },
   },
 } satisfies Record<string, Variants>;
-
-/**
- * Stagger container + item for list/grid reveals (the home tool cards). The
- * container orchestrates; each child uses `staggerItem` (a fadeUp). Distances
- * stay small so a full grid settling reads as one calm wave, not a cascade.
- */
-export const staggerContainer: Variants = {
-  initial: {},
-  animate: { transition: { staggerChildren: 0.045, delayChildren: 0.02 } },
-};
-export const staggerItem: Variants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0, transition: calm },
-};
 
 /**
  * Root motion provider. Wrap the whole app once. Keeps the feature bundle

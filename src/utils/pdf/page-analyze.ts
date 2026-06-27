@@ -210,14 +210,6 @@ export async function detectContentBox(file: File, pageIndex: number): Promise<C
   return { xPct, yPct, wPct, hPct };
 }
 
-/** Detect a single page's skew angle (degrees) via PDF.js render + projection
- *  profile. Returns 0 when the page is too sparse or essentially straight. */
-export async function detectPageSkew(file: File, pageIndex: number): Promise<number> {
-  const r = await renderPageGray(file, pageIndex, 900);
-  if (!r) return 0;
-  return detectSkewAngle(r.gray, r.w, r.h);
-}
-
 export interface DeskewOptions {
   /** 0-based pages to straighten (default: all). */
   pageIndices?: number[];

@@ -7,12 +7,7 @@
  * pass.
  */
 import { describe, expect, it } from "vitest";
-import {
-  baseFileName,
-  hasStampToken,
-  resolveStampTokens,
-  type TokenContext,
-} from "../../src/utils/pdf/tokens.ts";
+import { baseFileName, resolveStampTokens, type TokenContext } from "../../src/utils/pdf/tokens.ts";
 
 const CTX: TokenContext = {
   page: 3,
@@ -47,15 +42,6 @@ describe("resolveStampTokens", () => {
     const out = resolveStampTokens("{date}", CTX);
     expect(out.length).toBeGreaterThan(0);
     expect(out).not.toContain("{date}");
-  });
-});
-
-describe("hasStampToken", () => {
-  it("detects a resolvable token", () => {
-    expect(hasStampToken("Footer {date}")).toBe(true);
-    expect(hasStampToken("plain footer")).toBe(false);
-    // Stateful regex must not flip-flop across calls.
-    expect(hasStampToken("Footer {date}")).toBe(true);
   });
 });
 
