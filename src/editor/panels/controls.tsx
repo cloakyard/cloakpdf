@@ -6,7 +6,6 @@
 import type { LucideIcon } from "lucide-react";
 import { type FocusEvent as ReactFocusEvent, useCallback, useRef } from "react";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
-import { Select } from "../../components/Select.tsx";
 import { STAMP_TOKENS } from "../../utils/pdf-operations.ts";
 
 export interface Rgb {
@@ -135,29 +134,6 @@ export function TextField({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       />
-    </Labeled>
-  );
-}
-
-/** App dropdown styled to match the panel's inputs (the custom {@link Select},
- *  not a native control). Generic over the option value so callers keep their
- *  string-literal unions. */
-export function SelectField<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-  icon,
-}: {
-  label: string;
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-  icon?: LucideIcon;
-}) {
-  return (
-    <Labeled label={label} icon={icon}>
-      <Select value={value} options={options} onChange={onChange} ariaLabel={label} />
     </Labeled>
   );
 }

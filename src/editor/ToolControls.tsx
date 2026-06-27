@@ -8,7 +8,7 @@ import { toolImpl } from "./registry.tsx";
 import { findEditorTool } from "./tools.ts";
 
 /** Placeholder body for tools whose editor migration is still pending. */
-export function ToolPlaceholder({ toolId }: { toolId: string }) {
+function ToolPlaceholder({ toolId }: { toolId: string }) {
   const tool = findEditorTool(toolId);
   if (!tool) return null;
   return (

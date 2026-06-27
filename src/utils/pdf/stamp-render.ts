@@ -345,7 +345,7 @@ function buildStampImageUncached(fontPx: number, opts: StampImageOpts): StampIma
  *
  * @param fontPx - Font size in canvas pixels (caller scales points → px).
  */
-export function buildStampImage(fontPx: number, opts: StampImageOpts): StampImage | null {
+function buildStampImage(fontPx: number, opts: StampImageOpts): StampImage | null {
   if (!opts.text.trim() || fontPx < 1) return null;
   const tex = opts.finish === "ink" ? (opts.texture ?? DEFAULT_TEXTURE).toFixed(2) : "-";
   const key = `${Math.round(fontPx)}|${opts.shape}|${opts.finish}|${tex}|${opts.color.r},${opts.color.g},${opts.color.b}|${opts.text}`;
