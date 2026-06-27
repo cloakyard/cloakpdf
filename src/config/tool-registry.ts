@@ -147,7 +147,7 @@ export type ToolId = (typeof tools)[number]["id"] | EditorToolId;
 
 // ── Map tool IDs → lazy-loaded components ────────────────────────
 
-export const toolComponents: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
+const toolComponents: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   merge: MergePdf,
   "images-to-pdf": ImagesToPdf,
   "extract-images": ExtractImages,

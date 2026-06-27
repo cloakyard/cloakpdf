@@ -4,12 +4,6 @@
 
 import type { ComponentType } from "react";
 
-/** A 1-based inclusive page range used by the Split PDF tool. */
-export interface PageRange {
-  start: number;
-  end: number;
-}
-
 /** Shape drawn around the stamp text. `"none"` is the plain diagonal watermark. */
 export type StampShape = "none" | "rect" | "circle";
 
@@ -151,7 +145,7 @@ export interface CropMargins {
 }
 
 /** Position of Bates numbers on the page. */
-export type BatesPosition =
+type BatesPosition =
   | "top-left"
   | "top-center"
   | "top-right"

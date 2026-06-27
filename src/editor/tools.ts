@@ -51,11 +51,11 @@ export type EditorToolGroup =
 
 /** Which stage the tool operates in. `overview` tools act on the page grid;
  *  `focus` tools draw on / configure a single page; `either` work in both. */
-export type EditorToolMode = "focus" | "overview" | "either";
+type EditorToolMode = "focus" | "overview" | "either";
 
 /** Build status — lets the rail render the full target roster now while tools
  *  land milestone by milestone. `soon` tools show a placeholder panel. */
-export type EditorToolStatus = "ready" | "soon";
+type EditorToolStatus = "ready" | "soon";
 
 export interface EditorTool {
   id: string;

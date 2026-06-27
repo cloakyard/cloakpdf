@@ -33,7 +33,7 @@ export interface PageMeta {
 /** Tagged overlay kinds the editor can place on a page. The roster grows as
  *  overlay tools land (M1+); the union is the contract the layers list and the
  *  per-tool dispatch read. */
-export type CanvasObjectKind =
+type CanvasObjectKind =
   | "redaction"
   | "erase"
   | "annotation"
