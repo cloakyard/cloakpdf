@@ -330,12 +330,14 @@ export function ExportButton() {
           downloadBlob(rendered[0].blob, `${baseName}.png`);
           return;
         }
-        const JSZip = (await import("jszip")).default;
-        const zip = new JSZip();
-        for (const { pageIndex, blob } of rendered) {
-          zip.file(`${baseName}_p${String(pageIndex + 1).padStart(3, "0")}.png`, blob);
-        }
-        downloadBlob(await zip.generateAsync({ type: "blob" }), `${baseName}_images.zip`);
+        const { makeZip } = await import("../utils/zip.ts");
+        const zipBlob = await makeZip(
+          rendered.map(({ pageIndex, blob }) => ({
+            name: `${baseName}_p${String(pageIndex + 1).padStart(3, "0")}.png`,
+            data: blob,
+          })),
+        );
+        downloadBlob(zipBlob, `${baseName}_images.zip`);
       });
       return;
     }
@@ -352,12 +354,14 @@ export function ExportButton() {
       void runTask("Splitting pages…", async () => {
         const parts = Array.from({ length: doc.pageCount }, (_, i) => [i]);
         const pdfs = await splitPdfIntoParts(await flattenedFile(), parts);
-        const JSZip = (await import("jszip")).default;
-        const zip = new JSZip();
-        pdfs.forEach((bytes, i) => {
-          zip.file(`${baseName}_p${String(i + 1).padStart(3, "0")}.pdf`, bytes);
-        });
-        downloadBlob(await zip.generateAsync({ type: "blob" }), `${baseName}_pages.zip`);
+        const { makeZip } = await import("../utils/zip.ts");
+        const zipBlob = await makeZip(
+          pdfs.map((bytes, i) => ({
+            name: `${baseName}_p${String(i + 1).padStart(3, "0")}.pdf`,
+            data: bytes,
+          })),
+        );
+        downloadBlob(zipBlob, `${baseName}_pages.zip`);
       });
       return;
     }
