@@ -44,6 +44,8 @@ export {
 
 export type { CodeStampType, CodeArtOptions, CodePlacement } from "./pdf/codes.ts";
 export { addCodeStampAt, encodeCode128B } from "./pdf/codes.ts";
+export type { QrEcl, QrMatrix } from "./pdf/qr.ts";
+export { encodeQr } from "./pdf/qr.ts";
 
 export type { TokenContext, TokenDef } from "./pdf/tokens.ts";
 export { STAMP_TOKENS, resolveStampTokens, baseFileName } from "./pdf/tokens.ts";
