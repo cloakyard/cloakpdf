@@ -52,7 +52,7 @@ Everything runs client-side — there is no server to upload to. No accounts, no
 
 | Area             | Technology                                                                                                                   |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Framework        | [React 19](https://react.dev/) + [TypeScript 6](https://www.typescriptlang.org/)                                             |
+| Framework        | [React 19](https://react.dev/) + [TypeScript 7](https://www.typescriptlang.org/)                                             |
 | Styling          | [Tailwind CSS 4](https://tailwindcss.com/)                                                                                   |
 | Build & tooling  | [Vite+ (`vp`)](https://viteplus.dev/)                                                                                        |
 | PDF manipulation | [@pdfme/pdf-lib](https://github.com/pdfme/pdf-lib)                                                                           |

@@ -295,12 +295,13 @@ export default function ExtractImages() {
         const img = selectedImages[0];
         downloadBlob(img.blob, `${baseName}_p${img.page}_img${img.indexOnPage + 1}.png`);
       } else {
-        const JSZip = (await import("jszip")).default;
-        const zip = new JSZip();
-        for (const img of selectedImages) {
-          zip.file(`${baseName}_p${img.page}_img${img.indexOnPage + 1}.png`, img.blob);
-        }
-        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const { makeZip } = await import("../utils/zip.ts");
+        const zipBlob = await makeZip(
+          selectedImages.map((img) => ({
+            name: `${baseName}_p${img.page}_img${img.indexOnPage + 1}.png`,
+            data: img.blob,
+          })),
+        );
         downloadBlob(zipBlob, `${baseName}_images.zip`);
       }
     }, "Failed to download images. Please try again.");
