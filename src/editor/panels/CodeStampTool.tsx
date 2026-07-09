@@ -14,8 +14,12 @@
 
 import { Layers } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import qrcode from "qrcode-generator";
-import { addCodeStampAt, type CodeStampType, encodeCode128B } from "../../utils/pdf-operations.ts";
+import {
+  addCodeStampAt,
+  type CodeStampType,
+  encodeCode128B,
+  encodeQr,
+} from "../../utils/pdf-operations.ts";
 import { ColorPicker, hexToRgb } from "../../components/ColorPicker.tsx";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
@@ -77,10 +81,8 @@ function renderCode(
   if (!text) return null;
   if (type === "qr") {
     try {
-      const qr = qrcode(0, "M");
-      qr.addData(text);
-      qr.make();
-      const n = qr.getModuleCount();
+      const qr = encodeQr(text, "M");
+      const n = qr.size;
       const quiet = 4;
       const cell = 6;
       const dim = (n + quiet * 2) * cell;
