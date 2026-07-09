@@ -21,7 +21,7 @@ Pre-commit testing rule: run `vp check` + `vp test` + (for UI/RAG changes) `pnpm
 
 ## Architecture
 
-CloakPDF is a **100% client-side** React 19 + TypeScript 6 single-page app served as static assets via Cloudflare Workers (`wrangler.jsonc`). Every PDF operation runs in the browser; no file ever crosses the network.
+CloakPDF is a **100% client-side** React 19 + TypeScript 7 single-page app served as static assets via Cloudflare Workers (`wrangler.jsonc`). Every PDF operation runs in the browser; no file ever crosses the network.
 
 ### View routing
 
