@@ -1,10 +1,10 @@
 /**
  * Unit tests for the QR / barcode stamp writer (codes.ts).
  *
- * The QR matrix comes from the third-party `qrcode-generator` (exercised in the
- * browser smoke); here we pin the pure Code 128-B encoder (start/checksum/stop
- * framing + character range) and assert addCodeStampAt produces a loadable PDF
- * that grew (vector content was drawn) without changing the page count.
+ * The QR matrix comes from our own encoder (covered directly in qr.test.ts);
+ * here we pin the pure Code 128-B encoder (start/checksum/stop framing +
+ * character range) and assert addCodeStampAt produces a loadable PDF that grew
+ * (vector content was drawn) without changing the page count.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { describe, expect, it } from "vitest";
