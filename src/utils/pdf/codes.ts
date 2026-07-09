@@ -3,9 +3,9 @@
  *
  * Both symbologies are drawn as **vector** rectangles straight into the page
  * content stream (no canvas, no embedded raster), so they stay razor-sharp at
- * any zoom or print DPI and add only a few KB. QR matrices come from the tiny
- * dependency-free `qrcode-generator`; Code 128 is encoded here by a compact
- * self-contained encoder so we pull in no barcode library.
+ * any zoom or print DPI and add only a few KB. QR matrices come from our own
+ * dependency-free encoder ([qr.ts](./qr.ts)); Code 128 is encoded here by a
+ * compact self-contained encoder — no QR or barcode library is pulled in.
  *
  * Use cases this unlocks that no other in-browser PDF editor offers: dropping a
  * scannable verification URL, case number, or document hash onto a corner of
@@ -14,7 +14,7 @@
  */
 
 import { PDFDocument, rgb, StandardFonts } from "@pdfme/pdf-lib";
-import qrcode from "qrcode-generator";
+import { encodeQr } from "./qr.ts";
 
 export type CodeStampType = "qr" | "barcode";
 
@@ -218,10 +218,8 @@ export async function addCodeStampAt(
   let qrCount = 0;
   let qrIsDark: (row: number, col: number) => boolean = () => false;
   if (options.type === "qr") {
-    const qr = qrcode(0, "M");
-    qr.addData(content);
-    qr.make();
-    qrCount = qr.getModuleCount();
+    const qr = encodeQr(content, "M");
+    qrCount = qr.size;
     qrIsDark = (row, col) => qr.isDark(row, col);
   }
   const barPattern = options.type === "barcode" ? encodeCode128B(content) : "";
