@@ -199,13 +199,13 @@ export function Panel() {
       ) : (
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
+            <span className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
               {regions.length} area{regions.length === 1 ? "" : "s"}
             </span>
             <button
               type="button"
               onClick={clearAll}
-              className="text-xs text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+              className="inline-flex items-center rounded px-1 text-xs text-primary-600 hover:underline pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               Clear all
             </button>
@@ -224,7 +224,7 @@ export function Panel() {
                       setSelectedPage(r.pageIndex);
                       setViewMode("focus");
                     }}
-                    className="min-w-0 flex-1 truncate rounded text-left text-slate-600 dark:text-dark-text-muted hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    className="min-w-0 flex-1 truncate rounded text-left text-slate-600 dark:text-dark-text-muted hover:text-primary-600 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
                     Area {i + 1} · page {r.pageIndex + 1} · {MODE_LABEL[m]}
                   </button>
@@ -232,7 +232,7 @@ export function Panel() {
                     type="button"
                     onClick={() => removeObject(r.id)}
                     aria-label={`Remove area ${i + 1}`}
-                    className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    className="inline-flex items-center justify-center rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-red-600 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

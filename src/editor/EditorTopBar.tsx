@@ -5,7 +5,8 @@
 //              pill so they read as peer groups — the page stepper (focus/single
 //              view only), the page-density toggle (with a sliding indicator),
 //              and the zoom group (focus only). Pinned to the true middle
-//              (grid-cols-[1fr_auto_1fr]). mobile: the page stepper (centred).
+//              (grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]). mobile: the
+//              page stepper (centred).
 //   • right  — undo/redo/(reset desktop), Export.
 // On mobile the file pill, logo, density toggle and zoom buttons collapse (no
 // room); view mode is driven by the tool you pick, and zoom is pinch-to-zoom.
@@ -38,23 +39,19 @@ const DENSITIES = [
   { cols: 3, icon: Grid3x3, label: "3-column grid" },
 ] as const;
 
-// Width (px) of one segment in the density toggle — must match the SEG_BTN
-// `w-8` (2rem) so the sliding indicator lands exactly under the active icon.
-const SEG_W = 32;
-
 const ICON_BTN =
-  "flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text disabled:opacity-30 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+  "flex h-9 w-9 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-800 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text dark:active:bg-dark-bg disabled:opacity-30 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 
 // Segmented button shared by the centre cluster — the page stepper chevrons and
 // the density/grid icons use the exact same shape so they read as one section.
 const SEG_BTN =
-  "flex h-7 w-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+  "flex h-7 w-8 items-center justify-center rounded-sm pointer-coarse:min-h-11 pointer-coarse:min-w-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 const SEG_IDLE =
-  "text-slate-500 hover:text-slate-800 dark:text-dark-text-muted dark:hover:text-dark-text disabled:opacity-30 disabled:pointer-events-none";
+  "text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:bg-slate-200/70 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text disabled:opacity-30 disabled:pointer-events-none";
 
 // Smaller icon button for the centre zoom pill — h-7 to match the density pill.
 const ZOOM_BTN =
-  "flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+  "flex h-7 w-7 items-center justify-center rounded-sm text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 
 export function EditorTopBar() {
   const { doc, viewMode, selectedPage, canUndo, canRedo, canReset, layout } = useEditorRead();
@@ -105,7 +102,7 @@ export function EditorTopBar() {
   // page by tapping a thumbnail.
   const stepperControl =
     doc && doc.pageCount > 1 && viewMode === "focus" ? (
-      <div className="flex items-center gap-0.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-0.5">
+      <div className="editor-topbar__control flex items-center gap-0.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
         <button
           type="button"
           onClick={() => setSelectedPage(Math.max(0, selectedPage - 1))}
@@ -113,12 +110,12 @@ export function EditorTopBar() {
           aria-label="Previous page"
           className={`${SEG_BTN} ${SEG_IDLE}`}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         </button>
         <span
           role="status"
           aria-live="polite"
-          className="px-1.5 text-center text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted"
+          className="px-1.5 text-center font-mono text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted"
         >
           {selectedPage + 1} / {doc.pageCount}
         </span>
@@ -129,7 +126,7 @@ export function EditorTopBar() {
           aria-label="Next page"
           className={`${SEG_BTN} ${SEG_IDLE}`}
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     ) : null;
@@ -139,12 +136,12 @@ export function EditorTopBar() {
   // density glides rather than hard-swapping the highlight.
   const densityControl =
     doc && doc.pageCount > 1 ? (
-      <div className="flex items-center rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-0.5">
+      <div className="editor-topbar__control flex items-center rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
         <div className="relative flex">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-7 w-8 rounded-md bg-primary-600 duration-200 ease-out motion-safe:transition-transform"
-            style={{ transform: `translateX(${(activeCols - 1) * SEG_W}px)` }}
+            className="pointer-events-none absolute left-0 top-0 h-7 w-8 rounded-sm bg-primary-600 duration-200 ease-out pointer-coarse:h-11 pointer-coarse:w-11 motion-safe:transition-transform"
+            style={{ transform: `translateX(${(activeCols - 1) * 100}%)` }}
           />
           {DENSITIES.map(({ cols, icon: Icon, label }) => {
             const on = activeCols === cols;
@@ -162,7 +159,7 @@ export function EditorTopBar() {
                     : "text-slate-500 hover:text-slate-800 dark:text-dark-text-muted dark:hover:text-dark-text"
                 }`}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-4 w-4" aria-hidden="true" />
               </button>
             );
           })}
@@ -175,16 +172,16 @@ export function EditorTopBar() {
   // zoom); rendered only off mobile (phones use pinch-to-zoom).
   const zoomControl =
     doc && viewMode === "focus" ? (
-      <div className="flex items-center gap-0.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-0.5">
+      <div className="editor-topbar__control flex items-center gap-0.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
         <button
           type="button"
           onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.2, v.zoom / 1.2) }))}
           className={ZOOM_BTN}
           aria-label="Zoom out"
         >
-          <ZoomOut className="h-4 w-4" />
+          <ZoomOut className="h-4 w-4" aria-hidden="true" />
         </button>
-        <span className="min-w-10 text-center text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted">
+        <span className="min-w-10 text-center font-mono text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted">
           {zoomPct}%
         </span>
         <button
@@ -193,7 +190,7 @@ export function EditorTopBar() {
           className={ZOOM_BTN}
           aria-label="Zoom in"
         >
-          <ZoomIn className="h-4 w-4" />
+          <ZoomIn className="h-4 w-4" aria-hidden="true" />
         </button>
         <span className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-dark-border" aria-hidden="true" />
         <button
@@ -202,30 +199,32 @@ export function EditorTopBar() {
           className={ZOOM_BTN}
           aria-label="Fit to screen"
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     ) : null;
 
   return (
     <header
-      className={`grid h-16 shrink-0 items-center overflow-x-clip border-b border-slate-200/70 dark:border-dark-border bg-slate-50/90 dark:bg-dark-surface/90 px-3 ${
-        isMobile ? "grid-cols-[auto_1fr_auto]" : "grid-cols-[1fr_auto_1fr]"
+      className={`editor-topbar grid h-16 shrink-0 items-center overflow-x-clip border-b border-[var(--color-rule)] bg-[var(--color-surface)] px-3 ${
+        isMobile
+          ? "grid-cols-[auto_minmax(0,1fr)_auto]"
+          : "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
       }`}
     >
       {/* LEFT zone */}
       <div className="flex min-w-0 items-center gap-2">
         <button type="button" onClick={exit} className={iconBtn} aria-label="Back to home">
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
         </button>
 
         {!isMobile && (
           <img
-            src="/icons/favicon.svg"
+            src="/icons/logo.svg"
             alt=""
             width="40"
             height="40"
-            className="h-10 w-10 drop-shadow-sm"
+            className="h-10 w-10 rounded-full"
           />
         )}
 
@@ -233,11 +232,11 @@ export function EditorTopBar() {
             controls leave the left grid zone too narrow, which truncated the
             filename to an orphan "· N pages". */}
         {doc && isDesktop && (
-          <div className="ml-1 flex min-w-0 items-center gap-2 rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface px-3 py-1.5">
+          <div className="editor-topbar__file ml-1 flex min-w-0 items-center gap-2 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-1.5">
             <span className="max-w-50 truncate text-sm font-medium text-slate-700 dark:text-dark-text">
               {doc.fileName}
             </span>
-            <span className="text-xs tabular-nums text-slate-500 dark:text-dark-text-muted">
+            <span className="font-mono text-xs tabular-nums text-slate-500 dark:text-dark-text-muted">
               · {doc.pageCount} {doc.pageCount === 1 ? "page" : "pages"}
             </span>
           </div>
@@ -266,7 +265,7 @@ export function EditorTopBar() {
             title={`${pendingMarks} redaction/erase ${
               pendingMarks === 1 ? "mark" : "marks"
             } pending — burned into the file when you export`}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 font-mono text-xs font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
           >
             <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
             <span className="tabular-nums">{pendingMarks}</span>
@@ -284,7 +283,7 @@ export function EditorTopBar() {
             className={iconBtn}
             aria-label="Undo"
           >
-            <Undo2 className="h-5 w-5" />
+            <Undo2 className="h-5 w-5" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -293,7 +292,7 @@ export function EditorTopBar() {
             className={iconBtn}
             aria-label="Redo"
           >
-            <Redo2 className="h-5 w-5" />
+            <Redo2 className="h-5 w-5" aria-hidden="true" />
           </button>
           {/* Reset stays desktop-only: a 4th 44px button would crowd the
               mobile centre stepper off-screen on 320px phones. Mobile reach to
@@ -306,7 +305,7 @@ export function EditorTopBar() {
               className={iconBtn}
               aria-label="Reset to original"
             >
-              <RotateCcw className="h-5 w-5" />
+              <RotateCcw className="h-5 w-5" aria-hidden="true" />
             </button>
           )}
         </div>

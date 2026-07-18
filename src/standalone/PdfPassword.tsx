@@ -31,7 +31,6 @@ import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { InfoCallout } from "../components/InfoCallout.tsx";
-import { categoryAccent, categoryGlow } from "../config/theme.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { downloadPdf, errorMessage, formatFileSize, pdfFilename } from "../utils/file-helpers.ts";
 import { openEditorWithFile } from "../utils/nav.ts";
@@ -114,6 +113,7 @@ interface PasswordFieldProps {
   onChange: (v: string) => void;
   placeholder?: string;
   autoComplete?: string;
+  invalid?: boolean;
   show: boolean;
   onToggleShow: () => void;
 }
@@ -126,39 +126,50 @@ function PasswordField({
   onChange,
   placeholder = "Enter password",
   autoComplete = "off",
+  invalid = false,
   show,
   onToggleShow,
 }: PasswordFieldProps) {
+  const hintId = `${id}-hint`;
+
   return (
-    <div className="p-4 space-y-2">
-      <div>
-        <label
-          htmlFor={id}
-          className="block text-sm font-medium text-slate-700 dark:text-dark-text"
-        >
-          {label}
-        </label>
-        {hint && <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-0.5">{hint}</p>}
-      </div>
+    <div className="space-y-2 py-4">
+      <label htmlFor={id} className="block text-sm font-medium text-[var(--color-ink)]">
+        {label}
+      </label>
       <div className="relative">
         <input
           id={id}
+          name={id}
           type={show ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className="w-full px-3 py-2 pr-12 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+          aria-describedby={hintId}
+          aria-invalid={invalid || undefined}
+          className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 pr-12 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
         />
         <button
           type="button"
           onClick={onToggleShow}
-          className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded text-slate-400 hover:text-slate-600 dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-colors"
+          className="cloak-focus absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded text-slate-400 hover:text-slate-600 dark:hover:text-dark-text transition-colors"
           aria-label={show ? "Hide password" : "Show password"}
         >
-          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {show ? (
+            <EyeOff className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Eye className="h-4 w-4" aria-hidden="true" />
+          )}
         </button>
       </div>
+      <p
+        id={hintId}
+        role={invalid ? "alert" : undefined}
+        className={`min-h-[1lh] text-xs ${invalid ? "text-red-600 dark:text-red-400" : "text-[var(--color-ink-3)]"}`}
+      >
+        {hint ?? "\u00a0"}
+      </p>
     </div>
   );
 }
@@ -328,8 +339,6 @@ export default function PdfPassword() {
       {/* File picker */}
       {!file ? (
         <FileDropZone
-          glowColor={categoryGlow.security}
-          iconColor={categoryAccent.security}
           accept=".pdf,application/pdf"
           onFiles={handleFile}
           label="Drop a PDF file here"
@@ -342,11 +351,11 @@ export default function PdfPassword() {
           onChangeFile={reset}
           extra={
             pdfState === "detecting" ? (
-              <span className="ml-2 text-xs text-slate-500 dark:text-dark-text-muted animate-pulse">
+              <span className="ml-2 animate-pulse font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
                 Detecting…
               </span>
             ) : pdfState === "encrypted" ? (
-              <span className="ml-2 text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 rounded-full px-2 py-0.5">
+              <span className="ml-2 rounded-sm border border-primary-200 bg-primary-50 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-primary-600 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
                 Password protected
               </span>
             ) : undefined
@@ -356,18 +365,14 @@ export default function PdfPassword() {
 
       {/* Panel: Add Password (unencrypted PDF) */}
       {pdfState === "unencrypted" && (
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
-          <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-t-xl">
-            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary-100 dark:bg-primary-900/40">
-              <Lock className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-            </div>
+        <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
+          <div className="flex items-center gap-3 py-3">
+            <Lock className="h-4 w-4 text-primary-600" aria-hidden="true" />
             <div>
-              <p className="text-sm font-semibold text-primary-800 dark:text-primary-300">
+              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
                 Add Password
-              </p>
-              <p className="text-xs text-primary-600/80 dark:text-primary-400/70">
-                Encrypt with AES-256
-              </p>
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-3)]">Encrypt with AES-256</p>
             </div>
           </div>
           <PasswordField
@@ -384,6 +389,7 @@ export default function PdfPassword() {
             id="confirm-password"
             label="Confirm password"
             hint={confirmPassword && !passwordsMatch ? "Passwords do not match" : undefined}
+            invalid={Boolean(confirmPassword && !passwordsMatch)}
             value={confirmPassword}
             onChange={setConfirmPassword}
             placeholder="Re-enter new password…"
@@ -402,38 +408,33 @@ export default function PdfPassword() {
             onClick={() => setShowPerms((v) => !v)}
             aria-expanded={showPerms}
             aria-controls="perm-panel"
-            className="flex items-center gap-2 rounded text-sm font-medium text-slate-600 dark:text-dark-text-muted hover:text-slate-800 dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg transition-colors"
+            className="-mx-2 flex min-h-11 items-center gap-2 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             <ChevronRight
               className={`w-4 h-4 transition-transform ${showPerms ? "rotate-90" : ""}`}
+              aria-hidden="true"
             />
             Restrict permissions
           </button>
 
           {showPerms && (
             <div id="perm-panel" className="space-y-6">
-              <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
-                <div className="px-4 py-2.5 bg-slate-50 dark:bg-dark-surface-alt rounded-t-xl">
-                  <p className="text-xs font-semibold text-slate-500 dark:text-dark-text-muted uppercase tracking-widest">
+              <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
+                <div className="py-2.5">
+                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
                     Allowed Operations
                   </p>
                 </div>
                 {PERMISSION_ROWS.map(({ key, icon: Icon, label, description }) => (
                   <label
                     key={key}
-                    className="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors"
+                    className="flex min-h-14 cursor-pointer items-center justify-between gap-3 py-3 transition-colors hover:bg-[var(--color-paper)]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-900/20 shrink-0">
-                        <Icon className="w-3.5 h-3.5 text-primary-500 dark:text-primary-400" />
-                      </div>
+                      <Icon className="h-4 w-4 shrink-0 text-primary-500" aria-hidden="true" />
                       <div>
-                        <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
-                          {label}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-                          {description}
-                        </p>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">{label}</p>
+                        <p className="text-xs text-[var(--color-ink-3)]">{description}</p>
                       </div>
                     </div>
                     <input
@@ -457,16 +458,14 @@ export default function PdfPassword() {
 
       {/* Panel: Remove Password (encrypted PDF) */}
       {pdfState === "encrypted" && (
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
-          <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-t-xl">
-            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary-100 dark:bg-primary-900/40">
-              <LockOpen className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-            </div>
+        <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
+          <div className="flex items-center gap-3 py-3">
+            <LockOpen className="h-4 w-4 text-primary-600" aria-hidden="true" />
             <div>
-              <p className="text-sm font-semibold text-primary-800 dark:text-primary-300">
+              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
                 Remove Password
-              </p>
-              <p className="text-xs text-primary-600/80 dark:text-primary-400/70">
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-3)]">
                 Decrypt and save an unlocked copy
               </p>
             </div>
@@ -503,7 +502,7 @@ export default function PdfPassword() {
 
       {/* Success */}
       {success && (
-        <InfoCallout icon={CheckCircle2}>
+        <InfoCallout icon={CheckCircle2} live>
           {pdfState === "unencrypted"
             ? "Password added successfully. The protected PDF has been downloaded."
             : "Password removed successfully. The unlocked PDF has been downloaded."}

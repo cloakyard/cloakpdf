@@ -4,7 +4,7 @@
  *
  * The home is editor-first: dropping a PDF opens the unified canvas editor,
  * which reaches every single-PDF edit/transform tool (plus PDF→image /
- * contact-sheet / split via its Export menu and reverse / extract / remove-blank
+ * contact-sheet / split via its Export dialog and reverse / extract / remove-blank
  * via Organize). Only tools that can't be a single-PDF "edit then export" flow
  * stay as cards here — the multi-input constructors (merge, images→PDF), the
  * dual-input compare, terminal-output extract-images, the security flows
@@ -137,7 +137,7 @@ export const tools = [
 ] as const satisfies readonly Tool[];
 
 /**
- * Every valid tool identifier — derived from the data so it can't drift: the 8
+ * Every valid tool identifier — derived from the data so it can't drift: the 7
  * standalone home cards above plus every editor tool id (`EditorToolId`). Most
  * ids route to the unified editor; only the `standaloneOnly` ones mount a
  * standalone view. Replaces the hand-maintained union that used to live in

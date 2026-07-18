@@ -5,8 +5,8 @@
  * all go through {@link InfoCallout} so their colour harmonises with the
  * surrounding tool category.
  *
- * A continuous soft-ring attention pulse (`.error-pulse` in index.css) keeps
- * failures from being missed. The pulse respects `prefers-reduced-motion`.
+ * Errors are static, high-contrast status surfaces. Motion is reserved for
+ * progress so a failure never competes with the task the user is fixing.
  */
 
 interface AlertBoxProps {
@@ -18,7 +18,7 @@ export function AlertBox({ message }: AlertBoxProps) {
   return (
     <div
       role="alert"
-      className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 text-sm text-red-700 dark:text-red-300 error-pulse"
+      className="cloak-notice border-red-200 bg-red-50 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
     >
       {/* `overflow-wrap: anywhere` (vs the gentler `break-words`) so
           long unbreakable tokens in surfaced runtime errors —

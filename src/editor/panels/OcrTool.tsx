@@ -84,7 +84,7 @@ export function OcrPreview() {
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-100 dark:bg-dark-bg p-4 sm:p-6">
       <div className="mx-auto mb-3 flex w-full max-w-[1600px] items-center justify-between gap-2">
-        <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
+        <span className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
           Recognised text
         </span>
         {hasLayout && (
@@ -107,7 +107,7 @@ export function OcrPreview() {
       <div className="mx-auto grid min-h-0 w-full max-w-[1600px] flex-1 grid-rows-2 gap-4 md:grid-cols-2 md:grid-rows-1">
         {/* Recognised text */}
         <pre
-          className={`thin-scrollbar min-h-0 min-w-0 overflow-auto rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-3 text-slate-700 dark:text-dark-text ${
+          className={`thin-scrollbar min-h-0 min-w-0 overflow-auto rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-3 text-slate-700 dark:text-dark-text ${
             previewMode === "layout" && hasLayout
               ? "whitespace-pre text-xs"
               : "whitespace-pre-wrap text-sm"
@@ -120,7 +120,7 @@ export function OcrPreview() {
             white page reads at its true bounds against the neutral card (without
             them a portrait page on a white card looks vertically stretched: the
             letterbox space below the page is the same white as the page). */}
-        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-2">
+        <div className="flex min-h-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-2">
           {page ? (
             <PageThumb
               fit
@@ -209,7 +209,7 @@ export function Panel() {
 
   const langPicker = (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
+      <span className="mb-1 block font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
         Language
       </span>
       <Select
@@ -236,7 +236,7 @@ export function Panel() {
           type="button"
           onClick={extract}
           disabled={extracting}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-40 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
           {extracting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -256,7 +256,7 @@ export function Panel() {
             onClick={makeSearchable}
             disabled={busy}
             aria-busy={busy}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-40 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
             {busy ? "Working…" : "Make searchable"}
@@ -264,7 +264,7 @@ export function Panel() {
           <button
             type="button"
             onClick={() => patchToolState(OCR_ID, { layout: null, pageTexts: undefined })}
-            className="text-xs text-slate-500 hover:text-slate-700 dark:text-dark-text-muted dark:hover:text-dark-text"
+            className="self-start rounded-sm px-1 font-mono text-xs text-slate-500 hover:text-slate-700 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             Re-extract
           </button>

@@ -1,0 +1,27 @@
+{
+  "date": "2026-07-18",
+  "design_system": "DESIGN.md",
+  "font_stack": {
+    "before": "Inter Variable + system monospace",
+    "adopted_family": "Archivo + JetBrains Mono",
+    "source": "local CloakDrop Astro site"
+  },
+  "palette": "Ocean Blue #2563EB with cool paper and slate rules",
+  "motion": "Motion-enabled React project; marketing motion restrained to functional feedback",
+  "spacing": "Named 4px-based scale with Tailwind utilities",
+  "framework": "React 19 + TypeScript + Vite+ / Tailwind CSS v4",
+  "preserved": [
+    "Ocean Blue primary",
+    "light and dark modes",
+    "one-accent invariant",
+    "slate hairline borders",
+    "editor and standalone tool behavior"
+  ],
+  "introduced": [
+    "Cloakyard typography family",
+    "Workbench macrostructure",
+    "functional uploader hero",
+    "technical proof ledgers",
+    "flat paper marketing shell"
+  ]
+}

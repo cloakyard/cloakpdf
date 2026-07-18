@@ -15,7 +15,6 @@ import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { type SortMode, SortByNameButton } from "../components/SortByNameButton.tsx";
 import { TouchDragOverlay } from "../components/TouchDragOverlay.tsx";
-import { categoryAccent, categoryGlow } from "../config/theme.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { type SortableDrag, useSortableDrag } from "../hooks/useSortableDrag.ts";
 import { downloadPdf, formatFileSize, naturalCompare } from "../utils/file-helpers.ts";
@@ -53,12 +52,15 @@ const FileRow = memo(function FileRow({
   return (
     <div
       {...(isSortActive ? {} : getItemProps(slot))}
-      className={`flex items-center gap-3 px-4 py-3 select-none transition-[transform,opacity,color,background-color,border-color,box-shadow] duration-200 ${
+      className={`flex items-center gap-3 border-b border-[var(--color-rule)] px-1 py-3 select-none transition-[transform,opacity,color,background-color,border-color] duration-200 ${
         isSortActive ? "cursor-default" : "cursor-grab active:cursor-grabbing"
       } ${isSource ? "scale-95 opacity-30" : "scale-100 opacity-100"}`}
     >
       {isSortActive ? (
-        <GripVertical className="w-4 h-4 shrink-0 text-slate-200 dark:text-dark-border opacity-50" />
+        <GripVertical
+          className="h-4 w-4 shrink-0 text-[var(--color-rule-strong)] opacity-50"
+          aria-hidden="true"
+        />
       ) : (
         // Keyboard-accessible reorder handle (drag alone has no keyboard path).
         // The grip is its own button so the row's nested Remove button isn't
@@ -66,19 +68,17 @@ const FileRow = memo(function FileRow({
         <button
           type="button"
           {...getKeyboardProps(slot, total, item.file.name)}
-          className="shrink-0 -m-1 p-1 rounded text-slate-300 dark:text-dark-text-muted cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="-m-1 inline-flex shrink-0 cursor-grab items-center justify-center rounded p-1 text-slate-300 active:cursor-grabbing pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <GripVertical className="w-4 h-4" aria-hidden="true" />
         </button>
       )}
-      <span className="w-7 h-7 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center text-sm font-medium shrink-0 tabular-nums">
-        {slot + 1}
+      <span className="w-7 shrink-0 text-center font-mono text-[11px] font-semibold tabular-nums text-primary-600">
+        {String(slot + 1).padStart(2, "0")}
       </span>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-slate-700 dark:text-dark-text truncate">
-          {item.file.name}
-        </p>
-        <p className="text-xs text-slate-500 dark:text-dark-text-muted tabular-nums">
+        <p className="truncate text-sm font-medium text-[var(--color-ink)]">{item.file.name}</p>
+        <p className="font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
           {formatFileSize(item.file.size)}
         </p>
       </div>
@@ -92,7 +92,7 @@ const FileRow = memo(function FileRow({
         className="p-2.5 min-w-11 min-h-11 flex items-center justify-center rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         aria-label={`Remove ${item.file.name}`}
       >
-        <X className="w-4 h-4 text-slate-500 dark:text-dark-text-muted hover:text-red-500" />
+        <X className="h-4 w-4 text-[var(--color-ink-3)] hover:text-red-500" aria-hidden="true" />
       </button>
     </div>
   );
@@ -209,13 +209,13 @@ export default function MergePdf() {
           drag.setDragIndex(null);
           drag.setDragOverSlot(null);
         }}
-        className={`flex items-center px-4 transition-[transform,opacity,color,background-color,border-color,box-shadow] duration-200 ${
+        className={`flex items-center px-1 transition-[transform,opacity,color,background-color,border-color] duration-200 ${
           isDragging && !isAdjacentToDrag ? (isActiveDrop ? "h-10" : "h-2") : "h-0"
         }`}
       >
         {isDragging && !isAdjacentToDrag && (
           <div
-            className={`w-full rounded-full transition-[transform,opacity,color,background-color,border-color,box-shadow] duration-200 ${
+            className={`w-full rounded-full transition-[transform,opacity,color,background-color,border-color] duration-200 ${
               isActiveDrop ? "h-1 bg-primary-500" : "h-0.5 bg-primary-200 dark:bg-primary-800"
             }`}
           />
@@ -244,14 +244,12 @@ export default function MergePdf() {
   return (
     <div className="space-y-6">
       <FileDropZone
-        glowColor={categoryGlow.organise}
-        iconColor={categoryAccent.organise}
         accept=".pdf,application/pdf"
         multiple
         onFiles={handleFiles}
         encryptedFile={encryptedFile}
         onClearEncrypted={clearEncrypted}
-        label="Drop PDF files here or click to browse"
+        label="Drop PDF files here"
         hint="Select 2 or more PDF files to merge"
       />
 
@@ -259,7 +257,7 @@ export default function MergePdf() {
         <>
           {files.length > 1 && (
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
                 {isSortActive
                   ? "Sorted by file name"
                   : isDragging
@@ -270,9 +268,7 @@ export default function MergePdf() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border overflow-hidden">
-            {rows}
-          </div>
+          <div className="overflow-hidden border-t border-[var(--color-rule)]">{rows}</div>
 
           <div aria-live="polite" className="sr-only">
             {drag.liveMessage}
@@ -280,11 +276,11 @@ export default function MergePdf() {
 
           {dragged && drag.dragIndex !== null && drag.touchPos !== null && (
             <TouchDragOverlay touchPos={drag.touchPos}>
-              <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border shadow-lg px-4 py-3 flex items-center gap-3 min-w-65 max-w-80">
-                <span className="w-7 h-7 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center text-sm font-medium shrink-0">
-                  {drag.dragIndex + 1}
+              <div className="flex min-w-65 max-w-80 items-center gap-3 rounded-lg border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-4 py-3">
+                <span className="w-7 shrink-0 text-center font-mono text-[11px] font-semibold text-primary-600">
+                  {String(drag.dragIndex + 1).padStart(2, "0")}
                 </span>
-                <p className="text-sm font-medium text-slate-700 dark:text-dark-text truncate">
+                <p className="truncate text-sm font-medium text-[var(--color-ink)]">
                   {dragged.file.name}
                 </p>
               </div>

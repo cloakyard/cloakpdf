@@ -8,6 +8,7 @@
 import {
   createContext,
   type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useCallback,
@@ -28,6 +29,11 @@ export interface StagePoint {
   pageIndex: number;
 }
 
+/** Keyboard event emitted by the focusable page surface. Active tools return
+ *  true from their handler when a key belongs to document content; PdfStage
+ *  then consumes it instead of also applying the default viewport shortcut. */
+export type StageKeyboardEvent = ReactKeyboardEvent<HTMLDivElement>;
+
 export interface PdfStageProps {
   /** Paint the active tool's overlay for `pageIndex` onto the overlay canvas.
    *  `w`/`h` are the overlay canvas's CSS-px dimensions. `pageBitmap` is the
@@ -47,6 +53,14 @@ export interface PdfStageProps {
    *  when a one-finger draw is interrupted by a second finger (pinch-zoom), so
    *  a half-drawn box/line/stroke never gets stuck on the overlay. */
   onPointerCancel?: () => void;
+  /** Handle a key while the page surface itself owns focus. Return true to
+   *  consume it before PdfStage's Arrow pan / zoom shortcuts run. */
+  onKeyDown?: (e: StageKeyboardEvent) => boolean;
+  /** Accessible description of active-tool keys that replace the default Arrow
+   *  behavior, e.g. moving a selected annotation. */
+  keyboardHelp?: string;
+  /** Additional active-tool shortcuts exposed on the page region. */
+  keyboardShortcuts?: string;
   cursor?: CSSProperties["cursor"];
 }
 
@@ -153,6 +167,9 @@ function shallowEqual(a: PdfStageProps, b: PdfStageProps): boolean {
     a.onPointerMove === b.onPointerMove &&
     a.onPointerUp === b.onPointerUp &&
     a.onPointerCancel === b.onPointerCancel &&
+    a.onKeyDown === b.onKeyDown &&
+    a.keyboardHelp === b.keyboardHelp &&
+    a.keyboardShortcuts === b.keyboardShortcuts &&
     a.cursor === b.cursor
   );
 }

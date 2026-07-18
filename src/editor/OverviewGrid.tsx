@@ -39,7 +39,7 @@ export function OverviewGrid() {
               onClick={() => open(page.index)}
               aria-label={`Open page ${page.index + 1}`}
               aria-current={active}
-              className={`page-cell group relative flex flex-col items-center gap-1.5 rounded-xl border bg-white dark:bg-dark-surface p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+              className={`page-cell group relative flex flex-col items-center gap-1.5 rounded-lg border bg-white dark:bg-dark-surface p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                 active
                   ? "border-primary-400 ring-1 ring-primary-300"
                   : "border-slate-200 dark:border-dark-border hover:border-primary-300"

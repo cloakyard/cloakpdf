@@ -1,16 +1,21 @@
 # Bundled fonts
 
-Self-hosted so the app stays fully offline (no Google Fonts CDN). Each is a
-Latin-subset TTF used for two things: the on-canvas `@font-face` preview in the
-Annotate text tool (`src/fonts.css`) and subset-embedding into the exported PDF
-(`src/utils/pdf/annotate.ts`).
+All fonts are self-hosted so CloakPDF stays fully offline. The UI loads the
+Latin-subset WOFF2 builds directly from `src/index.css`:
 
-Files were taken from the [Fontsource](https://fontsource.org/) distributions
+| File                         | Role                        | License     |
+| ---------------------------- | --------------------------- | ----------- |
+| `archivo-latin.woff2`        | Display and interface text  | SIL OFL 1.1 |
+| `jetbrains-mono-latin.woff2` | Operational labels and data | SIL OFL 1.1 |
+
+The remaining Latin-subset TTFs power the on-canvas `@font-face` preview in the
+Annotate text tool (`src/fonts.css`) and subset-embedding into exported PDFs
+(`src/utils/pdf/annotate.ts`). They were taken from the
+[Fontsource](https://fontsource.org/) distributions
 (`cdn.jsdelivr.net/fontsource`), `latin-<weight>-<style>.ttf`.
 
 | Family (`/fonts/<dir>/`)     | License            |
 | ---------------------------- | ------------------ |
-| `InterVariable*` (UI font)   | SIL OFL 1.1        |
 | `roboto`                     | Apache License 2.0 |
 | `robotomono`                 | Apache License 2.0 |
 | `opensans`                   | SIL OFL 1.1        |
@@ -25,4 +30,5 @@ Files were taken from the [Fontsource](https://fontsource.org/) distributions
 
 Both the SIL Open Font License and Apache 2.0 permit redistribution and
 embedding in documents. Each `<dir>/<weight>-<style>.ttf` is named for its CSS
-weight (400/700) and style (normal/italic).
+weight (400/700) and style (normal/italic). See `LICENSE.txt` for the shared SIL
+OFL 1.1 text and the UI font copyright notices.

@@ -65,7 +65,7 @@ function NupPreview({ layout }: { layout: NupLayout }) {
 
   return (
     <div>
-      <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
+      <p className="mb-1.5 font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
         {isBooklet ? "Preview — first folded side" : "Preview — sheet 1"}
       </p>
       <div className="rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-2">

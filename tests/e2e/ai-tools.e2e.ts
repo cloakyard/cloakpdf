@@ -33,8 +33,8 @@
  *     produced *some* output, not that the output is correct. Output
  *     quality is a human-judgement call and lives outside automated
  *     testing.
- *   - The tool ships a 3-tier chat picker (Compact / Balanced /
- *     Quality) but this test exercises only the default tier — the
+ *   - The tool ships a 2-tier chat picker (Compact / Quality), but
+ *     this test exercises only the default tier — the
  *     picker is a click-through in the gate, and clicking "Download
  *     model" without first picking another tier loads whatever is
  *     stored in localStorage (or the static default on a fresh
@@ -49,9 +49,9 @@ import { launch } from "puppeteer-core";
  * Fixture selector. `FIXTURE=sample` (default) drives the short
  * résumé PDF with ground-truth contact extraction assertions
  * (phone / email / address). `FIXTURE=multipage` drives the
- * 33-page "Building Skills for Claude" guide with topical
- * retrieval assertions that exercise chunking + citations at
- * scale instead of pointwise extraction.
+ * 40-page "Claude Certified Architect – Foundations" exam guide
+ * with topical retrieval assertions that exercise chunking +
+ * citations at scale instead of pointwise extraction.
  *
  * The picker exists so the smoke test can cover both ends of the
  * spectrum (small + dense vs. large + topical) in a single
@@ -121,9 +121,7 @@ function worstNgramRepeat(text: string, n = 4): number {
 }
 
 if (!existsSync(FIXTURE_PATH)) {
-  bail(
-    `No sample PDF at ${FIXTURE_PATH}. See tests/fixtures/README.md — drop any short text-based PDF there as sample.pdf.`,
-  );
+  bail(`Required PDF fixture missing at ${FIXTURE_PATH}. See tests/fixtures/README.md.`);
 }
 
 if (!existsSync(CHROME_PATH)) {
@@ -689,7 +687,7 @@ async function main() {
       FIXTURE_NAME === "sample"
         ? ["sumit", "enterprise", "architect", "résumé", "resume", "cv"]
         : FIXTURE_NAME === "multipage"
-          ? ["claude", "skill", "skills"]
+          ? ["claude", "certification", "exam", "architect", "foundations"]
           : [];
     if (warmTopicKeywords.length > 0) {
       const warmLower = warmReply.toLowerCase();
@@ -842,25 +840,13 @@ async function main() {
       );
       fixtureReplies.address = addressReply;
     } else if (FIXTURE_NAME === "multipage") {
-      // Multipage PDF: "The Complete Guide to Building Skills for
-      // Claude" — 33 pages, table of contents on page 2, content
-      // spread across labelled sections (Introduction p3, Fundamentals
-      // p4, Planning and design p7, Testing and iteration p14,
-      // Distribution and sharing p18, Patterns and troubleshooting
-      // p21, Resources and references p28).
-      //
-      // The assertions here are deliberately looser than the sample
-      // fixture's verbatim extraction — they prove the model is
-      // pulling content from the document (not hallucinating
-      // generics) and that retrieval reaches *past page 1* into the
-      // section content. They don't require exact strings, because
-      // a topical doc has many valid phrasings.
-      //
-      // What we want to *fail* on: a reply that names totally
-      // unrelated entities (the "University of South Carolina"
-      // hallucination shape we hit earlier on the address question)
-      // or one that talks about nothing the document actually
-      // covers.
+      // Multipage PDF: "Claude Certified Architect – Foundations
+      // Certification Exam Guide" — 40 pages. It describes five
+      // weighted content domains and six production scenarios, then
+      // expands the domain task statements and provides sample exam
+      // questions. The checks deliberately use facts from different
+      // parts of that structure so this branch exercises long-document
+      // retrieval rather than merely echoing the title page.
 
       console.log("→ Asking a topic question…");
       const topicReply = await askAndCapture(
@@ -871,102 +857,78 @@ async function main() {
       console.log(topicReply);
       console.log("─────────────────────────────\n");
       const topicLower = topicReply.toLowerCase();
-      // Either word alone is too weak (could appear in hallucinated
-      // generics about AI). Require *both* the agent name and the
-      // doc's subject to appear in the same reply.
-      if (!topicLower.includes("claude") || !topicLower.includes("skill")) {
-        bail(
-          `Topic question failed. Expected the reply to mention both "Claude" and "skill". Got: ${topicReply.slice(0, 240)}`,
-        );
-      }
-      console.log(`  ✓ topic reply mentions both "Claude" and "skill"`);
-      fixtureReplies.topic = topicReply;
-
-      console.log("→ Asking the skill-definition question…");
-      const definitionReply = await askAndCapture(
-        "According to this document, what is a Skill?",
-        "question-multipage-definition",
+      const topicSubjectHits = ["certification", "exam", "architect", "foundations"].filter(
+        (term) => topicLower.includes(term),
       );
-      console.log("\n──────── skill definition reply ────────");
-      console.log(definitionReply);
-      console.log("────────────────────────────────────────\n");
-      // The document defines a Skill as: "a set of instructions –
-      // packaged as a simple folder – that teaches Claude how to
-      // handle specific tasks or workflows", and elsewhere describes
-      // the on-disk structure (SKILL.md + YAML front matter +
-      // optional scripts/references/assets dirs).
-      //
-      // We accept any *one* of: the salient nouns ("instructions",
-      // "folder"), the verb cues ("teach" / "instructs" / "guides"),
-      // task/workflow language, or the on-disk-structure terms
-      // ("SKILL.md" / "YAML" / "scripts" / "references" / "assets").
-      // The earlier "needs 2 hits" gate kept rejecting valid replies
-      // that described the file structure but didn't repeat the
-      // dictionary noun ("A Skill is a folder containing a SKILL.md
-      // file with YAML front matter…" was a real, correct reply
-      // that failed). One signal is enough — the topic-question
-      // gate already pinned that the answer is on-topic for Claude
-      // skills.
-      const defLower = definitionReply.toLowerCase();
-      const defHits = [
-        /instruction/.test(defLower) ? "instructions" : null,
-        /folder/.test(defLower) ? "folder" : null,
-        /directory|directories/.test(defLower) ? "directory" : null,
-        /\btask|workflow/.test(defLower) ? "task/workflow" : null,
-        /teach|guide|instruct/.test(defLower) ? "teach/guide/instruct" : null,
-        /skill\.md|skill_md|yaml/.test(defLower) ? "skill.md/yaml" : null,
-        /scripts?\/|references?\/|assets?\//.test(defLower) ? "scripts/references/assets" : null,
-      ].filter((s): s is string => s !== null);
-      if (defHits.length < 1) {
+      if (!topicLower.includes("claude") || topicSubjectHits.length < 1) {
         bail(
-          `Skill-definition question failed. Reply doesn't paraphrase the doc's definition (needs at least one of: instructions / folder / directory / task / workflow / teach / guide / instruct / SKILL.md / YAML / scripts/references/assets). Got: ${definitionReply.slice(0, 240)}`,
-        );
-      }
-      console.log(`  ✓ definition reply paraphrases the doc (hits: ${defHits.join(", ")})`);
-      fixtureReplies.definition = definitionReply;
-
-      console.log("→ Asking the section-enumeration question…");
-      const sectionsReply = await askAndCapture(
-        "Name three sections from this document's table of contents.",
-        "question-multipage-sections",
-      );
-      console.log("\n──────── sections reply ────────");
-      console.log(sectionsReply);
-      console.log("────────────────────────────────\n");
-      // Table of contents (page 2): Introduction, Fundamentals,
-      // Planning and design, Testing and iteration, Distribution and
-      // sharing, Patterns and troubleshooting, Resources and
-      // references. We require ≥1 hit — the assertion's job is to
-      // catch a reply that completely invents section names; one
-      // accurate ToC mention proves the model is reading the doc
-      // and isn't free-wheeling. Asking for ≥2 turned out to be
-      // brittle: the model sometimes paraphrases ("Chapter 1
-      // Fundamentals" + sub-items) instead of listing top-level
-      // sections, and a strict ≥2 rejects that as a "miss" when
-      // the substantive answer is still grounded.
-      const sectionsLower = sectionsReply.toLowerCase();
-      const expectedSections = [
-        "introduction",
-        "fundamentals",
-        "planning",
-        "testing",
-        "distribution",
-        "patterns",
-        "resources",
-      ];
-      const sectionHits = expectedSections.filter((s) => sectionsLower.includes(s));
-      if (sectionHits.length < 1) {
-        bail(
-          `Section-enumeration question failed. Expected at least one of [${expectedSections.join(", ")}]. Got: ${sectionsReply.slice(0, 240)}`,
+          `Topic question failed. Expected "Claude" plus one of [certification, exam, architect, foundations]. Got: ${topicReply.slice(0, 240)}`,
         );
       }
       console.log(
-        `  ✓ sections reply names ${sectionHits.length} expected section(s): [${sectionHits.join(", ")}]`,
+        `  ✓ topic reply identifies the Claude certification guide (hits: ${topicSubjectHits.join(", ")})`,
       );
-      fixtureReplies.sections = sectionsReply;
+      fixtureReplies.topic = topicReply;
+
+      console.log("→ Asking the domain-weighting question…");
+      const domainReply = await askAndCapture(
+        "Which exam content domain has the largest weighting, and what percentage is it?",
+        "question-multipage-domain-weighting",
+      );
+      console.log("\n──────── domain weighting reply ────────");
+      console.log(domainReply);
+      console.log("────────────────────────────────────────\n");
+      // Content Outline: Domain 1, Agentic Architecture &
+      // Orchestration, is the largest at 27% of scored content.
+      const domainLower = domainReply.toLowerCase();
+      const domainNameHits = ["agentic", "architecture", "orchestration"].filter((term) =>
+        domainLower.includes(term),
+      );
+      if (!domainLower.includes("27") || domainNameHits.length < 1) {
+        bail(
+          `Domain-weighting question failed. Expected 27% and Agentic Architecture & Orchestration. Got: ${domainReply.slice(0, 240)}`,
+        );
+      }
+      console.log(
+        `  ✓ largest-domain reply contains 27% and domain-name evidence (${domainNameHits.join(", ")})`,
+      );
+      fixtureReplies.domain = domainReply;
+
+      console.log("→ Asking the scenario-enumeration question…");
+      const scenariosReply = await askAndCapture(
+        "Name three production scenarios described in this exam guide.",
+        "question-multipage-scenarios",
+      );
+      console.log("\n──────── scenarios reply ────────");
+      console.log(scenariosReply);
+      console.log("─────────────────────────────────\n");
+      // The guide lists six scenarios: customer support resolution,
+      // code generation with Claude Code, multi-agent research,
+      // developer productivity, Claude Code for CI/CD, and structured
+      // data extraction. Require two recognisable scenario cues; this
+      // accepts harmless paraphrasing while rejecting invented lists.
+      const scenariosLower = scenariosReply.toLowerCase();
+      const scenarioSignals = [
+        ["customer support", "support resolution"],
+        ["code generation", "claude code"],
+        ["multi-agent research", "research system"],
+        ["developer productivity", "productivity tool"],
+        ["continuous integration", "ci/cd", "cicd"],
+        ["structured data extraction", "data extraction"],
+      ];
+      const scenarioHits = scenarioSignals.filter((alternatives) =>
+        alternatives.some((term) => scenariosLower.includes(term)),
+      );
+      if (scenarioHits.length < 2) {
+        bail(
+          `Scenario-enumeration question failed. Expected at least two of the guide's six production scenarios. Got: ${scenariosReply.slice(0, 240)}`,
+        );
+      }
+      console.log(`  ✓ scenario reply contains ${scenarioHits.length} grounded scenario cues`);
+      fixtureReplies.scenarios = scenariosReply;
     } else {
       bail(
-        `Unsupported FIXTURE="${FIXTURE_NAME}". Use "sample" (résumé extraction) or "multipage" (33-page guide topical retrieval).`,
+        `Unsupported FIXTURE="${FIXTURE_NAME}". Use "sample" (résumé extraction) or "multipage" (40-page certification guide retrieval).`,
       );
     }
 
@@ -1013,20 +975,44 @@ async function main() {
       })
       .catch(() => bail("Picker dialog never opened after clicking 'Change model'."));
 
-    // Pick the *unselected* tier — the picker uses aria-pressed="true"
-    // on the active one; the other one is what we want to swap to.
+    const pickerInitial = await page.evaluate(() => ({
+      dialogs: document.querySelectorAll('[role="dialog"][aria-modal="true"]').length,
+      group: Boolean(document.querySelector('[role="radiogroup"][aria-label="Chat model tier"]')),
+      focusedRole: document.activeElement?.getAttribute("role"),
+      focusedChecked: document.activeElement?.getAttribute("aria-checked"),
+      appInert: (document.getElementById("app") as HTMLElement | null)?.inert,
+      overflow: document.body.style.overflow,
+      selectedText: document
+        .querySelector('[role="radio"][aria-checked="true"]')
+        ?.textContent?.trim(),
+    }));
+    if (
+      pickerInitial.dialogs !== 1 ||
+      !pickerInitial.group ||
+      pickerInitial.focusedRole !== "radio" ||
+      pickerInitial.focusedChecked !== "true" ||
+      !pickerInitial.appInert ||
+      pickerInitial.overflow !== "hidden"
+    ) {
+      bail(`Model picker did not own modal/radio state: ${JSON.stringify(pickerInitial)}.`);
+    }
+
+    // Pick the other tier through the radiogroup's keyboard contract. This
+    // exercises roving focus and `aria-checked`, not just pointer activation.
+    await page.keyboard.press("ArrowRight");
     const swapTarget = await page.evaluate(() => {
       const titleEl = document.getElementById("chat-model-picker-title");
       const dialog = titleEl?.closest('[role="dialog"]');
       if (!dialog) return null;
-      const tierButtons = Array.from(dialog.querySelectorAll("button[aria-pressed]"));
-      const unselected = tierButtons.find((b) => b.getAttribute("aria-pressed") === "false");
-      if (!(unselected instanceof HTMLButtonElement)) return null;
-      const label = (unselected.textContent ?? "").trim().slice(0, 80);
-      unselected.click();
-      return label;
+      const selected = dialog.querySelector('[role="radio"][aria-checked="true"]');
+      if (!(selected instanceof HTMLButtonElement) || document.activeElement !== selected) {
+        return null;
+      }
+      return (selected.textContent ?? "").trim().slice(0, 80);
     });
-    if (!swapTarget) bail("Couldn't find an unselected tier button in the picker dialog.");
+    if (!swapTarget || swapTarget === pickerInitial.selectedText?.slice(0, 80)) {
+      bail("ArrowRight did not move the model-picker radio selection to the other tier.");
+    }
     console.log(`  → picked: ${swapTarget}`);
 
     const switchClicked = await page.evaluate(() => {
@@ -1168,7 +1154,7 @@ async function main() {
       FIXTURE_NAME === "sample"
         ? ["sumit", "enterprise", "architect", "résumé", "resume", "cv"]
         : FIXTURE_NAME === "multipage"
-          ? ["claude", "skill", "skills"]
+          ? ["claude", "certification", "exam", "architect", "foundations"]
           : [];
     if (coldTopicKeywords.length > 0) {
       const coldLower = reply.toLowerCase();
@@ -1189,7 +1175,7 @@ async function main() {
     // `fixtureReplies` above; truncate each for telemetry and merge
     // alongside the fixture-agnostic overview + swap replies. Keys
     // vary by fixture (sample: phone/email/address; multipage:
-    // topic/definition/sections) — a wrapper script parsing this
+    // topic/domain/scenarios) — a wrapper script parsing this
     // line should switch on `fixture` to know what to expect.
     const truncatedFixtureReplies: Record<string, string> = {};
     for (const [k, v] of Object.entries(fixtureReplies)) {

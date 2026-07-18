@@ -84,23 +84,6 @@ export function Board() {
   // gesture was previously invisible (no grab cursor, no drop indicator).
   const [fromPos, setFromPos] = useState<number | null>(null);
   const [overPos, setOverPos] = useState<number | null>(null);
-  // Show the Up/Down reorder buttons on touch — HTML5 drag-and-drop doesn't fire
-  // for touch, so they're the only way to reorder on a phone. Reactive (not a
-  // mount-time ref): a fine→coarse switch or a desktop→mobile resize now flips
-  // it. `layout === "mobile"` guarantees they show in the mobile sheet even if a
-  // headless/emulated browser doesn't report `pointer: coarse`.
-  const [coarsePointer, setCoarsePointer] = useState(
-    () => typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches,
-  );
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(pointer: coarse)");
-    const onChange = () => setCoarsePointer(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-  const coarse = coarsePointer || layout === "mobile";
-
   const pageCount = doc?.pageCount ?? 0;
   const state = readState(slice, pageCount);
 
@@ -173,8 +156,8 @@ export function Board() {
                 setFromPos(null);
                 setOverPos(null);
               }}
-              className={`page-cell group relative flex cursor-grab flex-col items-center gap-1.5 rounded-xl border bg-white p-2 transition-[opacity,box-shadow,transform] active:cursor-grabbing dark:bg-dark-surface ${
-                del ? "opacity-40" : fromPos === pos ? "opacity-50 scale-[0.97]" : ""
+              className={`page-cell group relative flex cursor-grab flex-col items-center gap-1.5 rounded-lg border bg-white p-2 transition-[opacity,box-shadow,transform] active:cursor-grabbing dark:bg-dark-surface ${
+                del ? "opacity-40" : fromPos === pos ? "select-none opacity-50 scale-[0.97]" : ""
               } ${
                 overPos === pos
                   ? "border-primary-300 ring-2 ring-primary-500"
@@ -194,24 +177,24 @@ export function Board() {
                   {origIdx + 1}
                 </span>
                 <div className="flex flex-wrap items-center justify-end gap-0.5 pointer-coarse:gap-1.5">
-                  {coarse && pos > 0 && (
+                  {pos > 0 && (
                     <button
                       type="button"
                       onClick={() => reorder(pos, pos - 1)}
                       aria-label={`Move page ${origIdx + 1} up`}
                       className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     >
-                      <ChevronUp className="h-3.5 w-3.5" />
+                      <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   )}
-                  {coarse && pos < state.order.length - 1 && (
+                  {pos < state.order.length - 1 && (
                     <button
                       type="button"
                       onClick={() => reorder(pos, pos + 1)}
                       aria-label={`Move page ${origIdx + 1} down`}
                       className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                     >
-                      <ChevronDown className="h-3.5 w-3.5" />
+                      <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   )}
                   <button
@@ -220,7 +203,7 @@ export function Board() {
                     aria-label={`Rotate page ${origIdx + 1}`}
                     className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
-                    <RotateCw className="h-3.5 w-3.5" />
+                    <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
                   <button
                     type="button"
@@ -233,7 +216,11 @@ export function Board() {
                         : "text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-dark-surface-alt"
                     }`}
                   >
-                    {del ? <Undo2 className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
+                    {del ? (
+                      <Undo2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -264,9 +251,9 @@ function QuickAction({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-2 text-xs font-medium text-slate-600 dark:text-dark-text-muted hover:border-primary-300 hover:text-primary-700 disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:dark:border-dark-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 font-mono text-xs font-medium text-slate-600 active:translate-y-px pointer-coarse:min-h-11 dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-muted hover:border-primary-300 hover:text-primary-700 disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:dark:border-dark-border transition-[color,background-color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {label}
     </button>
   );
@@ -381,11 +368,11 @@ export function Panel() {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        Drag pages (or use the arrows on touch) to reorder, rotate, or delete. Changes preview live
-        and apply all at once.
+        Drag pages or use the arrow buttons to reorder, rotate, or delete. Changes preview live and
+        apply all at once.
       </p>
 
-      <div className="rounded-xl border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-3 text-sm text-slate-600 dark:text-dark-text-muted">
+      <div className="border-y border-[var(--color-rule)] py-3 text-sm text-slate-600 dark:text-dark-text-muted">
         <div className="flex justify-between">
           <span>Output pages</span>
           <span className="font-medium tabular-nums text-slate-800 dark:text-dark-text">
@@ -401,7 +388,7 @@ export function Panel() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-600 dark:text-dark-text-muted">
+        <p className="font-mono text-xxs font-medium uppercase tracking-[0.1em] text-slate-600 dark:text-dark-text-muted">
           Quick actions
         </p>
         <div className="grid grid-cols-2 gap-1.5">
@@ -445,7 +432,7 @@ export function Panel() {
           <button
             type="button"
             onClick={reset}
-            className="text-xs text-slate-500 hover:text-slate-700 dark:text-dark-text-muted dark:hover:text-dark-text"
+            className="rounded-sm text-xs text-slate-500 hover:text-slate-700 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             Reset pending changes
           </button>

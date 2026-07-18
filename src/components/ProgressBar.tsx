@@ -40,7 +40,7 @@ export function ProgressBar({
       aria-valuenow={total > 0 ? current : undefined}
       aria-valuetext={total > 0 ? `${current} of ${total}` : undefined}
     >
-      <div className="flex justify-between text-sm text-slate-600 dark:text-dark-text-muted">
+      <div className="flex justify-between font-mono text-xs text-slate-600 dark:text-dark-text-muted">
         <span>{label}</span>
         <span className="tabular-nums">
           {current} / {total}
@@ -48,8 +48,8 @@ export function ProgressBar({
       </div>
       <div className="w-full bg-slate-200 dark:bg-dark-border rounded-full h-2 overflow-hidden">
         <div
-          className={`${color} h-2 rounded-full transition-[width] duration-[350ms]`}
-          style={{ width: `${percent}%` }}
+          className={`${color} h-2 origin-left rounded-full transition-transform duration-300 ease-out`}
+          style={{ transform: `scaleX(${percent / 100})` }}
         />
       </div>
     </div>

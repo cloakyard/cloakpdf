@@ -9,6 +9,7 @@
 
 import { Loader2, Scan, Wand2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { canvas as canvasTheme } from "../../config/theme.ts";
 import type { CropMargins } from "../../types.ts";
 import { cropPagesIndividual, detectContentBox, deskewPdf } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
@@ -19,7 +20,6 @@ import { Labeled } from "./controls.tsx";
 import { Segmented, WholeDocPanel } from "./WholeDocPanel.tsx";
 
 const TOOL_ID = "crop-pages";
-const DIM = "rgba(15, 23, 42, 0.45)";
 
 export function Stage() {
   const slice = useToolSlice(TOOL_ID);
@@ -59,12 +59,12 @@ export function Stage() {
       const bh = r.hPct * h;
       // Dim everything outside the keep rect (four bands), then outline it.
       ctx.save();
-      ctx.fillStyle = DIM;
+      ctx.fillStyle = canvasTheme.selectionDim;
       ctx.fillRect(0, 0, w, y); // top
       ctx.fillRect(0, y + bh, w, h - (y + bh)); // bottom
       ctx.fillRect(0, y, x, bh); // left
       ctx.fillRect(x + bw, y, w - (x + bw), bh); // right
-      ctx.strokeStyle = "rgba(37, 99, 235, 0.95)";
+      ctx.strokeStyle = canvasTheme.accentStrong;
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x, y, bw, bh);
       ctx.restore();
@@ -224,7 +224,7 @@ export function Panel() {
             type="button"
             onClick={() => void trimToContent()}
             disabled={busy !== null}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 pointer-coarse:min-h-11 text-sm font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             {busy === "content" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -237,7 +237,7 @@ export function Panel() {
             type="button"
             onClick={straighten}
             disabled={busy !== null}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 pointer-coarse:min-h-11 text-sm font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             {busy === "deskew" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -265,7 +265,7 @@ export function Panel() {
             <button
               type="button"
               onClick={() => patchToolState(TOOL_ID, { keep: null })}
-              className="text-primary-600 hover:underline"
+              className="rounded-sm text-primary-600 hover:underline pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               Reset
             </button>

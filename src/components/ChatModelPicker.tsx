@@ -19,6 +19,7 @@
  * the swap dialog) owns the selection and persistence.
  */
 import { Check, Cpu, Download, MemoryStick } from "lucide-react";
+import { useRef } from "react";
 import {
   AI_MODELS,
   CHAT_VARIANT_IDS,
@@ -35,56 +36,94 @@ interface ChatModelPickerProps {
   onChange: (next: ChatVariantId) => void;
   /** Disable interaction (e.g. while a download is in flight). */
   disabled?: boolean;
+  /** Marks the checked tier as the owning dialog's initial focus target. */
+  initialFocus?: boolean;
 }
 
-export function ChatModelPicker({ value, onChange, disabled }: ChatModelPickerProps) {
+export function ChatModelPicker({ value, onChange, disabled, initialFocus }: ChatModelPickerProps) {
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const move = (direction: 1 | -1 | "home" | "end") => {
+    const current = CHAT_VARIANT_IDS.indexOf(value);
+    const next =
+      direction === "home"
+        ? 0
+        : direction === "end"
+          ? CHAT_VARIANT_IDS.length - 1
+          : (current + direction + CHAT_VARIANT_IDS.length) % CHAT_VARIANT_IDS.length;
+    const variant = CHAT_VARIANT_IDS[next];
+    onChange(variant);
+    optionRefs.current[next]?.focus();
+  };
+
   return (
-    <fieldset className="space-y-2" aria-label="Chat model tier" disabled={disabled}>
+    <fieldset
+      className="cloak-ledger p-0"
+      aria-label="Chat model tier"
+      disabled={disabled}
+      role="radiogroup"
+      onKeyDown={(event) => {
+        if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+          event.preventDefault();
+          move(1);
+        } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          move(-1);
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          move("home");
+        } else if (event.key === "End") {
+          event.preventDefault();
+          move("end");
+        }
+      }}
+    >
       <legend className="sr-only">Chat model tier</legend>
-      {CHAT_VARIANT_IDS.map((variant) => {
+      {CHAT_VARIANT_IDS.map((variant, index) => {
         const info = AI_MODELS[getChatModelId(variant)];
         const selected = variant === value;
         return (
           <button
             key={variant}
             type="button"
+            ref={(element) => {
+              optionRefs.current[index] = element;
+            }}
             onClick={() => onChange(variant)}
             disabled={disabled}
-            aria-pressed={selected}
+            role="radio"
+            aria-checked={selected}
+            tabIndex={selected ? 0 : -1}
+            data-dialog-initial-focus={selected && initialFocus ? "true" : undefined}
             className={[
-              "w-full text-left rounded-xl border p-3 transition-colors flex items-start gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
+              "relative grid min-h-11 w-full grid-cols-[1.25rem_minmax(0,1fr)] items-start gap-3 px-3 py-3 text-left transition-[color,background-color,box-shadow] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]",
               selected
-                ? "border-primary-500 dark:border-primary-400 bg-primary-50/70 dark:bg-primary-900/20"
-                : "border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface hover:border-slate-300 dark:hover:border-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt",
+                ? "bg-[var(--color-accent-soft)] shadow-[inset_2px_0_0_var(--color-accent)]"
+                : "bg-[var(--color-surface)] hover:bg-[var(--color-paper)]",
               "disabled:opacity-50 disabled:cursor-not-allowed",
             ].join(" ")}
           >
             <span
               aria-hidden="true"
-              className={[
-                "shrink-0 mt-0.5 w-5 h-5 rounded-full border-2 grid place-items-center transition-colors",
-                selected
-                  ? "border-primary-600 dark:border-primary-400 bg-primary-600 dark:bg-primary-500 text-white"
-                  : "border-slate-300 dark:border-dark-border bg-white dark:bg-dark-surface",
-              ].join(" ")}
+              className={`mt-0.5 grid h-5 w-5 place-items-center ${
+                selected ? "text-primary-600" : "text-[var(--color-rule-strong)]"
+              }`}
             >
-              {selected && <Check className="w-3 h-3" />}
+              {selected ? <Check className="h-4 w-4" /> : <span className="h-px w-2 bg-current" />}
             </span>
             <span className="flex-1 min-w-0">
               <span className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-semibold text-slate-800 dark:text-dark-text text-sm">
+                <span className="text-sm font-semibold text-[var(--color-ink)]">
                   {CHAT_VARIANT_TIER_LABEL[variant]}
                 </span>
-                <span className="text-xs text-slate-500 dark:text-dark-text-muted">
-                  · {info.displayName}
-                </span>
+                <span className="text-xs text-[var(--color-ink-3)]">· {info.displayName}</span>
               </span>
-              <p className="mt-0.5 text-xs text-slate-600 dark:text-dark-text-muted leading-relaxed">
+              <p className="mt-0.5 text-xs leading-relaxed text-[var(--color-ink-2)]">
                 {info.description}
               </p>
               {/*
                 Size + RAM strip. Earlier rev used a `·` between the
-                two values; against the slate-500 text colour the dot
+                two values; against the muted-ink token the dot
                 disappeared into the line and users couldn't see where
                 one metric ended and the next began. Icons fix it two
                 ways: (a) they create a clear visual gap on their own,
@@ -93,7 +132,7 @@ export function ChatModelPicker({ value, onChange, disabled }: ChatModelPickerPr
                 arrow vs memory stick) so a user can parse the line
                 at a glance without reading the suffix word.
               */}
-              <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xxs text-slate-500 dark:text-dark-text-muted tabular-nums">
+              <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xxs tabular-nums text-[var(--color-ink-3)]">
                 <span className="inline-flex items-center gap-1">
                   <Download className="w-3 h-3" aria-hidden="true" />
                   {formatApproxSize(info.approxSizeBytes)} download
@@ -107,7 +146,7 @@ export function ChatModelPicker({ value, onChange, disabled }: ChatModelPickerPr
           </button>
         );
       })}
-      <p className="flex items-start gap-1.5 text-xxs text-slate-500 dark:text-dark-text-muted px-1 pt-1">
+      <p className="flex items-start gap-1.5 px-3 py-2.5 text-xxs leading-relaxed text-[var(--color-ink-3)]">
         <Cpu className="w-3 h-3 mt-0.5 shrink-0" aria-hidden="true" />
         <span>
           Pick the tier that matches your RAM headroom. You can switch anytime — previously

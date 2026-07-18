@@ -21,7 +21,9 @@
 // the overlay.
 
 import { Smartphone } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useFocusTrap } from "../utils/useFocusTrap.ts";
 
 // `ScreenOrientation.lock` is non-standard on some platforms (iOS Safari
 // just doesn't expose it) and TypeScript's lib.dom types vary by version.
@@ -47,6 +49,8 @@ function isPhoneLandscape(): boolean {
 
 export function OrientationLock() {
   const [showOverlay, setShowOverlay] = useState(() => isPhoneLandscape());
+  const overlayRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(overlayRef, showOverlay);
 
   useEffect(() => {
     // Best-effort native lock for installed PWAs. Wrapped in try/catch
@@ -76,26 +80,40 @@ export function OrientationLock() {
 
   if (!showOverlay) return null;
 
-  return (
+  return createPortal(
     <div
+      ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Rotate your device"
+      aria-labelledby="orientation-lock-title"
+      aria-describedby="orientation-lock-copy"
+      tabIndex={-1}
+      data-cloak-modal-root="true"
       // Top-level overlay — must outrank every modal and toast in the
       // app so the user never sees a half-rotated UI.
-      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-5 bg-page-bg px-8 text-center text-slate-900 dark:bg-dark-bg dark:text-dark-text overscroll-contain"
-      style={{ background: "var(--page-bg)" }}
+      className="fixed inset-0 z-[var(--z-system-overlay)] flex flex-col items-center justify-center bg-[var(--color-paper)] px-8 text-center text-[var(--color-ink)] overscroll-contain"
     >
-      <div className="animate-rotate-hint relative flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-500/12 text-primary-600 dark:text-primary-400">
-        <Smartphone size={32} strokeWidth={1.75} />
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="text-[17px] font-semibold tracking-tight">Rotate your phone</div>
-        <div className="max-w-xs text-[13.5px] leading-relaxed text-slate-500 dark:text-dark-text-muted">
-          CloakPDF is designed for portrait mode on phones — there's more room for page thumbnails
-          and tools that way. Turn your device upright to keep editing.
+      <div className="w-full max-w-sm border-y border-[var(--color-rule-strong)] py-7">
+        <p className="cloak-dialog__eyebrow mb-5 text-primary-600">Viewport / portrait required</p>
+        <Smartphone
+          className="animate-rotate-hint mx-auto h-12 w-12 text-primary-600"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
+        <div className="mt-5 flex flex-col gap-2">
+          <h2 id="orientation-lock-title" className="text-[17px] font-semibold tracking-tight">
+            Rotate your phone
+          </h2>
+          <p
+            id="orientation-lock-copy"
+            className="mx-auto max-w-xs text-[13.5px] leading-relaxed text-[var(--color-ink-2)]"
+          >
+            CloakPDF is designed for portrait mode on phones — there is more room for page
+            thumbnails and tools that way. Turn your device upright to keep editing.
+          </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

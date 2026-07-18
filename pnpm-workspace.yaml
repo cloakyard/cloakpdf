@@ -4,7 +4,11 @@
 # The rest pin transitive deps past known advisories:
 #   - serialize-javascript >=7.0.3  (XSS, GHSA-76p7-773f-r4q5)
 #   - form-data >=4.0.6             (unsafe boundary, GHSA-hmw2-7cc7-3qxx)
+#   - adm-zip >=0.6.0               (path traversal, GHSA-xcpc-8h2w-3j85;
+#     transitive via onnxruntime-node → @huggingface/transformers, Node-only —
+#     never in the browser bundle, but flagged by the CI osv-scanner audit)
 overrides:
-  vite: "npm:@voidzero-dev/vite-plus-core@^0.2.4"
+  vite: "npm:@voidzero-dev/vite-plus-core@^0.2.5"
   serialize-javascript: ">=7.0.3"
   form-data: ">=4.0.6"
+  adm-zip: ">=0.6.0"

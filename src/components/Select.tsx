@@ -5,7 +5,7 @@
  * grey iOS/Android wheel that ignores the app's design language), and on the
  * desktop it can't be styled past the trigger. This component renders an
  * app-styled trigger + a listbox popover that matches the rest of the system
- * (slate-200 border, one Ocean-Blue accent, rounded-xl shadowed popover — the
+ * (hairline border, one Ocean-Blue accent, compact shadowed popover — the
  * same idiom as ColorPicker / DateTimeInput).
  *
  * The list is PORTALED to <body> with `position: fixed`, anchored to the
@@ -20,7 +20,7 @@
  * End, type-ahead, Enter/Escape) lives on the button.
  */
 
-import { ChevronDown } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -33,6 +33,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useCloseOnModalOpen } from "../utils/modal-events.ts";
 
 export interface SelectOption<T extends string> {
   value: T;
@@ -61,16 +62,16 @@ interface SelectProps<T extends string> {
 }
 
 const TRIGGER_BASE =
-  "inline-flex w-full items-center justify-between gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface text-slate-800 dark:text-dark-text transition-[transform,opacity,color,background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex w-full items-center justify-between gap-1.5 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] text-[var(--color-ink)] transition-[transform,opacity,color,background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50";
 
 const TRIGGER_SIZE = {
-  sm: "rounded-md px-2 py-1 text-xs",
-  md: "px-2.5 py-1.5 text-sm",
+  sm: "px-2 py-1 text-xs pointer-coarse:min-h-11",
+  md: "px-2.5 py-1.5 text-sm pointer-coarse:min-h-11",
 } as const;
 
 const OPTION_SIZE = {
-  sm: "px-2.5 py-1.5 text-xs",
-  md: "px-3 py-2 text-sm",
+  sm: "px-2.5 py-1.5 text-xs pointer-coarse:min-h-11",
+  md: "px-3 py-2 text-sm pointer-coarse:min-h-11",
 } as const;
 
 const optText = <T extends string>(o: SelectOption<T>): string =>
@@ -96,6 +97,7 @@ export function Select<T extends string>({
   const typeBuf = useRef<{ text: string; at: number }>({ text: "", at: 0 });
 
   const [open, setOpen] = useState(false);
+  useCloseOnModalOpen(setOpen);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [menuStyle, setMenuStyle] = useState<CSSProperties | null>(null);
 
@@ -120,21 +122,29 @@ export function Select<T extends string>({
     const btn = triggerRef.current;
     if (!btn) return;
     const r = btn.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const vw = document.documentElement.clientWidth;
+    const viewport = window.visualViewport;
+    const viewportTop = viewport?.offsetTop ?? 0;
+    const viewportLeft = viewport?.offsetLeft ?? 0;
+    const vh = viewport?.height ?? window.innerHeight;
+    const vw = viewport?.width ?? document.documentElement.clientWidth;
+    const viewportBottom = viewportTop + vh;
+    const viewportRight = viewportLeft + vw;
     const margin = 8;
     const gap = 4;
-    const spaceBelow = vh - r.bottom - margin;
-    const spaceAbove = r.top - margin;
+    const spaceBelow = viewportBottom - r.bottom - margin;
+    const spaceAbove = r.top - viewportTop - margin;
     const below = spaceBelow >= spaceAbove || spaceBelow >= 240;
     const maxHeight = Math.max(120, Math.floor(Math.min(280, below ? spaceBelow : spaceAbove)));
-    const left = Math.max(margin, Math.min(r.left, vw - r.width - margin));
+    const left = Math.max(
+      viewportLeft + margin,
+      Math.min(r.left, viewportRight - r.width - margin),
+    );
     setMenuStyle({
       position: "fixed",
       left,
       width: r.width,
       maxHeight,
-      ...(below ? { top: r.bottom + gap } : { bottom: vh - r.top + gap }),
+      top: below ? r.bottom + gap : Math.max(viewportTop + margin, r.top - maxHeight - gap),
     });
   }, []);
 
@@ -146,12 +156,12 @@ export function Select<T extends string>({
 
   const openMenu = useCallback(
     (active: number) => {
-      if (disabled) return;
+      if (disabled || firstEnabled < 0) return;
       place();
       setActiveIndex(active);
       setOpen(true);
     },
-    [disabled, place],
+    [disabled, firstEnabled, place],
   );
 
   const choose = useCallback(
@@ -178,11 +188,13 @@ export function Select<T extends string>({
     window.addEventListener("scroll", onMove, { capture: true, passive: true });
     window.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("resize", onMove);
+    window.visualViewport?.addEventListener("scroll", onMove);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onMove, { capture: true });
       window.removeEventListener("resize", onMove);
       window.visualViewport?.removeEventListener("resize", onMove);
+      window.visualViewport?.removeEventListener("scroll", onMove);
     };
   }, [open, place]);
 
@@ -314,7 +326,7 @@ export function Select<T extends string>({
         ref={triggerRef}
         type="button"
         id={id}
-        disabled={disabled}
+        disabled={disabled || firstEnabled < 0}
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -328,7 +340,7 @@ export function Select<T extends string>({
         className={`${TRIGGER_BASE} ${TRIGGER_SIZE[size]} ${className}`}
       >
         <span
-          className={`min-w-0 truncate text-left ${selected ? "" : "text-slate-400 dark:text-dark-text-muted"}`}
+          className={`min-w-0 truncate text-left ${selected ? "" : "text-[var(--color-ink-3)]"}`}
         >
           {selected ? selected.label : (placeholder ?? "")}
         </span>
@@ -347,7 +359,7 @@ export function Select<T extends string>({
             role="listbox"
             aria-label={ariaLabel}
             style={menuStyle}
-            className="thin-scrollbar z-[900] overflow-y-auto overscroll-contain rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-1 shadow-xl"
+            className="cloak-popover cloak-popover__list thin-scrollbar z-[var(--z-popover)] overflow-y-auto overscroll-contain"
           >
             {options.map((o, i) => {
               const isSel = o.value === value;
@@ -361,20 +373,15 @@ export function Select<T extends string>({
                   aria-disabled={o.disabled || undefined}
                   onPointerEnter={() => !o.disabled && setActiveIndex(i)}
                   onClick={() => choose(i)}
-                  className={`flex cursor-pointer items-center justify-between gap-2 rounded-lg ${OPTION_SIZE[size]} ${
+                  data-active={isActive ? "true" : undefined}
+                  className={`cloak-popover__option cursor-pointer justify-between ${OPTION_SIZE[size]} ${
                     o.disabled
                       ? "cursor-not-allowed text-slate-300 dark:text-dark-text-muted/50"
-                      : isActive
-                        ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-200"
-                        : "text-slate-700 dark:text-dark-text"
+                      : ""
                   }`}
                 >
                   <span className="min-w-0 truncate">{o.label}</span>
-                  {isSel && (
-                    <span className="text-primary-600 dark:text-primary-300" aria-hidden="true">
-                      ✓
-                    </span>
-                  )}
+                  {isSel && <Check className="h-3.5 w-3.5 text-primary-600" aria-hidden="true" />}
                 </li>
               );
             })}

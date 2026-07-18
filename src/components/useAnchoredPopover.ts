@@ -39,18 +39,29 @@ export function useAnchoredPopover(
     const el = anchorRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const vw = document.documentElement.clientWidth;
-    const spaceBelow = vh - r.bottom - margin;
-    const spaceAbove = r.top - margin;
+    const viewport = window.visualViewport;
+    const viewportTop = viewport?.offsetTop ?? 0;
+    const viewportLeft = viewport?.offsetLeft ?? 0;
+    const vh = viewport?.height ?? window.innerHeight;
+    const vw = viewport?.width ?? document.documentElement.clientWidth;
+    const viewportBottom = viewportTop + vh;
+    const viewportRight = viewportLeft + vw;
+    const spaceBelow = viewportBottom - r.bottom - margin;
+    const spaceAbove = r.top - viewportTop - margin;
     const flip = spaceBelow < height && spaceAbove > spaceBelow;
-    const left = Math.max(margin, Math.min(r.left, vw - width - margin));
+    const left = Math.max(viewportLeft + margin, Math.min(r.left, viewportRight - width - margin));
+    const top = flip
+      ? Math.max(viewportTop + margin, r.top - height - gap)
+      : Math.max(
+          viewportTop + margin,
+          Math.min(r.bottom + gap, viewportBottom - Math.min(height, vh - margin * 2) - margin),
+        );
     setAbove(flip);
     setStyle({
       position: "fixed",
       left,
+      top,
       width,
-      ...(flip ? { bottom: vh - r.top + gap } : { top: r.bottom + gap }),
     });
   }, [anchorRef, width, height, gap, margin]);
 
@@ -68,11 +79,13 @@ export function useAnchoredPopover(
     window.addEventListener("scroll", onMove, { capture: true, passive: true });
     window.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("resize", onMove);
+    window.visualViewport?.addEventListener("scroll", onMove);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onMove, { capture: true });
       window.removeEventListener("resize", onMove);
       window.visualViewport?.removeEventListener("resize", onMove);
+      window.visualViewport?.removeEventListener("scroll", onMove);
     };
   }, [open, place]);
 

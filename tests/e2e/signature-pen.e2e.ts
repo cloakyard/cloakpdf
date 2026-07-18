@@ -37,15 +37,6 @@ function fail(msg: string): never {
 if (!existsSync(CHROME_PATH)) fail(`Chrome not found at ${CHROME_PATH} (set CHROME_PATH).`);
 if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
 
-async function waitForText(page: Page, re: RegExp, timeout = 10_000): Promise<void> {
-  await page.waitForFunction(
-    (src: string, flags: string) => new RegExp(src, flags).test(document.body.innerText),
-    { timeout },
-    re.source,
-    re.flags,
-  );
-}
-
 /** Pad bounding box in CSS viewport pixels (where CDP input coordinates live). */
 async function padRect(page: Page) {
   const r = await page.$eval('canvas[aria-label^="Signature drawing area"]', (el) => {
@@ -56,11 +47,37 @@ async function padRect(page: Page) {
   return r;
 }
 
-/** The placed-signature PNG currently staged in the pad (read from the preview
- *  hint side-effect: the panel shows "Tap the page to place" once a data-URL is
- *  captured). Returns true when content exists. */
+/** The drawing pad owns a Clear action only after it has captured ink. */
 async function hasStaged(page: Page): Promise<boolean> {
-  return page.evaluate(() => /Tap the page to place/i.test(document.body.innerText));
+  return page.evaluate(() =>
+    Boolean(document.querySelector('button[aria-label="Clear signature"]')),
+  );
+}
+
+async function inkStats(page: Page): Promise<{ pixels: number; thin: number; thick: number }> {
+  return page.$eval('canvas[aria-label^="Signature drawing area"]', (element) => {
+    const canvas = element as HTMLCanvasElement;
+    const data = canvas.getContext("2d")?.getImageData(0, 0, canvas.width, canvas.height).data;
+    if (!data) return { pixels: 0, thin: 0, thick: 0 };
+    const columnInk = Array.from({ length: canvas.width }, () => 0);
+    let pixels = 0;
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        if (data[(y * canvas.width + x) * 4 + 3] < 24) continue;
+        pixels += 1;
+        columnInk[x] += 1;
+      }
+    }
+    const occupied = columnInk.filter((count) => count > 0);
+    const third = Math.max(1, Math.floor(occupied.length / 3));
+    const average = (values: number[]) =>
+      values.reduce((sum, value) => sum + value, 0) / values.length;
+    return {
+      pixels,
+      thin: occupied.length ? average(occupied.slice(0, third)) : 0,
+      thick: occupied.length ? average(occupied.slice(-third)) : 0,
+    };
+  });
 }
 
 type PenPt = { x: number; y: number; force: number };
@@ -176,12 +193,14 @@ async function main() {
       });
     }
     await penStroke(cdp, penPts);
-    await waitForText(page, /Tap the page to place/i, 8_000);
+    await page.waitForSelector('button[aria-label="Clear signature"]', { timeout: 8_000 });
     if (!(await hasStaged(page))) fail("Pen stroke did not produce a signature.");
-    await (await page.$('canvas[aria-label^="Signature drawing area"]'))!.screenshot({
-      path: "/tmp/sig-pen.png",
-    });
-    console.log("  ✓ stylus (pen) draws with pressure → /tmp/sig-pen.png");
+    const penInk = await inkStats(page);
+    if (penInk.pixels === 0) fail("Pen stroke produced no visible ink.");
+    if (penInk.thick <= penInk.thin) {
+      fail(`Pen pressure did not increase stroke weight (${penInk.thin} → ${penInk.thick}).`);
+    }
+    console.log("  ✓ stylus (pen) draws with pressure-varying weight");
 
     // 2. MOUSE — the no-pressure fallback path (speed-based weight).
     await clearPad(page);
@@ -192,7 +211,7 @@ async function main() {
     await page.mouse.move(rect.x + rect.w * 0.7, rect.y + rect.h * 0.6, { steps: 6 });
     await page.mouse.move(rect.x + rect.w * 0.88, rect.y + rect.h * 0.45, { steps: 20 });
     await page.mouse.up();
-    await waitForText(page, /Tap the page to place/i, 8_000);
+    await page.waitForSelector('button[aria-label="Clear signature"]', { timeout: 8_000 });
     console.log("  ✓ mouse / touchpad draws (speed fallback)");
 
     // 3. TOUCH — a finger stroke.
@@ -204,7 +223,7 @@ async function main() {
       await touchPoint(cdp, "touchMove", rect.x + rect.w * (0.2 + 0.6 * (i / 12)), ty);
     }
     await touchPoint(cdp, "touchEnd", 0, 0);
-    await waitForText(page, /Tap the page to place/i, 8_000);
+    await page.waitForSelector('button[aria-label="Clear signature"]', { timeout: 8_000 });
     console.log("  ✓ touch (finger) draws");
 
     // 4. Palm rejection: hold a pen down mid-stroke, tap a stray finger, keep
@@ -254,7 +273,7 @@ async function main() {
       pointerType: "pen",
       force: 0,
     });
-    await waitForText(page, /Tap the page to place/i, 8_000);
+    await page.waitForSelector('button[aria-label="Clear signature"]', { timeout: 8_000 });
     console.log("  ✓ palm rejection: stray finger ignored while pen draws");
 
     if (errors.length > 0) {

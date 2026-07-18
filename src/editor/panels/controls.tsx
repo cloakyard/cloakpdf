@@ -4,7 +4,7 @@
 // one accent, no cramped rows.
 
 import type { LucideIcon } from "lucide-react";
-import { type FocusEvent as ReactFocusEvent, useCallback, useRef } from "react";
+import { type FocusEvent as ReactFocusEvent, useCallback, useId, useRef } from "react";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 import { STAMP_TOKENS } from "../../utils/pdf-operations.ts";
 
@@ -46,7 +46,7 @@ export function PositionGrid<T extends string>({
 }) {
   return (
     <Labeled label="Position">
-      <div className="grid grid-cols-3 gap-1 rounded-lg border border-slate-200 dark:border-dark-border p-1">
+      <div className="editor-control-grid grid grid-cols-3 gap-1 rounded-md border border-slate-200 p-1 dark:border-dark-border">
         {POSITIONS.map((pos) => {
           const on = value === (pos as string);
           return (
@@ -56,14 +56,15 @@ export function PositionGrid<T extends string>({
               onClick={() => onChange(pos as T)}
               aria-label={pos.replace("-", " ")}
               aria-pressed={on}
-              className={`flex h-8 items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+              className={`flex h-8 items-center justify-center rounded-sm pointer-coarse:min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                 on
                   ? "bg-primary-600"
-                  : "bg-slate-100 dark:bg-dark-bg hover:bg-slate-200 dark:hover:bg-dark-surface-alt"
+                  : "bg-white hover:bg-slate-100 active:bg-slate-200/70 dark:bg-dark-bg dark:hover:bg-dark-surface-alt"
               }`}
             >
               <span
                 className={`h-1.5 w-1.5 rounded-full ${on ? "bg-white" : "bg-slate-400 dark:bg-dark-text-muted"}`}
+                aria-hidden="true"
               />
             </button>
           );
@@ -92,9 +93,9 @@ export function RangeField({
 }) {
   return (
     <label className="block">
-      <div className="mb-1 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-dark-text-muted">
+      <div className="editor-control-label mb-1 flex items-center justify-between font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted">
         <span>{label}</span>
-        <span className="tabular-nums text-slate-700 dark:text-dark-text">
+        <span className="font-mono tabular-nums text-slate-700 dark:text-dark-text">
           {value}
           {suffix}
         </span>
@@ -106,7 +107,7 @@ export function RangeField({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-primary-600"
+        className="editor-control-range w-full accent-primary-600"
       />
     </label>
   );
@@ -117,7 +118,7 @@ export function TextField({
   value,
   onChange,
   placeholder,
-  icon,
+  icon: Icon,
 }: {
   label: string;
   value: string;
@@ -125,16 +126,33 @@ export function TextField({
   placeholder?: string;
   icon?: LucideIcon;
 }) {
+  const id = useId();
+  const fieldName = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
   return (
-    <Labeled label={label} icon={icon}>
+    <label htmlFor={id} className="block">
+      <span className="editor-control-label mb-1.5 flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-[0.1em] text-slate-400 dark:text-dark-text-muted">
+        {Icon && (
+          <Icon
+            className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400"
+            aria-hidden="true"
+          />
+        )}
+        {label}
+      </span>
       <input
+        id={id}
+        name={fieldName}
         type="text"
         value={value}
         placeholder={placeholder}
+        autoComplete="off"
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="editor-control-input w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text"
       />
-    </Labeled>
+    </label>
   );
 }
 
@@ -158,11 +176,16 @@ export function Labeled({
       <p
         className={
           normalCase
-            ? "mb-1.5 flex items-center gap-1.5 wrap-break-word text-xs font-medium text-slate-500 dark:text-dark-text-muted"
-            : "mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted"
+            ? "editor-control-label mb-1.5 flex items-center gap-1.5 wrap-break-word text-xs font-medium text-slate-500 dark:text-dark-text-muted"
+            : "editor-control-label mb-1.5 flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-[0.1em] text-slate-400 dark:text-dark-text-muted"
         }
       >
-        {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400" />}
+        {Icon && (
+          <Icon
+            className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400"
+            aria-hidden="true"
+          />
+        )}
         {label}
       </p>
       {children}
@@ -227,7 +250,7 @@ export function TokenBar({ onInsert }: { onInsert: (token: string) => void }) {
             type="button"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onInsert(t.token)}
-            className="rounded-full border border-slate-200 dark:border-dark-border bg-slate-100 dark:bg-dark-bg px-2.5 py-1 pointer-coarse:min-h-9 text-xs font-medium text-slate-600 dark:text-dark-text-muted hover:bg-primary-50 hover:text-primary-700 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="rounded-md border border-slate-200 bg-white px-2.5 py-1 font-mono text-xs font-medium text-slate-600 hover:bg-primary-50 hover:text-primary-700 active:bg-primary-100 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-muted dark:hover:bg-dark-surface-alt"
           >
             {t.label}
           </button>
@@ -250,10 +273,33 @@ export function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 text-sm text-slate-600 dark:text-dark-text-muted">
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="editor-control-toggle flex min-h-6 w-full items-center justify-between gap-3 rounded-md text-left text-sm text-slate-600 active:translate-y-px pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-dark-text-muted"
+    >
       <span className="min-w-0">{label}</span>
-      <Switch checked={checked} onChange={onChange} label={label} />
-    </div>
+      <SwitchTrack checked={checked} />
+    </button>
+  );
+}
+
+function SwitchTrack({ checked }: { checked: boolean }) {
+  return (
+    <span
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+        checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
+      }`}
+      aria-hidden="true"
+    >
+      <span
+        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-slate-200 bg-white transition-transform ${
+          checked ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </span>
   );
 }
 
@@ -275,15 +321,9 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-[color,background-color,transform] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
-        checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
-      }`}
+      className="editor-control-switch relative flex h-6 w-11 shrink-0 items-center justify-center rounded-lg active:translate-y-px pointer-coarse:-m-2.5 pointer-coarse:h-11 pointer-coarse:w-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
     >
-      <span
-        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
+      <SwitchTrack checked={checked} />
     </button>
   );
 }

@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2026-07-18",
+    "scope": "app",
+    "macrostructure": "Workbench",
+    "theme": "studied-DNA",
+    "enrichment": "E1 functional uploader",
+    "brief": "Unify CloakPDF landing, standalone utilities, and editor with the CloakDrop family signature while keeping Ocean Blue and browser-native privacy proof."
+  }
+]

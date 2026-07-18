@@ -157,10 +157,11 @@ export function Panel() {
     () => new Set(PII_TYPES.filter((t) => t !== "date")),
   );
   const [detecting, setDetecting] = useState(false);
-  // Typed status so a scan/search FAILURE reads distinctly from a normal
-  // result/no-match line — for a privacy action, an error must never look like
-  // "nothing sensitive found". `error` renders red + AlertTriangle + role=alert.
-  const [summary, setSummary] = useState<{ tone: "muted" | "error"; text: string } | null>(null);
+  type StatusMessage = { tone: "muted" | "error"; text: string };
+  // Scan and text-query feedback stay independent. A PII scan failure must not
+  // make the separate text field invalid (or vice versa).
+  const [scanSummary, setScanSummary] = useState<StatusMessage | null>(null);
+  const [querySummary, setQuerySummary] = useState<StatusMessage | null>(null);
   // Find-text-and-redact: type a name/phrase, black out every occurrence.
   const [term, setTerm] = useState("");
   const [finding, setFinding] = useState(false);
@@ -209,14 +210,14 @@ export function Panel() {
     if (!doc || piiTypes.size === 0) return;
     const startId = doc.id;
     setDetecting(true);
-    setSummary(null);
+    setScanSummary(null);
     setOcr(null);
     try {
       const pages = await ensureGeometry();
       if (docIdRef.current !== startId) return; // doc changed mid-scan — drop stale results
       const found = detectPiiRects(pages, [...piiTypes]);
       if (found.length === 0) {
-        setSummary({
+        setScanSummary({
           tone: "muted",
           text: "No matching sensitive data found — draw boxes by hand if needed.",
         });
@@ -231,12 +232,12 @@ export function Panel() {
         })),
         "Detect PII",
       );
-      setSummary({
+      setScanSummary({
         tone: "muted",
         text: `Added ${found.length} box${found.length > 1 ? "es" : ""}.`,
       });
     } catch {
-      setSummary({ tone: "error", text: "Couldn't scan this document for sensitive data." });
+      setScanSummary({ tone: "error", text: "Couldn't scan this document for sensitive data." });
     } finally {
       setDetecting(false);
       setOcr(null);
@@ -248,14 +249,14 @@ export function Panel() {
     if (!doc || !q) return;
     const startId = doc.id;
     setFinding(true);
-    setSummary(null);
+    setQuerySummary(null);
     setOcr(null);
     try {
       const pages = await ensureGeometry();
       if (docIdRef.current !== startId) return; // doc changed mid-search — drop stale results
       const rects = findTextRects(pages, [q], { caseSensitive, wholeWord });
       if (rects.length === 0) {
-        setSummary({
+        setQuerySummary({
           tone: "muted",
           text: `No text-layer matches for “${q}”. It may be an image — run OCR first.`,
         });
@@ -271,7 +272,7 @@ export function Panel() {
         `Find “${q}”`,
       );
       const onPages = [...new Set(rects.map((r) => r.pageIndex + 1))].sort((a, b) => a - b);
-      setSummary({
+      setQuerySummary({
         tone: "muted",
         text: `Added ${rects.length} box${rects.length === 1 ? "" : "es"} for “${q}” on page${
           onPages.length === 1 ? "" : "s"
@@ -279,7 +280,7 @@ export function Panel() {
       });
       setTerm("");
     } catch {
-      setSummary({ tone: "error", text: "Couldn't search this document for that text." });
+      setQuerySummary({ tone: "error", text: "Couldn't search this document for that text." });
     } finally {
       setFinding(false);
       setOcr(null);
@@ -293,14 +294,17 @@ export function Panel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="space-y-3 rounded-xl border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-3">
+      <section
+        className="space-y-3 border-y border-[var(--color-rule)] py-3"
+        aria-label="Smart redaction"
+      >
         <div className="flex items-start gap-2">
-          <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
-          <p className="text-xs text-slate-500 dark:text-dark-text-muted">
+          <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+          <p className="text-xs text-[var(--color-ink-3)]">
             Auto-detect emails, phones & IDs, or drag boxes on the page.
           </p>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-rule)]">
           {PII_TYPES.map((t) => {
             const on = piiTypes.has(t);
             return (
@@ -310,10 +314,10 @@ export function Panel() {
                 onClick={() => toggle(t)}
                 disabled={detecting}
                 aria-pressed={on}
-                className={`rounded-full px-2.5 py-1 pointer-coarse:min-h-11 pointer-coarse:min-w-11 text-xs font-medium transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                className={`cloak-focus min-h-9 px-2.5 py-2 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.04em] transition-[color,background-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11 ${
                   on
-                    ? "bg-primary-600 text-white"
-                    : "border border-slate-200 dark:border-dark-border bg-slate-100 dark:bg-dark-bg text-slate-600 dark:text-dark-text-muted"
+                    ? "bg-[var(--color-accent-soft)] text-primary-700 shadow-[inset_2px_0_0_var(--color-accent)]"
+                    : "bg-[var(--color-surface)] text-[var(--color-ink-3)] hover:bg-[var(--color-paper)] hover:text-[var(--color-ink)]"
                 }`}
               >
                 {PII_LABELS[t]}
@@ -325,52 +329,124 @@ export function Panel() {
           type="button"
           onClick={() => void detect()}
           disabled={detecting || finding || piiTypes.size === 0}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          aria-describedby={
+            detecting && ocr
+              ? "redaction-scan-progress"
+              : scanSummary
+                ? "redaction-scan-status"
+                : undefined
+          }
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:cursor-not-allowed disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
           {detecting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           ) : (
-            <ScanSearch className="h-4 w-4" />
+            <ScanSearch className="h-4 w-4" aria-hidden="true" />
           )}
           {detecting ? "Scanning…" : "Detect & add boxes"}
         </button>
-      </div>
+        {detecting && ocr && (
+          <p
+            id="redaction-scan-progress"
+            role="status"
+            className="text-xs text-[var(--color-ink-3)]"
+          >
+            Reading scanned pages… ({ocr.done}/{ocr.total})
+          </p>
+        )}
+        {scanSummary && (
+          <p
+            id="redaction-scan-status"
+            role={scanSummary.tone === "error" ? "alert" : "status"}
+            className={
+              scanSummary.tone === "error"
+                ? "cloak-notice cloak-notice--danger text-xs"
+                : "text-xs text-[var(--color-ink-3)]"
+            }
+          >
+            {scanSummary.tone === "error" && (
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            )}
+            <span>{scanSummary.text}</span>
+          </p>
+        )}
+      </section>
 
       {/* Find text & redact — black out every occurrence of a name or phrase. */}
-      <div className="space-y-2 rounded-xl border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface p-3">
-        <div className="flex items-start gap-2">
-          <Search className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" />
-          <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-            Type a name or phrase to black out every occurrence — what auto-detect can't catch.
-          </p>
-        </div>
+      <section
+        className="space-y-2 border-b border-[var(--color-rule)] pb-3"
+        aria-label="Find text"
+      >
+        <p className="text-xs text-[var(--color-ink-3)]">
+          Type a name or phrase to black out every occurrence — what auto-detect cannot catch.
+        </p>
+        <label htmlFor="redaction-search" className="cloak-field-label">
+          Text to redact
+        </label>
         <div className="flex items-center gap-1.5">
-          <input
-            type="text"
-            value={term}
-            placeholder="Search text…"
-            onChange={(e) => setTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void find();
-              }
-            }}
-            disabled={finding}
-            className="min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-50"
-          />
+          <div className="cloak-search-field min-w-0 flex-1 px-2.5">
+            <Search className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+            <input
+              id="redaction-search"
+              type="text"
+              aria-label="Text to redact"
+              aria-describedby="redaction-search-status"
+              aria-invalid={querySummary?.tone === "error"}
+              name="redaction-search"
+              autoComplete="off"
+              value={term}
+              placeholder="Search text…"
+              onChange={(e) => setTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  void find();
+                }
+              }}
+              className="h-11 px-2 text-sm placeholder:text-[var(--color-ink-3)]"
+            />
+          </div>
           <button
             type="button"
             onClick={() => void find()}
             disabled={detecting || finding || !term.trim()}
             aria-label="Find and redact"
-            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-primary-600 px-3 py-2 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            {finding ? <Loader2 className="h-4 w-4 animate-spin" /> : "Find"}
+            {finding && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            {finding ? "Finding…" : "Find"}
           </button>
         </div>
+        {querySummary ? (
+          <p
+            id="redaction-search-status"
+            role={querySummary.tone === "error" ? "alert" : "status"}
+            className={
+              querySummary.tone === "error"
+                ? "cloak-notice cloak-notice--danger text-xs"
+                : "text-xs text-[var(--color-ink-3)]"
+            }
+          >
+            {querySummary.tone === "error" && (
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            )}
+            <span>{querySummary.text}</span>
+          </p>
+        ) : (
+          <p
+            id="redaction-search-status"
+            role={finding ? "status" : undefined}
+            className="min-h-[1lh] text-xs text-[var(--color-ink-3)]"
+          >
+            {finding
+              ? ocr
+                ? `Reading scanned pages… (${ocr.done}/${ocr.total})`
+                : "Finding matches…"
+              : "Search one phrase at a time; every match becomes an editable redaction box."}
+          </p>
+        )}
         <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-          <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-dark-text-muted">
+          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-2)]">
             <input
               type="checkbox"
               checked={caseSensitive}
@@ -380,7 +456,7 @@ export function Panel() {
             />
             Match case
           </label>
-          <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-dark-text-muted">
+          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-2)]">
             <input
               type="checkbox"
               checked={wholeWord}
@@ -391,7 +467,7 @@ export function Panel() {
             Whole word
           </label>
         </div>
-      </div>
+      </section>
 
       {/* Box appearance — fill + border, the same colour picker + presets every
           tool uses. Applies to new boxes (detect / find / hand-drawn). */}
@@ -407,44 +483,23 @@ export function Panel() {
         </Labeled>
       </div>
 
-      {(detecting || finding) && ocr && (
-        <p role="status" className="text-xs text-slate-500 dark:text-dark-text-muted">
-          Reading scanned pages… ({ocr.done}/{ocr.total})
-        </p>
-      )}
-
-      {summary &&
-        (summary.tone === "error" ? (
-          <p
-            role="alert"
-            className="flex items-start gap-1.5 text-xs text-red-700 dark:text-red-300"
-          >
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            <span>{summary.text}</span>
-          </p>
-        ) : (
-          <p role="status" className="text-xs text-slate-500 dark:text-dark-text-muted">
-            {summary.text}
-          </p>
-        ))}
-
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600 dark:text-dark-text-muted">
+          <span className="text-sm text-[var(--color-ink-2)]">
             {count} redaction{count === 1 ? "" : "s"}
           </span>
           {count > 0 && (
             <button
               type="button"
               onClick={clearAll}
-              className="text-xs text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+              className="cloak-focus inline-flex min-h-11 items-center px-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary-600 hover:text-primary-700"
             >
               Clear all
             </button>
           )}
         </div>
         {count > 0 && (
-          <ul className="thin-scrollbar max-h-40 overflow-y-auto rounded-lg border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
+          <ul className="cloak-ledger thin-scrollbar max-h-40 overflow-y-auto">
             {redactions.map((r, i) => (
               <li
                 key={r.id}
@@ -456,7 +511,7 @@ export function Panel() {
                     setSelectedPage(r.pageIndex);
                     setViewMode("focus");
                   }}
-                  className="min-w-0 flex-1 truncate rounded text-left text-slate-600 dark:text-dark-text-muted hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="cloak-focus min-h-9 min-w-0 flex-1 truncate text-left text-[var(--color-ink-2)] hover:text-primary-600 pointer-coarse:min-h-11"
                 >
                   Box {i + 1} · page {r.pageIndex + 1}
                 </button>
@@ -464,16 +519,16 @@ export function Panel() {
                   type="button"
                   onClick={() => removeObject(r.id)}
                   aria-label={`Remove box ${i + 1}`}
-                  className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="cloak-focus inline-flex min-h-9 min-w-9 items-center justify-center text-[var(--color-ink-3)] hover:bg-[var(--color-paper)] hover:text-[var(--color-danger)] pointer-coarse:min-h-11 pointer-coarse:min-w-11"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
               </li>
             ))}
           </ul>
         )}
       </div>
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted">
+      <p className="text-xs text-[var(--color-ink-3)]">
         Redactions stay editable — your text remains searchable — and are burned into the pages
         permanently when you export.
       </p>

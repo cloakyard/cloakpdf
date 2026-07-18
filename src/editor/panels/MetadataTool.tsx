@@ -156,10 +156,10 @@ export function Panel() {
     <div className="flex flex-col gap-4">
       {/* Read-only document report (folded in from the old PDF Inspector). */}
       {info && (
-        <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface divide-y divide-slate-100 dark:divide-dark-border">
+        <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface divide-y divide-slate-100 dark:divide-dark-border">
           <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-dark-surface-alt px-3 py-2">
             <FileText className="h-3.5 w-3.5 text-primary-500 dark:text-primary-400" />
-            <p className="text-xxs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
+            <p className="font-mono text-xxs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
               Document
             </p>
           </div>
@@ -227,7 +227,7 @@ export function Panel() {
         <button
           type="button"
           onClick={() => setFields({ ...EMPTY })}
-          className="self-start rounded px-1 py-0.5 text-xs text-slate-500 hover:text-red-600 dark:text-dark-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          className="self-start rounded px-1 py-0.5 text-xs text-slate-500 hover:text-red-600 pointer-coarse:min-h-11 dark:text-dark-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           Clear all fields
         </button>

@@ -8,8 +8,10 @@
  * Future dates are not allowed.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useCloseOnModalOpen } from "../utils/modal-events.ts";
 import { Select } from "./Select.tsx";
 import { useAnchoredPopover } from "./useAnchoredPopover.ts";
 
@@ -79,10 +81,13 @@ function buildValue(
 function formatDisplay(value: string): string {
   const p = parseValue(value);
   if (!p) return "";
-  const hour12 = p.hour % 12 || 12;
-  const ampm = p.hour >= 12 ? "PM" : "AM";
-  const min = p.minute.toString().padStart(2, "0");
-  return `${p.day} ${MONTHS[p.month].slice(0, 3)} ${p.year}, ${hour12}:${min} ${ampm}`;
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(p.year, p.month, p.day, p.hour, p.minute));
 }
 
 interface DateTimeInputProps {
@@ -93,6 +98,8 @@ interface DateTimeInputProps {
 
 export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   const [open, setOpen] = useState(false);
+  useCloseOnModalOpen(setOpen);
+  const popoverId = useId();
   const [showYearPicker, setShowYearPicker] = useState(false);
   // Keyboard-nav roving focus within the calendar grid
   const [focusedDay, setFocusedDay] = useState<number | null>(null);
@@ -106,8 +113,15 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   // overflow-clipped panels / mobile sheet can't clip it.
   const { style: popoverStyle, above: popoverAbove } = useAnchoredPopover(open, containerRef, {
     width: 288,
-    height: 340,
+    height: 480,
   });
+  const popoverTop = popoverStyle?.top;
+  const visualBottom =
+    (window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight);
+  const popoverMaxHeight =
+    typeof popoverTop === "number"
+      ? Math.max(160, visualBottom - popoverTop - 8)
+      : "calc(100svh - 1rem)";
 
   const parsed = useMemo(() => parseValue(value), [value]);
 
@@ -138,6 +152,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   useEffect(() => {
     if (showYearPicker && selectedYearRef.current) {
       selectedYearRef.current.scrollIntoView({ block: "center", behavior: "instant" });
+      selectedYearRef.current.focus();
     }
   }, [showYearPicker]);
 
@@ -170,6 +185,16 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
     btn?.focus();
   }, [focusedDay, open, showYearPicker]);
 
+  // Keep the roving-focus day valid when moving between months with different
+  // lengths (or into the current month, where future days are unavailable).
+  useEffect(() => {
+    if (!open || showYearPicker) return;
+    const lastDay = getDaysInMonth(viewYear, viewMonth);
+    const lastSelectableDay =
+      viewYear === todayYear && viewMonth === todayMonth ? Math.min(lastDay, todayDay) : lastDay;
+    setFocusedDay((day) => (day === null ? day : Math.min(Math.max(day, 1), lastSelectableDay)));
+  }, [open, showYearPicker, viewYear, viewMonth, todayYear, todayMonth, todayDay]);
+
   // Close on outside click / Escape; return focus to trigger on close
   useEffect(() => {
     if (!open) return;
@@ -190,11 +215,19 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
         triggerRef.current?.focus();
       }
     }
+    function handleFocusIn(e: FocusEvent) {
+      const target = e.target as Node;
+      if (target instanceof Element && target.closest('[role="listbox"]')) return;
+      if (popoverRef.current?.contains(target) || containerRef.current?.contains(target)) return;
+      setOpen(false);
+    }
     document.addEventListener("mousedown", handleClick);
     document.addEventListener("keydown", handleKey);
+    document.addEventListener("focusin", handleFocusIn);
     return () => {
       document.removeEventListener("mousedown", handleClick);
       document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("focusin", handleFocusIn);
     };
   }, [open]);
 
@@ -275,7 +308,10 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
 
   const handleAmPm = useCallback(
     (ampm: "AM" | "PM") => {
-      if (!parsed) return;
+      if (!parsed) {
+        handleTimePart("hour", ampm === "PM" ? 12 : 0);
+        return;
+      }
       const isCurrentlyPm = parsed.hour >= 12;
       if (ampm === "PM" && !isCurrentlyPm) {
         handleTimePart("hour", parsed.hour + 12);
@@ -288,8 +324,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
 
   const handleHour12Change = useCallback(
     (h12: number) => {
-      if (!parsed) return;
-      const isPm = parsed.hour >= 12;
+      const isPm = parsed ? parsed.hour >= 12 : false;
       const h24 = isPm ? (h12 === 12 ? 12 : h12 + 12) : h12 === 12 ? 0 : h12;
       handleTimePart("hour", h24);
     },
@@ -343,6 +378,18 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
 
   // Build flat cell list: negative = empty spacer, positive = day number
   const daysInMonth = getDaysInMonth(viewYear, viewMonth);
+  const lastSelectableDay =
+    viewYear === todayYear && viewMonth === todayMonth
+      ? Math.min(daysInMonth, todayDay)
+      : daysInMonth;
+  const fallbackFocusDay =
+    parsed?.year === viewYear && parsed?.month === viewMonth
+      ? Math.min(Math.max(parsed.day, 1), lastSelectableDay)
+      : viewYear === todayYear && viewMonth === todayMonth
+        ? todayDay
+        : 1;
+  const calendarFocusDay =
+    focusedDay === null ? fallbackFocusDay : Math.min(Math.max(focusedDay, 1), lastSelectableDay);
   const firstDayOfWeek = getFirstDayOfWeek(viewYear, viewMonth);
   const cells: number[] = [];
   for (let i = 0; i < firstDayOfWeek; i++) cells.push(-(i + 1));
@@ -370,12 +417,13 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={popoverId}
         aria-label={displayText ? `Date and time: ${displayText}` : "Select date and time"}
         onClick={() => {
           setOpen((v) => !v);
           setShowYearPicker(false);
         }}
-        className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow] flex items-center justify-between gap-2"
+        className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 text-left text-sm transition-[transform,opacity,color,background-color,border-color,box-shadow] pointer-coarse:min-h-11 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       >
         <span
           className={
@@ -386,18 +434,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
         >
           {displayText || "Not set"}
         </span>
-        <svg
-          className="w-4 h-4 text-slate-400 shrink-0"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M6 2a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1V3a1 1 0 1 0-2 0v1H7V3a1 1 0 0 0-1-1zM4 8h12v8H4V8z"
-            clipRule="evenodd"
-          />
-        </svg>
+        <CalendarDays className="h-4 w-4 shrink-0 text-[var(--color-ink-3)]" aria-hidden="true" />
       </button>
 
       {/* Popover panel — portaled to <body>, fixed-anchored to the field */}
@@ -406,6 +443,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
         createPortal(
           <div
             ref={popoverRef}
+            id={popoverId}
             role="dialog"
             // No aria-modal: this is a non-modal anchored popover (no backdrop,
             // no scroll lock, closes on outside click — Escape handled above).
@@ -413,8 +451,8 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
             // deliberately doesn't have, so it's dropped to resolve the ARIA
             // contradiction rather than trap focus in a scrim-less surface.
             aria-label="Date and time picker"
-            style={popoverStyle}
-            className={`${popoverAnimClass} z-900 w-72 p-3 bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border shadow-xl space-y-2 overscroll-contain`}
+            style={{ ...popoverStyle, maxHeight: popoverMaxHeight }}
+            className={`${popoverAnimClass} cloak-popover thin-scrollbar z-[var(--z-popover)] max-h-[calc(100svh-1rem)] w-72 space-y-2 overflow-y-auto overscroll-contain p-3`}
           >
             {/* Month/year navigation header */}
             <div className="flex items-center justify-between gap-1">
@@ -423,24 +461,13 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                 onClick={handlePrevMonth}
                 disabled={!canGoPrev || showYearPicker}
                 aria-label="Previous month"
-                className={`p-1 rounded-md transition-[color,background-color,transform] active:scale-90 ${
+                className={`cloak-focus rounded-md p-1 transition-[color,background-color,transform] active:translate-y-px pointer-coarse:min-h-11 pointer-coarse:min-w-11 ${
                   canGoPrev && !showYearPicker
                     ? "hover:bg-slate-100 dark:hover:bg-dark-surface-alt text-slate-500 dark:text-dark-text-muted"
                     : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
                 }`}
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
 
               <div className="flex items-center gap-1 flex-1 justify-center">
@@ -453,25 +480,17 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                   onClick={() => setShowYearPicker((v) => !v)}
                   aria-expanded={showYearPicker}
                   aria-label="Select year"
-                  className={`flex items-center gap-0.5 text-xs font-semibold rounded px-1 py-0.5 transition-colors select-none ${
+                  className={`cloak-focus flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-semibold transition-colors select-none pointer-coarse:min-h-11 ${
                     showYearPicker
                       ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
                       : "text-slate-700 dark:text-dark-text hover:bg-slate-100 dark:hover:bg-dark-surface-alt"
                   }`}
                 >
                   {viewYear}
-                  <svg
-                    className={`w-3 h-3 transition-transform ${showYearPicker ? "rotate-180" : ""}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
+                  <ChevronDown
+                    className={`h-3 w-3 transition-transform ${showYearPicker ? "rotate-180" : ""}`}
                     aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  />
                 </button>
               </div>
 
@@ -480,24 +499,13 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                 onClick={handleNextMonth}
                 disabled={!canGoNext || showYearPicker}
                 aria-label="Next month"
-                className={`p-1 rounded-md transition-[color,background-color,transform] active:scale-90 ${
+                className={`cloak-focus rounded-md p-1 transition-[color,background-color,transform] active:translate-y-px pointer-coarse:min-h-11 pointer-coarse:min-w-11 ${
                   canGoNext && !showYearPicker
                     ? "hover:bg-slate-100 dark:hover:bg-dark-surface-alt text-slate-500 dark:text-dark-text-muted"
                     : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
                 }`}
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
 
@@ -510,7 +518,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                     ref={year === viewYear ? selectedYearRef : undefined}
                     type="button"
                     onClick={() => handleYearSelect(year)}
-                    className={`py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    className={`cloak-focus rounded-md py-1.5 text-xs font-medium transition-colors pointer-coarse:min-h-11 ${
                       year === viewYear
                         ? "bg-primary-600 text-white"
                         : year === todayYear
@@ -559,8 +567,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                         const isToday =
                           day === todayDay && viewMonth === todayMonth && viewYear === todayYear;
                         // Roving tabindex: only the focused day (or fallback to selected/today) is tabbable
-                        const isFocusTarget =
-                          focusedDay !== null ? focusedDay === day : isSelected || isToday;
+                        const isFocusTarget = calendarFocusDay === day;
 
                         return (
                           <td key={day}>
@@ -574,7 +581,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                               aria-label={`${day} ${MONTHS[viewMonth]} ${viewYear}${isSelected ? ", selected" : ""}${isToday ? ", today" : ""}`}
                               aria-pressed={isSelected}
                               className={`
-                              h-8 w-full flex items-center justify-center rounded-md text-xs transition-[color,background-color,transform] select-none active:scale-90
+                              cloak-focus h-8 w-full flex items-center justify-center rounded-md text-xs transition-[color,background-color,transform] select-none active:translate-y-px pointer-coarse:h-11
                               ${
                                 isSelected
                                   ? "bg-primary-600 text-white font-semibold"
@@ -611,6 +618,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                   ariaLabel="Hour"
                   placeholder="—"
                   size="sm"
+                  className="pointer-coarse:min-h-11"
                 />
               </div>
 
@@ -626,6 +634,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                   ariaLabel="Minute"
                   placeholder="—"
                   size="sm"
+                  className="pointer-coarse:min-h-11"
                 />
               </div>
 
@@ -637,8 +646,8 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                     key={period}
                     type="button"
                     onClick={() => handleAmPm(period)}
-                    aria-pressed={(period === "PM") === isPm}
-                    className={`px-2 py-1 transition-colors ${
+                    aria-pressed={parsed ? (period === "PM") === isPm : false}
+                    className={`cloak-focus px-2 py-1 transition-colors pointer-coarse:min-h-11 ${
                       parsed && (period === "PM") === isPm
                         ? "bg-primary-600 text-white font-medium"
                         : "bg-white dark:bg-dark-bg text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
@@ -659,7 +668,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                   setOpen(false);
                   triggerRef.current?.focus();
                 }}
-                className="text-xs text-slate-500 dark:text-dark-text-muted hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                className="cloak-focus inline-flex items-center rounded-sm px-1 text-xs text-slate-500 transition-colors hover:text-red-500 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-red-400"
               >
                 Clear
               </button>
@@ -667,7 +676,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                 <button
                   type="button"
                   onClick={setToNow}
-                  className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 transition-colors"
+                  className="cloak-focus inline-flex items-center rounded-sm px-1 text-xs text-primary-600 transition-colors hover:text-primary-700 pointer-coarse:min-h-11 dark:text-primary-400"
                 >
                   Now
                 </button>
@@ -677,7 +686,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                     setOpen(false);
                     triggerRef.current?.focus();
                   }}
-                  className="text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 px-3 py-1 rounded-lg transition-colors"
+                  className="cloak-focus min-h-8 rounded-md bg-primary-600 px-3 py-1 font-mono text-xxs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-700 pointer-coarse:min-h-11"
                 >
                   Done
                 </button>

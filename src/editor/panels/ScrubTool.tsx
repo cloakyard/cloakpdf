@@ -68,14 +68,14 @@ export function Panel() {
           Scanning for hidden data…
         </p>
       ) : total === 0 ? (
-        <div className="flex items-center gap-2 rounded-xl border border-primary-200 dark:border-primary-900/40 bg-primary-50 dark:bg-primary-900/20 p-3 text-sm text-primary-700 dark:text-primary-300">
+        <div className="flex items-center gap-2 rounded-lg border border-primary-200 dark:border-primary-900/40 bg-primary-50 dark:bg-primary-900/20 p-3 text-sm text-primary-700 dark:text-primary-300">
           {/* One-accent rule: info/success surfaces collapse to primary tints —
               green survives only on the literal check glyph (see DESIGN.md). */}
           <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
           No hidden data found — this document is already clean.
         </div>
       ) : (
-        <ul className="divide-y divide-slate-100 dark:divide-dark-border rounded-xl border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface">
+        <ul className="divide-y divide-slate-100 dark:divide-dark-border rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface">
           {(Object.keys(LABELS) as ScrubCategory[]).map((cat) => {
             const n = counts[cat];
             return (

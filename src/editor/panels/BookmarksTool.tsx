@@ -117,7 +117,7 @@ export function Panel() {
         onClick={autoDetect}
         disabled={detecting || busy}
         title="First use downloads a ~4 MB layout engine, then works offline"
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-900/40 bg-primary-50 dark:bg-primary-900/20 px-3 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="inline-flex items-center justify-center gap-1.5 rounded-md border border-primary-200 dark:border-primary-900/40 bg-primary-50 dark:bg-primary-900/20 px-3 py-2.5 font-mono text-xs font-semibold text-primary-700 dark:text-primary-300 hover:bg-primary-100 active:translate-y-px pointer-coarse:min-h-11 dark:hover:bg-primary-900/30 disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       >
         {detecting ? (
           <>
@@ -133,7 +133,11 @@ export function Panel() {
           </>
         )}
       </button>
-      {autoNote && <p className="text-xs text-slate-500 dark:text-dark-text-muted">{autoNote}</p>}
+      {autoNote && (
+        <p role="status" className="text-xs text-slate-500 dark:text-dark-text-muted">
+          {autoNote}
+        </p>
+      )}
 
       <div className="flex flex-col gap-2">
         {rows.map((r) => (
@@ -151,15 +155,18 @@ export function Panel() {
               className="inline-flex w-12 min-h-11 shrink-0 items-center justify-center gap-0.5 rounded-md border border-slate-200 dark:border-dark-border py-1.5 text-xs font-medium tabular-nums text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               H{r.level}
-              <ChevronDown className="h-3 w-3 opacity-60" />
+              <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
             </button>
             <input
               type="text"
+              aria-label="Bookmark title"
+              name={`bookmark-title-${r.id}`}
+              autoComplete="off"
               value={r.title}
               placeholder="Bookmark title"
               onChange={(e) => update(r.id, { title: e.target.value })}
               disabled={detecting}
-              className="min-w-0 min-h-11 flex-1 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="min-w-0 min-h-11 flex-1 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             />
             <input
               type="number"
@@ -167,18 +174,19 @@ export function Panel() {
               max={pageCount}
               value={r.page}
               aria-label="Target page"
+              name={`bookmark-page-${r.id}`}
               onChange={(e) => update(r.id, { page: e.target.value })}
               disabled={detecting}
-              className="w-16 min-h-11 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2 py-1.5 text-sm tabular-nums text-slate-800 dark:text-dark-text disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="w-16 min-h-11 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2 py-1.5 text-sm tabular-nums text-slate-800 dark:text-dark-text disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             />
             <button
               type="button"
               onClick={() => remove(r.id)}
               disabled={detecting}
               aria-label="Remove bookmark"
-              className="min-h-11 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-red-600 disabled:opacity-50 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="inline-flex min-h-11 items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-red-600 pointer-coarse:min-w-11 disabled:opacity-50 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -188,7 +196,7 @@ export function Panel() {
         type="button"
         onClick={() => setRows((prev) => [...prev, newRow(selectedPage + 1)])}
         disabled={detecting}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 dark:border-dark-border px-3 py-2 text-sm text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="inline-flex items-center justify-center gap-1.5 rounded-md border border-dashed border-slate-300 dark:border-dark-border px-3 py-2.5 font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       >
         <Plus className="h-4 w-4" />
         Add current page (page {selectedPage + 1})

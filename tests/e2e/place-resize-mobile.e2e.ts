@@ -182,7 +182,7 @@ async function main() {
     writeFileSync(pngPath, makePng(240, 120, [30, 41, 59]));
     await page.evaluate(() => {
       const b = Array.from(document.querySelectorAll("button")).find(
-        (e) => (e.textContent ?? "").trim() === "Upload",
+        (e) => (e.textContent ?? "").trim() === "Choose",
       );
       (b as HTMLElement | null)?.click();
     });

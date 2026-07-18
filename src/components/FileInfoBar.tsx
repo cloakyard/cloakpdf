@@ -13,8 +13,8 @@ interface FileInfoBarProps {
 /** Standard "selected file" header shown by every tool. */
 export function FileInfoBar({ fileName, details, onChangeFile, extra }: FileInfoBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-      <p className="text-sm text-slate-600 dark:text-dark-text-muted wrap-anywhere min-w-0">
+    <div className="cloak-file-info flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+      <p className="min-w-0 wrap-anywhere font-mono text-xs text-[var(--color-ink-2)]">
         <span className="font-medium">{fileName}</span> —{" "}
         <span className="tabular-nums">{details}</span>
         {extra}
@@ -27,7 +27,7 @@ export function FileInfoBar({ fileName, details, onChangeFile, extra }: FileInfo
           // "Change" buttons: a 44px tap target on touch with desktop spacing
           // unchanged (the -mx-2 cancels the px-2 so the resting layout matches
           // the old bare link).
-          className="inline-flex items-center min-h-11 px-2 -mx-2 rounded text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="-mx-2 inline-flex min-h-11 items-center rounded-sm px-2 font-mono text-[11px] uppercase tracking-[0.04em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           Change file
         </button>
