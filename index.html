@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
 
     <!--
-      Content Security Policy — enforces the "no uploads, 100% private" promise.
+      Content Security Policy — keeps document processing local while allowing
+      the read-only runtime assets used by OCR and on-device AI.
       `connect-src` is intentionally narrow: only the CDNs that deliver tool
       assets (Tesseract OCR data, Hugging Face AI model weights) are permitted.
       User file content is never sent to any origin; these endpoints serve
@@ -41,8 +42,15 @@
     <meta name="theme-color" content="#2563EB" />
     <meta name="color-scheme" content="light dark" />
 
-    <!-- Preload primary font so first paint uses Inter, not the system fallback -->
-    <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Shared Cloakyard type system: editorial display + technical labels. -->
+    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <!-- Resource hints for runtime CDNs (PDF.js worker, Tesseract.js core + lang data) -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -59,24 +67,21 @@
     <!-- SEO -->
     <meta
       name="description"
-      content="CloakPDF — free offline PDF toolkit that runs entirely in your browser. Merge, split, compress, rotate, reorder, delete pages, add watermarks, signatures & more. No uploads, 100% private."
+      content="CloakPDF is an open-source, privacy-focused PDF workbench with advanced editing, organisation, redaction, OCR, signature, comparison, and on-device AI tools that run in your browser."
     />
     <meta
       name="keywords"
-      content="offline pdf tool, pdf editor offline, free pdf merger, compress pdf online, split pdf, rotate pdf, pdf watermark, pdf signature, browser pdf toolkit, private pdf editor, no upload pdf tool"
+      content="client-side pdf tool, browser pdf editor, free pdf merger, compress pdf, split pdf, rotate pdf, pdf watermark, pdf signature, private pdf toolkit, open-source pdf editor, no upload pdf tool"
     />
     <link rel="canonical" href="https://pdf.cloakyard.com/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://pdf.cloakyard.com/" />
-    <meta
-      property="og:title"
-      content="CloakPDF — Free Offline PDF Toolkit | No Uploads, 100% Private"
-    />
+    <meta property="og:title" content="CloakPDF — A complete PDF workbench. Nothing uploaded." />
     <meta
       property="og:description"
-      content="Merge, split, compress, rotate, watermark & sign PDFs — entirely in your browser. No file uploads, no servers, completely private."
+      content="An open-source PDF web app with advanced editing, redaction, OCR, signature, comparison, and on-device AI tools. Your documents stay in your browser."
     />
     <meta property="og:image" content="https://pdf.cloakyard.com/icons/og-image.png" />
     <meta property="og:image:type" content="image/png" />
@@ -84,18 +89,22 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="CloakPDF — Free Offline PDF Toolkit | No Uploads, 100% Private"
+      content="CloakPDF — A complete PDF workbench. Nothing uploaded."
     />
     <meta property="og:site_name" content="CloakPDF" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="CloakPDF — Free Offline PDF Toolkit" />
+    <meta name="twitter:title" content="CloakPDF — A complete PDF workbench. Nothing uploaded." />
     <meta
       name="twitter:description"
-      content="Merge, split, compress, rotate & sign PDFs offline in your browser. No uploads, 100% private."
+      content="Advanced PDF editing, redaction, OCR, signatures, comparison, and on-device AI in a privacy-focused open-source web app."
     />
     <meta name="twitter:image" content="https://pdf.cloakyard.com/icons/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="CloakPDF — A complete PDF workbench. Nothing uploaded."
+    />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -103,8 +112,8 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "CloakPDF",
-        "url": "https://pdf.cloakyard.com",
-        "description": "Free offline PDF toolkit that runs entirely in your browser. Merge, split, compress, rotate, reorder, delete pages, add watermarks, signatures and more. No uploads, 100% private.",
+        "url": "https://pdf.cloakyard.com/",
+        "description": "An open-source, privacy-focused PDF workbench with advanced editing, organisation, redaction, OCR, signature, comparison, and on-device AI tools. Document processing runs in your browser without a PDF upload service.",
         "applicationCategory": "UtilityApplication",
         "operatingSystem": "Any",
         "offers": {
@@ -113,28 +122,27 @@
           "priceCurrency": "USD"
         },
         "featureList": [
+          "Unified PDF editor",
           "Merge PDFs",
-          "Split & Extract Pages",
+          "Split and extract pages",
           "Compress PDF",
-          "Rotate Pages",
-          "Reorder Pages",
-          "Delete Pages",
-          "Add Watermark",
-          "Add Signature",
-          "PDF to Image",
+          "Organise and annotate pages",
+          "Fill PDF forms",
+          "Destructive PDF redaction",
+          "OCR and searchable PDFs",
+          "Digital signatures",
+          "Compare PDFs",
+          "Ask PDF with on-device AI",
+          "PDF to images",
           "Images to PDF",
-          "OCR PDF",
-          "Crop Pages",
-          "Add Page Numbers",
-          "Redact PDF",
-          "PDF Password Protection",
-          "Edit Metadata"
+          "PDF password protection",
+          "Edit metadata, bookmarks, and attachments"
         ],
         "browserRequirements": "Requires a modern web browser with JavaScript enabled"
       }
     </script>
 
-    <title>CloakPDF — Free Offline PDF Toolkit | Merge, Split, Compress & More</title>
+    <title>CloakPDF — A complete PDF workbench. Nothing uploaded.</title>
   </head>
 
   <body>

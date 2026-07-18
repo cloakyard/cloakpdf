@@ -1,21 +1,8 @@
-/**
- * Root layout shell for the application.
- *
- * Provides a fixed top header bar (logo, privacy chip, GitHub link,
- * optional back button), a centred content area, an animated aurora
- * backdrop, and a footer. The footer shows compact bento cards (How it
- * works + Cloakyard family promo) on the home screen only; on tool
- * pages (`showBack=true`) the bento collapses to a slim attribution
- * row to keep tool chrome minimal. All pages/tools render inside
- * `children`.
- */
+/** Shared Cloakyard-family shell for marketing, privacy, and standalone tools. */
 
 import { ArrowUpRight, ChevronLeft, Scale, ShieldCheck } from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
-import { GRAINIENT_DARK, GRAINIENT_LIGHT, GRAINIENT_MOTION } from "../config/grainient";
-import { APP_CONTAINER } from "../config/theme.ts";
+import type { ReactNode } from "react";
 import { tools } from "../config/tool-registry.ts";
-import { Grainient } from "./Grainient";
 
 declare const __APP_VERSION__: string;
 
@@ -24,14 +11,11 @@ const CLOAKYARD_URL = "https://github.com/cloakyard";
 const AUTHOR_URL = "https://github.com/sumitsahoo";
 
 interface LayoutProps {
-  /** Content to render in the main area. */
   children: ReactNode;
-  /** Callback fired when the user navigates back to the home screen. */
   onHome: () => void;
-  /** When true, displays a back-arrow button in the header. */
   showBack?: boolean;
-  /** Callback fired when the user clicks the Privacy Policy link. */
   onPrivacy: () => void;
+  footerVariant?: "statement" | "compact";
 }
 
 function GithubMark({ className = "" }: { className?: string }) {
@@ -42,311 +26,225 @@ function GithubMark({ className = "" }: { className?: string }) {
   );
 }
 
-/**
- * Reads the system colour scheme and updates on change. Inlined here
- * (rather than a shared hook) because Layout is the only component
- * that needs it — to swap the Grainient palette between light/dark.
- */
-function usePrefersDark(): boolean {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const update = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  return isDark;
-}
-
-export function Layout({ children, onHome, showBack, onPrivacy }: LayoutProps) {
-  const isDark = usePrefersDark();
-  const palette = isDark ? GRAINIENT_DARK : GRAINIENT_LIGHT;
-
+export function Layout({
+  children,
+  onHome,
+  showBack = false,
+  onPrivacy,
+  footerVariant = "statement",
+}: LayoutProps) {
   return (
-    <div
-      className="relative z-150 flex flex-col min-h-svh"
-      style={{ background: "var(--page-bg)" }}
-    >
-      {/* Animated WebGL noise/gradient backdrop. Palette + motion live
-          in src/config/grainient.ts so any other surface that mounts
-          Grainient renders the same gradient. The .grainient-fixed
-          class positions it as a page backdrop: fixed inset-0, z-0,
-          with the iOS URL-bar mask.
-
-          Paused inside any tool (`showBack=true`) so the drifting
-          warp doesn't compete with the user's focus on the tool's
-          own UI / animations / file thumbnails. The last frame stays
-          on screen so the visual identity is preserved — only the
-          motion stops. */}
-      <Grainient className="grainient-fixed" {...GRAINIENT_MOTION} {...palette} paused={showBack} />
-
+    <div className="cloak-site flex flex-col">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-200 focus:rounded-lg focus:bg-primary-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[var(--z-system-overlay)] focus:rounded-md focus:bg-primary-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Skip to main content
       </a>
 
-      <div className="relative flex flex-col flex-1 min-h-0">
-        {/* Fixed top header bar — full-width glassy bar pinned to the top
-            of the viewport, sitting above the aurora. The wrapping
-            <header> owns the bar visuals; the inner container constrains
-            content to the page max-width. */}
-        <header className="sticky top-0 z-50 bg-white/80 dark:bg-dark-surface/80 backdrop-blur-lg border-b border-slate-200/70 dark:border-white/10">
-          <div className={`${APP_CONTAINER} mx-auto px-4 sm:px-6`}>
-            <div className="py-3 flex items-center gap-2 sm:gap-3">
-              {showBack && (
+      <header className="cloak-site-header !h-[4.5rem]">
+        <div className="site-frame cloak-site-header__inner">
+          <div className="flex min-w-0 items-center gap-2">
+            {showBack && (
+              <button
+                type="button"
+                onClick={onHome}
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-paper-2)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:size-11"
+                aria-label="Back to home"
+              >
+                <ChevronLeft className="size-5" aria-hidden="true" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onHome}
+              aria-label="CloakPDF home"
+              className="flex min-h-10 min-w-0 items-center gap-[0.6rem] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
+            >
+              <img
+                src="/icons/logo.svg"
+                alt=""
+                aria-hidden="true"
+                width="40"
+                height="40"
+                className="size-10 shrink-0 rounded-full"
+              />
+              <span
+                translate="no"
+                className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-ink)]"
+              >
+                Cloak<span className="text-[var(--color-accent)]">PDF</span>
+              </span>
+            </button>
+          </div>
+
+          <nav
+            aria-label="Primary navigation"
+            className="cloak-site-header__nav flex items-center justify-center gap-1"
+          >
+            {!showBack && (
+              <>
+                <a className="cloak-nav-link" href="#workbench">
+                  Editor
+                </a>
+                <a className="cloak-nav-link" href="#toolkit">
+                  Toolkit
+                </a>
+                <a className="cloak-nav-link" href="#privacy-model">
+                  Privacy
+                </a>
+              </>
+            )}
+          </nav>
+
+          <div className="flex items-center justify-end">
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cloak-outline-link pointer-coarse:min-h-11"
+              aria-label="View CloakPDF source on GitHub"
+            >
+              <GithubMark className="size-3.5" />
+              <span className="hidden sm:inline">Source</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <main
+        id="main"
+        tabIndex={-1}
+        className={`${showBack ? "site-frame" : ""} w-full flex-1 scroll-mt-20`}
+      >
+        {children}
+      </main>
+
+      <footer
+        className="cloak-site-footer mt-auto"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        <div
+          className={`site-frame ${footerVariant === "statement" ? "py-8 sm:py-10" : "py-6 sm:py-7"}`}
+        >
+          {footerVariant === "statement" ? (
+            <div className="grid gap-8 border-b border-[var(--color-night-rule)] pb-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end lg:gap-20">
+              <div>
+                <p className="cloak-mono-label mb-4 text-primary-400">CloakPDF / Cloakyard</p>
+                <p className="cloak-site-footer__statement">
+                  Open a PDF. <span className="text-primary-400">Keep it local.</span>
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs uppercase tracking-[0.04em] text-[var(--color-night-muted)]">
+                {showBack ? (
+                  <button
+                    type="button"
+                    onClick={onHome}
+                    className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  >
+                    Home / {tools.length} utilities
+                  </button>
+                ) : (
+                  <a
+                    className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                    href="#toolkit"
+                  >
+                    {tools.length} utilities
+                  </a>
+                )}
+                <a
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  href={REPO_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
                 <button
                   type="button"
-                  onClick={onHome}
-                  className="p-2 rounded-xl hover:bg-slate-900/4 dark:hover:bg-white/5 transition-colors text-slate-600 dark:text-dark-text-muted"
-                  aria-label="Back to home"
+                  onClick={onPrivacy}
+                  className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  Privacy policy
                 </button>
-              )}
-
+                <a
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  href={CLOAKYARD_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Cloakyard <ArrowUpRight className="ml-1 inline size-3" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-5 border-b border-[var(--color-night-rule)] pb-6 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={onHome}
                 aria-label="CloakPDF home"
-                className="flex items-center gap-2.5 hover:opacity-90 transition-opacity"
+                className="cloak-focus inline-flex min-h-10 w-fit items-center gap-[0.6rem] rounded-md pointer-coarse:min-h-11"
               >
-                {/* Circular favicon.svg (not the full-bleed logo.svg) so
-                    the chip silhouette matches CloakIMG's top bar — the
-                    Cloakyard family reads consistently across apps. */}
                 <img
-                  src="/icons/favicon.svg"
-                  alt="CloakPDF logo"
-                  width="40"
-                  height="40"
-                  className="w-10 h-10 drop-shadow-sm"
+                  src="/icons/logo.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width="34"
+                  height="34"
+                  className="size-[34px] shrink-0 rounded-full"
                 />
                 <span
                   translate="no"
-                  className="text-[19px] font-semibold tracking-[-0.025em] text-slate-900 dark:text-dark-text"
+                  className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-night-ink)]"
                 >
-                  Cloak<span className="text-primary-600 dark:text-primary-400">PDF</span>
+                  Cloak<span className="text-primary-400">PDF</span>
                 </span>
               </button>
+              <p className="m-0 max-w-md text-sm leading-relaxed text-[var(--color-night-muted)] sm:text-right">
+                A focused PDF utility running inside the same private browser workbench.
+              </p>
+            </div>
+          )}
 
-              <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-                <div className="flex items-center gap-1.5 px-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-slate-500 dark:text-dark-text-muted" />
-                  <span className="text-meta font-medium tracking-tight text-slate-600 dark:text-dark-text-muted whitespace-nowrap">
-                    <span className="sm:hidden">Private</span>
-                    <span className="hidden sm:inline lg:hidden">100% Private</span>
-                    <span className="hidden lg:inline">100% Private · Open Source</span>
-                  </span>
-                </div>
-
-                <span aria-hidden="true" className="w-px h-5 bg-slate-200 dark:bg-white/10" />
-
-                <a
-                  href={REPO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 dark:text-dark-text-muted hover:text-slate-900 dark:hover:text-dark-text hover:bg-slate-900/4 dark:hover:bg-white/5 transition-colors"
-                  aria-label="View source on GitHub"
-                >
-                  <GithubMark className="w-4.5 h-4.5" />
-                  <span className="sr-only">GitHub</span>
-                </a>
-              </div>
+          <div className="flex flex-col gap-3 pt-6 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-night-muted)] sm:flex-row sm:items-center">
+            <span translate="no">CloakPDF v{__APP_VERSION__}</span>
+            <span className="hidden sm:inline" aria-hidden="true">
+              /
+            </span>
+            <span>
+              Built by{" "}
+              <a
+                className="text-[var(--color-night-ink)] hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                href={AUTHOR_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Sumit Sahoo
+              </a>
+            </span>
+            <div className="flex items-center gap-4 sm:ml-auto">
+              <button
+                type="button"
+                onClick={onPrivacy}
+                className="inline-flex items-center gap-2 hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+              >
+                <ShieldCheck className="size-3.5" aria-hidden="true" />
+                Privacy
+              </button>
+              <a
+                className="inline-flex items-center gap-2 hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                href={`${REPO_URL}/blob/main/LICENSE`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Scale className="size-3.5" aria-hidden="true" />
+                MIT licensed
+              </a>
             </div>
           </div>
-        </header>
-
-        <main
-          id="main"
-          tabIndex={-1}
-          className={`relative z-10 flex-1 ${APP_CONTAINER} mx-auto px-4 sm:px-6 py-8 w-full scroll-mt-20`}
-        >
-          {children}
-        </main>
-
-        {/* Bento footer — How it works card paired with a Cloakyard
-            family promo card. Each card carries its own glassy surface so
-            the aurora reads through the gutter. A slim attribution row
-            sits below the bento. */}
-        <footer
-          className="relative mt-auto"
-          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-        >
-          <div className={`${APP_CONTAINER} mx-auto px-4 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8`}>
-            {/* Bento cards only render on the home screen. On tool pages
-                (showBack=true) we collapse to a single attribution row. */}
-            {!showBack && (
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6 sm:mb-7">
-                {/* How it works card. Corner glow is painted as a
-                    radial-gradient background-image, not an absolute-
-                    positioned blurred child div. The blurred-child
-                    approach hits an iOS Safari bug — `overflow-hidden +
-                    rounded-2xl + backdrop-filter` parent fails to clip
-                    a `filter: blur()` child to the rounded corner, so
-                    the corner where the blob sat reads as squared off.
-                    A bg-image radial gradient produces the same soft
-                    corner glow without introducing any filtered child
-                    to clip. */}
-                <div
-                  className="sm:col-span-7 relative rounded-2xl border border-slate-200/70 dark:border-dark-border bg-white/65 dark:bg-dark-surface/60 backdrop-blur-md p-5 flex flex-col"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(280px 280px at 100% 0%, rgba(37, 99, 235, 0.18) 0%, rgba(37, 99, 235, 0.06) 38%, transparent 68%)",
-                  }}
-                >
-                  <div className="relative">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="text-xxs uppercase tracking-[0.16em] font-medium text-primary-600 dark:text-primary-400">
-                        How it works
-                      </div>
-                      <span
-                        translate="no"
-                        className="shrink-0 inline-flex items-center rounded-full bg-slate-100/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 px-2 py-0.5 font-mono text-xxs tabular-nums tracking-tight text-slate-500 dark:text-dark-text-muted"
-                      >
-                        v{__APP_VERSION__}
-                      </span>
-                    </div>
-                    <h3 className="mt-2 text-lg sm:text-xl font-semibold tracking-tight text-slate-900 dark:text-dark-text leading-[1.2] text-balance">
-                      From drop to download, in three steps.
-                    </h3>
-                  </div>
-                  <ol className="relative mt-4 space-y-3 list-none p-0 m-0">
-                    {[
-                      {
-                        n: 1,
-                        title: "Drop a PDF — or pick a utility",
-                        description: `PDFs open in the canvas editor; ${tools.length} focused cards cover multi-file, security, and AI jobs.`,
-                      },
-                      {
-                        n: 2,
-                        title: "Make your edits",
-                        description:
-                          "Annotate, redact, organise, OCR — everything runs on your device.",
-                      },
-                      {
-                        n: 3,
-                        title: "Download the result",
-                        description:
-                          "Polished output with no watermarks, no sign-ups, no waiting in a queue.",
-                      },
-                    ].map((step) => (
-                      <li key={step.n} className="flex items-start gap-3">
-                        <span
-                          aria-hidden="true"
-                          className="shrink-0 w-7 h-7 rounded-full inline-flex items-center justify-center text-[12px] font-semibold leading-none tabular-nums text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/40 border border-primary-100 dark:border-primary-800/60"
-                        >
-                          {step.n}
-                        </span>
-                        <div className="min-w-0">
-                          <div className="text-card-desc font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text">
-                            {step.title}
-                          </div>
-                          <div className="text-meta leading-[1.55] text-slate-500 dark:text-dark-text-muted max-w-prose">
-                            {step.description}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                {/* Cloakyard family promo card — same radial-gradient
-                    pattern as "How it works" above (see comment there
-                    for the iOS Safari rationale), anchored bottom-left
-                    instead of top-right so the two cards mirror each
-                    other across the gutter. */}
-                <a
-                  href={CLOAKYARD_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="sm:col-span-5 group relative rounded-2xl border border-slate-200/70 dark:border-dark-border bg-white/65 dark:bg-dark-surface/60 backdrop-blur-md p-5 flex flex-col justify-between hover:border-primary-300/60 dark:hover:border-primary-400/30 transition-colors"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(280px 280px at 0% 100%, rgba(37, 99, 235, 0.14) 0%, rgba(37, 99, 235, 0.05) 38%, transparent 68%)",
-                  }}
-                >
-                  <div className="relative">
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src="/icons/cloakyard.svg"
-                        alt=""
-                        aria-hidden="true"
-                        width="28"
-                        height="28"
-                        loading="lazy"
-                        className="w-7 h-7 drop-shadow-sm"
-                      />
-                      <span className="text-xxs uppercase tracking-[0.16em] font-medium text-slate-400 dark:text-dark-text-muted">
-                        Part of
-                      </span>
-                    </div>
-                    <h4 className="mt-2.5 text-lg font-semibold tracking-tight text-slate-900 dark:text-dark-text">
-                      Cloakyard
-                    </h4>
-                    <p className="mt-1 text-meta text-slate-500 dark:text-dark-text-muted leading-[1.55]">
-                      A family of privacy-focused tools that keep your data on your device.
-                    </p>
-                  </div>
-                  <span className="relative mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-primary-600 dark:text-primary-400">
-                    Explore
-                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </span>
-                </a>
-              </div>
-            )}
-
-            <div className="border-t border-slate-200/60 dark:border-dark-border pt-5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-meta text-slate-500 dark:text-dark-text-muted">
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
-                <span>Built by</span>
-                <a
-                  href={AUTHOR_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-700 dark:text-dark-text hover:text-primary-600 dark:hover:text-primary-400 no-underline font-medium transition-colors duration-150"
-                >
-                  Sumit Sahoo
-                </a>
-              </div>
-              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 sm:ml-auto">
-                <button
-                  type="button"
-                  onClick={onPrivacy}
-                  className="group inline-flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 bg-transparent cursor-pointer transition-colors duration-150"
-                >
-                  <ShieldCheck
-                    className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-colors duration-150 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                    aria-hidden="true"
-                  />
-                  Privacy
-                </button>
-                <span aria-hidden="true">·</span>
-                <a
-                  href={`${REPO_URL}/blob/main/LICENSE`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors duration-150"
-                >
-                  <Scale
-                    className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 transition-colors duration-150 group-hover:text-primary-600 dark:group-hover:text-primary-400"
-                    aria-hidden="true"
-                  />
-                  <span>
-                    <span className="text-slate-400 dark:text-slate-500 transition-colors duration-150 group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                      MIT
-                    </span>{" "}
-                    licensed
-                  </span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
+        </div>
+      </footer>
     </div>
   );
 }

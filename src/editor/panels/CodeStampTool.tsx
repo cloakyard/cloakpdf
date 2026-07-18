@@ -570,7 +570,7 @@ export function Panel() {
           <button
             type="button"
             onClick={applyToAllPages}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-dark-border px-3 py-2 text-sm font-medium text-slate-700 dark:text-dark-text hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 dark:border-dark-border px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:bg-slate-50 active:translate-y-px pointer-coarse:min-h-11 dark:hover:bg-dark-surface-alt transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             <Layers className="h-4 w-4" />
             Same spot on all {pageCount} pages

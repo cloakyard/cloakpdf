@@ -67,7 +67,7 @@ async function pressMeta(page: Page, key: KeyInput, shift = false): Promise<void
   await page.keyboard.up("Meta");
 }
 
-const PALETTE = 'div[aria-label="Command palette"]';
+const PALETTE = '[data-testid="command-palette"]';
 
 async function paletteOpen(page: Page): Promise<boolean> {
   return (await page.$(PALETTE)) !== null;
@@ -117,6 +117,24 @@ async function main() {
     if (!railSearch) fail("Rail Search (palette) button not found.");
     await railSearch.click();
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
+    const closeSelector = `${PALETTE} button[aria-label="Close command palette"]`;
+    await page.waitForFunction(
+      (selector) => {
+        const rect = document.querySelector(selector)?.getBoundingClientRect();
+        return Boolean(rect && Math.round(rect.width) >= 44 && Math.round(rect.height) >= 44);
+      },
+      { timeout: 2_000 },
+      closeSelector,
+    );
+    const closeTarget = await page.$eval(closeSelector, (button) => {
+      const rect = button.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    if (Math.round(closeTarget.width) < 44 || Math.round(closeTarget.height) < 44) {
+      fail(
+        `Command palette close target must be at least 44×44px; got ${closeTarget.width}×${closeTarget.height}px.`,
+      );
+    }
     await page.screenshot({ path: "/tmp/command-palette.png" });
     await page.keyboard.press("Escape");
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
@@ -157,18 +175,18 @@ async function main() {
     // updates React state async — reading options immediately races the render).
     await page.waitForFunction(
       (sel) =>
-        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "")
-          .trim()
-          .startsWith("Page numbers"),
+        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "").includes(
+          "Page numbers",
+        ),
       { timeout: 5_000 },
       PALETTE,
     );
     const labels = await page.$$eval(`${PALETTE} [role=option]`, (els) =>
       els.map((e) => (e.textContent ?? "").trim()),
     );
-    if (!labels[0]?.startsWith("Page numbers"))
+    if (!labels[0]?.includes("Page numbers"))
       fail(`Expected Page numbers ranked first, got: ${labels[0]}`);
-    if (!labels.some((l) => l.startsWith("Strip furniture")))
+    if (!labels.some((l) => l.includes("Strip furniture")))
       fail("Strip furniture should still appear via description match.");
     await page.keyboard.press("Enter"); // top result = Page numbers
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
@@ -233,9 +251,7 @@ async function main() {
     // ranking must still put the Attach tool on top, so Enter selects it.
     await page.waitForFunction(
       (sel) =>
-        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "")
-          .trim()
-          .startsWith("Attach"),
+        (document.querySelector(`${sel} [role=option]`)?.textContent ?? "").includes("Attach"),
       { timeout: 5_000 },
       PALETTE,
     );

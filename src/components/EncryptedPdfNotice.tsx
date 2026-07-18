@@ -21,7 +21,7 @@ interface EncryptedPdfNoticeProps {
 
 export function EncryptedPdfNotice({ file, onChangeFile }: EncryptedPdfNoticeProps) {
   return (
-    <div className="flex items-start gap-3 border rounded-xl p-4 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/60">
+    <div className="cloak-notice border-amber-200 bg-amber-50 dark:border-amber-800/60 dark:bg-amber-900/20">
       <Lock
         className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400"
         aria-hidden="true"
@@ -33,14 +33,14 @@ export function EncryptedPdfNotice({ file, onChangeFile }: EncryptedPdfNoticePro
         <p className="text-amber-700/90 dark:text-amber-300/90">
           <span className="font-medium">{file.name}</span> ({formatFileSize(file.size)}) is
           encrypted and can't be processed by this tool. Remove the password first with{" "}
-          <span className="font-medium">PDF Password</span>, then come back and upload the unlocked
+          <span className="font-medium">PDF Password</span>, then come back and open the unlocked
           copy.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => navigateToTool("pdf-password")}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
+            className="cloak-focus inline-flex min-h-10 items-center gap-2 rounded-md bg-primary-600 px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-700 pointer-coarse:min-h-11"
           >
             <Lock className="w-3.5 h-3.5" aria-hidden="true" />
             Open PDF Password
@@ -48,7 +48,7 @@ export function EncryptedPdfNotice({ file, onChangeFile }: EncryptedPdfNoticePro
           <button
             type="button"
             onClick={onChangeFile}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
+            className="cloak-focus min-h-10 rounded-md px-3 py-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-amber-800 transition-colors hover:bg-amber-100 pointer-coarse:min-h-11 dark:text-amber-200 dark:hover:bg-amber-900/40"
           >
             Choose another file
           </button>

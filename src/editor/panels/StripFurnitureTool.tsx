@@ -13,6 +13,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { canvas as canvasTheme } from "../../config/theme.ts";
 import {
   detectRunningFurniture,
   extractTextGeometry,
@@ -27,8 +28,6 @@ import { useStageProps } from "../stage.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const TOOL_ID = "strip-furniture";
-// The same slate dim CropTool uses for the trimmed-away area — one calm accent.
-const DIM = "rgba(15, 23, 42, 0.45)";
 
 const KIND_LABELS: Record<FurnitureGroup["kind"], string> = {
   header: "Running header",
@@ -47,10 +46,10 @@ export function Stage() {
       const bot = Math.max(0, bottomPct) * h;
       if (top <= 0 && bot <= 0) return;
       ctx.save();
-      ctx.fillStyle = DIM;
+      ctx.fillStyle = canvasTheme.selectionDim;
       if (top > 0) ctx.fillRect(0, 0, w, top);
       if (bot > 0) ctx.fillRect(0, h - bot, w, bot);
-      ctx.strokeStyle = "rgba(37, 99, 235, 0.95)";
+      ctx.strokeStyle = canvasTheme.accentStrong;
       ctx.lineWidth = 1.5;
       if (top > 0) {
         ctx.beginPath();
@@ -172,14 +171,17 @@ export function Panel() {
           Scanning pages for repeating text…
         </p>
       ) : groups.length === 0 ? (
-        <div className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
+        <div
+          role="status"
+          className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted"
+        >
           {hadText
             ? "No repeating headers, footers, or page numbers found."
             : "No selectable text found — run OCR first to detect furniture on a scanned PDF."}
         </div>
       ) : (
         <>
-          <ul className="divide-y divide-slate-100 dark:divide-dark-border rounded-xl border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface">
+          <ul className="divide-y divide-slate-100 dark:divide-dark-border rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface">
             {groups.map((g) => (
               <li key={g.id}>
                 <label className="flex cursor-pointer items-start gap-3 px-3 py-2.5">

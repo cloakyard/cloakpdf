@@ -24,11 +24,10 @@
  * themselves come from the shared {@link ModelCard} component used by
  * {@link AiModelDetailsModal}, so the two modals read as one system.
  *
- * **Visual pattern.** Mirrors `ToolPickerModal`'s translucent layout —
- * one painting layer for backdrop + close-button, the sheet rises in and
- * settles out through Motion (the shared `scrim`/`sheet` variants via
- * AnimatePresence), `bg-white/85` for the see-through feel.
- * Bottom-sheet on mobile / centered card on desktop.
+ * **Visual pattern.** Uses the family dialog: one named scrim layer and an
+ * opaque paper sheet with compact corners and functional elevation. The sheet
+ * rises in and settles out through the shared Motion variants. It remains a
+ * bottom sheet on mobile and a centered dialog on desktop.
  *
  * **Download indicator.** The header swaps `Loader2` for a plain
  * `ArrowDown` during the `downloading` state — the arrow rises in
@@ -38,16 +37,13 @@
  * motion already conveys. Warm-load keeps the spinner since nothing
  * is being downloaded then.
  */
-import { AlertCircle, ArrowDown, Check, Cpu, Loader2, ShieldCheck, X } from "lucide-react";
-import { useEffect, useRef } from "react";
-import { useFocusTrap } from "../utils/useFocusTrap";
-import { createPortal } from "react-dom";
+import { AlertCircle, ArrowDown, Check, Cpu, Loader2, ShieldCheck } from "lucide-react";
 import type { AiModelStatus } from "../hooks/useAiModel.ts";
 import type { AiModelInfo } from "../utils/ai-models.ts";
 import type { AiProgress } from "../utils/ai-runtime.ts";
 import { formatFileSize } from "../utils/file-helpers.ts";
 import { ModelCard } from "./ModelCard.tsx";
-import { AnimatePresence, m, variants } from "./motion.tsx";
+import { ModalCloseButton, ModalShell } from "./ModalShell.tsx";
 
 interface AiConsentModalProps {
   /** When `false` the dialog animates out (AnimatePresence), then unmounts. */
@@ -104,30 +100,6 @@ export function AiConsentModal({
   onRetry,
   onCancel,
 }: AiConsentModalProps) {
-  // Lock body scroll + wire Escape while the dialog is open.
-  useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      // Allow Escape to cancel from any state. `onCancel` aborts the
-      // in-flight download (via the wrapped `env.fetch`) and dismisses
-      // the dialog — the bytes stop streaming rather than running on in
-      // the background. Fully-cached files survive, so a later retry
-      // resumes from where this left off.
-      if (e.key === "Escape") onCancel();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onCancel]);
-
-  // Trap Tab within the dialog + restore focus to the trigger on close.
-  const dialogRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(dialogRef, open);
-
   // Backdrop click closes the dialog *unless* a download or warm-load
   // is mid-flight — an accidental click is a poor way to lose
   // visibility of either kind of progress.
@@ -136,88 +108,48 @@ export function AiConsentModal({
 
   const totalBytes = models.reduce((sum, m) => sum + m.approxSizeBytes, 0);
   const primary = models[0];
+  if (!primary) return null;
 
-  return createPortal(
-    <AnimatePresence>
-      {open && (
-        <m.div
-          ref={dialogRef}
-          className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="ai-consent-title"
-          variants={variants.scrim}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          style={{
-            // One painting layer for dim + blur — same pattern as
-            // ToolPickerModal so iOS Safari's hit-testing stays simple.
-            background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={dismissOnBackdrop ? onCancel : undefined}
-            aria-label="Close"
-            tabIndex={-1}
-            className="absolute inset-0"
-            style={{ background: "transparent" }}
+  return (
+    <ModalShell
+      open={open}
+      onClose={onCancel}
+      labelledBy="ai-consent-title"
+      describedBy="ai-consent-description"
+      dismissOnBackdrop={dismissOnBackdrop}
+      dismissOnEscape={dismissOnBackdrop}
+      panelClassName="max-h-[90svh] sm:max-h-[min(720px,calc(100svh-64px))] sm:w-[min(580px,100%)]"
+      testId="ai-consent-dialog"
+    >
+      <ModalHeader
+        primary={primary}
+        models={models}
+        status={status}
+        onCancel={onCancel}
+        disableClose={disableClose}
+      />
+
+      <div className="cloak-dialog__body thin-scrollbar">
+        {status === "awaiting-consent" || status === "idle" ? (
+          <ConsentBody models={models} roles={roles} />
+        ) : status === "downloading" || status === "loading" ? (
+          <DownloadBody
+            primary={primary}
+            models={models}
+            roles={roles}
+            totalBytes={totalBytes}
+            progress={progress}
+            perModelStatus={perModelStatus}
+            perModelProgress={perModelProgress}
+            warm={status === "loading"}
           />
+        ) : status === "error" ? (
+          <ErrorBody models={models} message={error} />
+        ) : null}
+      </div>
 
-          <m.div
-            className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[88svh] sm:max-h-[min(720px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl overscroll-contain"
-            variants={variants.sheet}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            {/* Mobile drag handle — purely visual, no drag-to-dismiss
-            since the download flow has its own explicit Cancel CTA. */}
-            <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
-              <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
-            </div>
-
-            <ModalHeader
-              primary={primary}
-              models={models}
-              status={status}
-              onCancel={onCancel}
-              disableClose={disableClose}
-            />
-
-            <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 thin-scrollbar">
-              {status === "awaiting-consent" || status === "idle" ? (
-                <ConsentBody models={models} roles={roles} />
-              ) : status === "downloading" || status === "loading" ? (
-                <DownloadBody
-                  primary={primary}
-                  models={models}
-                  roles={roles}
-                  totalBytes={totalBytes}
-                  progress={progress}
-                  perModelStatus={perModelStatus}
-                  perModelProgress={perModelProgress}
-                  warm={status === "loading"}
-                />
-              ) : status === "error" ? (
-                <ErrorBody models={models} message={error} />
-              ) : null}
-            </div>
-
-            <ModalFooter
-              status={status}
-              onConfirm={onConfirm}
-              onRetry={onRetry}
-              onCancel={onCancel}
-            />
-          </m.div>
-        </m.div>
-      )}
-    </AnimatePresence>,
-    document.body,
+      <ModalFooter status={status} onConfirm={onConfirm} onRetry={onRetry} onCancel={onCancel} />
+    </ModalShell>
   );
 }
 
@@ -261,8 +193,8 @@ function ModalHeader({
     : primary.description;
 
   return (
-    <div className="flex items-start gap-4 px-4 md:px-7 pt-2 sm:pt-5 pb-3.5 border-b border-slate-200/70 dark:border-dark-border/70">
-      <span className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 overflow-hidden">
+    <header className="cloak-dialog__header">
+      <span className="mt-1 grid h-5 w-5 shrink-0 place-items-center overflow-hidden text-primary-600">
         {status === "downloading" ? (
           // Bare down-arrow looping top→middle→bottom→fade — visually
           // mirrors what the bar below is doing (bytes flowing in)
@@ -277,32 +209,22 @@ function ModalHeader({
         ) : status === "loading" ? (
           <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
         ) : status === "error" ? (
-          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" aria-hidden="true" />
+          <AlertCircle className="h-5 w-5 text-[var(--color-status-danger)]" aria-hidden="true" />
         ) : (
           <Cpu className="w-5 h-5" aria-hidden="true" />
         )}
       </span>
       <div className="flex-1 min-w-0">
-        <h2
-          id="ai-consent-title"
-          className="text-card-title sm:text-base font-semibold tracking-[-0.01em] text-slate-800 dark:text-dark-text"
-        >
+        <p className="cloak-dialog__eyebrow">Model runtime / local execution</p>
+        <h2 id="ai-consent-title" className="cloak-dialog__title">
           {headline}
         </h2>
-        <p className="text-card-desc text-slate-500 dark:text-dark-text-muted mt-0.5 leading-relaxed">
+        <p id="ai-consent-description" className="cloak-dialog__description">
           {description}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={disableClose ? undefined : onCancel}
-        disabled={disableClose}
-        aria-label="Close"
-        className="w-9 h-9 rounded-lg grid place-items-center text-slate-400 dark:text-dark-text-muted hover:bg-slate-100 dark:hover:bg-dark-surface-alt hover:text-slate-700 dark:hover:text-dark-text transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
+      <ModalCloseButton onClick={onCancel} disabled={disableClose} />
+    </header>
   );
 }
 
@@ -315,8 +237,11 @@ function ConsentBody({ models, roles }: { models: AiModelInfo[]; roles?: string[
 
       {/* Privacy reassurance — repeated here intentionally; users may
           jump straight to this block without reading the header. */}
-      <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-dark-text-muted leading-relaxed pt-1">
-        <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400" />
+      <div className="flex items-start gap-2.5 pt-1 text-xs leading-relaxed text-[var(--color-ink-2)]">
+        <ShieldCheck
+          className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400"
+          aria-hidden="true"
+        />
         <p>
           Files are downloaded once from Hugging Face's CDN and cached in your browser. After that
           everything runs entirely on your device — your PDFs are never uploaded.
@@ -363,16 +288,16 @@ function DownloadBody({
   if (warm) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-3 text-sm text-slate-700 dark:text-dark-text">
+        <div className="flex items-center gap-3 text-sm text-[var(--color-ink)]">
           <Loader2
             className="w-4 h-4 animate-spin text-primary-600 dark:text-primary-400"
             aria-hidden="true"
           />
-          <span className="font-medium">
+          <span className="font-medium" role="status" aria-live="polite" aria-atomic="true">
             {progress?.status ?? (multi ? "Loading models" : "Loading model")}
           </span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-dark-text-muted leading-relaxed">
+        <p className="text-xs leading-relaxed text-[var(--color-ink-3)]">
           {multi
             ? "All models are already cached in your browser — initialising the runtimes now. This usually takes a few seconds."
             : `${primary.displayName} is already cached in your browser — initialising the runtime now. This usually takes a few seconds.`}
@@ -396,6 +321,9 @@ function DownloadBody({
   // higher registry estimate.
   const total = progress?.total && progress.total > 0 ? progress.total : totalBytes;
   const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+  // Screen readers get useful milestones rather than one verbose announcement
+  // for every network progress event.
+  const announcedPercent = Math.floor(percent / 10) * 10;
 
   // Single-model fallback (e.g. a tool that only loads one pipeline)
   // keeps the original "one chunky bar + filename + bytes" layout —
@@ -403,22 +331,32 @@ function DownloadBody({
   // only one model.
   if (!showBreakdown) {
     return (
-      <div className="space-y-3" role="status" aria-live="polite">
+      <div className="space-y-3">
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          Downloading model, {announcedPercent}%.
+        </span>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-700 dark:text-dark-text font-medium">
+          <span className="font-medium text-[var(--color-ink)]">
             {progress?.status ?? "Downloading"}
           </span>
           <span className="font-medium text-primary-600 dark:text-primary-400 tabular-nums">
             {percent}%
           </span>
         </div>
-        <div className="w-full bg-slate-200 dark:bg-dark-border rounded-full h-2 overflow-hidden">
+        <div
+          className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface-strong)]"
+          role="progressbar"
+          aria-label="Model download"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+        >
           <div
-            className="bg-primary-600 h-full rounded-full transition-[width] duration-300"
-            style={{ width: `${percent}%` }}
+            className="h-full origin-left rounded-full bg-primary-600 transition-transform duration-300"
+            style={{ transform: `scaleX(${percent / 100})` }}
           />
         </div>
-        <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-dark-text-muted">
+        <div className="flex items-center justify-between gap-2 text-xs text-[var(--color-ink-3)]">
           <span className="font-mono wrap-anywhere truncate">
             {progress?.file ? progress.file.split("/").pop() || progress.file : "preparing…"}
           </span>
@@ -426,7 +364,7 @@ function DownloadBody({
             {formatFileSize(loaded)} / {formatFileSize(total)}
           </span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-dark-text-muted leading-relaxed pt-1">
+        <p className="pt-1 text-xs leading-relaxed text-[var(--color-ink-3)]">
           If your connection drops, the download will resume next time — files already saved to your
           browser cache won't be redownloaded.
         </p>
@@ -446,32 +384,35 @@ function DownloadBody({
   // Each per-model card is self-contained: role pill, display name,
   // its own per-model bar, and a tail that swaps between size /
   // "Ready" / "Loading…" / "Waiting" depending on the model's own
-  // state machine. Cards keep the project's slate-200 border + white
-  // surface + rounded-xl idiom so the dialog reads as one of the
+  // state machine. Cards keep the project's named rule + paper
+  // divider-led surface idiom so the dialog reads as one of the
   // app's regular surfaces, not a special download UI.
   const completed = perModelStatus.filter((s) => s === "ready").length;
   const downloading = models.length - completed;
 
   return (
-    <div className="space-y-4" role="status" aria-live="polite">
+    <div className="space-y-4">
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        Downloading {models.length} models, {announcedPercent}%. {completed} ready.
+      </span>
       {/* Tinted summary panel — big percent left, totals on the right.
           Replaces the old "Overall progress" + bar combo. The
           per-model bars below already show progress in detail; a
           second top bar was redundant and made the panel feel
           stacked. */}
-      <div className="rounded-xl border border-primary-100/80 dark:border-primary-900/40 bg-primary-50/60 dark:bg-primary-900/15 px-4 py-3.5">
+      <div className="border-y border-primary-200 bg-primary-50/50 px-1 py-3.5 dark:border-primary-900/50 dark:bg-primary-900/15">
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xxs uppercase tracking-wider font-medium text-primary-700 dark:text-primary-300">
               {progress?.status ?? "Downloading"}
             </p>
-            <p className="text-sm font-semibold text-slate-800 dark:text-dark-text tabular-nums mt-1">
+            <p className="mt-1 text-sm font-semibold tabular-nums text-[var(--color-ink)]">
               {formatFileSize(loaded)}{" "}
-              <span className="text-slate-500 dark:text-dark-text-muted font-normal">
+              <span className="font-normal text-[var(--color-ink-3)]">
                 of {formatFileSize(total)}
               </span>
             </p>
-            <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-0.5">
+            <p className="mt-0.5 text-xs text-[var(--color-ink-3)]">
               {completed} of {models.length} ready
               {downloading > 0 ? ` · ${downloading} pending` : ""}
             </p>
@@ -499,7 +440,7 @@ function DownloadBody({
         ))}
       </ul>
 
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted leading-relaxed">
+      <p className="text-xs leading-relaxed text-[var(--color-ink-3)]">
         If your connection drops, the download will resume next time — files already saved to your
         browser cache won't be redownloaded.
       </p>
@@ -514,8 +455,8 @@ function DownloadBody({
  * depending on the model's state. The card is self-contained — the
  * summary panel above doesn't repeat any of this information.
  *
- * **Visual idiom.** `rounded-xl border border-slate-200 bg-white` —
- * the same surface treatment {@link ModelCard} uses, so the consent
+ * **Visual idiom.** A hairline-led row on the dialog's paper surface —
+ * the same treatment {@link ModelCard} uses, so the consent
  * body and download body share a visual language.
  */
 function ModelProgressCard({
@@ -542,46 +483,46 @@ function ModelProgressCard({
 
   // Bar appearance keys off status, not just percent — a finished
   // card reads as "done" (lighter fill + check), a failed card as
-  // "error" (red track), a waiting card as "queued" (muted track),
+  // "error" (danger track), a waiting card as "queued" (muted track),
   // a downloading card as the active fill. The bar fill on error is
-  // intentionally full + red so the row still has visual weight,
+  // intentionally full + semantic danger colour so the row still has visual weight,
   // matching the "Failed" tail.
   const barPercent =
     status === "ready" || status === "error" ? 100 : status === "downloading" ? percent : 0;
   const barClass =
     status === "ready"
-      ? "bg-primary-400/80 dark:bg-primary-500/70"
+      ? "bg-[var(--color-status-success)]"
       : status === "error"
-        ? "bg-red-500/70 dark:bg-red-400/70"
+        ? "bg-[var(--color-status-danger)]"
         : status === "downloading"
           ? "bg-primary-600 dark:bg-primary-500"
-          : "bg-slate-200 dark:bg-dark-border";
+          : "bg-[var(--color-surface-strong)]";
 
   // Tail: the per-card status indicator on the right. Each status
   // maps to one affordance so the card never juggles two competing
   // signals (e.g. a percent + a "Ready" badge at the same time).
   // Without an `error` branch a failed model rendered as "Waiting"
   // while the dialog header already shouted "Download failed" — the
-  // user couldn't tell *which* model broke. The red tail closes
+  // user couldn't tell *which* model broke. The danger tail closes
   // that loop.
   let tail: React.ReactNode;
   if (status === "ready") {
     tail = (
-      <span className="inline-flex items-center gap-1 text-primary-700 dark:text-primary-300 font-medium">
-        <Check className="w-3.5 h-3.5" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1 font-medium text-[var(--color-ink-2)]">
+        <Check className="h-3.5 w-3.5 text-[var(--color-status-success)]" aria-hidden="true" />
         Ready
       </span>
     );
   } else if (status === "error") {
     tail = (
-      <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-medium">
-        <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1 font-medium text-[var(--color-ink-2)]">
+        <AlertCircle className="h-3.5 w-3.5 text-[var(--color-status-danger)]" aria-hidden="true" />
         Failed
       </span>
     );
   } else if (status === "loading") {
     tail = (
-      <span className="inline-flex items-center gap-1 text-slate-500 dark:text-dark-text-muted">
+      <span className="inline-flex items-center gap-1 text-[var(--color-ink-3)]">
         <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
         Loading…
       </span>
@@ -593,7 +534,7 @@ function ModelProgressCard({
       </span>
     );
   } else {
-    tail = <span className="text-slate-500 dark:text-dark-text-muted">Waiting</span>;
+    tail = <span className="text-[var(--color-ink-3)]">Waiting</span>;
   }
 
   // Sub-tail under the bar: byte counter while downloading (the
@@ -607,31 +548,36 @@ function ModelProgressCard({
       : `${formatFileSize(info.approxSizeBytes)}`;
 
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3.5 py-3">
+    <div className="border-t border-[var(--color-rule)] py-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2 mb-0.5">
             {role && (
-              <span className="shrink-0 text-xxs uppercase tracking-wider text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 rounded px-1.5 py-0.5 font-medium">
+              <span className="shrink-0 border-r border-[var(--color-rule)] pr-2 font-mono text-xxs font-semibold uppercase tracking-wider text-primary-600">
                 {role}
               </span>
             )}
-            <span className="font-medium text-sm text-slate-700 dark:text-dark-text truncate">
+            <span className="truncate text-sm font-medium text-[var(--color-ink)]">
               {info.displayName}
             </span>
           </div>
         </div>
         <span className="text-xs shrink-0">{tail}</span>
       </div>
-      <div className="mt-2 w-full bg-slate-100 dark:bg-dark-bg rounded-full h-1.5 overflow-hidden">
+      <div
+        className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-paper-2)]"
+        role="progressbar"
+        aria-label={`${info.displayName} download`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={barPercent}
+      >
         <div
-          className={`${barClass} h-full rounded-full transition-[width] duration-300`}
-          style={{ width: `${barPercent}%` }}
+          className={`${barClass} h-full origin-left rounded-full transition-transform duration-300`}
+          style={{ transform: `scaleX(${barPercent / 100})` }}
         />
       </div>
-      <p className="mt-1.5 text-xxs tabular-nums text-slate-500 dark:text-dark-text-muted">
-        {subTail}
-      </p>
+      <p className="mt-1.5 text-xxs tabular-nums text-[var(--color-ink-3)]">{subTail}</p>
     </div>
   );
 }
@@ -640,10 +586,10 @@ function ErrorBody({ models, message }: { models: AiModelInfo[]; message: string
   const subject = models.length > 1 ? "the AI models" : `${models[0].displayName}`;
   return (
     <div className="space-y-3">
-      <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-300">
+      <div className="cloak-notice cloak-notice--danger text-sm" role="alert">
         {message ?? "The download could not be completed."}
       </div>
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted leading-relaxed">
+      <p className="text-xs leading-relaxed text-[var(--color-ink-3)]">
         Files already saved to your browser cache are kept — retrying picks up where the last
         attempt left off rather than starting {subject} from scratch.
       </p>
@@ -663,11 +609,14 @@ function ModalFooter({
   onCancel: () => void;
 }) {
   return (
-    <div className="px-4 md:px-7 py-4 bg-slate-50/55 dark:bg-dark-surface-alt/55 border-t border-slate-200/70 dark:border-dark-border/70 flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2">
+    <footer className="cloak-dialog__footer">
       <button
         type="button"
         onClick={onCancel}
-        className="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-dark-text bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border hover:border-slate-300 dark:hover:border-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors"
+        data-dialog-initial-focus={
+          status === "downloading" || status === "loading" ? "true" : undefined
+        }
+        className="cloak-focus min-h-11 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-2)] transition-colors hover:border-[var(--color-rule-strong)] hover:bg-[var(--color-paper)]"
       >
         Cancel
       </button>
@@ -675,19 +624,21 @@ function ModalFooter({
         <button
           type="button"
           onClick={onRetry}
-          className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-primary-600 hover:bg-primary-700 text-white shadow-sm shadow-primary-500/30"
+          data-dialog-initial-focus="true"
+          className="cloak-focus min-h-11 rounded-md bg-primary-600 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-ink)] transition-colors hover:bg-primary-700"
         >
           Retry download
         </button>
-      ) : status === "downloading" ? null : (
+      ) : status === "downloading" || status === "loading" ? null : (
         <button
           type="button"
           onClick={onConfirm}
-          className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-primary-600 hover:bg-primary-700 text-white shadow-sm shadow-primary-500/30"
+          data-dialog-initial-focus="true"
+          className="cloak-focus min-h-11 rounded-md bg-primary-600 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--color-accent-ink)] transition-colors hover:bg-primary-700"
         >
           Download model
         </button>
       )}
-    </div>
+    </footer>
   );
 }

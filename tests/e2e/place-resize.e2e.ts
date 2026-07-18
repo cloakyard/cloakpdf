@@ -179,7 +179,7 @@ async function main() {
     // Upload a known 2:1 PNG so the placed box geometry is deterministic.
     const pngPath = join(SHOT_DIR, "sig-known.png");
     writeFileSync(pngPath, makePng(240, 120, [30, 41, 59]));
-    if (!(await clickByText(page, "Upload"))) fail("Signature Upload mode not found.");
+    if (!(await clickByText(page, "Choose"))) fail("Signature Choose mode not found.");
     const sigUpload = (await page.$(
       'input[accept="image/png,image/jpeg"]',
     )) as ElementHandle<HTMLInputElement> | null;

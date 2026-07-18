@@ -2,248 +2,483 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
-    <meta name="theme-color" content="#2563EB" />
+    <meta name="theme-color" content="#2563eb" />
     <meta name="color-scheme" content="light dark" />
     <title>Page redacted — CloakPDF</title>
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <style>
+      /* Hallmark · genre: modern-minimal · macrostructure: Workbench edge-state · theme: studied-DNA (CloakDrop family) · design-system: DESIGN.md */
+      /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · contrast: pass · responsive: pass · mobile: pass */
       @font-face {
-        font-family: "Inter";
+        font-family: "Archivo";
         font-style: normal;
         font-weight: 100 900;
         font-display: swap;
-        src: url("/fonts/InterVariable.woff2") format("woff2-variations");
+        src: url("/fonts/archivo-latin.woff2") format("woff2");
       }
-      * {
-        box-sizing: border-box;
+
+      @font-face {
+        font-family: "JetBrains Mono";
+        font-style: normal;
+        font-weight: 100 800;
+        font-display: swap;
+        src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
       }
-      html,
-      body {
-        margin: 0;
-        padding: 0;
+
+      :root {
+        color-scheme: light dark;
+        --color-paper: oklch(0.975 0.009 255);
+        --color-paper-2: oklch(0.947 0.014 255);
+        --color-surface: oklch(0.992 0.004 255);
+        --color-ink: oklch(0.225 0.031 255);
+        --color-ink-2: oklch(0.43 0.035 255);
+        --color-ink-3: oklch(0.48 0.03 255);
+        --color-rule: oklch(0.865 0.022 255);
+        --color-rule-strong: oklch(0.72 0.032 255);
+        --color-accent: oklch(0.546 0.245 262.881);
+        --color-accent-hover: oklch(0.488 0.243 264.376);
+        --color-accent-ink: oklch(0.985 0.004 255);
+        --color-focus: oklch(0.623 0.214 259.815);
+        --color-night: oklch(0.185 0.027 255);
+        --color-night-ink: oklch(0.96 0.012 255);
+        --color-night-muted: oklch(0.735 0.024 255);
+        --color-night-rule: oklch(0.34 0.034 255);
+        --color-night-accent: oklch(0.707 0.165 254.624);
+        --font-display: "Archivo", sans-serif;
+        --font-body: "Archivo", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+        --radius-input: 0.375rem;
+        --radius-card: 0.5rem;
+        --dur-short: 160ms;
+        --ease-standard: cubic-bezier(0.2, 0, 0, 1);
       }
-      body {
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          Roboto,
-          sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #eff4fa 100%);
-        color: #1e293b;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+
       @media (prefers-color-scheme: dark) {
-        body {
-          background: linear-gradient(135deg, #0f172a 0%, #0f172a 55%, #1e293b 100%);
-          color: #f1f5f9;
+        :root {
+          --color-paper: oklch(0.175 0.025 255);
+          --color-paper-2: oklch(0.205 0.028 255);
+          --color-surface: oklch(0.225 0.028 255);
+          --color-ink: oklch(0.96 0.012 255);
+          --color-ink-2: oklch(0.76 0.023 255);
+          --color-ink-3: oklch(0.65 0.025 255);
+          --color-rule: oklch(0.33 0.033 255);
+          --color-rule-strong: oklch(0.45 0.036 255);
         }
       }
 
-      header {
-        padding: 12px 24px;
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-width: 0;
+        margin: 0;
+        overflow-x: clip;
+        background: var(--color-paper);
+      }
+
+      body {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        color: var(--color-ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .frame {
+        width: min(calc(100% - 2rem), 88rem);
+        margin-inline: auto;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 10;
+        top: 0.75rem;
+        left: 0.75rem;
+        translate: 0 -200%;
+        border-radius: var(--radius-input);
+        background: var(--color-accent);
+        color: var(--color-accent-ink);
+        padding: 0.75rem 1rem;
+        font-weight: 700;
+      }
+
+      .skip-link:focus-visible {
+        translate: 0;
+      }
+
+      .site-header {
+        height: 4.5rem;
+        flex: 0 0 auto;
+        border-bottom: 1px solid var(--color-rule);
+        background: var(--color-paper);
+      }
+
+      .site-header__inner {
+        height: 100%;
         display: flex;
         align-items: center;
-        gap: 10px;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-        backdrop-filter: blur(8px);
-        background: rgba(255, 255, 255, 0.6);
+        justify-content: space-between;
+        gap: 1rem;
       }
-      @media (prefers-color-scheme: dark) {
-        header {
-          border-bottom-color: #334155;
-          background: rgba(30, 41, 59, 0.6);
-        }
+
+      .brand {
+        min-width: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--color-ink);
+        text-decoration: none;
       }
-      header img {
-        width: 40px;
-        height: 40px;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+
+      .brand img {
+        width: 2.5rem;
+        height: 2.5rem;
+        flex: 0 0 auto;
+        border-radius: 50%;
       }
-      header .brand {
-        font-size: 18px;
-        font-weight: 600;
+
+      .brand__wordmark {
+        font-size: 1.125rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .brand__accent {
+        color: var(--color-accent);
+      }
+
+      .header-link,
+      .primary-link {
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-input);
+        font-family: var(--font-mono);
+        font-size: 0.71rem;
+        font-weight: 650;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-decoration: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .header-link {
+        border: 1px solid var(--color-rule-strong);
+        padding-inline: 1rem;
+        color: var(--color-ink);
+      }
+
+      .header-link:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
       }
 
       main {
+        width: 100%;
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 24px;
-        text-align: center;
+        padding-block: clamp(3rem, 8vw, 7rem);
       }
 
-      .stamp {
-        font-size: clamp(96px, 18vw, 180px);
-        font-weight: 900;
-        letter-spacing: -0.05em;
-        line-height: 1;
-        color: #2563eb;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: baseline;
-        gap: 0.05em;
+      .error-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(17rem, 4fr);
+        align-items: end;
+        gap: clamp(2rem, 8vw, 8rem);
       }
-      @media (prefers-color-scheme: dark) {
-        .stamp {
-          color: #60a5fa;
-        }
-      }
-      .stamp .redacted-digit {
-        position: relative;
-        display: inline-block;
-        color: transparent;
-        background: #1e293b;
-        border-radius: 6px;
-        padding: 0 0.08em;
-        transform: rotate(-1.5deg);
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-      }
-      @media (prefers-color-scheme: dark) {
-        .stamp .redacted-digit {
-          background: #cbd5e1;
-        }
+
+      .mono-label {
+        margin: 0;
+        color: var(--color-accent);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 650;
+        letter-spacing: 0.1em;
+        line-height: 1.4;
+        text-transform: uppercase;
       }
 
       h1 {
-        font-size: clamp(22px, 3.5vw, 28px);
-        font-weight: 700;
-        margin: 0 0 12px;
-        letter-spacing: -0.01em;
-      }
-      .tagline {
-        max-width: 520px;
-        margin: 0 auto 28px;
-        font-size: 15px;
-        line-height: 1.65;
-        color: #475569;
-      }
-      @media (prefers-color-scheme: dark) {
-        .tagline {
-          color: #94a3b8;
-        }
+        min-width: 0;
+        max-width: 10ch;
+        margin: 1rem 0 0;
+        color: var(--color-ink);
+        font-size: clamp(3.5rem, 10vw, 8rem);
+        font-weight: 780;
+        letter-spacing: -0.07em;
+        line-height: 0.88;
+        overflow-wrap: anywhere;
+        text-wrap: balance;
       }
 
-      .path-box {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 13px;
-        font-family: ui-monospace, "SF Mono", "Consolas", monospace;
-        color: #64748b;
-        background: rgba(226, 232, 240, 0.5);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        padding: 8px 14px;
-        border-radius: 10px;
-        margin-bottom: 32px;
-        max-width: 90vw;
+      .error-aside {
+        border-top: 1px solid var(--color-rule-strong);
+        padding-top: 1.5rem;
+      }
+
+      .lede {
+        max-width: 58ch;
+        margin: 0;
+        color: var(--color-ink-2);
+        font-size: clamp(1.05rem, 2vw, 1.25rem);
+        line-height: 1.6;
+      }
+
+      .primary-link {
+        margin-top: 1.75rem;
+        border: 1px solid var(--color-accent);
+        background: var(--color-accent);
+        color: var(--color-accent-ink);
+        padding-inline: 1.25rem;
+      }
+
+      .primary-link:hover {
+        background: var(--color-accent-hover);
+      }
+
+      .request-receipt {
+        margin-top: clamp(3rem, 7vw, 6rem);
         overflow: hidden;
-        text-overflow: ellipsis;
+        border: 1px solid var(--color-rule-strong);
+        border-radius: var(--radius-card);
+        background: var(--color-surface);
+      }
+
+      .request-receipt__bar {
+        min-height: 2.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid var(--color-rule);
+        padding: 0.75rem 1rem;
+        color: var(--color-ink-2);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 650;
+        letter-spacing: 0.08em;
+        line-height: 1.4;
+        text-transform: uppercase;
+      }
+
+      .request-receipt__body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 1.5rem;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+      }
+
+      .request-path {
+        min-width: 0;
+        margin: 0.5rem 0 0;
+        color: var(--color-ink);
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+      }
+
+      .receipt-status {
+        color: var(--color-accent);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 650;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
         white-space: nowrap;
       }
-      @media (prefers-color-scheme: dark) {
-        .path-box {
-          background: rgba(51, 65, 85, 0.5);
-          border-color: #334155;
-          color: #94a3b8;
+
+      .site-footer {
+        flex: 0 0 auto;
+        border-top: 1px solid var(--color-night-rule);
+        background: var(--color-night);
+        color: var(--color-night-ink);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .site-footer__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(14rem, 0.65fr);
+        align-items: end;
+        gap: 2rem;
+        padding-block: 2.5rem;
+      }
+
+      .site-footer .mono-label {
+        color: var(--color-night-muted);
+      }
+
+      .footer-statement {
+        max-width: 13ch;
+        margin: 1rem 0 0;
+        color: var(--color-night-ink);
+        font-size: clamp(2.2rem, 6vw, 4.5rem);
+        font-weight: 720;
+        letter-spacing: -0.055em;
+        line-height: 0.96;
+        overflow-wrap: anywhere;
+      }
+
+      .footer-statement span {
+        color: var(--color-night-accent);
+      }
+
+      .footer-copy {
+        margin: 0;
+        color: var(--color-night-muted);
+        font-size: 0.875rem;
+        line-height: 1.6;
+      }
+
+      .footer-copy a {
+        color: var(--color-night-ink);
+        font-weight: 650;
+        text-underline-offset: 0.25rem;
+      }
+
+      .brand:focus-visible,
+      .header-link:focus-visible,
+      .primary-link:focus-visible,
+      .footer-copy a:focus-visible {
+        outline: 2px solid var(--color-focus);
+        outline-offset: 3px;
+      }
+
+      .header-link:active,
+      .primary-link:active {
+        transform: translateY(1px);
+      }
+
+      .header-link,
+      .primary-link,
+      .footer-copy a {
+        transition:
+          border-color var(--dur-short) var(--ease-standard),
+          background-color var(--dur-short) var(--ease-standard),
+          color var(--dur-short) var(--ease-standard),
+          transform var(--dur-short) var(--ease-standard);
+      }
+
+      @media (max-width: 53.75rem) {
+        .error-grid,
+        .site-footer__inner {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .error-aside {
+          max-width: 42rem;
         }
       }
-      .path-box .label {
-        font-family:
-          "Inter",
-          -apple-system,
-          sans-serif;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: #94a3b8;
+
+      @media (max-width: 39.9375rem) {
+        .request-receipt__bar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .request-receipt__body {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .receipt-status {
+          white-space: normal;
+        }
       }
 
-      .button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #2563eb;
-        color: #fff;
-        text-decoration: none;
-        padding: 12px 22px;
-        border-radius: 12px;
-        font-weight: 500;
-        font-size: 14px;
-        transition:
-          background 0.15s,
-          transform 0.15s;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-      }
-      .button:hover {
-        background: #1d4ed8;
-        transform: translateY(-1px);
-      }
-      .button:active {
-        transform: translateY(0);
+      @media (pointer: coarse) {
+        .brand {
+          min-height: 2.75rem;
+        }
       }
 
-      footer {
-        text-align: center;
-        padding: 20px 24px;
-        font-size: 12px;
-        color: #94a3b8;
-      }
-      footer a {
-        color: inherit;
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-underline-offset: 3px;
-      }
-      footer a:hover {
-        color: #2563eb;
-      }
-      @media (prefers-color-scheme: dark) {
-        footer a:hover {
-          color: #60a5fa;
+      @media (prefers-reduced-motion: reduce) {
+        .header-link,
+        .primary-link,
+        .footer-copy a {
+          transition: none;
         }
       }
     </style>
   </head>
   <body>
-    <header>
-      <img src="/icons/logo.svg" alt="CloakPDF logo" />
-      <span class="brand">CloakPDF</span>
+    <a class="skip-link" href="#error-main">Skip to error details</a>
+
+    <header class="site-header">
+      <div class="frame site-header__inner">
+        <a class="brand" href="/" aria-label="CloakPDF home">
+          <img src="/icons/logo.svg" alt="" width="40" height="40" />
+          <span class="brand__wordmark" translate="no"
+            >Cloak<span class="brand__accent">PDF</span></span
+          >
+        </a>
+        <a class="header-link" href="/">Home</a>
+      </div>
     </header>
 
-    <main>
-      <div class="stamp" aria-label="404">4<span class="redacted-digit">0</span>4</div>
+    <main id="error-main" tabindex="-1">
+      <div class="frame">
+        <div class="error-grid">
+          <div>
+            <p class="mono-label">404 / Route not present</p>
+            <h1>Page redacted.</h1>
+          </div>
+          <div class="error-aside">
+            <p class="lede">
+              CloakPDF couldn’t find this route. No document was opened or transferred while you
+              were looking for it.
+            </p>
+            <a class="primary-link" href="/">Return to the workbench →</a>
+          </div>
+        </div>
 
-      <h1>This page has been redacted.</h1>
-      <p class="tagline">
-        We looked everywhere, scanned every byte, even ran OCR on the cobwebs &mdash; no luck. The
-        good news: even if this page existed, we wouldn't know you were looking for it. Your
-        browsing history stays in your browser, where it belongs.
-      </p>
-
-      <div class="path-box">
-        <span class="label">You requested</span>
-        <span id="requested-path">&mdash;</span>
+        <section class="request-receipt" aria-labelledby="request-title">
+          <div class="request-receipt__bar">
+            <span id="request-title">CloakPDF / route receipt</span>
+            <span>No analytics route</span>
+          </div>
+          <div class="request-receipt__body">
+            <div>
+              <p class="mono-label">Requested path</p>
+              <p class="request-path" id="requested-path">—</p>
+            </div>
+            <span class="receipt-status">Not found / local session</span>
+          </div>
+        </section>
       </div>
-
-      <a class="button" href="/">&larr; Back to the toolkit</a>
     </main>
 
-    <footer>
-      If a link on our site led you here,
-      <a href="https://github.com/cloakyard/cloakpdf/issues/new">please report it</a>.
+    <footer class="site-footer">
+      <div class="frame site-footer__inner">
+        <div>
+          <p class="mono-label">CloakPDF / Cloakyard</p>
+          <p class="footer-statement">Open a PDF. <span>Keep it local.</span></p>
+        </div>
+        <p class="footer-copy">
+          If a CloakPDF link led here,
+          <a href="https://github.com/cloakyard/cloakpdf/issues/new">report the broken route</a>.
+          The workbench remains open source and MIT licensed.
+        </p>
+      </div>
     </footer>
 
     <script>
@@ -251,12 +486,10 @@
         try {
           const el = document.getElementById("requested-path");
           if (!el) return;
-          let path = window.location.pathname + window.location.search;
-          if (path === "/" || path === "") path = "(unknown)";
-          // textContent prevents any HTML injection from the URL
-          el.textContent = path;
+          const path = window.location.pathname + window.location.search;
+          el.textContent = path && path !== "/" ? path : "(unknown)";
         } catch {
-          /* noop */
+          /* The fallback text is already present. */
         }
       })();
     </script>

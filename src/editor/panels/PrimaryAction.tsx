@@ -68,10 +68,8 @@ export function PrimaryAction({
       onClick={onApply}
       disabled={!ready}
       aria-busy={busy}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
-        danger
-          ? "bg-red-600 hover:bg-red-700 focus-visible:ring-red-500"
-          : "bg-primary-600 hover:bg-primary-700 focus-visible:ring-primary-500"
+      className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] active:translate-y-px pointer-coarse:min-h-11 transition-[color,background-color,transform] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+        danger ? "bg-red-600 hover:bg-red-700" : "bg-primary-600 hover:bg-primary-700"
       } ${className}`}
     >
       {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}

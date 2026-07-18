@@ -72,11 +72,14 @@ export default defineConfig({
         name: "CloakPDF",
         short_name: "CloakPDF",
         description:
-          "Free, private, browser-based PDF toolkit — merge, split, compress, rotate, reorder, delete pages, add watermarks & signatures.",
+          "Open-source, privacy-focused PDF workbench with advanced editing, OCR, redaction, signatures, comparison, and on-device AI.",
         theme_color: "#2563EB",
         background_color: "#F0F4FA",
         display: "standalone",
-        orientation: "portrait",
+        // Every top-level surface now has an intentional landscape layout.
+        // Individual workflows can still show their own narrow-screen guidance,
+        // but the installed app must not globally lock landing/privacy/editor.
+        orientation: "any",
         scope: process.env.VITE_APP_BASE_PATH || "/",
         start_url: process.env.VITE_APP_BASE_PATH || "/",
         icons: [
@@ -241,6 +244,12 @@ export default defineConfig({
   ],
   staged: {
     "*": "vp check --fix",
+  },
+  // Repository-local agent skills are vendored reference material, not app
+  // source. Keep the project's format gate focused on files we own instead of
+  // rewriting that third-party instruction corpus.
+  fmt: {
+    ignorePatterns: [".agents/**"],
   },
   lint: { options: { typeAware: true, typeCheck: true } },
 });

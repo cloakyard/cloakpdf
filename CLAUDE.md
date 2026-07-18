@@ -45,7 +45,7 @@ Tool metadata flags worth knowing:
 
 ### The unified editor
 
-The primary surface is the canvas editor ([src/editor/](src/editor/)) — a Photoshop-like single-PDF workspace. [EditorShell.tsx](src/editor/EditorShell.tsx) hosts a persistent [PdfStage.tsx](src/editor/PdfStage.tsx) that never tears down on tool switch; the active tool registers its overlay paint + pointer handlers (incl. `onPointerCancel`) through the `useStageProps` seam in [src/editor/stage.tsx](src/editor/stage.tsx). [EditorContext.tsx](src/editor/EditorContext.tsx) owns the `CanvasDoc`, history (byte + object snapshots, not rasters), and view state. The Export menu ([src/editor/ExportMenu.tsx](src/editor/ExportMenu.tsx)) covers PDF / images / contact-sheet / split and the Organize panel covers reverse / extract / remove-blank — which is why those have no standalone cards.
+The primary surface is the canvas editor ([src/editor/](src/editor/)) — a Photoshop-like single-PDF workspace. [EditorShell.tsx](src/editor/EditorShell.tsx) hosts a persistent [PdfStage.tsx](src/editor/PdfStage.tsx) that never tears down on tool switch; the active tool registers its overlay paint + pointer handlers (incl. `onPointerCancel`) through the `useStageProps` seam in [src/editor/stage.tsx](src/editor/stage.tsx). [EditorContext.tsx](src/editor/EditorContext.tsx) owns the `CanvasDoc`, history (byte + object snapshots, not rasters), and view state. The Export dialog ([src/editor/ExportModal.tsx](src/editor/ExportModal.tsx)) covers PDF / images / contact-sheet / split and the Organize panel covers reverse / extract / remove-blank — which is why those have no standalone cards.
 
 ### Two PDF libraries, two jobs
 

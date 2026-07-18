@@ -15,7 +15,6 @@ import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { LoadingSpinner } from "../components/LoadingSpinner.tsx";
 import { ProgressBar } from "../components/ProgressBar.tsx";
-import { categoryAccent, categoryGlow } from "../config/theme.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { usePdfFile } from "../hooks/usePdfFile.ts";
 import { downloadBlob, formatFileSize } from "../utils/file-helpers.ts";
@@ -316,8 +315,6 @@ export default function ExtractImages() {
     <div className="space-y-6">
       {!file ? (
         <FileDropZone
-          glowColor={categoryGlow.transform}
-          iconColor={categoryAccent.transform}
           accept=".pdf,application/pdf"
           onFiles={pdf.onFiles}
           encryptedFile={pdf.encryptedFile}
@@ -351,24 +348,24 @@ export default function ExtractImages() {
           ) : (
             <>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
+                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
                   Select images to download
                 </p>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={selectAll}
-                    className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                    className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
-                    <CheckSquare className="w-4 h-4" />
+                    <CheckSquare className="h-4 w-4" aria-hidden="true" />
                     Select all
                   </button>
                   <button
                     type="button"
                     onClick={clearAll}
-                    className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:text-dark-text-muted dark:hover:text-dark-text transition-colors"
+                    className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="h-4 w-4" aria-hidden="true" />
                     Clear
                   </button>
                 </div>
@@ -386,7 +383,7 @@ export default function ExtractImages() {
                     onClick={() => toggleImage(i)}
                     aria-label={`Image ${i + 1} from page ${img.page}${selected.has(i) ? ", selected" : ""}`}
                     aria-pressed={selected.has(i)}
-                    className={`relative group rounded-lg overflow-hidden border-2 transition-[border-color,box-shadow] cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+                    className={`relative group rounded-lg overflow-hidden border transition-[border-color,box-shadow] cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                       selected.has(i)
                         ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
                         : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"
@@ -396,12 +393,16 @@ export default function ExtractImages() {
                       <img
                         src={img.dataUrl}
                         alt={`Image ${i + 1} from page ${img.page}`}
+                        width={img.width}
+                        height={img.height}
                         className="max-w-full max-h-full object-contain"
                       />
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1.5">
-                      <span className="text-xs text-white font-medium block">Page {img.page}</span>
-                      <span className="text-xs text-white/70 tabular-nums">
+                    <div className="absolute inset-x-0 bottom-0 border-t border-[var(--color-night-rule)] bg-[var(--color-night)] px-2 py-1.5">
+                      <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-night-ink)]">
+                        Page {img.page}
+                      </span>
+                      <span className="font-mono text-[10px] tabular-nums text-[var(--color-night-muted)]">
                         {img.width} × {img.height}
                       </span>
                     </div>
@@ -410,19 +411,17 @@ export default function ExtractImages() {
               </div>
 
               {selected.size > 0 && (
-                <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-4">
+                <div className="border-y border-[var(--color-rule)] py-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-slate-600 dark:text-dark-text-muted tabular-nums">
-                      <span className="font-medium text-slate-800 dark:text-dark-text">
-                        {selected.size}
-                      </span>{" "}
+                    <div className="font-mono text-[11px] tabular-nums text-[var(--color-ink-3)]">
+                      <span className="font-semibold text-[var(--color-ink)]">{selected.size}</span>{" "}
                       image{selected.size !== 1 && "s"} selected
-                      <span className="mx-1.5 text-slate-300 dark:text-dark-border">|</span>
+                      <span className="mx-1.5 text-[var(--color-rule-strong)]">|</span>
                       {formatFileSize(totalSize)}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <ImageDown className="w-4 h-4 text-primary-500" />
-                      <span className="text-xs font-medium text-slate-500 dark:text-dark-text-muted">
+                      <ImageDown className="h-4 w-4 text-primary-500" aria-hidden="true" />
+                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
                         PNG
                       </span>
                     </div>

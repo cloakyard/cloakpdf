@@ -560,7 +560,7 @@ export function Panel() {
         onChange={(v) => patchToolState(TOOL_ID, { mode: v })}
         options={[
           { value: "draw", label: "Draw" },
-          { value: "upload", label: "Upload" },
+          { value: "upload", label: "Choose" },
         ]}
       />
 
@@ -595,10 +595,10 @@ export function Panel() {
           <button
             type="button"
             onClick={() => uploadRef.current?.click()}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 dark:border-dark-border px-3 py-4 text-sm text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-slate-300 dark:border-dark-border px-3 py-4 font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 active:translate-y-px pointer-coarse:min-h-11 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
-            <Upload className="h-4 w-4" />
-            Upload signature image
+            <Upload className="h-4 w-4" aria-hidden="true" />
+            Choose signature image
           </button>
           <input
             ref={uploadRef}
@@ -624,7 +624,7 @@ export function Panel() {
       {/* Background: ink-only (transparent) by default, or an opaque colour
           behind the ink — a switch, not a checkbox, so the binary mode reads
           clearly. */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-dark-border p-3">
+      <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-medium text-slate-700 dark:text-dark-text">Background</p>
@@ -646,7 +646,7 @@ export function Panel() {
       <p className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
         {dataUrl
           ? "Tap the page to place it, drag to reposition, then pull a corner to resize. Delete removes the selected one."
-          : "Draw or upload a signature to begin."}
+          : "Draw or choose a signature to begin."}
       </p>
 
       <span className="text-sm text-slate-600 dark:text-dark-text-muted">
@@ -657,7 +657,7 @@ export function Panel() {
         <button
           type="button"
           onClick={applyToAllPages}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-dark-border px-3 py-2 text-sm font-medium text-slate-700 dark:text-dark-text hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 dark:border-dark-border px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:bg-slate-50 active:translate-y-px pointer-coarse:min-h-11 dark:hover:bg-dark-surface-alt transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <Copy className="h-4 w-4" />
           Apply to all {pageCount} pages

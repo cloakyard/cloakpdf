@@ -1,4 +1,3 @@
-import { ArrowDownAZ, ArrowDownZA } from "lucide-react";
 import { SegmentedControl, type SegmentedOption } from "./SegmentedControl.tsx";
 
 export type SortMode = "off" | "asc" | "desc";
@@ -10,8 +9,8 @@ interface SortByNameButtonProps {
 
 const OPTIONS: readonly SegmentedOption<SortMode>[] = [
   { value: "off", label: "None" },
-  { value: "asc", label: "A → Z", icon: ArrowDownAZ },
-  { value: "desc", label: "Z → A", icon: ArrowDownZA },
+  { value: "asc", label: "A → Z" },
+  { value: "desc", label: "Z → A" },
 ];
 
 export function SortByNameButton({ mode, onChange }: SortByNameButtonProps) {
