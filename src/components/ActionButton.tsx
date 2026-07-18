@@ -40,7 +40,10 @@ export function ActionButton({
   // (e.g. Compare) use a different label and stay icon-less.
   const showDownload = !processing && /download/i.test(label);
   const hasSecondary = Boolean(secondaryLabel && onSecondaryClick);
-  const isDisabled = disabled ?? processing;
+  // Processing always wins. Callers often pass their own validity predicate
+  // (`disabled={!canSubmit}`); nullish coalescing would let an explicit `false`
+  // keep the button clickable while the operation is already in flight.
+  const isDisabled = Boolean(disabled) || processing;
 
   return (
     <div className="cloak-action-row flex justify-center">
@@ -58,7 +61,7 @@ export function ActionButton({
           }}
           disabled={isDisabled}
           aria-busy={processing && active === "primary"}
-          className={`cloak-action-button inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-55 sm:px-8 ${color}`}
+          className={`cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-[var(--color-accent-ink)] transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-55 sm:px-8 ${color}`}
         >
           {/* nowrap: a primary CTA must never wrap to two lines (320px guard). */}
           <span className="whitespace-nowrap">
@@ -79,7 +82,7 @@ export function ActionButton({
             }}
             disabled={isDisabled}
             aria-busy={processing && active === "secondary"}
-            className="cloak-action-button inline-flex w-full items-center justify-center gap-2 border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-3 text-[var(--color-ink)] transition-colors hover:border-primary-500 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
+            className="cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-3 text-[var(--color-ink)] transition-colors hover:border-primary-500 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
           >
             <span className="whitespace-nowrap">
               {processing && active === "secondary"

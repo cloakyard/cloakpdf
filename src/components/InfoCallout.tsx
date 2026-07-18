@@ -27,6 +27,8 @@ interface InfoCalloutProps {
   title?: string;
   /** `warning` for universal amber, otherwise primary (default). */
   accent?: Accent;
+  /** Announce a dynamically mounted result such as operation success. */
+  live?: boolean;
   children: ReactNode;
 }
 
@@ -48,18 +50,25 @@ const accentStyles: Record<
   },
 };
 
-export function InfoCallout({ icon: Icon, title, accent = "primary", children }: InfoCalloutProps) {
+export function InfoCallout({
+  icon: Icon,
+  title,
+  accent = "primary",
+  live = false,
+  children,
+}: InfoCalloutProps) {
   const s = accentStyles[accent];
-  const pulseClass = accent === "warning" ? "warning-pulse" : "";
   return (
     <div
-      className={`flex ${title ? "items-start" : "items-center"} gap-3 border rounded-xl p-4 ${s.container} ${pulseClass}`}
+      role={live ? "status" : undefined}
+      aria-live={live ? "polite" : undefined}
+      className={`cloak-notice ${title ? "" : "cloak-notice--center"} ${s.container}`}
     >
       <Icon className={`w-5 h-5 shrink-0 ${title ? "mt-0.5" : ""} ${s.icon}`} aria-hidden="true" />
       <div className="text-sm leading-relaxed">
         {title ? (
           <>
-            <p className={`font-semibold mb-0.5 ${s.title}`}>{title}</p>
+            <p className={`mb-0.5 font-semibold ${s.title}`}>{title}</p>
             <p className={s.body}>{children}</p>
           </>
         ) : (

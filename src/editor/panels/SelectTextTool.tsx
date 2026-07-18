@@ -228,7 +228,7 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2 pointer-coarse:min-h-11 text-sm font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
     >
       <Icon className="h-4 w-4" />
       {label}
@@ -304,7 +304,7 @@ export function Panel() {
       {has ? (
         <>
           <div className="rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-3">
-            <p className="mb-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
+            <p className="mb-1 font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
               Selected · page {pageIndex + 1}
             </p>
             <p className="thin-scrollbar max-h-24 overflow-y-auto text-sm text-slate-700 dark:text-dark-text">

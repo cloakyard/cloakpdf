@@ -253,7 +253,7 @@ function TripleRow({
   onChange: (v: [string, string, string]) => void;
 }) {
   const cls =
-    "w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+    "w-full rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2 py-1.5 text-sm text-slate-800 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
   return (
     <Labeled label={label}>
       <div className="grid grid-cols-3 gap-1.5">
@@ -261,7 +261,9 @@ function TripleRow({
           <input
             key={ph}
             type="text"
-            placeholder={ph}
+            name={`${label.toLowerCase().replace(/\s+/g, "-")}-${ph.toLowerCase()}`}
+            autoComplete="off"
+            placeholder={`${ph}…`}
             value={values[i]}
             aria-label={`${label} ${ph}`}
             onChange={(e) => {

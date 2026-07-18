@@ -62,7 +62,12 @@ import { extractPageTextGeometry, type LayoutPage } from "../../utils/layout-ext
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
-import { type StagePoint, useInlineEditor, useStageProps } from "../stage.tsx";
+import {
+  type StageKeyboardEvent,
+  type StagePoint,
+  useInlineEditor,
+  useStageProps,
+} from "../stage.tsx";
 import {
   ACCENT,
   type Box,
@@ -910,39 +915,43 @@ export function Stage() {
   }, [selectedId, patchToolState]);
 
   // Keyboard on the selected mark: Delete/Backspace removes it; arrow keys nudge
-  // it for precise placement (Shift = bigger step). Never fires while typing in
-  // the inline editor or any field. Arrow nudges coalesce into one undo step (a
-  // burst commits once the keys go idle, and on teardown).
+  // it for precise placement (Shift = bigger step). PdfStage calls this only
+  // while its focusable canvas region owns the event, then consumes handled keys
+  // before viewport panning. Arrow nudges coalesce into one undo step (a burst
+  // commits once the keys go idle, and on selection/tool teardown).
   const nudgeTimerRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (!selectedId) return;
-    const flushNudge = () => {
-      if (nudgeTimerRef.current == null) return;
-      clearTimeout(nudgeTimerRef.current);
-      nudgeTimerRef.current = null;
-      commit("Move annotation");
-    };
-    const onKey = (e: KeyboardEvent) => {
-      const el = document.activeElement as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable))
-        return;
+  const flushNudge = useCallback(() => {
+    if (nudgeTimerRef.current == null) return;
+    clearTimeout(nudgeTimerRef.current);
+    nudgeTimerRef.current = null;
+    commit("Move annotation");
+  }, [commit]);
+  useEffect(() => () => flushNudge(), [selectedId, flushNudge]);
+
+  const onStageKeyDown = useCallback(
+    (e: StageKeyboardEvent): boolean => {
+      if (!selectedId) return false;
+      const isDelete = e.key === "Delete" || e.key === "Backspace";
+      const dir = ARROW_DIRS[e.key];
+      if (!isDelete && !dir) return false;
+
       const obj = docRef.current?.objects.find((o) => o.id === selectedId);
-      if (!obj || obj.pageIndex !== selectedPage || !obj.payload) return;
-      if (e.key === "Delete" || e.key === "Backspace") {
-        e.preventDefault();
+      if (!obj || obj.pageIndex !== selectedPage || !obj.payload) return false;
+      if (isDelete) {
         if (nudgeTimerRef.current != null) {
           clearTimeout(nudgeTimerRef.current);
           nudgeTimerRef.current = null;
         }
         removeObject(selectedId);
         patchToolState(TOOL_ID, { selectedId: undefined });
-        return;
+        return true;
       }
-      const dir = ARROW_DIRS[e.key];
-      if (!dir) return;
-      e.preventDefault();
+
       const { w, h } = paintWHRef.current;
-      if (!w || !h) return;
+      // A selected annotation owns Arrow keys even during the first paint. If
+      // geometry is not ready (or the mark is clamped at an edge), consume the
+      // key without unexpectedly panning the document underneath it.
+      if (!w || !h || !dir) return true;
       const step = e.shiftKey ? 10 : 1; // on-screen px
       const ann = obj.payload as Annotation;
       const { dx, dy } = clampDelta(
@@ -950,7 +959,7 @@ export function Stage() {
         (dir[0] * step) / w,
         (dir[1] * step) / h,
       );
-      if (dx === 0 && dy === 0) return;
+      if (dx === 0 && dy === 0) return true;
       // Live, history-free move; the burst commits once via the debounce below.
       updateObject(selectedId, { payload: translateAnnotation(ann, dx, dy) });
       if (nudgeTimerRef.current != null) clearTimeout(nudgeTimerRef.current);
@@ -958,13 +967,10 @@ export function Stage() {
         nudgeTimerRef.current = null;
         commit("Move annotation");
       }, 350);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      flushNudge();
-    };
-  }, [selectedId, selectedPage, removeObject, updateObject, commit, patchToolState]);
+      return true;
+    },
+    [selectedId, selectedPage, removeObject, updateObject, commit, patchToolState],
+  );
 
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
@@ -1435,6 +1441,11 @@ export function Stage() {
     onPointerMove,
     onPointerUp,
     onPointerCancel,
+    onKeyDown: selectedId ? onStageKeyDown : undefined,
+    keyboardHelp: selectedId
+      ? "An annotation is selected. Use arrow keys to move it, Shift plus arrow keys to move it farther, and Delete or Backspace to remove it."
+      : undefined,
+    keyboardShortcuts: selectedId ? "Delete Backspace" : undefined,
   });
 
   return null;
@@ -1473,7 +1484,7 @@ function StyleToggle({
       disabled={disabled}
       aria-pressed={active}
       aria-label={label}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:pointer-events-none ${
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border pointer-coarse:min-h-11 pointer-coarse:min-w-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:pointer-events-none ${
         active
           ? "border-primary-600 bg-primary-600 text-white"
           : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
@@ -1759,16 +1770,16 @@ export function Panel() {
       </Labeled>
 
       {selObj && (
-        <div className="flex items-center justify-between gap-2 rounded-xl border border-primary-200 dark:border-primary-900/50 bg-primary-50/60 dark:bg-primary-900/20 px-3 py-2">
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-primary-200 dark:border-primary-900/50 bg-primary-50/60 dark:bg-primary-900/20 px-3 py-2">
           <span className="text-xs font-medium text-primary-800 dark:text-primary-200">
             {isTextSel ? "Text label selected" : "Mark selected"}
           </span>
           <button
             type="button"
             onClick={deleteSelected}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 pointer-coarse:min-h-11 dark:text-red-400 dark:hover:bg-red-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
             Delete
           </button>
         </div>
@@ -1797,7 +1808,7 @@ export function Panel() {
           <Labeled label="Text colour">
             <ColorPicker value={colorHex} onChange={(hex) => onTextChange({ colorHex: hex })} />
           </Labeled>
-          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-dark-border p-3">
+          <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
             <Toggle
               label="Background"
               checked={bgEnabled}
@@ -1846,7 +1857,7 @@ export function Panel() {
                         aria-pressed={on}
                         aria-label={c.label}
                         title={c.label}
-                        className={`flex h-10 items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                        className={`flex h-10 items-center justify-center rounded-md border pointer-coarse:min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                           on
                             ? "border-primary-600 bg-primary-600 text-white"
                             : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
@@ -1863,7 +1874,7 @@ export function Panel() {
               <ColorPicker value={colorHex} onChange={onShapeColor} />
             </Labeled>
             {showFill && !selObj && (
-              <div className="flex flex-col gap-3 rounded-xl border border-slate-200 dark:border-dark-border p-3">
+              <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
                 <Toggle
                   label="Fill shape"
                   checked={fillEnabled}

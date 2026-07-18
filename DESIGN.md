@@ -65,6 +65,8 @@ The absent routes are upload server, user account, and analytics.
 
 - Ocean Blue `#2563EB` is the only product accent. Use it for CTAs, active tools,
   links, focus rings, progress, and proof markers.
+- Keep the Ocean Blue scale fixed across themes. On Night surfaces, small accent
+  copy uses the lighter 400 tint while primary CTAs retain the 600 fill.
 - Paper is a cool near-white, not pure white. Dark mode uses navy paper rather
   than pure black.
 - Resting boundaries are Slate-200-like hairlines. Stronger rules organise major
@@ -117,7 +119,8 @@ mono section markers, hairline chapter divisions, and the same dark statement fo
 
 ## Surfaces and components
 
-- Header: always solid or 96% paper; 1px bottom rule; 64–72px high; no floating pill.
+- Header: always solid or 96% paper; 1px bottom rule; 72px high; no floating pill.
+  The family mark is a full 40px circle with a 0.6rem wordmark gap, matching CloakDrop.
 - Cards: 1px border, 6–8px radius, no resting shadow. Hover changes border and paper tint.
 - Tool cards: tool ID and icon are metadata, not an icon tile. Title and description carry hierarchy.
 - Drop zone: bordered local-input instrument with a status rail, document prompt, and Browse control.
@@ -125,7 +128,10 @@ mono section markers, hairline chapter divisions, and the same dark statement fo
 - Inputs: stable height, bottom rule or 1px box, visible focus ring, no layout shift on error.
 - Proof ledgers: numbered rows with title, operational metadata, and local status.
 - Dark chapters: use the Night tokens; Ocean Blue remains the only accent.
-- Modals and popovers: functional elevation is allowed, but resting page cards remain flat.
+- Modals and popovers: solid paper, compact 8px corners, a named scrim/elevation token,
+  and no decorative glass. Functional elevation is allowed; resting page cards remain flat.
+- Privacy and explanatory pages always close with the dark statement footer. Utilities
+  and editor exits retain a compact branded footer instead of dropping the family close.
 
 ## Layout and spacing
 
@@ -171,6 +177,7 @@ single-column action. The UI must be checked at 320, 375, 414, and 768px.
   --color-accent: oklch(0.546 0.245 262.881);
   --color-accent-hover: oklch(0.488 0.243 264.376);
   --color-accent-ink: oklch(0.985 0.004 255);
+  --color-overlay: color-mix(in oklab, var(--color-night) 58%, transparent);
   --font-display: "Archivo", sans-serif;
   --font-body: "Archivo", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
@@ -193,6 +200,8 @@ single-column action. The UI must be checked at 320, 375, 414, and 768px.
   --dur-short: 160ms;
   --radius-card: 0.5rem;
   --radius-input: 0.375rem;
+  --shadow-popover: 0 0.75rem 2rem color-mix(in oklab, var(--color-night) 14%, transparent);
+  --shadow-overlay: 0 1.5rem 4rem color-mix(in oklab, var(--color-night) 22%, transparent);
 }
 ```
 
@@ -202,10 +211,12 @@ single-column action. The UI must be checked at 320, 375, 414, and 768px.
 @theme {
   --font-sans: "Archivo", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-page-bg: #f5f7fb;
-  --color-border: #d7deea;
+  --color-primary-400: oklch(0.707 0.165 254.624);
+  --color-primary-500: var(--color-focus);
+  --color-primary-600: var(--color-accent);
+  --color-primary-700: var(--color-accent-hover);
+  --color-page-bg: var(--color-paper);
+  --color-border: var(--color-rule);
   --spacing-md: 1.5rem;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }

@@ -14,21 +14,18 @@
  * download / consent flow with progress, retry, and cancel actions.
  * This one is purely informational and dismissible from any state.
  *
- * **Visual pattern.** Mirrors `ToolPickerModal`'s translucent bottom-
- * sheet-on-mobile / centered-on-desktop layout — single `fixed inset-0`
- * wrapper paints both the dim-and-blur backdrop and the close-button
- * surface, with the inner sheet rising in and settling out through Motion
+ * **Visual pattern.** A solid-paper bottom sheet on mobile and compact
+ * centered dialog on desktop. One `fixed inset-0` wrapper paints the named
+ * scrim, with the inner sheet rising in and settling out through Motion
  * (the shared `scrim`/`sheet` variants via AnimatePresence).
  * One painting layer keeps iOS Safari from getting confused about
  * which element should scroll.
  */
-import { AlertTriangle, HardDrive, MemoryStick, ShieldCheck, Trash2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useFocusTrap } from "../utils/useFocusTrap";
-import { createPortal } from "react-dom";
+import { AlertTriangle, HardDrive, MemoryStick, ShieldCheck, Trash2 } from "lucide-react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { type AiModelInfo, formatApproxSize } from "../utils/ai-models.ts";
 import { ModelCard } from "./ModelCard.tsx";
-import { AnimatePresence, m, variants } from "./motion.tsx";
+import { ModalCloseButton, ModalShell } from "./ModalShell.tsx";
 
 interface AiModelDetailsModalProps {
   open: boolean;
@@ -100,28 +97,21 @@ export function AiModelDetailsModal({
   // or closes so a future visit starts cleanly disarmed.
   const [deleteArmed, setDeleteArmed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const confirmDeleteRef = useRef<HTMLButtonElement>(null);
 
-  // Lock body scroll + wire Escape while open. Matches the app's other modals
-  // (ChatModelPickerModal, ExportModal) so the dialogs feel like one system.
   useEffect(() => {
     if (!open) return;
     setDeleteArmed(false);
     setBusy(false);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
+    setActionError(null);
+  }, [open]);
 
-  // Trap Tab within the dialog + restore focus to the trigger on close.
-  const dialogRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(dialogRef, open);
+  useEffect(() => {
+    if (!deleteArmed) return;
+    const frame = requestAnimationFrame(() => confirmDeleteRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [deleteArmed]);
 
   const totalBytes = models.reduce((sum, m) => sum + m.approxSizeBytes, 0);
   // An individual button shows iff its callback is wired AND there's
@@ -137,8 +127,11 @@ export function AiModelDetailsModal({
   async function handleFreeMemory() {
     if (!onFreeMemory || busy) return;
     setBusy(true);
+    setActionError(null);
     try {
       await onFreeMemory();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Could not free model memory.");
     } finally {
       setBusy(false);
     }
@@ -151,6 +144,7 @@ export function AiModelDetailsModal({
       return;
     }
     setBusy(true);
+    setActionError(null);
     try {
       await onDelete();
       // After a successful evict the modal's content (model badges,
@@ -158,114 +152,78 @@ export function AiModelDetailsModal({
       // state has changed — close so the host can re-render the
       // gate/consent flow from scratch.
       onClose();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Could not delete cached models.");
     } finally {
       setBusy(false);
       setDeleteArmed(false);
     }
   }
 
-  return createPortal(
-    <AnimatePresence>
-      {open && (
-        <m.div
-          ref={dialogRef}
-          className="fixed inset-0 z-200 flex items-end sm:items-center justify-center sm:px-3 md:px-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="ai-model-details-title"
-          variants={variants.scrim}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          style={{
-            // Single painting layer for dim + blur — same approach as
-            // ToolPickerModal so iOS Safari's hit-testing on the wrapper
-            // stays straightforward.
-            background: "color-mix(in oklab, rgb(15 23 42) 30%, transparent)",
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-          }}
-        >
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="absolute inset-0"
-            style={{ background: "transparent" }}
+  return (
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      labelledBy="ai-model-details-title"
+      describedBy="ai-model-details-description"
+      dismissOnBackdrop={!busy}
+      dismissOnEscape={!busy}
+      panelClassName="max-h-[86svh] sm:max-h-[min(680px,calc(100svh-64px))] sm:w-[min(580px,100%)]"
+      testId="ai-model-details-dialog"
+    >
+      <header className="cloak-dialog__header">
+        <div className="min-w-0 flex-1">
+          <p className="cloak-dialog__eyebrow">Model runtime / local storage</p>
+          <h2 id="ai-model-details-title" className="cloak-dialog__title">
+            {models.length > 1 ? "AI models in use" : "AI model in use"}
+          </h2>
+          <p id="ai-model-details-description" className="cloak-dialog__description">
+            {models.length > 1
+              ? `${models.length} models load together — about ${formatApproxSize(totalBytes)} total. All run on your device; your PDFs are never uploaded.`
+              : "Runs on your device; your PDFs are never uploaded."}
+          </p>
+        </div>
+        <ModalCloseButton onClick={onClose} disabled={busy} initialFocus={!showStorageActions} />
+      </header>
+
+      <div className="cloak-dialog__body thin-scrollbar space-y-3">
+        <RequirementsLine totalBytes={totalBytes} />
+
+        {models.map((info, i) => (
+          <ModelCard key={info.id} info={info} role={roles?.[i]} />
+        ))}
+
+        <div className="flex items-start gap-2.5 pt-1 text-xs leading-relaxed text-[var(--color-ink-2)]">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+          <p>
+            Model files are downloaded once from Hugging Face's CDN and cached in your browser.
+            After that, everything runs entirely on your device.
+          </p>
+        </div>
+
+        {actionError && (
+          <div className="cloak-notice cloak-notice--danger text-xs" role="alert">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{actionError}</span>
+          </div>
+        )}
+
+        {showStorageActions && (
+          <StorageActions
+            totalBytes={totalBytes}
+            onFreeMemory={showFreeMemory ? onFreeMemory : undefined}
+            onDelete={showDelete ? onDelete : undefined}
+            deleteArmed={deleteArmed}
+            onDeleteClick={handleDeleteClick}
+            onCancelDelete={() => setDeleteArmed(false)}
+            onFreeMemoryClick={handleFreeMemory}
+            disabled={Boolean(storageActionsDisabled) || busy}
+            busy={busy}
+            confirmDeleteRef={confirmDeleteRef}
           />
-
-          <m.div
-            className="relative flex flex-col w-full sm:w-[min(560px,100%)] max-h-[82svh] sm:max-h-[min(640px,calc(100svh-64px))] overflow-hidden rounded-t-2xl sm:rounded-2xl border border-slate-200/80 dark:border-dark-border bg-white/85 dark:bg-dark-surface/85 backdrop-blur-xl shadow-2xl overscroll-contain"
-            variants={variants.sheet}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            {/* Mobile drag handle — purely decorative here (no drag-to-dismiss).
-            Matches the visual cue used across the app's bottom-sheet modals so
-            the pattern is familiar. */}
-            <div aria-hidden="true" className="grid place-items-center pt-2.5 pb-1 sm:hidden">
-              <span className="w-11 h-1 rounded-full bg-slate-300 dark:bg-dark-border" />
-            </div>
-
-            <div className="flex items-start gap-4 px-4 md:px-7 pt-2 sm:pt-5 pb-3.5 border-b border-slate-200/70 dark:border-dark-border/70">
-              <div className="flex-1 min-w-0">
-                <h2
-                  id="ai-model-details-title"
-                  className="text-card-title sm:text-base font-semibold tracking-[-0.01em] text-slate-800 dark:text-dark-text"
-                >
-                  {models.length > 1 ? "AI models in use" : "AI model in use"}
-                </h2>
-                <p className="text-card-desc text-slate-500 dark:text-dark-text-muted mt-0.5 leading-relaxed">
-                  {models.length > 1
-                    ? `${models.length} models load together — about ${formatApproxSize(totalBytes)} total. All run on your device; your PDFs are never uploaded.`
-                    : "Runs on your device; your PDFs are never uploaded."}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close"
-                className="w-9 h-9 rounded-lg grid place-items-center text-slate-400 dark:text-dark-text-muted hover:bg-slate-100 dark:hover:bg-dark-surface-alt hover:text-slate-700 dark:hover:text-dark-text transition-colors shrink-0"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto px-4 md:px-7 py-4 md:py-5 space-y-3 thin-scrollbar">
-              <RequirementsLine totalBytes={totalBytes} />
-
-              {models.map((info, i) => (
-                <ModelCard key={info.id} info={info} role={roles?.[i]} />
-              ))}
-
-              <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-dark-text-muted leading-relaxed pt-1">
-                <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400" />
-                <p>
-                  Model files are downloaded once from Hugging Face's CDN and cached in your
-                  browser. After that, everything runs entirely on your device.
-                </p>
-              </div>
-
-              {showStorageActions && (
-                <StorageActions
-                  totalBytes={totalBytes}
-                  onFreeMemory={showFreeMemory ? onFreeMemory : undefined}
-                  onDelete={showDelete ? onDelete : undefined}
-                  deleteArmed={deleteArmed}
-                  onDeleteClick={handleDeleteClick}
-                  onCancelDelete={() => setDeleteArmed(false)}
-                  onFreeMemoryClick={handleFreeMemory}
-                  disabled={Boolean(storageActionsDisabled) || busy}
-                  busy={busy}
-                />
-              )}
-            </div>
-          </m.div>
-        </m.div>
-      )}
-    </AnimatePresence>,
-    document.body,
+        )}
+      </div>
+    </ModalShell>
   );
 }
 
@@ -290,7 +248,7 @@ export function AiModelDetailsModal({
 function RequirementsLine({ totalBytes }: { totalBytes: number }) {
   const totalGb = totalBytes / (1024 * 1024 * 1024);
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-dark-border bg-slate-50/60 dark:bg-dark-surface-alt/60 text-slate-700 dark:text-dark-text p-3 text-xs leading-relaxed flex items-start gap-2.5">
+    <div className="flex items-start gap-2.5 border-y border-[var(--color-rule)] py-3 text-xs leading-relaxed text-[var(--color-ink)]">
       <MemoryStick
         className="w-4 h-4 shrink-0 mt-0.5 text-primary-600 dark:text-primary-400"
         aria-hidden="true"
@@ -334,6 +292,7 @@ function StorageActions({
   onFreeMemoryClick,
   disabled,
   busy,
+  confirmDeleteRef,
 }: {
   totalBytes: number;
   onFreeMemory?: () => void | Promise<unknown>;
@@ -344,36 +303,36 @@ function StorageActions({
   onFreeMemoryClick: () => void;
   disabled: boolean;
   busy: boolean;
+  confirmDeleteRef: RefObject<HTMLButtonElement | null>;
 }) {
   const totalGb = totalBytes / (1024 * 1024 * 1024);
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-3.5 text-xs">
+    <section className="border-y border-[var(--color-rule)] py-3.5 text-xs">
       <div className="flex items-start gap-2.5">
         <HardDrive
-          className="w-4 h-4 shrink-0 mt-0.5 text-slate-500 dark:text-dark-text-muted"
+          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-ink-3)]"
           aria-hidden="true"
         />
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-slate-700 dark:text-dark-text">Storage</p>
-          <p className="opacity-80 mt-0.5 text-slate-600 dark:text-dark-text-muted leading-relaxed">
+          <p className="font-medium text-[var(--color-ink)]">Storage</p>
+          <p className="mt-0.5 leading-relaxed text-[var(--color-ink-2)]">
             The models sit in two places: loaded in RAM while you're using AI, and cached on disk (~
             {totalGb.toFixed(1)} GB) so future sessions skip the download.
           </p>
-          <ul className="mt-2 space-y-1 text-slate-600 dark:text-dark-text-muted leading-relaxed">
+          <ul className="mt-2 space-y-1 leading-relaxed text-[var(--color-ink-2)]">
             <li className="flex gap-1.5">
               <span aria-hidden="true">·</span>
               <span>
-                <strong className="text-slate-700 dark:text-dark-text">Free memory</strong> —
-                releases RAM only. The disk cache stays, so re-opening Ask&nbsp;PDF re-loads in
-                seconds.
+                <strong className="text-[var(--color-ink)]">Free memory</strong> — releases RAM
+                only. The disk cache stays, so re-opening Ask&nbsp;PDF re-loads in seconds.
               </span>
             </li>
             <li className="flex gap-1.5">
               <span aria-hidden="true">·</span>
               <span>
-                <strong className="text-slate-700 dark:text-dark-text">Delete cached models</strong>{" "}
-                — frees RAM <em>and</em> the disk cache. Next use redownloads the full ~
-                {totalGb.toFixed(1)} GB.
+                <strong className="text-[var(--color-ink)]">Delete cached models</strong> — frees
+                RAM <em>and</em> the disk cache. Next use redownloads the full ~{totalGb.toFixed(1)}{" "}
+                GB.
               </span>
             </li>
           </ul>
@@ -386,10 +345,11 @@ function StorageActions({
             type="button"
             onClick={onFreeMemoryClick}
             disabled={disabled}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-dark-text bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border hover:border-slate-300 dark:hover:border-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            data-dialog-initial-focus="true"
+            className="cloak-focus inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-ink-2)] transition-colors hover:border-[var(--color-rule-strong)] hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11"
           >
             <MemoryStick className="w-3.5 h-3.5" aria-hidden="true" />
-            Free memory
+            {busy ? "Working…" : "Free memory"}
           </button>
         )}
         {onDelete && !deleteArmed && (
@@ -397,18 +357,22 @@ function StorageActions({
             type="button"
             onClick={onDeleteClick}
             disabled={disabled}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-dark-surface border border-red-200 dark:border-red-800/60 hover:border-red-300 dark:hover:border-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            data-dialog-initial-focus={!onFreeMemory ? "true" : undefined}
+            className="cloak-focus inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-ink-2)] transition-colors hover:border-[var(--color-status-danger)] hover:bg-[var(--color-status-danger-soft)] disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11"
           >
-            <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+            <Trash2 className="h-3.5 w-3.5 text-[var(--color-status-danger)]" aria-hidden="true" />
             Delete cached models
           </button>
         )}
       </div>
 
       {onDelete && deleteArmed && (
-        <div className="mt-3 rounded-lg border border-red-200 dark:border-red-800/60 bg-red-50 dark:bg-red-900/20 p-3">
-          <div className="flex items-start gap-2 text-red-700 dark:text-red-300">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+        <div className="cloak-notice cloak-notice--danger mt-3 flex-col p-3" role="alert">
+          <div className="flex items-start gap-2">
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-status-danger)]"
+              aria-hidden="true"
+            />
             <p className="font-medium leading-relaxed">
               Delete the cached models? You'll need to redownload ~{totalGb.toFixed(1)} GB to use AI
               features again.
@@ -416,10 +380,11 @@ function StorageActions({
           </div>
           <div className="mt-3 flex flex-col sm:flex-row gap-2">
             <button
+              ref={confirmDeleteRef}
               type="button"
               onClick={onCancelDelete}
               disabled={busy}
-              className="flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-dark-text bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-dark-surface-alt transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cloak-focus inline-flex min-h-10 flex-1 items-center justify-center rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-ink-2)] transition-colors hover:border-[var(--color-rule-strong)] hover:bg-[var(--color-paper)] disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11"
             >
               Cancel
             </button>
@@ -427,7 +392,7 @@ function StorageActions({
               type="button"
               onClick={onDeleteClick}
               disabled={busy}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="cloak-focus inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md bg-[var(--color-status-danger)] px-3 py-2 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-accent-ink)] transition-[background-color,opacity] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11"
             >
               <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
               {busy ? "Deleting…" : "Confirm delete"}
@@ -435,6 +400,6 @@ function StorageActions({
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

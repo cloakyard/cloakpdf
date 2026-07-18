@@ -5,7 +5,7 @@
 // selected, the panel shows a short document summary + hint.
 
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { ToolControls } from "./ToolControls.tsx";
 import { findEditorTool } from "./tools.ts";
@@ -15,6 +15,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
   const { doc, canCancelCurrentTool } = useEditorRead();
   const { cancelCurrentTool } = useEditorActions();
   const tool = findEditorTool(activeTool);
+  const headingId = useId();
 
   // When a tool is activated (from the rail), move focus into the panel so a
   // keyboard user lands on the tool's options instead of having to Tab past the
@@ -22,26 +23,28 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
   // scroll body — so the hidden-scrollbar surface is untouched, and pass
   // preventScroll so the canvas never jumps. Guarded on `activeTool` so
   // deactivating a tool doesn't yank focus to the "Document" heading.
-  const headingRef = useRef<HTMLParagraphElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (activeTool) headingRef.current?.focus({ preventScroll: true });
   }, [activeTool]);
 
   return (
     <aside
-      className={`editor-properties flex shrink-0 flex-col border-l border-slate-200 bg-slate-50 dark:border-dark-border dark:bg-dark-surface ${
+      aria-labelledby={headingId}
+      className={`editor-properties flex shrink-0 flex-col border-l border-[var(--color-rule)] bg-[var(--color-surface)] ${
         collapsed ? "w-72" : "w-82"
       }`}
     >
-      <div className="editor-properties__header flex items-start justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-dark-border">
+      <div className="editor-properties__header flex items-start justify-between gap-2 border-b border-[var(--color-rule)] px-4 py-3">
         <div className="min-w-0">
-          <p
+          <h2
+            id={headingId}
             ref={headingRef}
             tabIndex={-1}
-            className="truncate text-sm font-semibold text-slate-800 dark:text-dark-text focus-visible:outline-none"
+            className="truncate text-sm font-semibold text-slate-800 dark:text-dark-text focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             {tool ? tool.name : "Document"}
-          </p>
+          </h2>
           {tool ? (
             <p className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-dark-text-muted">
               {tool.description}
@@ -56,10 +59,10 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
           <button
             type="button"
             onClick={() => void cancelCurrentTool()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-white hover:text-slate-700 active:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-dark-surface-alt"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-white hover:text-slate-700 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-dark-surface-alt"
             aria-label="Cancel current tool"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>

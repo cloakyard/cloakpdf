@@ -14,16 +14,7 @@
  * loaded — not lazily on the first question — so the user isn't left
  * staring at a "Thinking…" spinner that's really doing extraction.
  */
-import {
-  AlertTriangle,
-  Database,
-  Loader2,
-  MemoryStick,
-  ScanSearch,
-  Send,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { AlertTriangle, Database, Loader2, MemoryStick, ScanSearch, Send } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -35,7 +26,6 @@ import { ChatModelPickerModal } from "../components/ChatModelPickerModal.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { InfoCallout } from "../components/InfoCallout.tsx";
-import { categoryAccent, categoryGlow } from "../config/theme.ts";
 import { findTool } from "../config/tool-registry.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { usePdfFile } from "../hooks/usePdfFile.ts";
@@ -136,7 +126,10 @@ export default function AskPdf() {
   }, [scrollTrigger]);
 
   const dialogOpen =
-    rag.status === "awaiting-consent" || rag.status === "downloading" || rag.status === "error";
+    rag.status === "awaiting-consent" ||
+    rag.status === "downloading" ||
+    rag.status === "loading" ||
+    rag.status === "error";
 
   /** `true` while we're building the RAG session for the loaded PDF. */
   const isIndexing = indexing !== null;
@@ -426,7 +419,7 @@ export default function AskPdf() {
             ? "We're loading the models you already downloaded — no network needed. This usually takes a few seconds."
             : rag.status === "downloading"
               ? "Hang tight — the models are streaming into your browser cache. After this, every future visit loads in seconds."
-              : "Ask your PDF runs entirely on your device. Pick a chat-model size below, download it once, then upload a PDF to start chatting."
+              : "Ask your PDF runs entirely on your device. Pick a chat-model size below, download it once, then choose a PDF to start chatting."
         }
         ready={rag.status === "ready"}
         loading={
@@ -482,8 +475,6 @@ export default function AskPdf() {
 
         {!pdf.file ? (
           <FileDropZone
-            glowColor={categoryGlow.transform}
-            iconColor={categoryAccent.transform}
             accept=".pdf,application/pdf"
             onFiles={pdf.onFiles}
             encryptedFile={pdf.encryptedFile}
@@ -618,20 +609,11 @@ function IndexingCard({ progress }: { progress: IndexingProgress | null }) {
   // "(3/4)" detail.
   const percent = overallIndexingPercent(progress);
   return (
-    <div
-      className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border p-6"
-      role="status"
-      aria-live="polite"
-    >
+    <div className="border-y border-[var(--color-rule)] py-5" role="status" aria-live="polite">
       <div className="flex items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
-        >
-          <Database className="w-4 h-4" />
-        </span>
+        <Database className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-800 dark:text-dark-text">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
             Preparing your document
           </p>
           <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-1 leading-relaxed">
@@ -740,7 +722,15 @@ function ChatPanel({
   logRef: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
-    <div className="flex flex-col h-[min(58svh,520px)] min-h-80 sm:h-[min(72svh,720px)] sm:min-h-115 rounded-2xl border border-slate-200 dark:border-dark-border bg-slate-50/70 dark:bg-dark-bg/60 overflow-hidden">
+    <div className="flex h-[min(58svh,520px)] min-h-80 flex-col overflow-hidden rounded-lg border border-[var(--color-rule)] bg-[var(--color-paper)] sm:h-[min(72svh,720px)] sm:min-h-115">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-rule)] bg-[var(--color-surface)] px-4 py-2.5">
+        <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
+          Document transcript
+        </h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+          On-device session
+        </span>
+      </div>
       {/* `thin-scrollbar` matches the scrollbar idiom used in modals
           (AiConsentModal, AiModelDetailsModal) so
           the chat panel doesn't read as a different surface from the
@@ -762,15 +752,17 @@ function ChatPanel({
         {turns.length === 0 ? (
           <EmptyChatHint />
         ) : (
-          <div className="space-y-3">
-            {turns.map((turn) => (
-              <Bubble key={turn.id} turn={turn} />
-            ))}
+          <>
+            <div className="divide-y divide-[var(--color-rule)]">
+              {turns.map((turn) => (
+                <Bubble key={turn.id} turn={turn} />
+              ))}
+            </div>
             <div ref={scrollAnchorRef} />
-          </div>
+          </>
         )}
       </div>
-      <div className="shrink-0 border-t border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface">
+      <div className="shrink-0 border-t border-[var(--color-rule)] bg-[var(--color-surface)]">
         {composer}
       </div>
     </div>
@@ -790,18 +782,13 @@ function EmptyChatHint() {
   // intentional, so we flip back to `justify-center`.
   return (
     <div className="h-full flex flex-col items-center justify-start sm:justify-center text-center px-6 pt-10 sm:pt-0">
-      <span
-        aria-hidden="true"
-        className="w-10 h-10 rounded-full flex items-center justify-center bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 mb-3"
-      >
-        <Sparkles className="w-4 h-4" />
-      </span>
-      <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
+      <Database className="mb-3 h-4 w-4 text-primary-600" aria-hidden="true" />
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
         Ready to chat about this PDF
       </p>
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-1 max-w-xs leading-relaxed">
+      <p className="mt-1 max-w-xs text-xs leading-relaxed text-[var(--color-ink-3)]">
         Ask anything about the document&apos;s contents. Answers are generated on-device and stay
-        grounded in the uploaded file.
+        grounded in the selected file.
       </p>
     </div>
   );
@@ -904,69 +891,69 @@ const Bubble = memo(function Bubble({ turn }: { turn: ChatTurn }) {
     // `data-streaming` toggles to "true" while a token stream is in
     // flight so tests can wait for it to clear (and a screen reader
     // can interpret aria-busy from the same primitive).
-    <div
-      className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
-      data-bubble={turn.role}
-      data-streaming={turn.streaming ? "true" : "false"}
-      aria-busy={turn.streaming ? true : undefined}
-    >
-      <span
-        className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5 ${
-          isUser
-            ? "bg-primary-600 text-white"
-            : "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
-        }`}
-        aria-hidden="true"
-      >
-        {isUser ? <User className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
-      </span>
+    <div className="py-3 first:pt-0 last:pb-0">
       {/* 42rem cap on top of the 85%: the panel spans the full app shell,
           and an answer running past ~75ch becomes unreadable. */}
-      <div
-        className={`max-w-[min(85%,42rem)] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-          isUser
-            ? "bg-primary-600 text-white rounded-tr-md"
-            : "bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border text-slate-800 dark:text-dark-text rounded-tl-md"
-        }`}
-      >
-        {turn.streaming && !turn.content ? (
-          <span className="inline-flex items-center gap-2 text-slate-500 dark:text-dark-text-muted">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            Thinking…
+      <div className={`max-w-[min(92%,42rem)] text-sm leading-relaxed ${isUser ? "ml-auto" : ""}`}>
+        <div className={`mb-2 flex items-center gap-2 ${isUser ? "justify-end" : ""}`}>
+          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+            {isUser ? "You / question" : "CloakPDF / local answer"}
           </span>
-        ) : isUser ? (
-          // User turns are plain text — we don't want their question
-          // rendered as markdown (a stray "#" or "*" should appear
-          // verbatim). Whitespace-pre-wrap keeps any line breaks
-          // the user typed with Shift+Enter.
-          <p className="whitespace-pre-wrap wrap-anywhere">{turn.content}</p>
-        ) : turn.streaming ? (
-          // While streaming, render the partial answer as plain text. Re-running
-          // the full remark-gfm + rehype markdown parse on every token is
-          // O(tokens × length) of wasted main-thread work; the final frame
-          // (streaming=false, below) renders markdown — which is what the e2e
-          // probe asserts on.
-          <p className="whitespace-pre-wrap wrap-anywhere">{turn.content}</p>
-        ) : (
-          // Assistant turns are markdown — the prompt allows the model
-          // to use lists, headings, bold, and code spans when the
-          // question warrants. The caret lives outside the markdown
-          // so a partial token stream (e.g. an unfinished `**bold**`)
-          // doesn't disturb the streaming indicator.
-          <AssistantMarkdown content={turn.content} />
-        )}
-        {!isUser && turn.streaming && turn.content && (
-          <span
-            aria-hidden="true"
-            className="inline-block w-1.5 h-4 ml-0.5 -mb-0.5 align-middle bg-current opacity-60 animate-pulse"
-          />
-        )}
-        {!isUser && turn.citedPages && turn.citedPages.length > 0 && !turn.streaming && (
-          <p className="mt-2 pt-2 border-t border-slate-100 dark:border-dark-border/60 text-xs text-slate-500 dark:text-dark-text-muted">
-            Context from {turn.citedPages.length === 1 ? "page" : "pages"}{" "}
-            {turn.citedPages.join(", ")}
-          </p>
-        )}
+          {turn.streaming && (
+            <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-primary-600">
+              Processing
+            </span>
+          )}
+        </div>
+        <div
+          className={
+            isUser
+              ? "border-l-2 border-primary-500 bg-primary-50/60 px-3 py-2 text-[var(--color-ink)] dark:bg-primary-900/20"
+              : "text-[var(--color-ink)]"
+          }
+          data-bubble={turn.role}
+          data-streaming={turn.streaming ? "true" : "false"}
+          aria-busy={turn.streaming ? true : undefined}
+        >
+          {turn.streaming && !turn.content ? (
+            <span className="inline-flex items-center gap-2 text-[var(--color-ink-3)]">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+              Thinking…
+            </span>
+          ) : isUser ? (
+            // User turns are plain text — we don't want their question
+            // rendered as markdown (a stray "#" or "*" should appear
+            // verbatim). Whitespace-pre-wrap keeps any line breaks
+            // the user typed with Shift+Enter.
+            <p className="whitespace-pre-wrap wrap-anywhere">{turn.content}</p>
+          ) : turn.streaming ? (
+            // While streaming, render the partial answer as plain text. Re-running
+            // the full remark-gfm + rehype markdown parse on every token is
+            // O(tokens × length) of wasted main-thread work; the final frame
+            // (streaming=false, below) renders markdown — which is what the e2e
+            // probe asserts on.
+            <p className="whitespace-pre-wrap wrap-anywhere">{turn.content}</p>
+          ) : (
+            // Assistant turns are markdown — the prompt allows the model
+            // to use lists, headings, bold, and code spans when the
+            // question warrants. The caret lives outside the markdown
+            // so a partial token stream (e.g. an unfinished `**bold**`)
+            // doesn't disturb the streaming indicator.
+            <AssistantMarkdown content={turn.content} />
+          )}
+          {!isUser && turn.streaming && turn.content && (
+            <span
+              aria-hidden="true"
+              className="inline-block w-1.5 h-4 ml-0.5 -mb-0.5 align-middle bg-current opacity-60 animate-pulse"
+            />
+          )}
+          {!isUser && turn.citedPages && turn.citedPages.length > 0 && !turn.streaming && (
+            <p className="mt-2 border-t border-[var(--color-rule)] pt-2 font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+              Context from {turn.citedPages.length === 1 ? "page" : "pages"}{" "}
+              {turn.citedPages.join(", ")}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1008,21 +995,18 @@ function Composer({
     // users still get the one-accent ring around the whole composer.
     //
     // The ring is `inset`, not offset: the composer is the full-bleed
-    // bottom section of the chat panel, whose `overflow-hidden rounded-2xl`
+    // bottom section of the chat panel, whose `overflow-hidden rounded-lg`
     // box clips anything drawn outside its edges. An outset ring (the old
     // `ring-offset-1`) got sheared off on the left/right/bottom, leaving
     // only the top edge visible. An inset ring is painted inside the
     // composer's own border-box, so it renders whole.
     //
-    // The *bottom* corners must also match the panel's `rounded-2xl`
-    // radius (hence `rounded-b-2xl`, not a uniform `rounded-lg`). The
+    // The *bottom* corners also match the panel's `rounded-lg` radius. The
     // composer's bottom edge coincides with the panel's bottom edge, so a
-    // sharper 8px corner here would poke into the area the panel's ~15px
-    // rounded-corner clip removes — shearing the ring's bottom corners.
-    // Matching the radius lets the inset ring follow the same arc as the
+    // matching radius lets the inset ring follow the same arc as the
     // clip and sit just inside it. The top corners sit at the mid-panel
     // divider, nowhere near a clipped corner, so they keep the softer 8px.
-    <div className="p-3 rounded-t-lg rounded-b-2xl focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-600">
+    <div className="rounded-b-lg p-3 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-600">
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -1042,11 +1026,11 @@ function Composer({
       <div className="flex items-center justify-between gap-3 mt-2 pt-2 border-t border-slate-100 dark:border-dark-border/60">
         <p className="text-xs text-slate-500 dark:text-dark-text-muted hidden sm:block">
           Press{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-bg text-slate-600 dark:text-dark-text-muted font-mono">
+          <kbd className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-slate-600 dark:bg-dark-bg dark:text-dark-text-muted">
             Enter
           </kbd>{" "}
           to send,{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-dark-bg text-slate-600 dark:text-dark-text-muted font-mono">
+          <kbd className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-slate-600 dark:bg-dark-bg dark:text-dark-text-muted">
             Shift+Enter
           </kbd>{" "}
           for a new line.
@@ -1087,16 +1071,16 @@ function Composer({
           type="button"
           onClick={onSubmit}
           disabled={disabled || !value.trim()}
-          className="inline-flex items-center gap-1.5 ml-auto px-4 py-2 rounded-lg text-sm font-semibold bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-surface"
+          className="ml-auto inline-flex min-h-11 items-center gap-1.5 rounded-md bg-primary-600 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-600 dark:focus-visible:ring-offset-dark-surface"
         >
           {disabled ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               {busyLabel ?? "Thinking…"}
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" />
+              <Send className="h-4 w-4" aria-hidden="true" />
               Send
             </>
           )}

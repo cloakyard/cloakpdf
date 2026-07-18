@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
 
     <!--
-      Content Security Policy — enforces the "no uploads, 100% private" promise.
+      Content Security Policy — keeps document processing local while allowing
+      the read-only runtime assets used by OCR and on-device AI.
       `connect-src` is intentionally narrow: only the CDNs that deliver tool
       assets (Tesseract OCR data, Hugging Face AI model weights) are permitted.
       User file content is never sent to any origin; these endpoints serve
@@ -70,7 +71,7 @@
     />
     <meta
       name="keywords"
-      content="offline pdf tool, pdf editor offline, free pdf merger, compress pdf online, split pdf, rotate pdf, pdf watermark, pdf signature, browser pdf toolkit, private pdf editor, no upload pdf tool"
+      content="client-side pdf tool, browser pdf editor, free pdf merger, compress pdf, split pdf, rotate pdf, pdf watermark, pdf signature, private pdf toolkit, open-source pdf editor, no upload pdf tool"
     />
     <link rel="canonical" href="https://pdf.cloakyard.com/" />
 
@@ -94,12 +95,16 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="CloakPDF — A complete PDF workbench" />
+    <meta name="twitter:title" content="CloakPDF — A complete PDF workbench. Nothing uploaded." />
     <meta
       name="twitter:description"
       content="Advanced PDF editing, redaction, OCR, signatures, comparison, and on-device AI in a privacy-focused open-source web app."
     />
     <meta name="twitter:image" content="https://pdf.cloakyard.com/icons/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="CloakPDF — A complete PDF workbench. Nothing uploaded."
+    />
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -107,8 +112,8 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "CloakPDF",
-        "url": "https://pdf.cloakyard.com",
-        "description": "Free offline PDF toolkit that runs entirely in your browser. Merge, split, compress, rotate, reorder, delete pages, add watermarks, signatures and more. No uploads, 100% private.",
+        "url": "https://pdf.cloakyard.com/",
+        "description": "An open-source, privacy-focused PDF workbench with advanced editing, organisation, redaction, OCR, signature, comparison, and on-device AI tools. Document processing runs in your browser without a PDF upload service.",
         "applicationCategory": "UtilityApplication",
         "operatingSystem": "Any",
         "offers": {
@@ -117,22 +122,21 @@
           "priceCurrency": "USD"
         },
         "featureList": [
+          "Unified PDF editor",
           "Merge PDFs",
-          "Split & Extract Pages",
+          "Split and extract pages",
           "Compress PDF",
-          "Rotate Pages",
-          "Reorder Pages",
-          "Delete Pages",
-          "Add Watermark",
-          "Add Signature",
-          "PDF to Image",
+          "Organise and annotate pages",
+          "Fill PDF forms",
+          "Destructive PDF redaction",
+          "OCR and searchable PDFs",
+          "Digital signatures",
+          "Compare PDFs",
+          "Ask PDF with on-device AI",
+          "PDF to images",
           "Images to PDF",
-          "OCR PDF",
-          "Crop Pages",
-          "Add Page Numbers",
-          "Redact PDF",
-          "PDF Password Protection",
-          "Edit Metadata"
+          "PDF password protection",
+          "Edit metadata, bookmarks, and attachments"
         ],
         "browserRequirements": "Requires a modern web browser with JavaScript enabled"
       }

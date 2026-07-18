@@ -17,7 +17,7 @@ export const ToolCard = memo(function ToolCard({ tool, onSelect }: ToolCardProps
     <button
       type="button"
       onClick={() => onSelect(tool.id as ToolId)}
-      className="cloak-tool-card group flex w-full flex-col p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 sm:p-6"
+      className="cloak-tool-card group flex w-full flex-col p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="cloak-tool-card__index uppercase">Utility / {tool.id}</span>

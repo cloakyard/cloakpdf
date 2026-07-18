@@ -15,6 +15,7 @@ interface LayoutProps {
   onHome: () => void;
   showBack?: boolean;
   onPrivacy: () => void;
+  footerVariant?: "statement" | "compact";
 }
 
 function GithubMark({ className = "" }: { className?: string }) {
@@ -25,27 +26,33 @@ function GithubMark({ className = "" }: { className?: string }) {
   );
 }
 
-export function Layout({ children, onHome, showBack = false, onPrivacy }: LayoutProps) {
+export function Layout({
+  children,
+  onHome,
+  showBack = false,
+  onPrivacy,
+  footerVariant = "statement",
+}: LayoutProps) {
   return (
-    <div className="cloak-site relative z-150 flex flex-col">
+    <div className="cloak-site flex flex-col">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-200 focus:rounded-md focus:bg-primary-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[var(--z-system-overlay)] focus:rounded-md focus:bg-primary-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Skip to main content
       </a>
 
-      <header className="cloak-site-header">
+      <header className="cloak-site-header !h-[4.5rem]">
         <div className="site-frame cloak-site-header__inner">
           <div className="flex min-w-0 items-center gap-2">
             {showBack && (
               <button
                 type="button"
                 onClick={onHome}
-                className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-paper-2)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-md text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-paper-2)] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:size-11"
                 aria-label="Back to home"
               >
-                <ChevronLeft className="size-5" />
+                <ChevronLeft className="size-5" aria-hidden="true" />
               </button>
             )}
 
@@ -53,18 +60,21 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
               type="button"
               onClick={onHome}
               aria-label="CloakPDF home"
-              className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="flex min-h-10 min-w-0 items-center gap-[0.6rem] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
             >
               <img
-                src="/icons/favicon.svg"
+                src="/icons/logo.svg"
                 alt=""
                 aria-hidden="true"
-                width="34"
-                height="34"
-                className="size-8.5 shrink-0"
+                width="40"
+                height="40"
+                className="size-10 shrink-0 rounded-full"
               />
-              <span translate="no" className="cloak-wordmark">
-                Cloak<span className="cloak-wordmark__accent">PDF</span>
+              <span
+                translate="no"
+                className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-ink)]"
+              >
+                Cloak<span className="text-[var(--color-accent)]">PDF</span>
               </span>
             </button>
           </div>
@@ -88,16 +98,12 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
             )}
           </nav>
 
-          <div className="flex items-center justify-end gap-2">
-            <span className="hidden items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--color-ink-3)] xl:inline-flex">
-              <span className="cloak-status-dot" aria-hidden="true" />
-              Local-first web app
-            </span>
+          <div className="flex items-center justify-end">
             <a
               href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="cloak-outline-link"
+              className="cloak-outline-link pointer-coarse:min-h-11"
               aria-label="View CloakPDF source on GitHub"
             >
               <GithubMark className="size-3.5" />
@@ -119,8 +125,10 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
         className="cloak-site-footer mt-auto"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="site-frame py-8 sm:py-10">
-          {!showBack && (
+        <div
+          className={`site-frame ${footerVariant === "statement" ? "py-8 sm:py-10" : "py-6 sm:py-7"}`}
+        >
+          {footerVariant === "statement" ? (
             <div className="grid gap-8 border-b border-[var(--color-night-rule)] pb-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end lg:gap-20">
               <div>
                 <p className="cloak-mono-label mb-4 text-primary-400">CloakPDF / Cloakyard</p>
@@ -129,11 +137,24 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs uppercase tracking-[0.04em] text-[var(--color-night-muted)]">
-                <a className="hover:text-primary-400" href="#toolkit">
-                  {tools.length} utilities
-                </a>
+                {showBack ? (
+                  <button
+                    type="button"
+                    onClick={onHome}
+                    className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  >
+                    Home / {tools.length} utilities
+                  </button>
+                ) : (
+                  <a
+                    className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                    href="#toolkit"
+                  >
+                    {tools.length} utilities
+                  </a>
+                )}
                 <a
-                  className="hover:text-primary-400"
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                   href={REPO_URL}
                   target="_blank"
                   rel="noreferrer"
@@ -143,25 +164,50 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
                 <button
                   type="button"
                   onClick={onPrivacy}
-                  className="text-left hover:text-primary-400"
+                  className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                 >
                   Privacy policy
                 </button>
                 <a
-                  className="hover:text-primary-400"
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                   href={CLOAKYARD_URL}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Cloakyard <ArrowUpRight className="ml-1 inline size-3" />
+                  Cloakyard <ArrowUpRight className="ml-1 inline size-3" aria-hidden="true" />
                 </a>
               </div>
             </div>
+          ) : (
+            <div className="flex flex-col gap-5 border-b border-[var(--color-night-rule)] pb-6 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={onHome}
+                aria-label="CloakPDF home"
+                className="cloak-focus inline-flex min-h-10 w-fit items-center gap-[0.6rem] rounded-md pointer-coarse:min-h-11"
+              >
+                <img
+                  src="/icons/logo.svg"
+                  alt=""
+                  aria-hidden="true"
+                  width="34"
+                  height="34"
+                  className="size-[34px] shrink-0 rounded-full"
+                />
+                <span
+                  translate="no"
+                  className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-night-ink)]"
+                >
+                  Cloak<span className="text-primary-400">PDF</span>
+                </span>
+              </button>
+              <p className="m-0 max-w-md text-sm leading-relaxed text-[var(--color-night-muted)] sm:text-right">
+                A focused PDF utility running inside the same private browser workbench.
+              </p>
+            </div>
           )}
 
-          <div
-            className={`${showBack ? "" : "pt-6"} flex flex-col gap-3 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-night-muted)] sm:flex-row sm:items-center`}
-          >
+          <div className="flex flex-col gap-3 pt-6 font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-night-muted)] sm:flex-row sm:items-center">
             <span translate="no">CloakPDF v{__APP_VERSION__}</span>
             <span className="hidden sm:inline" aria-hidden="true">
               /
@@ -169,7 +215,7 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
             <span>
               Built by{" "}
               <a
-                className="text-[var(--color-night-ink)] hover:text-primary-400"
+                className="text-[var(--color-night-ink)] hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                 href={AUTHOR_URL}
                 target="_blank"
                 rel="noreferrer"
@@ -181,13 +227,13 @@ export function Layout({ children, onHome, showBack = false, onPrivacy }: Layout
               <button
                 type="button"
                 onClick={onPrivacy}
-                className="inline-flex items-center gap-2 hover:text-primary-400"
+                className="inline-flex items-center gap-2 hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
               >
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
                 Privacy
               </button>
               <a
-                className="inline-flex items-center gap-2 hover:text-primary-400"
+                className="inline-flex items-center gap-2 hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
                 href={`${REPO_URL}/blob/main/LICENSE`}
                 target="_blank"
                 rel="noreferrer"

@@ -11,8 +11,10 @@
  *   - DEFERRED tools (redact) keep their marks when ✓ closes (burn at export);
  *   - MULTI-ACTION tools keep their own buttons (OCR Extract on mobile,
  *     attachments add/remove);
- *   - a render sweep opens every remaining tool and asserts its panel mounts
- *     in the sheet with the global ✓/✗ and stays within the 40% cap;
+ *   - a render sweep opens the remaining tools assigned to this mobile suite
+ *     and asserts each panel mounts in the sheet with the global ✓/✗ and stays
+ *     within the 40% cap; together with editor-features.e2e.ts, all 22 editor
+ *     tools are mounted by the combined suites;
  *   - 60:40 split: the open sheet is ≤40% of the editor column, canvas visible;
  *   - no console / page errors throughout.
  *
@@ -336,6 +338,7 @@ async function main() {
     // 8. Render sweep: open every remaining tool, assert its panel mounts in the
     //    sheet with the global ✓/✗ and stays within the 40% cap, then ✗ close.
     const sweep = [
+      "Select text",
       "Signature",
       "Fill form",
       "Scrub",
@@ -419,7 +422,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 10 more tools; export sheet → Markdown (liteparse native); 60:40 cap holds throughout.",
+      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 60:40 cap holds throughout.",
     );
   } catch (e) {
     console.error(`✗ Mobile smoke failed: ${e instanceof Error ? e.message : String(e)}`);

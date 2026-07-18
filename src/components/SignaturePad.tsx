@@ -23,7 +23,7 @@
  * CSS-resized to fill its container.
  */
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useId } from "react";
 import { Trash2 } from "lucide-react";
 import { focusRing } from "../config/theme.ts";
 
@@ -160,6 +160,7 @@ export function SignaturePad({
   width = 600,
   height = 360,
 }: SignaturePadProps) {
+  const instructionsId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasContent, setHasContent] = useState(false);
@@ -355,7 +356,6 @@ export function SignaturePad({
   const draw = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       e.preventDefault();
-      if (!isDrawing) return;
       const active = activeRef.current;
       if (!active || active.id !== e.pointerId) return;
       const canvas = canvasRef.current;
@@ -394,17 +394,16 @@ export function SignaturePad({
         renderInk([...strokesRef.current, currentStrokeRef.current], color);
       }
     },
-    [isDrawing, color, renderInk],
+    [color, renderInk],
   );
 
   const stopDrawing = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
-      if (!isDrawing) return;
       const active = activeRef.current;
-      if (active && active.id !== e.pointerId) return;
+      if (!active || active.id !== e.pointerId) return;
       setIsDrawing(false);
       const canvas = canvasRef.current;
-      if (active && canvas) {
+      if (canvas) {
         try {
           canvas.releasePointerCapture(active.id);
         } catch {
@@ -422,7 +421,7 @@ export function SignaturePad({
       if (inkBleedRef.current) renderInk(strokesRef.current, color);
       onSignature(exportSignature());
     },
-    [isDrawing, onSignature, color, renderInk, exportSignature],
+    [onSignature, color, renderInk, exportSignature],
   );
 
   const clear = useCallback(() => {
@@ -439,8 +438,12 @@ export function SignaturePad({
 
   return (
     <div className="space-y-1.5">
+      <p id={instructionsId} className="sr-only">
+        Draw with a pointer or stylus. If drawing is not accessible, choose the signature image
+        option instead.
+      </p>
       <div
-        className={`relative border rounded-xl overflow-hidden bg-white transition-[border-color,box-shadow] duration-200 ${
+        className={`relative overflow-hidden rounded-lg border bg-white transition-[border-color,box-shadow] duration-200 ${
           isDrawing
             ? "border-primary-400 dark:border-primary-500"
             : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"
@@ -451,8 +454,10 @@ export function SignaturePad({
           ref={canvasRef}
           width={width}
           height={height}
+          tabIndex={0}
           aria-label="Signature drawing area — draw with mouse, touch, or a stylus"
-          className="w-full cursor-crosshair touch-none block"
+          aria-describedby={instructionsId}
+          className="block w-full cursor-crosshair touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
           onPointerDown={startDrawing}
           onPointerMove={draw}
           onPointerUp={stopDrawing}
@@ -473,9 +478,10 @@ export function SignaturePad({
       {hasContent && (
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={clear}
             aria-label="Clear signature"
-            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-dark-text-muted hover:text-red-500 dark:hover:text-red-400 motion-safe:transition-colors duration-150 rounded px-1.5 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1"
+            className="cloak-focus flex min-h-8 items-center gap-1.5 rounded px-1.5 py-0.5 text-xs text-slate-500 transition-colors duration-150 hover:text-red-500 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-red-400"
           >
             <Trash2 className="w-3 h-3" aria-hidden="true" />
             Clear

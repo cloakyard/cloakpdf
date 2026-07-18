@@ -75,7 +75,7 @@ async function readFields(file: File): Promise<FieldInfo[]> {
 }
 
 const INPUT_CLS =
-  "w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+  "w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 
 export function Panel() {
   const { doc } = useEditorRead();
@@ -136,6 +136,9 @@ export function Panel() {
             {f.type === "text" && f.multiline ? (
               <textarea
                 rows={3}
+                aria-label={f.name}
+                name={f.name}
+                autoComplete="off"
                 value={typeof v === "string" ? v : ""}
                 onChange={(e) => set(f.name, e.target.value)}
                 className={INPUT_CLS}
@@ -143,6 +146,9 @@ export function Panel() {
             ) : f.type === "text" ? (
               <input
                 type="text"
+                aria-label={f.name}
+                name={f.name}
+                autoComplete="off"
                 value={typeof v === "string" ? v : ""}
                 onChange={(e) => set(f.name, e.target.value)}
                 className={INPUT_CLS}

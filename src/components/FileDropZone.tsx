@@ -11,10 +11,6 @@ interface FileDropZoneProps {
   label?: string;
   hint?: string;
   size?: "default" | "hero";
-  /** Retained for source compatibility; CloakPDF now uses one app-wide accent. */
-  glowColor?: string;
-  /** Retained for source compatibility; CloakPDF now uses one app-wide accent. */
-  iconColor?: string;
   encryptedFile?: File | null;
   onClearEncrypted?: () => void;
 }
@@ -23,20 +19,15 @@ export function FileDropZone({
   accept,
   multiple = false,
   onFiles,
-  label = "Drop files here or click to browse",
+  label = "Drop files here",
   hint,
   size = "default",
-  glowColor,
-  iconColor,
   encryptedFile = null,
   onClearEncrypted,
 }: FileDropZoneProps) {
   const hero = size === "hero";
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  void glowColor;
-  void iconColor;
-
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();

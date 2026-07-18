@@ -7,7 +7,8 @@
 // values live in the tool slice so the Stage can outline them on the page.
 
 import { Loader2, ScanLine, UserCog } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
+import { canvas as canvasTheme } from "../../config/theme.ts";
 import { extractTextGeometry } from "../../utils/layout-extract.ts";
 import {
   detectFlatFields,
@@ -28,12 +29,12 @@ const PROFILE_STORAGE = "cloakpdf-autofill-profile";
 type Profile = Partial<Record<ProfileKey, string>>;
 
 const PROFILE_FIELDS: { key: ProfileKey; label: string; placeholder: string }[] = [
-  { key: "name", label: "Full name", placeholder: "Jane Doe" },
-  { key: "email", label: "Email", placeholder: "jane@example.com" },
+  { key: "name", label: "Full name", placeholder: "Avery Chen" },
+  { key: "email", label: "Email", placeholder: "avery@example.com" },
   { key: "phone", label: "Phone", placeholder: "+1 555 0100" },
   { key: "address", label: "Address", placeholder: "1 Main St, Anytown" },
   { key: "date", label: "Date", placeholder: "2026-06-20" },
-  { key: "company", label: "Company", placeholder: "Acme Inc." },
+  { key: "company", label: "Company", placeholder: "Northline Studio" },
 ];
 
 function loadProfile(): Profile {
@@ -81,9 +82,9 @@ export function Stage() {
         const bw = f.rect.wPct * w;
         const bh = f.rect.hPct * h;
         // A tinted blank with a dashed outline so empty fields are visible.
-        ctx.fillStyle = "rgba(37, 99, 235, 0.10)";
+        ctx.fillStyle = canvasTheme.accentSoft;
         ctx.fillRect(x, y, bw, bh);
-        ctx.strokeStyle = "rgba(37, 99, 235, 0.7)";
+        ctx.strokeStyle = canvasTheme.accentMedium;
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 2]);
         ctx.strokeRect(x, y, bw, bh);
@@ -112,6 +113,7 @@ export function Panel() {
 
   const [detecting, setDetecting] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profilePanelId = useId();
   const [profile, setProfile] = useState<Profile>({});
   useEffect(() => setProfile(loadProfile()), []);
 
@@ -180,7 +182,7 @@ export function Panel() {
         type="button"
         onClick={() => void detect()}
         disabled={detecting || !doc}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
       >
         {detecting ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -195,14 +197,19 @@ export function Panel() {
         <button
           type="button"
           onClick={() => setProfileOpen((o) => !o)}
-          className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg"
+          aria-expanded={profileOpen}
+          aria-controls={profilePanelId}
+          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <UserCog className="h-4 w-4 text-primary-600" />
           Your profile
           <span className="ml-auto text-xs text-slate-400">{profileOpen ? "Hide" : "Edit"}</span>
         </button>
         {profileOpen && (
-          <div className="flex flex-col gap-2 border-t border-slate-200 dark:border-dark-border p-3">
+          <div
+            id={profilePanelId}
+            className="flex flex-col gap-2 border-t border-slate-200 dark:border-dark-border p-3"
+          >
             {PROFILE_FIELDS.map((pf) => (
               <TextField
                 key={pf.key}
@@ -222,13 +229,19 @@ export function Panel() {
       {searched && !detecting && (
         <>
           {fields.length === 0 ? (
-            <div className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-3 text-xs text-slate-500 dark:text-dark-text-muted">
+            <div
+              role="status"
+              className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-3 text-xs text-slate-500 dark:text-dark-text-muted"
+            >
               No blank fields detected on this document's text layer. If it's a scan, run OCR first.
             </div>
           ) : (
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
+                <span
+                  aria-live="polite"
+                  className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted"
+                >
                   {fields.length} field{fields.length === 1 ? "" : "s"} · {filledCount} filled
                 </span>
                 {hasProfileMatch && (
@@ -251,9 +264,12 @@ export function Panel() {
                     <div className="flex items-center gap-1.5">
                       <input
                         type="text"
+                        aria-label={f.label || "Field"}
+                        name={`autofill-field-${f.pageIndex}-${i}`}
+                        autoComplete="off"
                         value={values[i] ?? ""}
                         onChange={(e) => setValue(i, e.target.value)}
-                        className="min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        className="min-w-0 flex-1 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       />
                       <button
                         type="button"
@@ -261,7 +277,7 @@ export function Panel() {
                           setSelectedPage(f.pageIndex);
                           setViewMode("focus");
                         }}
-                        className="shrink-0 rounded px-1.5 text-xs text-slate-400 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                        className="shrink-0 rounded px-1.5 text-xs text-slate-400 hover:text-primary-600 pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                       >
                         p{f.pageIndex + 1}
                       </button>

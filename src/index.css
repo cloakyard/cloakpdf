@@ -1,16 +1,8 @@
 /* Hallmark · genre: modern-minimal · macrostructure: Workbench · H2 hero knobs: split=7/5, visual=functional-pipeline, CTA=instrument-first · theme: studied-DNA (source: local CloakDrop Astro site) · paper: oklch(0.975 0.009 255) · accent: oklch(0.546 0.245 262.881) · display/body: Archivo · mono: JetBrains Mono · nav: N1b · footer: Ft5 · enrichment: E1 functional uploader · design-system: DESIGN.md · designed-as-app · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
 @import "../tokens.css";
 @import "tailwindcss";
 @import "./fonts.css";
-
-/*
- * Safelist for APP_CONTAINER (src/config/theme.ts) — the app-shell width
- * classes live only in that string constant, so they'd silently vanish if
- * source scanning were ever restricted (e.g. a future `@source` allowlist).
- */
-@source inline("max-w-6xl");
-@source inline("xl:max-w-[88rem]");
 
 @font-face {
   font-family: "Archivo";
@@ -31,36 +23,37 @@
 @theme {
   --font-sans: "Archivo", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  /* Ocean Blue primary scale (derived from #2563EB) */
-  --color-primary-50: #eff4ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e40af;
-  --color-primary-900: #1e3a8a;
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #eff4ff;
+  /* Fixed Ocean Blue scale. Keeping this independent of the adaptive surface
+     tokens preserves dark-mode text and focus contrast. */
+  --color-primary-50: oklch(0.97 0.014 254.604);
+  --color-primary-100: oklch(0.932 0.032 255.585);
+  --color-primary-200: oklch(0.882 0.059 254.128);
+  --color-primary-300: oklch(0.809 0.105 251.813);
+  --color-primary-400: oklch(0.707 0.165 254.624);
+  --color-primary-500: var(--color-focus);
+  --color-primary-600: var(--color-accent);
+  --color-primary-700: var(--color-accent-hover);
+  --color-primary-800: oklch(0.424 0.199 265.638);
+  --color-primary-900: oklch(0.379 0.146 265.522);
+  --color-primary: var(--color-accent);
+  --color-primary-hover: var(--color-accent-hover);
+  --color-primary-light: var(--color-accent-soft);
   /* Surfaces & text */
-  --color-page-bg: #f0f4fa;
-  --color-surface-alt: #f0f4fa;
-  --color-border: #e2e8f0;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
+  --color-page-bg: var(--color-paper);
+  --color-surface-alt: var(--color-paper-2);
+  --color-border: var(--color-rule);
+  --color-text: var(--color-ink);
+  --color-text-muted: var(--color-ink-3);
   /* Status */
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
+  --color-danger: var(--color-status-danger);
+  --color-success: var(--color-status-success);
   /* Dark-mode surface tokens */
-  --color-dark-bg: #0f172a;
-  --color-dark-surface: #1e293b;
-  --color-dark-surface-alt: #334155;
-  --color-dark-border: #334155;
-  --color-dark-text: #f1f5f9;
-  --color-dark-text-muted: #94a3b8;
+  --color-dark-bg: var(--color-night);
+  --color-dark-surface: var(--color-night-2);
+  --color-dark-surface-alt: var(--color-surface-strong);
+  --color-dark-border: var(--color-night-rule);
+  --color-dark-text: var(--color-night-ink);
+  --color-dark-text-muted: var(--color-night-muted);
   /*
    * Typography scale for design-specific sizes that fall between Tailwind's
    * default text-xs/sm/base. Use these instead of arbitrary text-[Npx]
@@ -77,6 +70,20 @@
   --text-meta: 12.5px;
   --text-card-desc: 13px;
   --text-card-title: 15px;
+}
+
+/* Primary-600 is the CTA fill, but that same blue is too quiet for small copy
+   on Night surfaces. Text utilities step up to the accessible family tint in
+   dark mode without changing button backgrounds or the brand hue. */
+@media (prefers-color-scheme: dark) {
+  .text-primary-600 {
+    color: var(--color-primary-400);
+  }
+
+  .hover\:text-primary-600:hover,
+  .hover\:text-primary-700:hover {
+    color: var(--color-primary-300);
+  }
 }
 
 /* ── Cloakyard family shell ─────────────────────────────────────── */
@@ -104,22 +111,9 @@
 .cloak-site-header__inner {
   height: 100%;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-md);
-}
-
-.cloak-wordmark {
-  color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: 1.18rem;
-  font-weight: 720;
-  letter-spacing: -0.035em;
-  white-space: nowrap;
-}
-
-.cloak-wordmark__accent {
-  color: var(--color-accent);
 }
 
 .cloak-mono-label {
@@ -189,6 +183,14 @@
 .cloak-outline-link:active,
 .cloak-solid-link:active {
   transform: translateY(1px);
+}
+
+.cloak-nav-link:focus-visible,
+.cloak-outline-link:focus-visible,
+.cloak-solid-link:focus-visible,
+.cloak-tool-card:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .cloak-hero {
@@ -421,9 +423,10 @@
   transition: border-color var(--dur-short) var(--ease-standard);
 }
 
-.cloak-search:focus-within {
+.cloak-search:has(input:focus-visible) {
+  border-color: var(--color-accent);
   outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 .cloak-category {
@@ -536,6 +539,7 @@
 
 .cloak-dropzone {
   position: relative;
+  display: block;
   width: 100%;
   overflow: hidden;
   border: var(--rule-thin) dashed var(--color-rule-strong);
@@ -624,12 +628,308 @@
 }
 
 .cloak-site-footer__statement {
+  min-width: 0;
   margin: 0;
   max-width: 13ch;
   font-size: clamp(2.4rem, 5vw, 5.2rem);
   font-weight: 720;
   letter-spacing: -0.055em;
   line-height: 0.96;
+  overflow-wrap: anywhere;
+}
+
+.cloak-site-footer a:focus-visible,
+.cloak-site-footer button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: 0.125rem;
+}
+
+.cloak-site-footer a:active,
+.cloak-site-footer button:active {
+  color: var(--color-primary-400);
+}
+
+@media (pointer: coarse) {
+  .cloak-site-footer a,
+  .cloak-site-footer button {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+}
+
+/* ── Shared family primitives ───────────────────────────────────── */
+.cloak-focus:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cloak-field-label {
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.cloak-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  border-width: var(--rule-thin);
+  border-style: solid;
+  border-radius: var(--radius-input);
+  padding: var(--space-sm);
+}
+
+.cloak-notice--center {
+  align-items: center;
+}
+
+.cloak-notice--warning {
+  border-color: color-mix(in oklab, var(--color-status-warning) 45%, var(--color-rule));
+  background: var(--color-status-warning-soft);
+  color: var(--color-ink-2);
+}
+
+.cloak-notice--danger {
+  border-color: color-mix(in oklab, var(--color-status-danger) 42%, var(--color-rule));
+  background: var(--color-status-danger-soft);
+  color: var(--color-ink-2);
+}
+
+.cloak-modal-scrim {
+  background: var(--color-overlay);
+}
+
+.cloak-dialog {
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-overlay);
+}
+
+.cloak-dialog__header {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  justify-content: space-between;
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.cloak-dialog__eyebrow,
+.cloak-dialog__section-label {
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.cloak-dialog__title {
+  margin: 0.2rem 0 0;
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.cloak-dialog__description {
+  margin-top: 0.25rem;
+  color: var(--color-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.cloak-dialog__close {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  place-items: center;
+  border-radius: var(--radius-input);
+  color: var(--color-ink-3);
+  transition:
+    color var(--dur-short) var(--ease-standard),
+    background-color var(--dur-short) var(--ease-standard);
+}
+
+.cloak-dialog__close:hover:not(:disabled) {
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.cloak-dialog__close:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.cloak-dialog__body {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-sm);
+}
+
+.cloak-dialog__footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2xs);
+  border-top: var(--rule-thin) solid var(--color-rule);
+  background: color-mix(in oklab, var(--color-paper-2) 52%, var(--color-surface));
+  padding: var(--space-xs) var(--space-sm) max(var(--space-xs), env(safe-area-inset-bottom));
+}
+
+.cloak-dialog__section-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  padding-inline: 0.125rem;
+}
+
+.cloak-ledger {
+  overflow: hidden;
+  border: var(--rule-thin) solid var(--color-rule);
+  border-radius: var(--radius-input);
+  background: var(--color-surface);
+}
+
+.cloak-ledger > * + * {
+  border-top: var(--rule-thin) solid var(--color-rule);
+}
+
+.cloak-export-format-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .cloak-export-format-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cloak-export-format-grid > * + * {
+    border-top: 0;
+  }
+
+  .cloak-export-format-grid > :nth-child(even) {
+    border-left: var(--rule-thin) solid var(--color-rule);
+  }
+
+  .cloak-export-format-grid > :nth-child(n + 3) {
+    border-top: var(--rule-thin) solid var(--color-rule);
+  }
+}
+
+.cloak-popover {
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-input);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-popover);
+}
+
+.cloak-popover__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cloak-popover__option {
+  position: relative;
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 0.55rem 0.65rem;
+  color: var(--color-ink-2);
+}
+
+.cloak-popover__option + .cloak-popover__option {
+  border-top: var(--rule-thin) solid var(--color-rule);
+}
+
+.cloak-popover__option[data-active="true"] {
+  box-shadow: inset 2px 0 0 var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+.cloak-search-field {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  border: var(--rule-thin) solid var(--color-rule);
+  border-radius: var(--radius-input);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.cloak-search-field:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.cloak-search-field:hover:not(:focus-within) {
+  border-color: var(--color-rule-strong);
+}
+
+.cloak-search-field:has(input[aria-invalid="true"]) {
+  border-color: var(--color-danger);
+}
+
+.cloak-search-field:has(input[aria-invalid="true"]):focus-within {
+  outline-color: var(--color-danger);
+}
+
+.cloak-search-field:has(input:disabled) {
+  cursor: not-allowed;
+  background: var(--color-paper);
+  opacity: 0.6;
+}
+
+.cloak-search-field input {
+  min-width: 0;
+  flex: 1;
+  background: transparent;
+  color: var(--color-ink);
+  outline: none;
+}
+
+.cloak-search-field input:disabled {
+  cursor: not-allowed;
+}
+
+@media (max-width: 639px) {
+  .cloak-dialog:not(.cloak-dialog--command):not(.cloak-dialog--floating) {
+    border-bottom: 0;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+
+  .cloak-dialog__footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .cloak-dialog__body {
+    padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom));
+  }
+
+  .cloak-dialog__footer > button {
+    width: 100%;
+  }
 }
 
 @media (min-width: 640px) {
@@ -669,10 +969,6 @@
 }
 
 @media (max-width: 639px) {
-  .cloak-site-header {
-    height: 4rem;
-  }
-
   .cloak-display {
     font-size: clamp(2.85rem, 15vw, 4.6rem);
   }
@@ -789,13 +1085,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
 /* Subtle rotation cue used by the OrientationLock overlay — tilts a
    phone glyph back and forth so the user reads "rotate this device"
    even before they parse the headline. */
@@ -817,21 +1106,6 @@ textarea {
    the cascade and disable it. */
 .animate-rotate-hint {
   animation: ci-rotate-hint 2.4s ease-in-out infinite;
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.45s ease-out both;
 }
 
 @keyframes popover-in {
@@ -879,27 +1153,10 @@ textarea {
   animation: fade-in 0.12s ease-out both;
 }
 
-@keyframes slide-up-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-up-in {
-  animation: slide-up-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .animate-popover-in,
   .animate-popover-in-above,
   .animate-fade-in,
-  .animate-fade-in-up,
-  .animate-slide-up-in,
   .animate-rotate-hint {
     animation: none;
   }
@@ -950,54 +1207,9 @@ textarea {
 }
 
 /*
- * Looping attention-pulse for error / warning banners. Box-shadow ring runs
- * continuously with a pause between pulses (0→60% pulse, 60→100% hold-at-zero)
- * so it grabs the eye without becoming frantic. Respects prefers-reduced-motion
- * (see block below).
- */
-@keyframes error-pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45);
-  }
-  60% {
-    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-  }
-}
-
-@keyframes warning-pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.45);
-  }
-  60% {
-    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
-  }
-}
-
-.error-pulse {
-  animation: error-pulse-ring 2.5s ease-out infinite;
-}
-
-.warning-pulse {
-  animation: warning-pulse-ring 2.5s ease-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .error-pulse,
-  .warning-pulse {
-    animation: none;
-  }
-}
-
-/*
  * Thin, theme-aware scrollbar for in-modal / in-card overflow areas.
  * The default browser bar looks chunky and out of place against
- * translucent surfaces (modals, glass cards). This class swaps it for
+ * compact overflow surfaces such as dialogs and popovers. This class swaps it for
  * a slim slate thumb that rests INVISIBLE and surfaces only while the
  * user interacts with the container (hover / keyboard focus inside) —
  * styling ::-webkit-scrollbar otherwise forces a permanently painted
@@ -1016,7 +1228,7 @@ textarea {
 }
 .thin-scrollbar:hover,
 .thin-scrollbar:focus-within {
-  scrollbar-color: rgba(100, 116, 139, 0.35) transparent;
+  scrollbar-color: color-mix(in oklab, var(--color-ink-3) 35%, transparent) transparent;
 }
 .thin-scrollbar::-webkit-scrollbar {
   width: 8px;
@@ -1033,17 +1245,17 @@ textarea {
 }
 .thin-scrollbar:hover::-webkit-scrollbar-thumb,
 .thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
+  background: color-mix(in oklab, var(--color-ink-3) 30%, transparent);
   background-clip: padding-box;
 }
 @media (prefers-color-scheme: dark) {
   .thin-scrollbar:hover,
   .thin-scrollbar:focus-within {
-    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+    scrollbar-color: color-mix(in oklab, var(--color-ink-3) 30%, transparent) transparent;
   }
   .thin-scrollbar:hover::-webkit-scrollbar-thumb,
   .thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
+    background: color-mix(in oklab, var(--color-ink-3) 30%, transparent);
     background-clip: padding-box;
   }
 }

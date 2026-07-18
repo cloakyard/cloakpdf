@@ -1,11 +1,10 @@
 // ReloadPrompt.tsx — PWA service-worker update banner. Shown when a new
 // SW version is available, or briefly when the app first becomes
-// installable for offline use.
+// installable with its core interface cached.
 //
-// A translucent floating card at the bottom-right (bottom-center on
-// mobile) matching the modal aesthetic, with an "Update" button when
-// needRefresh and a self-dismissing "ready offline" toast on first
-// install.
+// A compact operational surface at the bottom-right (bottom-center on
+// mobile), with an "Update" button when needRefresh and a self-dismissing
+// cache-status toast on first install.
 
 import { RefreshCw, ShieldCheck, X } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
@@ -108,26 +107,27 @@ export function ReloadPrompt() {
   const isUpdate = shownRef.current;
 
   const Icon = isUpdate ? RefreshCw : ShieldCheck;
-  const title = isUpdate ? "Update available" : "Ready offline";
+  const title = isUpdate ? "Update available" : "Core app cached";
   const body = isUpdate
     ? "A new version of CloakPDF is ready to install."
-    : "CloakPDF is now installed for offline use.";
+    : "The core interface is cached. AI models and OCR data may still need a connection.";
 
   return (
     <AnimatePresence>
       {show && (
         <m.div
-          className="fixed right-4 bottom-4 left-4 z-50 flex justify-center sm:right-6 sm:bottom-6 sm:left-auto sm:justify-end"
-          role="status"
-          aria-live="polite"
+          className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-[var(--z-toast)] flex justify-center sm:right-6 sm:bottom-6 sm:left-auto sm:justify-end"
           variants={variants.fadeUp}
           initial="initial"
           animate="animate"
           exit="exit"
         >
-          <div className="relative flex w-full max-w-sm items-start gap-3 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/85 p-4 text-slate-700 shadow-md backdrop-blur-xl backdrop-saturate-150 sm:w-auto sm:min-w-80 dark:border-dark-border dark:bg-dark-surface/85 dark:text-dark-text">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
-              <Icon className="w-4 h-4" />
+          <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {title}. {body}
+          </span>
+          <div className="cloak-dialog cloak-dialog--floating relative flex w-full max-w-sm items-start gap-3 overflow-hidden p-4 text-slate-700 sm:w-auto sm:min-w-80 dark:text-dark-text">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
+              <Icon className="w-4 h-4" aria-hidden="true" />
             </div>
             <div className="min-w-0 flex-1 pt-0.5">
               <p className="text-card-desc font-semibold tracking-[-0.01em] text-slate-800 dark:text-dark-text">
@@ -141,16 +141,16 @@ export function ReloadPrompt() {
                   <button
                     type="button"
                     onClick={close}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-full text-slate-600 hover:bg-slate-100 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt transition-colors"
+                    className="cloak-focus min-h-9 rounded-md px-3 py-1.5 font-mono text-xxs font-semibold uppercase tracking-wide text-slate-600 transition-colors hover:bg-slate-100 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt"
                   >
                     Later
                   </button>
                   <button
                     type="button"
                     onClick={handleUpdate}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                    className="cloak-focus inline-flex min-h-9 items-center gap-1.5 rounded-md bg-primary-600 px-3 py-1.5 font-mono text-xxs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-700 pointer-coarse:min-h-11"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
+                    <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
                     Update
                   </button>
                 </div>
@@ -160,9 +160,9 @@ export function ReloadPrompt() {
               type="button"
               onClick={close}
               aria-label="Dismiss"
-              className="-mt-1 -mr-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:text-dark-text-muted dark:hover:bg-white/10 dark:hover:text-dark-text transition-colors"
+              className="cloak-focus -mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 pointer-coarse:h-11 pointer-coarse:w-11 dark:text-dark-text-muted dark:hover:bg-white/10 dark:hover:text-dark-text"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </m.div>

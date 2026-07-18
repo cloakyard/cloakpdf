@@ -20,6 +20,7 @@ import {
   Eye,
   EyeOff,
   FileKey2,
+  FolderOpen,
   Globe,
   Hash,
   KeyRound,
@@ -30,7 +31,6 @@ import {
   MessageSquareText,
   ShieldCheck,
   ShieldQuestion,
-  Upload,
   User,
 } from "lucide-react";
 import { ActionButton } from "../components/ActionButton.tsx";
@@ -39,7 +39,6 @@ import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { InfoCallout } from "../components/InfoCallout.tsx";
 import { SegmentedControl } from "../components/SegmentedControl.tsx";
-import { categoryAccent, categoryGlow } from "../config/theme.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { downloadPdf, formatFileSize, pdfFilename } from "../utils/file-helpers.ts";
 import { isPdfEncrypted } from "../utils/pdf-security.ts";
@@ -281,8 +280,6 @@ export default function DigitalSignature() {
       {/* Step 1: PDF file */}
       {!file ? (
         <FileDropZone
-          glowColor={categoryGlow.security}
-          iconColor={categoryAccent.security}
           accept=".pdf,application/pdf"
           onFiles={handleFile}
           encryptedFile={encryptedFile}
@@ -310,19 +307,19 @@ export default function DigitalSignature() {
           )}
 
           {!detectingSignatures && existingSignatures.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted flex items-center gap-2">
-                <BadgeCheck className="w-4 h-4 text-primary-500" />
+            <div>
+              <h2 className="mb-3 flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+                <BadgeCheck className="h-4 w-4 text-primary-500" aria-hidden="true" />
                 Existing Signatures ({existingSignatures.length})
-              </h3>
+              </h2>
               {existingSignatures.map((sig, idx) => (
                 <div
                   key={`sig-${sig.signerName || "unknown"}-${sig.date || "nodate"}-${sig.filter}-${sig.subFilter}`}
-                  className="bg-primary-50/60 dark:bg-primary-900/10 rounded-xl border border-primary-200 dark:border-primary-700/40 p-4"
+                  className="border-y border-[var(--color-rule)] py-4 [&+&]:border-t-0"
                 >
                   <div className="flex items-start gap-2 mb-3 min-w-0">
-                    <ShieldCheck className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                    <span className="text-sm font-semibold text-primary-700 dark:text-primary-300 min-w-0 break-words">
+                    <ShieldCheck className="h-4 w-4 text-primary-600" aria-hidden="true" />
+                    <span className="min-w-0 break-words font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
                       Signature {existingSignatures.length > 1 ? `#${idx + 1}` : ""}
                       {sig.signerName ? ` — ${sig.signerName}` : ""}
                     </span>
@@ -330,7 +327,10 @@ export default function DigitalSignature() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                     {sig.signerName && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <User className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <User
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Signer:</span>
                         <span className="text-slate-700 dark:text-dark-text font-medium min-w-0 break-words">
                           {sig.signerName}
@@ -339,7 +339,10 @@ export default function DigitalSignature() {
                     )}
                     {sig.date && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <Clock className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <Clock
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Date:</span>
                         <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                           {sig.date}
@@ -348,7 +351,10 @@ export default function DigitalSignature() {
                     )}
                     {sig.reason && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <MessageSquareText className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <MessageSquareText
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Reason:</span>
                         <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                           {sig.reason}
@@ -357,7 +363,10 @@ export default function DigitalSignature() {
                     )}
                     {sig.location && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <MapPin className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <MapPin
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Location:</span>
                         <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                           {sig.location}
@@ -366,7 +375,10 @@ export default function DigitalSignature() {
                     )}
                     {sig.contactInfo && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <Mail className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <Mail
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Contact:</span>
                         <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                           {sig.contactInfo}
@@ -375,7 +387,10 @@ export default function DigitalSignature() {
                     )}
                     {(sig.filter || sig.subFilter) && (
                       <div className="flex items-start gap-1.5 min-w-0">
-                        <ShieldCheck className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                        <ShieldCheck
+                          className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                          aria-hidden="true"
+                        />
                         <span className="text-slate-500 dark:text-dark-text-muted">Standard:</span>
                         <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                           {formatSignatureStandard(sig.filter, sig.subFilter)}
@@ -386,13 +401,16 @@ export default function DigitalSignature() {
 
                   {/* Certificate details */}
                   {sig.certDetails && (
-                    <div className="mt-3 pt-3 border-t border-primary-200/60 dark:border-primary-700/30">
-                      <p className="text-xs font-medium text-primary-600 dark:text-primary-400 mb-1.5">
+                    <div className="mt-3 border-t border-[var(--color-rule)] pt-3">
+                      <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-primary-600">
                         Certificate Details
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <User className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                          <User
+                            className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                            aria-hidden="true"
+                          />
                           <span className="text-slate-500 dark:text-dark-text-muted">Name:</span>
                           <span className="text-slate-700 dark:text-dark-text font-medium min-w-0 break-words">
                             {sig.certDetails.commonName}
@@ -400,7 +418,10 @@ export default function DigitalSignature() {
                         </div>
                         {sig.certDetails.organisation && (
                           <div className="flex items-start gap-1.5 min-w-0">
-                            <Building2 className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                            <Building2
+                              className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                              aria-hidden="true"
+                            />
                             <span className="text-slate-500 dark:text-dark-text-muted">Org:</span>
                             <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                               {sig.certDetails.organisation}
@@ -409,7 +430,10 @@ export default function DigitalSignature() {
                         )}
                         {sig.certDetails.email && (
                           <div className="flex items-start gap-1.5 min-w-0">
-                            <Mail className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                            <Mail
+                              className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                              aria-hidden="true"
+                            />
                             <span className="text-slate-500 dark:text-dark-text-muted">Email:</span>
                             <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                               {sig.certDetails.email}
@@ -420,7 +444,10 @@ export default function DigitalSignature() {
                           sig.certDetails.state ||
                           sig.certDetails.locality) && (
                           <div className="flex items-start gap-1.5 min-w-0">
-                            <Globe className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                            <Globe
+                              className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                              aria-hidden="true"
+                            />
                             <span className="text-slate-500 dark:text-dark-text-muted">
                               Location:
                             </span>
@@ -436,7 +463,10 @@ export default function DigitalSignature() {
                           </div>
                         )}
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <ShieldQuestion className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                          <ShieldQuestion
+                            className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                            aria-hidden="true"
+                          />
                           <span className="text-slate-500 dark:text-dark-text-muted">Issuer:</span>
                           <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                             {sig.certDetails.issuer}
@@ -452,7 +482,10 @@ export default function DigitalSignature() {
                         </div>
                         {sig.certDetails.serialNumber && (
                           <div className="flex items-start gap-1.5 min-w-0">
-                            <Hash className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                            <Hash
+                              className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                              aria-hidden="true"
+                            />
                             <span className="text-slate-500 dark:text-dark-text-muted">
                               Serial:
                             </span>
@@ -462,7 +495,10 @@ export default function DigitalSignature() {
                           </div>
                         )}
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <Calendar className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                          <Calendar
+                            className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                            aria-hidden="true"
+                          />
                           <span className="text-slate-500 dark:text-dark-text-muted">Valid:</span>
                           <span className="text-slate-700 dark:text-dark-text min-w-0 break-words">
                             {sig.certDetails.validFrom} – {sig.certDetails.validTo}
@@ -470,7 +506,10 @@ export default function DigitalSignature() {
                         </div>
                         {sig.certDetails.signatureAlgorithm && (
                           <div className="flex items-start gap-1.5 min-w-0">
-                            <Lock className="w-3.5 h-3.5 text-primary-400 dark:text-primary-500 shrink-0" />
+                            <Lock
+                              className="h-3.5 w-3.5 shrink-0 text-primary-500"
+                              aria-hidden="true"
+                            />
                             <span className="text-slate-500 dark:text-dark-text-muted">
                               Algorithm:
                             </span>
@@ -498,10 +537,10 @@ export default function DigitalSignature() {
 
           {/* Step 2: Certificate source */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted flex items-center gap-2">
-              <FileKey2 className="w-4 h-4 text-primary-500" />
+            <h2 className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+              <FileKey2 className="h-4 w-4 text-primary-500" aria-hidden="true" />
               Certificate
-            </h3>
+            </h2>
 
             {/* Certificate source */}
             <SegmentedControl
@@ -521,14 +560,14 @@ export default function DigitalSignature() {
                 setCertChain([]);
               }}
               options={[
-                { value: "upload", label: "Upload Certificate", icon: Upload },
-                { value: "generate", label: "Self-Signed", icon: KeyRound },
+                { value: "upload", label: "Choose file", icon: FolderOpen },
+                { value: "generate", label: "Generate", icon: KeyRound },
               ]}
             />
 
             {/* Upload form */}
             {certSource === "upload" && (
-              <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-4 space-y-4">
+              <div className="space-y-4 border-y border-[var(--color-rule)] py-4">
                 <div>
                   <label
                     htmlFor="cert-file"
@@ -538,10 +577,11 @@ export default function DigitalSignature() {
                   </label>
                   <input
                     id="cert-file"
+                    name="certificateFile"
                     type="file"
                     accept=".p12,.pfx,application/x-pkcs12"
                     onChange={handleCertFile}
-                    className="block w-full text-sm text-slate-600 dark:text-dark-text-muted file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-slate-200 dark:file:border-dark-border file:text-sm file:font-medium file:bg-slate-50 dark:file:bg-dark-surface-alt file:text-slate-700 dark:file:text-dark-text hover:file:bg-slate-100 dark:hover:file:bg-dark-border file:transition-colors file:cursor-pointer"
+                    className="cloak-focus block w-full rounded-md text-sm text-[var(--color-ink-3)] file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-md file:border file:border-[var(--color-rule-strong)] file:bg-[var(--color-paper)] file:px-4 file:py-2 file:font-mono file:text-[11px] file:font-semibold file:uppercase file:tracking-[0.05em] file:text-[var(--color-ink)] file:transition-colors hover:file:border-primary-400"
                   />
                 </div>
 
@@ -555,19 +595,26 @@ export default function DigitalSignature() {
                   <div className="relative">
                     <input
                       id="cert-password"
+                      name="certificatePassword"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      spellCheck={false}
                       value={certPassword}
                       onChange={(e) => setCertPassword(e.target.value)}
                       placeholder="Enter certificate password…"
-                      className="w-full px-3 py-2 pr-12 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+                      className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 pr-12 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded text-slate-500 dark:text-dark-text-muted hover:text-slate-600 dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-colors"
+                      className="cloak-focus absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded text-slate-500 dark:text-dark-text-muted hover:text-slate-600 dark:hover:text-dark-text transition-colors"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -577,12 +624,12 @@ export default function DigitalSignature() {
                     type="button"
                     onClick={handleLoadCert}
                     disabled={certLoading || !certPassword}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-11 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    className="cloak-focus inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-ink)] transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {certLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                     ) : (
-                      <ShieldCheck className="w-4 h-4" />
+                      <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                     )}
                     {certLoading ? "Loading…" : "Load Certificate"}
                   </button>
@@ -592,7 +639,7 @@ export default function DigitalSignature() {
 
             {/* Generate form */}
             {certSource === "generate" && (
-              <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-4 space-y-4">
+              <div className="space-y-4 border-y border-[var(--color-rule)] py-4">
                 <InfoCallout icon={ShieldQuestion} title="Self-signed certificate">
                   Suitable for personal use. Recipients will see the signature is not from a trusted
                   certificate authority.
@@ -606,7 +653,10 @@ export default function DigitalSignature() {
                     Your name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-dark-text-muted" />
+                    <User
+                      className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-ink-3)]"
+                      aria-hidden="true"
+                    />
                     <input
                       id="common-name"
                       type="text"
@@ -614,8 +664,8 @@ export default function DigitalSignature() {
                       autoComplete="name"
                       value={commonName}
                       onChange={(e) => setCommonName(e.target.value)}
-                      placeholder="e.g. Jane Doe"
-                      className="w-full pl-10 pr-3 py-2 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+                      placeholder="e.g. Priya Shah…"
+                      className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] py-2 pr-3 pl-10 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
                     />
                   </div>
                 </div>
@@ -626,12 +676,12 @@ export default function DigitalSignature() {
                       type="button"
                       onClick={handleGenerateCert}
                       disabled={certLoading || !commonName.trim()}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-11 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                      className="cloak-focus inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary-600 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-accent-ink)] transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {certLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                       ) : (
-                        <KeyRound className="w-4 h-4" />
+                        <KeyRound className="h-4 w-4" aria-hidden="true" />
                       )}
                       {certLoading ? "Generating…" : "Generate Certificate"}
                     </button>
@@ -654,10 +704,10 @@ export default function DigitalSignature() {
 
             {/* Certificate info display */}
             {certInfo && (
-              <div className="bg-primary-50/60 dark:bg-primary-900/10 rounded-xl border border-primary-200 dark:border-primary-700/40 p-4">
+              <div className="border-y border-[var(--color-rule)] py-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <Award className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                  <span className="text-sm font-semibold text-primary-700 dark:text-primary-300">
+                  <Award className="h-4 w-4 text-primary-600" aria-hidden="true" />
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
                     Certificate Loaded
                   </span>
                 </div>
@@ -695,55 +745,59 @@ export default function DigitalSignature() {
           {/* Step 3: Signature details (optional) */}
           {certInfo && (
             <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted flex items-center gap-2">
-                <MessageSquareText className="w-4 h-4 text-primary-500" />
+              <h2 className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+                <MessageSquareText className="h-4 w-4 text-primary-500" aria-hidden="true" />
                 Signature Details
                 <span className="text-xs font-normal text-slate-500 dark:text-dark-text-muted">
                   (optional)
                 </span>
-              </h3>
+              </h2>
 
-              <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
-                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-2">
+              <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
+                <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
                   <label
                     htmlFor="sig-reason"
                     className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-dark-text sm:w-28 shrink-0"
                   >
-                    <MessageSquareText className="w-4 h-4 text-primary-500" />
+                    <MessageSquareText className="h-4 w-4 text-primary-500" aria-hidden="true" />
                     Reason
                   </label>
                   <input
                     id="sig-reason"
+                    name="signatureReason"
                     type="text"
+                    autoComplete="off"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    placeholder="e.g. I approve this document"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+                    placeholder="e.g. I approve this document…"
+                    className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
                   />
                 </div>
-                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
                   <label
                     htmlFor="sig-location"
                     className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-dark-text sm:w-28 shrink-0"
                   >
-                    <MapPin className="w-4 h-4 text-primary-500" />
+                    <MapPin className="h-4 w-4 text-primary-500" aria-hidden="true" />
                     Location
                   </label>
                   <input
                     id="sig-location"
+                    name="signatureLocation"
                     type="text"
+                    autoComplete="off"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. New York, NY"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+                    placeholder="e.g. Bengaluru, India…"
+                    className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
                   />
                 </div>
-                <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
                   <label
                     htmlFor="sig-contact"
                     className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-dark-text sm:w-28 shrink-0"
                   >
-                    <User className="w-4 h-4 text-primary-500" />
+                    <User className="h-4 w-4 text-primary-500" aria-hidden="true" />
                     Contact
                   </label>
                   <input
@@ -755,8 +809,8 @@ export default function DigitalSignature() {
                     spellCheck={false}
                     value={contactInfo}
                     onChange={(e) => setContactInfo(e.target.value)}
-                    placeholder="e.g. jane@example.com"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg text-sm text-slate-800 dark:text-dark-text placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:border-transparent transition-[transform,opacity,color,background-color,border-color,box-shadow]"
+                    placeholder="e.g. priya@example.com…"
+                    className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
                   />
                 </div>
               </div>
@@ -773,7 +827,9 @@ export default function DigitalSignature() {
           />
 
           {success && (
-            <InfoCallout icon={CheckCircle2}>PDF signed and downloaded successfully.</InfoCallout>
+            <InfoCallout icon={CheckCircle2} live>
+              PDF signed and downloaded successfully.
+            </InfoCallout>
           )}
         </>
       )}

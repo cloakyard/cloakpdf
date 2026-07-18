@@ -8,9 +8,9 @@
 // Mirrors the app's modal idiom (ExportModal): portal to <body>, scroll-lock,
 // Escape / backdrop to close, one Ocean-Blue accent on the active row.
 
-import { Redo2, RotateCcw, Search, Undo2 } from "lucide-react";
+import { Redo2, RotateCcw, Search, Undo2, X } from "lucide-react";
 import { type ComponentType, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { ModalCloseButton, ModalShell } from "../components/ModalShell.tsx";
 import { useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { EDITOR_GROUP_LABELS, EDITOR_TOOLS } from "./tools.ts";
 
@@ -45,6 +45,25 @@ function scoreCommand(cmd: PaletteCommand, q: string, tokens: string[]): number 
     else if (desc.includes(t)) score += 10;
   }
   return score;
+}
+
+function CommandMatch({ text, query }: { text: string; query: string }) {
+  const tokens = [...new Set(query.trim().split(/\s+/).filter(Boolean))].sort(
+    (a, b) => b.length - a.length,
+  );
+  if (tokens.length === 0) return text;
+  const escaped = tokens.map((token) => token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const parts = text.split(new RegExp(`(${escaped.join("|")})`, "gi"));
+  const needles = new Set(tokens.map((token) => token.toLocaleLowerCase()));
+  return parts.map((part, index) =>
+    needles.has(part.toLocaleLowerCase()) ? (
+      <mark key={`${part}-${index}`} className="bg-transparent font-bold text-primary-600">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
 }
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -130,36 +149,25 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     setActive((a) => (a >= results.length ? 0 : a));
   }, [results.length]);
 
-  // Scroll-lock + focus the input while open. Mirrors ExportModal's idiom. On
-  // close, return focus to whatever opened the palette (the rail's Search button
-  // or the canvas) so keyboard users aren't dumped back on <body>.
+  // Keep the highlighted row in view as the user arrows through a long list.
+  // Command navigation is an instant, utilitarian state change — animating the
+  // list itself makes rapid keyboard travel feel laggy.
   useEffect(() => {
-    if (!open) return;
-    const restoreTo = document.activeElement as HTMLElement | null;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    inputRef.current?.focus();
-    return () => {
-      document.body.style.overflow = prev;
-      restoreTo?.focus?.();
-    };
-  }, [open]);
-
-  // Keep the highlighted row in view as the user arrows through a long list,
-  // honouring a reduced-motion preference (matches the tool rail's auto-scroll).
-  useEffect(() => {
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     listRef.current?.querySelector<HTMLElement>(`[data-idx="${active}"]`)?.scrollIntoView({
       block: "nearest",
-      behavior: reduce ? "auto" : "smooth",
+      behavior: "auto",
     });
   }, [active]);
 
-  if (!open) return null;
+  const closePalette = () => {
+    setQuery("");
+    setActive(0);
+    onClose();
+  };
 
   const choose = (cmd: PaletteCommand | undefined) => {
     if (!cmd) return;
-    onClose();
+    closePalette();
     cmd.run();
   };
 
@@ -173,111 +181,156 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     } else if (e.key === "Enter") {
       e.preventDefault();
       choose(results[active]);
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      onClose();
     }
   };
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-200 flex items-start justify-center px-3 pt-[12vh] sm:px-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Command palette"
+  const countLabel = `${results.length} ${results.length === 1 ? "command" : "commands"}`;
+
+  return (
+    <ModalShell
+      open={open}
+      onClose={closePalette}
+      placement="command"
+      labelledBy="command-palette-title"
+      describedBy="command-palette-count"
+      panelClassName="cloak-dialog--command max-h-[calc(100svh-2rem)] sm:max-h-[min(640px,80svh)] sm:w-[min(680px,100%)]"
+      testId="command-palette"
     >
-      <button
-        type="button"
-        aria-label="Close command palette"
-        onClick={onClose}
-        className="absolute inset-0 cursor-default border-none bg-slate-900/30 backdrop-blur-sm"
-      />
+      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-rule)] px-4 py-3">
+        <div className="min-w-0">
+          <p className="cloak-dialog__eyebrow">Workbench / navigation</p>
+          <h2 id="command-palette-title" className="cloak-dialog__title">
+            Command index
+          </h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <span
+            id="command-palette-count"
+            className="font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-ink-3)]"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {countLabel}
+          </span>
+          <ModalCloseButton onClick={closePalette} label="Close command palette" />
+        </div>
+      </header>
 
-      <div className="relative flex max-h-[70svh] w-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-2xl backdrop-blur-xl sm:w-[min(560px,100%)] dark:border-dark-border dark:bg-dark-surface/95">
-        <div className="flex items-center gap-2.5 border-b border-slate-200/70 px-4 dark:border-dark-border">
-          <Search className="h-4.5 w-4.5 shrink-0 text-slate-400 dark:text-dark-text-muted" />
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
+      <div className="flex min-h-12 shrink-0 items-center gap-2.5 border-b border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-4 focus-within:z-10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-[var(--color-focus)]">
+        <Search className="h-4.5 w-4.5 shrink-0 text-[var(--color-ink-3)]" aria-hidden="true" />
+        <input
+          ref={inputRef}
+          data-dialog-initial-focus
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setActive(0);
+          }}
+          onKeyDown={onKeyDown}
+          type="search"
+          role="combobox"
+          aria-expanded="true"
+          aria-autocomplete="list"
+          aria-controls="command-palette-listbox"
+          aria-activedescendant={results.length ? `command-palette-opt-${active}` : undefined}
+          placeholder="Search tools and actions…"
+          aria-label="Search tools and actions"
+          autoComplete="off"
+          spellCheck={false}
+          className="h-12 min-w-0 flex-1 appearance-none bg-transparent text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
               setActive(0);
+              inputRef.current?.focus();
             }}
-            onKeyDown={onKeyDown}
-            type="text"
-            role="combobox"
-            aria-expanded="true"
-            aria-controls="command-palette-listbox"
-            aria-activedescendant={results.length ? `command-palette-opt-${active}` : undefined}
-            placeholder="Search tools and actions…"
-            aria-label="Search tools and actions"
-            className="h-12 min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-dark-text dark:placeholder:text-dark-text-muted"
-          />
-          <kbd className="hidden shrink-0 rounded border border-slate-200 px-1.5 py-0.5 text-xxs font-medium text-slate-400 sm:inline dark:border-dark-border dark:text-dark-text-muted">
-            ESC
-          </kbd>
-        </div>
-
-        <div
-          ref={listRef}
-          id="command-palette-listbox"
-          role="listbox"
-          aria-label="Tools and actions"
-          className="thin-scrollbar min-h-0 flex-1 overflow-y-auto p-1.5"
-        >
-          {results.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-slate-400 dark:text-dark-text-muted">
-              No matches
-            </p>
-          ) : (
-            results.map((cmd, i) => {
-              const on = i === active;
-              const Icon = cmd.Icon;
-              return (
-                <button
-                  key={cmd.id}
-                  id={`command-palette-opt-${i}`}
-                  type="button"
-                  data-idx={i}
-                  role="option"
-                  aria-selected={on}
-                  onMouseMove={() => setActive(i)}
-                  onClick={() => choose(cmd)}
-                  className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors ${
-                    on
-                      ? "bg-primary-50 dark:bg-primary-900/20"
-                      : "hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-                  }`}
-                >
-                  <span
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      on
-                        ? "bg-primary-600 text-white"
-                        : "bg-slate-100 text-slate-500 dark:bg-dark-surface-alt dark:text-dark-text-muted"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-slate-800 dark:text-dark-text">
-                      {cmd.label}
-                    </span>
-                    {cmd.description && (
-                      <span className="block truncate text-xs text-slate-500 dark:text-dark-text-muted">
-                        {cmd.description}
-                      </span>
-                    )}
-                  </span>
-                  <span className="shrink-0 text-xxs font-medium text-slate-400 dark:text-dark-text-muted">
-                    {cmd.hint}
-                  </span>
-                </button>
-              );
-            })
-          )}
-        </div>
+            aria-label="Clear command search"
+            className="cloak-focus grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-input)] text-[var(--color-ink-3)] hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-ink)]"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        )}
       </div>
-    </div>,
-    document.body,
+
+      <div
+        ref={listRef}
+        id="command-palette-listbox"
+        role="listbox"
+        aria-label="Tools and actions"
+        className="thin-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain"
+      >
+        {results.length === 0 ? (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm font-semibold text-[var(--color-ink)]">No command found</p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-3)]">
+              Try a tool name such as “redact”, “crop”, or “page numbers”.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              className="cloak-focus mt-4 min-h-11 rounded-[var(--radius-input)] border border-[var(--color-rule)] px-3 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-600 hover:border-primary-500"
+            >
+              Clear search
+            </button>
+          </div>
+        ) : (
+          results.map((cmd, i) => {
+            const on = i === active;
+            const Icon = cmd.Icon;
+            return (
+              <button
+                key={cmd.id}
+                id={`command-palette-opt-${i}`}
+                type="button"
+                data-idx={i}
+                role="option"
+                aria-selected={on}
+                tabIndex={-1}
+                onPointerMove={() => setActive(i)}
+                onClick={() => choose(cmd)}
+                className={`relative grid min-h-[3.75rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)] items-center gap-2.5 border-b border-[var(--color-rule)] px-4 py-2.5 text-left transition-[color,background-color,box-shadow] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] ${
+                  on
+                    ? "bg-[var(--color-accent-soft)] shadow-[inset_2px_0_0_var(--color-accent)]"
+                    : "hover:bg-[var(--color-paper)]"
+                }`}
+              >
+                <span className="font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <Icon
+                  className={`h-4 w-4 ${on ? "text-primary-600" : "text-[var(--color-ink-3)]"}`}
+                  aria-hidden="true"
+                />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-[var(--color-ink)]">
+                    <CommandMatch text={cmd.label} query={query} />
+                  </span>
+                  {cmd.description && (
+                    <span className="mt-0.5 block line-clamp-2 text-xs leading-snug text-[var(--color-ink-2)] sm:truncate">
+                      <CommandMatch text={cmd.description} query={query} />
+                    </span>
+                  )}
+                </span>
+                <span className="col-start-3 mt-0.5 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)] sm:col-start-auto sm:mt-0 sm:shrink-0">
+                  {cmd.hint}
+                </span>
+              </button>
+            );
+          })
+        )}
+      </div>
+
+      <footer className="hidden shrink-0 items-center justify-between gap-4 border-t border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)] sm:flex">
+        <span>↑↓ Navigate</span>
+        <span>Enter Open</span>
+        <span>Esc Close</span>
+      </footer>
+    </ModalShell>
   );
 }

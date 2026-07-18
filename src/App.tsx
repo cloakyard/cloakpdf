@@ -49,8 +49,12 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 /** Full-screen centred spinner shown while a tool chunk is loading. */
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+    <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
+      <div
+        className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Loading tool…</span>
     </div>
   );
 }
@@ -61,8 +65,16 @@ function LoadingSpinner() {
  *  top-anchored spinner followed by a centred one. */
 function EditorLoadingFallback() {
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-50 dark:bg-dark-bg">
-      <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600" />
+    <div
+      className="fixed inset-0 z-[var(--z-editor)] flex items-center justify-center bg-[var(--color-paper-2)]"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Opening the PDF editor…</span>
     </div>
   );
 }
@@ -96,6 +108,11 @@ function ToolView({ tool, Component }: ToolViewProps) {
       <div className="mb-5 flex items-center gap-2 text-primary-600">
         <Icon className="size-4" aria-hidden="true" />
         <span className="cloak-mono-label">Standalone utility / local execution</span>
+        {tool.beta && (
+          <span className="rounded-sm border border-primary-200 bg-primary-50 px-2 py-1 font-mono text-[9px] font-semibold tracking-[0.08em] text-primary-700 uppercase dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
+            Beta
+          </span>
+        )}
       </div>
       <header className="cloak-tool-page__head">
         <div>
@@ -111,7 +128,7 @@ function ToolView({ tool, Component }: ToolViewProps) {
               <dd className="mt-1 text-[var(--color-ink)]">In browser</dd>
             </div>
             <div>
-              <dt className="text-[var(--color-ink-3)]">File uploads</dt>
+              <dt className="text-[var(--color-ink-3)]">Document transfer</dt>
               <dd className="mt-1 text-[var(--color-ink)]">None</dd>
             </div>
             {tool.requirements && (
@@ -130,7 +147,7 @@ function ToolView({ tool, Component }: ToolViewProps) {
         <div className="cloak-instrument-bar">
           <span>CloakPDF / {tool.title}</span>
           <span className="inline-flex items-center gap-2">
-            <span className="cloak-status-dot" aria-hidden="true" /> Ready locally
+            <span className="cloak-status-dot" aria-hidden="true" /> Local execution
           </span>
         </div>
         <div className="cloak-tool-instrument__body">
@@ -159,12 +176,12 @@ function DesktopOnlyNotice({ tool }: { tool: Tool }) {
       <h2 className="text-lg font-semibold tracking-[-0.01em] mb-2">
         {tool.title} runs only on desktop
       </h2>
-      <p className="text-slate-600 dark:text-dark-text-muted leading-relaxed">
+      <p className="leading-relaxed text-[var(--color-ink-2)]">
         On-device AI loads large model files into memory and pushes the GPU hard during inference.
         On phones this reliably causes the browser tab to crash or the GPU device to be lost
         mid-question, so we've disabled the tool on mobile rather than ship a broken experience.
       </p>
-      <p className="text-slate-600 dark:text-dark-text-muted leading-relaxed mt-3">
+      <p className="mt-3 leading-relaxed text-[var(--color-ink-2)]">
         Open this page on a laptop or desktop with at least 16 GB of RAM to use it. Every other
         CloakPDF tool runs fine on this device.
       </p>
@@ -189,10 +206,10 @@ const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.filter((t) => t.status === "rea
 }));
 
 /**
- * Export-menu flows (compress / split / PDF→images) live in the editor's
+ * Export-dialog flows (compress / split / PDF→images) live in the editor's
  * Export modal, not in `EDITOR_TOOLS` — without these aliases, "compress"
  * and "split" would still dead-end in search. Their ids carry an `export-`
- * prefix; clicking one opens the editor plain (the Export menu isn't
+ * prefix; clicking one opens the editor plain (the Export dialog isn't
  * tool-addressable).
  */
 const EXPORT_FLOW_CARDS: Tool[] = [
@@ -205,18 +222,75 @@ const EXPORT_FLOW_CARDS: Tool[] = [
   {
     id: "export-split",
     title: "Split PDF",
-    description: "Split into separate PDFs — via the editor's Export menu",
+    description: "Split into separate PDFs — via the editor's Export dialog",
     icon: Scissors,
   },
   {
     id: "export-images",
     title: "PDF to images",
-    description: "Export pages as PNG or JPEG images — via the editor's Export menu",
+    description: "Export pages as PNG or JPEG images — via the editor's Export dialog",
     icon: FileImage,
   },
 ];
 
 const EDITOR_SEARCH_INDEX: Tool[] = [...EDITOR_SEARCH_CARDS, ...EXPORT_FLOW_CARDS];
+
+/** Normalize a user's query once, then use the same tokens for matching,
+ * ranking, and visible highlighting. De-duplicating tokens keeps a repeated
+ * word from artificially boosting a result. */
+function searchTokens(query: string): string[] {
+  return [...new Set(query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean))];
+}
+
+/** Name-first ranking for the toolkit index. A description-only match remains
+ * discoverable, but an exact or prefix title match always reads first. */
+function scoreToolSearch(tool: Tool, normalizedQuery: string, tokens: string[]): number | null {
+  const title = tool.title.toLocaleLowerCase();
+  const description = tool.description.toLocaleLowerCase();
+  const haystack = `${title} ${description}`;
+  if (!tokens.every((token) => haystack.includes(token))) return null;
+
+  let score = 0;
+  if (title === normalizedQuery) score += 1_200;
+  else if (title.startsWith(normalizedQuery)) score += 900;
+  else if (title.includes(normalizedQuery)) score += 700;
+  if (description.includes(normalizedQuery)) score += 180;
+
+  for (const token of tokens) {
+    if (title === token) score += 180;
+    else if (title.startsWith(token)) score += 140;
+    else if (title.includes(token)) score += 100;
+    else if (description.includes(token)) score += 20;
+  }
+  return score;
+}
+
+function SearchMatch({ text, query }: { text: string; query: string }) {
+  const tokens = searchTokens(query).sort((a, b) => b.length - a.length);
+  if (tokens.length === 0) return text;
+
+  const escapedTokens = tokens.map((token) => token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const parts = text.split(new RegExp(`(${escapedTokens.join("|")})`, "gi"));
+  return (
+    <>
+      {parts.map((part, index) =>
+        tokens.includes(part.toLocaleLowerCase()) ? (
+          <mark key={`${part}-${index}`} className="bg-transparent font-semibold text-primary-600">
+            {part}
+          </mark>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+type HomeSearchResult = {
+  tool: Tool;
+  surface: string;
+  route: "standalone" | "editor";
+};
 
 // ── HomeScreen ───────────────────────────────────────────────────
 
@@ -241,6 +315,7 @@ interface HomeScreenProps {
 function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const activeSearchQuery = searchQuery.trim();
 
   // ⌘K / Ctrl+K → focus search; Escape → clear search
   useEffect(() => {
@@ -249,193 +324,209 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
-      if (e.key === "Escape" && searchQuery) {
-        setSearchQuery("");
-        searchInputRef.current?.blur();
+      if (e.key === "Escape") {
+        setSearchQuery((current) => {
+          if (!current) return current;
+          searchInputRef.current?.blur();
+          return "";
+        });
       }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [searchQuery]);
+  }, []);
 
-  /**
-   * Standalone cards whose title or description matches the query
-   * (case-insensitive). Starts from {@link HOME_CARD_TOOLS} (the editor-first
-   * card set), not every tool. `desktopOnly` tools (currently just Ask PDF)
-   * are also dropped on mobile so phones don't see cards for features that
-   * crash their tabs — see the `desktopOnly` rationale in `tool-registry.ts`.
-   */
-  const filteredTools = useMemo(() => {
+  /** Standalone cards available on this device. `desktopOnly` tools
+   * (currently Ask PDF) stay out of a phone's resting grid and search index. */
+  const visibleHomeTools = useMemo(() => {
     const mobile = isMobileDevice();
-    const visible = mobile ? HOME_CARD_TOOLS.filter((t) => !t.desktopOnly) : HOME_CARD_TOOLS;
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return visible;
-    return visible.filter(
-      (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
-    );
-  }, [searchQuery]);
+    return mobile ? HOME_CARD_TOOLS.filter((tool) => !tool.desktopOnly) : HOME_CARD_TOOLS;
+  }, []);
 
   /**
-   * Editor tools + export flows matching the query — rendered as an extra
-   * "In the editor" section below the standalone results. Empty until the
-   * user types (the resting grid shows only the standalone cards; the
-   * editor's tools are reached by dropping a PDF).
+   * One ranked index spanning standalone utilities, editor tools, and export
+   * flows. Every token must match somewhere; title matches outrank descriptive
+   * matches, and source order is the stable tie-breaker.
    */
-  const editorMatches = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-    return EDITOR_SEARCH_INDEX.filter(
-      (t) => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q),
-    );
-  }, [searchQuery]);
+  const searchResults = useMemo(() => {
+    if (!activeSearchQuery) return [];
+    const normalizedQuery = activeSearchQuery.toLocaleLowerCase();
+    const tokens = searchTokens(activeSearchQuery);
+    const index: HomeSearchResult[] = [
+      ...visibleHomeTools.map((tool) => ({
+        tool,
+        surface: `Standalone / ${
+          categories.find((category) => category.key === tool.category)?.label ?? "Utility"
+        }`,
+        route: "standalone" as const,
+      })),
+      ...EDITOR_SEARCH_INDEX.map((tool) => ({
+        tool,
+        surface: "Canvas editor / Local workflow",
+        route: "editor" as const,
+      })),
+    ];
+
+    return index
+      .flatMap((result, order) => {
+        const score = scoreToolSearch(result.tool, normalizedQuery, tokens);
+        return score === null ? [] : [{ ...result, score, order }];
+      })
+      .sort((a, b) => b.score - a.score || a.order - b.order);
+  }, [activeSearchQuery, visibleHomeTools]);
 
   /** Route a search-result card: `export-*` aliases open the editor plain;
    *  everything else goes through the normal tool routing. */
   const handleResultSelect = useCallback(
-    (id: ToolId) => {
+    (id: string) => {
       if (id.startsWith("export-")) onOpenEditor();
-      else onSelectTool(id);
+      else onSelectTool(id as ToolId);
     },
     [onOpenEditor, onSelectTool],
   );
 
   return (
     <div className="cloak-home">
-      {!searchQuery && (
-        <>
-          <section className="site-frame cloak-hero" aria-labelledby="home-title">
-            <p className="cloak-mono-label mb-5 text-primary-600">
-              Open-source / advanced PDF toolkit / browser-native
-            </p>
-            <div className="cloak-hero__intro">
-              <div>
-                <h1 id="home-title" className="cloak-display">
-                  A complete PDF workbench.{" "}
-                  <span className="cloak-display__accent">Nothing uploaded.</span>
-                </h1>
-              </div>
-
-              <div className="cloak-hero__aside">
-                <p className="cloak-hero__lede">
-                  Edit, organise, redact, sign, OCR, compare, and ask questions of PDFs in one
-                  capable web app. Your document bytes stay inside your browser.
-                </p>
-                <a
-                  className="mt-6 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-600 hover:text-primary-700"
-                  href="#workbench"
-                >
-                  Open the workbench <ArrowRight className="size-4" aria-hidden="true" />
-                </a>
-              </div>
+      <>
+        <section className="site-frame cloak-hero" aria-labelledby="home-title">
+          <p className="cloak-mono-label mb-5 text-primary-600">
+            Open-source / advanced PDF toolkit / browser-native
+          </p>
+          <div className="cloak-hero__intro">
+            <div>
+              <h1 id="home-title" className="cloak-display">
+                A complete PDF workbench.{" "}
+                <span className="cloak-display__accent">Nothing uploaded.</span>
+              </h1>
             </div>
 
-            <div id="workbench" className="cloak-workbench scroll-mt-24">
-              <div className="cloak-instrument-bar">
-                <span>Live web app / local document pipeline</span>
-                <ConnectionStatus />
-              </div>
+            <div className="cloak-hero__aside">
+              <p className="cloak-hero__lede">
+                Edit, organise, redact, sign, OCR, compare, and ask questions of PDFs in one capable
+                web app. Your document bytes stay inside your browser.
+              </p>
+              <a
+                className="mt-6 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-600 hover:text-primary-700"
+                href="#workbench"
+              >
+                Open the workbench <ArrowRight className="size-4" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
 
-              <div className="cloak-workbench__body">
-                <ol className="cloak-workbench__steps m-0 list-none">
-                  {[
-                    {
-                      number: "01",
-                      title: "Open",
-                      copy: "Choose one PDF. The browser reads it directly from your device.",
-                    },
-                    {
-                      number: "02",
-                      title: "Work",
-                      copy: `Use ${EDITOR_TOOL_IDS.size} editor tools without handing the file to a server.`,
-                    },
-                    {
-                      number: "03",
-                      title: "Export",
-                      copy: "Create a new local file, then download it with the browser.",
-                    },
-                  ].map((step) => (
-                    <li key={step.number} className="cloak-workbench__step">
-                      <span className="cloak-workbench__step-number">{step.number}</span>
-                      <div>
-                        <p className="cloak-workbench__step-title">{step.title}</p>
-                        <p className="cloak-workbench__step-copy">{step.copy}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
+          <div id="workbench" className="cloak-workbench scroll-mt-24">
+            <div className="cloak-instrument-bar">
+              <span>Live web app / local document pipeline</span>
+              <ConnectionStatus />
+            </div>
 
-                <div className="cloak-workbench__drop">
-                  <FileDropZone
-                    size="hero"
-                    accept="application/pdf,.pdf"
-                    onFiles={(files) => files[0] && onOpenEditor(files[0])}
-                    label="Drop a PDF to open the editor"
-                    hint="Or browse your device. The file opens locally in the canvas workbench."
-                  />
-                </div>
-              </div>
-
-              <div className="cloak-workbench__footer" aria-label="Workbench architecture">
+            <div className="cloak-workbench__body">
+              <ol className="cloak-workbench__steps m-0 list-none">
                 {[
-                  ["Browser", "Execution"],
-                  ["PDF.js", "Preview"],
-                  ["pdf-lib", "Document edits"],
-                  ["IndexedDB", "Local drafts"],
-                ].map(([value, label]) => (
-                  <div key={value} className="cloak-workbench__metric">
-                    <span className="cloak-workbench__metric-value">{value}</span>
-                    <span className="cloak-workbench__metric-label">{label}</span>
-                  </div>
+                  {
+                    number: "01",
+                    title: "Open",
+                    copy: "Choose one PDF. The browser reads it directly from your device.",
+                  },
+                  {
+                    number: "02",
+                    title: "Work",
+                    copy: `Use ${EDITOR_TOOL_IDS.size} editor tools without handing the file to a server.`,
+                  },
+                  {
+                    number: "03",
+                    title: "Export",
+                    copy: "Export a new PDF directly to your device.",
+                  },
+                ].map((step) => (
+                  <li key={step.number} className="cloak-workbench__step">
+                    <span className="cloak-workbench__step-number">{step.number}</span>
+                    <div>
+                      <p className="cloak-workbench__step-title">{step.title}</p>
+                      <p className="cloak-workbench__step-copy">{step.copy}</p>
+                    </div>
+                  </li>
                 ))}
-              </div>
-            </div>
-          </section>
+              </ol>
 
-          <section className="cloak-stat-strip" aria-label="CloakPDF facts">
-            <div className="site-frame cloak-stat-strip__inner">
-              <div className="cloak-stat">
-                <span className="cloak-stat__value">{EDITOR_TOOL_IDS.size}</span>
-                <span className="cloak-stat__label">Editor tools</span>
-              </div>
-              <div className="cloak-stat">
-                <span className="cloak-stat__value">{tools.length}</span>
-                <span className="cloak-stat__label">Standalone utilities</span>
-              </div>
-              <div className="cloak-stat">
-                <span className="cloak-stat__value">0</span>
-                <span className="cloak-stat__label">Document uploads</span>
-              </div>
-              <div className="cloak-stat">
-                <span className="cloak-stat__value">MIT</span>
-                <span className="cloak-stat__label">Open-source license</span>
+              <div className="cloak-workbench__drop">
+                <FileDropZone
+                  size="hero"
+                  accept="application/pdf,.pdf"
+                  onFiles={(files) => files[0] && onOpenEditor(files[0])}
+                  label="Drop a PDF to open the editor"
+                  hint="Or browse your device. The file opens locally in the canvas workbench."
+                />
               </div>
             </div>
-          </section>
-        </>
-      )}
+
+            <div className="cloak-workbench__footer" aria-label="Workbench architecture">
+              {[
+                ["Browser", "Execution"],
+                ["PDF.js", "Preview"],
+                ["pdf-lib", "Document edits"],
+                ["IndexedDB", "Local drafts"],
+              ].map(([value, label]) => (
+                <div key={value} className="cloak-workbench__metric">
+                  <span className="cloak-workbench__metric-value">{value}</span>
+                  <span className="cloak-workbench__metric-label">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="cloak-stat-strip" aria-label="CloakPDF facts">
+          <div className="site-frame cloak-stat-strip__inner">
+            <div className="cloak-stat">
+              <span className="cloak-stat__value">{EDITOR_TOOL_IDS.size}</span>
+              <span className="cloak-stat__label">Editor tools</span>
+            </div>
+            <div className="cloak-stat">
+              <span className="cloak-stat__value">{tools.length}</span>
+              <span className="cloak-stat__label">Standalone utilities</span>
+            </div>
+            <div className="cloak-stat">
+              <span className="cloak-stat__value">0</span>
+              <span className="cloak-stat__label">Document uploads</span>
+            </div>
+            <div className="cloak-stat">
+              <span className="cloak-stat__value">MIT</span>
+              <span className="cloak-stat__label">Open-source license</span>
+            </div>
+          </div>
+        </section>
+      </>
 
       <section id="toolkit" className="site-frame cloak-toolkit scroll-mt-20">
-        <p className="cloak-mono-label mb-5 text-primary-600">02 / Focused utilities</p>
+        <p className="cloak-mono-label mb-5 text-primary-600">
+          {activeSearchQuery ? "Search / Toolkit index" : "02 / Focused utilities"}
+        </p>
         <div className="cloak-toolkit__head">
           <div>
             <h2 className="cloak-section-title">One family. Every serious PDF job.</h2>
           </div>
 
           <div>
-            <label className="cloak-search">
+            <div className="cloak-search" role="search" aria-label="PDF tool search">
+              <label htmlFor="home-tool-search" className="sr-only">
+                Search PDF tools
+              </label>
               <Search
                 className="ml-1 size-4.5 shrink-0 text-[var(--color-ink-3)]"
                 aria-hidden="true"
               />
               <input
+                id="home-tool-search"
                 ref={searchInputRef}
+                name="tool-search"
                 type="search"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search redact, merge, OCR…"
                 autoComplete="off"
                 spellCheck={false}
-                className="min-w-0 flex-1 bg-transparent px-3 py-4 text-base text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] focus-visible:outline-none"
+                className="min-w-0 flex-1 appearance-none bg-transparent px-3 py-4 text-base text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] focus-visible:outline-none [&::-webkit-search-cancel-button]:appearance-none"
                 aria-label="Search PDF tools"
               />
               {searchQuery ? (
@@ -445,39 +536,98 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                     setSearchQuery("");
                     searchInputRef.current?.focus();
                   }}
-                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-sm text-[var(--color-ink-3)] hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-sm text-[var(--color-ink-3)] hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   aria-label="Clear search"
                 >
-                  <X className="size-4" />
+                  <X className="size-4" aria-hidden="true" />
                 </button>
               ) : (
                 <kbd className="mr-1 hidden border border-[var(--color-rule)] px-2 py-1 font-mono text-[10px] text-[var(--color-ink-3)] sm:inline-flex">
                   {isMac ? "⌘ K" : "Ctrl K"}
                 </kbd>
               )}
-            </label>
+            </div>
             <p
+              data-testid="tool-search-count"
               className="mt-3 font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]"
               aria-live="polite"
             >
-              {searchQuery
-                ? `${filteredTools.length + editorMatches.length} matching tools`
+              {activeSearchQuery
+                ? `${searchResults.length} matching ${searchResults.length === 1 ? "tool" : "tools"}`
                 : "Search spans standalone utilities and the canvas editor"}
             </p>
           </div>
         </div>
 
-        {filteredTools.length === 0 && editorMatches.length === 0 ? (
+        {activeSearchQuery && searchResults.length === 0 ? (
           <div className="border-y border-[var(--color-rule-strong)] py-14">
             <h3 className="text-xl font-semibold text-[var(--color-ink)]">No tools found</h3>
             <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--color-ink-3)]">
               Try a different term such as “redact”, “watermark”, or “merge”.
             </p>
+            <button
+              type="button"
+              data-testid="empty-tool-search-clear"
+              onClick={() => {
+                setSearchQuery("");
+                searchInputRef.current?.focus();
+              }}
+              className="mt-5 inline-flex min-h-11 items-center gap-2 border border-[var(--color-rule)] px-4 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-600 hover:border-primary-500 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+            >
+              <X className="size-4" aria-hidden="true" />
+              Clear search
+            </button>
           </div>
+        ) : activeSearchQuery ? (
+          <ol className="cloak-ledger m-0 list-none p-0" aria-label="Matching PDF tools">
+            {searchResults.map(({ tool, surface, route }, index) => {
+              const Icon = tool.icon;
+              return (
+                <li key={tool.id}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      route === "standalone"
+                        ? onSelectTool(tool.id as ToolId)
+                        : handleResultSelect(tool.id)
+                    }
+                    className="group grid min-h-[5rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] items-start gap-3 px-4 py-4 text-left transition-[background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2.5rem_1.5rem_minmax(0,1fr)_auto]"
+                  >
+                    <span className="pt-0.5 font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <Icon className="mt-0.5 h-4 w-4 text-primary-600" aria-hidden="true" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-[var(--color-ink)] sm:text-base">
+                        <SearchMatch text={tool.title} query={activeSearchQuery} />
+                      </span>
+                      <span className="mt-1 block text-xs leading-relaxed text-[var(--color-ink-2)] sm:text-sm">
+                        <SearchMatch text={tool.description} query={activeSearchQuery} />
+                      </span>
+                      <span className="mt-2 block font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--color-ink-3)] sm:hidden">
+                        {surface}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-3">
+                      <span className="hidden font-mono text-[9px] uppercase tracking-[0.06em] text-[var(--color-ink-3)] sm:inline">
+                        {surface}
+                      </span>
+                      <ArrowRight
+                        className="h-4 w-4 text-[var(--color-ink-3)] group-hover:text-primary-600"
+                        aria-hidden="true"
+                      />
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
         ) : (
           <div className="space-y-14 sm:space-y-20">
             {categories.map((category) => {
-              const categoryTools = filteredTools.filter((tool) => tool.category === category.key);
+              const categoryTools = visibleHomeTools.filter(
+                (tool) => tool.category === category.key,
+              );
               if (categoryTools.length === 0) return null;
               return (
                 <section
@@ -504,33 +654,11 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                 </section>
               );
             })}
-
-            {searchQuery && editorMatches.length > 0 && (
-              <section className="cloak-category grid gap-6 lg:grid-cols-12 lg:gap-10">
-                <div className="lg:col-span-3">
-                  <h3 className="cloak-mono-label text-primary-600">
-                    Canvas editor / {editorMatches.length}
-                  </h3>
-                  <p className="mt-3 max-w-xs text-xl font-semibold leading-tight tracking-[-0.025em] text-[var(--color-ink)]">
-                    Continue with the document open on the canvas.
-                  </p>
-                </div>
-                <div
-                  className={`grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-9 ${
-                    editorMatches.length > 2 ? "2xl:grid-cols-3" : ""
-                  }`}
-                >
-                  {editorMatches.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onSelect={handleResultSelect} />
-                  ))}
-                </div>
-              </section>
-            )}
           </div>
         )}
       </section>
 
-      {!searchQuery && <WhyCloakPdfSection />}
+      {!activeSearchQuery && <WhyCloakPdfSection />}
     </div>
   );
 }
@@ -552,7 +680,7 @@ function ConnectionStatus() {
   return (
     <span className="inline-flex items-center gap-2" aria-live="polite">
       <span className="cloak-status-dot" aria-hidden="true" />
-      {online ? "Ready / files stay local" : "Offline / editor ready"}
+      {online ? "Local execution" : "Offline / network unavailable"}
     </span>
   );
 }
@@ -571,8 +699,8 @@ function WhyCloakPdfSection() {
     },
     {
       number: "03",
-      title: "The browser writes a new local file",
-      meta: "Output / download",
+      title: "A new result is exported to your device",
+      meta: "Output / browser download",
     },
   ];
 
@@ -740,7 +868,12 @@ export function App() {
 
   return (
     <>
-      <Layout onHome={goHome} showBack={showBack} onPrivacy={handlePrivacy}>
+      <Layout
+        onHome={goHome}
+        showBack={showBack}
+        onPrivacy={handlePrivacy}
+        footerVariant={view.kind === "home" || view.kind === "privacy" ? "statement" : "compact"}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <m.div
             key={viewKey}
@@ -759,7 +892,7 @@ export function App() {
         </AnimatePresence>
       </Layout>
       <ReloadPrompt />
-      <OrientationLock />
+      {view.kind === "tool" && <OrientationLock />}
     </>
   );
 }

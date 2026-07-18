@@ -279,7 +279,7 @@ export function Panel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
+      <p className="text-sm text-[var(--color-ink-3)]">
         Find every occurrence of a word or phrase, then highlight or box them all at once. To black
         text out instead, use the Redact tool.
       </p>
@@ -303,33 +303,69 @@ export function Panel() {
       </Labeled>
 
       {/* Search box */}
-      <div className="flex items-center gap-1.5">
-        <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={input}
-            placeholder="Search text…"
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                onFind();
-              }
-            }}
-            disabled={detecting}
-            className="w-full rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface py-1.5 pl-8 pr-2.5 text-sm text-slate-800 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-50"
-          />
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="find-and-act-query" className="cloak-field-label">
+          Text to find
+        </label>
+        <div className="flex items-center gap-1.5">
+          <div className="cloak-search-field min-w-0 flex-1 px-2.5">
+            <Search
+              className="pointer-events-none h-4 w-4 shrink-0 text-primary-600"
+              aria-hidden="true"
+            />
+            <input
+              id="find-and-act-query"
+              type="text"
+              aria-label="Text to find"
+              aria-describedby="find-and-act-status"
+              aria-invalid={Boolean(err)}
+              name="find-and-act-search"
+              autoComplete="off"
+              value={input}
+              placeholder="Search text…"
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onFind();
+                }
+              }}
+              className="h-11 px-2 text-sm placeholder:text-[var(--color-ink-3)]"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={onFind}
+            disabled={detecting || (!input.trim() && terms.length === 0)}
+            aria-label="Find matches"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-primary-600 px-3 py-2 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            {detecting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            {detecting ? "Finding…" : "Find"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onFind}
-          disabled={detecting || (!input.trim() && terms.length === 0)}
-          aria-label="Find matches"
-          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary-600 px-3 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-        >
-          {detecting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Find"}
-        </button>
+        {err ? (
+          <p
+            id="find-and-act-status"
+            role="alert"
+            className="cloak-notice cloak-notice--danger text-xs"
+          >
+            {err}
+          </p>
+        ) : detecting ? (
+          <p id="find-and-act-status" className="text-xs text-[var(--color-ink-3)]" role="status">
+            {ocr ? `Reading scanned pages… (${ocr.done}/${ocr.total})` : "Finding matches…"}
+          </p>
+        ) : searched ? (
+          <p id="find-and-act-status" className="text-xs text-[var(--color-ink-3)]" role="status">
+            {matches.length} match{matches.length === 1 ? "" : "es"} across {pagesHit} page
+            {pagesHit === 1 ? "" : "s"}.
+          </p>
+        ) : (
+          <p id="find-and-act-status" className="text-xs text-[var(--color-ink-3)]">
+            Add a word or phrase, then review every match before applying it.
+          </p>
+        )}
       </div>
 
       {/* Active term chips */}
@@ -338,7 +374,7 @@ export function Panel() {
           {terms.map((t) => (
             <span
               key={t}
-              className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-dark-bg px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-dark-text-muted"
+              className="inline-flex min-h-9 items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] pl-2.5 text-xs font-medium text-[var(--color-ink-2)]"
             >
               {t}
               <button
@@ -346,9 +382,9 @@ export function Panel() {
                 onClick={() => removeTerm(t)}
                 disabled={detecting}
                 aria-label={`Remove “${t}”`}
-                className="-mr-1.5 -my-1.5 rounded-full p-2 hover:bg-slate-200 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="cloak-focus inline-flex min-h-9 min-w-9 items-center justify-center hover:bg-[var(--color-paper)] hover:text-[var(--color-danger)]"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </button>
             </span>
           ))}
@@ -358,10 +394,7 @@ export function Panel() {
       {/* Options */}
       <div className="flex flex-wrap gap-x-4 gap-y-2">
         {(["caseSensitive", "wholeWord"] as const).map((key) => (
-          <label
-            key={key}
-            className="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-text-muted"
-          >
+          <label key={key} className="flex items-center gap-2 text-sm text-[var(--color-ink-2)]">
             <input
               type="checkbox"
               checked={slice[key]}
@@ -374,19 +407,8 @@ export function Panel() {
         ))}
       </div>
 
-      {detecting && ocr && (
-        <p className="text-xs text-slate-500 dark:text-dark-text-muted" role="status">
-          Reading scanned pages… ({ocr.done}/{ocr.total})
-        </p>
-      )}
-      {err && (
-        <p role="alert" className="text-xs text-red-600 dark:text-red-400">
-          {err}
-        </p>
-      )}
-
       {scanned && matches.length > 0 && (
-        <p className="rounded-lg bg-amber-50 dark:bg-amber-900/15 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+        <p className="cloak-notice cloak-notice--warning text-xs">
           Scanned pages were read with OCR — matching is over recognised text only. Verify visually.
         </p>
       )}
@@ -395,14 +417,14 @@ export function Panel() {
       {searched && !detecting && (
         <>
           {matches.length === 0 ? (
-            <p className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
+            <p className="cloak-notice text-xs text-[var(--color-ink-3)]">
               No text-layer matches. The term may still be present as an image — scan visually, or
               run OCR first.
             </p>
           ) : (
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700 dark:text-dark-text tabular-nums">
+                <span className="text-sm font-medium tabular-nums text-[var(--color-ink)]">
                   {matches.length} match{matches.length === 1 ? "" : "es"} · {pagesHit} page
                   {pagesHit === 1 ? "" : "s"}
                 </span>
@@ -410,28 +432,30 @@ export function Panel() {
                   <button
                     type="button"
                     onClick={() => setAll(true)}
-                    className="inline-flex min-h-11 items-center -mx-1 rounded px-2 text-xs text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    className="cloak-focus -mx-1 inline-flex min-h-11 items-center px-2 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary-600 hover:text-primary-700"
                   >
                     All
                   </button>
-                  <span className="text-slate-300 dark:text-dark-border">·</span>
+                  <span className="text-[var(--color-rule-strong)]" aria-hidden="true">
+                    ·
+                  </span>
                   <button
                     type="button"
                     onClick={() => setAll(false)}
-                    className="inline-flex min-h-11 items-center -mx-1 rounded px-2 text-xs text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                    className="cloak-focus -mx-1 inline-flex min-h-11 items-center px-2 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary-600 hover:text-primary-700"
                   >
                     None
                   </button>
                 </div>
               </div>
 
-              <div className="thin-scrollbar max-h-64 overflow-y-auto rounded-lg border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
+              <div className="cloak-ledger thin-scrollbar max-h-64 overflow-y-auto">
                 {[...byPage.entries()].map(([pageIndex, list]) => (
                   <div key={pageIndex} className="p-2">
                     <button
                       type="button"
                       onClick={() => jump(pageIndex)}
-                      className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 hover:text-primary-600 focus-visible:outline-none"
+                      className="cloak-focus mb-1 min-h-9 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--color-ink-3)] hover:text-primary-600 pointer-coarse:min-h-11"
                     >
                       Page {pageIndex + 1}
                     </button>
@@ -452,12 +476,12 @@ export function Panel() {
                           <button
                             type="button"
                             onClick={() => jump(pageIndex)}
-                            className="min-w-0 flex-1 truncate text-left text-xs text-slate-600 dark:text-dark-text-muted hover:text-slate-900 dark:hover:text-dark-text"
+                            className="cloak-focus min-h-9 min-w-0 flex-1 truncate text-left text-xs text-[var(--color-ink-2)] hover:text-[var(--color-ink)] pointer-coarse:min-h-11"
                             title={m.line}
                           >
                             {m.line.slice(0, m.matchStart)}
                             <mark
-                              className="rounded-sm text-slate-900 dark:text-dark-text"
+                              className="text-[var(--color-ink)]"
                               style={{
                                 backgroundColor: `rgba(${activeColor.r}, ${activeColor.g}, ${activeColor.b}, 0.35)`,
                               }}
@@ -483,7 +507,7 @@ export function Panel() {
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="rounded-lg border border-slate-200 dark:border-dark-border px-3 py-2.5 text-sm text-slate-500 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="cloak-focus min-h-11 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2.5 font-mono text-xs font-medium text-[var(--color-ink-3)] hover:border-[var(--color-rule-strong)] hover:bg-[var(--color-paper)] active:translate-y-px transition-[color,background-color,transform]"
                 >
                   Clear
                 </button>

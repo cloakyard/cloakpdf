@@ -13,15 +13,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionButton } from "../components/ActionButton.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
+import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { PagePreviewNav } from "../components/PagePreviewNav.tsx";
 import { ProgressBar } from "../components/ProgressBar.tsx";
 import { SegmentedControl } from "../components/SegmentedControl.tsx";
-import { canvas as canvasColors, categoryAccent, categoryGlow } from "../config/theme.ts";
+import { canvas as canvasColors } from "../config/theme.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { formatFileSize } from "../utils/file-helpers.ts";
 import { pdfjsLib } from "../utils/pdf-renderer.ts";
 import { PDFJS_WASM_URL } from "../utils/pdfjs-config.ts";
 import { isPdfEncrypted } from "../utils/pdf-security.ts";
+
+// The UI reports one decimal place. Independent PDF.js renders of the same
+// page can differ at a handful of antialiased edge pixels, so changes below
+// half that visible precision are raster noise, not a meaningful document diff.
+const MIN_VISIBLE_DIFF_PERCENT = 0.05;
 
 /**
  * Convert a canvas to a Blob URL (more memory-efficient than data-URLs).
@@ -146,10 +152,14 @@ function diffCanvases(
   tmpB.width = 0;
   tmpB.height = 0;
 
-  return {
-    diffCanvas,
-    diffPercent: totalPixels > 0 ? (changedPixels / totalPixels) * 100 : 0,
-  };
+  const rawDiffPercent = totalPixels > 0 ? (changedPixels / totalPixels) * 100 : 0;
+  if (rawDiffPercent < MIN_VISIBLE_DIFF_PERCENT) {
+    // Keep the overlay and summary consistent with the displayed "Identical"
+    // result instead of retaining imperceptible antialiasing speckles.
+    diffCtx.clearRect(0, 0, w, h);
+    return { diffCanvas, diffPercent: 0 };
+  }
+  return { diffCanvas, diffPercent: rawDiffPercent };
 }
 
 /**
@@ -366,32 +376,20 @@ export default function ComparePdf() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* File A */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700 dark:text-dark-text flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 text-xs font-bold">
-                A
-              </span>
-              Original PDF
-            </p>
+            <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
+              A / Original PDF
+            </h2>
             {fileA ? (
-              <div className="flex items-center justify-between bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-3">
-                <p className="text-sm text-slate-600 dark:text-dark-text-muted truncate">
-                  <span className="font-medium">{fileA.name}</span> — {formatFileSize(fileA.size)}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFileA(null);
-                    setComparisons([]);
-                  }}
-                  className="inline-flex items-center min-h-11 px-2 -mx-2 rounded text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 shrink-0 ml-2"
-                >
-                  Change
-                </button>
-              </div>
+              <FileInfoBar
+                fileName={fileA.name}
+                details={formatFileSize(fileA.size)}
+                onChangeFile={() => {
+                  setFileA(null);
+                  setComparisons([]);
+                }}
+              />
             ) : (
               <FileDropZone
-                glowColor={categoryGlow.security}
-                iconColor={categoryAccent.security}
                 accept=".pdf,application/pdf"
                 onFiles={handleFileA}
                 encryptedFile={encryptedA}
@@ -404,32 +402,20 @@ export default function ComparePdf() {
 
           {/* File B */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-700 dark:text-dark-text flex items-center gap-2">
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 text-xs font-bold">
-                B
-              </span>
-              Modified PDF
-            </p>
+            <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
+              B / Modified PDF
+            </h2>
             {fileB ? (
-              <div className="flex items-center justify-between bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-3">
-                <p className="text-sm text-slate-600 dark:text-dark-text-muted truncate">
-                  <span className="font-medium">{fileB.name}</span> — {formatFileSize(fileB.size)}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFileB(null);
-                    setComparisons([]);
-                  }}
-                  className="inline-flex items-center min-h-11 px-2 -mx-2 rounded text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 shrink-0 ml-2"
-                >
-                  Change
-                </button>
-              </div>
+              <FileInfoBar
+                fileName={fileB.name}
+                details={formatFileSize(fileB.size)}
+                onChangeFile={() => {
+                  setFileB(null);
+                  setComparisons([]);
+                }}
+              />
             ) : (
               <FileDropZone
-                glowColor={categoryGlow.security}
-                iconColor={categoryAccent.security}
                 accept=".pdf,application/pdf"
                 onFiles={handleFileB}
                 encryptedFile={encryptedB}
@@ -470,21 +456,21 @@ export default function ComparePdf() {
     <div className="space-y-6">
       {/* Summary banner */}
       {summary && (
-        <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-4">
+        <div className="border-y border-[var(--color-rule)] py-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-4 flex-wrap">
-              <div className="text-sm text-slate-600 dark:text-dark-text-muted">
-                <span className="font-semibold text-slate-800 dark:text-dark-text tabular-nums">
+              <div className="font-mono text-[11px] text-[var(--color-ink-3)]">
+                <span className="font-semibold tabular-nums text-[var(--color-ink)]">
                   {summary.total}
                 </span>{" "}
                 page{summary.total !== 1 && "s"} compared
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tabular-nums bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                <span className="inline-flex items-center rounded-sm bg-green-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums text-green-700 dark:bg-green-900/40 dark:text-green-300">
                   {summary.identical} identical
                 </span>
                 {summary.changed > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium tabular-nums bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">
+                  <span className="inline-flex items-center rounded-sm bg-red-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums text-red-700 dark:bg-red-900/40 dark:text-red-300">
                     {summary.changed} changed
                   </span>
                 )}
@@ -493,7 +479,7 @@ export default function ComparePdf() {
             <button
               type="button"
               onClick={reset}
-              className="inline-flex items-center min-h-11 px-2 -mx-2 rounded text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+              className="-mx-2 inline-flex min-h-11 items-center rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
               New comparison
             </button>
@@ -528,7 +514,7 @@ export default function ComparePdf() {
           {/* Diff badge */}
           <div className="flex items-center gap-2">
             <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold tabular-nums ${diffBadgeClass(current.diffPercent)}`}
+              className={`inline-flex items-center rounded-sm px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums ${diffBadgeClass(current.diffPercent)}`}
             >
               {current.diffPercent === 0
                 ? "Identical"
@@ -550,13 +536,10 @@ export default function ComparePdf() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* File A */}
               <div className="space-y-1.5">
-                <p className="text-xs font-medium text-slate-500 dark:text-dark-text-muted flex items-center gap-1.5">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 text-xxs font-bold">
-                    A
-                  </span>
-                  Original
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+                  A / Original
                 </p>
-                <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface">
+                <div className="rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)]">
                   {current.thumbA ? (
                     <img
                       src={current.thumbA}
@@ -573,13 +556,10 @@ export default function ComparePdf() {
 
               {/* File B */}
               <div className="space-y-1.5">
-                <p className="text-xs font-medium text-slate-500 dark:text-dark-text-muted flex items-center gap-1.5">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 text-xxs font-bold">
-                    B
-                  </span>
-                  Modified
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+                  B / Modified
                 </p>
-                <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface">
+                <div className="rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)]">
                   {current.thumbB ? (
                     <img
                       src={current.thumbB}
@@ -604,14 +584,14 @@ export default function ComparePdf() {
                   className="flex items-center gap-1.5 min-h-11 px-2 -mx-2 rounded text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text active:text-slate-800 dark:active:text-dark-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                 >
                   {showDiffOverlay ? (
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                   ) : (
-                    <EyeOff className="w-3.5 h-3.5" />
+                    <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
                   )}
                   {showDiffOverlay ? "Diff on" : "Diff off"}
                 </button>
               </div>
-              <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface max-w-4xl mx-auto">
+              <div className="relative rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)] max-w-4xl mx-auto">
                 {current.thumbA ? (
                   <img
                     src={current.thumbA}
@@ -639,8 +619,8 @@ export default function ComparePdf() {
       )}
 
       {/* Page strip — mini thumbnails for quick navigation */}
-      <div className="bg-white dark:bg-dark-surface rounded-xl border border-slate-200 dark:border-dark-border p-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted mb-2">
+      <div className="border-y border-[var(--color-rule)] py-3">
+        <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
           All Pages
         </p>
         <div className="flex gap-2 overflow-x-auto thin-scrollbar pb-1">
@@ -649,7 +629,7 @@ export default function ComparePdf() {
               type="button"
               key={comp.page}
               onClick={() => setCurrentPage(comp.page - 1)}
-              className={`relative shrink-0 w-14 xl:w-16 rounded-md overflow-hidden border-2 transition-[border-color,box-shadow] ${
+              className={`cloak-focus relative shrink-0 w-14 xl:w-16 rounded-md overflow-hidden border-2 transition-[border-color,box-shadow] ${
                 comp.page - 1 === currentPage
                   ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
                   : "border-slate-200 dark:border-dark-border hover:border-primary-300"
@@ -675,7 +655,7 @@ export default function ComparePdf() {
               <div
                 className={`absolute bottom-0 left-0 right-0 h-1 ${
                   comp.diffPercent === 0
-                    ? "bg-primary-400"
+                    ? "bg-green-400"
                     : comp.diffPercent < 5
                       ? "bg-amber-400"
                       : "bg-red-400"

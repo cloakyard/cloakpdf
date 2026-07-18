@@ -11,7 +11,11 @@
     "test": "vp test run tests/unit",
     "test:watch": "vp test watch tests/unit",
     "test:e2e": "node --experimental-strip-types tests/e2e/ai-tools.e2e.ts",
+    "test:e2e:tools": "node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts",
+    "test:e2e:all": "pnpm test:e2e:tools && pnpm test:e2e",
+    "test:e2e:extended": "node --experimental-strip-types tests/e2e/rotate.e2e.ts && node --experimental-strip-types tests/e2e/compress.e2e.ts && node --experimental-strip-types tests/e2e/signature-pen.e2e.ts && node --experimental-strip-types tests/e2e/annotate-fonts.e2e.ts && node --experimental-strip-types tests/e2e/stamp-preview.e2e.ts && node --experimental-strip-types tests/e2e/place-resize.e2e.ts && node --experimental-strip-types tests/e2e/place-resize-mobile.e2e.ts",
     "test:compare": "node --experimental-strip-types tests/e2e/compare-variants.ts",
+    "generate-og": "node scripts/build-og-image.mjs",
     "generate-icons": "pwa-assets-generator --preset minimal-2023 public/icons/logo.svg && mv public/icons/apple-touch-icon-180x180.png public/icons/apple-touch-icon.png"
   },
   "dependencies": {
@@ -25,7 +29,6 @@
     "lucide-react": "^1.23.0",
     "motion": "^12.42.2",
     "node-forge": "^1.4.0",
-    "ogl": "^1.0.11",
     "pdfjs-dist": "^6.1.200",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

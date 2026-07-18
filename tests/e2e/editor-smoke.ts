@@ -8,7 +8,7 @@
  *   crop (drag → apply) → signature (pad → place → embed) → OCR panel mounts →
  *   organize (delete → assemble) → overview/focus → flatten → metadata/scrub →
  *   extract → page numbers → fill-form → bookmarks → attachments →
- *   export menu (contact-sheet download) →
+ *   export dialog (contact-sheet download) →
  *   draft autosave + restore (reload → recover from IndexedDB).
  * OCR's engine is never run here (it would fetch model weights); the step only
  * asserts the panel is wired.
@@ -33,8 +33,7 @@ const USER_DATA_DIR =
   process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile-editor");
 
 function fail(msg: string): never {
-  console.error(`✗ ${msg}`);
-  process.exit(1);
+  throw new Error(msg);
 }
 
 if (!existsSync(CHROME_PATH)) fail(`Chrome not found at ${CHROME_PATH} (set CHROME_PATH).`);
@@ -365,6 +364,10 @@ async function main() {
     await page.type('input[placeholder^="Search text"]', "Exam"); // recurs across the fixture
     await page.click('button[aria-label="Find matches"]'); // not the rail "Find" tool
     await waitForText(page, /\d+ matches? ·/i, 60_000); // matches resolved + counted
+    const findStatusCount = await page.$$eval("#find-and-act-status", (nodes) => nodes.length);
+    if (findStatusCount !== 1) {
+      fail(`Find & Act rendered ${findStatusCount} status regions; expected exactly one.`);
+    }
     if (!(await clickByPrefix(page, "Highlight "))) fail("Find & Act Highlight Apply not found.");
     // Apply burns the highlights and clears the result list (searched → false).
     await page.waitForFunction(() => !/\d+ match(?:es)? ·/.test(document.body.innerText), {
@@ -542,23 +545,21 @@ async function main() {
     console.log(`  ✓ export modal · markdown (liteparse native, ${mdText.length} chars) → ${dlMd}`);
 
     if (errors.length > 0) {
-      console.error("✗ Console/page errors during smoke:");
-      for (const e of errors) console.error(`   ${e}`);
-      process.exit(1);
+      throw new Error(`Console/page errors during smoke:\n${errors.join("\n")}`);
     }
 
     console.log(
       `✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now ${pageButtons.length} pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.`,
     );
   } catch (e) {
-    console.error(`✗ Smoke failed: ${e instanceof Error ? e.message : String(e)}`);
+    console.log(`✗ Smoke failed: ${e instanceof Error ? e.message : String(e)}`);
     if (errors.length) {
-      console.error("Console errors:");
-      for (const x of errors) console.error(`   ${x}`);
+      console.log("Console errors:");
+      for (const x of errors) console.log(`   ${x}`);
     }
     try {
       await page.screenshot({ path: "/tmp/editor-smoke-fail.png" });
-      console.error("screenshot → /tmp/editor-smoke-fail.png");
+      console.log("screenshot → /tmp/editor-smoke-fail.png");
     } catch {
       /* ignore */
     }

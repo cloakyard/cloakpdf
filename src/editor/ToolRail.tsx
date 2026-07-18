@@ -4,7 +4,7 @@
 // separators; the active tool gets a single Ocean-Blue left edge-bar (one cue,
 // per DESIGN.md), mirroring CloakIMG's reduced-cue rail.
 
-import { Command } from "lucide-react";
+import { Search } from "lucide-react";
 import { memo, useEffect, useRef } from "react";
 import { useActiveTool, useEditorActions } from "./EditorContext.tsx";
 import { editorToolGroups } from "./tools.ts";
@@ -29,24 +29,32 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
   }, [activeTool]);
 
   return (
-    <div className="editor-toolrail no-scrollbar flex w-18 shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-slate-50 py-2 pr-1 pl-0 dark:border-dark-border dark:bg-dark-surface">
+    <nav
+      aria-label="Editor tools"
+      className="editor-toolrail no-scrollbar flex w-18 shrink-0 flex-col overflow-y-auto border-r border-[var(--color-rule)] bg-[var(--color-surface)] py-2 pr-1 pl-0"
+    >
       {/* Quick switcher (⌘K) — the keyboard-first way to jump to any of the
           tools below. Lives above the families so it reads as a search affordance
           rather than a tool. */}
       <button
         type="button"
         onClick={onOpenPalette}
-        title="Search tools (⌘K)"
+        title="Search tools (⌘K / Ctrl+K)"
         aria-label="Search tools"
         aria-keyshortcuts="Meta+K Control+K"
-        className="relative my-0.5 flex h-11 w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-md text-slate-500 transition-colors hover:bg-white hover:text-slate-800 active:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text"
+        className="relative flex min-h-12 w-full cursor-pointer flex-col items-center justify-center gap-0.5 border-y border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-ink-2)] transition-[color,background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-ink)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
       >
-        <Command className="h-4.5 w-4.5" />
+        <Search className="h-4.5 w-4.5 text-primary-600" aria-hidden="true" />
         <span className="max-w-full truncate px-0.5 font-mono text-xxs font-medium leading-none">
           Search
         </span>
+        <span
+          aria-hidden="true"
+          className="font-mono text-[8px] leading-none text-[var(--color-ink-3)]"
+        >
+          ⌘ / Ctrl
+        </span>
       </button>
-      <div className="editor-toolrail__rule mx-3 my-1.5 h-px bg-slate-200 dark:bg-dark-border" />
       {groups.map((group, gi) => (
         <div key={group.group} className="flex flex-col">
           {gi > 0 && (
@@ -78,7 +86,7 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
                     : "text-slate-500 hover:bg-white hover:text-slate-800 active:bg-slate-200/70 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text"
                 }`}
               >
-                <Icon className="h-[18px] w-[18px]" />
+                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                 <span className="max-w-full truncate px-0.5 font-mono text-xxs font-medium leading-none">
                   {tool.railLabel ?? tool.name.split(" ")[0]}
                 </span>
@@ -93,6 +101,6 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
           })}
         </div>
       ))}
-    </div>
+    </nav>
   );
 });

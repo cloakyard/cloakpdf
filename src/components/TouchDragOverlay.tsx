@@ -29,9 +29,8 @@ export function TouchDragOverlay({ touchPos, children }: TouchDragOverlayProps) 
         top: 0,
         transform: `translate3d(${touchPos.x}px, ${touchPos.y}px, 0) translate(-50%, -60%)`,
         pointerEvents: "none",
-        zIndex: 9999,
       }}
-      className="opacity-80 scale-90 shadow-xl rounded-lg"
+      className="z-[var(--z-system-overlay)] opacity-80 scale-90 shadow-xl rounded-lg"
     >
       {children}
     </div>,

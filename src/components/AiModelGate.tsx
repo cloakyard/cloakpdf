@@ -174,22 +174,27 @@ export function AiModelGate({
 
   return (
     <>
-      <div className="bg-white dark:bg-dark-surface rounded-2xl border border-slate-200 dark:border-dark-border p-5">
+      <section
+        className="border-y border-slate-200 py-5 dark:border-dark-border"
+        aria-label="AI model setup"
+      >
         <div className="flex items-start gap-3">
           <span
             aria-hidden="true"
-            className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
           >
             <Cpu className="w-4 h-4" />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 dark:text-dark-text">{title}</p>
+            <p className="font-mono text-xs font-semibold uppercase tracking-wide text-slate-800 dark:text-dark-text">
+              {title}
+            </p>
             <p className="text-xs text-slate-500 dark:text-dark-text-muted mt-1 leading-relaxed">
               {summary} {blurb}{" "}
               <button
                 type="button"
                 onClick={() => setDetailsOpen(true)}
-                className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium underline-offset-2 hover:underline"
+                className="cloak-focus rounded-sm font-medium text-primary-600 underline-offset-2 hover:text-primary-700 hover:underline dark:text-primary-400 dark:hover:text-primary-300"
               >
                 View details
               </button>
@@ -198,9 +203,7 @@ export function AiModelGate({
         </div>
         {showPicker && (
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-dark-border/60">
-            <p className="text-xs font-medium text-slate-600 dark:text-dark-text-muted mb-2">
-              Choose a chat model
-            </p>
+            <p className="cloak-field-label mb-2">Choose a chat model</p>
             <ChatModelPicker
               value={chatVariant}
               onChange={onChatVariantChange}
@@ -230,22 +233,22 @@ export function AiModelGate({
               }
             }}
             disabled={loading}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="cloak-focus inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md bg-primary-600 px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                 Loading model…
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4" aria-hidden="true" />
                 Download model
               </>
             )}
           </button>
         </div>
-      </div>
+      </section>
 
       <AiModelDetailsModal
         open={detailsOpen}

@@ -9,6 +9,7 @@
 // coordinates via getBoundingClientRect.
 
 import {
+  type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type Ref,
   useCallback,
@@ -238,7 +239,7 @@ function InlineTextEditor({
   // Escape the wrap's `touch-none select-none`, which would otherwise suppress
   // the caret / soft keyboard (notably on iOS Safari).
   const baseClass =
-    "absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 outline-none";
+    "absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
 
   return isBox ? (
     <textarea
@@ -518,6 +519,72 @@ export function PdfStage() {
     [hasToolPointer, stageProps, toPoint],
   );
 
+  // Pointer cancellation is an interruption, never a successful release. Drop
+  // all local gesture state and tell the active tool to discard its draft
+  // without committing a partial mark.
+  const onPointerCancel = useCallback(() => {
+    pointersRef.current.clear();
+    pinchRef.current = null;
+    pinchActiveRef.current = false;
+    panStart.current = null;
+    stageProps.onPointerCancel?.();
+  }, [stageProps]);
+
+  // The page surface is keyboard-focusable. Give the active tool first refusal
+  // so a content key (e.g. Arrow to nudge a selected annotation) cannot also
+  // trigger the viewport shortcut. Events only reach this seam while focus is
+  // inside the canvas region; typing controls remain untouched.
+  const onStageKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      const target = e.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT")
+      ) {
+        return;
+      }
+
+      if (stageProps.onKeyDown?.(e)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      const panStep = e.shiftKey ? 64 : 24;
+      switch (e.key) {
+        case "ArrowLeft":
+          scheduleView((prev) => ({ ...prev, panX: prev.panX - panStep }));
+          break;
+        case "ArrowRight":
+          scheduleView((prev) => ({ ...prev, panX: prev.panX + panStep }));
+          break;
+        case "ArrowUp":
+          scheduleView((prev) => ({ ...prev, panY: prev.panY - panStep }));
+          break;
+        case "ArrowDown":
+          scheduleView((prev) => ({ ...prev, panY: prev.panY + panStep }));
+          break;
+        case "+":
+        case "=":
+          scheduleView((prev) => ({ ...prev, zoom: Math.min(8, prev.zoom * 1.2) }));
+          break;
+        case "-":
+          scheduleView((prev) => ({ ...prev, zoom: Math.max(0.2, prev.zoom / 1.2) }));
+          break;
+        case "0":
+          scheduleView((prev) => ({ ...prev, zoom: 1, panX: 0, panY: 0 }));
+          break;
+        default:
+          return;
+      }
+      e.preventDefault();
+    },
+    [scheduleView, stageProps],
+  );
+
   // Ctrl/Cmd + wheel zooms; clamped to a sane range. Attached as a NON-passive
   // native listener — React's onWheel binds at the passive root, where
   // preventDefault() is ignored, so the browser's own Ctrl/Cmd+wheel page-zoom
@@ -543,6 +610,14 @@ export function PdfStage() {
     : view.zoom > 1
       ? "grab"
       : "default";
+  const keyboardHelp =
+    stageProps.keyboardHelp ?? "Use arrow keys to pan the page within the canvas.";
+  const keyboardShortcuts = [
+    "ArrowLeft ArrowRight ArrowUp ArrowDown + - 0",
+    stageProps.keyboardShortcuts,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div
@@ -552,7 +627,11 @@ export function PdfStage() {
       <div ref={availRef} className="relative flex h-full w-full items-center justify-center">
         <div
           ref={wrapRef}
-          className="relative shadow-sm ring-1 ring-slate-200/70 dark:ring-dark-border touch-none select-none"
+          role="region"
+          tabIndex={0}
+          aria-label={`Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Use plus or minus to zoom, and 0 to reset the view.`}
+          aria-keyshortcuts={keyboardShortcuts}
+          className="relative shadow-sm ring-1 ring-slate-200/70 dark:ring-dark-border touch-none select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           style={{
             transform: `translate(${view.panX}px, ${view.panY}px) scale(${view.zoom})`,
             transformOrigin: "center center",
@@ -570,7 +649,8 @@ export function PdfStage() {
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={onPointerCancel}
+          onKeyDown={onStageKeyDown}
         >
           {page.thumbUrl ? (
             <img
@@ -582,7 +662,7 @@ export function PdfStage() {
           ) : (
             <div className="h-full w-full bg-white" />
           )}
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+          <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
           {editorOpen &&
             fit &&
             inlineEditor && (

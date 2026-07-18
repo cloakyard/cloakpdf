@@ -83,7 +83,7 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
   "auto-fill": { Stage: AutoFill.Stage, Panel: AutoFill.Panel },
   "add-bookmarks": { Panel: Bookmarks.Panel },
   "file-attachment": { Panel: Attachments.Panel },
-  // OCR: desktop-only searchable-text pipeline (panel-only).
+  // OCR: searchable-text pipeline (panel-only; available on mobile too).
   ocr: { Panel: Ocr.Panel },
 };
 

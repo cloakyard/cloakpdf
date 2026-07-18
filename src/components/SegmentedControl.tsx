@@ -45,15 +45,15 @@ const SIZE = {
     // (the Sort toggle is reordered by finger on mobile) while leaving the
     // pixel-tuned desktop resting visual identical — the variant is inert on
     // fine pointers and the h-full thumb grows to match automatically.
-    button: "px-2.5 py-1 text-xs rounded-md pointer-coarse:min-h-11",
+    button: "whitespace-nowrap px-2.5 py-1 text-xs rounded-md pointer-coarse:min-h-11",
     thumb: "rounded-md",
     icon: "w-3.5 h-3.5",
   },
   md: {
-    pad: "rounded-xl p-1",
+    pad: "rounded-lg p-1",
     gap: "gap-0.5",
-    button: "rounded-lg py-1.5 px-3 text-sm",
-    thumb: "rounded-lg",
+    button: "whitespace-nowrap rounded-md py-1.5 px-3 text-sm pointer-coarse:min-h-11",
+    thumb: "rounded-md",
     icon: "w-3.5 h-3.5",
   },
 } as const;
@@ -106,7 +106,7 @@ export function SegmentedControl<T extends string | number | boolean>({
         {thumb && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute top-0 h-full ${s.thumb} bg-primary-600 duration-200 ease-out motion-safe:transition-[transform,width]`}
+            className={`pointer-events-none absolute top-0 h-full ${s.thumb} bg-primary-600 duration-200 ease-out motion-safe:transition-transform`}
             style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
           />
         )}
@@ -131,7 +131,11 @@ export function SegmentedControl<T extends string | number | boolean>({
               onClick={() => onChange(opt.value)}
               className={buttonClasses}
             >
-              {Icon && <Icon className={s.icon} />}
+              {Icon && (
+                <span aria-hidden="true">
+                  <Icon className={s.icon} />
+                </span>
+              )}
               {opt.label}
             </button>
           );
