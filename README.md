@@ -1,7 +1,5 @@
 <div align="center">
 
-  <img src="public/icons/og-image.png" alt="CloakPDF — private, in-browser PDF toolkit" width="800" />
-
   <p><strong>A fast, private PDF toolkit that runs entirely in your browser.</strong></p>
   <p>No uploads, no servers, no tracking — your files never leave your device.</p>
 
