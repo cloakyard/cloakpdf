@@ -43,7 +43,7 @@ export function ActionButton({
   const isDisabled = disabled ?? processing;
 
   return (
-    <div className="pt-6 sm:pt-8 flex justify-center">
+    <div className="cloak-action-row flex justify-center">
       {/* When a secondary is present, both buttons live in equal 1fr grid
           columns — under shrink-to-fit the columns resolve to the widest
           label, so the pair always renders at matching widths. */}
@@ -58,7 +58,7 @@ export function ActionButton({
           }}
           disabled={isDisabled}
           aria-busy={processing && active === "primary"}
-          className={`inline-flex items-center justify-center gap-1.5 w-full sm:min-w-55 ${color} text-white text-sm py-3 px-5 sm:px-8 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg`}
+          className={`cloak-action-button inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-55 sm:px-8 ${color}`}
         >
           {/* nowrap: a primary CTA must never wrap to two lines (320px guard). */}
           <span className="whitespace-nowrap">
@@ -79,7 +79,7 @@ export function ActionButton({
             }}
             disabled={isDisabled}
             aria-busy={processing && active === "secondary"}
-            className="inline-flex items-center justify-center gap-1.5 w-full bg-white dark:bg-dark-surface border border-slate-200 dark:border-dark-border text-slate-700 dark:text-dark-text text-sm py-3 px-5 sm:px-8 rounded-xl font-medium hover:border-primary-300 dark:hover:border-primary-600 hover:text-primary-700 dark:hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-bg"
+            className="cloak-action-button inline-flex w-full items-center justify-center gap-2 border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-3 text-[var(--color-ink)] transition-colors hover:border-primary-500 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
           >
             <span className="whitespace-nowrap">
               {processing && active === "secondary"

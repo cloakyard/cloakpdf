@@ -23,9 +23,9 @@ import { OCR_ID, OcrPreview, ocrHasPreview } from "./panels/OcrTool.tsx";
 
 function Spinner({ label }: { label: string }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4">
+    <div className="editor-shell__loading flex min-h-0 flex-1 flex-col items-center justify-center gap-4">
       <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600" />
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">{label}</p>
+      <p className="font-mono text-sm text-slate-500 dark:text-dark-text-muted">{label}</p>
     </div>
   );
 }
@@ -108,13 +108,13 @@ export function EditorShell() {
   );
 
   return (
-    <main className="fixed inset-0 z-100 flex flex-col overflow-hidden bg-slate-50 dark:bg-dark-bg font-sans text-slate-800 dark:text-dark-text">
+    <main className="editor-shell fixed inset-0 z-100 flex flex-col overflow-hidden bg-slate-100 font-sans text-slate-800 dark:bg-dark-bg dark:text-dark-text">
       <EditorTopBar />
 
       {doc && error && (
         <div
           role="alert"
-          className="flex items-center gap-2 border-b border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 px-4 py-2 text-sm text-red-700 dark:text-red-300"
+          className="editor-shell__alert flex items-center gap-2 border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
         >
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span className="min-w-0 flex-1">{error}</span>
@@ -130,7 +130,7 @@ export function EditorShell() {
       )}
 
       {doc && pendingDraft && (
-        <div className="flex items-center gap-3 border-b border-primary-200 dark:border-primary-900/50 bg-primary-50 dark:bg-primary-900/30 px-4 py-2 text-sm text-primary-800 dark:text-primary-200">
+        <div className="editor-shell__notice flex items-center gap-3 border-b border-primary-200 bg-primary-50 px-4 py-2 text-sm text-primary-800 dark:border-primary-900/50 dark:bg-primary-900/30 dark:text-primary-200">
           <History className="h-4 w-4 shrink-0" />
           <span className="min-w-0 flex-1 truncate">
             Found unsaved edits for this file from a previous session.
@@ -138,14 +138,14 @@ export function EditorShell() {
           <button
             type="button"
             onClick={() => void restoreDraft()}
-            className="shrink-0 rounded-md bg-primary-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="shrink-0 rounded-md bg-primary-600 px-2.5 py-1 font-mono text-xs font-semibold text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             Restore
           </button>
           <button
             type="button"
             onClick={dismissDraft}
-            className="shrink-0 rounded-md px-2.5 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-primary-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="shrink-0 rounded-md px-2.5 py-1 font-mono text-xs font-medium text-primary-700 hover:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300 dark:hover:bg-primary-900/40"
           >
             Discard
           </button>
@@ -179,7 +179,7 @@ export function EditorShell() {
           <button
             type="button"
             onClick={exit}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             Back to home
           </button>
@@ -210,7 +210,7 @@ export function EditorShell() {
             aria-busy="true"
             aria-live="polite"
           >
-            <div className="flex items-center gap-3 rounded-2xl border border-slate-200 dark:border-dark-border bg-white/95 dark:bg-dark-surface/95 px-5 py-4 shadow-xl">
+            <div className="editor-shell__busy-panel flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-md dark:border-dark-border dark:bg-dark-surface">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
               <span className="text-card-desc font-medium text-slate-700 dark:text-dark-text">
                 {busyLabel}

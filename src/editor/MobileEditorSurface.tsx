@@ -99,13 +99,13 @@ export function MobileEditorSurface() {
   return (
     <div
       data-testid="mobile-tool-sheet"
-      className={`flex shrink-0 flex-col overflow-hidden border-t border-slate-200/70 dark:border-dark-border bg-white dark:bg-dark-surface pb-[max(env(safe-area-inset-bottom),0.5rem)] ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:transition-[max-height] motion-safe:duration-300 ${
+      className={`editor-mobile-sheet flex shrink-0 flex-col overflow-hidden border-t border-slate-200 bg-slate-50 pb-[max(env(safe-area-inset-bottom),0.5rem)] ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:transition-[max-height] motion-safe:duration-300 dark:border-dark-border dark:bg-dark-surface ${
         open ? "max-h-[40%]" : "max-h-16"
       }`}
     >
       {/* Header — always visible (pinned). The active tool shows its name +
           Cancel/Done; otherwise a full-width "Tools" toggle opens the picker. */}
-      <div className="shrink-0">
+      <div className="editor-mobile-sheet__header shrink-0">
         {tool ? (
           <div className="flex items-start justify-between gap-2 px-4 py-2.5">
             <div className="min-w-0">
@@ -124,7 +124,7 @@ export function MobileEditorSurface() {
               <button
                 type="button"
                 onClick={cancel}
-                className="flex h-11 w-11 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-slate-400 hover:bg-white active:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-dark-surface-alt"
                 aria-label="Cancel"
               >
                 <X className="h-4 w-4" />
@@ -153,7 +153,9 @@ export function MobileEditorSurface() {
             aria-label={pickerOpen ? "Close tools" : "Open tools"}
           >
             <Grid2x2 className="h-4.5 w-4.5" />
-            <span className="text-card-desc font-semibold">Tools</span>
+            <span className="font-mono text-card-desc font-semibold uppercase tracking-[0.08em]">
+              Tools
+            </span>
             <ChevronUp
               className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${
                 pickerOpen ? "rotate-180" : ""
@@ -174,7 +176,7 @@ export function MobileEditorSurface() {
           fills the open sheet; the max-h-screen cap never binds (outer is capped). */}
       <div
         ref={bodyRef}
-        className={`no-scrollbar min-h-0 overflow-y-auto px-4 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:transition-[max-height] motion-safe:duration-300 ${
+        className={`editor-mobile-sheet__body no-scrollbar min-h-0 overflow-y-auto px-4 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:transition-[max-height] motion-safe:duration-300 ${
           open ? "max-h-screen flex-1 pb-2 pt-1" : "max-h-0"
         }`}
         aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
@@ -194,7 +196,7 @@ export function MobileEditorSurface() {
                   reset();
                   setPickerOpen(false);
                 }}
-                className="mb-3 flex w-full items-center gap-2 rounded-xl border border-slate-200 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-border dark:text-dark-text dark:hover:bg-dark-surface-alt"
+                className="mb-3 flex w-full items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 active:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text dark:hover:bg-dark-surface-alt"
               >
                 <RotateCcw className="h-4 w-4 shrink-0 text-slate-400" />
                 Reset to original
@@ -215,7 +217,7 @@ export function MobileEditorSurface() {
                     onClick={() => pick(t.id)}
                     aria-label={t.name}
                     aria-pressed={on}
-                    className={`flex min-w-0 flex-col items-center gap-1.5 rounded-xl border px-1 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                    className={`flex min-w-0 flex-col items-center gap-1.5 rounded-md border px-1 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
                       on
                         ? "border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-900/40 dark:bg-primary-900/30 dark:text-primary-300"
                         : "border-transparent text-slate-700 hover:bg-slate-50 dark:text-dark-text dark:hover:bg-dark-surface-alt"
@@ -223,7 +225,7 @@ export function MobileEditorSurface() {
                   >
                     <Icon className="h-6 w-6" />
                     <span
-                      className="block w-full truncate text-center text-tag font-medium leading-tight"
+                      className="block w-full truncate text-center font-mono text-tag font-medium leading-tight"
                       title={t.name}
                     >
                       {t.railLabel ?? t.name.split(" ")[0]}

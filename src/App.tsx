@@ -9,25 +9,7 @@
  * Tool metadata and lazy components live in `config/tool-registry.ts`.
  */
 
-import {
-  CloudOff,
-  Code2,
-  Cpu,
-  FileArchive,
-  FileImage,
-  MonitorSmartphone,
-  Rocket,
-  ScanSearch,
-  ScanText,
-  Scissors,
-  Search,
-  ShieldCheck,
-  UserRoundCheck,
-  WifiOff,
-  EyeOff,
-  X,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight, FileArchive, FileImage, Scissors, Search, X } from "lucide-react";
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileDropZone } from "./components/FileDropZone.tsx";
 import { Layout } from "./components/Layout.tsx";
@@ -36,7 +18,6 @@ import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
 import { ReloadPrompt } from "./components/ReloadPrompt.tsx";
 import { ToolCard } from "./components/ToolCard.tsx";
-import { categoryAccent, categoryGlow } from "./config/theme.ts";
 import {
   categories,
   findTool,
@@ -111,25 +92,57 @@ function ToolView({ tool, Component }: ToolViewProps) {
   const Icon = tool.icon;
   const blockedOnMobile = tool.desktopOnly && isMobileDevice();
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-12 h-12 bg-slate-100 dark:bg-dark-surface-alt rounded-xl flex items-center justify-center shrink-0">
-          <Icon className="w-6 h-6 text-slate-700 dark:text-dark-text" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-[-0.015em] text-slate-800 dark:text-dark-text">
-            {tool.title}
-          </h1>
-          <p className="text-slate-500 dark:text-dark-text-muted mt-0.5">{tool.description}</p>
-        </div>
+    <div className="cloak-tool-page">
+      <div className="mb-5 flex items-center gap-2 text-primary-600">
+        <Icon className="size-4" aria-hidden="true" />
+        <span className="cloak-mono-label">Standalone utility / local execution</span>
       </div>
-      {blockedOnMobile ? (
-        <DesktopOnlyNotice tool={tool} />
-      ) : (
-        <Suspense fallback={<LoadingSpinner />}>
-          <Component />
-        </Suspense>
-      )}
+      <header className="cloak-tool-page__head">
+        <div>
+          <h1 className="cloak-tool-page__title">{tool.title}</h1>
+        </div>
+        <div className="cloak-tool-page__aside">
+          <p className="m-0 text-lg leading-relaxed text-[var(--color-ink-2)]">
+            {tool.description}
+          </p>
+          <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-[10px] uppercase tracking-[0.05em]">
+            <div>
+              <dt className="text-[var(--color-ink-3)]">Execution</dt>
+              <dd className="mt-1 text-[var(--color-ink)]">In browser</dd>
+            </div>
+            <div>
+              <dt className="text-[var(--color-ink-3)]">File uploads</dt>
+              <dd className="mt-1 text-[var(--color-ink)]">None</dd>
+            </div>
+            {tool.requirements && (
+              <div className="col-span-2 border-t border-[var(--color-rule)] pt-3">
+                <dt className="text-[var(--color-ink-3)]">Requirement</dt>
+                <dd className="mt-1 normal-case tracking-normal text-[var(--color-ink)]">
+                  {tool.requirements}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </header>
+
+      <section className="cloak-tool-instrument" aria-label={`${tool.title} workspace`}>
+        <div className="cloak-instrument-bar">
+          <span>CloakPDF / {tool.title}</span>
+          <span className="inline-flex items-center gap-2">
+            <span className="cloak-status-dot" aria-hidden="true" /> Ready locally
+          </span>
+        </div>
+        <div className="cloak-tool-instrument__body">
+          {blockedOnMobile ? (
+            <DesktopOnlyNotice tool={tool} />
+          ) : (
+            <Suspense fallback={<LoadingSpinner />}>
+              <Component />
+            </Suspense>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -142,7 +155,7 @@ function ToolView({ tool, Component }: ToolViewProps) {
  */
 function DesktopOnlyNotice({ tool }: { tool: Tool }) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface p-6 sm:p-8 text-slate-700 dark:text-dark-text">
+    <div className="rounded-md border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-6 text-[var(--color-ink)] sm:p-8">
       <h2 className="text-lg font-semibold tracking-[-0.01em] mb-2">
         {tool.title} runs only on desktop
       </h2>
@@ -287,124 +300,144 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
   );
 
   return (
-    <div>
-      {/* ── Hero — editor-first, asymmetric two-column. Copy + trust features
-          anchor the left; one large drop zone on the right is the single entry
-          point (dropping a PDF lands straight in the canvas editor). On mobile
-          the columns stack copy → drop zone → features so the primary action
-          stays high. The whole hero collapses during search so results lead. ── */}
+    <div className="cloak-home">
       {!searchQuery && (
-        <section className="pt-4 sm:pt-8 lg:pt-10 pb-10 sm:pb-12">
-          <div className="grid items-center gap-y-9 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:gap-x-12 xl:gap-x-16">
-            {/* Copy */}
-            <div className="order-1 max-w-xl lg:col-start-1 lg:row-start-1">
-              {/* The privacy clause carries colour, not italics — the same
-                  coloured-ink move as the wordmark's "PDF" suffix, so the
-                  brand emphasis reads hand-set without an italic header. */}
-              <h1 className="text-[32px] sm:text-[40px] lg:text-[46px] xl:text-[52px] font-semibold text-slate-900 dark:text-dark-text tracking-[-0.03em] leading-[1.05] m-0 text-balance animate-fade-in-up">
-                PDF tools that{" "}
-                <span className="text-primary-600 dark:text-primary-400">stay on your device</span>.
-              </h1>
+        <>
+          <section className="site-frame cloak-hero" aria-labelledby="home-title">
+            <p className="cloak-mono-label mb-5 text-primary-600">
+              Open-source / advanced PDF toolkit / browser-native
+            </p>
+            <div className="cloak-hero__intro">
+              <div>
+                <h1 id="home-title" className="cloak-display">
+                  A complete PDF workbench.{" "}
+                  <span className="cloak-display__accent">Nothing uploaded.</span>
+                </h1>
+              </div>
 
-              <p
-                className="mt-5 max-w-lg text-slate-500 dark:text-dark-text-muted text-card-title sm:text-[17px] leading-[1.55] text-pretty animate-fade-in-up"
-                style={{ animationDelay: "120ms" }}
-              >
-                Edit, merge, sign, redact &amp; convert PDFs — entirely in your browser.
-              </p>
-
-              {/* The honest zero: the only marketing-flavoured number on the
-                  page is a zero, and the counts are derived from the tool
-                  registries so they can never drift from the product. */}
-              <p
-                className="mt-4 text-meta text-slate-500 dark:text-dark-text-muted tabular-nums animate-fade-in-up"
-                style={{ animationDelay: "160ms" }}
-              >
-                {EDITOR_TOOL_IDS.size} editor tools · {tools.length} utilities ·{" "}
-                <span className="font-semibold text-slate-600 dark:text-dark-text">0 uploads</span>
-              </p>
+              <div className="cloak-hero__aside">
+                <p className="cloak-hero__lede">
+                  Edit, organise, redact, sign, OCR, compare, and ask questions of PDFs in one
+                  capable web app. Your document bytes stay inside your browser.
+                </p>
+                <a
+                  className="mt-6 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-600 hover:text-primary-700"
+                  href="#workbench"
+                >
+                  Open the workbench <ArrowRight className="size-4" aria-hidden="true" />
+                </a>
+              </div>
             </div>
 
-            {/* Drop zone — the single editor-first entry point. Vertically
-                centered beside the copy on desktop; second in the flow on mobile. */}
-            <div
-              className="order-2 animate-fade-in-up lg:col-start-2 lg:row-span-2 lg:row-start-1"
-              style={{ animationDelay: "160ms" }}
-            >
-              <FileDropZone
-                size="hero"
-                accept="application/pdf,.pdf"
-                onFiles={(files) => files[0] && onOpenEditor(files[0])}
-                glowColor={categoryGlow.organise}
-                iconColor={categoryAccent.organise}
-                label="Drop a PDF to start editing"
-                hint="or click to browse — opens in the editor"
-              />
-            </div>
+            <div id="workbench" className="cloak-workbench scroll-mt-24">
+              <div className="cloak-instrument-bar">
+                <span>Live web app / local document pipeline</span>
+                <ConnectionStatus />
+              </div>
 
-            {/* Mechanism trio — under the copy on desktop, after the drop zone
-                on mobile. Stack on phones, three across from sm up. The h1 and
-                header chip already carry the privacy promise, so these three
-                carry mechanisms: no upload step, live offline proof, and the
-                open-source receipt. */}
-            <div
-              className="order-3 grid grid-cols-1 gap-x-5 gap-y-4 animate-fade-in-up sm:grid-cols-3 lg:gap-x-3 xl:gap-x-5 lg:col-start-1 lg:row-start-2"
-              style={{ animationDelay: "200ms" }}
-            >
-              <HeroFeature
-                icon={CloudOff}
-                title="No upload step"
-                description="Files never leave your device — nothing to wait for."
-              />
-              <OfflineProof />
-              <HeroFeature
-                icon={Code2}
-                title="Open source"
-                description="MIT-licensed — audit every line on GitHub."
-              />
+              <div className="cloak-workbench__body">
+                <ol className="cloak-workbench__steps m-0 list-none">
+                  {[
+                    {
+                      number: "01",
+                      title: "Open",
+                      copy: "Choose one PDF. The browser reads it directly from your device.",
+                    },
+                    {
+                      number: "02",
+                      title: "Work",
+                      copy: `Use ${EDITOR_TOOL_IDS.size} editor tools without handing the file to a server.`,
+                    },
+                    {
+                      number: "03",
+                      title: "Export",
+                      copy: "Create a new local file, then download it with the browser.",
+                    },
+                  ].map((step) => (
+                    <li key={step.number} className="cloak-workbench__step">
+                      <span className="cloak-workbench__step-number">{step.number}</span>
+                      <div>
+                        <p className="cloak-workbench__step-title">{step.title}</p>
+                        <p className="cloak-workbench__step-copy">{step.copy}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="cloak-workbench__drop">
+                  <FileDropZone
+                    size="hero"
+                    accept="application/pdf,.pdf"
+                    onFiles={(files) => files[0] && onOpenEditor(files[0])}
+                    label="Drop a PDF to open the editor"
+                    hint="Or browse your device. The file opens locally in the canvas workbench."
+                  />
+                </div>
+              </div>
+
+              <div className="cloak-workbench__footer" aria-label="Workbench architecture">
+                {[
+                  ["Browser", "Execution"],
+                  ["PDF.js", "Preview"],
+                  ["pdf-lib", "Document edits"],
+                  ["IndexedDB", "Local drafts"],
+                ].map(([value, label]) => (
+                  <div key={value} className="cloak-workbench__metric">
+                    <span className="cloak-workbench__metric-value">{value}</span>
+                    <span className="cloak-workbench__metric-label">{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+
+          <section className="cloak-stat-strip" aria-label="CloakPDF facts">
+            <div className="site-frame cloak-stat-strip__inner">
+              <div className="cloak-stat">
+                <span className="cloak-stat__value">{EDITOR_TOOL_IDS.size}</span>
+                <span className="cloak-stat__label">Editor tools</span>
+              </div>
+              <div className="cloak-stat">
+                <span className="cloak-stat__value">{tools.length}</span>
+                <span className="cloak-stat__label">Standalone utilities</span>
+              </div>
+              <div className="cloak-stat">
+                <span className="cloak-stat__value">0</span>
+                <span className="cloak-stat__label">Document uploads</span>
+              </div>
+              <div className="cloak-stat">
+                <span className="cloak-stat__value">MIT</span>
+                <span className="cloak-stat__label">Open-source license</span>
+              </div>
+            </div>
+          </section>
+        </>
       )}
 
-      {/* ── Search Bar ──────────────────────────────────── */}
-      <div className="mb-10 sm:mb-12 animate-fade-in-up" style={{ animationDelay: "160ms" }}>
-        {/* Capped + centered: an edge-to-edge text input reads stretched
-            once the shell widens past ~1100px — a search field is a
-            control, not a banner. */}
-        <div className="relative group max-w-3xl mx-auto">
-          {/* Soft primary glow that intensifies on focus — gives the
-              field presence without leaning on a heavy border. */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -inset-px rounded-2xl bg-linear-to-r from-primary-500/0 via-primary-500/0 to-primary-500/0 opacity-0 blur-md transition-opacity duration-300 group-focus-within:opacity-100 group-focus-within:from-primary-500/20 group-focus-within:via-primary-400/15 group-focus-within:to-primary-500/20"
-          />
+      <section id="toolkit" className="site-frame cloak-toolkit scroll-mt-20">
+        <p className="cloak-mono-label mb-5 text-primary-600">02 / Focused utilities</p>
+        <div className="cloak-toolkit__head">
+          <div>
+            <h2 className="cloak-section-title">One family. Every serious PDF job.</h2>
+          </div>
 
-          {/* Flex shell — leading icon tile gives the search a clear
-              visual anchor; the input fills the remaining space; the
-              trailing slot holds either the clear button (when active)
-              or the ⌘K affordance. */}
-          <div className="relative flex items-center w-full rounded-2xl bg-white/90 dark:bg-dark-surface/90 backdrop-blur-sm border border-slate-200 dark:border-dark-border hover:border-slate-300 dark:hover:border-dark-border focus-within:border-primary-300 dark:focus-within:border-primary-600 focus-within:shadow-md transition-[border-color,box-shadow] duration-200">
-            <span
-              aria-hidden="true"
-              className="shrink-0 ml-2 my-2 w-10 h-10 flex items-center justify-center text-slate-700 dark:text-dark-text"
-            >
-              <Search className="w-5 h-5" strokeWidth={2.25} />
-            </span>
-
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tools…"
-              autoComplete="off"
-              spellCheck={false}
-              className="flex-1 min-w-0 bg-transparent pl-3 pr-2 py-4 text-slate-800 dark:text-dark-text placeholder-slate-400 dark:placeholder-dark-text-muted focus-visible:outline-none text-[15.5px]"
-              aria-label="Search PDF tools"
-            />
-
-            <div className="shrink-0 flex items-center gap-1.5 mr-3">
+          <div>
+            <label className="cloak-search">
+              <Search
+                className="ml-1 size-4.5 shrink-0 text-[var(--color-ink-3)]"
+                aria-hidden="true"
+              />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search redact, merge, OCR…"
+                autoComplete="off"
+                spellCheck={false}
+                className="min-w-0 flex-1 bg-transparent px-3 py-4 text-base text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] focus-visible:outline-none"
+                aria-label="Search PDF tools"
+              />
               {searchQuery ? (
                 <button
                   type="button"
@@ -412,288 +445,195 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                     setSearchQuery("");
                     searchInputRef.current?.focus();
                   }}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-dark-surface-alt text-slate-400 dark:text-dark-text-muted hover:text-slate-600 dark:hover:text-dark-text transition-colors"
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-sm text-[var(--color-ink-3)] hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                   aria-label="Clear search"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="size-4" />
                 </button>
               ) : (
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-slate-50 dark:bg-dark-surface-alt border border-slate-200 dark:border-dark-border text-tag font-medium text-slate-500 dark:text-dark-text-muted font-mono tabular-nums tracking-tight select-none">
-                  {isMac ? "⌘ K" : "Ctrl K"}
+                <kbd className="mr-1 hidden border border-[var(--color-rule)] px-2 py-1 font-mono text-[10px] text-[var(--color-ink-3)] sm:inline-flex">
+                  {isMac ? "⌘ K" : "Ctrl K"}
                 </kbd>
               )}
-            </div>
+            </label>
+            <p
+              className="mt-3 font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]"
+              aria-live="polite"
+            >
+              {searchQuery
+                ? `${filteredTools.length + editorMatches.length} matching tools`
+                : "Search spans standalone utilities and the canvas editor"}
+            </p>
           </div>
         </div>
 
-        {searchQuery && (
-          <p
-            className="text-center text-sm text-slate-600 dark:text-dark-text-muted mt-3 animate-fade-in-up"
-            aria-live="polite"
-          >
-            {filteredTools.length + editorMatches.length}{" "}
-            {filteredTools.length + editorMatches.length === 1 ? "tool" : "tools"} found
-          </p>
-        )}
-      </div>
-
-      {/* ── Tool Grid / Empty State ─────────────────────── */}
-      {filteredTools.length === 0 && editorMatches.length === 0 ? (
-        // Left-aligned to sit on the same left spine the category headings
-        // establish — the old centred icon-tile block was the one
-        // "centred-everything" island on an otherwise left-biased page.
-        <div className="py-16 animate-fade-in-up">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-dark-text mb-2">
-            No tools found
-          </h3>
-          <p className="text-sm text-slate-600 dark:text-dark-text-muted max-w-md">
-            Try a different search term like &ldquo;redact&rdquo;, &ldquo;watermark&rdquo;, or
-            &ldquo;merge&rdquo;
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-10 sm:space-y-12">
-          {categories.map((cat, catIdx) => {
-            const catTools = filteredTools.filter((t) => t.category === cat.key);
-            if (catTools.length === 0) return null;
-            return (
-              <section
-                key={cat.key}
-                className="grid gap-x-8 gap-y-5 animate-fade-in-up lg:grid-cols-12 lg:items-start lg:gap-x-10"
-                style={{ animationDelay: `${catIdx * 80}ms` }}
-              >
-                {/* Heading column — sits left of its cards on desktop, stacks
-                    above them on mobile/tablet. This asymmetric, left-aligned
-                    rhythm is the spine of the redesign. */}
-                <div className="lg:col-span-4 xl:col-span-3">
-                  <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
-                    {cat.label}
-                    <span className="ml-2 text-slate-400 dark:text-dark-text-muted font-medium tracking-normal normal-case">
-                      · {catTools.length}
-                    </span>
+        {filteredTools.length === 0 && editorMatches.length === 0 ? (
+          <div className="border-y border-[var(--color-rule-strong)] py-14">
+            <h3 className="text-xl font-semibold text-[var(--color-ink)]">No tools found</h3>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--color-ink-3)]">
+              Try a different term such as “redact”, “watermark”, or “merge”.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-14 sm:space-y-20">
+            {categories.map((category) => {
+              const categoryTools = filteredTools.filter((tool) => tool.category === category.key);
+              if (categoryTools.length === 0) return null;
+              return (
+                <section
+                  key={category.key}
+                  className="cloak-category grid gap-6 lg:grid-cols-12 lg:gap-10"
+                >
+                  <div className="lg:col-span-3">
+                    <h3 className="cloak-mono-label text-primary-600">
+                      {category.label} / {categoryTools.length}
+                    </h3>
+                    <p className="mt-3 max-w-xs text-xl font-semibold leading-tight tracking-[-0.025em] text-[var(--color-ink)]">
+                      {category.description}.
+                    </p>
                   </div>
-                  <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-[-0.02em] leading-[1.2] text-slate-900 dark:text-dark-text m-0 text-balance">
-                    {cat.description}.
-                  </h2>
+                  <div
+                    className={`grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-9 ${
+                      categoryTools.length > 2 ? "2xl:grid-cols-3" : ""
+                    }`}
+                  >
+                    {categoryTools.map((tool) => (
+                      <ToolCard key={tool.id} tool={tool} onSelect={onSelectTool} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+
+            {searchQuery && editorMatches.length > 0 && (
+              <section className="cloak-category grid gap-6 lg:grid-cols-12 lg:gap-10">
+                <div className="lg:col-span-3">
+                  <h3 className="cloak-mono-label text-primary-600">
+                    Canvas editor / {editorMatches.length}
+                  </h3>
+                  <p className="mt-3 max-w-xs text-xl font-semibold leading-tight tracking-[-0.025em] text-[var(--color-ink)]">
+                    Continue with the document open on the canvas.
+                  </p>
                 </div>
-                {/* 3-up at 2xl — except single-card categories (On-device
-                    AI, lone search hits), which keep the 2-col track so the
-                    one card reads half-width instead of a skinny orphan. */}
                 <div
-                  className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 ${
-                    catTools.length === 1 ? "" : "2xl:grid-cols-3"
+                  className={`grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-9 ${
+                    editorMatches.length > 2 ? "2xl:grid-cols-3" : ""
                   }`}
                 >
-                  {catTools.map((tool) => (
-                    <ToolCard key={tool.id} tool={tool} onSelect={onSelectTool} />
+                  {editorMatches.map((tool) => (
+                    <ToolCard key={tool.id} tool={tool} onSelect={handleResultSelect} />
                   ))}
                 </div>
               </section>
-            );
-          })}
+            )}
+          </div>
+        )}
+      </section>
 
-          {/* ── "In the editor" search results — the 18 single-PDF tools +
-              export flows live in the editor, so they only surface when the
-              user is searching. Same rail anatomy as the category sections;
-              clicking opens the editor with the tool preselected. ── */}
-          {searchQuery && editorMatches.length > 0 && (
-            <section className="grid gap-x-8 gap-y-5 animate-fade-in-up lg:grid-cols-12 lg:items-start lg:gap-x-10">
-              <div className="lg:col-span-4 xl:col-span-3">
-                <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
-                  In the editor
-                  <span className="ml-2 text-slate-400 dark:text-dark-text-muted font-medium tracking-normal normal-case">
-                    · {editorMatches.length}
-                  </span>
-                </div>
-                {/* "Keep going", not "with the tool ready" — the export-*
-                    aliases open the editor plain (Export menu isn't
-                    tool-addressable), so the head must be true for both. */}
-                <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-[-0.02em] leading-[1.2] text-slate-900 dark:text-dark-text m-0 text-balance">
-                  Keep going in the canvas editor.
-                </h2>
-              </div>
-              <div
-                className={`grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-8 xl:col-span-9 ${
-                  editorMatches.length === 1 ? "" : "2xl:grid-cols-3"
-                }`}
-              >
-                {editorMatches.map((tool) => (
-                  <ToolCard key={tool.id} tool={tool} onSelect={handleResultSelect} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* ── Why CloakPDF — feature grid ── */}
-          {!searchQuery && <WhyCloakPdfSection />}
-        </div>
-      )}
+      {!searchQuery && <WhyCloakPdfSection />}
     </div>
   );
 }
 
-/**
- * "Why CloakPDF" — left-aligned into the same 4/8 rail rhythm as the category
- * sections (the centered-head + uniform grid shape was the page's most
- * templated block). Renders statically: the first-paint cascade is the page's
- * one entrance; a second scroll-triggered reveal here was motion for its own
- * sake. Eight claims, each concrete and checkable — and none restating the
- * hero trio (no upload step / works offline / open source): this section
- * earns its scroll with claims the top of the page hasn't already made.
- */
-function WhyCloakPdfSection() {
-  return (
-    <section className="grid gap-x-8 gap-y-6 pt-6 sm:pt-10 lg:grid-cols-12 lg:items-start lg:gap-x-10">
-      <div className="lg:col-span-4 xl:col-span-3">
-        <div className="text-tag font-semibold uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400 mb-2">
-          Why CloakPDF
-        </div>
-        <h2 className="text-[22px] sm:text-[26px] font-semibold tracking-[-0.02em] leading-[1.2] text-slate-900 dark:text-dark-text m-0 text-balance">
-          {tools.length} utilities, one editor, nothing uploaded.
-        </h2>
-        <p className="mt-3 text-slate-500 dark:text-dark-text-muted text-card-title leading-[1.55] text-pretty">
-          Open the Network tab while you edit: the app downloads its own code, but your files never
-          go up. It&rsquo;s all public if you&rsquo;d rather read than watch.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-7 sm:gap-y-8 lg:col-span-8 xl:col-span-9">
-        <FeatureItem
-          icon={<UserRoundCheck className="w-5 h-5" />}
-          title="Free, no sign-up"
-          description="No accounts, no email, no paywalls. Start using the moment the page loads."
-        />
-        <FeatureItem
-          icon={<ShieldCheck className="w-5 h-5" />}
-          title="No tracking"
-          description="No analytics script, no cookies, no telemetry — nothing watches you work."
-        />
-        <FeatureItem
-          icon={<EyeOff className="w-5 h-5" />}
-          title="Redaction that deletes"
-          description="Redacted pages are rebuilt as pixels, so the text underneath is gone — not hidden under a black box."
-        />
-        <FeatureItem
-          icon={<Rocket className="w-5 h-5" />}
-          title="Install as an app"
-          description="Add it to your home screen or dock as a PWA — it opens in its own window, like a native app."
-        />
-        <FeatureItem
-          icon={<MonitorSmartphone className="w-5 h-5" />}
-          title="Mobile, tablet & desktop"
-          description="Every tool adapts fluidly across screen sizes — edit on the go, finalise at your desk."
-        />
-        <FeatureItem
-          icon={<ScanSearch className="w-5 h-5" />}
-          title="PII detection built in"
-          description="Redact spots emails, phone and card numbers, SSNs, IBANs and more on the page — and boxes them for you."
-        />
-        <FeatureItem
-          icon={<Cpu className="w-5 h-5" />}
-          title="On-device AI"
-          description="Ask questions about your PDF with a chat model that runs entirely in your browser — no API key, no server round-trip."
-        />
-        <FeatureItem
-          icon={<ScanText className="w-5 h-5" />}
-          title="OCR built in"
-          description="Make scanned PDFs searchable — text recognition runs on your device, phones included."
-        />
-      </div>
-    </section>
-  );
-}
-
-// ── HomeScreen sub-components ────────────────────────────────────
-
-interface FeatureItemProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-function FeatureItem({ icon, title, description }: FeatureItemProps) {
-  return (
-    <div className="flex items-start gap-3.5">
-      <span
-        className="shrink-0 w-10 h-10 rounded-lg grid place-items-center bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
-      <div className="min-w-0">
-        <div className="text-[14.5px] font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text mb-1">
-          {title}
-        </div>
-        <div className="text-[13.5px] leading-[1.55] text-slate-500 dark:text-dark-text-muted">
-          {description}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Live trust chip: invites the user to flip on airplane mode, then proves the
- * offline claim the moment the browser actually disconnects (real
- * `online`/`offline` events — the page demonstrates instead of asserting).
- * The offline copy claims only the editor: AI model weights and OCR language
- * data are runtime-cached on first use, so "everything" would overclaim on a
- * cold cache. `aria-atomic` makes the title + line announce as one phrase.
- */
-function OfflineProof() {
+function ConnectionStatus() {
   const [online, setOnline] = useState(() => typeof navigator === "undefined" || navigator.onLine);
+
   useEffect(() => {
-    const onOnline = () => setOnline(true);
-    const onOffline = () => setOnline(false);
-    window.addEventListener("online", onOnline);
-    window.addEventListener("offline", onOffline);
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
     return () => {
-      window.removeEventListener("online", onOnline);
-      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
   return (
-    <div aria-live="polite" aria-atomic="true">
-      <HeroFeature
-        icon={WifiOff}
-        title={online ? "Works offline" : "You're offline"}
-        description={online ? "Flip on airplane mode. We'll wait." : "The editor still works."}
-      />
-    </div>
+    <span className="inline-flex items-center gap-2" aria-live="polite">
+      <span className="cloak-status-dot" aria-hidden="true" />
+      {online ? "Ready / files stay local" : "Offline / editor ready"}
+    </span>
   );
 }
 
-/**
- * Compact trust feature shown in the hero's left column (icon tile + title +
- * one-line description). Smaller and denser than {@link FeatureItem} so three
- * sit comfortably in the narrower hero column.
- */
-function HeroFeature({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-}) {
+function WhyCloakPdfSection() {
+  const receipt = [
+    {
+      number: "01",
+      title: "PDF bytes enter browser memory",
+      meta: "Input / local file handle",
+    },
+    {
+      number: "02",
+      title: "PDF.js, pdf-lib, and WASM do the work",
+      meta: "Process / this tab",
+    },
+    {
+      number: "03",
+      title: "The browser writes a new local file",
+      meta: "Output / download",
+    },
+  ];
+
   return (
-    <div className="flex items-start gap-3">
-      <span
-        className="shrink-0 w-9 h-9 rounded-xl grid place-items-center bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
-        aria-hidden="true"
-      >
-        <Icon className="w-4.5 h-4.5" />
-      </span>
-      <div className="min-w-0">
-        <div className="text-card-desc font-semibold tracking-[-0.005em] text-slate-800 dark:text-dark-text leading-tight">
-          {title}
-        </div>
-        <div className="mt-0.5 text-meta leading-snug text-slate-500 dark:text-dark-text-muted">
-          {description}
+    <section id="privacy-model" className="cloak-proof-band scroll-mt-20">
+      <div className="site-frame cloak-proof-band__frame">
+        <p className="cloak-mono-label mb-5 text-primary-400">03 / Local processing receipt</p>
+        <div className="cloak-proof-band__inner">
+          <div>
+            <h2 className="cloak-section-title">The privacy promise has an architecture.</h2>
+            <p className="mt-7 max-w-xl text-lg leading-relaxed text-[var(--color-night-muted)]">
+              CloakPDF is a static, client-side web app. It can download its own code, OCR data, or
+              on-device model weights when a tool needs them; your PDF content is not sent with
+              those requests.
+            </p>
+            <a
+              className="mt-8 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-400 hover:text-primary-300"
+              href="https://github.com/cloakyard/cloakpdf"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Audit the source <ArrowRight className="size-4" aria-hidden="true" />
+            </a>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between gap-4 pb-4 font-mono text-[10px] uppercase tracking-[0.07em] text-[var(--color-night-muted)]">
+              <span>Document path</span>
+              <span>Verified by design</span>
+            </div>
+            <div className="cloak-receipt">
+              {receipt.map((item) => (
+                <div key={item.number} className="cloak-receipt__row">
+                  <span className="font-mono text-xs text-primary-400">{item.number}</span>
+                  <div>
+                    <p className="m-0 text-base font-semibold leading-snug text-[var(--color-night-ink)]">
+                      {item.title}
+                    </p>
+                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-night-muted)]">
+                      {item.meta}
+                    </p>
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.05em] text-primary-400">
+                    Local
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 border-t border-[var(--color-night-rule)] pt-5">
+              <p className="cloak-mono-label text-[var(--color-night-muted)]">Routes not present</p>
+              <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-xs text-[var(--color-night-ink)] sm:grid-cols-3">
+                <span>Upload server — none</span>
+                <span>User account — none</span>
+                <span>Analytics — none</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

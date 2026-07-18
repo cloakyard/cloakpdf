@@ -1,3 +1,6 @@
+/* Hallmark · genre: modern-minimal · macrostructure: Workbench · H2 hero knobs: split=7/5, visual=functional-pipeline, CTA=instrument-first · theme: studied-DNA (source: local CloakDrop Astro site) · paper: oklch(0.975 0.009 255) · accent: oklch(0.546 0.245 262.881) · display/body: Archivo · mono: JetBrains Mono · nav: N1b · footer: Ft5 · enrichment: E1 functional uploader · design-system: DESIGN.md · designed-as-app · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49) · icons: pass (30) · mobile: pass (34, 49, 50–57) */
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4 */
+@import "../tokens.css";
 @import "tailwindcss";
 @import "./fonts.css";
 
@@ -9,29 +12,25 @@
 @source inline("max-w-6xl");
 @source inline("xl:max-w-[88rem]");
 
-/*
- * Inter Variable — self-hosted (SIL Open Font License 1.1).
- * Source: https://rsms.me/inter — see public/fonts/LICENSE.txt.
- * Variable axis covers weights 100–900; italic file is loaded only when
- * `font-style: italic` is requested.
- */
 @font-face {
-  font-family: "Inter";
+  font-family: "Archivo";
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
-  src: url("/fonts/InterVariable.woff2") format("woff2-variations");
+  src: url("/fonts/archivo-latin.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "Inter";
-  font-style: italic;
-  font-weight: 100 900;
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
   font-display: swap;
-  src: url("/fonts/InterVariable-Italic.woff2") format("woff2-variations");
+  src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
 }
 
 @theme {
+  --font-sans: "Archivo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
   /* Ocean Blue primary scale (derived from #2563EB) */
   --color-primary-50: #eff4ff;
   --color-primary-100: #dbeafe;
@@ -46,10 +45,8 @@
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
   --color-primary-light: #eff4ff;
-  --color-accent: #1d4ed8;
   /* Surfaces & text */
   --color-page-bg: #f0f4fa;
-  --color-surface: #ffffff;
   --color-surface-alt: #f0f4fa;
   --color-border: #e2e8f0;
   --color-text: #1e293b;
@@ -82,27 +79,646 @@
   --text-card-title: 15px;
 }
 
+/* ── Cloakyard family shell ─────────────────────────────────────── */
+.site-frame {
+  width: min(calc(100% - (2 * var(--space-sm))), 88rem);
+  margin-inline: auto;
+}
+
+.cloak-site {
+  min-height: 100svh;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.cloak-site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky-nav);
+  height: var(--banner-height);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  background: color-mix(in oklab, var(--color-paper) 96%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.cloak-site-header__inner {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.cloak-wordmark {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 720;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.cloak-wordmark__accent {
+  color: var(--color-accent);
+}
+
+.cloak-mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.cloak-nav-link,
+.cloak-outline-link,
+.cloak-solid-link {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  border-radius: var(--radius-input);
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-short) var(--ease-standard),
+    border-color var(--dur-short) var(--ease-standard),
+    color var(--dur-short) var(--ease-standard),
+    transform var(--dur-short) var(--ease-out);
+}
+
+.cloak-nav-link {
+  padding-inline: var(--space-xs);
+  color: var(--color-ink-2);
+}
+
+.cloak-nav-link:hover {
+  color: var(--color-accent);
+}
+
+.cloak-outline-link {
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  padding-inline: var(--space-sm);
+  color: var(--color-ink);
+}
+
+.cloak-outline-link:hover {
+  border-color: var(--color-accent);
+}
+
+.cloak-solid-link {
+  border: var(--rule-thin) solid var(--color-accent);
+  padding-inline: var(--space-sm);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+.cloak-solid-link:hover {
+  background: var(--color-accent-hover);
+}
+
+.cloak-nav-link:active,
+.cloak-outline-link:active,
+.cloak-solid-link:active {
+  transform: translateY(1px);
+}
+
+.cloak-hero {
+  padding-block: clamp(2.5rem, 4vw, 3.5rem) clamp(3.5rem, 6vw, 5rem);
+}
+
+.cloak-hero__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(18rem, 5fr);
+  align-items: end;
+  gap: clamp(2rem, 6vw, 7rem);
+}
+
+.cloak-display {
+  min-width: 0;
+  margin: 0;
+  max-width: 14ch;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 5.5vw, 5.6rem);
+  font-weight: 760;
+  letter-spacing: -0.065em;
+  line-height: 0.91;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.cloak-display__accent {
+  color: var(--color-accent);
+}
+
+.cloak-hero__aside {
+  max-width: 32rem;
+  padding-top: var(--space-lg);
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+}
+
+.cloak-hero__lede {
+  margin: 0;
+  color: var(--color-ink-2);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  line-height: 1.55;
+}
+
+.cloak-workbench {
+  margin-top: clamp(1.5rem, 2.5vw, 2.5rem);
+  overflow: hidden;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.cloak-instrument-bar {
+  min-height: 2.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--color-ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.cloak-status-dot {
+  width: 0.48rem;
+  height: 0.48rem;
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.cloak-workbench__body {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.55fr);
+}
+
+.cloak-workbench__steps {
+  border-right: var(--rule-thin) solid var(--color-rule);
+  padding: var(--space-lg);
+}
+
+.cloak-workbench__step {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: var(--space-sm);
+  border-top: var(--rule-thin) solid var(--color-rule);
+  padding-block: var(--space-md);
+}
+
+.cloak-workbench__step:last-child {
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+}
+
+.cloak-workbench__step-number {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.cloak-workbench__step-title {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.cloak-workbench__step-copy {
+  margin: var(--space-2xs) 0 0;
+  color: var(--color-ink-3);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.cloak-workbench__drop {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  background-image:
+    linear-gradient(var(--color-rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-rule) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}
+
+.cloak-workbench__footer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: var(--rule-thin) solid var(--color-rule);
+}
+
+.cloak-workbench__metric {
+  padding: var(--space-sm);
+  border-right: var(--rule-thin) solid var(--color-rule);
+}
+
+.cloak-workbench__metric:last-child {
+  border-right: 0;
+}
+
+.cloak-workbench__metric-value {
+  display: block;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.cloak-workbench__metric-label {
+  display: block;
+  margin-top: var(--space-3xs);
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cloak-stat-strip {
+  border-block: var(--rule-thin) solid var(--color-rule);
+  background: var(--color-paper-2);
+}
+
+.cloak-stat-strip__inner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.cloak-stat {
+  min-height: 7.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: var(--rule-thin) solid var(--color-rule);
+  padding: var(--space-md);
+}
+
+.cloak-stat:last-child {
+  border-right: 0;
+}
+
+.cloak-stat__value {
+  color: var(--color-ink);
+  font-size: clamp(1.85rem, 3vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.cloak-stat__label {
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.cloak-toolkit {
+  padding-block: clamp(4rem, 8vw, 8rem);
+}
+
+.cloak-toolkit__head {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(20rem, 4fr);
+  align-items: end;
+  gap: clamp(2rem, 6vw, 7rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.cloak-section-title {
+  min-width: 0;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-ink);
+  font-size: clamp(2.15rem, 4.7vw, 4.9rem);
+  font-weight: 720;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.cloak-search {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  color: var(--color-ink);
+  transition: border-color var(--dur-short) var(--ease-standard);
+}
+
+.cloak-search:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cloak-category {
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+  padding-top: var(--space-lg);
+}
+
+.cloak-tool-card {
+  position: relative;
+  min-height: 12.5rem;
+  overflow: hidden;
+  border: var(--rule-thin) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  text-align: left;
+  transition:
+    border-color var(--dur-short) var(--ease-standard),
+    background-color var(--dur-short) var(--ease-standard),
+    transform var(--dur-short) var(--ease-out);
+}
+
+.cloak-tool-card:hover {
+  border-color: var(--color-accent);
+}
+
+.cloak-tool-card:active {
+  transform: translateY(1px);
+}
+
+.cloak-tool-card__index {
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+}
+
+.cloak-proof-band {
+  background: var(--color-night);
+  color: var(--color-night-ink);
+}
+
+.cloak-proof-band__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(20rem, 5fr);
+  gap: clamp(3rem, 8vw, 9rem);
+}
+
+.cloak-proof-band__frame {
+  padding-block: clamp(5rem, 10vw, 10rem);
+}
+
+.cloak-proof-band .cloak-section-title {
+  color: var(--color-night-ink);
+}
+
+.cloak-receipt {
+  border-top: var(--rule-thin) solid var(--color-night-rule);
+}
+
+.cloak-receipt__row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  gap: var(--space-sm);
+  align-items: start;
+  border-bottom: var(--rule-thin) solid var(--color-night-rule);
+  padding-block: var(--space-md);
+}
+
+.cloak-tool-page {
+  padding-block: clamp(3rem, 7vw, 6.5rem);
+}
+
+.cloak-tool-page__head {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(17rem, 4fr);
+  align-items: end;
+  gap: clamp(2rem, 7vw, 8rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.cloak-tool-page__title {
+  min-width: 0;
+  margin: var(--space-sm) 0 0;
+  max-width: 11ch;
+  color: var(--color-ink);
+  font-size: clamp(2.75rem, 6vw, 6.2rem);
+  font-weight: 740;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.cloak-tool-page__aside {
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+  padding-top: var(--space-md);
+}
+
+.cloak-tool-instrument {
+  overflow: hidden;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.cloak-tool-instrument__body {
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.cloak-dropzone {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: var(--rule-thin) dashed var(--color-rule-strong);
+  border-radius: var(--radius-input);
+  background: color-mix(in oklab, var(--color-surface) 91%, var(--color-paper-2));
+  color: var(--color-ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-short) var(--ease-standard),
+    background-color var(--dur-short) var(--ease-standard);
+}
+
+.cloak-dropzone:hover {
+  border-color: var(--color-accent);
+}
+
+.cloak-dropzone[data-dragging="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.cloak-dropzone:focus-within {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cloak-dropzone__bar {
+  min-height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  padding: var(--space-2xs) var(--space-xs);
+  color: var(--color-ink-3);
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.cloak-dropzone__body {
+  min-height: 12rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.cloak-dropzone--hero .cloak-dropzone__body {
+  min-height: 19rem;
+}
+
+.cloak-workbench .cloak-dropzone__body {
+  min-height: 16rem;
+  align-items: start;
+  padding: var(--space-lg);
+}
+
+.cloak-file-info {
+  border-block: var(--rule-thin) solid var(--color-rule);
+  padding-block: var(--space-xs);
+}
+
+.cloak-action-row {
+  padding-top: var(--space-lg);
+}
+
+.cloak-action-button {
+  min-height: 3rem;
+  border-radius: var(--radius-input);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cloak-site-footer {
+  border-top: var(--rule-thin) solid var(--color-night-rule);
+  background: var(--color-night);
+  color: var(--color-night-ink);
+}
+
+.cloak-site-footer__statement {
+  margin: 0;
+  max-width: 13ch;
+  font-size: clamp(2.4rem, 5vw, 5.2rem);
+  font-weight: 720;
+  letter-spacing: -0.055em;
+  line-height: 0.96;
+}
+
+@media (min-width: 640px) {
+  .site-frame {
+    width: min(calc(100% - (2 * var(--space-md))), 88rem);
+  }
+}
+
+@media (max-width: 860px) {
+  .cloak-site-header__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  .cloak-site-header__nav {
+    display: none;
+  }
+
+  .cloak-hero__intro,
+  .cloak-toolkit__head,
+  .cloak-proof-band__inner,
+  .cloak-tool-page__head {
+    grid-template-columns: 1fr;
+  }
+
+  .cloak-hero__aside {
+    max-width: 42rem;
+  }
+
+  .cloak-workbench__body {
+    grid-template-columns: 1fr;
+  }
+
+  .cloak-workbench__steps {
+    border-right: 0;
+    border-bottom: var(--rule-thin) solid var(--color-rule);
+  }
+}
+
+@media (max-width: 639px) {
+  .cloak-site-header {
+    height: 4rem;
+  }
+
+  .cloak-display {
+    font-size: clamp(2.85rem, 15vw, 4.6rem);
+  }
+
+  .cloak-workbench__steps {
+    padding: var(--space-sm);
+  }
+
+  .cloak-workbench__drop {
+    padding: var(--space-sm);
+  }
+
+  .cloak-workbench__footer,
+  .cloak-stat-strip__inner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cloak-workbench__metric:nth-child(2),
+  .cloak-stat:nth-child(2) {
+    border-right: 0;
+  }
+
+  .cloak-workbench__metric:nth-child(-n + 2),
+  .cloak-stat:nth-child(-n + 2) {
+    border-bottom: var(--rule-thin) solid var(--color-rule);
+  }
+
+  .cloak-dropzone__body {
+    min-height: 15rem;
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .cloak-dropzone--hero .cloak-dropzone__body {
+    min-height: 17rem;
+  }
+
+  .cloak-site-footer__statement {
+    font-size: clamp(2.2rem, 13vw, 3.8rem);
+  }
+}
+
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
-/* Page backdrop -- matches CloakResume's --onboarding-bg pattern
-   exactly. Two faint blue radials over a cool-slate linear base; the
-   bottom-right radial sits where iOS Safari's URL bar samples page
-   colour, so a vivid icon scrolling into that zone mixes with the
-   blue underlay into a near-grey tint instead of saturating the bar
-   that colour. */
 :root {
-  --page-bg:
-    radial-gradient(ellipse at 20% 0%, rgba(37, 99, 235, 0.08), transparent 55%),
-    radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.05), transparent 55%),
-    linear-gradient(180deg, #fafbfc 0%, #f1f5f9 100%);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --page-bg:
-      radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.18), transparent 55%),
-      radial-gradient(ellipse at 80% 100%, rgba(37, 99, 235, 0.1), transparent 55%),
-      linear-gradient(180deg, #0f172a 0%, #060912 100%);
-  }
+  --page-bg: var(--color-paper);
 }
 
 /* Root stack heights and base background. Mirrors CloakResume's
@@ -117,7 +733,7 @@ body,
 #app {
   height: 100%;
   margin: 0;
-  background: #f1f5f9;
+  background: var(--color-paper);
 }
 
 /* `touch-action: manipulation` suppresses double-tap-to-zoom and the
@@ -162,20 +778,22 @@ body {
   html,
   body,
   #app {
-    background: #060912;
+    background: var(--color-paper);
   }
 }
 
 body {
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-body);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 /* Subtle rotation cue used by the OrientationLock overlay — tilts a

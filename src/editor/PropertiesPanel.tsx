@@ -29,11 +29,11 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
 
   return (
     <aside
-      className={`flex shrink-0 flex-col border-l border-slate-200/70 dark:border-dark-border bg-white/60 dark:bg-dark-surface/60 ${
+      className={`editor-properties flex shrink-0 flex-col border-l border-slate-200 bg-slate-50 dark:border-dark-border dark:bg-dark-surface ${
         collapsed ? "w-72" : "w-82"
       }`}
     >
-      <div className="flex items-start justify-between gap-2 border-b border-slate-200/70 dark:border-dark-border px-4 py-3">
+      <div className="editor-properties__header flex items-start justify-between gap-2 border-b border-slate-200 px-4 py-3 dark:border-dark-border">
         <div className="min-w-0">
           <p
             ref={headingRef}
@@ -47,7 +47,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
               {tool.description}
             </p>
           ) : (
-            <p className="text-tag font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
+            <p className="font-mono text-tag font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
               {doc ? `${doc.pageCount} pages` : ""}
             </p>
           )}
@@ -56,7 +56,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
           <button
             type="button"
             onClick={() => void cancelCurrentTool()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-white hover:text-slate-700 active:bg-slate-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-dark-surface-alt"
             aria-label="Cancel current tool"
           >
             <X className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
         )}
       </div>
 
-      <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="editor-properties__body thin-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
         {tool ? (
           <ToolControls />
         ) : (
