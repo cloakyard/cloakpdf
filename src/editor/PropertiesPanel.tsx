@@ -1,8 +1,7 @@
 // PropertiesPanel.tsx — The right options panel. Header (active tool name +
 // group caption + Cancel when the tool has rollback-able work) over a
-// per-tool body. In M0 the tool bodies are placeholders; each tool's real
-// options panel is bound here as the tool lands (M1+). When no tool is
-// selected, the panel shows a short document summary + hint.
+// per-tool body. When no tool is selected, the panel shows a short document
+// summary + hint.
 
 import { X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";

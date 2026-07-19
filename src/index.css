@@ -1102,10 +1102,6 @@
 
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
-:root {
-  --page-bg: var(--color-paper);
-}
-
 /* Root stack heights and base background. Mirrors CloakResume's
    index.css: html/body/#app are sized to 100% of their parent so
    100svh on the layout wrapper resolves cleanly, and body carries a

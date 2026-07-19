@@ -13,7 +13,7 @@
  * against the inputs; the structure is also pinned in tests/unit/zip.test.ts.
  */
 
-export type ZipData = Uint8Array | ArrayBuffer | Blob;
+type ZipData = Uint8Array | ArrayBuffer | Blob;
 
 export interface ZipEntry {
   /** File name inside the archive (UTF-8; forward slashes for folders). */

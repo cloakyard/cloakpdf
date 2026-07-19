@@ -7,19 +7,8 @@ import { PDFDocument, PDFDict, PDFArray, PDFName } from "@pdfme/pdf-lib";
 
 // ── PDF Scrub — privacy sanitiser ────────────────────────────────
 
-/**
- * The categories of hidden / non-visible data that {@link scrubPdf}
- * removes. Surfaced one-to-one in the PDF Scrub findings report.
- */
-export const SCRUB_CATEGORIES = [
-  "metadata",
-  "xmp",
-  "javascript",
-  "attachments",
-  "annotations",
-] as const;
-
-export type ScrubCategory = (typeof SCRUB_CATEGORIES)[number];
+/** Hidden / non-visible data categories surfaced in the PDF Scrub report. */
+export type ScrubCategory = "metadata" | "xmp" | "javascript" | "attachments" | "annotations";
 
 /** Per-category count of hidden-data items detected in a PDF. */
 export interface ScrubAnalysis {

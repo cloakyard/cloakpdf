@@ -70,12 +70,13 @@ vp install   # needs Node ≥ 24 and `npm i -g vite-plus`
 vp dev       # http://localhost:5173
 ```
 
-| Command    | Description                   |
-| ---------- | ----------------------------- |
-| `vp dev`   | Dev server with hot reload    |
-| `vp build` | Type-check + production build |
-| `vp check` | Format, lint, type-check      |
-| `vp test`  | Run unit tests                |
+| Command           | Description                        |
+| ----------------- | ---------------------------------- |
+| `vp dev`          | Dev server with hot reload         |
+| `vp build`        | Type-check + production build      |
+| `vp check`        | Format, lint, type-check           |
+| `pnpm check:dead` | Audit unused code and dependencies |
+| `vp test`         | Run unit tests                     |
 
 ---
 

@@ -1,7 +1,7 @@
 // tools.ts — Rail metadata for the canvas editor's single-PDF tools.
 //
 // This is metadata only (id / label / icon / group / which view mode it drives
-// / build status). The actual Tool behaviour (canvas interaction) and Panel
+// / interaction mode). The actual Tool behaviour (canvas interaction) and Panel
 // (right-side options) are bound per id in the dispatchers, mirroring CloakIMG.
 // The roster is the single-PDF tools that live in the editor (incl. redact +
 // ocr) — see CLAUDE.md for the disposition of every CloakPDF tool. Multi-file /
@@ -53,10 +53,6 @@ export type EditorToolGroup =
  *  `focus` tools draw on / configure a single page; `either` work in both. */
 type EditorToolMode = "focus" | "overview" | "either";
 
-/** Build status — lets the rail render the full target roster now while tools
- *  land milestone by milestone. `soon` tools show a placeholder panel. */
-type EditorToolStatus = "ready" | "soon";
-
 export interface EditorTool {
   id: string;
   name: string;
@@ -73,7 +69,6 @@ export interface EditorTool {
   icon: ComponentType<{ className?: string }>;
   group: EditorToolGroup;
   mode: EditorToolMode;
-  status: EditorToolStatus;
 }
 
 export const EDITOR_GROUP_LABELS: Record<EditorToolGroup, string> = {
@@ -97,7 +92,6 @@ export const EDITOR_TOOLS = [
     icon: Highlighter,
     group: "annotate",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "signature",
@@ -106,7 +100,6 @@ export const EDITOR_TOOLS = [
     icon: PenTool,
     group: "annotate",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "fill-pdf-form",
@@ -115,7 +108,6 @@ export const EDITOR_TOOLS = [
     icon: ClipboardList,
     group: "annotate",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "select-text",
@@ -125,7 +117,6 @@ export const EDITOR_TOOLS = [
     icon: TextCursor,
     group: "annotate",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "auto-fill",
@@ -134,7 +125,6 @@ export const EDITOR_TOOLS = [
     icon: Sparkles,
     group: "annotate",
     mode: "either",
-    status: "ready",
   },
 
   // Pages — page management (reorder / delete / rotate / extract). One of the
@@ -146,7 +136,6 @@ export const EDITOR_TOOLS = [
     icon: Grid2x2,
     group: "pages",
     mode: "overview",
-    status: "ready",
   },
 
   // Privacy & Security — brand-defining; redact leads, then the clean-up tools.
@@ -157,7 +146,6 @@ export const EDITOR_TOOLS = [
     icon: EyeOff,
     group: "security",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "find-act",
@@ -166,7 +154,6 @@ export const EDITOR_TOOLS = [
     icon: Search,
     group: "security",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "pdf-scrub",
@@ -175,7 +162,6 @@ export const EDITOR_TOOLS = [
     icon: Eraser,
     group: "security",
     mode: "either",
-    status: "ready",
   },
   {
     id: "metadata",
@@ -184,7 +170,6 @@ export const EDITOR_TOOLS = [
     icon: FileText,
     group: "security",
     mode: "either",
-    status: "ready",
   },
 
   // Transform — reshape the pages themselves.
@@ -195,7 +180,6 @@ export const EDITOR_TOOLS = [
     icon: Crop,
     group: "transform",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "strip-furniture",
@@ -204,7 +188,6 @@ export const EDITOR_TOOLS = [
     icon: AlignVerticalSpaceAround,
     group: "transform",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "smart-erase",
@@ -213,7 +196,6 @@ export const EDITOR_TOOLS = [
     icon: SprayCan,
     group: "transform",
     mode: "focus",
-    status: "ready",
   },
   {
     id: "ocr",
@@ -222,7 +204,6 @@ export const EDITOR_TOOLS = [
     icon: ScanText,
     group: "transform",
     mode: "either",
-    status: "ready",
   },
   {
     id: "nup-pages",
@@ -231,7 +212,6 @@ export const EDITOR_TOOLS = [
     icon: LayoutGrid,
     group: "transform",
     mode: "either",
-    status: "ready",
   },
 
   // Stamps & Numbering — repeating content laid over every page.
@@ -242,7 +222,6 @@ export const EDITOR_TOOLS = [
     icon: Stamp,
     group: "stamps",
     mode: "either",
-    status: "ready",
   },
   {
     id: "add-page-numbers",
@@ -254,7 +233,6 @@ export const EDITOR_TOOLS = [
     icon: Hash,
     group: "stamps",
     mode: "either",
-    status: "ready",
   },
   {
     id: "header-footer",
@@ -263,7 +241,6 @@ export const EDITOR_TOOLS = [
     icon: AlignCenter,
     group: "stamps",
     mode: "either",
-    status: "ready",
   },
   {
     id: "bates-numbering",
@@ -272,7 +249,6 @@ export const EDITOR_TOOLS = [
     icon: Scale,
     group: "stamps",
     mode: "either",
-    status: "ready",
   },
   {
     id: "qr-stamp",
@@ -283,7 +259,6 @@ export const EDITOR_TOOLS = [
     icon: QrCode,
     mode: "focus",
     group: "stamps",
-    status: "ready",
   },
 
   // Document — structural extras, reached for least often.
@@ -294,7 +269,6 @@ export const EDITOR_TOOLS = [
     icon: BookMarked,
     group: "document",
     mode: "either",
-    status: "ready",
   },
   {
     id: "file-attachment",
@@ -303,7 +277,6 @@ export const EDITOR_TOOLS = [
     icon: Paperclip,
     group: "document",
     mode: "either",
-    status: "ready",
   },
 ] as const satisfies readonly EditorTool[];
 

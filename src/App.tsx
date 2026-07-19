@@ -13,6 +13,7 @@ import { ArrowRight, FileArchive, FileImage, Scissors, Search, X } from "lucide-
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileDropZone } from "./components/FileDropZone.tsx";
 import { Layout } from "./components/Layout.tsx";
+import { LoadingSpinner } from "./components/LoadingSpinner.tsx";
 import { AnimatePresence, m, variants } from "./components/motion.tsx";
 import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
@@ -45,19 +46,6 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 //  Sub-components (defined at module level per rerender-no-inline-
 //  components best practice)
 // ═══════════════════════════════════════════════════════════════════
-
-/** Full-screen centred spinner shown while a tool chunk is loading. */
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
-      <div
-        className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin"
-        aria-hidden="true"
-      />
-      <span className="sr-only">Loading tool…</span>
-    </div>
-  );
-}
 
 /** Loading fallback for the editor route. Deliberately mirrors EditorShell's own
  *  centred "Opening PDF…" spinner (same size, same viewport-centred position) so
@@ -154,7 +142,9 @@ function ToolView({ tool, Component }: ToolViewProps) {
           {blockedOnMobile ? (
             <DesktopOnlyNotice tool={tool} />
           ) : (
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense
+              fallback={<LoadingSpinner className="flex items-center justify-center py-20" />}
+            >
               <Component />
             </Suspense>
           )}
@@ -198,7 +188,7 @@ function DesktopOnlyNotice({ tool }: { tool: Tool }) {
  * tool preselected). Derived from the same `EDITOR_TOOLS` constant the
  * editor's rail renders from, so search can never drift from the product.
  */
-const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.filter((t) => t.status === "ready").map((t) => ({
+const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.map((t) => ({
   id: t.id,
   title: t.name,
   description: t.description,

@@ -337,7 +337,7 @@ export function parsePkcs12(
  * Prefer {@link generateSelfSignedCertAsync} in UI contexts — this synchronous
  * form remains as the worker-unavailable fallback and for non-UI callers.
  */
-export function generateSelfSignedCert(commonName: string): {
+function generateSelfSignedCert(commonName: string): {
   key: forge.pki.PrivateKey;
   cert: forge.pki.Certificate;
   info: CertificateInfo;

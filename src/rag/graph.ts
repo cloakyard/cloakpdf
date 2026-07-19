@@ -283,7 +283,7 @@ function isSmallTalk(q: string): boolean {
  * enabled. The e2e comparison orchestrator flips this for cross-cut
  * measurement runs.
  */
-export const RAG_HYDE_FLAG = "cloakpdf:rag-hyde";
+const RAG_HYDE_FLAG = "cloakpdf:rag-hyde";
 
 function hydeEnabled(): boolean {
   if (typeof localStorage === "undefined") return true;

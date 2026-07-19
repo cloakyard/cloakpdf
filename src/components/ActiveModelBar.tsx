@@ -47,12 +47,6 @@ interface ActiveModelBarProps {
    */
   roles?: string[];
   /**
-   * `true` when every pipeline is loaded and the tool is operational.
-   * Drives the "Running" / "Selected" verb so users can distinguish
-   * "downloaded and active" from "selected, waiting for download".
-   */
-  ready: boolean;
-  /**
    * Fired when the user clicks "Change model". When omitted the
    * button is hidden — useful when only one tier is registered, since
    * "change" has nothing to swap to. Reintroduce by passing a handler.
@@ -80,23 +74,21 @@ interface ActiveModelBarProps {
    * `true` when there's actually anything in RAM for "Free memory"
    * to release. Drives both the inline bar button visibility and
    * the matching dialog button. Wire from `useRagModels.canFreeMemory`.
-   * Defaults to {@link ready} so older callers keep working.
    */
-  canFreeMemory?: boolean;
+  canFreeMemory: boolean;
   /**
    * `true` when there's anything cached on disk or loaded in RAM
    * for "Delete cached models" to evict. After a successful delete
    * this flips to `false` and the dialog's Delete button hides —
    * preventing a click on an already-empty cache. Wire from
-   * `useRagModels.canDelete`. Defaults to {@link ready}.
+   * `useRagModels.canDelete`.
    */
-  canDelete?: boolean;
+  canDelete: boolean;
 }
 
 export function ActiveModelBar({
   models,
   roles,
-  ready,
   onChange,
   disabled,
   onFreeMemory,
@@ -104,13 +96,7 @@ export function ActiveModelBar({
   canFreeMemory,
   canDelete,
 }: ActiveModelBarProps) {
-  // Fall back to `ready` for callers that haven't been migrated to
-  // the explicit can* props yet — preserves old behaviour (button
-  // visible whenever all models are loaded).
-  const freeMemoryAvailable = canFreeMemory ?? ready;
-  const deleteAvailable = canDelete ?? ready;
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const verb = ready ? "Running" : "Selected";
 
   const totalBytes = models.reduce((sum, m) => sum + m.approxSizeBytes, 0);
   const primary = models[0];
@@ -120,9 +106,9 @@ export function ActiveModelBar({
   // already produces a leading "≈" — don't prepend another one here.
   const segments: string[] =
     models.length > 1
-      ? [`${verb} ${models.length} AI models`, formatApproxSize(totalBytes), "on-device"]
+      ? [`Running ${models.length} AI models`, formatApproxSize(totalBytes), "on-device"]
       : [
-          `${verb} ${primary.displayName}`,
+          `Running ${primary.displayName}`,
           formatApproxSize(primary.approxSizeBytes),
           primary.license,
           "on-device",
@@ -158,7 +144,7 @@ export function ActiveModelBar({
           </button>
         </div>
         <div className="shrink-0 flex items-center gap-1.5">
-          {onFreeMemory && freeMemoryAvailable && (
+          {onFreeMemory && canFreeMemory && (
             <button
               type="button"
               onClick={() => void onFreeMemory()}
@@ -194,8 +180,8 @@ export function ActiveModelBar({
         onFreeMemory={onFreeMemory}
         onDelete={onDeleteCachedModels}
         storageActionsDisabled={disabled}
-        canFreeMemory={freeMemoryAvailable}
-        canDelete={deleteAvailable}
+        canFreeMemory={canFreeMemory}
+        canDelete={canDelete}
       />
     </>
   );

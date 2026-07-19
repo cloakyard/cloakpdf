@@ -2,10 +2,11 @@
 // Stage (canvas interaction, registers via useStageProps; focus tools only)
 // and a Panel (right-side options). This is the id → {Stage, Panel} map the
 // two dispatchers (EditorToolStage / ToolControls) read, mirroring CloakIMG's
-// Tool/Panel split. Tools land here milestone by milestone; ids absent from the
-// map render a placeholder panel and no canvas behaviour.
+// Tool/Panel split. Every editor tool id has one entry here; panel-only tools
+// omit Stage while canvas-interaction tools provide both components.
 
 import type { ComponentType } from "react";
+import type { EditorToolId } from "./tools.ts";
 import * as Annotate from "./panels/AnnotateTool.tsx";
 import * as Attachments from "./panels/AttachmentsTool.tsx";
 import * as AutoFill from "./panels/AutoFillTool.tsx";
@@ -42,7 +43,7 @@ export interface ToolImpl {
   Panel: ComponentType;
 }
 
-export const TOOL_IMPL: Record<string, ToolImpl> = {
+const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
   "redact-pdf": { Stage: Redact.Stage, Panel: Redact.Panel },
   // Find-by-content: a Stage that paints the staged matches + a search/act Panel.
   "find-act": { Stage: FindAct.Stage, Panel: FindAct.Panel },
@@ -88,5 +89,5 @@ export const TOOL_IMPL: Record<string, ToolImpl> = {
 };
 
 export function toolImpl(id: string | null): ToolImpl | null {
-  return id ? (TOOL_IMPL[id] ?? null) : null;
+  return id ? (TOOL_IMPL[id as EditorToolId] ?? null) : null;
 }

@@ -36,11 +36,11 @@ export const HANDLE_CURSOR: Record<HandleId, string> = {
 
 /** Hit slop (device px) around a resize handle — generous so a finger can grab
  *  it on a phone, where the fit-to-screen page renders small. */
-export const HANDLE_TOL_PX = 14;
+const HANDLE_TOL_PX = 14;
 /** Painted half-size (device px) of a resize-handle square. */
-export const HANDLE_HALF_PX = 5;
+const HANDLE_HALF_PX = 5;
 /** Padding (device px) between a mark's bbox and its selection chrome. */
-export const SELECT_PAD = 3;
+const SELECT_PAD = 3;
 /** Smallest box size (fractions) a resize can shrink a mark to. */
 export const MIN_BOX_FRAC = 0.015;
 
