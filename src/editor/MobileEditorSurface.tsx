@@ -1,14 +1,14 @@
 // MobileEditorSurface.tsx — The phone tool surface: an in-flow bottom sheet
 // whose body opens and closes. It is deliberately IN-FLOW (a `shrink-0` sibling
 // below the stage, not a fixed overlay) so the canvas above reflows and stays
-// fully visible AND tappable while the panel is open — the canvas-dominance
-// trick that canvas-placement tools (annotate/sign/crop/redact) rely on.
+// fully visible AND tappable while the panel is open — essential for the
+// canvas-placement tools (annotate/sign/crop/redact).
 //
-// 60:40 split: the open sheet is capped at `max-h-[40%]` of the editor content
-// column so the canvas always keeps ≥60% of the vertical space; the header is
-// pinned (`shrink-0`) and the body fills the rest and SCROLLS (`flex-1 min-h-0`
-// + `overflow-y-auto`), so long tool panels (OCR, Bookmarks) are always
-// reachable. Closed, the sheet shrinks to just its header.
+// 50:50 split: the open sheet has an exact half-height so the canvas and tool
+// controls share the editor content column equally. The header is pinned
+// (`shrink-0`) and the body fills the rest and SCROLLS (`flex-1 min-h-0` +
+// `overflow-y-auto`), so long tool panels (OCR, Bookmarks) are always reachable.
+// Closed, the sheet shrinks to just its header.
 //
 // The body view is latched so its content keeps rendering through the close —
 // the active tool clears the moment Done/Cancel is tapped, so ToolControls is
@@ -19,9 +19,10 @@
 // routed to the global ✓ in this header, which flushes the registered apply via
 // flushPendingApply, then closes the tool. ✗ rolls the tool back (cancel).
 
-import { Check, ChevronUp, Grid2x2, RotateCcw, Search, X } from "lucide-react";
+import { Check, ChevronUp, Grid2x2, RotateCcw, Search, ShieldAlert, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
+import { countPendingDestructive } from "./doc.ts";
 import { ToolControls } from "./ToolControls.tsx";
 import { EDITOR_GROUP_LABELS, type EditorTool, EDITOR_TOOLS, findEditorTool } from "./tools.ts";
 
@@ -82,7 +83,7 @@ export function MobileEditorSurface() {
   const activeTool = useActiveTool();
   const { setActiveTool, setViewMode, cancelCurrentTool, flushPendingApply, reset } =
     useEditorActions();
-  const { pendingApply, canReset } = useEditorRead();
+  const { doc, pendingApply, canReset } = useEditorRead();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
   // Grey out ✓ only when the active tool registered a primary apply that isn't
@@ -92,6 +93,7 @@ export function MobileEditorSurface() {
 
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
+  const pendingMarks = countPendingDestructive(doc);
 
   // Latch the body view so its content (and height) persist through the
   // remains stable when the active tool clears on Done/Cancel. Updated only while
@@ -164,12 +166,12 @@ export function MobileEditorSurface() {
       data-testid="mobile-tool-sheet"
       aria-label="Editor tools"
       className={`editor-mobile-sheet flex shrink-0 flex-col overflow-hidden border-t border-[var(--color-rule)] bg-[var(--color-surface)] pb-[max(env(safe-area-inset-bottom),0.5rem)] ${
-        open ? "max-h-[40%]" : "max-h-16"
+        open ? "h-1/2" : "max-h-16"
       }`}
     >
       {/* Header — always visible (pinned). The active tool shows its name +
           Cancel/Done; otherwise a full-width "Tools" toggle opens the picker. */}
-      <div className="editor-mobile-sheet__header shrink-0">
+      <div className="editor-mobile-sheet__header relative shrink-0">
         {tool ? (
           <div className="flex items-start justify-between gap-2 px-4 py-2.5">
             <div className="min-w-0">
@@ -180,7 +182,7 @@ export function MobileEditorSurface() {
               >
                 {tool.name}
               </h2>
-              <span className="mt-0.5 block text-xs leading-snug text-slate-500 dark:text-dark-text-muted">
+              <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-slate-500 dark:text-dark-text-muted">
                 {tool.description}
               </span>
             </div>
@@ -233,9 +235,21 @@ export function MobileEditorSurface() {
             />
           </button>
         )}
+        {!tool && pendingMarks > 0 && (
+          <span
+            data-testid="mobile-pending-marks"
+            role="status"
+            aria-label={`${pendingMarks} ${pendingMarks === 1 ? "mark" : "marks"} pending, applied when you export`}
+            title={`${pendingMarks} redaction/erase ${pendingMarks === 1 ? "mark" : "marks"} pending`}
+            className="pointer-events-none absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-sm border border-amber-300 bg-amber-50 px-1.5 py-1 font-mono text-[9px] font-semibold text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
+          >
+            <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="tabular-nums">{pendingMarks}</span>
+          </span>
+        )}
       </div>
 
-      {/* Body — fills the space under the header inside the 40% cap and scrolls,
+      {/* Body — fills the space under the header inside the 50% sheet and scrolls,
           so long panels stay reachable. Hidden scrollbar (gesture/wheel scroll).
           Closed, its max-height collapses to 0 so
           nothing peeks below the pinned header — the outer's 64px cap alone left
@@ -253,152 +267,157 @@ export function MobileEditorSurface() {
         }`}
         aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
       >
-        {view.kind === "tool" ? (
-          <ToolControls toolId={view.id} />
-        ) : (
-          <div className="pt-1">
-            <div className="mb-3">
-              <div className="cloak-search-field px-2.5" role="search" aria-label="Editor tools">
-                <label htmlFor="mobile-editor-tool-search" className="sr-only">
-                  Search editor tools
-                </label>
-                <Search className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-                <input
-                  id="mobile-editor-tool-search"
-                  name="editor-tool-search"
-                  type="search"
-                  value={toolQuery}
-                  onChange={(event) => setToolQuery(event.target.value)}
-                  placeholder="Search editor tools…"
-                  aria-label="Search editor tools"
-                  aria-describedby="mobile-editor-tool-search-count"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="h-11 appearance-none px-2 text-sm placeholder:text-[var(--color-ink-3)] [&::-webkit-search-cancel-button]:appearance-none"
-                />
-                {toolQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setToolQuery("")}
-                    className="cloak-focus -mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-input)] text-[var(--color-ink-3)] hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-ink)]"
-                    aria-label="Clear editor tool search"
-                  >
-                    <X className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                )}
+        <div
+          key={view.kind === "tool" ? view.id : "picker"}
+          className="cloak-panel-enter min-h-full"
+        >
+          {view.kind === "tool" ? (
+            <ToolControls toolId={view.id} />
+          ) : (
+            <div className="pt-1">
+              <div className="mb-3">
+                <div className="cloak-search-field px-2.5" role="search" aria-label="Editor tools">
+                  <label htmlFor="mobile-editor-tool-search" className="sr-only">
+                    Search editor tools
+                  </label>
+                  <Search className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
+                  <input
+                    id="mobile-editor-tool-search"
+                    name="editor-tool-search"
+                    type="search"
+                    value={toolQuery}
+                    onChange={(event) => setToolQuery(event.target.value)}
+                    placeholder="Search editor tools…"
+                    aria-label="Search editor tools"
+                    aria-describedby="mobile-editor-tool-search-count"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="h-11 appearance-none px-2 text-sm placeholder:text-[var(--color-ink-3)] [&::-webkit-search-cancel-button]:appearance-none"
+                  />
+                  {toolQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setToolQuery("")}
+                      className="cloak-focus -mr-2 grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-input)] text-[var(--color-ink-3)] hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-ink)]"
+                      aria-label="Clear editor tool search"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+                <p
+                  id="mobile-editor-tool-search-count"
+                  className="mt-2 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]"
+                  aria-live="polite"
+                >
+                  {activeToolQuery
+                    ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
+                    : `${EDITOR_TOOLS.length} editor tools`}
+                </p>
               </div>
-              <p
-                id="mobile-editor-tool-search-count"
-                className="mt-2 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]"
-                aria-live="polite"
-              >
-                {activeToolQuery
-                  ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
-                  : `${EDITOR_TOOLS.length} editor tools`}
-              </p>
-            </div>
 
-            {/* Reset-to-original lives here on mobile: the top bar's Reset
+              {/* Reset-to-original lives here on mobile: the top bar's Reset
                 button is desktop-only (no room in the dense right cluster), so
                 without this a phone user could only step back one undo at a
                 time. Shown only when there's something to revert. */}
-            {canReset && (
-              <button
-                type="button"
-                onClick={() => {
-                  reset();
-                  setPickerOpen(false);
-                }}
-                className="mb-3 flex w-full items-center gap-2 border-y border-[var(--color-rule)] bg-[var(--color-paper)] px-3 py-3 text-left text-sm font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
-              >
-                <RotateCcw className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
-                Reset to original
-              </button>
-            )}
-            {activeToolQuery && visibleTools.length > 0 ? (
-              <ol className="cloak-ledger m-0 list-none p-0" aria-label="Matching editor tools">
-                {visibleTools.map((candidate, index) => {
-                  const Icon = candidate.icon;
-                  return (
-                    <li key={candidate.id}>
-                      <button
-                        type="button"
-                        onClick={() => pick(candidate.id)}
-                        className="grid min-h-[4.75rem] w-full grid-cols-[1.5rem_1.25rem_minmax(0,1fr)] items-start gap-2.5 px-3 py-3 text-left transition-[background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
-                      >
-                        <span className="pt-0.5 font-mono text-[9px] tabular-nums text-[var(--color-ink-3)]">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <Icon className="mt-0.5 h-4 w-4 text-primary-600" aria-hidden="true" />
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold text-[var(--color-ink)]">
-                            <MobileSearchMatch text={candidate.name} query={activeToolQuery} />
-                          </span>
-                          <span className="mt-0.5 block text-xs leading-snug text-[var(--color-ink-2)]">
-                            <MobileSearchMatch
-                              text={candidate.description}
-                              query={activeToolQuery}
-                            />
-                          </span>
-                          <span className="mt-1.5 block font-mono text-[8px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                            {EDITOR_GROUP_LABELS[candidate.group]}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            ) : activeToolQuery ? (
-              <div className="border-y border-[var(--color-rule)] px-3 py-6 text-center">
-                <p className="text-sm font-semibold text-[var(--color-ink)]">No tool found</p>
-                <p className="mt-1 text-xs text-[var(--color-ink-3)]">
-                  Try “redact”, “crop”, or “page numbers”.
-                </p>
+              {canReset && (
                 <button
                   type="button"
-                  onClick={() => setToolQuery("")}
-                  className="cloak-focus mt-4 inline-flex min-h-11 items-center gap-2 border border-[var(--color-rule)] px-3 font-mono text-[9px] font-semibold uppercase tracking-[0.06em] text-primary-600 hover:border-primary-500 active:translate-y-px"
+                  onClick={() => {
+                    reset();
+                    setPickerOpen(false);
+                  }}
+                  className="mb-3 flex w-full items-center gap-2 border-y border-[var(--color-rule)] bg-[var(--color-paper)] px-3 py-3 text-left text-sm font-medium text-[var(--color-ink-2)] hover:bg-[var(--color-accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
                 >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                  Clear search
+                  <RotateCcw className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                  Reset to original
                 </button>
-              </div>
-            ) : (
-              /* 3-up on ~320px phones, stepping to 4-up at ≥380px. The
+              )}
+              {activeToolQuery && visibleTools.length > 0 ? (
+                <ol className="cloak-ledger m-0 list-none p-0" aria-label="Matching editor tools">
+                  {visibleTools.map((candidate, index) => {
+                    const Icon = candidate.icon;
+                    return (
+                      <li key={candidate.id}>
+                        <button
+                          type="button"
+                          onClick={() => pick(candidate.id)}
+                          className="grid min-h-[4.75rem] w-full grid-cols-[1.5rem_1.25rem_minmax(0,1fr)] items-start gap-2.5 px-3 py-3 text-left transition-[background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+                        >
+                          <span className="pt-0.5 font-mono text-[9px] tabular-nums text-[var(--color-ink-3)]">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <Icon className="mt-0.5 h-4 w-4 text-primary-600" aria-hidden="true" />
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold text-[var(--color-ink)]">
+                              <MobileSearchMatch text={candidate.name} query={activeToolQuery} />
+                            </span>
+                            <span className="mt-0.5 block text-xs leading-snug text-[var(--color-ink-2)]">
+                              <MobileSearchMatch
+                                text={candidate.description}
+                                query={activeToolQuery}
+                              />
+                            </span>
+                            <span className="mt-1.5 block font-mono text-[8px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
+                              {EDITOR_GROUP_LABELS[candidate.group]}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              ) : activeToolQuery ? (
+                <div className="border-y border-[var(--color-rule)] px-3 py-6 text-center">
+                  <p className="text-sm font-semibold text-[var(--color-ink)]">No tool found</p>
+                  <p className="mt-1 text-xs text-[var(--color-ink-3)]">
+                    Try “redact”, “crop”, or “page numbers”.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setToolQuery("")}
+                    className="cloak-focus mt-4 inline-flex min-h-11 items-center gap-2 border border-[var(--color-rule)] px-3 font-mono text-[9px] font-semibold uppercase tracking-[0.06em] text-primary-600 hover:border-primary-500 active:translate-y-px"
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Clear search
+                  </button>
+                </div>
+              ) : (
+                /* 3-up on ~320px phones, stepping to 4-up at ≥380px. The
                  resting picker stays compact; filtered results switch to the
                  descriptive ledger above so every match explains itself. */
-              <div className="grid grid-cols-3 gap-x-1 gap-y-3 min-[380px]:grid-cols-4">
-                {EDITOR_TOOLS.map((candidate: EditorTool) => {
-                  const Icon = candidate.icon;
-                  const on = candidate.id === activeTool;
-                  return (
-                    <button
-                      key={candidate.id}
-                      type="button"
-                      onClick={() => pick(candidate.id)}
-                      aria-label={candidate.name}
-                      aria-pressed={on}
-                      className={`flex min-w-0 flex-col items-center gap-1.5 rounded-md border px-1 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                        on
-                          ? "border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-900/40 dark:bg-primary-900/30 dark:text-primary-300"
-                          : "border-transparent text-slate-700 hover:bg-slate-50 dark:text-dark-text dark:hover:bg-dark-surface-alt"
-                      }`}
-                    >
-                      <Icon className="h-6 w-6" aria-hidden="true" />
-                      <span
-                        className="block w-full truncate text-center font-mono text-tag font-medium leading-tight"
-                        title={candidate.name}
+                <div className="grid grid-cols-3 gap-x-1 gap-y-3 min-[380px]:grid-cols-4">
+                  {EDITOR_TOOLS.map((candidate: EditorTool) => {
+                    const Icon = candidate.icon;
+                    const on = candidate.id === activeTool;
+                    return (
+                      <button
+                        key={candidate.id}
+                        type="button"
+                        onClick={() => pick(candidate.id)}
+                        aria-label={candidate.name}
+                        aria-pressed={on}
+                        className={`flex min-w-0 flex-col items-center gap-1.5 rounded-md border px-1 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
+                          on
+                            ? "border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-900/40 dark:bg-primary-900/30 dark:text-primary-300"
+                            : "border-transparent text-slate-700 hover:bg-slate-50 dark:text-dark-text dark:hover:bg-dark-surface-alt"
+                        }`}
                       >
-                        {candidate.railLabel ?? candidate.name.split(" ")[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+                        <Icon className="h-6 w-6" aria-hidden="true" />
+                        <span
+                          className="block w-full truncate text-center font-mono text-tag font-medium leading-tight"
+                          title={candidate.name}
+                        >
+                          {candidate.railLabel ?? candidate.name.split(" ")[0]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

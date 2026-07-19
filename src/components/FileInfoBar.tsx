@@ -13,7 +13,7 @@ interface FileInfoBarProps {
 /** Standard "selected file" header shown by every tool. */
 export function FileInfoBar({ fileName, details, onChangeFile, extra }: FileInfoBarProps) {
   return (
-    <div className="cloak-file-info flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+    <div className="cloak-file-info cloak-state-enter flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
       <p className="min-w-0 wrap-anywhere font-mono text-xs text-[var(--color-ink-2)]">
         <span className="font-medium">{fileName}</span> —{" "}
         <span className="tabular-nums">{details}</span>

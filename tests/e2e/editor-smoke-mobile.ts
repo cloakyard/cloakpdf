@@ -13,9 +13,9 @@
  *     attachments add/remove);
  *   - a render sweep opens the remaining tools assigned to this mobile suite
  *     and asserts each panel mounts in the sheet with the global ✓/✗ and stays
- *     within the 40% cap; together with editor-features.e2e.ts, all 22 editor
+ *     within the 50% half-height sheet; together with editor-features.e2e.ts, all 22 editor
  *     tools are mounted by the combined suites;
- *   - 60:40 split: the open sheet is ≤40% of the editor column, canvas visible;
+ *   - 50:50 split: the open sheet and canvas share the editor column equally;
  *   - no console / page errors throughout.
  *
  * The engine-heavy OCR path is never run here (it would fetch model weights);
@@ -152,11 +152,11 @@ async function sheetFraction(page: Page): Promise<number> {
   });
 }
 
-/** Assert the open sheet stays within the 60:40 cap. */
-async function assertCapped(page: Page, where: string): Promise<void> {
+/** Assert the open sheet and canvas split the editor content column evenly. */
+async function assertHalfSplit(page: Page, where: string): Promise<void> {
   const f = await sheetFraction(page);
-  if (f < 0 || f > 0.43)
-    fail(`${where}: sheet should be ≤40% of the column; got ${(f * 100).toFixed(1)}%.`);
+  if (f < 0.49 || f > 0.51)
+    fail(`${where}: sheet should be 50% of the column; got ${(f * 100).toFixed(1)}%.`);
 }
 
 /** Tap the global ✓ (Done) — the mobile Apply — and wait for the work to land. */
@@ -231,7 +231,7 @@ async function main() {
       fail("Mobile tool sheet not rendered at phone width.");
     console.log("  ✓ mobile sheet entry (no desktop rail)");
 
-    // 2. Crop (WholeDocPanel) via the global ✓; per-tool Apply hidden; 60:40.
+    // 2. Crop (WholeDocPanel) via the global ✓; per-tool Apply hidden; 50:50.
     await pickTool(page, "Crop");
     await waitForText(page, /area to keep/i, 8_000);
     if (await hasExactText(page, "Crop pages"))
@@ -244,7 +244,7 @@ async function main() {
     await drawOnPage(page, { x: 0.12, y: 0.1 }, { x: 0.9, y: 0.7 });
     await waitForText(page, /Keeping/i, 8_000);
     if (await doneDisabled(page)) fail("Crop: global ✓ must enable once a box is drawn.");
-    await assertCapped(page, "crop");
+    await assertHalfSplit(page, "crop");
     const pageVisible = await page.evaluate(() => {
       const img = document.querySelector('img[alt="Page 1"]') as HTMLElement | null;
       if (!img) return false;
@@ -254,7 +254,7 @@ async function main() {
     if (!pageVisible) fail("Canvas page not visible above the tool sheet.");
     await tapDone(page);
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
-    console.log("  ✓ crop via global ✓ (per-tool Apply hidden, 60:40, canvas visible)");
+    console.log("  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)");
 
     // 3. Annotate (custom canvas, burns on apply) via the global ✓.
     await pickTool(page, "Annotate");
@@ -328,6 +328,8 @@ async function main() {
     await waitForText(page, /\d+ redactions?/i, 8_000);
     await page.click('button[aria-label="Done"]'); // ✓ — no burn, just close
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    if (!(await page.$('[data-testid="mobile-pending-marks"]')))
+      fail("Redact: pending-mark count is not visible in the collapsed mobile tool strip.");
     await pickTool(page, "Redact"); // reopen
     await waitForText(page, /\d+ redactions?/i, 8_000); // mark persisted across ✓
     if (!(await clickByText(page, "Clear all"))) fail("Redact 'Clear all' not found.");
@@ -336,7 +338,7 @@ async function main() {
     console.log("  ✓ redact deferred — mark persists across ✓, no burn");
 
     // 8. Render sweep: open every remaining tool, assert its panel mounts in the
-    //    sheet with the global ✓/✗ and stays within the 40% cap, then ✗ close.
+    //    sheet with the global ✓/✗ and stays at the 50% split, then ✗ close.
     const sweep = [
       "Select text",
       "Signature",
@@ -354,11 +356,11 @@ async function main() {
     for (const name of sweep) {
       await pickTool(page, name); // also waits for the global ✓ (tool active)
       if (!(await page.$('button[aria-label="Cancel"]'))) fail(`${name}: global ✗ missing.`);
-      await assertCapped(page, name);
+      await assertHalfSplit(page, name);
       await page.click('button[aria-label="Cancel"]'); // ✗ rolls back + closes
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
-    console.log(`  ✓ render sweep — ${sweep.length} tools mount in the sheet (✓/✗, ≤40%)`);
+    console.log(`  ✓ render sweep — ${sweep.length} tools mount in the sheet (✓/✗, 50:50)`);
 
     // 9. Organize (overview board) via the global ✓: delete a page, apply.
     await pickTool(page, "Organize");
@@ -384,7 +386,7 @@ async function main() {
     await waitForText(page, /Extract text/i, 8_000);
     if (await page.evaluate(() => /open this pdf on a desktop/i.test(document.body.innerText)))
       fail("OCR still shows the desktop-only notice on mobile.");
-    await assertCapped(page, "ocr");
+    await assertHalfSplit(page, "ocr");
     const bodyScrolls = await page.evaluate(() => {
       const body = document.querySelector('[aria-label="Tool controls"]') as HTMLElement | null;
       if (!body) return false;
@@ -422,7 +424,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 60:40 cap holds throughout.",
+      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.",
     );
   } catch (e) {
     console.error(`✗ Mobile smoke failed: ${e instanceof Error ? e.message : String(e)}`);

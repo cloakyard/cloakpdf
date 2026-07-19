@@ -4,6 +4,7 @@ import { ArrowRight, MemoryStick } from "lucide-react";
 import { memo } from "react";
 import type { ToolId } from "../config/tool-registry.ts";
 import type { Tool } from "../types.ts";
+import { calmFast, m } from "./motion.tsx";
 
 interface ToolCardProps {
   tool: Tool;
@@ -14,14 +15,20 @@ export const ToolCard = memo(function ToolCard({ tool, onSelect }: ToolCardProps
   const Icon = tool.icon;
 
   return (
-    <button
+    <m.button
       type="button"
       onClick={() => onSelect(tool.id as ToolId)}
+      whileHover={{ y: -2 }}
+      whileTap={{ y: 0, scale: 0.995 }}
+      transition={calmFast}
       className="cloak-tool-card group flex w-full flex-col p-5 sm:p-6"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="cloak-tool-card__index uppercase">Utility / {tool.id}</span>
-        <Icon className="size-4.5 shrink-0 text-primary-600" aria-hidden="true" />
+        <Icon
+          className="cloak-tool-card__icon size-4.5 shrink-0 text-primary-600"
+          aria-hidden="true"
+        />
       </div>
 
       <div className="mt-8">
@@ -50,10 +57,10 @@ export const ToolCard = memo(function ToolCard({ tool, onSelect }: ToolCardProps
           </span>
         )}
         <ArrowRight
-          className="size-4 shrink-0 text-[var(--color-ink-3)] transition-colors duration-200 group-hover:text-primary-600"
+          className="cloak-tool-card__arrow size-4 shrink-0 text-[var(--color-ink-3)] group-hover:text-primary-600"
           aria-hidden="true"
         />
       </div>
-    </button>
+    </m.button>
   );
 });

@@ -3,6 +3,7 @@
 import { ArrowRight, FileUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { EncryptedPdfNotice } from "./EncryptedPdfNotice.tsx";
+import { calmFast, m } from "./motion.tsx";
 
 interface FileDropZoneProps {
   accept: string;
@@ -52,7 +53,7 @@ export function FileDropZone({
   }
 
   return (
-    <label
+    <m.label
       onDragOver={(event) => {
         event.preventDefault();
         setIsDragOver(true);
@@ -60,6 +61,9 @@ export function FileDropZone({
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
       data-dragging={isDragOver}
+      animate={{ scale: isDragOver ? 1.006 : 1 }}
+      whileHover={{ scale: isDragOver ? 1.006 : 1.002 }}
+      transition={calmFast}
       style={{ touchAction: "manipulation" }}
       className={`cloak-dropzone ${hero ? "cloak-dropzone--hero" : ""}`}
     >
@@ -80,7 +84,7 @@ export function FileDropZone({
 
       <span className="cloak-dropzone__body">
         <FileUp
-          className={`${hero ? "size-9" : "size-7"} shrink-0 text-primary-600`}
+          className={`cloak-dropzone__icon ${hero ? "size-9" : "size-7"} shrink-0 text-primary-600`}
           strokeWidth={1.6}
           aria-hidden="true"
         />
@@ -96,10 +100,10 @@ export function FileDropZone({
             </span>
           )}
         </span>
-        <span className="cloak-solid-link">
-          Browse <ArrowRight className="size-3.5" aria-hidden="true" />
+        <span className="cloak-solid-link cloak-dropzone__action">
+          Browse <ArrowRight className="cloak-link-arrow size-3.5" aria-hidden="true" />
         </span>
       </span>
-    </label>
+    </m.label>
   );
 }

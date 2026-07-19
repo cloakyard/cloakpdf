@@ -108,7 +108,7 @@ The page must feel like a mode of the same workbench, not a separate microsite.
 ### Editor — Persistent canvas workbench
 
 Preserve the full-screen composition, top-bar height, rail width, properties widths,
-stage persistence, and mobile 60:40 canvas/sheet split. Style the chrome with flat
+stage persistence, and mobile 50:50 canvas/sheet split. Style the chrome with flat
 paper surfaces, hairline borders, compact radii, Ocean Blue active cues, and mono
 operational labels. Never introduce a marketing header inside the editor.
 
@@ -145,10 +145,19 @@ single-column action. The UI must be checked at 320, 375, 414, and 768px.
 
 ## Motion and interaction
 
-- No repeated fade-up entrance choreography and no continuously moving marketing backdrop.
-- Hover may change border, tint, icon position, or link colour in 160–260ms.
+- Use one-time reveals only at the structural level: the hero may stagger its three major blocks,
+  and major sections may settle once as they enter the viewport. Do not animate every paragraph,
+  row, or repeated control, and do not add a continuously moving marketing backdrop.
+- Hover may change border, tint, icon position, link colour, or lift a card by up to 2px in
+  160–260ms. Icon rotations stay within 5 degrees and never obscure meaning.
+- Tool/panel changes may fade and settle up to 6px on fine-pointer layouts. Coarse-pointer panels
+  use a shorter 4px translation without text scaling. Never animate editor geometry: in particular,
+  the mobile editor sheet keeps its exact 50:50 height while only inner content moves.
+- Responsive bottom sheets translate from their anchored edge without scaling their full-width
+  surface; centered dialogs use the same calm timing so modal behavior stays consistent.
 - Active controls move at most one pixel and never overshoot.
-- Spinners, progress, drag-over feedback, editor gestures, and model streaming remain functional motion.
+- Spinners, progress, drag-over feedback, editor gestures, and model streaming remain functional
+  motion. Status accents may animate once on arrival; decorative infinite loops are not allowed.
 - Respect `prefers-reduced-motion`; never disable essential loading status.
 - All interactive controls require visible focus, accurate accessible names, and at least 44px touch targets where practical.
 
@@ -159,7 +168,7 @@ single-column action. The UI must be checked at 320, 375, 414, and 768px.
 3. Real app proof, no fake chrome.
 4. Archivo + JetBrains Mono across every CloakPDF surface.
 5. Functional composition and test-sensitive labels remain stable during visual changes.
-6. The editor mobile sheet stays capped at 40% of the viewport.
+6. The open editor mobile sheet and canvas divide the available content height 50:50.
 
 ## Exports
 

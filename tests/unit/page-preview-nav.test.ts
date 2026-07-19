@@ -79,6 +79,13 @@ describe("PagePreviewNav — label reflects the 1-based page", () => {
   it("shows the current page over the total", () => {
     expect(render({ page: 2, total: 9, onChange: noop })).toContain("3 / 9");
   });
+
+  it("uses a non-wrapping tight count in compact chrome", () => {
+    const html = render({ page: 2, total: 9, onChange: noop, size: "touch", compact: true });
+    expect(html).toContain("3/9");
+    expect(html).toContain("whitespace-nowrap");
+    expect(html).toContain('aria-label="Page 3 of 9"');
+  });
 });
 
 describe("PagePreviewNav — size and variant", () => {

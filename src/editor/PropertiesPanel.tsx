@@ -68,17 +68,19 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
       </div>
 
       <div className="editor-properties__body thin-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-        {tool ? (
-          <ToolControls />
-        ) : (
-          <div className="text-sm text-slate-500 dark:text-dark-text-muted">
-            <p>Pick a tool from the left to edit this PDF.</p>
-            <p className="mt-2 text-xs text-slate-500 dark:text-dark-text-muted">
-              Pick <span className="font-medium">Organize</span> to browse and rearrange pages in a
-              grid.
-            </p>
-          </div>
-        )}
+        <div key={tool?.id ?? "document"} className="cloak-panel-enter">
+          {tool ? (
+            <ToolControls />
+          ) : (
+            <div className="text-sm text-slate-500 dark:text-dark-text-muted">
+              <p>Pick a tool from the left to edit this PDF.</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-dark-text-muted">
+                Pick <span className="font-medium">Organize</span> to browse and rearrange pages in
+                a grid.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );

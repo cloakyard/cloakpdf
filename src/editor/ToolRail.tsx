@@ -44,7 +44,7 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
         aria-keyshortcuts="Meta+K Control+K"
         className="relative flex min-h-12 w-full cursor-pointer flex-col items-center justify-center gap-0.5 border-y border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-ink-2)] transition-[color,background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-ink)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
       >
-        <Search className="h-4.5 w-4.5 text-primary-600" aria-hidden="true" />
+        <Search className="editor-toolrail__icon h-4.5 w-4.5 text-primary-600" aria-hidden="true" />
         <span className="max-w-full truncate px-0.5 font-mono text-xxs font-medium leading-none">
           Search
         </span>
@@ -86,14 +86,14 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
                     : "text-slate-500 hover:bg-white hover:text-slate-800 active:bg-slate-200/70 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text"
                 }`}
               >
-                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
+                <Icon className="editor-toolrail__icon h-[18px] w-[18px]" aria-hidden="true" />
                 <span className="max-w-full truncate px-0.5 font-mono text-xxs font-medium leading-none">
                   {tool.railLabel ?? tool.name.split(" ")[0]}
                 </span>
                 {active && (
                   <span
                     aria-hidden="true"
-                    className="absolute top-[18%] bottom-[18%] left-0 w-px bg-primary-600"
+                    className="editor-toolrail__active-bar absolute top-[18%] bottom-[18%] left-0 w-px bg-primary-600"
                   />
                 )}
               </button>
