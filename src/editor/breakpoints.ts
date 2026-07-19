@@ -10,11 +10,11 @@ import type { Layout } from "./types";
 
 /** Viewport width (px) below which the editor swaps from the desktop / tablet
  *  split-pane to the mobile sheet-based UI. */
-export const MOBILE_MAX_PX = 760;
+const MOBILE_MAX_PX = 760;
 
 /** Below this width we use the tablet shell (tool rail + collapsed property
  *  panel) but still render the desktop-style top bar. */
-export const TABLET_MAX_PX = 1180;
+const TABLET_MAX_PX = 1180;
 
 /**
  * Resolve a viewport width to a layout bucket.

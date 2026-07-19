@@ -13,6 +13,7 @@ import { ArrowRight, FileArchive, FileImage, Scissors, Search, X } from "lucide-
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileDropZone } from "./components/FileDropZone.tsx";
 import { Layout } from "./components/Layout.tsx";
+import { LoadingSpinner } from "./components/LoadingSpinner.tsx";
 import { AnimatePresence, m, variants } from "./components/motion.tsx";
 import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
@@ -45,19 +46,6 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 //  Sub-components (defined at module level per rerender-no-inline-
 //  components best practice)
 // ═══════════════════════════════════════════════════════════════════
-
-/** Full-screen centred spinner shown while a tool chunk is loading. */
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
-      <div
-        className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin"
-        aria-hidden="true"
-      />
-      <span className="sr-only">Loading tool…</span>
-    </div>
-  );
-}
 
 /** Loading fallback for the editor route. Deliberately mirrors EditorShell's own
  *  centred "Opening PDF…" spinner (same size, same viewport-centred position) so
@@ -154,7 +142,9 @@ function ToolView({ tool, Component }: ToolViewProps) {
           {blockedOnMobile ? (
             <DesktopOnlyNotice tool={tool} />
           ) : (
-            <Suspense fallback={<LoadingSpinner />}>
+            <Suspense
+              fallback={<LoadingSpinner className="flex items-center justify-center py-20" />}
+            >
               <Component />
             </Suspense>
           )}
@@ -198,7 +188,7 @@ function DesktopOnlyNotice({ tool }: { tool: Tool }) {
  * tool preselected). Derived from the same `EDITOR_TOOLS` constant the
  * editor's rail renders from, so search can never drift from the product.
  */
-const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.filter((t) => t.status === "ready").map((t) => ({
+const EDITOR_SEARCH_CARDS: Tool[] = EDITOR_TOOLS.map((t) => ({
   id: t.id,
   title: t.name,
   description: t.description,
@@ -388,11 +378,17 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
   return (
     <div className="cloak-home">
       <>
-        <section className="site-frame cloak-hero" aria-labelledby="home-title">
-          <p className="cloak-mono-label mb-5 text-primary-600">
+        <m.section
+          className="site-frame cloak-hero"
+          aria-labelledby="home-title"
+          variants={variants.stagger}
+          initial="initial"
+          animate="animate"
+        >
+          <m.p variants={variants.revealItem} className="cloak-mono-label mb-5 text-primary-600">
             Open-source / advanced PDF toolkit / browser-native
-          </p>
-          <div className="cloak-hero__intro">
+          </m.p>
+          <m.div variants={variants.revealItem} className="cloak-hero__intro">
             <div>
               <h1 id="home-title" className="cloak-display">
                 A complete PDF workbench.{" "}
@@ -406,15 +402,20 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                 web app. Your document bytes stay inside your browser.
               </p>
               <a
-                className="mt-6 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-600 hover:text-primary-700"
+                className="cloak-link-motion mt-6 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-600 hover:text-primary-700"
                 href="#workbench"
               >
-                Open the workbench <ArrowRight className="size-4" aria-hidden="true" />
+                Open the workbench
+                <ArrowRight className="cloak-link-arrow size-4" aria-hidden="true" />
               </a>
             </div>
-          </div>
+          </m.div>
 
-          <div id="workbench" className="cloak-workbench scroll-mt-24">
+          <m.div
+            id="workbench"
+            variants={variants.revealItem}
+            className="cloak-workbench scroll-mt-24"
+          >
             <div className="cloak-instrument-bar">
               <span>Live web app / local document pipeline</span>
               <ConnectionStatus />
@@ -473,11 +474,17 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </m.div>
+        </m.section>
 
         <section className="cloak-stat-strip" aria-label="CloakPDF facts">
-          <div className="site-frame cloak-stat-strip__inner">
+          <m.div
+            className="site-frame cloak-stat-strip__inner"
+            variants={variants.reveal}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, amount: 0.35 }}
+          >
             <div className="cloak-stat">
               <span className="cloak-stat__value">{EDITOR_TOOL_IDS.size}</span>
               <span className="cloak-stat__label">Editor tools</span>
@@ -494,7 +501,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
               <span className="cloak-stat__value">MIT</span>
               <span className="cloak-stat__label">Open-source license</span>
             </div>
-          </div>
+          </m.div>
         </section>
       </>
 
@@ -502,7 +509,13 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
         <p className="cloak-mono-label mb-5 text-primary-600">
           {activeSearchQuery ? "Search / Toolkit index" : "02 / Focused utilities"}
         </p>
-        <div className="cloak-toolkit__head">
+        <m.div
+          className="cloak-toolkit__head"
+          variants={variants.reveal}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <div>
             <h2 className="cloak-section-title">One family. Every serious PDF job.</h2>
           </div>
@@ -557,7 +570,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                 : "Search spans standalone utilities and the canvas editor"}
             </p>
           </div>
-        </div>
+        </m.div>
 
         {activeSearchQuery && searchResults.length === 0 ? (
           <div className="border-y border-[var(--color-rule-strong)] py-14">
@@ -596,7 +609,10 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                     <span className="pt-0.5 font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <Icon className="mt-0.5 h-4 w-4 text-primary-600" aria-hidden="true" />
+                    <Icon
+                      className="cloak-ledger__icon mt-0.5 h-4 w-4 text-primary-600"
+                      aria-hidden="true"
+                    />
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold text-[var(--color-ink)] sm:text-base">
                         <SearchMatch text={tool.title} query={activeSearchQuery} />
@@ -613,7 +629,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                         {surface}
                       </span>
                       <ArrowRight
-                        className="h-4 w-4 text-[var(--color-ink-3)] group-hover:text-primary-600"
+                        className="cloak-ledger__arrow h-4 w-4 text-[var(--color-ink-3)] group-hover:text-primary-600"
                         aria-hidden="true"
                       />
                     </span>
@@ -630,8 +646,12 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
               );
               if (categoryTools.length === 0) return null;
               return (
-                <section
+                <m.section
                   key={category.key}
+                  variants={variants.reveal}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true, amount: 0.16 }}
                   className="cloak-category grid gap-6 lg:grid-cols-12 lg:gap-10"
                 >
                   <div className="lg:col-span-3">
@@ -651,7 +671,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                       <ToolCard key={tool.id} tool={tool} onSelect={onSelectTool} />
                     ))}
                   </div>
-                </section>
+                </m.section>
               );
             })}
           </div>
@@ -706,7 +726,13 @@ function WhyCloakPdfSection() {
 
   return (
     <section id="privacy-model" className="cloak-proof-band scroll-mt-20">
-      <div className="site-frame cloak-proof-band__frame">
+      <m.div
+        className="site-frame cloak-proof-band__frame"
+        variants={variants.reveal}
+        initial="initial"
+        whileInView="animate"
+        viewport={{ once: true, amount: 0.16 }}
+      >
         <p className="cloak-mono-label mb-5 text-primary-400">03 / Local processing receipt</p>
         <div className="cloak-proof-band__inner">
           <div>
@@ -717,12 +743,13 @@ function WhyCloakPdfSection() {
               those requests.
             </p>
             <a
-              className="mt-8 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-400 hover:text-primary-300"
+              className="cloak-link-motion mt-8 inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.04em] text-primary-400 hover:text-primary-300"
               href="https://github.com/cloakyard/cloakpdf"
               target="_blank"
               rel="noreferrer"
             >
-              Audit the source <ArrowRight className="size-4" aria-hidden="true" />
+              Audit the source
+              <ArrowRight className="cloak-link-arrow size-4" aria-hidden="true" />
             </a>
           </div>
 
@@ -760,7 +787,7 @@ function WhyCloakPdfSection() {
             </div>
           </div>
         </div>
-      </div>
+      </m.div>
     </section>
   );
 }

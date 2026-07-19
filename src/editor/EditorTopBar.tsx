@@ -93,6 +93,7 @@ export function EditorTopBar() {
         total={doc.pageCount}
         onChange={setSelectedPage}
         size="touch"
+        compact
       />
     ) : null;
 
@@ -259,7 +260,7 @@ export function EditorTopBar() {
 
       {/* RIGHT zone */}
       <div className="flex items-center justify-self-end gap-1">
-        {pendingMarks > 0 && (
+        {pendingMarks > 0 && !isMobile && (
           <div
             role="status"
             title={`${pendingMarks} redaction/erase ${

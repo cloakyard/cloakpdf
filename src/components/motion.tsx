@@ -20,7 +20,7 @@
  *    animation language.
  *
  * Usage:
- *   import { m, AnimatePresence, variants, calm } from "./motion.tsx";
+ *   import { m, AnimatePresence, variants } from "./motion.tsx";
  *   <m.div variants={variants.fadeUp} initial="initial" animate="animate" exit="exit" />
  */
 
@@ -41,13 +41,14 @@ export type { Variants };
 /**
  * Calm easing — easeOutExpo-ish. Quick start, long gentle settle, no overshoot.
  */
-export const EASE_CALM = [0.22, 1, 0.36, 1] as const;
+const EASE_CALM = [0.22, 1, 0.36, 1] as const;
 
 /** Duration scale (seconds). Deliberately short — calm, not sluggish. */
-export const DUR = { fast: 0.16, base: 0.26, slow: 0.4 } as const;
+const DUR = { fast: 0.16, base: 0.26, slow: 0.4 } as const;
 
-export const calm: Transition = { duration: DUR.base, ease: EASE_CALM };
+const calm: Transition = { duration: DUR.base, ease: EASE_CALM };
 export const calmFast: Transition = { duration: DUR.fast, ease: EASE_CALM };
+const calmSlow: Transition = { duration: DUR.slow, ease: EASE_CALM };
 
 /**
  * Shared variant vocabulary. Each carries `initial`/`animate`/`exit` so the
@@ -66,6 +67,28 @@ export const variants = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0, transition: calm },
     exit: { opacity: 0, y: 6, transition: calmFast },
+  },
+  /** One-time section reveal. Use on structural blocks, not every row. */
+  reveal: {
+    initial: { opacity: 0, y: 14 },
+    animate: { opacity: 1, y: 0, transition: calmSlow },
+    exit: { opacity: 0, y: 8, transition: calmFast },
+  },
+  /** A compact child reveal for a small, deliberate stagger. */
+  revealItem: {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0, transition: calm },
+    exit: { opacity: 0, y: 4, transition: calmFast },
+  },
+  /** Coordinates a few sibling reveals without adding its own transform. */
+  stagger: {
+    initial: {},
+    animate: {
+      transition: { staggerChildren: 0.055, delayChildren: 0.04 },
+    },
+    exit: {
+      transition: { staggerChildren: 0.03, staggerDirection: -1 },
+    },
   },
   /** Bottom-sheet / centered modal panel: rises in, settles down on exit. */
   sheet: {

@@ -541,7 +541,6 @@ export default function AskPdf() {
         <ActiveModelBar
           models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
           roles={["chat", "retrieval", "rerank"]}
-          ready
           onChange={() => setVariantPickerOpen(true)}
           disabled={task.processing || isIndexing}
           onFreeMemory={rag.dispose}

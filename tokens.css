@@ -53,7 +53,9 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --dur-short: 160ms;
+  --dur-touch: 220ms;
   --dur-medium: 260ms;
+  --dur-long: 400ms;
 
   --rule-thin: 1px;
   --radius-card: 0.5rem;

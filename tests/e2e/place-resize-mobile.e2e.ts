@@ -1,7 +1,7 @@
 /**
  * Mobile (bottom-sheet) visual verification for the place-then-drag-resize UX:
  * signature and QR placement + corner-resize with touch, at a phone viewport.
- * Confirms the panels read in the 40%-capped sheet, the signature Size slider is
+ * Confirms the panels read in the half-height sheet, the signature Size slider is
  * gone, placement + resize work, and apply runs via the global ✓. Screenshots to
  * /tmp for review; fails on any console / page error.
  *
@@ -194,7 +194,8 @@ async function main() {
     await waitText(page, /Tap the page to place/i);
 
     const f = await sheetFraction(page);
-    if (f < 0 || f > 0.43) fail(`Signature sheet exceeds 40% cap: ${(f * 100).toFixed(1)}%.`);
+    if (f < 0.49 || f > 0.51)
+      fail(`Signature sheet should be 50% of the column: ${(f * 100).toFixed(1)}%.`);
 
     const wPct = 0.28;
     const hPct = (wPct * pageAspect) / 2;
@@ -210,7 +211,7 @@ async function main() {
     );
     await waitText(page, /\b1 signature\b/i);
     await page.screenshot({ path: join(SHOT_DIR, "m-sig-2-resized.png") });
-    console.log("  ✓ mobile signature place + corner-resize (no slider, sheet capped)");
+    console.log("  ✓ mobile signature place + corner-resize (no slider, 50:50 split)");
 
     await page.click('button[aria-label="Done"]'); // ✓ applies
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 60_000 });

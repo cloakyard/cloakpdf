@@ -8,10 +8,12 @@
     "build": "tsc && vp build",
     "preview": "vp preview",
     "prepare": "vp config",
+    "check:dead": "knip",
     "test": "vp test run tests/unit",
     "test:watch": "vp test watch tests/unit",
     "test:e2e": "node --experimental-strip-types tests/e2e/ai-tools.e2e.ts",
-    "test:e2e:tools": "node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts",
+    "test:e2e:motion": "node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts",
+    "test:e2e:tools": "node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts && node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts",
     "test:e2e:all": "pnpm test:e2e:tools && pnpm test:e2e",
     "test:e2e:extended": "node --experimental-strip-types tests/e2e/rotate.e2e.ts && node --experimental-strip-types tests/e2e/compress.e2e.ts && node --experimental-strip-types tests/e2e/signature-pen.e2e.ts && node --experimental-strip-types tests/e2e/annotate-fonts.e2e.ts && node --experimental-strip-types tests/e2e/stamp-preview.e2e.ts && node --experimental-strip-types tests/e2e/place-resize.e2e.ts && node --experimental-strip-types tests/e2e/place-resize-mobile.e2e.ts",
     "test:compare": "node --experimental-strip-types tests/e2e/compare-variants.ts",
@@ -44,7 +46,7 @@
     "@types/react-dom": "^19.2.3",
     "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-react": "^6.0.3",
-    "@voidzero-dev/vite-plus-core": "^0.2.5",
+    "knip": "^6.27.0",
     "puppeteer-core": "^25.3.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
@@ -53,5 +55,21 @@
     "vite-plus": "^0.2.5",
     "vitest": "^4.1.10"
   },
-  "packageManager": "pnpm@10.32.1"
+  "packageManager": "pnpm@10.32.1",
+  "knip": {
+    "entry": [
+      "tests/e2e/*.ts"
+    ],
+    "project": [
+      "src/**/*.{ts,tsx}",
+      "scripts/**/*.mjs",
+      "tests/**/*.{ts,tsx}"
+    ],
+    "ignoreBinaries": [
+      "taskkill"
+    ],
+    "ignoreDependencies": [
+      "tailwindcss"
+    ]
+  }
 }

@@ -16,21 +16,15 @@ export { mergePdfs, splitPdfIntoParts, assemblePdf } from "./pdf/pages.ts";
 
 export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
 
-export type {
-  FlatField,
-  ProfileKey,
-  FieldFill,
-  DetectFlatFieldsOptions,
-} from "./pdf/form-detect.ts";
-export { detectFlatFields, fillFlatFormFields, profileKeyForLabel } from "./pdf/form-detect.ts";
+export type { FlatField, ProfileKey, FieldFill } from "./pdf/form-detect.ts";
+export { detectFlatFields, fillFlatFormFields } from "./pdf/form-detect.ts";
 
-export type { NupLayout, NupOptions } from "./pdf/transform.ts";
+export type { NupLayout } from "./pdf/transform.ts";
 export {
   compressPdf,
   grayscalePdf,
   imagesToPdf,
   nupPages,
-  bookletOrder,
   cropPagesIndividual,
 } from "./pdf/transform.ts";
 
@@ -42,12 +36,10 @@ export {
   addBatesNumbers,
 } from "./pdf/stamps.ts";
 
-export type { CodeStampType, CodeArtOptions, CodePlacement } from "./pdf/codes.ts";
+export type { CodeStampType } from "./pdf/codes.ts";
 export { addCodeStampAt, encodeCode128B } from "./pdf/codes.ts";
-export type { QrEcl, QrMatrix } from "./pdf/qr.ts";
 export { encodeQr } from "./pdf/qr.ts";
 
-export type { TokenContext, TokenDef } from "./pdf/tokens.ts";
 export { STAMP_TOKENS, resolveStampTokens, baseFileName } from "./pdf/tokens.ts";
 
 export type { PdfInfo } from "./pdf/metadata.ts";
@@ -63,29 +55,20 @@ export { extractTextOcr, createSearchablePdf, createSearchablePdfFromLayout } fr
 
 export { redactPdf } from "./pdf/redact.ts";
 
-export type { ContentBox, SkewOptions, DeskewOptions } from "./pdf/page-analyze.ts";
-export {
-  inkBoundingBox,
-  detectSkewAngle,
-  detectContentBox,
-  deskewPdf,
-} from "./pdf/page-analyze.ts";
+export { detectContentBox, deskewPdf } from "./pdf/page-analyze.ts";
 
-export type { EraseMode, EraseRegion } from "./pdf/erase.ts";
+export type { EraseMode } from "./pdf/erase.ts";
 export { erasePdf, renderErasePreview } from "./pdf/erase.ts";
 
 export type { ScrubCategory, ScrubAnalysis } from "./pdf/scrub.ts";
-export { SCRUB_CATEGORIES, analyzePdfHiddenData, scrubPdf } from "./pdf/scrub.ts";
+export { analyzePdfHiddenData, scrubPdf } from "./pdf/scrub.ts";
 
 export type {
   AnnotationColor,
   Annotation,
   IconId,
-  IconGeometry,
   TextFontId,
   FontFamily,
-  FontCategory,
-  FontFamilyMeta,
 } from "./pdf/annotate.ts";
 export {
   annotatePdf,
@@ -104,7 +87,6 @@ export {
   wrapTextToWidth,
 } from "./pdf/annotate.ts";
 
-export type { BookmarkEntry, BookmarkOptions } from "./pdf/bookmarks.ts";
 export { addPdfBookmarks } from "./pdf/bookmarks.ts";
 
 export type { PdfAttachment } from "./pdf/attachments.ts";

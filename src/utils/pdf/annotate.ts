@@ -202,7 +202,7 @@ export type FontFamily =
   | "sourcecodepro"
   | "oswald";
 
-export type FontCategory = "sans" | "serif" | "mono" | "display";
+type FontCategory = "sans" | "serif" | "mono" | "display";
 
 export interface FontFamilyMeta {
   id: FontFamily;

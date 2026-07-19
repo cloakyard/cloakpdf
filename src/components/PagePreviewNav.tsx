@@ -26,6 +26,8 @@
  * - `variant`: "minimal" (the muted corner stepper, default) vs
  *   "bordered" (Compare PDFs' prominent centred results pager). The
  *   bordered variant manages its own geometry, so `size` is ignored.
+ * - `compact`: removes spaces and count padding for exceptionally narrow
+ *   chrome such as the 320px editor top bar while keeping 44px touch targets.
  */
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -44,6 +46,8 @@ interface PagePreviewNavProps {
   size?: "sm" | "touch";
   /** Visual treatment. Defaults to the muted corner "minimal" stepper. */
   variant?: "minimal" | "bordered";
+  /** Tight count label for narrow chrome. Defaults to false. */
+  compact?: boolean;
 }
 
 // Shared focus + disabled behaviour. One accent (primary-500) per the
@@ -65,6 +69,7 @@ export function PagePreviewNav({
   onChange,
   size = "sm",
   variant = "minimal",
+  compact = false,
 }: PagePreviewNavProps) {
   if (total <= 1) return null;
 
@@ -76,7 +81,9 @@ export function PagePreviewNav({
   const chevronClass = bordered ? "w-4 h-4 text-slate-600 dark:text-dark-text-muted" : "w-4 h-4";
   const countClass = bordered
     ? "text-sm font-medium text-slate-700 dark:text-dark-text tabular-nums min-w-20 text-center"
-    : "text-xs text-slate-500 dark:text-dark-text-muted tabular-nums px-1";
+    : compact
+      ? "whitespace-nowrap text-[10px] text-slate-500 dark:text-dark-text-muted tabular-nums"
+      : "whitespace-nowrap text-xs text-slate-500 dark:text-dark-text-muted tabular-nums px-1";
 
   return (
     <div className={`flex items-center ${bordered ? "gap-2" : "gap-0.5"}`}>
@@ -89,8 +96,13 @@ export function PagePreviewNav({
       >
         <ChevronLeft className={chevronClass} />
       </button>
-      <span role="status" aria-live="polite" className={countClass}>
-        {page + 1} / {total}
+      <span
+        role="status"
+        aria-live="polite"
+        aria-label={`Page ${page + 1} of ${total}`}
+        className={countClass}
+      >
+        {compact ? `${page + 1}/${total}` : `${page + 1} / ${total}`}
       </span>
       <button
         type="button"

@@ -75,7 +75,7 @@ export const DEFAULT_REDACTION_FILL: RgbColor = { r: 30, g: 41, b: 59 };
 export const DEFAULT_REDACTION_BORDER: RgbColor = { r: 220, g: 38, b: 38 };
 
 /** CSS `rgb(...)` string for a colour (for canvas fillStyle / strokeStyle). */
-export function rgbCss(c: RgbColor): string {
+function rgbCss(c: RgbColor): string {
   return `rgb(${c.r}, ${c.g}, ${c.b})`;
 }
 

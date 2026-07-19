@@ -70,7 +70,7 @@ export interface CreateSessionOptions {
  * A/B without touching code. The e2e comparison orchestrator flips
  * this for cross-cut measurement runs.
  */
-export const RAG_RERANK_FLAG = "cloakpdf:rag-rerank";
+const RAG_RERANK_FLAG = "cloakpdf:rag-rerank";
 
 function rerankEnabled(): boolean {
   if (typeof localStorage === "undefined") return true;
@@ -85,13 +85,13 @@ export type IndexingProgress =
   | { kind: "extract"; phase: "text-layer" | "ocr"; current: number; total: number }
   | { kind: "embed"; current: number; total: number };
 
-export interface AskOptions {
+interface AskOptions {
   question: string;
   /** Fires for each decoded token as the chat model streams. */
   onToken?: (delta: string) => void;
 }
 
-export interface AskResult {
+interface AskResult {
   answer: string;
   citedPages: number[];
   /**

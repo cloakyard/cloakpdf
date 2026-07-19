@@ -60,7 +60,7 @@ export function Layout({
               type="button"
               onClick={onHome}
               aria-label="CloakPDF home"
-              className="flex min-h-10 min-w-0 items-center gap-[0.6rem] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
+              className="cloak-brand-button flex min-h-10 min-w-0 items-center gap-[0.6rem] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
             >
               <img
                 src="/icons/logo.svg"
@@ -68,7 +68,7 @@ export function Layout({
                 aria-hidden="true"
                 width="40"
                 height="40"
-                className="size-10 shrink-0 rounded-full"
+                className="cloak-brand-mark size-10 shrink-0 rounded-full"
               />
               <span
                 translate="no"
@@ -184,7 +184,7 @@ export function Layout({
                 type="button"
                 onClick={onHome}
                 aria-label="CloakPDF home"
-                className="cloak-focus inline-flex min-h-10 w-fit items-center gap-[0.6rem] rounded-md pointer-coarse:min-h-11"
+                className="cloak-brand-button cloak-focus inline-flex min-h-10 w-fit items-center gap-[0.6rem] rounded-md pointer-coarse:min-h-11"
               >
                 <img
                   src="/icons/logo.svg"
@@ -192,7 +192,7 @@ export function Layout({
                   aria-hidden="true"
                   width="34"
                   height="34"
-                  className="size-[34px] shrink-0 rounded-full"
+                  className="cloak-brand-mark size-[34px] shrink-0 rounded-full"
                 />
                 <span
                   translate="no"

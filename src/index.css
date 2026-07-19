@@ -179,6 +179,38 @@
   background: var(--color-accent-hover);
 }
 
+.cloak-brand-mark,
+.cloak-link-arrow,
+.cloak-tool-card__icon,
+.cloak-tool-card__arrow,
+.cloak-dropzone__icon,
+.cloak-ledger__icon,
+.cloak-ledger__arrow,
+.editor-toolrail__icon,
+.cloak-dialog__close svg {
+  transition: transform var(--dur-medium) var(--ease-out);
+}
+
+.cloak-link-motion {
+  transition: color var(--dur-short) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .cloak-brand-button:hover .cloak-brand-mark {
+    transform: rotate(-4deg) scale(1.04);
+  }
+
+  .cloak-link-motion:hover .cloak-link-arrow,
+  .cloak-dropzone:hover .cloak-link-arrow {
+    transform: translateX(4px);
+  }
+
+  .cloak-outline-link:hover svg,
+  .cloak-dialog__close:hover:not(:disabled) svg {
+    transform: translateY(-1px) rotate(-4deg);
+  }
+}
+
 .cloak-nav-link:active,
 .cloak-outline-link:active,
 .cloak-solid-link:active {
@@ -266,6 +298,7 @@
   display: inline-block;
   border-radius: var(--radius-pill);
   background: var(--color-accent);
+  animation: cloak-status-arrive var(--dur-long) var(--ease-out) both;
 }
 
 .cloak-workbench__body {
@@ -464,6 +497,16 @@
   letter-spacing: 0.06em;
 }
 
+@media (hover: hover) {
+  .cloak-tool-card:hover .cloak-tool-card__icon {
+    transform: rotate(-5deg) scale(1.08);
+  }
+
+  .cloak-tool-card:hover .cloak-tool-card__arrow {
+    transform: translateX(4px);
+  }
+}
+
 .cloak-proof-band {
   background: var(--color-night);
   color: var(--color-night-ink);
@@ -562,6 +605,17 @@
   background: var(--color-accent-soft);
 }
 
+.cloak-dropzone__icon {
+  transform-origin: 50% 65%;
+}
+
+@media (hover: hover) {
+  .cloak-dropzone:hover .cloak-dropzone__icon,
+  .cloak-dropzone[data-dragging="true"] .cloak-dropzone__icon {
+    transform: translateY(-3px) rotate(-4deg);
+  }
+}
+
 .cloak-dropzone:focus-within {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -619,6 +673,16 @@
   letter-spacing: 0.035em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.cloak-action-button svg:not(.animate-spin) {
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .cloak-action-button:hover:not(:disabled) svg:not(.animate-spin) {
+    transform: translateY(-1px) scale(1.05);
+  }
 }
 
 .cloak-site-footer {
@@ -808,6 +872,31 @@
 
 .cloak-ledger > * + * {
   border-top: var(--rule-thin) solid var(--color-rule);
+}
+
+@media (hover: hover) {
+  .cloak-ledger button:hover .cloak-ledger__icon {
+    transform: rotate(-4deg) scale(1.08);
+  }
+
+  .cloak-ledger button:hover .cloak-ledger__arrow {
+    transform: translateX(4px);
+  }
+}
+
+.editor-toolrail button .editor-toolrail__icon {
+  transform-origin: center;
+}
+
+@media (hover: hover) {
+  .editor-toolrail button:hover .editor-toolrail__icon {
+    transform: translateY(-1px) scale(1.08);
+  }
+}
+
+.editor-toolrail__active-bar {
+  animation: cloak-active-bar-in var(--dur-medium) var(--ease-out) both;
+  transform-origin: center;
 }
 
 .cloak-export-format-grid {
@@ -1013,10 +1102,6 @@
 
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
-:root {
-  --page-bg: var(--color-paper);
-}
-
 /* Root stack heights and base background. Mirrors CloakResume's
    index.css: html/body/#app are sized to 100% of their parent so
    100svh on the layout wrapper resolves cleanly, and body carries a
@@ -1083,6 +1168,87 @@ body {
   color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Motion vocabulary: one calm settle for changing tool/state content, a
+   shorter confirmation for selected files, and one-shot functional accents.
+   These animate paint/transform only — never editor geometry. */
+@keyframes cloak-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Touch panels live in narrower property panes and, on phones, a half-height
+   sheet. Avoid scaling text and use a shorter travel so landscape controls do
+   not feel as though they rise through a large share of the available body. */
+@keyframes cloak-panel-enter-touch {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cloak-state-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cloak-status-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes cloak-active-bar-in {
+  from {
+    opacity: 0;
+    transform: scaleY(0.35);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.cloak-panel-enter {
+  animation: cloak-panel-enter var(--dur-medium) var(--ease-out) both;
+  transform-origin: top center;
+}
+
+.cloak-state-enter {
+  animation: cloak-state-enter var(--dur-medium) var(--ease-out) both;
+}
+
+@media (pointer: coarse) {
+  .cloak-panel-enter {
+    animation-name: cloak-panel-enter-touch;
+    animation-duration: var(--dur-touch);
+  }
+
+  .cloak-state-enter {
+    animation-duration: var(--dur-touch);
+  }
 }
 
 /* Subtle rotation cue used by the OrientationLock overlay — tilts a
@@ -1166,6 +1332,28 @@ body {
      and are exempt under reduced-motion guidance. */
   .animate-pulse {
     animation: none;
+  }
+
+  .cloak-panel-enter,
+  .cloak-state-enter,
+  .cloak-status-dot,
+  .editor-toolrail__active-bar {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .cloak-brand-mark,
+  .cloak-link-arrow,
+  .cloak-tool-card__icon,
+  .cloak-tool-card__arrow,
+  .cloak-dropzone__icon,
+  .cloak-ledger__icon,
+  .cloak-ledger__arrow,
+  .editor-toolrail__icon,
+  .cloak-dialog__close svg,
+  .cloak-action-button svg {
+    transition: none !important;
+    transform: none !important;
   }
 }
 

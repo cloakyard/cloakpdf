@@ -61,7 +61,7 @@ export async function decodeImageToPngBytes(file: File): Promise<Uint8Array> {
  * Converts to grayscale and applies contrast stretching so that
  * Tesseract's internal binarisation produces cleaner results.
  */
-export function preprocessCanvasForOcr(canvas: HTMLCanvasElement): void {
+function preprocessCanvasForOcr(canvas: HTMLCanvasElement): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -102,7 +102,7 @@ export function preprocessCanvasForOcr(canvas: HTMLCanvasElement): void {
  * blank result. Normal Letter/A4/A3 pages at OCR scale stay well under the cap,
  * so they're never touched.
  */
-export const MAX_CANVAS_DIM = 4096;
+const MAX_CANVAS_DIM = 4096;
 
 /**
  * Reduce `scale` if rendering at it would produce a canvas whose longest side
