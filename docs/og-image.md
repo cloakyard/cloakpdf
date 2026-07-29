@@ -30,6 +30,17 @@ OG_URL=http://127.0.0.1:5173 pnpm generate-og
 After regenerating, confirm the file is still 1200x630 and visually inspect it.
 The matching Open Graph and Twitter metadata lives in `index.html`.
 
+When the logo changes, regenerate the PWA assets first and the social card
+second:
+
+```bash
+pnpm generate-icons
+pnpm generate-og
+```
+
+The shared geometry and naming contract for those source assets is documented in
+[`logo-spec.md`](logo-spec.md).
+
 ## Why the live page is the source
 
 The landing page itself is the product's strongest design artifact. Capturing it

@@ -1,18 +1,13 @@
 /**
- * Unit tests for our BM25 retriever wrapper.
+ * Unit tests for CloakPDF's local BM25 retriever.
  *
- * The wrapper exists because `@langchain/community`'s `BM25Retriever`
- * lowercases the query but matches against the original-case corpus
- * with a case-sensitive regex — so "Sumit" in a chunk is invisible to
- * the lowercased "sumit" query token, and the only contributing terms
- * are accidental lowercase substrings ("is" in "Enterpr**is**e"). For a
- * résumé this nullifies BM25's whole job: rare proper nouns like a
- * surname carry no signal.
+ * The retriever is local because LangChain sunset `@langchain/community`
+ * without publishing a dedicated BM25 successor. It keeps the LangChain Core
+ * retriever interface while using case-insensitive, word-boundary tokenisation.
  *
- * These tests pin the fix from both sides — proper nouns must score
- * the chunk that contains them, and the wrapper must hand back the
- * original-case `Document` (not the lowercased indexing copy) so the
- * LLM downstream still sees the document's real text.
+ * These tests pin the important behavior: proper nouns must score the chunk
+ * that contains them, substring accidents must not score, and the original
+ * `Document` must reach the LLM unchanged.
  */
 import { Document } from "@langchain/core/documents";
 import { describe, expect, it } from "vitest";
@@ -34,27 +29,19 @@ const RESUME_CHUNKS = [
 ];
 
 describe("buildBm25Retriever (case-insensitive)", () => {
-  it("ranks the title chunk highest for 'Who is Sumit Sahoo?' — Sahoo is rare", async () => {
+  it("ranks the title chunk highest when the rare surname is present", async () => {
     const retriever = buildBm25Retriever({ documents: RESUME_CHUNKS, k: 4 });
     const hits = await retriever.invoke("Who is Sumit Sahoo?");
     expect(hits[0]?.metadata.chunkId).toBe("title");
   });
 
-  it("ranks the title chunk highest for 'Who is Sumit?' too — capitalisation must not hide hits", async () => {
-    // Regression: under the upstream `BM25Retriever` alone, query
-    // tokens are lowercased ("sumit") but the corpus regex is
-    // case-sensitive, so "Sumit" in the chunks contributes zero. The
-    // only "matches" then come from coincidental lowercase substrings
-    // (e.g. "is" inside "Enterprise") — title and bullet-langs end up
-    // tied on stopword overlap and the question echoes back. With the
-    // case fix, "sumit" hits every chunk that names Sumit and the
-    // title leads on document-length normalisation.
+  it("ranks the shortest exact-name chunk highest regardless of capitalisation", async () => {
     const retriever = buildBm25Retriever({ documents: RESUME_CHUNKS, k: 4 });
-    const hits = await retriever.invoke("Who is Sumit?");
+    const hits = await retriever.invoke("who is sumit?");
     expect(hits[0]?.metadata.chunkId).toBe("title");
   });
 
-  it("returns the original-case Document, not the lowercased indexing copy", async () => {
+  it("returns the original-case Document", async () => {
     const retriever = buildBm25Retriever({ documents: RESUME_CHUNKS, k: 1 });
     const [hit] = await retriever.invoke("Sumit Sahoo");
     expect(hit?.pageContent).toBe("Sumit Sahoo\nENTERPRISE ARCHITECT");
@@ -66,11 +53,25 @@ describe("buildBm25Retriever (case-insensitive)", () => {
     expect(hits).toHaveLength(2);
   });
 
-  it("preserves page metadata through the wrapper", async () => {
+  it("preserves page metadata", async () => {
     const docs = [chunk("Sumit Sahoo", "title", 1), chunk("Other content", "other", 4)];
     const retriever = buildBm25Retriever({ documents: docs, k: 2 });
     const [hit] = await retriever.invoke("Sumit");
     expect(hit?.metadata.pageNumber).toBe(1);
     expect(hit?.metadata.chunkId).toBe("title");
+  });
+
+  it("does not count a query term as a substring of another word", async () => {
+    const docs = [chunk("She writes articles", "substring"), chunk("Art direction", "exact")];
+    const retriever = buildBm25Retriever({ documents: docs, k: 2 });
+    const hits = await retriever.invoke("art");
+    expect(hits[0]?.metadata.chunkId).toBe("exact");
+  });
+
+  it("handles an empty corpus and zero k", async () => {
+    const empty = buildBm25Retriever({ documents: [], k: 4 });
+    const disabled = buildBm25Retriever({ documents: RESUME_CHUNKS, k: 0 });
+    await expect(empty.invoke("Sumit")).resolves.toEqual([]);
+    await expect(disabled.invoke("Sumit")).resolves.toEqual([]);
   });
 });

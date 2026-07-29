@@ -221,7 +221,7 @@ export function EditorTopBar() {
 
         {!isMobile && (
           <img
-            src="/icons/logo.svg"
+            src="/cloakpdf-mark.svg"
             alt=""
             width="40"
             height="40"

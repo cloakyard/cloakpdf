@@ -70,13 +70,28 @@ vp install   # needs Node ≥ 24 and `npm i -g vite-plus`
 vp dev       # http://localhost:5173
 ```
 
-| Command           | Description                        |
-| ----------------- | ---------------------------------- |
-| `vp dev`          | Dev server with hot reload         |
-| `vp build`        | Type-check + production build      |
-| `vp check`        | Format, lint, type-check           |
-| `pnpm check:dead` | Audit unused code and dependencies |
-| `vp test`         | Run unit tests                     |
+| Command               | Description                                                  |
+| --------------------- | ------------------------------------------------------------ |
+| `vp dev`              | Dev server with hot reload                                   |
+| `vp build`            | Type-check + production build                                |
+| `vp check`            | Format, lint, type-check                                     |
+| `pnpm check:dead`     | Audit unused code and dependencies                           |
+| `vp test`             | Run unit tests                                               |
+| `pnpm generate-icons` | Rebuild PWA, touch, and legacy icons from the app-icon SVG   |
+| `pnpm generate-og`    | Capture the current landing page as the 1200×630 social card |
+
+---
+
+## 🎨 Brand assets
+
+CloakPDF follows the shared Cloakyard mark and installed-app icon contract in
+**[docs/logo-spec.md](docs/logo-spec.md)**. The circular UI mark lives at
+`public/cloakpdf-mark.svg`; installable PWA assets are generated from the
+separate, full-bleed `public/icons/cloakpdf-app-icon.svg`.
+
+After changing either source, run `pnpm generate-icons` and then
+`pnpm generate-og`. The latter captures the real landing page so the social
+preview stays aligned with the current logo and UI.
 
 ---
 

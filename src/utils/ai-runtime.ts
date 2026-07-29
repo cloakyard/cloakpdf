@@ -12,7 +12,14 @@
  *   - re-uses a single pipeline instance per model — once a pipeline is
  *     loaded it stays in memory until the page unloads.
  */
-import { type AiModelId, getModelInfo } from "./ai-models.ts";
+import {
+  type AiModelId,
+  clearAllReadyFlags,
+  getModelInfo,
+  isModelCacheSignatureCurrent,
+  markModelCacheSignatureCurrent,
+  migrateLegacyChatReadyFlag,
+} from "./ai-models.ts";
 
 /**
  * Public type for a loaded pipeline instance. Transformers.js exposes
@@ -369,6 +376,8 @@ const TRANSFORMERS_CACHE_NAMES = ["transformers-cache"];
  */
 export interface ModelCacheEvictResult {
   deletedCaches: number;
+  /** Cache entries that could not be deleted and should be retried later. */
+  failedCaches: number;
   cacheApiAvailable: boolean;
 }
 
@@ -393,14 +402,16 @@ export interface ModelCacheEvictResult {
  */
 export async function evictModelCacheBytes(): Promise<ModelCacheEvictResult> {
   if (typeof caches === "undefined") {
-    return { deletedCaches: 0, cacheApiAvailable: false };
+    return { deletedCaches: 0, failedCaches: 0, cacheApiAvailable: false };
   }
   let deleted = 0;
+  let failed = 0;
   for (const name of TRANSFORMERS_CACHE_NAMES) {
     try {
       const ok = await caches.delete(name);
       if (ok) deleted += 1;
     } catch (e) {
+      failed += 1;
       // Best-effort — a failure on one entry shouldn't abort the
       // rest. We don't surface this to the user because there's
       // nothing actionable; the failure mode is "the bytes are still
@@ -409,7 +420,75 @@ export async function evictModelCacheBytes(): Promise<ModelCacheEvictResult> {
       console.warn(`[ai-runtime] failed to delete CacheStorage "${name}"`, e);
     }
   }
-  return { deletedCaches: deleted, cacheApiAvailable: true };
+  return { deletedCaches: deleted, failedCaches: failed, cacheApiAvailable: true };
+}
+
+export interface ModelCacheSyncResult extends ModelCacheEvictResult {
+  /** Whether the stored model registry differed from the active one. */
+  upgraded: boolean;
+  /** Number of derived per-PDF embedding indexes removed. */
+  deletedIndexes: number;
+}
+
+let _modelCacheSync: Promise<ModelCacheSyncResult> | null = null;
+
+/**
+ * Synchronise persisted AI artifacts with the active model registry.
+ *
+ * This runs before React mounts. A changed registry fingerprint means
+ * at least one model repo/task/pipeline option (or the explicit cache
+ * schema) changed, so every persisted artifact is invalidated as one
+ * atomic logical unit:
+ *
+ *   1. Clear ready flags synchronously, preventing a stale warm-load.
+ *   2. Delete Transformers.js CacheStorage bytes, including retired
+ *      model orphans.
+ *   3. Clear IndexedDB PDF embeddings produced by the old embedder.
+ *   4. Persist the new registry signature only when cache eviction did
+ *      not fail, so a transient Cache API error is retried next load.
+ *
+ * Calls coalesce through one promise, which also makes StrictMode or
+ * multiple startup consumers harmless.
+ */
+export function synchronizeModelCache(): Promise<ModelCacheSyncResult> {
+  if (_modelCacheSync) return _modelCacheSync;
+
+  migrateLegacyChatReadyFlag();
+  if (isModelCacheSignatureCurrent()) {
+    return Promise.resolve({
+      upgraded: false,
+      deletedCaches: 0,
+      failedCaches: 0,
+      cacheApiAvailable: typeof caches !== "undefined",
+      deletedIndexes: 0,
+    });
+  }
+
+  // This must happen before the first await: callers invoke the
+  // synchroniser before mounting React, and a stale ready flag must
+  // never get a chance to trigger a warm pipeline load.
+  clearAllReadyFlags();
+
+  _modelCacheSync = (async () => {
+    await disposeAllModels();
+    const cacheResult = await evictModelCacheBytes();
+    const { clearAllCachedIndexes } = await import("../rag/persistence.ts");
+    const deletedIndexes = await clearAllCachedIndexes();
+
+    if (cacheResult.failedCaches === 0) {
+      markModelCacheSignatureCurrent();
+    }
+
+    return {
+      upgraded: true,
+      deletedIndexes,
+      ...cacheResult,
+    };
+  })().finally(() => {
+    _modelCacheSync = null;
+  });
+
+  return _modelCacheSync;
 }
 
 /**

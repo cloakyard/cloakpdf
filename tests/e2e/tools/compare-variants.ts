@@ -47,7 +47,7 @@ import {
   type ChatVariantId,
   formatApproxSize,
   getChatModelId,
-} from "../../src/utils/ai-models.ts";
+} from "../../../src/utils/ai-models.ts";
 
 interface E2eSummary {
   kind: "e2e-summary";
@@ -79,7 +79,7 @@ async function runVariant(variant: ChatVariantId, options: { fresh: boolean }): 
 
     const child = spawn(
       "node",
-      ["--experimental-strip-types", resolve(import.meta.dirname, "./ai-tools.e2e.ts")],
+      ["--experimental-strip-types", resolve(import.meta.dirname, "../ai-tools.e2e.ts")],
       { env, stdio: ["ignore", "pipe", "pipe"] },
     );
 

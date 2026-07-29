@@ -6,19 +6,22 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 This project uses **Vite+** (`vp`) — a unified toolchain wrapping Vite, Rolldown, Vitest, tsdown, Oxlint, and Oxfmt. Install globally with `npm i -g vite-plus`. Run `vp help` / `vp <command> --help` for any command. Docs live at `node_modules/vite-plus/docs` or https://viteplus.dev/guide/.
 
-| Command                                      | Purpose                                                                                                                                                                                                                                                                                                       |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `vp install`                                 | Install dependencies (run after pulling).                                                                                                                                                                                                                                                                     |
-| `vp dev`                                     | Dev server on http://localhost:5173.                                                                                                                                                                                                                                                                          |
-| `vp build`                                   | TypeScript check + production build to `dist/`.                                                                                                                                                                                                                                                               |
-| `vp check`                                   | Format + lint + type-check. Must pass before commit.                                                                                                                                                                                                                                                          |
-| `pnpm check:dead`                            | Find unused files, exports, types, dependencies, unresolved imports, duplicate exports, and dependency cycles.                                                                                                                                                                                                |
-| `vp test`                                    | Unit tests via Vitest (`tests/unit/`).                                                                                                                                                                                                                                                                        |
-| `vp test run tests/unit/rag-bm25.test.ts`    | Run a single file.                                                                                                                                                                                                                                                                                            |
-| `pnpm test:e2e`                              | Real-browser smoke (puppeteer-core) that uploads `tests/fixtures/sample.pdf` and drives Ask PDF end-to-end. Requires `vp dev` running and a Chrome binary at `CHROME_PATH` (default macOS path). First cold run downloads ~275 MB of model weights into the puppeteer profile at `tests/.puppeteer-profile/`. |
-| `pnpm exec tsx tests/e2e/retrieval-probe.ts` | Dumps per-retriever hits + relevance scores per question to `tests/retrieval-debug/<timestamp>.json` for tuning the RAG pipeline.                                                                                                                                                                             |
+| Command                                   | Purpose                                                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `vp install`                              | Install dependencies (run after pulling).                                                                                                                                                                                                                                                                                      |
+| `vp dev`                                  | Dev server on http://localhost:5173.                                                                                                                                                                                                                                                                                           |
+| `vp build`                                | TypeScript check + production build to `dist/`.                                                                                                                                                                                                                                                                                |
+| `vp check`                                | Format + lint + type-check. Must pass before commit.                                                                                                                                                                                                                                                                           |
+| `pnpm check:dead`                         | Find unused files, exports, types, dependencies, unresolved imports, duplicate exports, and dependency cycles.                                                                                                                                                                                                                 |
+| `pnpm test`                               | Unit tests via Vitest (`tests/unit/`).                                                                                                                                                                                                                                                                                         |
+| `vp test run tests/unit/rag-bm25.test.ts` | Run a single file.                                                                                                                                                                                                                                                                                                             |
+| `pnpm generate-icons`                     | Regenerate PWA, Apple touch, and favicon raster assets from `public/icons/cloakpdf-app-icon.svg`.                                                                                                                                                                                                                              |
+| `pnpm generate-og`                        | Capture the real landing page at 1200×630 into `public/icons/og-image.png`; requires Chrome.                                                                                                                                                                                                                                   |
+| `pnpm test:e2e`                           | Real-browser smoke (puppeteer-core) that uploads `tests/fixtures/sample.pdf` and drives Ask PDF end-to-end. Requires `vp dev` running and a Chrome binary at `CHROME_PATH` (default macOS path). A cold Compact run downloads ~1.15 GB of model weights into the git-ignored Puppeteer profile at `tests/.puppeteer-profile/`. |
+| `pnpm test:e2e:smoke`                     | Runs the core non-AI browser suites under `tests/e2e/*.e2e.ts`.                                                                                                                                                                                                                                                                |
+| `pnpm test:probe`                         | Dumps per-retriever hits + relevance scores to `tests/retrieval-debug/<timestamp>.json` for tuning the RAG pipeline.                                                                                                                                                                                                           |
 
-Pre-commit testing rule: run `vp check` + `pnpm check:dead` + `vp test` + (for UI/RAG changes) `pnpm test:e2e` **before** `git commit`. There is a lint-staged hook that runs `vp check --fix` on staged files, but dead-code/unit/e2e checks are not enforced by the hook.
+Pre-commit testing rule: run `vp check` + `pnpm check:dead` + `pnpm test` + (for UI/RAG changes) the applicable E2E suite **before** `git commit`. There is a lint-staged hook that runs `vp check --fix` on staged files, but dead-code/unit/e2e checks are not enforced by the hook.
 
 ## Architecture
 
@@ -68,12 +71,14 @@ These never get conflated. Adding a "modify the bytes" tool → use pdf-lib. Add
 
 ### On-device AI (Ask PDF)
 
-The only feature heavier than vanilla PDF tooling. Two on-device models load together via Transformers.js:
+The only feature heavier than vanilla PDF tooling. Three on-device pipelines load together via Transformers.js: one of two chat tiers, the shared embedder, and the shared reranker.
 
-- **SmolLM2-1.7B-Instruct** (q4f16, ~1 GB on disk, ~2.5 GB peak RAM) — chat model.
-- **EmbeddingGemma-300M** (q8, WASM, ~309 MB) — sentence embeddings for retrieval.
+- **LFM2.5-1.2B-Instruct** (q4, ~810 MB / ~2 GB peak) — default Compact chat tier.
+- **LFM2-2.6B** (q4f16, ~1.55 GB / ~3.5 GB peak) — optional Quality chat tier.
+- **EmbeddingGemma-300M** (q8, WASM, ~320 MB) — sentence embeddings for retrieval.
+- **MS MARCO MiniLM-L-6-v2** (int8, WASM, ~23 MB) — cross-encoder reranking.
 
-Model metadata lives in [src/utils/ai-models.ts](src/utils/ai-models.ts) — both entries carry long history-of-swaps comments explaining why current settings are what they are. **Read those before swapping a model.** The chat slot has burned Qwen / Llama 3.2 / Gemma / SmolLM2-360M / SmolLM3 — every swap regressed extraction quality. Memory: don't propose Qwen as a drop-in (gibberish in-browser); SmolLM3 is rejected.
+Model metadata lives in [src/utils/ai-models.ts](src/utils/ai-models.ts) — entries carry long history-of-swaps comments explaining why current settings are what they are. **Read those before swapping a model.** The chat slot has burned Qwen / Llama 3.2 / Gemma / SmolLM2 / SmolLM3 candidates; do not reintroduce one without running the cross-tier browser comparison.
 
 The RAG pipeline ([src/rag/](src/rag/)) is a LangGraph state machine — see [src/rag/graph.ts](src/rag/graph.ts) for the full diagram. Per question:
 
@@ -85,7 +90,9 @@ The fast-paths exist because SmolLM2-1.7B mis-extracts digits, mislabels résum�
 
 Index caching: chunks + embeddings are persisted in IndexedDB keyed by SHA-256 of the PDF bytes ([src/rag/persistence.ts](src/rag/persistence.ts)) so re-opening the same file is instant. The packed Float32 vector store lives in [src/rag/vector-store.ts](src/rag/vector-store.ts).
 
-Generation sampling defaults ([src/rag/chat-model.ts](src/rag/chat-model.ts)): `temperature: 0.2`, `top_p: 0.85`, `max_new_tokens: 256`, `repetition_penalty: 1.15`, `no_repeat_ngram_size: 6`. The tuning history comment in the constructor body explains every step — keep it updated when changing defaults.
+Model-cache upgrades are automatic: the registry signature in [src/utils/ai-models.ts](src/utils/ai-models.ts) covers each model's repo/task/pipeline options, and [src/utils/ai-runtime.ts](src/utils/ai-runtime.ts) deletes stale Transformers CacheStorage bytes plus derived IndexedDB PDF indexes before React mounts. Do not bypass this by loading models outside `ai-runtime`.
+
+Generation sampling defaults live per chat tier in [src/utils/ai-models.ts](src/utils/ai-models.ts); [src/rag/chat-model.ts](src/rag/chat-model.ts) explains the tuning history. Keep both updated when changing defaults.
 
 ### Design system
 
@@ -95,6 +102,10 @@ Generation sampling defaults ([src/rag/chat-model.ts](src/rag/chat-model.ts)): `
 2. **Slate-200 borders, no resting shadow.** Cards earn elevation on hover, not at rest.
 
 Read DESIGN.md before adding new UI surfaces — the design system is doing real work and ad-hoc colour/shadow choices break the calm tone.
+
+The shared Cloakyard mark, PWA safe-zone geometry, product-specific asset naming,
+and regeneration contract live in [docs/logo-spec.md](docs/logo-spec.md). After
+changing a logo source, run `pnpm generate-icons` and `pnpm generate-og`.
 
 ### Deployment
 

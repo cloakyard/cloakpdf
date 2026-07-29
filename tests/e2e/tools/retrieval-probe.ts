@@ -8,7 +8,7 @@
  * hallucinates, is it because the retriever fed it the wrong chunks, or
  * because the model ignored the right ones?
  *
- *   pnpm exec tsx tests/e2e/retrieval-probe.ts
+ *   pnpm test:probe
  *
  * Requirements:
  *   - dev server at http://localhost:5173 (`vp dev`)
@@ -28,13 +28,13 @@ import { launch } from "puppeteer-core";
 // at a different document without editing this file.
 const FIXTURE_PATH = process.env.E2E_FIXTURE
   ? resolve(process.env.E2E_FIXTURE)
-  : resolve(import.meta.dirname, "../fixtures/sample.pdf");
+  : resolve(import.meta.dirname, "../../fixtures/sample.pdf");
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const USER_DATA_DIR =
-  process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile");
-const OUTPUT_DIR = resolve(import.meta.dirname, "../retrieval-debug");
+  process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../../.puppeteer-profile");
+const OUTPUT_DIR = resolve(import.meta.dirname, "../../retrieval-debug");
 
 // Trimmed to two questions so the relevance-gate signal (off-topic
 // score + behaviour, on-topic score + reply) is captured before

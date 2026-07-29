@@ -11,7 +11,7 @@
 
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Page } from "puppeteer-core";
+import type { Browser, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
 
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
@@ -44,6 +44,23 @@ function fail(message: string): never {
 
 function closeTo(actual: number, expected: number, tolerance = 0.75): boolean {
   return Math.abs(actual - expected) <= tolerance;
+}
+
+/** Puppeteer 25 can occasionally leave Chrome waiting on renderer teardown. */
+async function closeBrowser(browser: Browser): Promise<void> {
+  const browserProcess = browser.process();
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
+  const closed = await Promise.race([
+    browser.close().then(() => true),
+    new Promise<false>((resolveClose) => {
+      closeTimer = setTimeout(() => resolveClose(false), 5_000);
+    }),
+  ]);
+  if (closeTimer) clearTimeout(closeTimer);
+  if (closed) return;
+
+  void browser.disconnect();
+  browserProcess?.kill("SIGKILL");
 }
 
 function matrixScale(transform: string): number {
@@ -348,7 +365,7 @@ async function main() {
       "✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.",
     );
   } finally {
-    await browser.close();
+    await closeBrowser(browser);
   }
 }
 

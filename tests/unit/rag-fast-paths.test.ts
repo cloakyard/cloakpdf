@@ -86,6 +86,33 @@ describe("tryVerbatimExtraction", () => {
     });
   });
 
+  describe("location", () => {
+    it("returns the résumé header's city, state, and country", () => {
+      const hit = tryVerbatimExtraction(
+        "Where is Sumit based? Give me the city, state, and country.",
+        [RESUME_ANCHOR],
+      );
+      expect(hit?.value).toBe("Pune, Maharashtra, India");
+      expect(hit?.citedPages).toEqual([1]);
+    });
+
+    it("handles the one-line header shape produced by PDF.js reconstruction", () => {
+      const flattened = chunk(
+        "Sumit Sahoo ENTERPRISE ARCHITECT AI & CLOUD CONTACT sumitsahoo1988@gmail.com +91-7899800899 Pune, Maharashtra, India sumitsahoo.dev COREEXPERTISE Enterprise Architecture",
+      );
+      expect(tryVerbatimExtraction("Where is Sumit based?", [flattened])?.value).toBe(
+        "Pune, Maharashtra, India",
+      );
+    });
+
+    it("does not extract a location from a non-résumé corporate contact block", () => {
+      const corporate = chunk(
+        "Acme Corporation CONTACT hello@acme.example +1-555-123-4567 Austin, Texas, United States",
+      );
+      expect(tryVerbatimExtraction("Where is Acme based?", [corporate])).toBeNull();
+    });
+  });
+
   describe("fall-through cases", () => {
     it("returns null for overview / narrative questions", () => {
       const overviews = [
@@ -202,6 +229,16 @@ describe("tryDocumentTypeAnswer", () => {
         ].join("\n"),
       );
       const hit = tryDocumentTypeAnswer("What kind of document is this?", [portfolioAnchor]);
+      expect(hit?.value).toBe("This appears to be Sumit Sahoo's résumé.");
+    });
+
+    it("identifies a résumé when PDF reconstruction flattens the entire header", () => {
+      const flattened = chunk(
+        "Sumit Sahoo ENTERPRISE ARCHITECT AI & CLOUD CONTACT sumitsahoo1988@gmail.com +91-7899800899 Pune, Maharashtra, India sumitsahoo.dev COREEXPERTISE Enterprise Architecture",
+      );
+      const hit = tryDocumentTypeAnswer("What is this document and what is its main subject?", [
+        flattened,
+      ]);
       expect(hit?.value).toBe("This appears to be Sumit Sahoo's résumé.");
     });
 

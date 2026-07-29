@@ -63,7 +63,7 @@ export function Layout({
               className="cloak-brand-button flex min-h-10 min-w-0 items-center gap-[0.6rem] rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 pointer-coarse:min-h-11"
             >
               <img
-                src="/icons/logo.svg"
+                src="/cloakpdf-mark.svg"
                 alt=""
                 aria-hidden="true"
                 width="40"
@@ -187,7 +187,7 @@ export function Layout({
                 className="cloak-brand-button cloak-focus inline-flex min-h-10 w-fit items-center gap-[0.6rem] rounded-md pointer-coarse:min-h-11"
               >
                 <img
-                  src="/icons/logo.svg"
+                  src="/cloakpdf-mark.svg"
                   alt=""
                   aria-hidden="true"
                   width="34"

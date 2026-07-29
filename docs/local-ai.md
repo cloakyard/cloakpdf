@@ -120,7 +120,7 @@ score(doc) = Σ retrievers   1 / (k + rank(doc, retriever))
 
 ```mermaid
 flowchart LR
-    Q([query]) --> BM25[BM25Retriever<br/><i>case-insensitive<br/>over lowercased corpus</i>]
+    Q([query]) --> BM25[Local Okapi BM25<br/><i>Unicode word tokens<br/>query stop-word filter</i>]
     Q --> Dense[PackedVectorStore<br/><i>cosine on L2-normalised<br/>Float32Array</i>]
     BM25 --> Fuse[RRF<br/><i>k = 60</i>]
     Dense --> Fuse
@@ -133,6 +133,12 @@ Why both retrievers:
 
 - **BM25 alone** misses semantic paraphrases — a query "the candidate's experience" won't recall a chunk that only mentions "Sumit's roles".
 - **Dense alone** misses high-precision identifiers — "ABC-123" vs. "ABC-124" are nearly identical in embedding space but BM25 nails the difference.
+
+The sparse retriever is implemented locally on LangChain Core's
+`BaseRetriever` interface. LangChain sunset the deprecated
+`@langchain/community` package without publishing a dedicated BM25 successor,
+so keeping this small scorer in the app removes the deprecated dependency while
+preserving the hybrid retriever contract.
 
 The **anchor chunk** (the first chunk of the document) is always
 merged into the result set, even if its retrieval score falls below
@@ -239,8 +245,19 @@ flowchart LR
 The "Free memory" and "Delete cached models" actions in the
 [AiModelDetailsModal](../src/components/AiModelDetailsModal.tsx) map
 to those two layers — `dispose` releases RAM only (keeps disk); `evict`
-also wipes `CacheStorage` so the next session re-experiences the
-consent + download flow.
+also wipes `CacheStorage` and the derived IndexedDB indexes so the next
+session re-experiences the consent + download flow.
+
+Model upgrades use the same full-eviction path automatically.
+[`AI_MODEL_CACHE_SIGNATURE`](../src/utils/ai-models.ts) fingerprints
+every active model id, repository, task, and pipeline option plus an
+explicit cache-schema version. At startup,
+[`synchronizeModelCache`](../src/utils/ai-runtime.ts) compares the
+stored signature before React mounts. A mismatch clears ready flags,
+deletes the shared `transformers-cache` (including retired-model
+orphans), removes per-PDF embedding indexes, and only then records the
+new signature. A failed Cache API deletion leaves the old signature in
+place so the next app start retries.
 
 ---
 
@@ -275,7 +292,6 @@ the user for consent.
 | First-load downloads each time                        | `CacheStorage` policy in [`ai-runtime.ts`](../src/utils/ai-runtime.ts)                          |
 | Different answers on Compact vs Quality tier          | Tier-specific sampling in [`chat-model.ts`](../src/rag/chat-model.ts)                           |
 
-There's a retrieval-only probe at
-`tests/e2e/retrieval-probe.ts` that dumps per-retriever hits + scores
-per question to JSON — useful for tuning thresholds without firing
-the chat model.
+Run `pnpm test:probe` for the retrieval-only diagnostic in
+`tests/e2e/tools/retrieval-probe.ts`. It dumps per-retriever hits + scores per
+question to JSON — useful for tuning thresholds without firing the chat model.

@@ -54,7 +54,7 @@ export class HybridRetriever extends BaseRetrieverClass {
 
   async _getRelevantDocuments(query: string): Promise<Document[]> {
     // `allSettled` so a fault in one retriever (e.g. a WASM crash in
-    // the dense embedder, an unexpected throw from the BM25 library on
+    // the dense embedder, an unexpected throw from the local BM25 scorer on
     // some pathological query) doesn't kill the whole retrieve step.
     // We fuse whatever survived and only rethrow if BOTH sides failed
     // — that's the only case where there's nothing to feed the LLM.
