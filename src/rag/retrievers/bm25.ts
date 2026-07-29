@@ -1,29 +1,22 @@
 /**
- * BM25 sparse retriever built on the LangChain community
- * `BM25Retriever`.
+ * Local Okapi BM25 sparse retriever.
  *
- * BM25 catches the queries dense embeddings miss: exact phrases, rare
- * proper nouns, IDs, dates, and any keyword the embedder under-weighs.
- * Paired with the dense retriever via the hybrid (RRF) layer, this
- * gives noticeably better recall than either alone on real-world PDFs.
+ * BM25 catches the queries dense embeddings miss: exact terms, rare proper
+ * nouns, IDs, dates, and any keyword the embedder under-weighs. Paired with the
+ * dense retriever through Reciprocal Rank Fusion, it gives better recall than
+ * either retriever alone on real-world PDFs.
  *
- * **Case-insensitive indexing.** `@langchain/community`'s `BM25Retriever`
- * lowercases the query but keeps the corpus in its original case, and
- * the inlined scorer matches terms with a *case-sensitive* regex. The
- * result: query token `"sumit"` never matches corpus token `"Sumit"`,
- * so every capitalised word in the document is invisible to BM25 and
- * the only "hits" come from accidental substring matches (e.g. "is"
- * inside "Enterprise"). For a résumé this means BM25 ranks chunks
- * essentially by stopword overlap — adding "Sahoo" to a query gives
- * zero boost to the title block.
+ * This implementation intentionally lives in CloakPDF. LangChain sunset the
+ * deprecated `@langchain/community` package without publishing a dedicated BM25
+ * successor, and its migration guidance recommends direct application code for
+ * small integrations that have no standalone package. The retriever still
+ * extends LangChain Core's `BaseRetriever`, so the hybrid/RAG seam is unchanged.
  *
- * Fix: index a lowercased *copy* of each chunk's `pageContent` so the
- * scorer sees query and corpus in the same case, then map results back
- * to the original-case `Document` by `chunkId` before returning. The
- * LLM still sees the original-case text downstream.
+ * Tokenisation is case-insensitive and term-based. That fixes both historical
+ * upstream failure modes: capitalised names remain searchable, and short query
+ * terms cannot score as accidental substrings inside unrelated words.
  */
-import { BM25Retriever } from "@langchain/community/retrievers/bm25";
-import { Document } from "@langchain/core/documents";
+import type { Document } from "@langchain/core/documents";
 import {
   type BaseRetriever,
   BaseRetriever as BaseRetrieverClass,
@@ -37,34 +30,125 @@ export interface Bm25RetrieverOptions {
   k?: number;
 }
 
-class CaseInsensitiveBm25Retriever extends BaseRetrieverClass {
+const K1 = 1.2;
+const B = 0.75;
+const QUERY_STOP_WORDS = new Set([
+  "a",
+  "about",
+  "an",
+  "and",
+  "are",
+  "can",
+  "could",
+  "did",
+  "do",
+  "does",
+  "for",
+  "how",
+  "in",
+  "is",
+  "me",
+  "of",
+  "on",
+  "or",
+  "please",
+  "should",
+  "tell",
+  "that",
+  "the",
+  "this",
+  "to",
+  "was",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "why",
+  "with",
+  "would",
+]);
+
+/** Unicode word tokens; punctuation is a boundary, not part of a term. */
+function tokenize(text: string): string[] {
+  return text.toLocaleLowerCase().match(/[\p{L}\p{N}_]+/gu) ?? [];
+}
+
+function tokenizeQuery(query: string): string[] {
+  const tokens = tokenize(query);
+  const meaningful = tokens.filter((token) => !QUERY_STOP_WORDS.has(token));
+  return meaningful.length > 0 ? meaningful : tokens;
+}
+
+interface IndexedDocument {
+  document: Document<ChunkMetadata>;
+  length: number;
+  termFrequency: Map<string, number>;
+  ordinal: number;
+}
+
+class CloakPdfBm25Retriever extends BaseRetrieverClass {
   static lc_name(): string {
-    return "CaseInsensitiveBm25Retriever";
+    return "CloakPdfBm25Retriever";
   }
+
   lc_namespace = ["cloakpdf", "rag", "retrievers", "bm25"];
 
-  private inner: BaseRetriever;
-  private byChunkId: Map<string, Document<ChunkMetadata>>;
+  private readonly indexed: IndexedDocument[];
+  private readonly documentFrequency: Map<string, number>;
+  private readonly averageDocumentLength: number;
+  private readonly k: number;
 
   constructor(documents: Document<ChunkMetadata>[], k: number) {
     super();
-    const lowered = documents.map(
-      (d) =>
-        new Document<ChunkMetadata>({
-          pageContent: d.pageContent.toLowerCase(),
-          metadata: d.metadata,
-        }),
-    );
-    this.inner = BM25Retriever.fromDocuments(lowered, { k });
-    this.byChunkId = new Map(documents.map((d) => [d.metadata.chunkId, d]));
+    this.k = Math.max(0, Math.floor(k));
+    this.documentFrequency = new Map();
+    this.indexed = documents.map((document, ordinal) => {
+      const tokens = tokenize(document.pageContent);
+      const termFrequency = new Map<string, number>();
+      for (const token of tokens) {
+        termFrequency.set(token, (termFrequency.get(token) ?? 0) + 1);
+      }
+      for (const token of termFrequency.keys()) {
+        this.documentFrequency.set(token, (this.documentFrequency.get(token) ?? 0) + 1);
+      }
+      return { document, length: tokens.length, termFrequency, ordinal };
+    });
+    this.averageDocumentLength =
+      this.indexed.length === 0
+        ? 0
+        : this.indexed.reduce((sum, item) => sum + item.length, 0) / this.indexed.length;
   }
 
-  async _getRelevantDocuments(query: string): Promise<Document[]> {
-    const hits = (await this.inner.invoke(query)) as Document<ChunkMetadata>[];
-    return hits.map((d) => this.byChunkId.get(d.metadata.chunkId) ?? d);
+  async _getRelevantDocuments(query: string): Promise<Document<ChunkMetadata>[]> {
+    const queryTerms = tokenizeQuery(query);
+    if (this.k === 0 || this.indexed.length === 0) return [];
+
+    const corpusSize = this.indexed.length;
+    const averageLength = this.averageDocumentLength || 1;
+    return this.indexed
+      .map((item) => {
+        let score = 0;
+        for (const term of queryTerms) {
+          const frequency = item.termFrequency.get(term) ?? 0;
+          if (frequency === 0) continue;
+
+          const documentsWithTerm = this.documentFrequency.get(term) ?? 0;
+          const inverseDocumentFrequency = Math.log(
+            (corpusSize - documentsWithTerm + 0.5) / (documentsWithTerm + 0.5) + 1,
+          );
+          const lengthNormalisation = frequency + K1 * (1 - B + (B * item.length) / averageLength);
+          score += inverseDocumentFrequency * ((frequency * (K1 + 1)) / lengthNormalisation);
+        }
+        return { ...item, score };
+      })
+      .sort((left, right) => right.score - left.score || left.ordinal - right.ordinal)
+      .slice(0, this.k)
+      .map((item) => item.document);
   }
 }
 
 export function buildBm25Retriever(options: Bm25RetrieverOptions): BaseRetriever {
-  return new CaseInsensitiveBm25Retriever(options.documents, options.k ?? 20);
+  return new CloakPdfBm25Retriever(options.documents, options.k ?? 20);
 }

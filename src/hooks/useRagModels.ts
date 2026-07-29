@@ -37,7 +37,6 @@ import {
   getActiveChatModelId,
   getActiveChatVariant,
   getChatModelId,
-  migrateLegacyChatReadyFlag,
   setActiveChatVariant,
 } from "../utils/ai-models.ts";
 import {
@@ -148,14 +147,6 @@ function rollupStatus(...statuses: AiModelStatus[]): AiModelStatus {
 }
 
 export function useRagModels(): UseRagModelsReturn {
-  // One-shot migration from the pre-tier `cloakpdf:ai-model-ready:chat`
-  // localStorage flag so return visitors don't see a redundant consent
-  // dialog when we changed the storage-key shape. Idempotent — safe to
-  // call on every mount.
-  useEffect(() => {
-    migrateLegacyChatReadyFlag();
-  }, []);
-
   // Belt-and-braces: register a `pagehide` listener once per page so
   // pipelines are disposed when the tab truly closes (not bfcache).
   // Idempotent — calling more than once is a no-op.

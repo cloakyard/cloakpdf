@@ -407,13 +407,12 @@ const EMBED_HARD_CAP = 200;
  * prose embeds into a "generic explanation" cluster that has
  * positive cosine with the prose chunks of *any* well-written PDF.
  * The 0.5 absolute threshold can be defeated by enough English-y
- * tokens. Meanwhile BM25's score (with the upstream library's
- * substring-TF behaviour) collapses to "which chunk has the most
- * stopwords" because the discriminating tokens — `lorem`, `ipsum`,
- * `dummy`, `typesetting` — don't appear in any real PDF. The result:
- * retrieval surfaces chunks ranked by stopword density, the gate
- * thinks the question is on-topic, and the LLM confabulates an
- * answer with fabricated citations.
+ * tokens. BM25 cannot rescue that case either: the discriminating
+ * tokens — `lorem`, `ipsum`, `dummy`, `typesetting` — score zero when
+ * they do not appear in the PDF, while any remaining generic content
+ * words can still surface arbitrary prose chunks. The result can fool
+ * the gate into treating pasted text as on-topic and make the LLM
+ * confabulate an answer with fabricated citations.
  *
  * **The shape signal.** Real users type questions or commands:
  * either one sentence ending in `?`, or a short imperative. A

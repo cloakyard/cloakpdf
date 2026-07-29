@@ -517,8 +517,8 @@ export function getActiveChatModelId(): AiModelId {
 /**
  * Cleanup-only migration for stale ready flags + variant prefs left
  * over from prior shipped registry shapes. Returns nothing — this is
- * pure side-effect cleanup. Idempotent. Call once at app startup;
- * safe to re-run.
+ * pure side-effect cleanup. Idempotent. Called by the model-cache
+ * synchroniser before the app mounts.
  *
  * **What it clears, and why:**
  *
@@ -535,26 +535,13 @@ export function getActiveChatModelId(): AiModelId {
  *     same reason; without this clear `getActiveChatVariant` would
  *     fall back via the unknown-slug branch but the orphan slug
  *     would still sit in storage.
- *   - **`cloakpdf:ai-model-ready:rerank` (one-shot, guarded)** — the
- *     `rerank` *model id* didn't change across the BGE-base →
- *     MiniLM-L-6-v2 swap, only the underlying repo did. So the
- *     existing ready flag would silently auto-load the new MiniLM
- *     without re-consent, hiding the licence + size change from
- *     returning users. We clear it exactly once (guarded by a
- *     separate "I already cleared it" key) so the consent dialog
- *     re-appears one more time on first run after the swap, then
- *     never bothers the user again.
- *
- * **Orphan CacheStorage entries:** every retired model leaves its
- * weight files in the browser's CacheStorage — SmolLM2 (~1 GB),
- * bge-reranker-v2-m3 (571 MB), bge-reranker-base (279 MB) are the
- * notable ones. Two ways those bytes get reclaimed:
- *
- *   - User clicks "Delete cached models" in the AI Model Details
- *     dialog — `evictModelCacheBytes()` in {@link ../utils/ai-runtime.ts}
- *     drops the entire `transformers-cache`, which removes both
- *     active model weights AND any retired-model orphans in one go.
- *   - The browser hits its origin storage quota and evicts LRU.
+ * **Orphan CacheStorage entries:** the startup synchroniser in
+ * `ai-runtime.ts` fingerprints the complete active model registry.
+ * When a repo, task, quantisation/device option, or cache schema
+ * changes, it drops the entire `transformers-cache`, clears derived
+ * PDF indexes, and records the new fingerprint before React mounts.
+ * That replaces model-specific one-shot migrations and also removes
+ * weights belonging to retired models.
  *
  * "Free memory" in the same dialog only releases the in-tab JS /
  * WASM heap — it does **not** clear CacheStorage. The two
@@ -562,8 +549,6 @@ export function getActiveChatModelId(): AiModelId {
  * action (free RAM, keep instant re-load); the destructive one is
  * gated behind a two-step confirm.
  */
-const RERANK_SWAP_MIGRATION_KEY = "cloakpdf:migration:rerank-minilm-swap";
-
 export function migrateLegacyChatReadyFlag(): void {
   const storage = safeLocalStorage();
   if (!storage) return;
@@ -576,19 +561,65 @@ export function migrateLegacyChatReadyFlag(): void {
     if (storage.getItem(CHAT_VARIANT_STORAGE_KEY) === "smollm2-1.7b") {
       storage.removeItem(CHAT_VARIANT_STORAGE_KEY);
     }
-    // One-shot rerank ready-flag reset: the reranker repo changed
-    // (BGE-base → MiniLM-L-6-v2) but the model id stayed `rerank`,
-    // so without this clear the auto-load path would silently swap
-    // the underlying model without re-prompting. We use a separate
-    // migration key (not the ready flag itself) so a user who
-    // *re-downloads* the new MiniLM and then revisits doesn't get
-    // the consent dialog a third time.
-    if (!storage.getItem(RERANK_SWAP_MIGRATION_KEY)) {
-      storage.removeItem("cloakpdf:ai-model-ready:rerank");
-      storage.setItem(RERANK_SWAP_MIGRATION_KEY, "1");
-    }
   } catch {
     // ignore
+  }
+}
+
+/**
+ * Cache schema for the Transformers.js model store.
+ *
+ * The registry fingerprint below already changes automatically when a
+ * model repo, task, or pipeline option changes. Bump this number only
+ * when the cache contract itself changes without one of those fields
+ * changing (for example, a future Transformers.js release adopts an
+ * incompatible browser-cache representation).
+ */
+const MODEL_CACHE_SCHEMA_VERSION = 1;
+const MODEL_CACHE_SIGNATURE_KEY = "cloakpdf:ai-model-cache-signature";
+
+/**
+ * Deterministic signature of every input that selects model bytes.
+ *
+ * Keeping this derived from {@link AI_MODELS} makes model upgrades
+ * self-invalidating: changing a repo, dtype, device, revision, task,
+ * adding/removing a tier, or bumping the explicit schema produces a
+ * different value without another bespoke migration flag.
+ */
+export const AI_MODEL_CACHE_SIGNATURE = JSON.stringify({
+  schema: MODEL_CACHE_SCHEMA_VERSION,
+  models: Object.values(AI_MODELS)
+    .map(({ id, repo, task, pipelineOptions }) => ({
+      id,
+      repo,
+      task,
+      pipelineOptions: pipelineOptions ?? {},
+    }))
+    .sort((left, right) => left.id.localeCompare(right.id)),
+});
+
+/** `true` when this browser has already adopted the active model registry. */
+export function isModelCacheSignatureCurrent(): boolean {
+  const storage = safeLocalStorage();
+  try {
+    return storage?.getItem(MODEL_CACHE_SIGNATURE_KEY) === AI_MODEL_CACHE_SIGNATURE;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Record that stale model bytes and their derived indexes were
+ * successfully cleared. Called only after the startup synchroniser
+ * finishes its eviction pass; failed passes deliberately leave the
+ * old value in place so the next load retries.
+ */
+export function markModelCacheSignatureCurrent(): void {
+  const storage = safeLocalStorage();
+  try {
+    storage?.setItem(MODEL_CACHE_SIGNATURE_KEY, AI_MODEL_CACHE_SIGNATURE);
+  } catch {
+    // ignore (private mode / quota)
   }
 }
 
@@ -613,10 +644,9 @@ export function formatApproxSize(bytes: number): string {
 /**
  * Clear every localStorage flag the AI stack uses to remember "this
  * user already consented to / downloaded model X" — the
- * `cloakpdf:ai-model-ready:*` flags **and** the one-shot migration
- * guard added for the rerank swap. Used by the "Delete cached
- * models" affordance so the user, after evicting CacheStorage
- * bytes, sees the consent dialog again on next use (matching the
+ * `cloakpdf:ai-model-ready:*` flags. Used by the "Delete cached
+ * models" affordance and automatic model-upgrade migration so the
+ * user sees the consent dialog again on next use (matching the
  * fresh-visitor experience).
  *
  * Does **not** touch the chat-variant preference — the user picked
@@ -640,11 +670,6 @@ export function clearAllReadyFlags(): void {
       if (k && k.startsWith(PREFIX)) keys.push(k);
     }
     for (const k of keys) storage.removeItem(k);
-    // Also clear the migration guard so a return visit after evict
-    // re-fires the "rerank swap" re-consent path uniformly with the
-    // rest of the consent flow, instead of skipping it because the
-    // guard says "I already did that migration once".
-    storage.removeItem(RERANK_SWAP_MIGRATION_KEY);
   } catch {
     // ignore
   }

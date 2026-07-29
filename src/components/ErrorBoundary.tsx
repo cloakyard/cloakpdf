@@ -111,7 +111,7 @@ export class ErrorBoundary extends Component<Props, State> {
               className={`flex min-w-0 items-center gap-[0.6rem] rounded-md ${focusRing}`}
             >
               <img
-                src="/icons/logo.svg"
+                src="/cloakpdf-mark.svg"
                 alt=""
                 aria-hidden="true"
                 width="40"
@@ -263,7 +263,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex flex-col gap-5 border-b border-[var(--color-night-rule)] pb-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="inline-flex items-center gap-[0.6rem]">
                 <img
-                  src="/icons/logo.svg"
+                  src="/cloakpdf-mark.svg"
                   alt=""
                   aria-hidden="true"
                   width="34"

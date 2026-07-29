@@ -8,7 +8,7 @@
  *      Merge → drop 2 PDFs → "Merge 2 files & edit" → editor opens on the result.
  *
  * Requirements: Chrome at CHROME_PATH and the dev server at http://localhost:5173.
- * Run:  node --experimental-strip-types tests/e2e/home-routing.ts
+ * Run:  node --experimental-strip-types tests/e2e/home-routing.e2e.ts
  */
 
 import { existsSync } from "node:fs";

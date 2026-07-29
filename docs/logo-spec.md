@@ -1,254 +1,173 @@
-# Cloak Family — Brand Logo Spec
+# Cloakyard family logo specification
 
-A reusable specification for the shield-based logo used across the
-Cloak family of apps (CloakIMG, CloakPDF, CloakResume, CloakYard, …).
-The shield is the constant — it carries the family identity. Each
-brand customises three things: the **background gradient**, the
-**inner glyph**, and the **wordmark suffix** (e.g. `IMG`, `PDF`,
-`Resume`).
+**Version:** `v1`
 
-This spec is self-contained — drop it (and the SVG template at the
-end) into any Cloak repo and you can produce a launcher-quality logo
-in minutes.
+**Scope:** Every app published by Cloakyard
 
----
+This is the canonical construction and export contract for Cloakyard product
+marks. Every app shares the same geometry, lighting, stroke language, asset
+names, and PWA treatment. A product remains distinct through only its gradient
+palette and its central pictogram.
 
-## 1. Anatomy
+## Family signature
 
+Every product uses:
+
+- a `64 × 64` source artboard;
+- the same centred keylines;
+- a light-to-dark product gradient;
+- the same top-left white bloom;
+- a white, round-capped central pictogram;
+- a circular mark for product UI and favicons;
+- a separate full-bleed launcher source for installed apps.
+
+Do not add letters, secondary colours, shadows, transparent launcher edges, or
+product-specific outer shapes. The pictogram must communicate the product at
+small sizes without relying on the wordmark.
+
+## Asset contract
+
+Each product repository must contain:
+
+| Asset                                    | Purpose                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `public/<product>-mark.svg`              | Circular family mark used in headers, footers, and brand surfaces. |
+| `public/icons/<product>-app-icon.svg`    | Full-bleed master used to generate PWA and home-screen icons.      |
+| `public/icons/favicon.svg`               | The circular mark geometry with a product-specific title.          |
+| `public/icons/pwa-64x64.png`             | Small PWA icon.                                                    |
+| `public/icons/pwa-192x192.png`           | Standard install icon.                                             |
+| `public/icons/pwa-512x512.png`           | High-resolution install icon.                                      |
+| `public/icons/maskable-icon-512x512.png` | Opaque maskable icon.                                              |
+| `public/icons/apple-touch-icon.png`      | Opaque `180 × 180` iOS home-screen icon.                           |
+| `public/icons/favicon.ico`               | Legacy `48 × 48` browser icon.                                     |
+
+Use product-specific filenames such as `cloakyard-mark.svg` and
+`cloakpdf-mark.svg`; do not use an ambiguous `logo.svg`.
+
+## Geometry
+
+All dimensions below are in the `64 × 64` source coordinate system.
+
+| Element                  | Constraint                                   |
+| ------------------------ | -------------------------------------------- |
+| Artboard                 | `64 × 64`, centre `(32, 32)`                 |
+| Circular mark disc       | diameter `60`, radius `30`                   |
+| Inner pictogram keyline  | diameter `42`, radius `21`                   |
+| PWA guaranteed safe zone | diameter `51.2`, radius `25.6`               |
+| Pictogram stroke         | `3`, white, round caps and joins             |
+| Mark inner ring          | radius `29.25`, white at `0.28`, width `1.5` |
+
+The pictogram keyline is exactly **70% of the circular mark disc**:
+
+```text
+42 / 60 = 0.7
 ```
-┌─────────────────────────┐
-│   ░░░░░ background ░░░  │  ← full-bleed gradient (brand colour)
-│         ▼ shield        │
-│      ┌─◢◢◢◢◢◢─┐         │
-│      │   ☼   │          │  ← inner glyph (brand-specific)
-│      │  /\/\ │          │
-│      └──────┘           │
-│                         │
-└─────────────────────────┘
-```
 
-Three layers, painted in this order:
+Every pictogram path centre line must stay inside the diameter-42 circle. A
+3-unit centred stroke produces a maximum visible diameter of `45`, which remains
+inside the diameter-51.2 PWA safe zone. Filled shapes must also stay inside that
+safe zone.
 
-1. **Background** — full-bleed rectangle filled with the brand
-   gradient. Critical for maskable PWA icons: the OS launcher mask
-   crops the corners, so anything transparent at the edge becomes
-   wasted real estate.
-2. **Bloom** — a subtle off-centre radial highlight (white at low
-   opacity, fading to transparent) that lifts the gradient and adds a
-   soft "lit-from-above" feel.
-3. **Shield + inner glyph** — the constant Cloak silhouette plus a
-   brand-specific glyph that lives inside it.
+Scale pictograms uniformly from `(32, 32)`. Do not stretch separate axes or size
+by bounding-box width alone. Optical corrections may move internal details, but
+the outer pictogram keyline and centre remain fixed.
 
----
+## Circular product mark
 
-## 2. Coordinate system
+The UI mark uses a transparent `64 × 64` canvas:
 
-- **viewBox**: `0 0 144 144` (legacy; matches older Cloak assets so
-  paths stay portable). Renders to any size — set
-  `width="100%" height="100%"` on the root `<svg>`.
-- **Centre**: `(72, 72)`.
-- **Shield path** (canonical, do not edit):
+1. Draw the product-gradient disc at `(32, 32)` with radius `30`.
+2. Draw the shared top-left bloom over the disc.
+3. Draw the radius-`29.25` white inner ring.
+4. Draw the white product pictogram on the diameter-42 keyline.
 
-  ```
-  M72,30 L38,44 L38,76
-  C38,93.333 49.333,107.333 72,118
-  C94.667,107.333 106,93.333 106,76
-  L106,44 L72,30 Z
-  ```
-
-  Bounds in raw form: `x: 38–106`, `y: 30–118`.
-
-- **Shield scale**: `1.1` around `(72, 72)`. Achieved with a single
-  transform — do not edit the path:
-
-  ```xml
-  <g transform="translate(72 72) scale(1.1) translate(-72 -72)">
-    …shield + inner glyph here…
-  </g>
-  ```
-
-  This puts the shield bounds at:
-  - `y: 25.8 → 122.6` (≈ 18 % top / 15 % bottom margin)
-  - `x: 34.6 → 109.4` (≈ 24 % side margin)
-
-  Comfortably inside the maskable safe zone (see §6) without feeling
-  small. Don't push above 1.15 — the shield's tip starts to clip on
-  circular launcher masks.
-
----
-
-## 3. Brand colour slots
-
-Each brand fills these slots. Pick warm gradients (lighter →
-darker) so the bloom highlight reads naturally.
-
-| Slot            | Format          | Notes                                          |
-| --------------- | --------------- | ---------------------------------------------- |
-| `bg-from`       | `rgb(R,G,B)`    | Top stop of the background gradient (lighter). |
-| `bg-to`         | `rgb(R,G,B)`    | Bottom stop (darker, ~30 % luminance below).   |
-| `bloom-color`   | `white`         | Constant — keep white for a sun-like lift.     |
-| `bloom-cx/cy`   | `(72, 55)`      | Default — slightly above centre.               |
-| `shield-fill`   | `white`, `0.18` | Constant across all brands.                    |
-| `shield-stroke` | `white`, `0.55` | Constant. Width `3`.                           |
-| `glyph-color`   | `white`         | Constant. Use opacity to layer if needed.      |
-
-### Reference palettes
-
-| Brand       | `bg-from`         | `bg-to`          | Notes                                                                         |
-| ----------- | ----------------- | ---------------- | ----------------------------------------------------------------------------- |
-| CloakIMG    | `rgb(251,146,60)` | `rgb(194,65,12)` | Sunset coral                                                                  |
-| CloakPDF    | `rgb(59,130,246)` | `rgb(29,78,216)` | Ocean blue (Tailwind blue-500 → blue-700) — matches the app's `--brand`.      |
-| CloakResume | _TBD_             | _TBD_            | Existing brand uses ocean blue — match the app's `--brand`.                   |
-| CloakYard   | _TBD_             | _TBD_            | Use the existing multi-stop green→indigo→orange if matching the current logo. |
-
-When picking new gradients: stay inside one hue family (don't cross
-from warm to cool within a single mark), keep ≥ 30 % luminance gap
-between the stops, and verify the white shield + glyph still hit
-≥ 4.5:1 contrast against the midpoint colour.
-
----
-
-## 4. Inner glyph
-
-The glyph is the only piece that visually distinguishes one Cloak
-app from another. It lives **inside the shield silhouette**, clipped
-to the shield path so any overshoot is hidden.
-
-Constraints:
-
-- **Stroke-only or filled-white silhouettes** — no extra colour.
-  Keeps the family coherent; the gradient does the colour work.
-- **Stroke width** ≈ `5` (in raw 144 coords; the parent transform
-  scales it). `stroke-linecap="round"` and `stroke-linejoin="round"`
-  on every stroked path — sharp corners read as harsh at small icon
-  sizes.
-- **Stay above the shield's chin** — keep glyph elements inside the
-  region `y: 40–105` so the shield's bottom point and shoulders read
-  cleanly.
-- **One concept per glyph.** Pictograms only. Avoid letters or fine
-  detail — they vanish at 32 px.
-
-### Existing glyphs (for reference)
-
-| Brand       | Glyph                                                                                                             |
-| ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| CloakIMG    | Sun (filled circle) + mountain peaks (zig-zag stroke).                                                            |
-| CloakPDF    | Three horizontal "redacted" lines (decreasing in length and opacity), evoking a partially-redacted document page. |
-| CloakResume | _Suggested_: Lined "card" silhouette with a tag/ribbon.                                                           |
-| CloakYard   | _Suggested_: Stacked layers / boxes silhouette.                                                                   |
-
-Glyph paths are clipped to the shield via `clip-path="url(#shieldClip)"`.
-The clip element re-uses the shield path:
+The two transparent pixels around the disc preserve its circular silhouette in
+headers and browser tabs. Set these machine-readable root attributes:
 
 ```xml
-<clipPath id="shieldClip">
-  <path d="…same shield path as #shield…"/>
-</clipPath>
+data-logo-spec="cloakyard-mark-v1"
+data-glyph-keyline="42"
 ```
 
----
+## Installed app icon
 
-## 5. SVG template
+The launcher source uses the same `64 × 64` artboard, gradient, bloom, pictogram,
+and keyline, with two deliberate differences:
 
-Drop this into `public/icons/logo.svg` (or your project's equivalent),
-fill in the colour stops, and replace the inner-glyph block.
+- the gradient is a full-bleed rectangle with no transparent pixels;
+- the circular inner ring is omitted because the operating system supplies the
+  outer circle, squircle, or rounded-square mask.
+
+The Web Application Manifest specification guarantees a central safe circle
+with a radius equal to 40% of the icon size. On a 64-unit canvas that is radius
+`25.6`; the complete diameter-45 stroked pictogram fits inside it. Pixels
+outside that zone are background only and may be cropped safely. See the
+[W3C icon masks and safe-zone specification](https://www.w3.org/TR/appmanifest/#icon-masks).
+
+Set these root attributes on the launcher master:
 
 ```xml
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-     width="100%" height="100%" viewBox="0 0 144 144"
-     role="img" aria-label="<BRAND>"
-     style="fill-rule:evenodd;clip-rule:evenodd;">
-    <defs>
-        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="<BG_FROM>"/>
-            <stop offset="1" stop-color="<BG_TO>"/>
-        </linearGradient>
-        <radialGradient id="bloom" gradientUnits="userSpaceOnUse" cx="72" cy="55" r="100">
-            <stop offset="0" stop-color="white" stop-opacity="0.3"/>
-            <stop offset="1" stop-color="white" stop-opacity="0"/>
-        </radialGradient>
-        <!-- Canonical Cloak shield path. Do not edit. -->
-        <path id="shield" d="M72,30L38,44L38,76C38,93.333 49.333,107.333 72,118C94.667,107.333 106,93.333 106,76L106,44L72,30Z"/>
-        <clipPath id="shieldClip">
-            <path d="M72,30L38,44L38,76C38,93.333 49.333,107.333 72,118C94.667,107.333 106,93.333 106,76L106,44L72,30Z"/>
-        </clipPath>
-    </defs>
-
-    <!-- Full-bleed background — keeps the OS mask from cropping into the brand. -->
-    <rect width="144" height="144" fill="url(#bg)"/>
-    <rect width="144" height="144" fill="url(#bloom)"/>
-
-    <!-- Shield + inner glyph, scaled 1.1x around (72,72). -->
-    <g transform="translate(72 72) scale(1.1) translate(-72 -72)">
-        <use href="#shield" fill="white" fill-opacity="0.18"/>
-        <use href="#shield" fill="none" stroke="white" stroke-opacity="0.55" stroke-width="3"/>
-        <g clip-path="url(#shieldClip)">
-            <!-- ───── Inner glyph block ───── -->
-            <!-- Replace this with the brand's glyph. Authored in raw 144-coord
-                 space. Stays inside y: 40–105 to clear the shield chin. -->
-            <!-- e.g. CloakIMG: sun + mountains -->
-            <circle cx="81" cy="53" r="5" fill="white"/>
-            <g transform="matrix(0.962963,0,0,0.928571,1.703704,4.571429)">
-                <path d="M46,92L60,70L72,84L86,64L100,92"
-                      fill="none" stroke="white" stroke-width="5"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-            <!-- ───── /Inner glyph block ───── -->
-        </g>
-    </g>
-</svg>
+data-logo-spec="cloakyard-app-icon-v1"
+data-glyph-keyline="42"
 ```
 
----
+Never generate maskable icons from the transparent circular mark. Always use the
+full-bleed app-icon master.
 
-## 6. Maskable safe zone
+## Shared lighting
 
-PWA launchers (Android adaptive icons, iOS home-screen, Chrome
-desktop install, etc.) overlay their own mask shape — circle on
-some, squircle on others, rounded square on others. The W3C
-maskable-icon spec defines a **safe zone**:
+The family uses the same direction and intensity of light:
 
-- The whole canvas is the **icon zone** (must be filled, no
-  transparent edges). Our full-bleed background `<rect>` covers this.
-- The central **80 %** of the canvas is the **safe zone** —
-  everything important must fit inside it. With our `scale(1.1)`
-  shield, the bounds (`y: 25.8–122.6`, `x: 34.6–109.4`) sit
-  comfortably inside the 80 % circle inscribed at canvas centre.
-
-Do not push the shield scale above ~1.15 if you want it to survive
-all launcher masks intact.
-
----
-
-## 7. PWA asset generation
-
-The SVG is the master. Render PNGs at the four standard sizes plus
-Apple's home-screen size. `rsvg-convert` is the simplest pipeline
-(`brew install librsvg` on macOS):
-
-```bash
-cd public/icons
-rsvg-convert -w 64  -h 64  logo.svg -o pwa-64x64.png
-rsvg-convert -w 192 -h 192 logo.svg -o pwa-192x192.png
-rsvg-convert -w 512 -h 512 logo.svg -o pwa-512x512.png
-rsvg-convert -w 512 -h 512 logo.svg -o maskable-icon-512x512.png
-rsvg-convert -w 180 -h 180 logo.svg -o apple-touch-icon.png
+```xml
+<radialGradient
+  id="<product>-light"
+  cx="0"
+  cy="0"
+  r="1"
+  gradientTransform="translate(20 13) rotate(48) scale(35)"
+>
+  <stop stop-color="white" stop-opacity="0.42"/>
+  <stop offset="0.58" stop-color="white" stop-opacity="0"/>
+</radialGradient>
 ```
 
-Or, if the project uses `@vite-pwa/assets-generator` (CloakIMG does):
+The main gradient runs from `(11, 6)` to `(51, 58)`. Each product may select
+three stops within its product accent family, but must keep enough midpoint
+contrast for the white pictogram to remain immediately readable.
+
+## Product distinction
+
+Only these elements vary:
+
+1. **Product pictogram** — one simple concept, no text, no fine detail.
+2. **Gradient palette** — a recognisable product hue within the shared lighting
+   construction.
+3. **Accessible title and wordmark suffix** — for example, `CloakPDF`.
+
+All products keep the same outer construction. When several Cloakyard apps sit
+next to each other on a phone, the matching lighting and proportions establish
+the family while the pictogram and palette prevent confusion.
+
+## PWA generation and manifest
+
+Generate raster assets from the full-bleed app-icon master:
 
 ```bash
-npx pwa-assets-generator --preset minimal-2023 public/icons/logo.svg
+pnpm generate-icons
+```
+
+Each app must keep a `pwa-assets.config.ts` that sets `padding: 0` and
+`fit: "cover"` for ordinary, maskable, and Apple assets. The generator's
+built-in maskable/Apple defaults add 30% padding on white; those defaults are
+not compatible with this family because they create a white frame around the
+blue launcher field. The product script then performs the generator's filename
+normalisation:
+
+```bash
 mv public/icons/apple-touch-icon-180x180.png public/icons/apple-touch-icon.png
 ```
 
-### Webmanifest entries
-
-The `pwa-512x512.png` and `maskable-icon-512x512.png` come from the
-**same source** intentionally — the full-bleed background means the
-"any" purpose icon is already maskable-safe, and shipping it twice
-lets the manifest declare both purposes:
+The manifest must include both ordinary and explicitly maskable icons:
 
 ```json
 {
@@ -266,28 +185,16 @@ lets the manifest declare both purposes:
 }
 ```
 
-### Favicon
+## Release checklist
 
-The `favicon.svg` (browser tab) is **not** the same as `logo.svg`.
-Browsers don't apply a launcher mask to the tab favicon, so the
-inset-circle treatment (with breathing room around the circle) reads
-better there. Keep both files; only `logo.svg` needs to be full-bleed.
-
----
-
-## 8. Visual checklist
-
-Before shipping a new brand's logo, eyeball it at every target size
-and on every common mask shape:
-
-- [ ] **32 px** — favicon size. Glyph still legible? No mush?
-- [ ] **180 px circle mask** — inner glyph fully visible, shield tip
-      clear of the edge.
-- [ ] **512 px squircle mask** — corners of the gradient cropped, but
-      no shield edge clipped.
-- [ ] **Light + dark** OS themes — gradient still reads (saturated
-      gradients lose contrast on dark wallpapers).
-- [ ] **Glyph contrast** ≥ 4.5:1 against the gradient midpoint colour.
-- [ ] **Adjacent to other Cloak apps** — does it sit in the family?
-      The shield + bloom should make this automatic; if it doesn't,
-      something's drifted.
+- [ ] Circular mark and app icon use a `64 × 64` viewBox.
+- [ ] Pictogram centre lines fit the diameter-42 keyline.
+- [ ] The complete pictogram, including stroke, fits diameter `51.2`.
+- [ ] Launcher master and maskable PNG have no transparent pixels.
+- [ ] Pictogram remains legible at `32 px` and the real `40 px` header size.
+- [ ] App icon is checked under circle, squircle, and rounded-square masks.
+- [ ] App icon is checked on light and dark phone wallpapers.
+- [ ] Pictogram is recognisably different from every other Cloakyard product.
+- [ ] The manifest declares a `512 × 512` icon with `purpose: "maskable"`.
+- [ ] Generated PNGs and `favicon.ico` are refreshed after SVG changes.
+- [ ] Product social/OG artwork is regenerated after the mark changes.

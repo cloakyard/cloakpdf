@@ -24,7 +24,7 @@
  * Requirements: Chrome at CHROME_PATH (default macOS path) and the dev server
  * at http://localhost:5173 (`vp dev`). Fixture: tests/fixtures/multipage.pdf.
  *
- * Run:  node --experimental-strip-types tests/e2e/editor-smoke-mobile.ts
+ * Run:  node --experimental-strip-types tests/e2e/editor-smoke-mobile.e2e.ts
  */
 
 import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from "node:fs";

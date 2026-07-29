@@ -446,9 +446,8 @@ export default function AskPdf() {
         //     in download state (per `dialogOpen` below covering
         //     `downloading`), the progress UI renders, no extra
         //     click needed.
-        //   - Also fixes the partial-cache edge case
-        //     (migrateLegacyChatReadyFlag clears the rerank flag
-        //     once): confirm iterates all three sub-models, so
+        //   - Also fixes the partial-cache edge case: confirm
+        //     iterates all three sub-models, so
         //     even if chat is already cached and ready, embed +
         //     rerank still get a fresh startDownload call.
         onDownload={rag.confirm}

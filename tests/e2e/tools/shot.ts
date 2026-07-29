@@ -12,7 +12,7 @@
  * Writes /tmp/shots/<name>-desktop.png and /tmp/shots/<name>-mobile.png.
  * Requires Chrome at CHROME_PATH and the dev server at localhost:5173.
  *
- * Run:  SHOT_TOOL="QR / barcode" SHOT_NAME=qr node --experimental-strip-types tests/e2e/shot.ts
+ * Run:  SHOT_TOOL="QR / barcode" SHOT_NAME=qr pnpm test:shot
  */
 
 import { existsSync, mkdirSync } from "node:fs";
@@ -23,7 +23,7 @@ import { launch } from "puppeteer-core";
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const FIXTURE = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
+const FIXTURE = resolve(import.meta.dirname, "../../fixtures/multipage.pdf");
 const OUT_DIR = "/tmp/shots";
 
 const TOOL = process.env.SHOT_TOOL ?? "";
@@ -125,7 +125,7 @@ async function shootMobile(browser: Browser): Promise<string[]> {
 async function main() {
   const browser = await launch({
     executablePath: CHROME_PATH,
-    userDataDir: resolve(import.meta.dirname, "../.puppeteer-profile-shot"),
+    userDataDir: resolve(import.meta.dirname, "../../.puppeteer-profile-shot"),
     headless: true,
   });
   try {

@@ -65,7 +65,7 @@ export interface TransformersJsChatModelOptions extends BaseChatModelParams {
  * Per-variant tuning history (so future-us doesn't repeat past
  * dead-ends). Each entry below is keyed to the model in
  * `src/utils/ai-models.ts` and lists the actual sampler walks against
- * the résumé probe in `tests/e2e/retrieval-probe.ts`.
+ * the résumé probe in `tests/e2e/tools/retrieval-probe.ts`.
  *
  * **SmolLM2-1.7B-Instruct**  — `{ temp: 0.2, top_p: 0.85, rep: 1.15,
  *                                no_repeat_ngram_size: 6, max: 256 }`

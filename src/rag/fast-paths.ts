@@ -37,7 +37,7 @@ export interface FastPathHit {
   citedPages: number[];
 }
 
-// ── Verbatim contact-info extraction (phone / email) ─────────────────
+// ── Verbatim contact-info extraction (phone / email / location) ──────
 //
 // PHONE_RE / EMAIL_RE now live in `../utils/pii.ts` (the shared PII source
 // of truth) and are imported above. They are used here exactly as before —
@@ -90,6 +90,30 @@ export function tryVerbatimExtraction(
     }
   }
 
+  // Location: only fire on a personal résumé header. City/state/country
+  // triples also appear in invoices and corporate addresses, so the
+  // same structural guard used by the document-type fast path keeps
+  // this narrow. The first triple in a résumé header is the contact
+  // location; later work-history cities therefore cannot win.
+  if (
+    /\b(where (?:is|does) .{0,40}\b(?:based|live)|based in|location|city,? state,? and country|postal address|home address)\b/i.test(
+      question,
+    )
+  ) {
+    const headerText = anchorChunks.map((chunk) => chunk.pageContent).join("\n");
+    if (hasResumeHeaderStructure(headerText)) {
+      const location = headerText.match(
+        /\b([\p{Lu}][\p{Ll}\p{M}'-]*(?:\s+[\p{Lu}][\p{Ll}\p{M}'-]*){0,2}),\s*([\p{Lu}][\p{Ll}\p{M}'-]*(?:\s+[\p{Lu}][\p{Ll}\p{M}'-]*){0,2}),\s*([\p{Lu}][\p{Ll}\p{M}'-]*(?:\s+[\p{Lu}][\p{Ll}\p{M}'-]*){0,2})\b/u,
+      );
+      if (location) {
+        return {
+          value: `${location[1]}, ${location[2].trim()}, ${location[3].trim()}`,
+          citedPages: [anchorChunks[0].metadata.pageNumber],
+        };
+      }
+    }
+  }
+
   return null;
 }
 
@@ -129,6 +153,8 @@ const NAME_LINE_RE = /^[A-Z][a-z]+(?:\s[A-Z][a-z]+){1,3}$/;
  * "Q1 2026".
  */
 const ROLE_TITLE_RE = /^[A-Z][A-Z\s&/-]{4,}$/;
+const INLINE_NAME_ROLE_RE =
+  /^\s*([A-Z][a-z]+(?:\s[A-Z][a-z]+){1,3})\s+([A-Z][A-Z\s&/-]{4,}?)(?=\s+CONTACT\b)/;
 
 /**
  * Pull a plausible person-name out of the top of the anchor chunk.
@@ -149,7 +175,12 @@ function extractAnchorName(anchor: Document<ChunkMetadata>): string | null {
   for (const line of lines.slice(0, 8)) {
     if (NAME_LINE_RE.test(line)) return line;
   }
-  return null;
+  // PDF.js reconstruction may flatten a styled title block into one
+  // long line: "Sumit Sahoo ENTERPRISE ARCHITECT ... CONTACT ...".
+  // In that shape the line-based branch above cannot match. The
+  // CONTACT lookahead prevents prose such as "Jane Doe wrote this
+  // report" from being mistaken for a résumé header.
+  return anchor.pageContent.match(INLINE_NAME_ROLE_RE)?.[1] ?? null;
 }
 
 /**
@@ -196,7 +227,11 @@ function hasResumeHeaderStructure(text: string): boolean {
       if (ROLE_TITLE_RE.test(lines[j])) return true;
     }
   }
-  return false;
+  // Real PDF extraction often removes every line break from the
+  // styled header. Preserve the same Name → ALL-CAPS role → CONTACT
+  // requirement in a flattened form instead of loosening the
+  // detector to any name/email/phone combination.
+  return INLINE_NAME_ROLE_RE.test(text);
 }
 
 /**
