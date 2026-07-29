@@ -197,7 +197,7 @@
 
 @media (hover: hover) {
   .cloak-brand-button:hover .cloak-brand-mark {
-    transform: rotate(-4deg) scale(1.04);
+    transform: scale(1.04);
   }
 
   .cloak-link-motion:hover .cloak-link-arrow,
