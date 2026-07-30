@@ -91,7 +91,7 @@ export function OrientationLock() {
       data-cloak-modal-root="true"
       // Top-level overlay — must outrank every modal and toast in the
       // app so the user never sees a half-rotated UI.
-      className="fixed inset-0 z-[var(--z-system-overlay)] flex flex-col items-center justify-center bg-[var(--color-paper)] px-8 text-center text-[var(--color-ink)] overscroll-contain"
+      className="fixed inset-0 z-[var(--z-system-overlay)] flex flex-col items-center justify-center bg-[var(--color-paper)] px-8 text-center text-[var(--color-ink)] outline-none overscroll-contain"
     >
       <div className="w-full max-w-sm border-y border-[var(--color-rule-strong)] py-7">
         <p className="cloak-dialog__eyebrow mb-5 text-primary-600">Viewport / portrait required</p>
