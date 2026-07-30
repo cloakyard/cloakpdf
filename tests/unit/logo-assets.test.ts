@@ -53,6 +53,53 @@ async function readCornerPixels(relativePath: string): Promise<number[][]> {
   });
 }
 
+async function readMinimumAlpha(relativePath: string): Promise<number> {
+  const { data, info } = await sharp(resolve(ROOT, relativePath))
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let minimum = 255;
+  for (let offset = 3; offset < data.length; offset += info.channels) {
+    minimum = Math.min(minimum, data[offset]);
+  }
+  return minimum;
+}
+
+async function readGlyphRadiusFraction(relativePath: string): Promise<number> {
+  const source = read(relativePath);
+  const backgroundOnly = source.replace(/<g stroke="white"[\s\S]*?<\/g>/, "");
+  expect(backgroundOnly).not.toBe(source);
+
+  const size = 512;
+  const [full, background] = await Promise.all(
+    [source, backgroundOnly].map((svg) =>
+      sharp(Buffer.from(svg))
+        .resize(size, size, { fit: "fill" })
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true }),
+    ),
+  );
+
+  let maxRadius = 0;
+  const center = size / 2;
+  for (let offset = 0; offset < full.data.length; offset += full.info.channels) {
+    const delta = Math.max(
+      Math.abs(full.data[offset] - background.data[offset]),
+      Math.abs(full.data[offset + 1] - background.data[offset + 1]),
+      Math.abs(full.data[offset + 2] - background.data[offset + 2]),
+    );
+    if (delta <= 1) continue;
+
+    const pixel = offset / full.info.channels;
+    const x = (pixel % size) + 0.5;
+    const y = Math.floor(pixel / size) + 0.5;
+    maxRadius = Math.max(maxRadius, Math.hypot(x - center, y - center));
+  }
+
+  return maxRadius / size;
+}
+
 describe("Cloakyard family logo contract", () => {
   it("pins the circular assets to the v1 70% keyline", () => {
     for (const path of ["public/cloakpdf-mark.svg", "public/icons/favicon.svg"]) {
@@ -74,6 +121,13 @@ describe("Cloakyard family logo contract", () => {
     expect(svg).toContain('stroke-width="3"');
   });
 
+  it("keeps the complete launcher glyph inside the maskable safe circle", async () => {
+    // The Web App Manifest safe zone has radius 40% of the icon width.
+    expect(await readGlyphRadiusFraction("public/icons/cloakpdf-app-icon.svg")).toBeLessThanOrEqual(
+      0.4,
+    );
+  });
+
   it("ships the expected raster sizes with opaque phone icons", () => {
     const expectedSizes = [
       ["public/icons/pwa-64x64.png", 64],
@@ -90,6 +144,18 @@ describe("Cloakyard family logo contract", () => {
 
     expect(readPng("public/icons/maskable-icon-512x512.png").hasTransparency).toBe(false);
     expect(readPng("public/icons/apple-touch-icon.png").hasTransparency).toBe(false);
+  });
+
+  it("keeps every installed icon fully opaque", async () => {
+    for (const path of [
+      "public/icons/pwa-64x64.png",
+      "public/icons/pwa-192x192.png",
+      "public/icons/pwa-512x512.png",
+      "public/icons/maskable-icon-512x512.png",
+      "public/icons/apple-touch-icon.png",
+    ]) {
+      expect(await readMinimumAlpha(path), `${path} must not contain transparent pixels`).toBe(255);
+    }
   });
 
   it("keeps every installed-icon corner opaque and free of white framing", async () => {
@@ -111,9 +177,17 @@ describe("Cloakyard family logo contract", () => {
 
   it("declares the maskable launcher asset and removes the generic logo name", () => {
     const viteConfig = read("vite.config.ts");
+    for (const path of ["pwa-64x64.png", "pwa-192x192.png", "pwa-512x512.png"]) {
+      const iconStart = viteConfig.indexOf(`src: "icons/${path}"`);
+      const iconEnd = viteConfig.indexOf("},", iconStart);
+      expect(viteConfig.slice(iconStart, iconEnd), `${path} must declare purpose any`).toContain(
+        'purpose: "any"',
+      );
+    }
     expect(viteConfig).toContain('src: "icons/maskable-icon-512x512.png"');
     expect(viteConfig).toContain('purpose: "maskable"');
     expect(read("pwa-assets.config.ts")).toContain("padding: 0");
+    expect(read("index.html")).toContain('sizes="180x180"');
     expect(existsSync(resolve(ROOT, "public/icons/logo.svg"))).toBe(false);
   });
 });

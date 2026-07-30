@@ -178,7 +178,7 @@ export function MobileEditorSurface() {
               <h2
                 ref={headingRef}
                 tabIndex={-1}
-                className="block text-sm font-semibold text-slate-800 dark:text-dark-text focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                className="block text-sm font-semibold text-slate-800 outline-none dark:text-dark-text"
               >
                 {tool.name}
               </h2>

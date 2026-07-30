@@ -715,6 +715,18 @@
 }
 
 @media (pointer: coarse) {
+  /* These shared component rules sit outside Tailwind's utility layer, so
+     their 40px/line-height sizing otherwise wins over pointer-coarse:min-h-11.
+     Keep the visual treatment compact while restoring a 44px Android target. */
+  .cloak-outline-link,
+  .cloak-link-motion {
+    min-height: 2.75rem;
+  }
+
+  .cloak-link-motion {
+    align-items: center;
+  }
+
   .cloak-site-footer a,
   .cloak-site-footer button {
     display: inline-flex;
