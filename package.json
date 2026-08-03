@@ -31,7 +31,7 @@
     "@llamaindex/liteparse-wasm": "^2.10.0",
     "@pdf-lib/fontkit": "^1.1.1",
     "@pdfme/pdf-lib": "^6.1.12",
-    "lucide-react": "^1.27.0",
+    "lucide-react": "^1.28.0",
     "motion": "^12.43.0",
     "node-forge": "^1.4.0",
     "pdfjs-dist": "^6.2.108",
