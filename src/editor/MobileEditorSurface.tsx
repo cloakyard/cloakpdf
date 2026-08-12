@@ -228,7 +228,7 @@ export function MobileEditorSurface() {
               Tools
             </span>
             <ChevronUp
-              className={`h-4 w-4 text-slate-400 motion-safe:transition-transform motion-safe:duration-200 ${
+              className={`cloak-disclosure-icon h-4 w-4 text-slate-400 ${
                 pickerOpen ? "rotate-180" : ""
               }`}
               aria-hidden="true"
@@ -342,7 +342,7 @@ export function MobileEditorSurface() {
                         <button
                           type="button"
                           onClick={() => pick(candidate.id)}
-                          className="grid min-h-[4.75rem] w-full grid-cols-[1.5rem_1.25rem_minmax(0,1fr)] items-start gap-2.5 px-3 py-3 text-left transition-[background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+                          className="grid min-h-[4.75rem] w-full grid-cols-[1.5rem_1.25rem_minmax(0,1fr)] items-start gap-2.5 px-3 py-3 text-left transition-colors hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
                         >
                           <span className="pt-0.5 font-mono text-[9px] tabular-nums text-[var(--color-ink-3)]">
                             {String(index + 1).padStart(2, "0")}

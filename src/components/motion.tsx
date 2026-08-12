@@ -15,9 +15,8 @@
  *    users who ask for less motion — no per-component gating needed. This
  *    mirrors the `motion-safe:` discipline already in index.css.
  *
- *  - **One restrained curve.** Every variant uses the same calm settle, so
- *    Motion-driven surfaces feel like one system rather than a bolted-on
- *    animation language.
+ *  - **One restrained curve.** The values mirror `tokens.css`; Motion-driven
+ *    surfaces and CSS-driven controls therefore share one language.
  *
  * Usage:
  *   import { m, AnimatePresence, variants } from "./motion.tsx";
@@ -39,16 +38,18 @@ export { AnimatePresence, m };
 export type { Variants };
 
 /**
- * Calm easing — easeOutExpo-ish. Quick start, long gentle settle, no overshoot.
+ * Calm easing — identical to `--ease-out` in tokens.css.
  */
-const EASE_CALM = [0.22, 1, 0.36, 1] as const;
+const EASE_CALM = [0.16, 1, 0.3, 1] as const;
 
-/** Duration scale (seconds). Deliberately short — calm, not sluggish. */
-const DUR = { fast: 0.16, base: 0.26, slow: 0.4 } as const;
+/** Duration scale (seconds). Mirrors the shared CSS motion tokens. */
+const DUR = { instant: 0.1, fast: 0.16, normal: 0.2, surface: 0.26 } as const;
 
-const calm: Transition = { duration: DUR.base, ease: EASE_CALM };
-export const calmFast: Transition = { duration: DUR.fast, ease: EASE_CALM };
-const calmSlow: Transition = { duration: DUR.slow, ease: EASE_CALM };
+const instant: Transition = { duration: 0 };
+const calmFast: Transition = { duration: DUR.fast, ease: EASE_CALM };
+const calmNormal: Transition = { duration: DUR.normal, ease: EASE_CALM };
+const calmSurface: Transition = { duration: DUR.surface, ease: EASE_CALM };
+const calmExit: Transition = { duration: DUR.instant, ease: EASE_CALM };
 
 /**
  * Shared variant vocabulary. Each carries `initial`/`animate`/`exit` so the
@@ -62,51 +63,51 @@ export const variants = {
     animate: { opacity: 1 },
     exit: { opacity: 1, transition: calmFast },
   },
-  /** Fade + gentle rise — the house entrance. */
+  /** Fade + small rise — used by occasional floating notices. */
   fadeUp: {
-    initial: { opacity: 0, y: 10 },
-    animate: { opacity: 1, y: 0, transition: calm },
-    exit: { opacity: 0, y: 6, transition: calmFast },
+    initial: { opacity: 0, transform: "translateY(8px)" },
+    animate: { opacity: 1, transform: "translateY(0)", transition: calmNormal },
+    exit: { opacity: 0, transform: "translateY(4px)", transition: calmFast },
   },
   /** One-time section reveal. Use on structural blocks, not every row. */
   reveal: {
-    initial: { opacity: 0, y: 14 },
-    animate: { opacity: 1, y: 0, transition: calmSlow },
-    exit: { opacity: 0, y: 8, transition: calmFast },
+    initial: { opacity: 0, transform: "translateY(6px)" },
+    animate: { opacity: 1, transform: "translateY(0)", transition: calmSurface },
+    exit: { opacity: 0, transform: "translateY(4px)", transition: calmFast },
   },
   /** A compact child reveal for a small, deliberate stagger. */
   revealItem: {
-    initial: { opacity: 0, y: 8 },
-    animate: { opacity: 1, y: 0, transition: calm },
-    exit: { opacity: 0, y: 4, transition: calmFast },
+    initial: { opacity: 0, transform: "translateY(4px)" },
+    animate: { opacity: 1, transform: "translateY(0)", transition: calmNormal },
+    exit: { opacity: 0, transform: "translateY(2px)", transition: calmExit },
   },
   /** Coordinates a few sibling reveals without adding its own transform. */
   stagger: {
     initial: {},
     animate: {
-      transition: { staggerChildren: 0.055, delayChildren: 0.04 },
+      transition: { staggerChildren: 0.05, delayChildren: 0.03 },
     },
     exit: {
       transition: { staggerChildren: 0.03, staggerDirection: -1 },
     },
   },
-  /** Bottom-sheet / centered modal panel: rises in, settles down on exit. */
+  /** Bottom-sheet / centered modal panel: no scale, so mobile edges stay anchored. */
   sheet: {
-    initial: { y: 16 },
-    animate: { y: 0, transition: calm },
-    exit: { y: 8, transition: calmFast },
+    initial: { opacity: 0, transform: "translateY(8px)" },
+    animate: { opacity: 1, transform: "translateY(0)", transition: calmNormal },
+    exit: { opacity: 0, transform: "translateY(4px)", transition: calmFast },
   },
-  /** Command index: a shorter top-edge settle, with solid paper throughout. */
-  command: {
-    initial: { y: -6 },
-    animate: { y: 0, transition: calmFast },
-    exit: { y: -4, transition: calmFast },
+  /** Keyboard-first surfaces must open and close immediately. */
+  instant: {
+    initial: { opacity: 1, transform: "none" },
+    animate: { opacity: 1, transform: "none", transition: instant },
+    exit: { opacity: 1, transform: "none", transition: instant },
   },
   /** Full-view (route) transition between home / tool / privacy. */
   view: {
-    initial: { opacity: 0, y: 8 },
-    animate: { opacity: 1, y: 0, transition: calm },
-    exit: { opacity: 0, y: -6, transition: calmFast },
+    initial: { opacity: 0, transform: "translateY(4px)" },
+    animate: { opacity: 1, transform: "translateY(0)", transition: calmFast },
+    exit: { opacity: 0, transform: "translateY(-2px)", transition: calmExit },
   },
   /** Dimmed scrim behind a modal. */
   scrim: {

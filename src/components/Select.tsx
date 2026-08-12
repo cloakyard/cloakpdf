@@ -62,7 +62,7 @@ interface SelectProps<T extends string> {
 }
 
 const TRIGGER_BASE =
-  "inline-flex w-full items-center justify-between gap-1.5 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] text-[var(--color-ink)] transition-[transform,opacity,color,background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex w-full items-center justify-between gap-1.5 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] text-[var(--color-ink)] transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50";
 
 const TRIGGER_SIZE = {
   sm: "px-2 py-1 text-xs pointer-coarse:min-h-11",
@@ -100,6 +100,8 @@ export function Select<T extends string>({
   useCloseOnModalOpen(setOpen);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [menuStyle, setMenuStyle] = useState<CSSProperties | null>(null);
+  const [menuAbove, setMenuAbove] = useState(false);
+  const [animateMenu, setAnimateMenu] = useState(true);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -146,6 +148,7 @@ export function Select<T extends string>({
       maxHeight,
       top: below ? r.bottom + gap : Math.max(viewportTop + margin, r.top - maxHeight - gap),
     });
+    setMenuAbove(!below);
   }, []);
 
   const close = useCallback((refocus = true) => {
@@ -155,9 +158,10 @@ export function Select<T extends string>({
   }, []);
 
   const openMenu = useCallback(
-    (active: number) => {
+    (active: number, animated: boolean) => {
       if (disabled || firstEnabled < 0) return;
       place();
+      setAnimateMenu(animated);
       setActiveIndex(active);
       setOpen(true);
     },
@@ -233,7 +237,7 @@ export function Select<T extends string>({
         const o = options[i];
         if (!o.disabled && optText(o).toLowerCase().startsWith(q)) {
           if (open) setActiveIndex(i);
-          else openMenu(i);
+          else openMenu(i, false);
           return;
         }
       }
@@ -256,10 +260,10 @@ export function Select<T extends string>({
       if (!open) {
         if (key === "ArrowDown" || key === "Enter" || key === " ") {
           consume();
-          openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled);
+          openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled, false);
         } else if (key === "ArrowUp") {
           consume();
-          openMenu(selectedIndex >= 0 ? selectedIndex : lastEnabled);
+          openMenu(selectedIndex >= 0 ? selectedIndex : lastEnabled, false);
         } else if (printable) {
           consume();
           typeAhead(key);
@@ -333,8 +337,10 @@ export function Select<T extends string>({
         aria-controls={open ? listId : undefined}
         aria-activedescendant={open && activeIndex >= 0 ? optId(activeIndex) : undefined}
         aria-label={ariaLabel}
-        onClick={() =>
-          open ? close() : openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled)
+        onClick={(event) =>
+          open
+            ? close()
+            : openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled, event.detail > 0)
         }
         onKeyDown={onKeyDown}
         className={`${TRIGGER_BASE} ${TRIGGER_SIZE[size]} ${className}`}
@@ -345,7 +351,7 @@ export function Select<T extends string>({
           {selected ? selected.label : (placeholder ?? "")}
         </span>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+          className={`cloak-disclosure-icon h-4 w-4 shrink-0 text-slate-400 ${open ? "rotate-180" : ""}`}
           aria-hidden="true"
         />
       </button>
@@ -359,7 +365,9 @@ export function Select<T extends string>({
             role="listbox"
             aria-label={ariaLabel}
             style={menuStyle}
-            className="cloak-popover cloak-popover__list thin-scrollbar z-[var(--z-popover)] overflow-y-auto overscroll-contain"
+            data-side={menuAbove ? "above" : "below"}
+            data-motion={animateMenu ? "surface" : "instant"}
+            className="cloak-popover cloak-popover-motion cloak-popover__list thin-scrollbar z-[var(--z-popover)] overflow-y-auto overscroll-contain"
           >
             {options.map((o, i) => {
               const isSel = o.value === value;

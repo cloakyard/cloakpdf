@@ -82,7 +82,7 @@ export function Segmented<T extends string>({
         {thumb && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute top-0 h-full rounded-md bg-primary-600 duration-200 ease-out motion-safe:transition-transform"
+            className="cloak-selection-indicator pointer-events-none absolute top-0 h-full rounded-md bg-primary-600"
             style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
           />
         )}

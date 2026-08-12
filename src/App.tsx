@@ -604,7 +604,7 @@ function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                         ? onSelectTool(tool.id as ToolId)
                         : handleResultSelect(tool.id)
                     }
-                    className="group grid min-h-[5rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] items-start gap-3 px-4 py-4 text-left transition-[background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2.5rem_1.5rem_minmax(0,1fr)_auto]"
+                    className="group grid min-h-[5rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-[var(--color-accent-soft)] hover:shadow-[inset_2px_0_0_var(--color-accent)] active:translate-y-px focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2.5rem_1.5rem_minmax(0,1fr)_auto]"
                   >
                     <span className="pt-0.5 font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
                       {String(index + 1).padStart(2, "0")}
@@ -889,7 +889,7 @@ export function App() {
 
   const showBack = view.kind !== "home";
   // Key the view transition by identity — switching between two tools should
-  // cross-fade too, not just home↔tool. `initial={false}` suppresses the very
+  // settle too, not just home↔tool. `initial={false}` suppresses the very
   // first mount so the home hero's own entrance animation isn't doubled.
   const viewKey = view.kind === "tool" ? `tool:${view.toolId}` : view.kind;
 

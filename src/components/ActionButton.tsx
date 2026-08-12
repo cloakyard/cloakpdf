@@ -1,6 +1,5 @@
 import { Download, Loader2, SquarePen } from "lucide-react";
 import { useState } from "react";
-import { calmFast, m } from "./motion.tsx";
 
 interface ActionButtonProps {
   onClick: () => void;
@@ -54,7 +53,7 @@ export function ActionButton({
       <div
         className={`grid w-full grid-cols-1 gap-3 sm:w-auto ${hasSecondary ? "sm:grid-cols-2" : ""}`}
       >
-        <m.button
+        <button
           type="button"
           onClick={() => {
             setActive("primary");
@@ -62,9 +61,6 @@ export function ActionButton({
           }}
           disabled={isDisabled}
           aria-busy={processing && active === "primary"}
-          whileHover={isDisabled ? undefined : { y: -1 }}
-          whileTap={isDisabled ? undefined : { y: 1, scale: 0.99 }}
-          transition={calmFast}
           className={`cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-[var(--color-accent-ink)] transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-55 sm:px-8 ${color}`}
         >
           {/* nowrap: a primary CTA must never wrap to two lines (320px guard). */}
@@ -75,10 +71,10 @@ export function ActionButton({
             <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
           )}
           {showDownload && <Download className="w-4 h-4" aria-hidden="true" />}
-        </m.button>
+        </button>
 
         {hasSecondary && (
-          <m.button
+          <button
             type="button"
             onClick={() => {
               setActive("secondary");
@@ -86,9 +82,6 @@ export function ActionButton({
             }}
             disabled={isDisabled}
             aria-busy={processing && active === "secondary"}
-            whileHover={isDisabled ? undefined : { y: -1 }}
-            whileTap={isDisabled ? undefined : { y: 1, scale: 0.99 }}
-            transition={calmFast}
             className="cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-3 text-[var(--color-ink)] transition-colors hover:border-primary-500 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
           >
             <span className="whitespace-nowrap">
@@ -101,7 +94,7 @@ export function ActionButton({
             ) : (
               <SquarePen className="w-4 h-4" aria-hidden="true" />
             )}
-          </m.button>
+          </button>
         )}
       </div>
     </div>

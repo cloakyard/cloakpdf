@@ -289,13 +289,13 @@ export function Toggle({
 function SwitchTrack({ checked }: { checked: boolean }) {
   return (
     <span
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+      className={`cloak-switch-track relative h-6 w-11 shrink-0 rounded-full ${
         checked ? "bg-primary-600" : "bg-slate-300 dark:bg-dark-border"
       }`}
       aria-hidden="true"
     >
       <span
-        className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-slate-200 bg-white transition-transform ${
+        className={`cloak-switch-thumb absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-slate-200 bg-white ${
           checked ? "translate-x-5" : "translate-x-0"
         }`}
       />

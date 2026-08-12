@@ -78,6 +78,9 @@ export function ModalShell({
     placement === "command"
       ? "items-start px-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-[10vh]"
       : "items-end sm:items-center sm:px-3 md:px-6";
+  const panelVariants = placement === "command" ? variants.instant : variants.sheet;
+  const scrimVariants = placement === "command" ? variants.instant : variants.scrim;
+  const rootVariants = placement === "command" ? variants.instant : variants.modalRoot;
 
   return createPortal(
     <AnimatePresence>
@@ -86,7 +89,7 @@ export function ModalShell({
           className={`fixed inset-0 z-[var(--z-dialog)] flex justify-center ${rootPlacement}`}
           data-cloak-modal-root="true"
           data-cloak-modal-layer="dialog"
-          variants={variants.modalRoot}
+          variants={rootVariants}
           initial="initial"
           animate="animate"
           exit="exit"
@@ -98,7 +101,7 @@ export function ModalShell({
               tabIndex={-1}
               onClick={() => isTopmost() && onClose()}
               className="cloak-modal-scrim absolute inset-0 cursor-default border-0"
-              variants={variants.scrim}
+              variants={scrimVariants}
               initial="initial"
               animate="animate"
               exit="exit"
@@ -107,7 +110,7 @@ export function ModalShell({
             <m.div
               aria-hidden="true"
               className="cloak-modal-scrim absolute inset-0"
-              variants={variants.scrim}
+              variants={scrimVariants}
               initial="initial"
               animate="animate"
               exit="exit"
@@ -123,7 +126,7 @@ export function ModalShell({
             data-testid={testId}
             tabIndex={-1}
             className={`cloak-dialog relative flex w-full flex-col overflow-hidden ${panelClassName}`}
-            variants={placement === "command" ? variants.command : variants.sheet}
+            variants={panelVariants}
             initial="initial"
             animate="animate"
             exit="exit"

@@ -96,7 +96,7 @@ export function ChatModelPicker({ value, onChange, disabled, initialFocus }: Cha
             tabIndex={selected ? 0 : -1}
             data-dialog-initial-focus={selected && initialFocus ? "true" : undefined}
             className={[
-              "relative grid min-h-11 w-full grid-cols-[1.25rem_minmax(0,1fr)] items-start gap-3 px-3 py-3 text-left transition-[color,background-color,box-shadow] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]",
+              "relative grid min-h-11 w-full grid-cols-[1.25rem_minmax(0,1fr)] items-start gap-3 px-3 py-3 text-left transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]",
               selected
                 ? "bg-[var(--color-accent-soft)] shadow-[inset_2px_0_0_var(--color-accent)]"
                 : "bg-[var(--color-surface)] hover:bg-[var(--color-paper)]",

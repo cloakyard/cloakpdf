@@ -48,7 +48,7 @@ export function ProgressBar({
       </div>
       <div className="w-full bg-slate-200 dark:bg-dark-border rounded-full h-2 overflow-hidden">
         <div
-          className={`${color} h-2 origin-left rounded-full transition-transform duration-300 ease-out`}
+          className={`${color} cloak-progress-fill h-2 origin-left rounded-full`}
           style={{ transform: `scaleX(${percent / 100})` }}
         />
       </div>

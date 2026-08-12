@@ -69,6 +69,28 @@ function matrixScale(transform: string): number {
   return match ? Number(match[1]) : Number.NaN;
 }
 
+function isIdentityTransform(transform: string): boolean {
+  if (transform === "none") return true;
+  const match = transform.match(/^matrix\(([^)]+)\)$/);
+  if (!match) return false;
+  const values = match[1].split(",").map(Number);
+  if (values.length !== 6) return false;
+  const [a, b, c, d, tx, ty] = values;
+  return (
+    closeTo(a, 1, 0.001) &&
+    closeTo(b, 0, 0.001) &&
+    closeTo(c, 0, 0.001) &&
+    closeTo(d, 1, 0.001) &&
+    closeTo(tx, 0, 0.01) &&
+    closeTo(ty, 0, 0.01)
+  );
+}
+
+function hasOnlyTransitionDuration(value: string, expected: string): boolean {
+  const durations = value.split(",").map((duration) => duration.trim());
+  return durations.length > 0 && durations.every((duration) => duration === expected);
+}
+
 function attachErrorCapture(page: Page, errors: string[]) {
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
@@ -121,7 +143,9 @@ async function auditHome(page: Page, viewport: ViewportCase) {
   if (state.statusAnimation !== "cloak-status-arrive" || state.statusIterations !== "1") {
     fail(`${viewport.name}: connection status must animate once, never loop.`);
   }
-  if (state.hero.some(({ opacity, transform }) => opacity !== "1" || transform !== "none")) {
+  if (
+    state.hero.some(({ opacity, transform }) => opacity !== "1" || !isIdentityTransform(transform))
+  ) {
     fail(`${viewport.name}: hero did not settle to its stable resting state.`);
   }
 
@@ -184,6 +208,7 @@ async function panelState(page: Page) {
     return {
       animation: style?.animationName ?? "",
       duration: style?.animationDuration ?? "",
+      transitionDuration: style?.transitionDuration ?? "",
       opacity: style?.opacity ?? "",
       transform: style?.transform ?? "none",
       sheetFraction:
@@ -229,18 +254,27 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
   }
 
   if (viewport.touch) {
-    if (opening.animation !== "cloak-panel-enter-touch" || opening.duration !== "0.22s") {
-      fail(`${viewport.name}: coarse-pointer panel did not use the compact motion profile.`);
+    if (
+      opening.animation !== "none" ||
+      !hasOnlyTransitionDuration(opening.transitionDuration, "0.16s")
+    ) {
+      fail(
+        `${viewport.name}: coarse-pointer panel did not use the compact motion profile: ${JSON.stringify(opening)}.`,
+      );
     }
     if (!closeTo(matrixScale(opening.transform), 1, 0.001)) {
       fail(`${viewport.name}: touch panel scaled text during its entrance.`);
     }
-  } else if (opening.animation !== "cloak-panel-enter" || opening.duration !== "0.26s") {
-    fail(`${viewport.name}: desktop panel did not use the full motion profile.`);
+  } else if (
+    opening.animation !== "none" ||
+    !hasOnlyTransitionDuration(opening.transitionDuration, "0.2s")
+  ) {
+    fail(
+      `${viewport.name}: desktop panel did not use the full motion profile: ${JSON.stringify(opening)}.`,
+    );
   }
 
-  // CSS animations may retain an identity matrix under `animation-fill-mode:
-  // both`; `none` and an identity matrix are both stable resting states.
+  // `none` and an identity matrix are both stable resting states.
   const settledScale = matrixScale(settled.transform);
   if (settled.opacity !== "1" || !closeTo(settledScale, 1, 0.001)) {
     fail(`${viewport.name}: tool panel did not settle cleanly.`);
@@ -323,9 +357,15 @@ async function auditReducedMotion(page: Page) {
   await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
   await page.click('button[aria-label="Open tools"]');
   await page.click('button[aria-label="Crop"]');
+  await new Promise((resolveDelay) => setTimeout(resolveDelay, 120));
   const panel = await panelState(page);
-  if (panel.animation !== "none" || panel.transform !== "none" || panel.opacity !== "1") {
-    fail("Reduced-motion editor retained decorative panel motion.");
+  if (
+    panel.animation !== "none" ||
+    !hasOnlyTransitionDuration(panel.transitionDuration, "0.1s") ||
+    panel.transform !== "none" ||
+    panel.opacity !== "1"
+  ) {
+    fail("Reduced-motion editor did not collapse movement to a brief opacity cue.");
   }
 }
 

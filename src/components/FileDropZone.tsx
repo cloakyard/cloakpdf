@@ -3,7 +3,6 @@
 import { ArrowRight, FileUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { EncryptedPdfNotice } from "./EncryptedPdfNotice.tsx";
-import { calmFast, m } from "./motion.tsx";
 
 interface FileDropZoneProps {
   accept: string;
@@ -53,7 +52,7 @@ export function FileDropZone({
   }
 
   return (
-    <m.label
+    <label
       onDragOver={(event) => {
         event.preventDefault();
         setIsDragOver(true);
@@ -61,9 +60,6 @@ export function FileDropZone({
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
       data-dragging={isDragOver}
-      animate={{ scale: isDragOver ? 1.006 : 1 }}
-      whileHover={{ scale: isDragOver ? 1.006 : 1.002 }}
-      transition={calmFast}
       style={{ touchAction: "manipulation" }}
       className={`cloak-dropzone ${hero ? "cloak-dropzone--hero" : ""}`}
     >
@@ -104,6 +100,6 @@ export function FileDropZone({
           Browse <ArrowRight className="cloak-link-arrow size-3.5" aria-hidden="true" />
         </span>
       </span>
-    </m.label>
+    </label>
   );
 }

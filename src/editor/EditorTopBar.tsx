@@ -141,7 +141,7 @@ export function EditorTopBar() {
         <div className="relative flex">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-0 top-0 h-7 w-8 rounded-sm bg-primary-600 duration-200 ease-out pointer-coarse:h-11 pointer-coarse:w-11 motion-safe:transition-transform"
+            className="cloak-selection-indicator pointer-events-none absolute left-0 top-0 h-7 w-8 rounded-sm bg-primary-600 pointer-coarse:h-11 pointer-coarse:w-11"
             style={{ transform: `translateX(${(activeCols - 1) * 100}%)` }}
           />
           {DENSITIES.map(({ cols, icon: Icon, label }) => {

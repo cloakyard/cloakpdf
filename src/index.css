@@ -188,14 +188,14 @@
 .cloak-ledger__arrow,
 .editor-toolrail__icon,
 .cloak-dialog__close svg {
-  transition: transform var(--dur-medium) var(--ease-out);
+  transition: transform var(--dur-short) var(--ease-out);
 }
 
 .cloak-link-motion {
   transition: color var(--dur-short) var(--ease-standard);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .cloak-brand-button:hover .cloak-brand-mark {
     transform: scale(1.04);
   }
@@ -298,7 +298,7 @@
   display: inline-block;
   border-radius: var(--radius-pill);
   background: var(--color-accent);
-  animation: cloak-status-arrive var(--dur-long) var(--ease-out) both;
+  animation: cloak-status-arrive var(--dur-normal) var(--ease-out) both;
 }
 
 .cloak-workbench__body {
@@ -497,9 +497,17 @@
   letter-spacing: 0.06em;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
+  .cloak-tool-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .cloak-tool-card:active {
+    transform: translateY(1px);
+  }
+
   .cloak-tool-card:hover .cloak-tool-card__icon {
-    transform: rotate(-5deg) scale(1.08);
+    transform: rotate(-4deg) scale(1.04);
   }
 
   .cloak-tool-card:hover .cloak-tool-card__arrow {
@@ -609,11 +617,14 @@
   transform-origin: 50% 65%;
 }
 
-@media (hover: hover) {
-  .cloak-dropzone:hover .cloak-dropzone__icon,
-  .cloak-dropzone[data-dragging="true"] .cloak-dropzone__icon {
+@media (hover: hover) and (pointer: fine) {
+  .cloak-dropzone:hover .cloak-dropzone__icon {
     transform: translateY(-3px) rotate(-4deg);
   }
+}
+
+.cloak-dropzone[data-dragging="true"] .cloak-dropzone__icon {
+  transform: translateY(-3px) rotate(-4deg);
 }
 
 .cloak-dropzone:focus-within {
@@ -673,13 +684,22 @@
   letter-spacing: 0.035em;
   text-transform: uppercase;
   white-space: nowrap;
+  transition:
+    transform var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-standard),
+    background-color var(--dur-short) var(--ease-standard),
+    border-color var(--dur-short) var(--ease-standard);
+}
+
+.cloak-action-button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .cloak-action-button svg:not(.animate-spin) {
   transition: transform var(--dur-short) var(--ease-out);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .cloak-action-button:hover:not(:disabled) svg:not(.animate-spin) {
     transform: translateY(-1px) scale(1.05);
   }
@@ -886,9 +906,9 @@
   border-top: var(--rule-thin) solid var(--color-rule);
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .cloak-ledger button:hover .cloak-ledger__icon {
-    transform: rotate(-4deg) scale(1.08);
+    transform: rotate(-4deg) scale(1.04);
   }
 
   .cloak-ledger button:hover .cloak-ledger__arrow {
@@ -900,14 +920,13 @@
   transform-origin: center;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .editor-toolrail button:hover .editor-toolrail__icon {
-    transform: translateY(-1px) scale(1.08);
+    transform: translateY(-1px) scale(1.04);
   }
 }
 
 .editor-toolrail__active-bar {
-  animation: cloak-active-bar-in var(--dur-medium) var(--ease-out) both;
   transform-origin: center;
 }
 
@@ -940,6 +959,57 @@
   background: var(--color-surface);
   color: var(--color-ink);
   box-shadow: var(--shadow-popover);
+}
+
+/* Portaled dropdowns, calendars, and color pickers share one anchored entry.
+   Pointer-opened surfaces get a 4px settle; keyboard-opened surfaces opt out
+   through data-motion="instant" so keyboard workflows remain immediate. */
+.cloak-popover-motion {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transform-origin: top left;
+  transition:
+    opacity var(--dur-short) var(--ease-out),
+    transform var(--dur-short) var(--ease-out);
+}
+
+.cloak-popover-motion[data-side="above"] {
+  transform-origin: bottom left;
+}
+
+.cloak-popover-motion[data-motion="instant"] {
+  transition: none;
+}
+
+@starting-style {
+  .cloak-popover-motion:not([data-motion="instant"]) {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  .cloak-popover-motion[data-side="above"]:not([data-motion="instant"]) {
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+.cloak-selection-indicator {
+  transition: transform var(--dur-normal) var(--ease-in-out);
+}
+
+.cloak-disclosure-icon {
+  transition: transform var(--dur-short) var(--ease-in-out);
+}
+
+.cloak-switch-track {
+  transition: background-color var(--dur-short) var(--ease-standard);
+}
+
+.cloak-switch-thumb {
+  transition: transform var(--dur-normal) var(--ease-in-out);
+}
+
+.cloak-progress-fill {
+  transition: transform var(--dur-normal) linear;
 }
 
 .cloak-popover__list {
@@ -1182,49 +1252,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Motion vocabulary: one calm settle for changing tool/state content, a
-   shorter confirmation for selected files, and one-shot functional accents.
-   These animate paint/transform only — never editor geometry. */
-@keyframes cloak-panel-enter {
-  from {
+/* Motion vocabulary: panel and state entrances are interruptible transitions,
+   not keyframes. They animate paint/composite properties only and never editor
+   geometry. Touch keeps the same timing but never scales text. */
+.cloak-panel-enter,
+.cloak-state-enter {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--dur-normal) var(--ease-out),
+    transform var(--dur-normal) var(--ease-out);
+}
+
+@starting-style {
+  .cloak-panel-enter {
     opacity: 0;
     transform: translateY(6px) scale(0.995);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
-/* Touch panels live in narrower property panes and, on phones, a half-height
-   sheet. Avoid scaling text and use a shorter travel so landscape controls do
-   not feel as though they rise through a large share of the available body. */
-@keyframes cloak-panel-enter-touch {
-  from {
+  .cloak-state-enter {
     opacity: 0;
     transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes cloak-state-enter {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes cloak-status-arrive {
   from {
     opacity: 0;
-    transform: scale(0.55);
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
@@ -1232,34 +1287,20 @@ body {
   }
 }
 
-@keyframes cloak-active-bar-in {
-  from {
-    opacity: 0;
-    transform: scaleY(0.35);
-  }
-  to {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-}
-
-.cloak-panel-enter {
-  animation: cloak-panel-enter var(--dur-medium) var(--ease-out) both;
-  transform-origin: top center;
-}
-
-.cloak-state-enter {
-  animation: cloak-state-enter var(--dur-medium) var(--ease-out) both;
-}
-
 @media (pointer: coarse) {
   .cloak-panel-enter {
-    animation-name: cloak-panel-enter-touch;
-    animation-duration: var(--dur-touch);
+    transition-duration: var(--dur-short);
   }
 
   .cloak-state-enter {
-    animation-duration: var(--dur-touch);
+    transition-duration: var(--dur-short);
+  }
+
+  @starting-style {
+    .cloak-panel-enter {
+      opacity: 0;
+      transform: translateY(4px);
+    }
   }
 }
 
@@ -1283,58 +1324,10 @@ body {
    glyph). Lifting it off inline style lets the reduced-motion rule below win
    the cascade and disable it. */
 .animate-rotate-hint {
-  animation: ci-rotate-hint 2.4s ease-in-out infinite;
-}
-
-@keyframes popover-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-popover-in {
-  animation: popover-in 0.15s ease-out both;
-  transform-origin: top center;
-}
-
-@keyframes popover-in-above {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-popover-in-above {
-  animation: popover-in-above 0.15s ease-out both;
-  transform-origin: bottom center;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.12s ease-out both;
+  animation: ci-rotate-hint 1.4s var(--ease-in-out) 2;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-popover-in,
-  .animate-popover-in-above,
-  .animate-fade-in,
   .animate-rotate-hint {
     animation: none;
   }
@@ -1354,6 +1347,35 @@ body {
     transform: none !important;
   }
 
+  .cloak-panel-enter,
+  .cloak-state-enter,
+  .cloak-popover-motion {
+    transition: opacity var(--dur-instant) var(--ease-out) !important;
+  }
+
+  .cloak-selection-indicator,
+  .cloak-disclosure-icon,
+  .cloak-switch-thumb {
+    transition: none !important;
+  }
+
+  .cloak-popover-motion {
+    transform: none;
+  }
+
+  .cloak-progress-fill {
+    transition-duration: var(--dur-instant);
+  }
+
+  @starting-style {
+    .cloak-panel-enter,
+    .cloak-state-enter,
+    .cloak-popover-motion:not([data-motion="instant"]) {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
   .cloak-brand-mark,
   .cloak-link-arrow,
   .cloak-tool-card__icon,
@@ -1366,43 +1388,6 @@ body {
   .cloak-action-button svg {
     transition: none !important;
     transform: none !important;
-  }
-}
-
-/*
- * Download-arrow loop used in the AI consent modal's header while a
- * model bundle is streaming in. The arrow rises in from above, settles
- * in the middle for a beat, then drops out the bottom — visually mirrors
- * the byte counter and progress bar below rather than the generic spin.
- * Held-open middle (35–65%) is intentional so the icon is fully readable
- * for most of each cycle. Disabled under reduced-motion.
- */
-@keyframes download-arrow {
-  0% {
-    transform: translateY(-55%);
-    opacity: 0;
-  }
-  35% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  65% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(55%);
-    opacity: 0;
-  }
-}
-
-.animate-download-arrow {
-  animation: download-arrow 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-download-arrow {
-    animation: none;
   }
 }
 

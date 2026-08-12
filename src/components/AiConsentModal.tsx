@@ -196,16 +196,10 @@ function ModalHeader({
     <header className="cloak-dialog__header">
       <span className="mt-1 grid h-5 w-5 shrink-0 place-items-center overflow-hidden text-primary-600">
         {status === "downloading" ? (
-          // Bare down-arrow looping top→middle→bottom→fade — visually
-          // mirrors what the bar below is doing (bytes flowing in)
-          // without the visual weight of `Download`'s tray + line.
-          // Hidden from a11y; the headline below already announces the
-          // downloading state.
-          <ArrowDown
-            className="w-5 h-5 animate-download-arrow"
-            aria-hidden="true"
-            strokeWidth={2.5}
-          />
+          // A static arrow names the transfer without competing with the
+          // determinate progress below. Hidden from a11y because the headline
+          // already announces the downloading state.
+          <ArrowDown className="w-5 h-5" aria-hidden="true" strokeWidth={2.5} />
         ) : status === "loading" ? (
           <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
         ) : status === "error" ? (
@@ -352,7 +346,7 @@ function DownloadBody({
           aria-valuenow={percent}
         >
           <div
-            className="h-full origin-left rounded-full bg-primary-600 transition-transform duration-300"
+            className="cloak-progress-fill h-full origin-left rounded-full bg-primary-600"
             style={{ transform: `scaleX(${percent / 100})` }}
           />
         </div>
@@ -573,7 +567,7 @@ function ModelProgressCard({
         aria-valuenow={barPercent}
       >
         <div
-          className={`${barClass} h-full origin-left rounded-full transition-transform duration-300`}
+          className={`${barClass} cloak-progress-fill h-full origin-left rounded-full`}
           style={{ transform: `scaleX(${barPercent / 100})` }}
         />
       </div>

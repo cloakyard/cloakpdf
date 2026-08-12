@@ -443,7 +443,7 @@ export function SignaturePad({
         option instead.
       </p>
       <div
-        className={`relative overflow-hidden rounded-lg border bg-white transition-[border-color,box-shadow] duration-200 ${
+        className={`relative overflow-hidden rounded-lg border bg-white transition-colors duration-200 ${
           isDrawing
             ? "border-primary-400 dark:border-primary-500"
             : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"

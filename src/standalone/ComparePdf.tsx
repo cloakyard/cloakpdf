@@ -629,7 +629,7 @@ export default function ComparePdf() {
               type="button"
               key={comp.page}
               onClick={() => setCurrentPage(comp.page - 1)}
-              className={`cloak-focus relative shrink-0 w-14 xl:w-16 rounded-md overflow-hidden border-2 transition-[border-color,box-shadow] ${
+              className={`cloak-focus relative shrink-0 w-14 xl:w-16 rounded-md overflow-hidden border-2 transition-colors ${
                 comp.page - 1 === currentPage
                   ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
                   : "border-slate-200 dark:border-dark-border hover:border-primary-300"
