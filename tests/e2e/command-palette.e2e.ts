@@ -117,6 +117,13 @@ async function main() {
     if (!railSearch) fail("Rail Search (palette) button not found.");
     await railSearch.click();
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
+    const paletteMotion = await page.$eval(PALETTE, (element) => {
+      const style = getComputedStyle(element);
+      return { opacity: style.opacity, transform: style.transform };
+    });
+    if (paletteMotion.opacity !== "1" || paletteMotion.transform !== "none") {
+      fail(`Command palette must open immediately; got ${JSON.stringify(paletteMotion)}.`);
+    }
     const closeSelector = `${PALETTE} button[aria-label="Close command palette"]`;
     await page.waitForFunction(
       (selector) => {

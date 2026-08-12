@@ -98,6 +98,7 @@ interface DateTimeInputProps {
 
 export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   const [open, setOpen] = useState(false);
+  const [animatePopover, setAnimatePopover] = useState(true);
   useCloseOnModalOpen(setOpen);
   const popoverId = useId();
   const [showYearPicker, setShowYearPicker] = useState(false);
@@ -406,8 +407,6 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   // Year range for the year picker
   const yearList = Array.from({ length: 31 }, (_, i) => todayYear - 30 + i).reverse();
 
-  const popoverAnimClass = popoverAbove ? "animate-popover-in-above" : "animate-popover-in";
-
   return (
     <div ref={containerRef} className="relative w-full">
       {/* Trigger button */}
@@ -419,11 +418,12 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
         aria-expanded={open}
         aria-controls={popoverId}
         aria-label={displayText ? `Date and time: ${displayText}` : "Select date and time"}
-        onClick={() => {
+        onClick={(event) => {
+          setAnimatePopover(event.detail > 0);
           setOpen((v) => !v);
           setShowYearPicker(false);
         }}
-        className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 text-left text-sm transition-[transform,opacity,color,background-color,border-color,box-shadow] pointer-coarse:min-h-11 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 text-left text-sm transition-[color,background-color,border-color] pointer-coarse:min-h-11 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
       >
         <span
           className={
@@ -452,7 +452,9 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
             // contradiction rather than trap focus in a scrim-less surface.
             aria-label="Date and time picker"
             style={{ ...popoverStyle, maxHeight: popoverMaxHeight }}
-            className={`${popoverAnimClass} cloak-popover thin-scrollbar z-[var(--z-popover)] max-h-[calc(100svh-1rem)] w-72 space-y-2 overflow-y-auto overscroll-contain p-3`}
+            data-side={popoverAbove ? "above" : "below"}
+            data-motion={animatePopover ? "surface" : "instant"}
+            className="cloak-popover cloak-popover-motion thin-scrollbar z-[var(--z-popover)] max-h-[calc(100svh-1rem)] w-72 space-y-2 overflow-y-auto overscroll-contain p-3"
           >
             {/* Month/year navigation header */}
             <div className="flex items-center justify-between gap-1">
@@ -488,7 +490,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                 >
                   {viewYear}
                   <ChevronDown
-                    className={`h-3 w-3 transition-transform ${showYearPicker ? "rotate-180" : ""}`}
+                    className={`cloak-disclosure-icon h-3 w-3 ${showYearPicker ? "rotate-180" : ""}`}
                     aria-hidden="true"
                   />
                 </button>
@@ -511,7 +513,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
 
             {/* Year picker grid */}
             {showYearPicker ? (
-              <div className="animate-fade-in grid grid-cols-4 gap-1 max-h-44 overflow-y-auto thin-scrollbar py-0.5">
+              <div className="grid grid-cols-4 gap-1 max-h-44 overflow-y-auto thin-scrollbar py-0.5">
                 {yearList.map((year) => (
                   <button
                     key={year}
@@ -536,7 +538,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
               <table
                 aria-label={`${MONTHS[viewMonth]} ${viewYear}`}
                 onKeyDown={handleCalendarKeyDown}
-                className="w-full table-fixed animate-fade-in"
+                className="w-full table-fixed"
               >
                 <thead>
                   <tr>

@@ -106,7 +106,7 @@ export function SegmentedControl<T extends string | number | boolean>({
         {thumb && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute top-0 h-full ${s.thumb} bg-primary-600 duration-200 ease-out motion-safe:transition-transform`}
+            className={`cloak-selection-indicator pointer-events-none absolute top-0 h-full ${s.thumb} bg-primary-600`}
             style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
           />
         )}

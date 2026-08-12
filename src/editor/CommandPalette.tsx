@@ -294,7 +294,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 tabIndex={-1}
                 onPointerMove={() => setActive(i)}
                 onClick={() => choose(cmd)}
-                className={`relative grid min-h-[3.75rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)] items-center gap-2.5 border-b border-[var(--color-rule)] px-4 py-2.5 text-left transition-[color,background-color,box-shadow] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] ${
+                className={`relative grid min-h-[3.75rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)] items-center gap-2.5 border-b border-[var(--color-rule)] px-4 py-2.5 text-left transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] ${
                   on
                     ? "bg-[var(--color-accent-soft)] shadow-[inset_2px_0_0_var(--color-accent)]"
                     : "hover:bg-[var(--color-paper)]"

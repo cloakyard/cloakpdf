@@ -314,7 +314,7 @@ export function Panel() {
                 onClick={() => toggle(t)}
                 disabled={detecting}
                 aria-pressed={on}
-                className={`cloak-focus min-h-9 px-2.5 py-2 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.04em] transition-[color,background-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11 ${
+                className={`cloak-focus min-h-9 px-2.5 py-2 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.04em] transition-colors disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11 ${
                   on
                     ? "bg-[var(--color-accent-soft)] text-primary-700 shadow-[inset_2px_0_0_var(--color-accent)]"
                     : "bg-[var(--color-surface)] text-[var(--color-ink-3)] hover:bg-[var(--color-paper)] hover:text-[var(--color-ink)]"

@@ -411,7 +411,7 @@ export default function PdfPassword() {
             className="-mx-2 flex min-h-11 items-center gap-2 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
           >
             <ChevronRight
-              className={`w-4 h-4 transition-transform ${showPerms ? "rotate-90" : ""}`}
+              className={`cloak-disclosure-icon w-4 h-4 ${showPerms ? "rotate-90" : ""}`}
               aria-hidden="true"
             />
             Restrict permissions

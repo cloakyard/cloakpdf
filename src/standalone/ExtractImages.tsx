@@ -383,7 +383,7 @@ export default function ExtractImages() {
                     onClick={() => toggleImage(i)}
                     aria-label={`Image ${i + 1} from page ${img.page}${selected.has(i) ? ", selected" : ""}`}
                     aria-pressed={selected.has(i)}
-                    className={`relative group rounded-lg overflow-hidden border transition-[border-color,box-shadow] cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
+                    className={`relative group rounded-lg overflow-hidden border transition-colors cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
                       selected.has(i)
                         ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
                         : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"

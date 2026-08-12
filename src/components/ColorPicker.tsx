@@ -75,6 +75,7 @@ interface ColorPickerProps {
 
 export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const [open, setOpen] = useState(false);
+  const [animatePopover, setAnimatePopover] = useState(true);
   useCloseOnModalOpen(setOpen);
   const popoverId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -84,7 +85,10 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const saturationInputRef = useRef<HTMLInputElement>(null);
   // Portal the popover to <body> so the editor's overflow-clipped panels / mobile
   // sheet can't clip it; anchor it to the swatch row.
-  const { style: popoverStyle } = useAnchoredPopover(open, rootRef, { width: 256, height: 280 });
+  const { style: popoverStyle, above: popoverAbove } = useAnchoredPopover(open, rootRef, {
+    width: 256,
+    height: 280,
+  });
 
   // Hex compared case-insensitively: presets are stored uppercase (theme.ts)
   // but values round-trip through rgbToHex / manual entry as lowercase, so a
@@ -98,17 +102,21 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const [hexTouched, setHexTouched] = useState(false);
 
   // Sync internal state when popover opens
-  const toggleOpen = useCallback(() => {
-    setOpen((prev) => {
-      if (!prev) {
-        const converted = hexToHsv(value);
-        setHsv(converted);
-        setHexInput(value);
-        setHexTouched(false);
-      }
-      return !prev;
-    });
-  }, [value]);
+  const toggleOpen = useCallback(
+    (animated: boolean) => {
+      setAnimatePopover(animated);
+      setOpen((prev) => {
+        if (!prev) {
+          const converted = hexToHsv(value);
+          setHsv(converted);
+          setHexInput(value);
+          setHexTouched(false);
+        }
+        return !prev;
+      });
+    },
+    [value],
+  );
 
   // Close on click-outside or Escape
   useEffect(() => {
@@ -256,9 +264,9 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
             <span
-              className={`block w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 motion-safe:transition-transform ${
+              className={`block w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 ${
                 eqHex(value, p.hex)
-                  ? "border-primary-500 scale-125"
+                  ? "border-primary-500"
                   : "border-slate-300 dark:border-dark-border"
               }`}
               style={{ backgroundColor: p.hex }}
@@ -275,14 +283,12 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls={open ? popoverId : undefined}
-          onClick={toggleOpen}
+          onClick={(event) => toggleOpen(event.detail > 0)}
           className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
         >
           <span
-            className={`flex items-center justify-center w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 motion-safe:transition-transform ${
-              open || !isPreset
-                ? "border-primary-500 scale-125"
-                : "border-slate-300 dark:border-dark-border"
+            className={`flex items-center justify-center w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 ${
+              open || !isPreset ? "border-primary-500" : "border-slate-300 dark:border-dark-border"
             }`}
             style={{
               background: !isPreset
@@ -308,7 +314,9 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             role="dialog"
             aria-label="Custom color picker"
             style={popoverStyle}
-            className="cloak-popover thin-scrollbar z-[var(--z-popover)] max-h-[min(22rem,calc(100svh-1rem))] w-64 space-y-3 overflow-y-auto overscroll-contain p-3"
+            data-side={popoverAbove ? "above" : "below"}
+            data-motion={animatePopover ? "surface" : "instant"}
+            className="cloak-popover cloak-popover-motion thin-scrollbar z-[var(--z-popover)] max-h-[min(22rem,calc(100svh-1rem))] w-64 space-y-3 overflow-y-auto overscroll-contain p-3"
           >
             {/* Saturation / Brightness area */}
             <div

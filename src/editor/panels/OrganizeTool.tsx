@@ -156,7 +156,7 @@ export function Board() {
                 setFromPos(null);
                 setOverPos(null);
               }}
-              className={`page-cell group relative flex cursor-grab flex-col items-center gap-1.5 rounded-lg border bg-white p-2 transition-[opacity,box-shadow,transform] active:cursor-grabbing dark:bg-dark-surface ${
+              className={`page-cell group relative flex cursor-grab flex-col items-center gap-1.5 rounded-lg border bg-white p-2 transition-[opacity,transform] active:cursor-grabbing dark:bg-dark-surface ${
                 del ? "opacity-40" : fromPos === pos ? "select-none opacity-50 scale-[0.97]" : ""
               } ${
                 overPos === pos

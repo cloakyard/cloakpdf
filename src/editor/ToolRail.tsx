@@ -42,7 +42,7 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
         title="Search tools (⌘K / Ctrl+K)"
         aria-label="Search tools"
         aria-keyshortcuts="Meta+K Control+K"
-        className="relative flex min-h-12 w-full cursor-pointer flex-col items-center justify-center gap-0.5 border-y border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-ink-2)] transition-[color,background-color,box-shadow] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-ink)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+        className="relative flex min-h-12 w-full cursor-pointer flex-col items-center justify-center gap-0.5 border-y border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-ink)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"
       >
         <Search className="editor-toolrail__icon h-4.5 w-4.5 text-primary-600" aria-hidden="true" />
         <span className="max-w-full truncate px-0.5 font-mono text-xxs font-medium leading-none">

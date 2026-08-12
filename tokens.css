@@ -51,11 +51,12 @@
   --text-cloak-display: clamp(2.75rem, 6.4vw, 6.75rem);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --dur-instant: 100ms;
   --dur-short: 160ms;
-  --dur-touch: 220ms;
-  --dur-medium: 260ms;
-  --dur-long: 400ms;
+  --dur-normal: 200ms;
+  --dur-surface: 260ms;
 
   --rule-thin: 1px;
   --radius-card: 0.5rem;
