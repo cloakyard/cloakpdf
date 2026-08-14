@@ -4,7 +4,7 @@ import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 declare const __APP_VERSION__: string;
 
 const REPO_URL = "https://github.com/cloakyard/cloakpdf";
-const CLOAKYARD_URL = "https://github.com/cloakyard";
+const CLOAKYARD_URL = "https://cloakyard.com";
 const AUTHOR_URL = "https://github.com/sumitsahoo";
 
 interface Props {
