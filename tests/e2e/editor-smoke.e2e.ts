@@ -394,15 +394,23 @@ async function main() {
     await waitForText(page, /Extract text/i, 5_000); // phase 1; engine not run here
     console.log("  ✓ OCR panel mounts (engine not run)");
 
-    // 5. Organize (page-board): delete a page, apply via assemblePdf (40 → 39).
+    // 5. Organize (page-board): delete a page and apply via assemblePdf.
     const orgBtn = await page.$('button[aria-label="Organize"]');
     if (!orgBtn) fail("Organize rail tool not found.");
     await orgBtn.click(); // switches to overview + editable board
     await page.waitForSelector('button[aria-label="Delete page 1"]', { timeout: 10_000 });
+    const pagesBeforeOrganize = await page.$$eval(
+      'button[aria-label^="Delete page "]',
+      (buttons) => buttons.length,
+    );
+    if (pagesBeforeOrganize < 2) fail(`Expected at least 2 pages, got ${pagesBeforeOrganize}.`);
     await page.click('button[aria-label="Delete page 1"]');
     if (!(await clickByText(page, "Apply changes"))) fail("Organize Apply button not found.");
-    await waitForText(page, /\b39 pages\b/, 60_000);
-    console.log("  ✓ organize delete + apply (40 → 39 pages)");
+    const pagesAfterOrganize = pagesBeforeOrganize - 1;
+    await waitForText(page, new RegExp(`\\b${pagesAfterOrganize} pages\\b`), 60_000);
+    console.log(
+      `  ✓ organize delete + apply (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
+    );
 
     // 6. Browse overview (deselect tool) + jump back to focus.
     await orgBtn.click(); // toggle organize off → read-only browse grid

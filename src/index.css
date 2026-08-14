@@ -104,8 +104,7 @@
   z-index: var(--z-sticky-nav);
   height: var(--banner-height);
   border-bottom: var(--rule-thin) solid var(--color-rule);
-  background: color-mix(in oklab, var(--color-paper) 96%, transparent);
-  backdrop-filter: blur(12px);
+  background: var(--color-paper);
 }
 
 .cloak-site-header__inner {
@@ -1109,6 +1108,12 @@
   }
 }
 
+@media (min-width: 640px) and (max-width: 860px) {
+  .cloak-display {
+    font-size: clamp(3.4rem, 9vw, 4.8rem);
+  }
+}
+
 @media (max-width: 860px) {
   .cloak-site-header__inner {
     grid-template-columns: 1fr auto;
@@ -1141,7 +1146,7 @@
 
 @media (max-width: 639px) {
   .cloak-display {
-    font-size: clamp(2.85rem, 15vw, 4.6rem);
+    font-size: clamp(2.75rem, 14vw, 4.4rem);
   }
 
   .cloak-workbench__steps {
