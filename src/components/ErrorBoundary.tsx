@@ -1,9 +1,10 @@
-import { AlertTriangle, Check, Copy, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, Copy, RefreshCw, ShieldCheck } from "lucide-react";
 import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
 declare const __APP_VERSION__: string;
 
 const REPO_URL = "https://github.com/cloakyard/cloakpdf";
+const CLOAKYARD_URL = "https://github.com/cloakyard";
 const AUTHOR_URL = "https://github.com/sumitsahoo";
 
 interface Props {
@@ -35,6 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error("[CloakPDF] Uncaught error:", error, info.componentStack);
+    window.requestAnimationFrame(() => this.reloadButtonRef.current?.focus());
   }
 
   componentDidUpdate(_prevProps: Props, prevState: State): void {
@@ -259,27 +261,47 @@ export class ErrorBoundary extends Component<Props, State> {
           className="cloak-site-footer mt-auto"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
-          <div className="site-frame py-6 sm:py-7">
-            <div className="flex flex-col gap-5 border-b border-[var(--color-night-rule)] pb-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="inline-flex items-center gap-[0.6rem]">
-                <img
-                  src="/cloakpdf-mark.svg"
-                  alt=""
-                  aria-hidden="true"
-                  width="34"
-                  height="34"
-                  className="size-[34px] shrink-0 rounded-full"
-                />
-                <span
-                  translate="no"
-                  className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-night-ink)]"
-                >
-                  Cloak<span className="text-primary-400">PDF</span>
-                </span>
+          <div className="site-frame py-8 sm:py-10">
+            <div className="grid gap-8 border-b border-[var(--color-night-rule)] pb-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end lg:gap-20">
+              <div>
+                <p className="cloak-mono-label mb-4 text-primary-400">CloakPDF / Cloakyard</p>
+                <p className="cloak-site-footer__statement">
+                  Open a PDF. <span className="text-primary-400">Keep it local.</span>
+                </p>
               </div>
-              <p className="m-0 max-w-md text-sm leading-relaxed text-[var(--color-night-muted)] sm:text-right">
-                Open-source PDF tools, processed inside your browser.
-              </p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs tracking-[0.04em] text-[var(--color-night-muted)] uppercase">
+                <button
+                  type="button"
+                  onClick={this.handleReload}
+                  className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                >
+                  Home / reload app
+                </button>
+                <a
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  href={REPO_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
+                <a
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  href={issueUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Report error
+                </a>
+                <a
+                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
+                  href={CLOAKYARD_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Cloakyard <ArrowUpRight className="ml-1 inline size-3" aria-hidden="true" />
+                </a>
+              </div>
             </div>
             <div className="flex flex-col gap-3 pt-6 font-mono text-[10px] tracking-[0.06em] text-[var(--color-night-muted)] uppercase sm:flex-row sm:items-center">
               <span translate="no">CloakPDF v{__APP_VERSION__}</span>

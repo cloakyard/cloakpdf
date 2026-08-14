@@ -733,7 +733,7 @@
   color: var(--color-primary-400);
 }
 
-@media (pointer: coarse) {
+@media (max-width: 639px), (pointer: coarse) {
   /* These shared component rules sit outside Tailwind's utility layer, so
      their 40px/line-height sizing otherwise wins over pointer-coarse:min-h-11.
      Keep the visual treatment compact while restoring a 44px Android target. */
