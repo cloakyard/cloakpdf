@@ -64,8 +64,8 @@ export function PrivacyPolicy() {
             <dd className="mt-1 text-[var(--color-ink)]">None</dd>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <dt className="text-[var(--color-ink-3)]">License</dt>
-            <dd className="mt-1 text-[var(--color-ink)]">MIT</dd>
+            <dt className="text-[var(--color-ink-3)]">Product analytics</dt>
+            <dd className="mt-1 text-[var(--color-ink)]">None</dd>
           </div>
         </dl>
       </header>

@@ -365,6 +365,11 @@ async function main() {
     // 9. Organize (overview board) via the global ✓: delete a page, apply.
     await pickTool(page, "Organize");
     await page.waitForSelector('button[aria-label="Delete page 1"]', { timeout: 10_000 });
+    const pagesBeforeOrganize = await page.$$eval(
+      'button[aria-label^="Delete page "]',
+      (buttons) => buttons.length,
+    );
+    if (pagesBeforeOrganize < 2) fail(`Expected at least 2 pages, got ${pagesBeforeOrganize}.`);
     if (await hasExactText(page, "Apply changes"))
       fail("'Apply changes' must be hidden on mobile.");
     // Touch reorder: HTML5 drag-and-drop doesn't fire for touch, so the board
@@ -375,10 +380,15 @@ async function main() {
     await waitForDoneEnabled(page); // ✓ enables once the board is dirty
     await page.click('button[aria-label="Done"]'); // ✓ applies the page removal
     await waitForNoBusy(page);
-    await page.waitForSelector('button[aria-label="Open page 39"]', { timeout: 60_000 });
-    if (await page.$('button[aria-label="Open page 40"]'))
-      fail("Organize did not remove a page on mobile (still 40).");
-    console.log("  ✓ organize delete + apply via global ✓ (40 → 39 pages)");
+    const pagesAfterOrganize = pagesBeforeOrganize - 1;
+    await page.waitForSelector(`button[aria-label="Open page ${pagesAfterOrganize}"]`, {
+      timeout: 60_000,
+    });
+    if (await page.$(`button[aria-label="Open page ${pagesBeforeOrganize}"]`))
+      fail(`Organize did not remove a page on mobile (still ${pagesBeforeOrganize}).`);
+    console.log(
+      `  ✓ organize delete + apply via global ✓ (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
+    );
 
     // 10. OCR enabled on mobile: Extract control renders (engine NOT run), the
     //     old desktop-only notice is gone, and the sheet body is a scroll box.

@@ -81,7 +81,7 @@ The absent routes are upload server, user account, and analytics.
 Archivo is self-hosted from `public/fonts/archivo-latin.woff2`; JetBrains Mono is
 self-hosted from `public/fonts/jetbrains-mono-latin.woff2`.
 
-- Hero display: Archivo 760, `clamp(2.75rem, 6.4vw, 6.75rem)`, 0.91 line-height,
+- Hero display: Archivo 760, `clamp(2.75rem, 5.5vw, 5.6rem)`, 0.91 line-height,
   `-0.065em` tracking. Keep the line under roughly eleven characters of measure.
 - Section display: Archivo 720, `clamp(2.15rem, 4.7vw, 4.9rem)`, 0.98 line-height.
 - Utility title: Archivo 740, `clamp(2.75rem, 6vw, 6.2rem)`, 0.92 line-height.
