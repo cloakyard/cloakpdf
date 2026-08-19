@@ -12,7 +12,7 @@
 
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import type { KeyInput, Page } from "puppeteer-core";
+import type { CDPSession, KeyInput, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
 
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
@@ -34,6 +34,11 @@ interface ViewTransform {
   panX: number;
   panY: number;
   zoom: number;
+}
+
+interface Point {
+  x: number;
+  y: number;
 }
 
 function fail(message: string): never {
@@ -73,6 +78,58 @@ async function pageBox(
   const box = await image.boundingBox();
   if (!box) fail("Focused page image has no layout box.");
   return box;
+}
+
+async function canvasBox(
+  page: Page,
+): Promise<{ x: number; y: number; width: number; height: number }> {
+  return page.$eval(STAGE, (node) => {
+    const surface = node.parentElement?.parentElement;
+    if (!surface) throw new Error("Editing canvas surface not found.");
+    const rect = surface.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  });
+}
+
+async function dispatchPinch(
+  cdp: CDPSession,
+  startCenter: Point,
+  startHalf: number,
+  endCenter: Point,
+  endHalf: number,
+): Promise<void> {
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [
+      { id: 1, x: startCenter.x - startHalf, y: startCenter.y },
+      { id: 2, x: startCenter.x + startHalf, y: startCenter.y },
+    ],
+  });
+  await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [
+      {
+        id: 1,
+        x: (startCenter.x + endCenter.x - startHalf - endHalf) / 2,
+        y: (startCenter.y + endCenter.y) / 2,
+      },
+      {
+        id: 2,
+        x: (startCenter.x + endCenter.x + startHalf + endHalf) / 2,
+        y: (startCenter.y + endCenter.y) / 2,
+      },
+    ],
+  });
+  await new Promise((resolveWait) => setTimeout(resolveWait, 20));
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [
+      { id: 1, x: endCenter.x - endHalf, y: endCenter.y },
+      { id: 2, x: endCenter.x + endHalf, y: endCenter.y },
+    ],
+  });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 }
 
 async function drawRect(
@@ -204,6 +261,10 @@ async function main(): Promise<void> {
     );
     if (!shortcuts.includes("Delete") || !shortcuts.includes("Backspace"))
       fail(`Selected-annotation shortcuts are not exposed accessibly: ${shortcuts}`);
+    const canvasLabel = await page.$eval(STAGE, (node) => node.getAttribute("aria-label") ?? "");
+    if (!canvasLabel.includes("Control or Command plus scroll")) {
+      fail(`Canvas zoom help omits a supported desktop modifier: ${canvasLabel}`);
+    }
 
     const initialBounds = await readOverlayBounds(page);
     if (!initialBounds) fail("Selected annotation did not paint on the overlay.");
@@ -282,6 +343,318 @@ async function main(): Promise<void> {
     );
     if (!sameView(finalView, { panX: 0, panY: 0, zoom: 1 })) fail("Viewport did not reset.");
     console.log("  ✓ unhandled Arrow pans; + zooms; 0 resets the viewport");
+
+    // Direct-manipulation viewport gestures: a pinch must soften the raw
+    // distance ratio, keep the initial page point beneath the moving midpoint,
+    // and pan at the same time. CDP emits real touch pointer events here (not a
+    // synthetic DOM event), including the first-finger tool cancel path.
+    const cdp = await page.target().createCDPSession();
+    const pinchBefore = await pageBox(page);
+    const startCenter = {
+      x: pinchBefore.x + pinchBefore.width * 0.6,
+      y: pinchBefore.y + pinchBefore.height * 0.4,
+    };
+    const endCenter = {
+      x: startCenter.x + pinchBefore.width * 0.04,
+      y: startCenter.y + pinchBefore.height * 0.05,
+    };
+    const startHalf = pinchBefore.width * 0.1;
+    const endHalf = startHalf * 2;
+
+    await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    try {
+      await dispatchPinch(cdp, startCenter, startHalf, endCenter, endHalf);
+    } finally {
+      await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    }
+
+    const pinchedView = await waitUntil(
+      () => readView(page),
+      (next) => next.zoom > 1.6,
+      "damped pinch zoom",
+    );
+    const pinchAfter = await pageBox(page);
+    const beforePinchFraction = {
+      x: (startCenter.x - pinchBefore.x) / pinchBefore.width,
+      y: (startCenter.y - pinchBefore.y) / pinchBefore.height,
+    };
+    const afterPinchFraction = {
+      x: (endCenter.x - pinchAfter.x) / pinchAfter.width,
+      y: (endCenter.y - pinchAfter.y) / pinchAfter.height,
+    };
+    const expectedPinchZoom = 2 ** (3 / 4);
+    if (Math.abs(pinchedView.zoom - expectedPinchZoom) > 0.03) {
+      fail(`Pinch sensitivity drifted: expected ${expectedPinchZoom}, got ${pinchedView.zoom}.`);
+    }
+    if (
+      Math.abs(beforePinchFraction.x - afterPinchFraction.x) > 0.01 ||
+      Math.abs(beforePinchFraction.y - afterPinchFraction.y) > 0.01
+    ) {
+      fail(
+        `Pinch lost its moving focal point: ${JSON.stringify({ beforePinchFraction, afterPinchFraction })}.`,
+      );
+    }
+    await waitForText(page, /\b0 marks\b/i);
+    console.log("  ✓ pinch zoom is damped and follows simultaneous two-finger pan");
+
+    // A mouse user can hand-pan without leaving an active drawing tool. This is
+    // particularly important once the zoomed page fills the whole canvas and
+    // there is no background left to grab.
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "pre-middle-drag viewport reset",
+    );
+    const middleBox = await pageBox(page);
+    const middleStart = {
+      x: middleBox.x + middleBox.width / 2,
+      y: middleBox.y + middleBox.height / 2,
+    };
+    await page.mouse.move(middleStart.x, middleStart.y);
+    await page.mouse.down({ button: "middle" });
+    await page.mouse.move(middleStart.x + 68, middleStart.y + 44, { steps: 8 });
+    await page.mouse.up({ button: "middle" });
+    const middlePanned = await waitUntil(
+      () => readView(page),
+      (next) => next.panX > 60 && next.panY > 36,
+      "middle-button hand pan",
+    );
+    if (Math.abs(middlePanned.panX - 68) > 1 || Math.abs(middlePanned.panY - 44) > 1) {
+      fail(`Middle-button hand pan drifted: ${JSON.stringify(middlePanned)}.`);
+    }
+    await waitForText(page, /\b0 marks\b/i);
+    console.log("  ✓ middle-button drag pans without switching or firing the active tool");
+
+    // Trackpad pinch arrives as Ctrl+wheel in Chromium. It should use a
+    // continuous delta (not a fixed 10% per event), remain cursor-anchored, and
+    // ordinary two-axis wheel input should pan like a document viewer.
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "post-pinch viewport reset",
+    );
+    const wheelBefore = await pageBox(page);
+    const wheelFocal = {
+      x: wheelBefore.x + wheelBefore.width * 0.72,
+      y: wheelBefore.y + wheelBefore.height * 0.35,
+    };
+    await cdp.send("Input.dispatchMouseEvent", {
+      type: "mouseWheel",
+      x: wheelFocal.x,
+      y: wheelFocal.y,
+      deltaX: 0,
+      deltaY: -100,
+      modifiers: 2, // Ctrl
+      pointerType: "mouse",
+    });
+    const wheelZoomed = await waitUntil(
+      () => readView(page),
+      (next) => next.zoom > 1.2,
+      "cursor-anchored wheel zoom",
+    );
+    const wheelAfter = await pageBox(page);
+    const beforeWheelFraction = {
+      x: (wheelFocal.x - wheelBefore.x) / wheelBefore.width,
+      y: (wheelFocal.y - wheelBefore.y) / wheelBefore.height,
+    };
+    const afterWheelFraction = {
+      x: (wheelFocal.x - wheelAfter.x) / wheelAfter.width,
+      y: (wheelFocal.y - wheelAfter.y) / wheelAfter.height,
+    };
+    if (
+      Math.abs(beforeWheelFraction.x - afterWheelFraction.x) > 0.001 ||
+      Math.abs(beforeWheelFraction.y - afterWheelFraction.y) > 0.001
+    ) {
+      fail(
+        `Wheel zoom lost its cursor focal point: ${JSON.stringify({ beforeWheelFraction, afterWheelFraction })}.`,
+      );
+    }
+    await cdp.send("Input.dispatchMouseEvent", {
+      type: "mouseWheel",
+      x: wheelFocal.x,
+      y: wheelFocal.y,
+      deltaX: 35,
+      deltaY: 80,
+      modifiers: 0,
+      pointerType: "mouse",
+    });
+    const wheelPanned = await waitUntil(
+      () => readView(page),
+      (next) => next.panX < wheelZoomed.panX - 34 && next.panY < wheelZoomed.panY - 79,
+      "two-axis wheel pan",
+    );
+    if (
+      Math.abs(wheelPanned.panX - (wheelZoomed.panX - 35)) > 0.2 ||
+      Math.abs(wheelPanned.panY - (wheelZoomed.panY - 80)) > 0.2
+    ) {
+      fail(
+        `Wheel pan did not follow native deltas: ${JSON.stringify({ wheelZoomed, wheelPanned })}.`,
+      );
+    }
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "post-wheel viewport reset",
+    );
+
+    // A chrome control used inside the wheel idle window must win. Otherwise a
+    // stale delayed commit makes Fit visibly snap back to the transient zoom.
+    await cdp.send("Input.dispatchMouseEvent", {
+      type: "mouseWheel",
+      x: wheelFocal.x,
+      y: wheelFocal.y,
+      deltaX: 0,
+      deltaY: -100,
+      modifiers: 2,
+      pointerType: "mouse",
+    });
+    await page.click('button[aria-label="Fit to screen"]');
+    await new Promise((resolveWait) => setTimeout(resolveWait, 200));
+    const fitAfterWheel = await readView(page);
+    if (!sameView(fitAfterWheel, { panX: 0, panY: 0, zoom: 1 })) {
+      fail(`Late wheel commit overrode Fit to screen: ${JSON.stringify(fitAfterWheel)}.`);
+    }
+    console.log("  ✓ top-bar controls cannot be overwritten by a late wheel commit");
+
+    // A high-frequency trackpad burst should not re-read layout per event. The
+    // gesture caches the surface size/origin until its idle commit.
+    const layoutReads = await page.$eval(STAGE, async (paper) => {
+      const available = paper.parentElement;
+      const surface = available?.parentElement;
+      if (!available || !surface) throw new Error("Canvas geometry nodes not found.");
+      const nativeRect = Object.getOwnPropertyDescriptor(Element.prototype, "getBoundingClientRect")
+        ?.value as (this: Element) => DOMRect;
+      const surfaceRect = nativeRect.call(surface);
+      let surfaceReads = 0;
+      let availableReads = 0;
+      Element.prototype.getBoundingClientRect = function () {
+        if (this === surface) surfaceReads += 1;
+        if (this === available) availableReads += 1;
+        return nativeRect.call(this);
+      };
+      try {
+        for (let i = 0; i < 12; i++) {
+          surface.dispatchEvent(
+            new WheelEvent("wheel", {
+              bubbles: true,
+              cancelable: true,
+              clientX: surfaceRect.x + surfaceRect.width / 2,
+              clientY: surfaceRect.y + surfaceRect.height / 2,
+              ctrlKey: true,
+              deltaY: -2,
+            }),
+          );
+        }
+        await new Promise((resolveWait) => setTimeout(resolveWait, 30));
+      } finally {
+        Element.prototype.getBoundingClientRect = nativeRect;
+      }
+      return { surfaceReads, availableReads };
+    });
+    if (layoutReads.surfaceReads !== 1 || layoutReads.availableReads !== 1) {
+      fail(`Wheel burst repeated layout reads: ${JSON.stringify(layoutReads)}.`);
+    }
+    await waitUntil(
+      () => readView(page),
+      (next) => next.zoom > 1.04,
+      "fine-delta wheel burst",
+    );
+    await new Promise((resolveWait) => setTimeout(resolveWait, 150));
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "post-burst viewport reset",
+    );
+    console.log("  ✓ a 12-event wheel burst measures layout once and stays compositor-driven");
+
+    // Extreme scrolling may overshoot, but it must never lose the paper. A
+    // subsequent zoom-out should progressively pull that paper back to centre.
+    const reachableBefore = await pageBox(page);
+    const reachableSurface = await canvasBox(page);
+    await cdp.send("Input.dispatchMouseEvent", {
+      type: "mouseWheel",
+      x: reachableSurface.x + reachableSurface.width / 2,
+      y: reachableSurface.y + reachableSurface.height / 2,
+      deltaX: 0,
+      deltaY: 10_000,
+      modifiers: 0,
+      pointerType: "mouse",
+    });
+    const edgePanned = await waitUntil(
+      () => readView(page),
+      (next) => Math.abs(next.panY + reachableBefore.height / 2) < 1,
+      "reachable paper boundary",
+    );
+    for (let i = 0; i < 10; i++) await page.keyboard.press("-");
+    const zoomedOutAtEdge = await waitUntil(
+      () => readView(page),
+      (next) => next.zoom === 0.2,
+      "minimum zoom with bounded pan",
+    );
+    const expectedZoomedOutPan = -reachableBefore.height * 0.1;
+    if (Math.abs(zoomedOutAtEdge.panY - expectedZoomedOutPan) > 1) {
+      fail(
+        `Zoom-out did not recover an overscrolled page: ${JSON.stringify({ edgePanned, zoomedOutAtEdge, expectedZoomedOutPan })}.`,
+      );
+    }
+
+    // At minimum zoom most of the viewport is background. Pinch must work from
+    // that background too, with simultaneous midpoint panning, so users are not
+    // forced to hunt for the tiny paper before zooming back into a section.
+    const tinyPage = await pageBox(page);
+    const surface = await canvasBox(page);
+    const leftGap = tinyPage.x - surface.x;
+    const rightGap = surface.x + surface.width - (tinyPage.x + tinyPage.width);
+    const largestGap = Math.max(leftGap, rightGap);
+    if (largestGap < 140) fail(`No safe canvas background for pinch: ${largestGap}px.`);
+    const backgroundCenter = {
+      x: leftGap >= rightGap ? surface.x + leftGap / 2 : tinyPage.x + tinyPage.width + rightGap / 2,
+      y: surface.y + surface.height / 2,
+    };
+    const movedBackgroundCenter = { x: backgroundCenter.x, y: backgroundCenter.y + 28 };
+    await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    try {
+      await dispatchPinch(cdp, backgroundCenter, 24, movedBackgroundCenter, 55);
+    } finally {
+      await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    }
+    const backgroundPinched = await waitUntil(
+      () => readView(page),
+      (next) => next.zoom > 0.36,
+      "background pinch with simultaneous pan",
+    );
+    const expectedBackgroundZoom = 0.2 * (110 / 48) ** (3 / 4);
+    if (Math.abs(backgroundPinched.zoom - expectedBackgroundZoom) > 0.02) {
+      fail(
+        `Background pinch sensitivity drifted: ${JSON.stringify({ backgroundPinched, expectedBackgroundZoom })}.`,
+      );
+    }
+    const expectedBackgroundPanY = -(reachableBefore.height * backgroundPinched.zoom) / 2 + 28;
+    if (Math.abs(backgroundPinched.panY - expectedBackgroundPanY) > 2) {
+      fail(
+        `Background pinch lost its simultaneous midpoint pan: ${JSON.stringify({ backgroundPinched, expectedBackgroundPanY })}.`,
+      );
+    }
+    await waitForText(page, /\b0 marks\b/i);
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "post-background-pinch viewport reset",
+    );
+    await cdp.detach();
+    console.log(
+      "  ✓ trackpad zoom stays anchored; overscroll remains reachable; background pinch recovers the view",
+    );
 
     // Shared disclosure controls: Metadata's date picker keeps a valid
     // trigger→popover relationship and a single roving calendar tab stop even
@@ -389,6 +762,46 @@ async function main(): Promise<void> {
     );
     if (!colorFocusRestored) fail("Custom colour picker did not return focus to its trigger.");
     console.log("  ✓ custom colour exposes independent saturation and brightness controls");
+
+    // Repeat the core gesture in the actual narrow, canvas-above-sheet layout.
+    // This catches regressions hidden by the roomier desktop stage sizing.
+    await page.setViewport({ width: 390, height: 844 });
+    await page.waitForSelector('[data-testid="mobile-tool-sheet"]');
+    await page.focus(STAGE);
+    await page.keyboard.press("0");
+    await waitUntil(
+      () => readView(page),
+      (next) => sameView(next, { panX: 0, panY: 0, zoom: 1 }),
+      "mobile-width viewport reset",
+    );
+    const mobileBefore = await pageBox(page);
+    const mobileStart = {
+      x: mobileBefore.x + mobileBefore.width * 0.55,
+      y: mobileBefore.y + mobileBefore.height * 0.45,
+    };
+    const mobileEnd = { x: mobileStart.x + 18, y: mobileStart.y + 14 };
+    const mobileStartHalf = mobileBefore.width * 0.1;
+    const mobileCdp = await page.target().createCDPSession();
+    await mobileCdp.send("Emulation.setTouchEmulationEnabled", {
+      enabled: true,
+      maxTouchPoints: 5,
+    });
+    try {
+      await dispatchPinch(mobileCdp, mobileStart, mobileStartHalf, mobileEnd, mobileStartHalf * 2);
+    } finally {
+      await mobileCdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+      await mobileCdp.detach();
+    }
+    const mobilePinched = await waitUntil(
+      () => readView(page),
+      (next) => next.zoom > 1.6 && next.panX !== 0 && next.panY !== 0,
+      "mobile-width pinch and pan",
+    );
+    const expectedMobileZoom = 2 ** (3 / 4);
+    if (Math.abs(mobilePinched.zoom - expectedMobileZoom) > 0.03) {
+      fail(`Mobile-width pinch sensitivity drifted: ${JSON.stringify(mobilePinched)}.`);
+    }
+    console.log("  ✓ pinch and simultaneous pan remain natural in the mobile editor layout");
 
     if (errors.length > 0) fail(`Console/page errors:\n${errors.join("\n")}`);
     console.log("✓ editor keyboard interactions passed");
