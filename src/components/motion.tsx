@@ -31,10 +31,11 @@ import {
   MotionConfig,
   type Transition,
   type Variants,
+  useMotionValue,
 } from "motion/react";
 import type { ReactNode } from "react";
 
-export { AnimatePresence, m };
+export { AnimatePresence, m, useMotionValue };
 export type { Variants };
 
 /**

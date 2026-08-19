@@ -19,8 +19,10 @@
  *     + RL post-training). The static default for fresh visitors.
  *   - `lfm2-2.6b` — Quality: ~1.55 GB / ~3.5 GB peak. Liquid AI's
  *     larger hybrid; purpose-built for on-device structured extraction
- *     and RAG. Liquid hasn't shipped a 2.6 B variant of LFM2.5 yet, so
- *     this tier stays on the LFM2 build. Recommended on ≥ 8 GB free RAM.
+ *     and RAG. The newer LFM2.5-2.6B is an always-reasoning model that
+ *     leaked its working and truncated final answers in the browser
+ *     comparison, so this tier deliberately stays on the instruct build.
+ *     Recommended on ≥ 8 GB free RAM.
  *
  * **Why no SmolLM2 tier any more.** SmolLM2-1.7B was the historical
  * default and shipped briefly as a "Balanced" middle tier alongside
@@ -140,8 +142,8 @@ export interface AiModelInfo {
 // ── Chat-variant entries ────────────────────────────────────────────
 //
 // **History of swaps in the chat slot** (so future-us doesn't repeat
-// them). Each candidate was tested against the same résumé fixture
-// and prompt set in `tests/e2e/ai-tools.e2e.ts`:
+// them). Each recent candidate was tested against the same résumé and
+// 33-page text fixtures in `tests/e2e/ai-tools.e2e.ts`:
 //
 //   - Qwen 2.5 0.5B / 1.5B   → broken ONNX (pure token noise)
 //   - Llama 3.2 1B           → severe extraction hallucinations
@@ -167,6 +169,23 @@ export interface AiModelInfo {
 //   - LFM2-1.2B (q4f16)      → first LFM family entry in this slot;
 //                              superseded by LFM2.5-1.2B-Instruct
 //                              once the .5 release shipped its ONNX.
+//   - Qwen3.5-0.8B (q4)      → fast and clean, with a ~570 MB chat
+//                              download, but missed one of three exact
+//                              YAML-security facts on the 33-page fixture
+//                              and occasionally invented file semantics.
+//   - Qwen3.5-2B (q4)        → cold-loaded much faster than LFM2-2.6B
+//                              and passed résumé extraction, but exact
+//                              long-PDF answers were stochastic: it lower-
+//                              cased `SKILL.md`, omitted `kebab-case`, and
+//                              once mislabeled the guide as a résumé.
+//   - LFM2.5-2.6B (q4f16)    → loads successfully and is marketed for
+//                              extraction/RAG, but it always reasons. Its
+//                              `<think>` content reached the visible reply
+//                              and consumed the 256-token answer budget.
+//   - MiniCPM5-1B (q4)       → only available as an unofficial browser
+//                              export. It took ~6 minutes to initialise,
+//                              omitted the tokenizer chat-template metadata
+//                              Transformers.js needs, and stalled generation.
 //
 // The pattern across all the failed swaps: small instruct models
 // from Google / Meta / Alibaba optimise for conversational fluency

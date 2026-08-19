@@ -18,6 +18,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { m, useMotionValue } from "../components/motion.tsx";
 import { useEditorActions, useEditorRead, useEditorView } from "./EditorContext.tsx";
 import { paintDestructiveMarks } from "./overlay-paint.ts";
 import {
@@ -27,9 +28,20 @@ import {
   useActiveStageProps,
 } from "./stage.tsx";
 import type { ViewState } from "./types.ts";
+import {
+  distanceBetween,
+  MAX_VIEW_ZOOM,
+  MIN_VIEW_ZOOM,
+  type PinchSnapshot,
+  type ViewportPoint,
+  keepPageReachable,
+  viewFromPinch,
+  viewFromWheelZoom,
+  viewportTransform,
+  wheelDeltaPixels,
+} from "./viewport-gestures.ts";
 
-type Pt = { x: number; y: number };
-const distance = (a: Pt, b: Pt): number => Math.hypot(a.x - b.x, a.y - b.y);
+const WHEEL_COMMIT_DELAY_MS = 120;
 
 // One reused offscreen 2d context for sizing the inline editor's input to its
 // content (native <input> doesn't auto-grow).
@@ -210,13 +222,14 @@ function InlineTextEditor({
     onChange: (e: { target: { value: string } }) => setValue(e.target.value),
     onKeyDown,
     onBlur: commit,
-    // Only swallow PRIMARY pointers so a second finger still reaches the wrap
-    // and a pinch can form while editing.
+    // Keep mouse/pen editing gestures inside the field. Touch pointers reach
+    // the canvas gesture tracker so a second finger can still form a pinch;
+    // the stage explicitly leaves the first touch owned by this editor.
     onPointerDown: (e: ReactPointerEvent<HTMLElement>) => {
-      if (e.isPrimary) e.stopPropagation();
+      if (e.pointerType !== "touch" && e.isPrimary) e.stopPropagation();
     },
     onPointerUp: (e: ReactPointerEvent<HTMLElement>) => {
-      if (e.isPrimary) e.stopPropagation();
+      if (e.pointerType !== "touch" && e.isPrimary) e.stopPropagation();
     },
     style: {
       left: `${left}px`,
@@ -236,7 +249,7 @@ function InlineTextEditor({
     "aria-label": "Text annotation",
   };
 
-  // Escape the wrap's `touch-none select-none`, which would otherwise suppress
+  // Escape the stage's `select-none`, which would otherwise suppress
   // the caret / soft keyboard (notably on iOS Safari).
   const baseClass =
     "absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
@@ -272,48 +285,143 @@ export function PdfStage() {
   const availRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const panStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const panStart = useRef<{
+    pointerId: number;
+    x: number;
+    y: number;
+    view: ViewState;
+  } | null>(null);
+  const toolPointerIdRef = useRef<number | null>(null);
   // Active touch points for pinch-to-zoom — the only way to zoom on a phone,
   // where the top-bar zoom buttons are hidden (no room) and Ctrl/Cmd+wheel can't
   // happen. `pinchActive` suppresses single-finger tool/pan for the rest of a
   // two-finger gesture so a lifted finger doesn't draw a stray mark.
-  const pointersRef = useRef(new Map<number, Pt>());
-  const pinchRef = useRef<{
-    dist: number;
-    zoom: number;
-    panX: number;
-    panY: number;
-    cx: number;
-    cy: number;
-  } | null>(null);
+  const pointersRef = useRef(new Map<number, ViewportPoint>());
+  const pinchRef = useRef<PinchSnapshot | null>(null);
   const pinchActiveRef = useRef(false);
   const [fit, setFit] = useState<{ w: number; h: number } | null>(null);
+  const [isPanning, setIsPanning] = useState(false);
 
-  // Coalesce pan / pinch / wheel view updates into one setView per animation
-  // frame. High-Hz pointermove/wheel events otherwise call setView many times a
-  // frame; `view` lives in its own ViewCtx so each setView re-renders only the
-  // stage / top bar / page grids (not every panel), and rAF folding keeps that to
-  // once per frame. Folding the queued updaters keeps both absolute (pan/pinch)
-  // and multiplicative (wheel) updates correct — the last absolute update wins,
-  // multiplicative ones accumulate.
-  const frameRef = useRef<number | null>(null);
-  const pendingRef = useRef<Array<(v: ViewState) => ViewState>>([]);
-  const scheduleView = useCallback(
-    (updater: (v: ViewState) => ViewState) => {
-      pendingRef.current.push(updater);
-      if (frameRef.current != null) return;
-      frameRef.current = requestAnimationFrame(() => {
-        frameRef.current = null;
-        const updaters = pendingRef.current;
-        pendingRef.current = [];
-        setView((prev) => updaters.reduce((acc, u) => u(acc), prev));
-      });
+  // Gesture values are transient: Motion writes the full compositor transform
+  // without re-rendering React for every 120Hz pointer/wheel event. The final
+  // value is committed to ViewCtx once on release (or shortly after wheel idle),
+  // which keeps the top-bar percentage and keyboard controls in sync.
+  const transformValue = useMotionValue(viewportTransform(view));
+  const liveViewRef = useRef<ViewState>(view);
+  const reactViewRef = useRef(view);
+  const transientActiveRef = useRef(false);
+  const transientDirtyRef = useRef(false);
+  const wheelCommitTimerRef = useRef<number | null>(null);
+  const wheelGeometryRef = useRef<{
+    origin: ViewportPoint;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const setTransientView = useCallback(
+    (next: ViewState) => {
+      const bounded = fit ? keepPageReachable(next, { width: fit.w, height: fit.h }) : next;
+      const current = liveViewRef.current;
+      if (
+        bounded.zoom === current.zoom &&
+        bounded.panX === current.panX &&
+        bounded.panY === current.panY
+      ) {
+        return;
+      }
+      liveViewRef.current = bounded;
+      transientActiveRef.current = true;
+      transientDirtyRef.current = true;
+      transformValue.set(viewportTransform(bounded));
     },
-    [setView],
+    [fit, transformValue],
   );
+
+  const commitTransientView = useCallback(() => {
+    transientActiveRef.current = false;
+    if (!transientDirtyRef.current) return;
+    transientDirtyRef.current = false;
+    const next = liveViewRef.current;
+    setView((prev) =>
+      prev.zoom === next.zoom && prev.panX === next.panX && prev.panY === next.panY
+        ? prev
+        : { ...prev, zoom: next.zoom, panX: next.panX, panY: next.panY },
+    );
+  }, [setView]);
+
+  const finishWheelInteraction = useCallback(() => {
+    if (wheelCommitTimerRef.current != null) {
+      window.clearTimeout(wheelCommitTimerRef.current);
+      wheelCommitTimerRef.current = null;
+    }
+    wheelGeometryRef.current = null;
+    commitTransientView();
+  }, [commitTransientView]);
+
+  const queueWheelCommit = useCallback(() => {
+    if (wheelCommitTimerRef.current != null) {
+      window.clearTimeout(wheelCommitTimerRef.current);
+    }
+    wheelCommitTimerRef.current = window.setTimeout(() => {
+      wheelCommitTimerRef.current = null;
+      wheelGeometryRef.current = null;
+      commitTransientView();
+    }, WHEEL_COMMIT_DELAY_MS);
+  }, [commitTransientView]);
+
+  // A top-bar control can be activated before the wheel idle timer fires. End
+  // that burst during capture so the control composes with the view the user is
+  // actually looking at instead of being overwritten by a late wheel commit.
+  useEffect(() => {
+    const finishOutsideWheel = (event: Event) => {
+      if (wheelCommitTimerRef.current == null) return;
+      const target = event.target;
+      if (target instanceof Node && stageRef.current?.contains(target)) return;
+      finishWheelInteraction();
+    };
+    document.addEventListener("pointerdown", finishOutsideWheel, true);
+    document.addEventListener("keydown", finishOutsideWheel, true);
+    document.addEventListener("click", finishOutsideWheel, true);
+    return () => {
+      document.removeEventListener("pointerdown", finishOutsideWheel, true);
+      document.removeEventListener("keydown", finishOutsideWheel, true);
+      document.removeEventListener("click", finishOutsideWheel, true);
+    };
+  }, [finishWheelInteraction]);
+
+  // External controls (zoom buttons, reset, keyboard) remain the source of
+  // truth whenever no direct-manipulation gesture is in flight.
+  useLayoutEffect(() => {
+    const externalViewChanged = reactViewRef.current !== view;
+    reactViewRef.current = view;
+    if (transientActiveRef.current) {
+      if (!externalViewChanged || wheelCommitTimerRef.current == null) return;
+      window.clearTimeout(wheelCommitTimerRef.current);
+      wheelCommitTimerRef.current = null;
+      wheelGeometryRef.current = null;
+      transientActiveRef.current = false;
+      transientDirtyRef.current = false;
+    }
+    const bounded = fit ? keepPageReachable(view, { width: fit.w, height: fit.h }) : view;
+    liveViewRef.current = bounded;
+    transformValue.set(viewportTransform(bounded));
+    if (bounded.panX !== view.panX || bounded.panY !== view.panY) {
+      setView((prev) => {
+        const corrected = fit ? keepPageReachable(prev, { width: fit.w, height: fit.h }) : prev;
+        return corrected.panX === prev.panX && corrected.panY === prev.panY ? prev : corrected;
+      });
+    }
+    // The object dependency is deliberate: reset can produce numeric values
+    // equal to the last React state while Motion still holds a newer transient
+    // wheel transform. The new ViewState identity must still force this sync.
+  }, [fit, setView, transformValue, view]);
+
   useEffect(
     () => () => {
-      if (frameRef.current != null) cancelAnimationFrame(frameRef.current);
+      if (wheelCommitTimerRef.current != null) {
+        window.clearTimeout(wheelCommitTimerRef.current);
+      }
+      wheelGeometryRef.current = null;
     },
     [],
   );
@@ -379,7 +487,7 @@ export function PdfStage() {
     // into the page until export. The active tool's overlay paints on top.
     paintDestructiveMarks(ctx, width, height, selectedPage, doc?.objects ?? [], pageBitmap);
     stageProps.paintOverlay?.(ctx, width, height, selectedPage, pageBitmap);
-  }, [stageProps, selectedPage, doc?.objects, pageBitmap]);
+  }, [stageProps, selectedPage, doc?.objects, pageBitmap, view.zoom]);
 
   // Always call the freshest repaint without re-subscribing the observer.
   const repaintRef = useRef(repaint);
@@ -390,10 +498,10 @@ export function PdfStage() {
     repaint();
   }, [repaint]);
 
-  // (b) Observe the overlay wrap ONCE for the component's lifetime — keyed on
-  // nothing, so a new box / page switch / tool switch never tears down and
-  // recreates the ResizeObserver. It always fires the latest repaint via the ref,
-  // which reads wrap.getBoundingClientRect() fresh, preserving the zoom/DPR resync.
+  // (b) Observe layout-size changes ONCE for the component's lifetime — keyed
+  // on nothing, so a new box / page switch / tool switch never tears it down.
+  // CSS transforms do not trigger ResizeObserver, so `view.zoom` above performs
+  // one crisp backing-store repaint after a transient gesture commits.
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
@@ -420,115 +528,206 @@ export function PdfStage() {
 
   const hasToolPointer = Boolean(stageProps.onPointerDown);
 
+  // Measure once at the start of a direct-manipulation burst. Reading layout on
+  // every 120Hz wheel event causes avoidable main-thread work and visible
+  // stepping on large documents; geometry cannot meaningfully change mid-burst.
+  const measureViewport = useCallback(() => {
+    const stageRect = stageRef.current?.getBoundingClientRect();
+    const availRect = availRef.current?.getBoundingClientRect();
+    return {
+      origin: availRect
+        ? { x: availRect.left + availRect.width / 2, y: availRect.top + availRect.height / 2 }
+        : { x: 0, y: 0 },
+      width: stageRect?.width || 1,
+      height: stageRect?.height || 1,
+    };
+  }, []);
+
+  // (Re)base a pinch from the current live view. Re-basing also makes a third
+  // finger entering/leaving harmless instead of jumping to a new pointer pair.
+  const beginPinch = useCallback(() => {
+    const [a, b] = [...pointersRef.current.values()];
+    if (!a || !b) return;
+    const center = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const stage = stageRef.current;
+    if (stage) {
+      for (const pointerId of pointersRef.current.keys()) {
+        if (stage.hasPointerCapture(pointerId)) continue;
+        try {
+          stage.setPointerCapture(pointerId);
+        } catch {
+          // A browser may already have cancelled a pointer between events.
+          continue;
+        }
+      }
+    }
+    pinchRef.current = {
+      view: liveViewRef.current,
+      distance: distanceBetween(a, b),
+      center,
+      origin: measureViewport().origin,
+    };
+    transientActiveRef.current = true;
+  }, [measureViewport]);
+
   const onPointerDown = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
-      e.currentTarget.setPointerCapture(e.pointerId);
+      const isTouch = e.pointerType === "touch";
+      const isMiddleButton = !isTouch && e.button === 1;
+      if (!isTouch && e.button !== 0 && !isMiddleButton) return;
+      if (isMiddleButton) e.preventDefault();
+
+      finishWheelInteraction();
       pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
       // Second finger down → enter pinch: zoom + two-finger pan the view,
       // overriding any tool draw or single-finger pan already in progress.
       if (pointersRef.current.size >= 2) {
         panStart.current = null;
+        setIsPanning(false);
         // Tell the active tool to drop the draft the first finger started, so a
         // half-drawn box/line/stroke doesn't get stuck on the overlay (the
         // tool's onPointerUp won't fire — we end the pinch silently).
-        stageProps.onPointerCancel?.();
+        if (!pinchActiveRef.current && toolPointerIdRef.current != null) {
+          stageProps.onPointerCancel?.();
+        }
+        toolPointerIdRef.current = null;
         pinchActiveRef.current = true;
-        const [a, b] = [...pointersRef.current.values()];
-        pinchRef.current = {
-          dist: distance(a, b) || 1,
-          zoom: view.zoom,
-          panX: view.panX,
-          panY: view.panY,
-          cx: (a.x + b.x) / 2,
-          cy: (a.y + b.y) / 2,
-        };
+        beginPinch();
         return;
       }
       if (pinchActiveRef.current) return; // residual finger from a pinch — ignore
+
+      const target = e.target;
+      const inlineTarget =
+        target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+      // The text field keeps its one-finger caret/selection interaction. We
+      // still retain the pointer above so another touch can promote it to pinch.
+      if (inlineTarget) return;
+      // A lone non-primary touch means the browser did not expose its primary
+      // partner to this surface. Never reinterpret that finger as a tool stroke.
+      if (isTouch && !e.isPrimary) return;
+
+      e.currentTarget.setPointerCapture(e.pointerId);
+      wrapRef.current?.focus({ preventScroll: true });
 
       // An open inline editor owns the single-finger gesture: a tap elsewhere on
       // the page just blurs (commits) it; don't also start a tool/pan underneath.
       if (editorOpen) return;
 
-      if (hasToolPointer) {
+      const pageHit = target instanceof Node && Boolean(wrapRef.current?.contains(target));
+      if (hasToolPointer && pageHit && !isMiddleButton) {
+        toolPointerIdRef.current = e.pointerId;
         stageProps.onPointerDown?.(toPoint(e), e);
         return;
       }
-      // No active tool → drag to pan.
-      panStart.current = { x: e.clientX, y: e.clientY, panX: view.panX, panY: view.panY };
+      // Empty canvas always pans. With a tool active, a middle-button drag also
+      // provides the conventional editor hand-pan without changing tools.
+      panStart.current = {
+        pointerId: e.pointerId,
+        x: e.clientX,
+        y: e.clientY,
+        view: liveViewRef.current,
+      };
+      setIsPanning(true);
+      transientActiveRef.current = true;
     },
-    [editorOpen, hasToolPointer, stageProps, toPoint, view.panX, view.panY, view.zoom],
+    [beginPinch, editorOpen, finishWheelInteraction, hasToolPointer, stageProps, toPoint],
   );
 
   const onPointerMove = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
-      if (pointersRef.current.has(e.pointerId)) {
+      const tracked = pointersRef.current.has(e.pointerId);
+      if (tracked) {
         pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
       }
 
       const pinch = pinchRef.current;
       if (pinch && pointersRef.current.size >= 2) {
         const [a, b] = [...pointersRef.current.values()];
-        const ratio = (distance(a, b) || 1) / pinch.dist;
-        const zoom = Math.min(8, Math.max(0.2, pinch.zoom * ratio));
-        const cx = (a.x + b.x) / 2;
-        const cy = (a.y + b.y) / 2;
-        scheduleView((prev) => ({
-          ...prev,
-          zoom,
-          panX: pinch.panX + (cx - pinch.cx),
-          panY: pinch.panY + (cy - pinch.cy),
-        }));
+        if (!a || !b) return;
+        setTransientView(
+          viewFromPinch(pinch, distanceBetween(a, b) || 1, {
+            x: (a.x + b.x) / 2,
+            y: (a.y + b.y) / 2,
+          }),
+        );
         return;
       }
       if (pinchActiveRef.current) return;
 
-      if (hasToolPointer) {
+      if (toolPointerIdRef.current === e.pointerId) {
         stageProps.onPointerMove?.(toPoint(e), e);
         return;
       }
       const p = panStart.current;
-      if (!p) return;
-      scheduleView((prev) => ({
-        ...prev,
-        panX: p.panX + (e.clientX - p.x),
-        panY: p.panY + (e.clientY - p.y),
-      }));
+      if (p?.pointerId === e.pointerId) {
+        setTransientView({
+          ...p.view,
+          panX: p.view.panX + e.clientX - p.x,
+          panY: p.view.panY + e.clientY - p.y,
+        });
+        return;
+      }
+      if (tracked || e.pointerType === "touch" || !hasToolPointer) return;
+
+      // Preserve tool hover affordances (resize cursors, handle hit tests) now
+      // that pointer routing lives on the full canvas instead of the paper.
+      const target = e.target;
+      if (target instanceof Node && wrapRef.current?.contains(target)) {
+        stageProps.onPointerMove?.(toPoint(e), e);
+      }
     },
-    [hasToolPointer, stageProps, toPoint, scheduleView],
+    [hasToolPointer, setTransientView, stageProps, toPoint],
   );
 
   const onPointerUp = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
       pointersRef.current.delete(e.pointerId);
-      if (pointersRef.current.size < 2) pinchRef.current = null;
-      if (pointersRef.current.size > 0) return; // gesture still in progress
+      if (pointersRef.current.size >= 2) {
+        beginPinch();
+        return;
+      }
+      pinchRef.current = null;
+      if (pointersRef.current.size > 0) return; // residual pinch finger
 
       // Last finger up: end a pinch silently, otherwise finalise the tool/pan.
       if (pinchActiveRef.current) {
         pinchActiveRef.current = false;
+        setIsPanning(false);
+        commitTransientView();
         return;
       }
-      if (hasToolPointer) {
+      if (toolPointerIdRef.current === e.pointerId) {
+        toolPointerIdRef.current = null;
         stageProps.onPointerUp?.(toPoint(e), e);
         return;
       }
-      panStart.current = null;
+      if (panStart.current?.pointerId === e.pointerId) {
+        panStart.current = null;
+        setIsPanning(false);
+        commitTransientView();
+      }
     },
-    [hasToolPointer, stageProps, toPoint],
+    [beginPinch, commitTransientView, stageProps, toPoint],
   );
 
   // Pointer cancellation is an interruption, never a successful release. Drop
   // all local gesture state and tell the active tool to discard its draft
   // without committing a partial mark.
   const onPointerCancel = useCallback(() => {
+    const toolWasActive = toolPointerIdRef.current != null;
     pointersRef.current.clear();
     pinchRef.current = null;
     pinchActiveRef.current = false;
     panStart.current = null;
-    stageProps.onPointerCancel?.();
-  }, [stageProps]);
+    toolPointerIdRef.current = null;
+    setIsPanning(false);
+    // Viewport movement is safe to retain on interruption; only a tool draft
+    // must be discarded.
+    commitTransientView();
+    if (toolWasActive) stageProps.onPointerCancel?.();
+  }, [commitTransientView, stageProps]);
 
   // The page surface is keyboard-focusable. Give the active tool first refusal
   // so a content key (e.g. Arrow to nudge a selected annotation) cannot also
@@ -553,63 +752,104 @@ export function PdfStage() {
         return;
       }
 
+      finishWheelInteraction();
       const panStep = e.shiftKey ? 64 : 24;
       switch (e.key) {
         case "ArrowLeft":
-          scheduleView((prev) => ({ ...prev, panX: prev.panX - panStep }));
+          setView((prev) => ({ ...prev, panX: prev.panX - panStep }));
           break;
         case "ArrowRight":
-          scheduleView((prev) => ({ ...prev, panX: prev.panX + panStep }));
+          setView((prev) => ({ ...prev, panX: prev.panX + panStep }));
           break;
         case "ArrowUp":
-          scheduleView((prev) => ({ ...prev, panY: prev.panY - panStep }));
+          setView((prev) => ({ ...prev, panY: prev.panY - panStep }));
           break;
         case "ArrowDown":
-          scheduleView((prev) => ({ ...prev, panY: prev.panY + panStep }));
+          setView((prev) => ({ ...prev, panY: prev.panY + panStep }));
           break;
         case "+":
         case "=":
-          scheduleView((prev) => ({ ...prev, zoom: Math.min(8, prev.zoom * 1.2) }));
+          setView((prev) => ({ ...prev, zoom: Math.min(MAX_VIEW_ZOOM, prev.zoom * 1.2) }));
           break;
         case "-":
-          scheduleView((prev) => ({ ...prev, zoom: Math.max(0.2, prev.zoom / 1.2) }));
+          setView((prev) => ({ ...prev, zoom: Math.max(MIN_VIEW_ZOOM, prev.zoom / 1.2) }));
           break;
         case "0":
-          scheduleView((prev) => ({ ...prev, zoom: 1, panX: 0, panY: 0 }));
+          setView((prev) => ({ ...prev, zoom: 1, panX: 0, panY: 0 }));
           break;
         default:
           return;
       }
       e.preventDefault();
     },
-    [scheduleView, stageProps],
+    [finishWheelInteraction, setView, stageProps],
   );
 
-  // Ctrl/Cmd + wheel zooms; clamped to a sane range. Attached as a NON-passive
-  // native listener — React's onWheel binds at the passive root, where
-  // preventDefault() is ignored, so the browser's own Ctrl/Cmd+wheel page-zoom
-  // would fire alongside ours. A native { passive: false } listener lets the
-  // preventDefault actually suppress it.
+  // Native wheel handling gives the focus canvas document-viewer behaviour:
+  // ordinary wheel/trackpad input pans, while Ctrl/Cmd + wheel (including a
+  // trackpad pinch) continuously zooms around the cursor. It must be non-passive
+  // so the browser's own page zoom/scroll cannot run alongside the canvas.
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
     const handler = (e: WheelEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return;
+      if (pointersRef.current.size > 0) return;
+      const geometry = wheelGeometryRef.current ?? measureViewport();
+      wheelGeometryRef.current = geometry;
+      const deltaX = wheelDeltaPixels(e.deltaX, e.deltaMode, geometry.width);
+      const deltaY = wheelDeltaPixels(e.deltaY, e.deltaMode, geometry.height);
+
+      if (e.ctrlKey || e.metaKey) {
+        if (deltaY === 0) {
+          wheelGeometryRef.current = null;
+          return;
+        }
+        e.preventDefault();
+        setTransientView(
+          viewFromWheelZoom(
+            liveViewRef.current,
+            deltaY,
+            { x: e.clientX, y: e.clientY },
+            geometry.origin,
+          ),
+        );
+        queueWheelCommit();
+        return;
+      }
+
+      let panX = deltaX;
+      let panY = deltaY;
+      // Traditional mouse wheels report Shift+wheel on the Y axis; trackpads
+      // generally supply deltaX themselves. Support both without doubling it.
+      if (e.shiftKey && Math.abs(panX) < Math.abs(panY)) {
+        panX = panY;
+        panY = 0;
+      }
+      if (panX === 0 && panY === 0) {
+        wheelGeometryRef.current = null;
+        return;
+      }
       e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-      scheduleView((prev) => ({ ...prev, zoom: Math.min(8, Math.max(0.2, prev.zoom * factor)) }));
+      const current = liveViewRef.current;
+      setTransientView({
+        ...current,
+        // Match native document scrolling: content moves opposite the wheel.
+        panX: current.panX - panX,
+        panY: current.panY - panY,
+      });
+      queueWheelCommit();
     };
     el.addEventListener("wheel", handler, { passive: false });
     return () => el.removeEventListener("wheel", handler);
-  }, [scheduleView]);
+  }, [measureViewport, queueWheelCommit, setTransientView]);
 
   if (!page) return <div className="flex min-h-0 flex-1" />;
 
-  const cursor = hasToolPointer
-    ? (stageProps.cursor ?? "crosshair")
-    : view.zoom > 1
-      ? "grab"
-      : "default";
+  const cursor = isPanning
+    ? "grabbing"
+    : hasToolPointer
+      ? (stageProps.cursor ?? "crosshair")
+      : "grab";
   const keyboardHelp =
     stageProps.keyboardHelp ?? "Use arrow keys to pan the page within the canvas.";
   const keyboardShortcuts = [
@@ -622,19 +862,25 @@ export function PdfStage() {
   return (
     <div
       ref={stageRef}
-      className="relative flex min-h-0 flex-1 overflow-hidden bg-slate-100 dark:bg-dark-bg p-4 sm:p-8"
+      className="relative flex min-h-0 flex-1 touch-none select-none overflow-hidden bg-slate-100 p-4 dark:bg-dark-bg sm:p-8"
+      style={{ cursor: isPanning ? "grabbing" : "grab" }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
     >
       <div ref={availRef} className="relative flex h-full w-full items-center justify-center">
-        <div
+        <m.div
           ref={wrapRef}
           role="region"
           tabIndex={0}
-          aria-label={`Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Use plus or minus to zoom, and 0 to reset the view.`}
+          aria-label={`Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Scroll to pan; pinch or Control or Command plus scroll to zoom; use 0 to reset the view.`}
           aria-keyshortcuts={keyboardShortcuts}
           className="relative shadow-sm ring-1 ring-slate-200/70 dark:ring-dark-border touch-none select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           style={{
-            transform: `translate(${view.panX}px, ${view.panY}px) scale(${view.zoom})`,
+            transform: transformValue,
             transformOrigin: "center center",
+            willChange: "transform",
             cursor,
             // Before the first measure, fall back to the page's natural aspect
             // (max-constrained) so it's never invisible and never stretched.
@@ -646,10 +892,6 @@ export function PdfStage() {
                   maxHeight: "100%",
                 }),
           }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerCancel}
           onKeyDown={onStageKeyDown}
         >
           {page.thumbUrl ? (
@@ -670,7 +912,7 @@ export function PdfStage() {
               // value); a style-only update (same id) re-renders in place.
               <InlineTextEditor key={inlineEditor.editorId} descriptor={inlineEditor} fit={fit} />
             )}
-        </div>
+        </m.div>
       </div>
     </div>
   );

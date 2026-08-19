@@ -49,8 +49,8 @@ import { launch } from "puppeteer-core";
  * Fixture selector. `FIXTURE=sample` (default) drives the short
  * résumé PDF with ground-truth contact extraction assertions
  * (phone / email / address). `FIXTURE=multipage` drives the
- * 40-page "Claude Certified Architect – Foundations" exam guide
- * with topical retrieval assertions that exercise chunking +
+ * 33-page "The Complete Guide to Building Skills for Claude"
+ * with technical-requirement retrieval assertions that exercise chunking +
  * citations at scale instead of pointwise extraction.
  *
  * The picker exists so the smoke test can cover both ends of the
@@ -60,6 +60,7 @@ import { launch } from "puppeteer-core";
 const FIXTURE_NAME = process.env.FIXTURE ?? "sample";
 const FIXTURE_PATH = resolve(import.meta.dirname, `../fixtures/${FIXTURE_NAME}.pdf`);
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
+const MODEL_LOAD_TIMEOUT_MS = Number(process.env.E2E_MODEL_LOAD_TIMEOUT_MS ?? 10 * 60_000);
 
 /**
  * Optional chat-tier override. When set, we seed the picker's
@@ -162,7 +163,7 @@ async function main() {
     // download (chat ~1.2 GB + embed ~309 MB + rerank ~23 MB)
     // would `Runtime.callFunctionOn` time out before the page-side
     // loop even gets a chance. 15 min is comfortable headroom.
-    protocolTimeout: 15 * 60_000,
+    protocolTimeout: Math.max(15 * 60_000, MODEL_LOAD_TIMEOUT_MS + 2 * 60_000),
   });
 
   try {
@@ -361,11 +362,11 @@ async function main() {
     // `.tabular-nums` element in the dialog) so we can assert
     // progress visibly advanced — the React 18 batching bug used to
     // make the bar snap from 0 → done with no intermediate states.
-    console.log("→ Waiting for models to load (first run downloads ~1.55 GB)…");
-    const modelLoadOutcome = await page.evaluate(async () => {
+    console.log("→ Waiting for the local model stack to load…");
+    const modelLoadOutcome = await page.evaluate(async (timeoutMs) => {
       const states = new Set<string>();
       const startedAt = Date.now();
-      while (Date.now() - startedAt < 10 * 60_000) {
+      while (Date.now() - startedAt < timeoutMs) {
         const counter = document.querySelector(".tabular-nums");
         if (counter) {
           const s = (counter.textContent ?? "").trim();
@@ -376,7 +377,7 @@ async function main() {
         await new Promise((r) => setTimeout(r, 150));
       }
       return { states: [...states], modelsReady: false };
-    });
+    }, MODEL_LOAD_TIMEOUT_MS);
     if (!modelLoadOutcome.modelsReady) {
       bail("Models never finished loading — file drop zone never appeared.");
     }
@@ -687,7 +688,7 @@ async function main() {
       FIXTURE_NAME === "sample"
         ? ["sumit", "enterprise", "architect", "résumé", "resume", "cv"]
         : FIXTURE_NAME === "multipage"
-          ? ["claude", "certification", "exam", "architect", "foundations"]
+          ? ["claude", "skill", "workflow", "frontmatter", "skill.md"]
           : [];
     if (warmTopicKeywords.length > 0) {
       const warmLower = warmReply.toLowerCase();
@@ -840,11 +841,10 @@ async function main() {
       );
       fixtureReplies.address = addressReply;
     } else if (FIXTURE_NAME === "multipage") {
-      // Multipage PDF: "Claude Certified Architect – Foundations
-      // Certification Exam Guide" — 40 pages. It describes five
-      // weighted content domains and six production scenarios, then
-      // expands the domain task statements and provides sample exam
-      // questions. The checks deliberately use facts from different
+      // Multipage PDF: "The Complete Guide to Building Skills for
+      // Claude" — 33 pages. It covers skill structure, workflow
+      // patterns, testing, distribution, and a YAML frontmatter
+      // reference. The checks deliberately use facts from different
       // parts of that structure so this branch exercises long-document
       // retrieval rather than merely echoing the title page.
 
@@ -857,78 +857,74 @@ async function main() {
       console.log(topicReply);
       console.log("─────────────────────────────\n");
       const topicLower = topicReply.toLowerCase();
-      const topicSubjectHits = ["certification", "exam", "architect", "foundations"].filter(
-        (term) => topicLower.includes(term),
-      );
-      if (!topicLower.includes("claude") || topicSubjectHits.length < 1) {
+      const topicSubjectHits = [
+        "build",
+        "building",
+        "planning",
+        "structure",
+        "testing",
+        "distribution",
+        "workflow",
+      ].filter((term) => topicLower.includes(term));
+      if (!topicLower.includes("skill") || topicSubjectHits.length < 1) {
         bail(
-          `Topic question failed. Expected "Claude" plus one of [certification, exam, architect, foundations]. Got: ${topicReply.slice(0, 240)}`,
+          `Topic question failed. Expected "skill" plus a guide topic such as build, planning, structure, testing, distribution, or workflow. Got: ${topicReply.slice(0, 240)}`,
         );
       }
       console.log(
-        `  ✓ topic reply identifies the Claude certification guide (hits: ${topicSubjectHits.join(", ")})`,
+        `  ✓ topic reply identifies the skill-building guide (hits: ${topicSubjectHits.join(", ")})`,
       );
       fixtureReplies.topic = topicReply;
 
-      console.log("→ Asking the domain-weighting question…");
-      const domainReply = await askAndCapture(
-        "Which exam content domain has the largest weighting, and what percentage is it?",
-        "question-multipage-domain-weighting",
+      console.log("→ Asking the file-structure question…");
+      const structureReply = await askAndCapture(
+        "What exact filename is required for a skill, and what naming convention must its folder use?",
+        "question-multipage-file-structure",
       );
-      console.log("\n──────── domain weighting reply ────────");
-      console.log(domainReply);
-      console.log("────────────────────────────────────────\n");
-      // Content Outline: Domain 1, Agentic Architecture &
-      // Orchestration, is the largest at 27% of scored content.
-      const domainLower = domainReply.toLowerCase();
-      const domainNameHits = ["agentic", "architecture", "orchestration"].filter((term) =>
-        domainLower.includes(term),
-      );
-      if (!domainLower.includes("27") || domainNameHits.length < 1) {
+      console.log("\n──────── file structure reply ────────");
+      console.log(structureReply);
+      console.log("──────────────────────────────────────\n");
+      // Technical requirements (page 10): SKILL.md is exact and
+      // case-sensitive; the containing folder uses kebab-case.
+      const structureLower = structureReply.toLowerCase();
+      if (!structureReply.includes("SKILL.md") || !structureLower.includes("kebab-case")) {
         bail(
-          `Domain-weighting question failed. Expected 27% and Agentic Architecture & Orchestration. Got: ${domainReply.slice(0, 240)}`,
+          `File-structure question failed. Expected exact filename SKILL.md and kebab-case. Got: ${structureReply.slice(0, 240)}`,
         );
       }
-      console.log(
-        `  ✓ largest-domain reply contains 27% and domain-name evidence (${domainNameHits.join(", ")})`,
-      );
-      fixtureReplies.domain = domainReply;
+      console.log("  ✓ file-structure reply contains SKILL.md and kebab-case");
+      fixtureReplies.structure = structureReply;
 
-      console.log("→ Asking the scenario-enumeration question…");
-      const scenariosReply = await askAndCapture(
-        "Name three production scenarios described in this exam guide.",
-        "question-multipage-scenarios",
+      console.log("→ Asking the YAML-security question…");
+      const securityReply = await askAndCapture(
+        "According to Reference B's security notes, what three things are forbidden in YAML frontmatter?",
+        "question-multipage-yaml-security",
       );
-      console.log("\n──────── scenarios reply ────────");
-      console.log(scenariosReply);
-      console.log("─────────────────────────────────\n");
-      // The guide lists six scenarios: customer support resolution,
-      // code generation with Claude Code, multi-agent research,
-      // developer productivity, Claude Code for CI/CD, and structured
-      // data extraction. Require two recognisable scenario cues; this
-      // accepts harmless paraphrasing while rejecting invented lists.
-      const scenariosLower = scenariosReply.toLowerCase();
-      const scenarioSignals = [
-        ["customer support", "support resolution"],
-        ["code generation", "claude code"],
-        ["multi-agent research", "research system"],
-        ["developer productivity", "productivity tool"],
-        ["continuous integration", "ci/cd", "cicd"],
-        ["structured data extraction", "data extraction"],
+      console.log("\n──────── YAML security reply ────────");
+      console.log(securityReply);
+      console.log("─────────────────────────────────────\n");
+      // Reference B (page 31) forbids XML angle brackets, code
+      // execution in YAML, and skill names with reserved `claude` or
+      // `anthropic` prefixes. Require all three categories.
+      const securityLower = securityReply.toLowerCase();
+      const securitySignals = [
+        ["xml", "angle bracket", "<", ">"],
+        ["code execution", "execute code", "executing code"],
+        ["claude", "anthropic", "reserved prefix"],
       ];
-      const scenarioHits = scenarioSignals.filter((alternatives) =>
-        alternatives.some((term) => scenariosLower.includes(term)),
+      const securityHits = securitySignals.filter((alternatives) =>
+        alternatives.some((term) => securityLower.includes(term)),
       );
-      if (scenarioHits.length < 2) {
+      if (securityHits.length < securitySignals.length) {
         bail(
-          `Scenario-enumeration question failed. Expected at least two of the guide's six production scenarios. Got: ${scenariosReply.slice(0, 240)}`,
+          `YAML-security question failed. Expected XML angle brackets, code execution, and reserved claude/anthropic prefixes. Got: ${securityReply.slice(0, 240)}`,
         );
       }
-      console.log(`  ✓ scenario reply contains ${scenarioHits.length} grounded scenario cues`);
-      fixtureReplies.scenarios = scenariosReply;
+      console.log("  ✓ YAML-security reply contains all three forbidden categories");
+      fixtureReplies.security = securityReply;
     } else {
       bail(
-        `Unsupported FIXTURE="${FIXTURE_NAME}". Use "sample" (résumé extraction) or "multipage" (40-page certification guide retrieval).`,
+        `Unsupported FIXTURE="${FIXTURE_NAME}". Use "sample" (résumé extraction) or "multipage" (33-page skill-building guide retrieval).`,
       );
     }
 
@@ -956,171 +952,180 @@ async function main() {
     //   - Embed + rerank stay shared across tiers; the test that
     //     these are *not* unloaded on a tier swap is implicit in
     //     the fact that the post-swap question still works.
-    console.log("\n→ Opening the model picker to swap tiers…");
-    const swapStartedAt = Date.now();
-    const swapClicked = await page.evaluate(() => {
-      const btn = document.querySelector('button[aria-label="Change model"]');
-      if (btn instanceof HTMLButtonElement && !btn.disabled) {
-        btn.click();
-        return true;
+    // Model-candidate benchmarks can disable this phase so each run
+    // measures only the requested tier instead of downloading and
+    // executing a second model. The default smoke test still covers
+    // the complete picker/swap contract.
+    let swapReply = "";
+    if (process.env.E2E_SKIP_SWAP === "1") {
+      console.log("\n→ Skipping model-swap phase (E2E_SKIP_SWAP=1).");
+    } else {
+      console.log("\n→ Opening the model picker to swap tiers…");
+      const swapStartedAt = Date.now();
+      const swapClicked = await page.evaluate(() => {
+        const btn = document.querySelector('button[aria-label="Change model"]');
+        if (btn instanceof HTMLButtonElement && !btn.disabled) {
+          btn.click();
+          return true;
+        }
+        return false;
+      });
+      if (!swapClicked)
+        bail("Couldn't find / click the 'Change model' button on the ActiveModelBar.");
+
+      await page
+        .waitForFunction(() => !!document.getElementById("chat-model-picker-title"), {
+          timeout: 5_000,
+        })
+        .catch(() => bail("Picker dialog never opened after clicking 'Change model'."));
+
+      const pickerInitial = await page.evaluate(() => ({
+        dialogs: document.querySelectorAll('[role="dialog"][aria-modal="true"]').length,
+        group: Boolean(document.querySelector('[role="radiogroup"][aria-label="Chat model tier"]')),
+        focusedRole: document.activeElement?.getAttribute("role"),
+        focusedChecked: document.activeElement?.getAttribute("aria-checked"),
+        appInert: (document.getElementById("app") as HTMLElement | null)?.inert,
+        overflow: document.body.style.overflow,
+        selectedText: document
+          .querySelector('[role="radio"][aria-checked="true"]')
+          ?.textContent?.trim(),
+      }));
+      if (
+        pickerInitial.dialogs !== 1 ||
+        !pickerInitial.group ||
+        pickerInitial.focusedRole !== "radio" ||
+        pickerInitial.focusedChecked !== "true" ||
+        !pickerInitial.appInert ||
+        pickerInitial.overflow !== "hidden"
+      ) {
+        bail(`Model picker did not own modal/radio state: ${JSON.stringify(pickerInitial)}.`);
       }
-      return false;
-    });
-    if (!swapClicked)
-      bail("Couldn't find / click the 'Change model' button on the ActiveModelBar.");
 
-    await page
-      .waitForFunction(() => !!document.getElementById("chat-model-picker-title"), {
-        timeout: 5_000,
-      })
-      .catch(() => bail("Picker dialog never opened after clicking 'Change model'."));
-
-    const pickerInitial = await page.evaluate(() => ({
-      dialogs: document.querySelectorAll('[role="dialog"][aria-modal="true"]').length,
-      group: Boolean(document.querySelector('[role="radiogroup"][aria-label="Chat model tier"]')),
-      focusedRole: document.activeElement?.getAttribute("role"),
-      focusedChecked: document.activeElement?.getAttribute("aria-checked"),
-      appInert: (document.getElementById("app") as HTMLElement | null)?.inert,
-      overflow: document.body.style.overflow,
-      selectedText: document
-        .querySelector('[role="radio"][aria-checked="true"]')
-        ?.textContent?.trim(),
-    }));
-    if (
-      pickerInitial.dialogs !== 1 ||
-      !pickerInitial.group ||
-      pickerInitial.focusedRole !== "radio" ||
-      pickerInitial.focusedChecked !== "true" ||
-      !pickerInitial.appInert ||
-      pickerInitial.overflow !== "hidden"
-    ) {
-      bail(`Model picker did not own modal/radio state: ${JSON.stringify(pickerInitial)}.`);
-    }
-
-    // Pick the other tier through the radiogroup's keyboard contract. This
-    // exercises roving focus and `aria-checked`, not just pointer activation.
-    await page.keyboard.press("ArrowRight");
-    const swapTarget = await page.evaluate(() => {
-      const titleEl = document.getElementById("chat-model-picker-title");
-      const dialog = titleEl?.closest('[role="dialog"]');
-      if (!dialog) return null;
-      const selected = dialog.querySelector('[role="radio"][aria-checked="true"]');
-      if (!(selected instanceof HTMLButtonElement) || document.activeElement !== selected) {
-        return null;
+      // Pick the other tier through the radiogroup's keyboard contract. This
+      // exercises roving focus and `aria-checked`, not just pointer activation.
+      await page.keyboard.press("ArrowRight");
+      const swapTarget = await page.evaluate(() => {
+        const titleEl = document.getElementById("chat-model-picker-title");
+        const dialog = titleEl?.closest('[role="dialog"]');
+        if (!dialog) return null;
+        const selected = dialog.querySelector('[role="radio"][aria-checked="true"]');
+        if (!(selected instanceof HTMLButtonElement) || document.activeElement !== selected) {
+          return null;
+        }
+        return (selected.textContent ?? "").trim().slice(0, 80);
+      });
+      if (!swapTarget || swapTarget === pickerInitial.selectedText?.slice(0, 80)) {
+        bail("ArrowRight did not move the model-picker radio selection to the other tier.");
       }
-      return (selected.textContent ?? "").trim().slice(0, 80);
-    });
-    if (!swapTarget || swapTarget === pickerInitial.selectedText?.slice(0, 80)) {
-      bail("ArrowRight did not move the model-picker radio selection to the other tier.");
-    }
-    console.log(`  → picked: ${swapTarget}`);
+      console.log(`  → picked: ${swapTarget}`);
 
-    const switchClicked = await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll("button"));
-      const btn = buttons.find((b) => (b.textContent ?? "").trim() === "Switch model");
-      if (btn instanceof HTMLButtonElement && !btn.disabled) {
-        btn.click();
-        return true;
+      const switchClicked = await page.evaluate(() => {
+        const buttons = Array.from(document.querySelectorAll("button"));
+        const btn = buttons.find((b) => (b.textContent ?? "").trim() === "Switch model");
+        if (btn instanceof HTMLButtonElement && !btn.disabled) {
+          btn.click();
+          return true;
+        }
+        return false;
+      });
+      if (!switchClicked) {
+        bail("'Switch model' button missing or disabled after picking a different tier.");
       }
-      return false;
-    });
-    if (!switchClicked) {
-      bail("'Switch model' button missing or disabled after picking a different tier.");
-    }
 
-    // Wait for the picker dialog to close, then handle either
-    // outcome:
-    //
-    //   - The new tier is *cached* (typical re-run on the persistent
-    //     profile): chat warm-loads in a few seconds, the gate
-    //     auto-promotes through "Loading model…", and the composer
-    //     re-enables. No interaction needed.
-    //   - The new tier is *not* cached (E2E_FRESH=1 first-time run,
-    //     or a CI runner that only ever pre-warmed one tier): the
-    //     gate appears with "Download model" because the new tier
-    //     needs a fresh fetch. We click it so the e2e exercises the
-    //     post-swap download path too — without this branch the
-    //     test stalls forever waiting for a composer that needs a
-    //     user click to even start downloading.
-    //
-    // We wait on a unified condition that satisfies *either*
-    // outcome, then drive the download click only when needed.
-    console.log("→ Waiting for swap to complete (composer or post-swap Download)…");
-    await page.waitForFunction(() => !document.getElementById("chat-model-picker-title"), {
-      timeout: 10_000,
-    });
+      // Wait for the picker dialog to close, then handle either
+      // outcome:
+      //
+      //   - The new tier is *cached* (typical re-run on the persistent
+      //     profile): chat warm-loads in a few seconds, the gate
+      //     auto-promotes through "Loading model…", and the composer
+      //     re-enables. No interaction needed.
+      //   - The new tier is *not* cached (E2E_FRESH=1 first-time run,
+      //     or a CI runner that only ever pre-warmed one tier): the
+      //     gate appears with "Download model" because the new tier
+      //     needs a fresh fetch. We click it so the e2e exercises the
+      //     post-swap download path too — without this branch the
+      //     test stalls forever waiting for a composer that needs a
+      //     user click to even start downloading.
+      //
+      // We wait on a unified condition that satisfies *either*
+      // outcome, then drive the download click only when needed.
+      console.log("→ Waiting for swap to complete (composer or post-swap Download)…");
+      await page.waitForFunction(() => !document.getElementById("chat-model-picker-title"), {
+        timeout: 10_000,
+      });
 
-    const postSwapState = await page.evaluate(() => {
-      const composer = document.querySelector("textarea");
-      const composerReady = composer instanceof HTMLTextAreaElement && !composer.disabled;
-      const buttons = Array.from(document.querySelectorAll("button"));
-      const downloadBtn = buttons.find((b) =>
-        (b.textContent ?? "").trim().startsWith("Download model"),
-      );
-      return {
-        composerReady,
-        hasDownloadBtn: downloadBtn instanceof HTMLButtonElement,
-      };
-    });
-    if (!postSwapState.composerReady && postSwapState.hasDownloadBtn) {
-      console.log("  · new tier not cached — clicking gate Download to fetch…");
-      await page.evaluate(() => {
+      const postSwapState = await page.evaluate(() => {
+        const composer = document.querySelector("textarea");
+        const composerReady = composer instanceof HTMLTextAreaElement && !composer.disabled;
         const buttons = Array.from(document.querySelectorAll("button"));
         const downloadBtn = buttons.find((b) =>
           (b.textContent ?? "").trim().startsWith("Download model"),
         );
-        if (downloadBtn instanceof HTMLButtonElement) downloadBtn.click();
+        return {
+          composerReady,
+          hasDownloadBtn: downloadBtn instanceof HTMLButtonElement,
+        };
       });
-    }
+      if (!postSwapState.composerReady && postSwapState.hasDownloadBtn) {
+        console.log("  · new tier not cached — clicking gate Download to fetch…");
+        await page.evaluate(() => {
+          const buttons = Array.from(document.querySelectorAll("button"));
+          const downloadBtn = buttons.find((b) =>
+            (b.textContent ?? "").trim().startsWith("Download model"),
+          );
+          if (downloadBtn instanceof HTMLButtonElement) downloadBtn.click();
+        });
+      }
 
-    await page
-      .waitForFunction(
-        () => {
-          const composer = document.querySelector("textarea");
-          return composer instanceof HTMLTextAreaElement && !composer.disabled;
-        },
-        // 10 min covers a cold ~1.2 GB chat-tier download on a slow
-        // line, then session rebuild against the cached IDB index.
-        // On the typical warm-cache path this resolves in seconds.
-        { timeout: 10 * 60_000 },
-      )
-      .catch(() => bail("Composer never re-enabled after model swap — swap stalled."));
-    console.log(`  ✓ swap complete in ${Date.now() - swapStartedAt} ms`);
+      await page
+        .waitForFunction(
+          () => {
+            const composer = document.querySelector("textarea");
+            return composer instanceof HTMLTextAreaElement && !composer.disabled;
+          },
+          // 10 min covers a cold ~1.2 GB chat-tier download on a slow
+          // line, then session rebuild against the cached IDB index.
+          // On the typical warm-cache path this resolves in seconds.
+          { timeout: 10 * 60_000 },
+        )
+        .catch(() => bail("Composer never re-enabled after model swap — swap stalled."));
+      console.log(`  ✓ swap complete in ${Date.now() - swapStartedAt} ms`);
 
-    console.log("→ Asking a question on the swapped tier…");
-    const swapReply = await timed("question-after-swap", async () => {
-      const priorSwapBubbleCount = await page.evaluate(
-        () => document.querySelectorAll("[data-bubble]").length,
-      );
-      await page.focus("textarea");
-      await page.keyboard.type("Summarize this document in two sentences.");
-      await page.keyboard.press("Enter");
-      await page.waitForFunction(
-        (prev) => {
-          const bubbles = document.querySelectorAll("[data-bubble]");
-          if (bubbles.length < prev + 2) return false;
-          const lastBubble = bubbles[bubbles.length - 1];
-          if (lastBubble.getAttribute("data-streaming") === "true") return false;
-          return (lastBubble.textContent ?? "").trim().length > 0;
-        },
-        { timeout: 5 * 60 * 1000 },
-        priorSwapBubbleCount,
-      );
-      return await page.evaluate(() => {
-        const bubbles = document.querySelectorAll('[data-bubble="assistant"]');
-        return bubbles[bubbles.length - 1]?.textContent?.trim() ?? "";
+      console.log("→ Asking a question on the swapped tier…");
+      swapReply = await timed("question-after-swap", async () => {
+        const priorSwapBubbleCount = await page.evaluate(
+          () => document.querySelectorAll("[data-bubble]").length,
+        );
+        await page.focus("textarea");
+        await page.keyboard.type("Summarize this document in two sentences.");
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(
+          (prev) => {
+            const bubbles = document.querySelectorAll("[data-bubble]");
+            if (bubbles.length < prev + 2) return false;
+            const lastBubble = bubbles[bubbles.length - 1];
+            if (lastBubble.getAttribute("data-streaming") === "true") return false;
+            return (lastBubble.textContent ?? "").trim().length > 0;
+          },
+          { timeout: 5 * 60 * 1000 },
+          priorSwapBubbleCount,
+        );
+        return await page.evaluate(() => {
+          const bubbles = document.querySelectorAll('[data-bubble="assistant"]');
+          return bubbles[bubbles.length - 1]?.textContent?.trim() ?? "";
+        });
       });
-    });
-    console.log("\n──────── post-swap assistant reply ────────");
-    console.log(swapReply);
-    console.log("───────────────────────────────────────────\n");
-    if (!swapReply) bail("Post-swap: assistant returned an empty reply.");
-    if (/^[! ]{20,}$/.test(swapReply)) bail("Post-swap: degenerate token loop.");
-    const swapNgramWorst = worstNgramRepeat(swapReply);
-    if (swapNgramWorst >= 4) {
-      bail(`Post-swap: assistant looped — same 4-word window ${swapNgramWorst}× in the reply.`);
+      console.log("\n──────── post-swap assistant reply ────────");
+      console.log(swapReply);
+      console.log("───────────────────────────────────────────\n");
+      if (!swapReply) bail("Post-swap: assistant returned an empty reply.");
+      if (/^[! ]{20,}$/.test(swapReply)) bail("Post-swap: degenerate token loop.");
+      const swapNgramWorst = worstNgramRepeat(swapReply);
+      if (swapNgramWorst >= 4) {
+        bail(`Post-swap: assistant looped — same 4-word window ${swapNgramWorst}× in the reply.`);
+      }
+      console.log("  ✓ post-swap reply non-empty, no loop");
     }
-    console.log("  ✓ post-swap reply non-empty, no loop");
 
     // Smoke assertions tuned to the failure modes we've actually hit:
     //
@@ -1154,7 +1159,7 @@ async function main() {
       FIXTURE_NAME === "sample"
         ? ["sumit", "enterprise", "architect", "résumé", "resume", "cv"]
         : FIXTURE_NAME === "multipage"
-          ? ["claude", "certification", "exam", "architect", "foundations"]
+          ? ["claude", "skill", "workflow", "frontmatter", "skill.md"]
           : [];
     if (coldTopicKeywords.length > 0) {
       const coldLower = reply.toLowerCase();
