@@ -1,6 +1,18 @@
+allowBuilds:
+  # Node-only backends and funding hooks are not needed by this browser app.
+  onnxruntime-node: false
+  protobufjs: false
+  tesseract.js: false
+
+minimumReleaseAgeExclude:
+  - "@puppeteer/browsers@3.2.2"
+  - "@types/react-dom@19.2.7"
+  - lucide-react@1.40.0
+  - puppeteer-core@25.10.0
+
 # pnpm 10 reads dependency overrides from here (no longer from package.json's
 # "pnpm.overrides", which it silently ignores). `vite` is remapped to the Vite+
-# core drop-in; vitest is now the real package bundled by Vite+ 0.2.x (no alias).
+# core drop-in; vitest is now the real package bundled by Vite+ 0.3.x (no alias).
 # The rest pin transitive deps past known advisories:
 #   - serialize-javascript >=7.0.3  (XSS, GHSA-76p7-773f-r4q5)
 #   - form-data >=4.0.6             (unsafe boundary, GHSA-hmw2-7cc7-3qxx)
@@ -16,7 +28,7 @@
 #   - brace-expansion >=5.0.9        (unbounded expansion DoS,
 #     GHSA-mh99-v99m-4gvg)
 overrides:
-  vite: "npm:@voidzero-dev/vite-plus-core@^0.2.9"
+  vite: "npm:@voidzero-dev/vite-plus-core@^0.3.0"
   serialize-javascript: ">=7.0.3"
   form-data: ">=4.0.6"
   adm-zip: ">=0.6.0"
@@ -24,3 +36,11 @@ overrides:
   global-agent: ">=4.1.3"
   sharp: "^0.35.3"
   brace-expansion: ">=5.0.9"
+
+# Vite+ is installed as a versioned Vite-compatible alias and bundles the
+# matching Vitest toolchain, so their semver metadata does not reflect API
+# compatibility with the packages that consume them.
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
