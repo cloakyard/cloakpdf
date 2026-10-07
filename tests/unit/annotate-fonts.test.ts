@@ -11,7 +11,7 @@
  *      un-encodable-glyph try/catch. We assert the burned BaseFont per id.
  */
 import { PDFDict, PDFDocument, PDFName } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   annotatePdf,
   decomposeTextFont,

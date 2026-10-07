@@ -8,7 +8,7 @@
  * trigger false sentence boundaries.
  */
 import { Document } from "@langchain/core/documents";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { chunkDocuments } from "../../src/rag/chunking.ts";
 
 function page(pageNumber: number, content: string): Document {

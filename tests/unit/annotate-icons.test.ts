@@ -7,7 +7,7 @@
  *      annotations including icons round-trips to a valid PDF.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { annotatePdf, type IconId, iconGeometry } from "../../src/utils/pdf-operations.ts";
 
 const ICONS: IconId[] = ["check", "cross", "dot", "circle"];

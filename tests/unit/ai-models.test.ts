@@ -22,7 +22,7 @@
  *   - `migrateLegacyChatReadyFlag` doesn't double-fire or trample
  *     an existing preference.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   AI_MODELS,
   CHAT_VARIANT_IDS,

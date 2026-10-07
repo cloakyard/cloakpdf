@@ -38,13 +38,21 @@ const QUALITIES: Quality[] = ["low", "medium", "high"];
 
 // `textDominant`: text-heavy PDFs that must stay selectable and still shrink.
 // `imageWin`: image/Type3-heavy PDF where rasterising should win big at high.
-const FIXTURES: { name: string; textDominant: boolean; imageWin: boolean }[] = [
-  { name: "multipage.pdf", textDominant: true, imageWin: false },
-  { name: "The Complete Generative AI Leader.pdf", textDominant: true, imageWin: false },
-  { name: "sample.pdf", textDominant: false, imageWin: true },
-  // A genuine multi-page scanned document (Acrobat Distiller, ~200 chars).
-  { name: "Sample Scanned Doc.pdf", textDominant: false, imageWin: true },
-];
+const FIXTURES: { name: string; textDominant: boolean; imageWin: boolean }[] =
+  process.env.E2E_DEMO_FIXTURES === "1"
+    ? [
+        { name: "demo/single.pdf", textDominant: true, imageWin: false },
+        { name: "demo/multipage.pdf", textDominant: true, imageWin: false },
+        { name: "demo/text.pdf", textDominant: true, imageWin: false },
+        { name: "demo/scanned.pdf", textDominant: false, imageWin: true },
+      ]
+    : [
+        { name: "multipage.pdf", textDominant: true, imageWin: false },
+        { name: "The Complete Generative AI Leader.pdf", textDominant: true, imageWin: false },
+        { name: "sample.pdf", textDominant: false, imageWin: true },
+        // A genuine multi-page scanned document (Acrobat Distiller, ~200 chars).
+        { name: "Sample Scanned Doc.pdf", textDominant: false, imageWin: true },
+      ];
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);

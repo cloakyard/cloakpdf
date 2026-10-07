@@ -10,7 +10,7 @@
  * `Document` must reach the LLM unchanged.
  */
 import { Document } from "@langchain/core/documents";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { ChunkMetadata } from "../../src/rag/chunking.ts";
 import { buildBm25Retriever } from "../../src/rag/retrievers/bm25.ts";
 

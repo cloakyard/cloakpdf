@@ -8,7 +8,7 @@
  * shape-normalisation and coordinate logic that must stay correct for
  * redaction to land on the right place.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   detectHeadings,
   detectPiiRects,

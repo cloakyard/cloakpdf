@@ -8,7 +8,7 @@
  * version/size selection, the fixed function patterns (finders, timing, dark
  * module), determinism, and the capacity limit.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { encodeQr } from "../../src/utils/pdf/qr.ts";
 
 describe("encodeQr", () => {

@@ -7,7 +7,7 @@
  * known side order for 4- and 8-page documents, including blank-leaf padding.
  */
 import { PDFDocument, rgb } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { bookletOrder, nupPages } from "../../src/utils/pdf/transform.ts";
 
 async function makePdf(n: number): Promise<File> {

@@ -12,7 +12,7 @@
  * pin the detection helper and the typed error shape.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { EncryptedPdfError, isPdfEncrypted, protectPdf } from "../../src/utils/pdf-security.ts";
 
 /**

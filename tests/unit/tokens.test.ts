@@ -6,7 +6,7 @@
  * header/footer + watermark writers depend on to render per-page text in one
  * pass.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { baseFileName, resolveStampTokens, type TokenContext } from "../../src/utils/pdf/tokens.ts";
 
 const CTX: TokenContext = {

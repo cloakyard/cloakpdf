@@ -7,7 +7,7 @@
  * reported as a date). Strings are drawn from the real résumé / invoice
  * fixtures so the detector is pinned against actual document shapes.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { detectPii, EMAIL_RE, isLuhnValid, PHONE_RE, type PiiType } from "../../src/utils/pii.ts";
 
 const typesOf = (text: string, types?: PiiType[]) =>

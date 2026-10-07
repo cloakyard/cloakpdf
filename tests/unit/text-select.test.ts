@@ -2,7 +2,7 @@
  * Unit tests for reading-order text selection (text-select.ts) — the ordering
  * and nearest-word hit-testing the Select-text tool maps drags onto.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   nearestWordIndex,
   orderReading,

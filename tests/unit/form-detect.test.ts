@@ -4,7 +4,7 @@
  * AcroForm, and map common labels to profile keys.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { LayoutItem, LayoutPage } from "../../src/utils/layout-extract.ts";
 import {
   detectFlatFields,

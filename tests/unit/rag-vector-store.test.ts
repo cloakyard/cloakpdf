@@ -6,7 +6,7 @@
  */
 import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { PackedVectorStore } from "../../src/rag/vector-store.ts";
 
 /**

@@ -7,7 +7,7 @@
  * byte-identical STORED payloads, CRC-32s, the UTF-8 name flag, and that the
  * three accepted input shapes (Uint8Array / ArrayBuffer / Blob) all work.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { makeZip, type ZipEntry } from "../../src/utils/zip.ts";
 
 function crc32(bytes: Uint8Array): number {

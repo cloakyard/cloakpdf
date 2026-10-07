@@ -3,7 +3,7 @@
  * are what make pinch/trackpad zoom feel attached to the fingers instead of
  * scaling around the page centre, and keep tiny trackpad deltas fine-grained.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { ViewState } from "../../src/editor/types.ts";
 import {
   MAX_VIEW_ZOOM,

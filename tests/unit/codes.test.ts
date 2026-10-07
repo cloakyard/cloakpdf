@@ -7,7 +7,7 @@
  * (vector content was drawn) without changing the page count.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { addCodeStampAt, type CodeArtOptions, encodeCode128B } from "../../src/utils/pdf/codes.ts";
 
 async function makePdf(n: number): Promise<File> {
