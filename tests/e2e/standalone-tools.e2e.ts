@@ -10,7 +10,8 @@
  * Requirements:
  *   - `vp dev` running at http://localhost:5173 (override with E2E_URL)
  *   - Chrome at CHROME_PATH
- *   - the four local PDFs documented in tests/fixtures/README.md
+ *   - the local PDFs documented in tests/fixtures/README.md, or generated
+ *     demo PDFs with E2E_DEMO_FIXTURES=1
  *
  * Run:
  *   node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts
@@ -29,12 +30,20 @@ const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 const FIXTURE_DIR = resolve(import.meta.dirname, "../fixtures");
-const FIXTURES = {
-  sample: join(FIXTURE_DIR, "sample.pdf"),
-  multipage: join(FIXTURE_DIR, "multipage.pdf"),
-  scanned: join(FIXTURE_DIR, "Sample Scanned Doc.pdf"),
-  generativeAi: join(FIXTURE_DIR, "The Complete Generative AI Leader.pdf"),
-} as const;
+const DEMO = process.env.E2E_DEMO_FIXTURES === "1";
+const FIXTURES = DEMO
+  ? ({
+      sample: join(FIXTURE_DIR, "demo/single.pdf"),
+      multipage: join(FIXTURE_DIR, "demo/multipage.pdf"),
+      scanned: join(FIXTURE_DIR, "demo/scanned.pdf"),
+      generativeAi: join(FIXTURE_DIR, "demo/text.pdf"),
+    } as const)
+  : ({
+      sample: join(FIXTURE_DIR, "sample.pdf"),
+      multipage: join(FIXTURE_DIR, "multipage.pdf"),
+      scanned: join(FIXTURE_DIR, "Sample Scanned Doc.pdf"),
+      generativeAi: join(FIXTURE_DIR, "The Complete Generative AI Leader.pdf"),
+    } as const);
 
 // Reuse shipped bitmap assets instead of adding generated image fixtures.
 const IMAGE_FIXTURES = [
@@ -42,12 +51,19 @@ const IMAGE_FIXTURES = [
   resolve(import.meta.dirname, "../../public/icons/og-image.png"),
 ] as const;
 
-const EXPECTED_PAGE_COUNTS = {
-  sample: 4,
-  multipage: 40,
-  scanned: 7,
-  generativeAi: 16,
-} as const;
+const EXPECTED_PAGE_COUNTS = DEMO
+  ? ({
+      sample: 1,
+      multipage: 4,
+      scanned: 3,
+      generativeAi: 16,
+    } as const)
+  : ({
+      sample: 4,
+      multipage: 33,
+      scanned: 7,
+      generativeAi: 16,
+    } as const);
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
@@ -330,7 +346,7 @@ async function main(): Promise<void> {
         await page.type("#confirm-password", "cloakpdf-e2e-password");
         const output = await clickAndDownload(page, directory, "Protect & Download");
         assert(
-          basename(output) === "sample_protected.pdf",
+          basename(output) === `${basename(FIXTURES.sample, ".pdf")}_protected.pdf`,
           `Unexpected protected PDF name: ${basename(output)}`,
         );
         const protectedPdf = await PDFDocument.load(readFileSync(output), {
@@ -347,7 +363,7 @@ async function main(): Promise<void> {
         await page.waitForFunction(() =>
           (document.body.textContent ?? "").includes("Password added successfully"),
         );
-        console.log("  ✓ protected sample.pdf with AES-256; encrypted 4-page output downloaded");
+        console.log(`  ✓ AES-256 encrypted ${EXPECTED_PAGE_COUNTS.sample}-page output downloaded`);
       },
     );
 
@@ -404,7 +420,7 @@ async function main(): Promise<void> {
         await page.type("#sig-contact", "e2e@cloakpdf.test");
         const output = await clickAndDownload(page, directory, "Sign & Download PDF", 120_000);
         assert(
-          basename(output) === "sample_signed.pdf",
+          basename(output) === `${basename(FIXTURES.sample, ".pdf")}_signed.pdf`,
           `Unexpected signed PDF name: ${basename(output)}`,
         );
         assert(
@@ -423,7 +439,9 @@ async function main(): Promise<void> {
         await page.waitForFunction(() =>
           (document.body.textContent ?? "").includes("PDF signed and downloaded successfully"),
         );
-        console.log("  ✓ generated a self-signed certificate and downloaded a signed 4-page PDF");
+        console.log(
+          `  ✓ generated a self-signed certificate and downloaded a signed ${EXPECTED_PAGE_COUNTS.sample}-page PDF`,
+        );
       },
     );
 

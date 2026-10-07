@@ -5,7 +5,7 @@
  * CacheStorage entry before the app mounts, clear stale ready flags,
  * and persist the new signature so later starts stay warm.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { AI_MODEL_CACHE_SIGNATURE } from "../../src/utils/ai-models.ts";
 import { synchronizeModelCache } from "../../src/utils/ai-runtime.ts";
 

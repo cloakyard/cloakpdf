@@ -13,7 +13,7 @@
  */
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { Select, type SelectOption } from "../../src/components/Select.tsx";
 
 const OPTS: SelectOption<string>[] = [

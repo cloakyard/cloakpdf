@@ -10,7 +10,7 @@
  * exact failure modes the fast-paths were added to prevent.
  */
 import { Document } from "@langchain/core/documents";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { ChunkMetadata } from "../../src/rag/chunking.ts";
 import {
   tryDocumentTypeAnswer,

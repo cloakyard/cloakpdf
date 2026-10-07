@@ -6,7 +6,7 @@
  */
 import { Document } from "@langchain/core/documents";
 import { BaseRetriever } from "@langchain/core/retrievers";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { HybridRetriever, reciprocalRankFusion } from "../../src/rag/retrievers/hybrid.ts";
 
 function doc(id: string, content = id, page = 1): Document {

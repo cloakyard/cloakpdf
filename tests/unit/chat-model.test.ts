@@ -19,7 +19,7 @@
  * the adapter sends to Transformers.js.
  */
 import { HumanMessage } from "@langchain/core/messages";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { TransformersJsChatModel } from "../../src/rag/chat-model.ts";
 import { AI_MODELS, getChatModelId } from "../../src/utils/ai-models.ts";
 import type { AiPipeline } from "../../src/utils/ai-runtime.ts";

@@ -5,7 +5,7 @@
  * pin the handle hit-testing, free resize (opposite edge pinned + min clamp),
  * and aspect-locked corner resize (never distorts, stays on the page).
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   type Box,
   CORNER_IDS,

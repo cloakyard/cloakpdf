@@ -4,7 +4,7 @@
  * render + rotation are browser-only (covered by the editor smoke); here we pin
  * the maths on synthetic grayscale buffers.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { detectSkewAngle, inkBoundingBox } from "../../src/utils/pdf/page-analyze.ts";
 
 /** A white (255) grayscale buffer. */

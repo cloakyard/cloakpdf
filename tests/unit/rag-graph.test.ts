@@ -6,7 +6,7 @@
  */
 import type { Document } from "@langchain/core/documents";
 import type { BaseRetriever } from "@langchain/core/retrievers";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type { TransformersJsChatModel } from "../../src/rag/chat-model.ts";
 import type { ChunkMetadata } from "../../src/rag/chunking.ts";
 import {

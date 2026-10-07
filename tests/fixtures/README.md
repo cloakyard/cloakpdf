@@ -6,6 +6,24 @@ but the documents themselves are not committed.
 
 ## Current local fixture set
 
+### Reproducible demo alternative
+
+Run `python3 scripts/generate-demo-fixtures.py` (requires ReportLab and Pillow)
+to generate synthetic PDFs under `tests/fixtures/demo/`: a single-page text
+document, a 4-page text document, a 16-page text document, and a 3-page
+raster-only scan. These contain no personal data and never overwrite the
+original fixtures. Uncompressed text and seeded raster noise exercise both
+lossless text preservation and image-heavy compression.
+
+With the dev server running, use `E2E_DEMO_FIXTURES=1 pnpm test:e2e:smoke`
+and `E2E_DEMO_FIXTURES=1 pnpm test:e2e:extended`. The standalone and compression
+suites use the demos; the other editor suites still use the existing local
+`sample.pdf` and `multipage.pdf`. Ask PDF's content-specific ground-truth
+assertions still require the original documents. Synthetic coverage is not
+a claim that those original documents were tested.
+
+### Original documents
+
 These are the files against which the browser suites are currently calibrated.
 The hashes make an accidental replacement obvious.
 

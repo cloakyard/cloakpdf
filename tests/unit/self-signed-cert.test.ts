@@ -9,7 +9,7 @@
  * test fails loudly instead.
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import forge from "node-forge";
 import { SELF_SIGNED_ORG, buildSelfSignedCert } from "../../src/utils/self-signed-cert.ts";
 

@@ -12,7 +12,7 @@
  * runtime here — we exercise the wrapper + controller registry directly
  * with a stub base fetch, which is where all the abort logic lives.
  */
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { getModelInfo } from "../../src/utils/ai-models.ts";
 import {
   abortPendingLoad,

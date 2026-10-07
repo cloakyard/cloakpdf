@@ -374,12 +374,26 @@ async function main() {
         }
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) return { states: [...states], modelsReady: true };
+        const root = document.querySelector("[data-rag-status]") as HTMLElement | null;
+        if (root?.dataset.ragStatus === "error") {
+          return {
+            states: [...states],
+            modelsReady: false,
+            error: document.querySelector('[role="alert"]')?.textContent ?? "Model setup failed",
+          };
+        }
         await new Promise((r) => setTimeout(r, 150));
       }
-      return { states: [...states], modelsReady: false };
+      return {
+        states: [...states],
+        modelsReady: false,
+        error: `Timed out with status ${document.querySelector<HTMLElement>("[data-rag-status]")?.dataset.ragStatus}`,
+      };
     }, MODEL_LOAD_TIMEOUT_MS);
     if (!modelLoadOutcome.modelsReady) {
-      bail("Models never finished loading — file drop zone never appeared.");
+      throw new Error(
+        `Models never finished loading: ${modelLoadOutcome.error ?? "file drop zone never appeared"}`,
+      );
     }
     console.log(
       `  ✓ models loaded; download-progress recorded ${modelLoadOutcome.states.length} distinct states`,

@@ -40,3 +40,4 @@ tests/.puppeteer-profile*/
 # Debug artifacts written by tests/e2e/retrieval-probe.ts.
 tests/retrieval-debug/
 .playwright-mcp/
+.vitest/

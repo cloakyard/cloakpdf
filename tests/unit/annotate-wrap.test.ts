@@ -7,7 +7,7 @@
  * (including blank lines), and breaking a single word longer than the box so it
  * never silently overflows.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { wrapTextToWidth } from "../../src/utils/pdf-operations.ts";
 
 /** Width = character count (a perfect monospace font). */

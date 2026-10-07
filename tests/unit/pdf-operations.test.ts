@@ -20,7 +20,7 @@ import {
   degrees,
   rgb,
 } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   addPdfBookmarks,
   analyzePdfHiddenData,

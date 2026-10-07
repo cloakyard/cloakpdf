@@ -905,13 +905,11 @@ export function PdfStage() {
             <div className="h-full w-full bg-white" />
           )}
           <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
-          {editorOpen &&
-            fit &&
-            inlineEditor && (
-              // Key by session id so a new edit always remounts (re-seeds its
-              // value); a style-only update (same id) re-renders in place.
-              <InlineTextEditor key={inlineEditor.editorId} descriptor={inlineEditor} fit={fit} />
-            )}
+          {editorOpen && fit && inlineEditor && (
+            // Key by session id so a new edit always remounts (re-seeds its
+            // value); a style-only update (same id) re-renders in place.
+            <InlineTextEditor key={inlineEditor.editorId} descriptor={inlineEditor} fit={fit} />
+          )}
         </m.div>
       </div>
     </div>

@@ -4,7 +4,7 @@
  * (`[""]`), mirroring how the date fields clear.
  */
 import { PDFDocument } from "@pdfme/pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getPdfMetadata, setPdfMetadata } from "../../src/utils/pdf-operations.ts";
 
 const toFile = (bytes: Uint8Array) =>
