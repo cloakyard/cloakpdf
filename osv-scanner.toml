@@ -1,0 +1,13 @@
+# Temporary risk acceptance approved on 2026-10-07; expires after 30 days.
+# Scope: this advisory (including its CVE alias) only, not all node-forge findings.
+# https://github.com/advisories/GHSA-86w9-cpqp-85rv
+# node-forge 1.4.0 remains vulnerable; no patched release is available today.
+# Current application paths import PKCS#12, inspect certificates, and sign PDFs.
+# No direct Forge signature-verification call was found; this is not proof of
+# non-exploitability. This exception suppresses the finding, not the defect.
+# Remove when a patched release is adopted; reassess before expiry rather than
+# automatically extending it. All other dependency findings remain enforced.
+[[IgnoredVulns]]
+id = "GHSA-86w9-cpqp-85rv"
+ignoreUntil = 2026-11-06
+reason = "User-approved temporary risk acceptance for unpatched node-forge 1.4.0 (CVE-2026-85393). Migration deferred; no direct application verification call found, but exposure is not ruled out. Upgrade and remove this exception when a fixed release is available; review by 2026-11-06."
