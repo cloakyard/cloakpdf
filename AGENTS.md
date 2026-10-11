@@ -96,12 +96,17 @@ Generation sampling defaults live per chat tier in [src/utils/ai-models.ts](src/
 
 ### Design system
 
-[DESIGN.md](DESIGN.md) is the design spec — a YAML front-matter token system plus prose explaining the visual language. Two invariants explicitly called out:
+[DESIGN.md](DESIGN.md) is the portable, authoritative **Cloakyard Air** target,
+covering every web surface, custom control, editor, canvas surround, state and
+viewport. It supersedes the former Workbench visual rules. Shared neutral surfaces,
+sans labels, monochrome primary actions, blue focus/selection, 10px controls and
+18–20px surfaces replace the former independent palette and compact geometry.
 
-1. **One accent.** Per-tool / per-category colour stays out of interactive surfaces. The Ocean-Blue primary is the only accent on CTAs, focus rings, hover borders.
-2. **Slate-200 borders, no resting shadow.** Cards earn elevation on hover, not at rest.
-
-Read DESIGN.md before adding new UI surfaces — the design system is doing real work and ad-hoc colour/shadow choices break the calm tone.
+Read DESIGN.md before changing UI. Track each source/state in `docs/air/surfaces.json`
+and run `node scripts/check-air-design.mjs`. Inventory presence is not a visual
+pass. Implement one bounded piece, inspect the complete responsive/theme/state
+matrix, run all required checks/features, record evidence, then commit. Document
+output retains its own appearance; custom UI components have no styling exemption.
 
 The shared Cloakyard mark, PWA safe-zone geometry, product-specific asset naming,
 and regeneration contract live in [docs/logo-spec.md](docs/logo-spec.md). After
