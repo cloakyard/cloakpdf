@@ -1,0 +1,408 @@
+/* Cloakyard Air 1.0.0 — portable family foundations and opt-in component shells.
+ * Source: cloakyard/design/air/air.css. Never override --air-* in product styles.
+ * Document templates, image pixels and PDF content keep their own styles. */
+:root {
+  color-scheme: light dark;
+  --air-page: light-dark(#fafbfc, #101216);
+  --air-surface: light-dark(#ffffff, #1a1d23);
+  --air-surface-soft: light-dark(#f0f2f6, #232830);
+  --air-surface-hover: light-dark(#e9edf3, #2d333e);
+  --air-ink: light-dark(#202329, #f1f3f7);
+  --air-ink-secondary: light-dark(#525b68, #b6becb);
+  --air-ink-muted: light-dark(#646b76, #a7afbc);
+  --air-line: light-dark(#e1e5eb, #363d48);
+  --air-line-control: light-dark(#858e9b, #778395);
+  --air-action: light-dark(#222831, #e9eef7);
+  --air-on-action: light-dark(#ffffff, #18212e);
+  --air-accent: light-dark(#285ad7, #9ebcff);
+  --air-accent-soft: light-dark(#edf2ff, #202f4e);
+  --air-danger: light-dark(#b42335, #ff9ea8);
+  --air-danger-soft: light-dark(#fff0f1, #382229);
+  --air-warning: light-dark(#875700, #f4ca7c);
+  --air-warning-soft: light-dark(#fff6df, #352d1c);
+  --air-success: light-dark(#236444, #8dd5b0);
+  --air-success-soft: light-dark(#eaf7ef, #1c3027);
+  --air-checker-a: light-dark(#f0f2f6, #232830);
+  --air-checker-b: light-dark(#dce1e8, #363d48);
+  --air-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --air-font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --air-radius-control: 10px;
+  --air-radius-chip: 8px;
+  --air-radius-panel: 18px;
+  --air-radius-dialog: 20px;
+  --air-radius-menu: 12px;
+  --air-control: 40px;
+  --air-control-compact: 32px;
+  --air-page-max: 1200px;
+  --air-gutter: 16px;
+  --air-header: 64px;
+  --air-editor-header: 64px;
+  --air-rail: 72px;
+  --air-inspector: 328px;
+  --air-text-hero: clamp(2.5rem, 5.5vw, 4.5rem);
+  --air-text-section: clamp(1.75rem, 3vw, 2.75rem);
+  --air-z-sticky: 30;
+  --air-z-navigation: 50;
+  --air-z-editor: 100;
+  --air-z-toast: 150;
+  --air-z-dialog: 200;
+  --air-z-popover: 900;
+  --air-z-recovery: 1000;
+  --air-shadow-surface:
+    0 2px 6px light-dark(#18223404, #00000012), 0 12px 32px light-dark(#18223408, #00000020);
+  --air-shadow-menu:
+    0 2px 4px light-dark(#10182806, #00000020), 0 12px 32px light-dark(#10182814, #00000040);
+  --air-shadow-dialog:
+    0 2px 8px light-dark(#10182808, #00000024), 0 24px 64px light-dark(#10182824, #00000060);
+  --air-scrim: rgb(12 18 28 / 40%);
+  --air-motion-press: 120ms;
+  --air-motion-hover: 160ms;
+  --air-motion-popover: 180ms;
+  --air-motion-dialog: 240ms;
+  --air-motion-exit: 160ms;
+  --air-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --air-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --air-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --air-space-4: 4px;
+  --air-space-8: 8px;
+  --air-space-12: 12px;
+  --air-space-16: 16px;
+  --air-space-20: 20px;
+  --air-space-24: 24px;
+  --air-space-32: 32px;
+  --air-space-48: 48px;
+  --air-space-64: 64px;
+  --air-space-96: 96px;
+}
+
+:root[data-air-theme="light"] {
+  color-scheme: light;
+}
+:root[data-air-theme="dark"] {
+  color-scheme: dark;
+}
+
+.air-button,
+.air-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--air-space-8);
+  min-height: var(--air-control);
+  padding: 8px 16px;
+  border: 1px solid var(--air-line);
+  border-bottom-color: var(--air-line-control);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  font: 500 14px/1.4 var(--air-font);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--air-motion-hover) var(--air-ease-out),
+    color var(--air-motion-hover) var(--air-ease-out),
+    transform var(--air-motion-press) var(--air-ease-out);
+}
+.air-icon-button {
+  flex: 0 0 auto;
+  min-width: var(--air-control);
+  padding: 8px;
+}
+.air-button--primary {
+  border-color: var(--air-action);
+  background: var(--air-action);
+  color: var(--air-on-action);
+}
+.air-button--quiet {
+  border-color: transparent;
+  background: transparent;
+}
+.air-button--danger {
+  background: var(--air-danger-soft);
+  border-color: var(--air-danger);
+  color: var(--air-danger);
+}
+.air-button[aria-pressed="true"],
+.air-icon-button[aria-pressed="true"] {
+  background: var(--air-accent-soft);
+  border-color: var(--air-accent);
+  color: var(--air-accent);
+}
+.air-button:disabled,
+.air-icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.air-button[aria-busy="true"] {
+  cursor: progress;
+}
+.air-button:active:not(:disabled),
+.air-icon-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.air-field {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--air-control);
+  padding: 8px 12px;
+  border: 1px solid var(--air-line-control);
+  box-shadow: none;
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  font: 400 14px/1.5 var(--air-font);
+}
+.air-field::placeholder {
+  color: var(--air-ink-muted);
+}
+.air-field[aria-invalid="true"] {
+  border-color: var(--air-danger);
+}
+.air-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.air-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--air-ink);
+  font: 500 13px/1.4 var(--air-font);
+}
+.air-help {
+  margin: 8px 0 0;
+  color: var(--air-ink-secondary);
+  font: 400 12px/1.5 var(--air-font);
+}
+.air-help--error {
+  color: var(--air-danger);
+}
+.air-check {
+  accent-color: var(--air-accent);
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+.air-check-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--air-control);
+  font: 400 14px/1.5 var(--air-font);
+}
+/* Native checkbox semantics with switch presentation; the full box is the target. */
+.air-switch {
+  appearance: none;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--air-radius-control);
+  background: transparent;
+  cursor: pointer;
+}
+.air-switch::before {
+  content: "";
+  position: absolute;
+  inset: 10px 2px;
+  border: 1px solid var(--air-line-control);
+  border-radius: 12px;
+  background: var(--air-surface-soft);
+}
+.air-switch::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--air-ink-secondary);
+}
+.air-switch:checked::before {
+  border-color: var(--air-accent);
+  background: var(--air-accent);
+}
+.air-switch:checked::after {
+  transform: translateX(16px);
+  background: var(--air-surface);
+}
+.air-switch:focus-visible {
+  outline: none;
+}
+.air-switch:focus-visible::before {
+  border-color: transparent;
+  outline: 2px solid var(--air-accent);
+  outline-offset: 0;
+}
+.air-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.air-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  margin: 12px 0;
+  font: 400 13px/1.5 var(--air-font);
+}
+.air-switch-row small {
+  display: block;
+  color: var(--air-ink-secondary);
+  font-size: 12px;
+}
+.air-panel {
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  box-shadow: var(--air-shadow-surface);
+}
+.air-segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface-soft);
+}
+.air-segments > button {
+  position: relative;
+  flex: 1;
+  min-height: var(--air-control-compact);
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--air-radius-chip);
+  background: transparent;
+  color: var(--air-ink-secondary);
+  font: 500 13px/1.4 var(--air-font);
+  cursor: pointer;
+}
+.air-segments > button[aria-pressed="true"],
+.air-segments > button[aria-selected="true"] {
+  border-color: var(--air-line);
+  background: var(--air-surface);
+  color: var(--air-ink);
+}
+.air-segments > button[aria-pressed="true"]::after,
+.air-segments > button[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(50% - 8px);
+  bottom: 0;
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--air-accent);
+}
+.air-notice {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--air-radius-control);
+  background: var(--air-accent-soft);
+  color: var(--air-accent);
+  font: 400 14px/1.5 var(--air-font);
+}
+.air-notice--error {
+  background: var(--air-danger-soft);
+  color: var(--air-danger);
+}
+.air-notice--warning {
+  background: var(--air-warning-soft);
+  color: var(--air-warning);
+}
+.air-notice--success {
+  background: var(--air-success-soft);
+  color: var(--air-success);
+}
+.air-dialog {
+  box-sizing: border-box;
+  width: min(576px, calc(100% - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+  overflow: auto;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-dialog);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  box-shadow: var(--air-shadow-dialog);
+  font: 400 14px/1.5 var(--air-font);
+}
+.air-dialog::backdrop {
+  background: var(--air-scrim);
+}
+:where(
+  .air-button,
+  .air-icon-button,
+  .air-field,
+  .air-check,
+  .air-switch,
+  .air-segments > button
+):focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+/* A field has one continuous contour, including while focused. */
+.air-field:focus-visible {
+  border-color: transparent;
+  outline: 2px solid var(--air-accent);
+  outline-offset: 0;
+  box-shadow: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .air-button:hover:not(:disabled),
+  .air-icon-button:hover:not(:disabled) {
+    background: var(--air-surface-hover);
+  }
+  .air-button--primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--air-action) 88%, var(--air-on-action));
+  }
+  .air-button--danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--air-danger-soft) 88%, var(--air-danger));
+  }
+}
+@media (min-width: 640px) {
+  :root {
+    --air-gutter: 24px;
+    --air-header: 72px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --air-gutter: 32px;
+  }
+}
+@media (pointer: coarse) {
+  :root {
+    --air-control: 44px;
+    --air-control-compact: 44px;
+  }
+}
+@media (max-width: 640px) {
+  .air-field {
+    font-size: 16px;
+  }
+  .air-dialog {
+    margin: auto 0 0;
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 20px 20px 0 0;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .air-button,
+  .air-icon-button {
+    transition: none;
+  }
+  .air-button:active:not(:disabled),
+  .air-icon-button:active:not(:disabled) {
+    transform: none;
+  }
+}

@@ -490,24 +490,32 @@
     {
       "path": "src/editor/PropertiesPanel.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/ToolControls.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/ToolRail.tsx",
@@ -526,10 +534,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/AttachmentsTool.tsx",
@@ -537,10 +549,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/AutoFillTool.tsx",
@@ -548,10 +564,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/BookmarksTool.tsx",
@@ -559,10 +579,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/CodeStampTool.tsx",
@@ -570,10 +594,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/CropTool.tsx",
@@ -581,10 +609,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/FillFormTool.tsx",
@@ -592,10 +624,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/FindActTool.tsx",
@@ -603,10 +639,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/MetadataTool.tsx",
@@ -614,10 +654,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/OcrTool.tsx",
@@ -625,10 +669,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/OrganizeTool.tsx",
@@ -636,21 +684,29 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/PrimaryAction.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/RedactTool.tsx",
@@ -658,10 +714,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/ScrubTool.tsx",
@@ -669,10 +729,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/SelectTextTool.tsx",
@@ -680,10 +744,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/SignatureTool.tsx",
@@ -691,10 +759,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/SimpleTools.tsx",
@@ -702,10 +774,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/SmartEraseTool.tsx",
@@ -713,10 +789,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/StampTools.tsx",
@@ -724,10 +804,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/StripFurnitureTool.tsx",
@@ -735,10 +819,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/WholeDocPanel.tsx",
@@ -746,10 +834,14 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/controls.tsx",
@@ -757,21 +849,29 @@
       "sourceReviewed": false,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/registry.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": ["baseline default/empty; available selected and disabled states"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "evidence": [
+        "docs/air/editor-audit.md",
+        "docs/air/editor-panel-audit.json",
+        "docs/air/editor-mobile-audit.json"
+      ],
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/stage.tsx",
@@ -893,6 +993,48 @@
       "viewports": [],
       "evidence": [],
       "notes": ""
+    },
+    {
+      "path": "src/styles/air.css",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "hover/press (CSS review)",
+        "focus",
+        "selected",
+        "disabled",
+        "busy",
+        "error",
+        "success",
+        "warning",
+        "dialog open/close/focus return",
+        "narrow sheet",
+        "light/dark",
+        "reduced motion",
+        "coarse/fine pointer"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "641x800",
+        "1023x768",
+        "1025x768"
+      ],
+      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
+      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]
 }

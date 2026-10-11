@@ -1,19 +1,23 @@
 ---
 name: CloakPDF — Cloakyard Air
 version: 1.0.0
-status: authoritative-target
+status: design-review
 date: 2026-10-11
 scope: complete-web-product
-family-contract-sha256: d5c2e7f5e07afc0b9949d1ba28bb4dd35f0b1d8bcad5ff26e5d12f08c3f0eeea
+family-contract-sha256: 2b0b13f20830fc01ed37bcbc0f02af03df6e72523e72797df2683122d0ee21b5
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.0** · Approved direction: **Air** · Effective: **2026-10-11**
+Version: **1.0.0 — refinement 03 candidate** · Direction: **Air** · Updated: **2026-10-11**
 
-This is the portable, normative design contract for the Cloakyard web family.
+The Air direction is approved. This detailed refinement is **under design review**;
+product migration waits for that review. The reference is an interactive design
+study, not an implementation of the products.
+
+This is the portable design contract for the Cloakyard web family.
 It applies to existing and future products, all routes, all states, and every
 custom or third-party control rendered inside a product. A landing page alone
 cannot establish conformance. Product-specific requirements follow this contract
@@ -44,19 +48,68 @@ validation. An exception cannot be justified by preference, convenience, or an
 existing hardcoded value. Document and image output are explicit exceptions to UI
 colour/typography; their surrounding controls are not exceptions.
 
-## 2. Visual signature
+## 2. Visual signature — the Air identity
 
-- Open neutral space, softly separated solid surfaces, light borders, restrained
-  shadows, rounded controls, and readable sentence-case labels.
-- Display typography is regular/medium with natural line lengths. Body copy
-  explains the user's task. Technical architecture belongs in details or docs.
-- A low-contrast blue light field may enrich a landing hero. It never sits behind
-  editable content, reading text, a document canvas, or an inspector.
-- One monochrome primary action treatment across all apps; one shared blue for
-  links, selection, focus, and interactive indicators. Product logo artwork may
-  retain its established colour; it must not recolour the surrounding UI.
-- An editor is a calm place to work. Content, selection, and the next useful action
-  have priority over branding and decoration.
+Air should be recognisable with the logo covered. Its identity comes from the
+relationship between open space, precise edges, neutral working surfaces, and one
+quiet blue indicator. It does not depend on a framework's default component skin.
+
+### Open composition
+
+- Group by proximity: 8px for one control's parts, 12px between related controls,
+  24px between tasks, 48–64px between page sections. Start with open space; add a
+  divider only for a genuine boundary. Do not put every group in a card.
+- Landing pages have a light, centred promise and an open product row. An editor
+  has one containing surface, a persistent canvas and unboxed inspector groups.
+  Quiet family navigation gives way to task actions inside the workspace.
+- Hero/section display uses weight 400 with tight optical tracking. Headings must
+  have natural line breaks at each size; do not simply scale a desktop screenshot.
+- Product text explains the job. Avoid technical ledgers, invented readouts,
+  template-like feature grids and marketing counts.
+
+### Matte surfaces and precise edges
+
+- Opaque, subtly separated planes. No frosted forms or translucent reading areas.
+  Small shadows explain elevation; surface steps do most of the work.
+- Inputs, textareas and selects have one continuous 1px `line-control` border,
+  a solid surface and no inset shadow or bottom-edge accent. On focus, replace the
+  resting border with a single 2px blue outline at zero offset; make the border
+  transparent so two contours never compete. Field geometry does not move.
+- Buttons may use a soft top/side edge and a firmer lower edge. That elevation
+  treatment never carries into data-entry fields. Persistent labels and nearby
+  help provide clarity without decoration.
+- Neutral primary actions, 10px corners, 14px/500 labels, 16–18px icons, 8px icon
+  gap, and 16px side padding. A standalone icon is optically centred in its box.
+- Nested geometry is deliberate: an 18px outer surface with an 8px inset gives a
+  10px inner corner. Do not accumulate unrelated radii or padded card layers.
+- Icon art uses the existing Lucide family at 1.6 stroke for 18–24px UI icons;
+  preserve original family/product marks. No decorative icon backplates everywhere.
+
+### A restrained, ownable blue signature
+
+- Selected rails use a neutral tile plus a 2×16px blue marker. It sits on the
+  leading edge of a vertical rail and the bottom edge of a horizontal tool dock.
+  Selected segments use the same neutral surface and a small blue marker.
+- Focus, meaningful links and selection use shared blue. Logo colours may remain;
+  they never tint the whole app or create a rainbow of tool categories.
+- The landing signature is a low-contrast light horizon: two offset, softly lit
+  planes echo the family mark's overlapping geometry. It occupies the space below
+  hero copy and above product entries. Text remains on a solid, quiet background.
+  No generic purple glow, animated blob, cosmic backdrop or GPU effect in editors.
+
+### Two equally designed appearances
+
+- Light: near-white page, white working surfaces, cool matte canvas surround,
+  graphite text and discreet contact shadows.
+- Dark: graphite page, raised solid surfaces, visible edge separation and brighter
+  blue indicators. Never obtain dark mode by simply inverting a light screenshot.
+- Every selected, focused, disabled, error, warning and busy state is reviewed in
+  both themes. Disabled controls stay identifiable, even though contrast exceptions
+  apply to disabled content. Colour is never the only carrier of meaning.
+- System appearance is the default. An explicit user choice may select light or
+  dark. Switching theme is immediate; it does not animate the whole workspace.
+- Paper stays white and actual image colours stay intact. The surrounding UI
+  adapts; user-created content and export typography do not.
 
 ## 3. Portable foundations
 
@@ -105,10 +158,10 @@ control. Errors/warnings/success also use text and an appropriate icon.
   This reproduces Air's native, light typography without remote font requests.
 - Code and machine identifiers only: `ui-monospace, "SFMono-Regular", Consolas,
   monospace`. Button labels, navigation, ordinary status, and headings use UI sans.
-- Weight 400 for body; 500 for labels/headings; 600 only for limited emphasis.
+- Weight 400 for body and display; 500 for labels/workspace headings; 600 for limited emphasis.
   No 700–900 display or control weights. Logos and document output are exempt.
-- Hero: `clamp(2.5rem, 5.5vw, 4.5rem)`, weight 500, line-height 1.05, tracking
-  `-0.045em`. Section title: `clamp(1.75rem, 3vw, 2.75rem)`, 500, 1.15,
+- Hero: `clamp(2.5rem, 5.5vw, 4.5rem)`, weight 400, line-height 1.05, tracking
+  `-0.045em`. Section title: `clamp(1.75rem, 3vw, 2.75rem)`, 400, 1.15,
   `-0.03em`. Workspace/dialog heading: 20–24px, 500, 1.25.
 - Page prose 16–18px/1.6; UI body 14px/1.5; labels 13px/1.4; metadata minimum
   12px/1.5. Mobile editable text remains at least 16px to avoid focus zoom.
@@ -119,60 +172,112 @@ control. Errors/warnings/success also use text and an appropriate icon.
 
 ### Geometry
 
-| Primitive              | Normative value                                       |
-| ---------------------- | ----------------------------------------------------- |
-| Spacing scale          | 4, 8, 12, 16, 20, 24, 32, 48, 64, 96px                |
-| Page max width         | 1200px                                                |
-| Page gutters           | 16px phone; 24px tablet; 32px laptop/desktop          |
-| Marketing header       | 72px desktop; at least 64px narrow                    |
-| Editor top bar         | 64px; may wrap/reflow on narrow screens               |
-| Icon rail              | 72px with visible labels or accessible tooltips       |
-| Inspector              | 288–360px; 328px default desktop                      |
-| Content entry panel    | 328px default; up to 560px if writing needs the space |
-| Control radius         | 10px                                                  |
-| Small chip/tab radius  | 8px                                                   |
-| Panel/card radius      | 18px                                                  |
-| Dialog radius          | 20px                                                  |
-| Floating menu radius   | 12px                                                  |
-| Normal control height  | 40px; 44px minimum touch target                       |
-| Compact control height | 32px on fine pointers only                            |
-| Field/row interior     | 12–16px; section group gap 24px                       |
-| Reading measure        | 65ch maximum                                          |
+| Primitive              | Normative value                                   |
+| ---------------------- | ------------------------------------------------- |
+| Spacing scale          | 4, 8, 12, 16, 20, 24, 32, 48, 64, 96px            |
+| Page max width         | 1200px                                            |
+| Page gutters           | 16px phone; 24px tablet; 32px laptop/desktop      |
+| Marketing header       | 72px desktop; at least 64px narrow                |
+| Editor top bar         | 64px; may wrap/reflow on narrow screens           |
+| Icon rail              | 72px desktop; 64px compact, with labels/tooltips  |
+| Inspector              | 288–360px; 328px default desktop                  |
+| Content entry panel    | 420px writing default; 360px compact; up to 560px |
+| Control radius         | 10px                                              |
+| Small chip/tab radius  | 8px                                               |
+| Panel/card radius      | 18px                                              |
+| Dialog radius          | 20px                                              |
+| Floating menu radius   | 12px                                              |
+| Normal control height  | 40px; 44px minimum touch target                   |
+| Compact control height | 32px on fine pointers only                        |
+| Field/row interior     | 12–16px; section group gap 24px                   |
+| Reading measure        | 65ch maximum                                      |
 
 Full-bleed app rails may meet an edge without rounded outer corners. Do not nest
 several padded cards. Use whitespace and modest section dividers inside inspectors.
 Primary action groups contain one dominant action. A 2px focus outline with 3px
 offset uses `accent` and remains visible inside scrolling and clipped containers.
+Fields use the single-contour exception above: zero-offset outline, transparent
+resting border during focus, no box shadow. Invalid fields retain a nearby error
+message when the blue focus contour replaces their red resting border.
 
-Elevations: surface `0 8px 28px #1822340a`; menu `0 12px 32px #1018281a`;
-dialog `0 24px 64px #10182826`. In dark mode use opaque surfaces and `line`
-separation in addition to shadow. Scrim: `rgb(12 18 28 / 40%)`.
+Elevations use a contact shadow plus a diffuse shadow, never a thick glow:
+
+| Surface | Light shadows                                | Dark shadows                                 |
+| ------- | -------------------------------------------- | -------------------------------------------- |
+| Panel   | `0 2px 6px #18223404, 0 12px 32px #18223408` | `0 2px 6px #00000012, 0 12px 32px #00000020` |
+| Menu    | `0 2px 4px #10182806, 0 12px 32px #10182814` | `0 2px 4px #00000020, 0 12px 32px #00000040` |
+| Dialog  | `0 2px 8px #10182808, 0 24px 64px #10182824` | `0 2px 8px #00000024, 0 24px 64px #00000060` |
+
+Dark mode also requires opaque surfaces and `line` separation. Scrim:
+`rgb(12 18 28 / 40%)`.
 No glass blur behind forms, body copy, tables, or document content.
 
 ## 4. Component contracts — custom controls included
 
-| Component                       | Required shared behaviour and appearance                                                                                                                                                |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Brand/header/footer             | Same wordmark spacing and header rhythm; existing family mark, 32px in editor and 36px marketing. Compact neutral footer with product links, privacy, source, and version where useful. |
-| Buttons                         | Sans label; stable box; neutral secondary; monochrome primary; visible hover/press/focus; descriptive action verb; busy state preserves width.                                          |
-| Icon buttons                    | Accessible name, tooltip for unfamiliar meaning, 40px fine/44px touch target; selected and disabled semantics.                                                                          |
-| Text/number/date fields         | Visible persistent label; shared boundary, height, radius, focus; unit beside value; help/error beneath; correct input type and autocomplete.                                           |
-| Select/listbox                  | Native semantics or established accessible primitive; same field shell; arrow inset; wrapping long labels; keyboard navigation; viewport-aware menu.                                    |
-| Check/radio/switch              | Label and control share hit target; explicit state; keyboard operation; same accent/focus.                                                                                              |
-| Slider/scrubber                 | Label, current value/unit, keyboard input, touch-friendly hit area, reset or precise entry when needed; no hidden critical gesture.                                                     |
-| Segments/tabs                   | Neutral group, one clear selection, correct roles/states and arrow keys where expected; same radius/density.                                                                            |
-| Tool/section rail               | Stable order, labels/accessible names, neutral selected tile and blue indicator; search/more access on small screens; no coloured tool rainbow.                                         |
-| Inspector/entry group           | Consistent heading, help, spacing and primary action; advanced settings disclosed; controls stay in reach on short screens.                                                             |
-| Colour picker/curves            | UI shell follows Air; actual colour field/histogram/curve are functional data, not branding. Provide labels, numeric entry, focus, clipping protection.                                 |
-| Lists/layers/history            | Same row states, selection/focus, progress and empty-state language; long names wrap/truncate with full-name access; accessible reorder alternatives.                                   |
-| Drop zone/import                | Clear local-file action and supported types; equivalent browse action; drag-over, wrong type, encrypted/invalid/large-file states; readable progress.                                   |
-| Dialog/sheet                    | Named title/description; close, scroll body, action region; focus containment/return; Escape; background inert; preserve state across resizing.                                         |
-| Popover/menu/tooltip            | Anchored, viewport-aware, opaque; common elevation/radius; keyboard dismissal; no clipping inside parent scroll regions.                                                                |
-| Toast/notice/error              | Shared icon/text/action layout, semantic role/live region, understandable recovery; never cover primary or modal actions.                                                               |
-| Progress/AI model state         | Honest determinate progress when known; explicit size, consent, download/cancel/retry/error/cached/ready states; no fake percentages.                                                   |
-| Rich text/signature/drawing     | Air toolbar and focus; preserve content formatting; keyboard/tap alternative where feasible; undo/reset; visible selection.                                                             |
-| Privacy/help/404/error boundary | Same typography, width, navigation and controls; clear return/retry path; technical detail only when relevant.                                                                          |
-| PWA/install/update              | Same notice/dialog language; do not reload over unsaved work; readable offline/cache/download distinctions.                                                                             |
+| Component                       | Required shared behaviour and appearance                                                                                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Brand/header/footer             | Same wordmark spacing and header rhythm; existing family mark, 28px in editor (24px compact) and 36px marketing. Compact neutral footer with product links, privacy, source, and version where useful. |
+| Buttons                         | Sans label; stable box; neutral secondary; monochrome primary; visible hover/press/focus; descriptive action verb; busy state preserves width.                                                         |
+| Icon buttons                    | Accessible name, tooltip for unfamiliar meaning, 40px fine/44px touch target; selected and disabled semantics.                                                                                         |
+| Text/number/date fields         | Visible persistent label; shared boundary, height, radius, focus; unit beside value; help/error beneath; correct input type and autocomplete.                                                          |
+| Select/listbox                  | Native semantics or established accessible primitive; same field shell; arrow inset; wrapping long labels; keyboard navigation; viewport-aware menu.                                                   |
+| Check/radio/switch              | Label and control share hit target; explicit state; keyboard operation; same accent/focus.                                                                                                             |
+| Slider/scrubber                 | Label, current value/unit, keyboard input, touch-friendly hit area, reset or precise entry when needed; no hidden critical gesture.                                                                    |
+| Segments/tabs                   | Neutral group, one clear selection, correct roles/states and arrow keys where expected; same radius/density.                                                                                           |
+| Tool/section rail               | Stable order, labels/accessible names, neutral selected tile and blue indicator; search/more access on small screens; no coloured tool rainbow.                                                        |
+| Inspector/entry group           | Consistent heading, help, spacing and primary action; advanced settings disclosed; controls stay in reach on short screens.                                                                            |
+| Colour picker/curves            | UI shell follows Air; actual colour field/histogram/curve are functional data, not branding. Provide labels, numeric entry, focus, clipping protection.                                                |
+| Lists/layers/history            | Same row states, selection/focus, progress and empty-state language; long names wrap/truncate with full-name access; accessible reorder alternatives.                                                  |
+| Drop zone/import                | Clear local-file action and supported types; equivalent browse action; drag-over, wrong type, encrypted/invalid/large-file states; readable progress.                                                  |
+| Dialog/sheet                    | Named title/description; close, scroll body, action region; focus containment/return; Escape; background inert; preserve state across resizing.                                                        |
+| Popover/menu/tooltip            | Anchored, viewport-aware, opaque; common elevation/radius; keyboard dismissal; no clipping inside parent scroll regions.                                                                               |
+| Toast/notice/error              | Shared icon/text/action layout, semantic role/live region, understandable recovery; never cover primary or modal actions.                                                                              |
+| Progress/AI model state         | Honest determinate progress when known; explicit size, consent, download/cancel/retry/error/cached/ready states; no fake percentages.                                                                  |
+| Rich text/signature/drawing     | Air toolbar and focus; preserve content formatting; keyboard/tap alternative where feasible; undo/reset; visible selection.                                                                            |
+| Privacy/help/404/error boundary | Same typography, width, navigation and controls; clear return/retry path; technical detail only when relevant.                                                                                         |
+| PWA/install/update              | Same notice/dialog language; do not reload over unsaved work; readable offline/cache/download distinctions.                                                                                            |
+
+### Dense editor controls
+
+These patterns are required by the existing PDF tools; they also govern the
+same controls in IMG, Resume and future apps.
+
+- **Mode/position grids:** compact labelled mode choices share the neutral selected
+  surface and blue marker. Preserve spatial meaning for a 3×2 page-position grid;
+  do not flatten it into a list. Every cell has a meaningful accessible name and
+  a 44px touch target. A selected mode is distinct from a selected document object.
+- **Signature/image sources:** Draw and Choose are source modes. Drawing has a
+  clear/reset action and an equivalent image chooser; neither a typed-name generator
+  nor a style selector may replace those existing capabilities. Realistic ink and
+  opaque background are independent switches. Actual ink, alpha and image preview
+  are output data; the surrounding canvas border, labels and controls use Air.
+- **Switch rows:** one unboxed label/help group with a 44×44px control target.
+  Inside it, a 40×24px track contains an 18px thumb. Off is neutral; on uses accent.
+  The thumb position and exposed switch state convey the value without colour alone.
+  Focus replaces the track edge with one 2px zero-offset outline; do not draw a
+  second box around its larger hit area. Space toggles a focused switch; the
+  associated label is clickable. Keep dangerous
+  bulk operations as explicit actions, not switches.
+- **Date/time:** the field trigger uses the same single-contour shell. Calendar,
+  year list, hour/minute menus and AM/PM controls share panel/menu styling, focus
+  return and viewport containment. Preserve the current date restrictions and time
+  semantics. Coarse calendars need room for seven 44px columns; use a full-width
+  sheet on a 320px phone with a 4px calendar-grid inset, rather than shrinking cells.
+  The other sheet content keeps the normal gutter. Short screens scroll the body
+  while dismissal and completion stay reachable.
+- **Field insertion:** page/date/file-name chips insert at the last active text
+  caret and return focus there. They wrap into rows and keep 44px touch targets;
+  ordinary chip labels are sans. Template variables may remain verbatim user data.
+- **Lists and reports:** bookmark nesting/page targets, attached files, form fields,
+  detected matches and privacy counts use open rows with labels and aligned actions.
+  Preserve user-supplied field-name casing. Empty, detecting, ready, no-match, failed,
+  disabled and destructive states need separate examples and recovery paths.
+- **Apply semantics:** a tool with one staged operation has one Apply action. On
+  mobile the persistent Done action may execute it; it is disabled until ready.
+  Cancel rolls back the tool's pending transaction. Tools with multiple operations
+  keep their distinct actions, and export-time redaction must retain its explicit
+  permanence notice. Do not reinterpret Done as a harmless preview toggle in a real
+  transactional editor. The reduced study must label its narrower behaviour.
 
 A custom implementation is reviewed against the same contract. Native controls,
 accessible existing primitives, and shared shells are preferred to new widgets.
@@ -205,8 +310,19 @@ no screenshot, simulation, orbital illustration, animated preview, or embedded a
   photos retain their actual colours; transparency uses the shared checkerboard.
 - Real selection handles, masks, redaction marks, rulers and annotations remain
   distinct from UI decoration. Their controls and surrounding panels use Air.
-- Large screens use rail + stage + inspector, or rail + entry form + preview for
-  writing. Preserve task-specific placement while sharing widths and controls.
+- Two shared editor compositions preserve the existing task flow. PDF and IMG use
+  rail → stage → right inspector (328px, 288px compact). Resume uses rail → left
+  writing panel → preview (420px reference; 400–560px where space allows, 360px
+  compact). These are family variants, not permission to vary control styling.
+- Numerical controls pair a slider with an editable, labelled value and unit.
+  Both share the same value, limits and keyboard behaviour. Invalid intermediate
+  input remains editable and receives nearby feedback; never silently coerce it.
+  Use the same single-contour field, 32px minimum only for fine-pointer density,
+  44px on touch. Histograms/curves remain functional content within neutral shells.
+- Writing rows combine type, value and keyboard reorder actions with open grouping.
+  Rich text, image/logo pickers and date fields retain their full behaviour and
+  follow the same field/focus rules. Do not replace these with plain text inputs
+  during migration merely because a reduced design specimen uses plain text.
 - Small screens use one active tool/section, a persistent preview, and a reachable
   working panel. Default split can be 50:50 when usable; short heights and software
   keyboards require an expanded editing/preview mode instead of clipped controls.
@@ -234,9 +350,27 @@ system recovery 1000. Preserve nesting/portal correctness; avoid ad-hoc z-indexe
 | Laptop          | 1280×720, 1366×768                     |
 | Desktop         | 1440×900, 1920×1080                    |
 
-Use content-driven reflow with shared breakpoints at 640, 1024, and 1280px. Inspect
+Use content-driven reflow with shared breakpoints at 640, 768, 1024, and 1280px. Inspect
 one pixel either side of changed breakpoints. A product may add a breakpoint only
 for a documented content collision, without inventing a new visual language.
+
+The breakpoints have defined jobs: 640px changes page composition and dialogs to
+sheets; 768px moves an editor from side-by-side chrome to preview + working
+panel with a persistent tool selector and relevant actions; 1024px restores full inspector/rail density; 1280px expands page
+composition. Preserve all tools when reflowing. Tablet is designed deliberately,
+not treated as a stretched phone. A writing app may keep a form/preview split
+instead of an image-editor ordering, with the same component geometry.
+
+Mobile tool selection and Apply/Cancel (for transactional tools) stay outside the
+panel's scrolling body. An always-visible second dock is not required; use the
+shared tool picker when it gives the active controls more space. Autosaved writing
+must not acquire a misleading Apply/Cancel transaction. Short landscape uses a
+scrollable working region or explicit edit/preview modes, never a rotation gate.
+
+At minimum phone width, the editor must reserve space for the document and the
+working control region. Each scrolls intentionally. Expanded preview returns to
+the same tool and input values. A short landscape screen and an open software
+keyboard must not hide the close, apply, export or navigation actions.
 
 No horizontal document overflow, cropped controls, inaccessible tool options, or
 forced orientation as a substitute for responsive design. Editing regions may
@@ -255,7 +389,18 @@ human visual inspection; passing a linter does not establish UX conformance.
 
 - Shared motion: press 120ms; hover/colour 160ms; popover 180ms; dialog 240ms;
   exit 160ms. Ease-out `cubic-bezier(0.23, 1, 0.32, 1)`; reversible spatial motion
-  `cubic-bezier(0.77, 0, 0.175, 1)`. No unapproved spring or per-app timing scale.
+  `cubic-bezier(0.77, 0, 0.175, 1)`. Sheet easing: `cubic-bezier(0.32, 0.72, 0, 1)`. No per-app timing scale.
+- A completion acknowledgement may settle from 4px/0.96 scale over 240ms, once.
+  A landing entry may use a single 600ms light arrival. These are the moments for
+  playful character. Avoid bouncing controls, moving text, repeated reveals and
+  continuous decorative activity during work.
+- Pointer hover may move a directional arrow by 2px over 160ms. Press uses 0.98
+  scale for 120ms; release returns from the current state. No hover lift on touch.
+- Dialogs enter from 4px/0.98 over 240ms and exit over 160ms. On phones they rise
+  from the bottom with sheet easing. Keyboard activation and Escape are immediate.
+  Focus moves as soon as opened; animation cannot delay access to controls.
+- Rapid repeat actions retarget/cancel the current motion. Never queue entrances,
+  restart progress, remount a content stage, or wait for animation to accept input.
 - Frequent tool/section switching and keyboard commands are immediate. Motion
   explains state or confirms an action; it must never delay editing.
 - Animate transform/opacity; scale from 0.98, translate at most 4px for small

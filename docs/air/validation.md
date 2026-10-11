@@ -14,3 +14,43 @@ This commit establishes governance only. Runtime Air styles, component/state aud
 responsive screenshots and feature sweeps are still pending. The full phased plan
 is maintained in Cloakyard's `UX_REFRESH_TODO.md`; this repository's surface record
 tracks local evidence so it remains usable independently.
+
+## 2026-10-11 — shared component bundle
+
+The pinned local CSS and working `docs/air/components.html` reference are identical
+across the family. They are not yet imported into product screens. Contract/bundle
+hashes, palette equality and standalone-copy validation pass. All 15 required and
+breakpoint-neighbour viewport sizes have no document overflow in light and dark.
+The reference was visually inspected on desktop, laptop and phone, including the
+390px dark sheet and 320px light controls. Evidence images are recorded in the
+family repository's `docs/air/evidence/reference-*.jpg`.
+
+Verified: field/select editing; checkbox and segment selection; slider keyboard
+increment; dialog initial focus, forward/reverse focus wrap, Escape, Done and focus
+return; 44px coarse-pointer controls; 16px mobile inputs; zero-duration reduced
+motion. Fixed the native dialog's default max-width narrowing the phone sheet.
+Contrast calculations: all tested normal text/semantic pairs >=4.5:1; required
+field boundaries >=3:1 (light 3.31:1, dark 4.39:1). Source review covers disabled,
+busy, hover/press and status variants. Product-specific controls, real app state
+sweeps, 200% browser zoom and software-keyboard behaviour remain separate gates.
+
+The CSS is an explicit standalone reference entry for PDF's dead-code tool because
+its HTML reference imports it; it is not a dead-code ignore. Product migration will
+replace this entry with the application's normal stylesheet import.
+
+## 2026-10-11 — full default-panel audit
+
+See [editor-audit.md](editor-audit.md) for all 22 editor default panels inspected at
+1440×900/light and 390×844/dark/coarse, along with conditional signature/annotation
+states and the date/time popup. Source records include this evidence without
+marking production components implemented or validated. Date day cells measured
+~37.4×44px on touch, which informs Air's wider-calendar requirement.
+
+The opt-in Air bundle is synchronized with the detailed family contract, including
+single-contour fields, 44px switches, source-faithful signature controls, writing-panel
+geometry and expanded mobile controls. Production entrypoints do not import it.
+
+`vp check`, `pnpm check:dead` and all 355/355 units pass for this documentation/bundle
+checkpoint. Actual features, output bytes, full overlays, utilities, AI and cross-browser
+flows remain subject to the later migration gates; default-panel inspection alone
+is not feature parity or a passing production E2E suite.

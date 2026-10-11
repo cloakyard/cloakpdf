@@ -1,0 +1,752 @@
+{
+  "date": "2026-10-11",
+  "viewport": [390, 844],
+  "theme": "dark",
+  "pointer": "coarse",
+  "panels": [
+    {
+      "name": "Annotate",
+      "actions": [
+        {
+          "bottom": 509,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Annotate"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 374,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Signature",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Signature"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 602,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Fill form",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Fill form"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Select text",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Select text"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Auto-fill",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Auto-fill"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Organize",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Organize"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Redact",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Text to redact"
+        }
+      ],
+      "heading": ["Redact"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 720,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Find & Act",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Text to find"
+        }
+      ],
+      "heading": ["Find & Act"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 346,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Scrub",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Scrub"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Metadata",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "title"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "author"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "subject"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "keywords"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "creator"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "producer"
+        }
+      ],
+      "heading": ["Metadata"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 961,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Crop",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Crop"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 317,
+        "height": 317,
+        "horizontalOverflow": false,
+        "scrollHeight": 318,
+        "width": 390,
+        "x": 0,
+        "y": 519
+      }
+    },
+    {
+      "name": "Strip furniture",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Strip furniture"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 421,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Erase",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Erase"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "OCR",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["OCR"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "N-up",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["N-up"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 456,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Stamp",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "text"
+        }
+      ],
+      "heading": ["Stamp"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 666,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Page numbers",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Page numbers"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 424,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Header & footer",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Header Left"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Header Center"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Header Right"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Footer Left"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Footer Center"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Footer Right"
+        }
+      ],
+      "heading": ["Header & footer"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 492,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Bates",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "prefix"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "suffix"
+        }
+      ],
+      "heading": ["Bates"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 466,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "QR / barcode",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "content"
+        }
+      ],
+      "heading": ["QR / barcode"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 486,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    },
+    {
+      "name": "Bookmarks",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": true,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Bookmark title"
+        },
+        {
+          "font": "16px",
+          "height": 44,
+          "name": "Target page"
+        }
+      ],
+      "heading": ["Bookmarks"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 317,
+        "height": 317,
+        "horizontalOverflow": false,
+        "scrollHeight": 338,
+        "width": 390,
+        "x": 0,
+        "y": 519
+      }
+    },
+    {
+      "name": "Attach",
+      "actions": [
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Cancel",
+          "y": 465
+        },
+        {
+          "bottom": 509,
+          "disabled": false,
+          "label": "Done",
+          "y": 465
+        }
+      ],
+      "fields": [],
+      "heading": ["Attach"],
+      "pageOverflow": false,
+      "panel": {
+        "clientHeight": 306,
+        "height": 306,
+        "horizontalOverflow": false,
+        "scrollHeight": 306,
+        "width": 390,
+        "x": 0,
+        "y": 530
+      }
+    }
+  ]
+}
