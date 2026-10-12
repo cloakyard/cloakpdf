@@ -24,7 +24,8 @@
     "generate-og": "node scripts/build-og-image.mjs",
     "generate-icons": "pwa-assets-generator --config pwa-assets.config.ts && mv public/icons/apple-touch-icon-180x180.png public/icons/apple-touch-icon.png",
     "design:check": "node scripts/check-air-design.mjs",
-    "design:inventory": "node scripts/air-inventory.mjs"
+    "design:inventory": "node scripts/air-inventory.mjs",
+    "design:portability": "node scripts/check-air-portability.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",

@@ -266,7 +266,7 @@ export default defineConfig({
   // source. Keep the project's format gate focused on files we own instead of
   // rewriting that third-party instruction corpus.
   fmt: {
-    ignorePatterns: [".agents/**"],
+    ignorePatterns: [".agents/**", "docs/air/assets/**"],
   },
-  lint: { options: { typeAware: true, typeCheck: true } },
+  lint: { ignorePatterns: ["docs/air/assets/**"], options: { typeAware: true, typeCheck: true } },
 });

@@ -1,6 +1,22 @@
 {
   "version": "1.0.0",
+  "source": {
+    "repository": "https://github.com/cloakyard/cloakyard",
+    "directory": "design/air",
+    "status": "design-review",
+    "contractSha256": "dc6032235f40df1b56a753d80bd66f7360862c3ef5b68e2fce37893143cf19e5"
+  },
   "stylesheet": "src/styles/air.css",
-  "sha256": "c9ace3f80bedd86bbbe26986778568a2ac90c0e6d46cf975fcbca9ef8a4fa28d",
+  "studyAssets": {
+    "components.html": "83371840bf188963fc3edf8c3adc312aad60c4e7a7774a9cd9ee72267ab2d7e0",
+    "motion.mjs": "9ed84c388b39cff2f3ebed3f04c4e99d5951023838b659498d51ce0952a179b0",
+    "light-controller.mjs": "e123ac7e3005d1287ed77134270de091e5ef52f728788d1ef68a86c4ab2cc7f7",
+    "assets/air-light-shader.js": "f375a59db6e1138b490bda285d02035d3793706313128cb3a1204f5b76f2ede3",
+    "assets/THIRD_PARTY_LICENSES.txt": "c0624d0848ea3de0ef47c127a134566f1dfd23fd95580f2c39eb8fb123d78d8a",
+    "overlays-loader.mjs": "7c0085adfa0720c6d1671835036200855cf27fd4e16f6b04a0ac73ac5485a560",
+    "assets/air-overlays.js": "cd7f69ff30c0894d339df855918df944c55cd19f7a87382528bf373c1fcbe15a",
+    "assets/OVERLAY_LICENSES.txt": "e58320bc919098b8d78f84c1d7f808e2cfd9efa6b8ab322365ecb4c0fd08fd23"
+  },
+  "sha256": "54e940cc480e8890da6eeb40429867ac15ff5b9b7ccf270402dc311f46e7138d",
   "note": "Pinned family bundle. Runtime migration is tracked separately in surfaces.json."
 }

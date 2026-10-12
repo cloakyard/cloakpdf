@@ -54,3 +54,28 @@ geometry and expanded mobile controls. Production entrypoints do not import it.
 checkpoint. Actual features, output bytes, full overlays, utilities, AI and cross-browser
 flows remain subject to the later migration gates; default-panel inspection alone
 is not feature parity or a passing production E2E suite.
+
+## 2026-10-12 — refinement 03 reference checkpoint
+
+Saved the canonical Air candidate from Cloakyard checkpoint `340aee8`, contract
+`dc6032235f40` (SHA-256 prefix). The standalone bundle includes refined fields,
+choices, compound controls, motion, floating menus/popovers/tooltips and safe
+rename/remove/restore studies, plus local shader/overlay modules and licenses.
+`design:portability` exposes the isolated validation command. Generated vendor
+assets are covered by hash verification, not reformatted as app-owned source.
+
+The exact-copy contract checker and all ten isolated portability assertions pass
+for this product (13 files, no app dependencies or sibling checkout). Shared
+reference visual and interaction evidence is recorded in Cloakyard's
+`docs/air/validation.md`, including 224 floating-surface checks and 15 journeys.
+This is a documentation/reference checkpoint; the runtime does not import Air CSS
+or the study modules, and full product visual/feature migration is still pending.
+
+`vp check`, `pnpm check:dead`, all **355/355 unit tests** (34 files),
+`vp run build` (TypeScript, production and PWA) and the 138-file deployment
+asset check (all ≤25 MiB) pass. The initially unreferenced portability script
+was connected through `design:portability`; the dead-code check then passed.
+
+Existing product behavior and appearance are unchanged. Runtime editor/AI/export
+E2E sweeps are reserved for affected production pieces; this checkpoint does not
+claim those have passed. No push or deployment was performed.

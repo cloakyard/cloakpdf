@@ -26,6 +26,11 @@
   --air-checker-b: light-dark(#dce1e8, #363d48);
   --air-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --air-font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --air-text-body: 0.875rem;
+  --air-text-label: 0.8125rem;
+  --air-text-meta: 0.75rem;
+  --air-text-editable: 1rem;
+  --air-radius-check: 4px;
   --air-radius-control: 10px;
   --air-radius-chip: 8px;
   --air-radius-panel: 18px;
@@ -60,6 +65,7 @@
   --air-motion-popover: 180ms;
   --air-motion-dialog: 240ms;
   --air-motion-exit: 160ms;
+  --air-motion-arrival: 900ms;
   --air-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --air-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   --air-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -84,6 +90,9 @@
 
 .air-button,
 .air-icon-button {
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -95,14 +104,10 @@
   border-radius: var(--air-radius-control);
   background: var(--air-surface);
   color: var(--air-ink);
-  font: 500 14px/1.4 var(--air-font);
+  font: 500 var(--air-text-body)/1.4 var(--air-font);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    background-color var(--air-motion-hover) var(--air-ease-out),
-    color var(--air-motion-hover) var(--air-ease-out),
-    transform var(--air-motion-press) var(--air-ease-out);
 }
 .air-icon-button {
   flex: 0 0 auto;
@@ -137,9 +142,27 @@
 .air-button[aria-busy="true"] {
   cursor: progress;
 }
-.air-button:active:not(:disabled),
-.air-icon-button:active:not(:disabled) {
+/* Reserve every translated label's intrinsic size; change only its visibility. */
+.air-action-labels {
+  display: grid;
+  min-inline-size: 0;
+}
+.air-action-labels > span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.air-action-labels > [data-active] {
+  visibility: visible;
+}
+.air-button[aria-disabled="true"]:not([aria-busy="true"]) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Pointer press is deliberate; release, keyboard feedback and colours are immediate. */
+.air-button:active:not(:disabled):not([aria-disabled="true"]):not(:focus-visible),
+.air-icon-button:active:not(:disabled):not(:focus-visible) {
   transform: scale(0.98);
+  transition: transform var(--air-motion-press) var(--air-ease-out);
 }
 .air-field {
   box-sizing: border-box;
@@ -151,7 +174,123 @@
   border-radius: var(--air-radius-control);
   background: var(--air-surface);
   color: var(--air-ink);
-  font: 400 14px/1.5 var(--air-font);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+/* One field contour; the picker and every option share the Air surface language.
+ * Native select behavior retains form values, typeahead, focus and dismissal. */
+select.air-field {
+  font-size: 0.875rem;
+  appearance: none;
+  min-inline-size: 0;
+  padding-inline: 12px 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23778395' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-size: 16px;
+  background-repeat: no-repeat;
+}
+@supports (appearance: base-select) {
+  select.air-field,
+  select.air-field::picker(select) {
+    appearance: base-select;
+  }
+  select.air-field {
+    padding-inline: 12px;
+    background-image: none;
+    align-items: center;
+    gap: 12px;
+  }
+  select.air-field::picker-icon {
+    content: "";
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin-inline-start: auto;
+    color: var(--air-ink-secondary);
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  select.air-field:open::picker-icon {
+    rotate: 180deg;
+  }
+  select.air-field::picker(select) {
+    box-sizing: border-box;
+    inline-size: anchor-size(width);
+    min-inline-size: min(15rem, calc(100vw - 32px));
+    max-inline-size: calc(100vw - 32px);
+    /* Keep the native anchor's available-space constraint on short screens. */
+    max-block-size: stretch;
+    position-try-order: most-block-size;
+    margin-block: 8px;
+    padding: 8px;
+    border: 1px solid var(--air-line);
+    border-radius: var(--air-radius-menu);
+    background: var(--air-surface);
+    color: var(--air-ink);
+    box-shadow: var(--air-shadow-menu);
+    font: 400 0.875rem/1.5 var(--air-font);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  select.air-field option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-block-size: 40px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: var(--air-radius-chip);
+    background: transparent;
+    color: var(--air-ink);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font: inherit;
+  }
+  select.air-field option:checked {
+    background: var(--air-surface-soft);
+    font-weight: 500;
+  }
+  select.air-field option::checkmark {
+    content: "";
+    order: 1;
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin-inline-start: auto;
+    background: var(--air-accent);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3 8 3 3 7-7' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  select.air-field option:focus-visible {
+    outline: 2px solid var(--air-accent);
+    outline-offset: -2px;
+  }
+  select.air-field option:disabled {
+    opacity: 0.5;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    select.air-field option:hover:not(:disabled) {
+      background: var(--air-surface-hover);
+    }
+  }
+  @media (pointer: coarse) {
+    select.air-field option {
+      min-block-size: 44px;
+      font-size: 1rem;
+    }
+  }
+}
+@media (pointer: coarse), (max-width: 640px) {
+  select.air-field {
+    font-size: 1rem;
+  }
+}
+textarea.air-field {
+  min-block-size: 7.5rem;
+  resize: vertical;
+}
+.air-field[readonly] {
+  background-color: var(--air-surface-soft);
 }
 .air-field::placeholder {
   color: var(--air-ink-muted);
@@ -163,32 +302,169 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* One outer contour owns the field, its unit and any embedded clear action. */
+.air-field-group {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+}
+.air-field-group > .air-field {
+  flex: 1 1 0%;
+  min-inline-size: 0;
+  min-height: calc(var(--air-control) - 2px);
+  border: 0;
+  background: transparent;
+}
+.air-field-group > .air-field:focus-visible {
+  outline: none;
+}
+.air-field-group:has(> .air-field[aria-invalid="true"]) {
+  border-color: var(--air-danger);
+}
+.air-field-group:has(> .air-field:focus-visible) {
+  border-color: transparent;
+  outline: 2px solid var(--air-accent);
+  outline-offset: 0;
+}
+.air-field-group:has(> .air-field:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.air-field-group > .air-field:disabled {
+  opacity: 1;
+}
+.air-field-group:has(> .air-field[readonly]) {
+  background: var(--air-surface-soft);
+}
+.air-field-unit {
+  flex: 0 1 auto;
+  max-inline-size: 50%;
+  padding-inline-end: 12px;
+  overflow-wrap: anywhere;
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.air-field-group > input[type="number"] {
+  appearance: textfield;
+  font-variant-numeric: tabular-nums;
+}
+.air-field-group > input[type="number"]::-webkit-inner-spin-button,
+.air-field-group > input[type="number"]::-webkit-outer-spin-button,
+.air-field-group > input[type="search"]::-webkit-search-cancel-button,
+.air-field-group > input[type="search"]::-webkit-search-decoration {
+  appearance: none;
+}
+.air-field-actions {
+  display: flex;
+  flex: 0 0 auto;
+  min-inline-size: 46px;
+  min-block-size: 44px;
+  align-items: center;
+}
+.air-field-clear {
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  margin-inline-end: 2px;
+}
+.air-field-clear[hidden] {
+  display: none;
+}
+.air-field-clear:focus-visible {
+  outline-offset: -4px;
+}
 .air-label {
   display: block;
   margin-bottom: 8px;
   color: var(--air-ink);
-  font: 500 13px/1.4 var(--air-font);
+  font: 500 var(--air-text-label)/1.4 var(--air-font);
 }
 .air-help {
   margin: 8px 0 0;
   color: var(--air-ink-secondary);
-  font: 400 12px/1.5 var(--air-font);
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
 }
 .air-help--error {
   color: var(--air-danger);
 }
+/* Style the visible glyph; native inputs still own values, grouping and keys. */
 .air-check {
-  accent-color: var(--air-accent);
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-grid;
+  place-content: center;
   width: 18px;
   height: 18px;
-  flex: 0 0 auto;
+  flex: 0 0 18px;
+  margin: calc((1.5em - 18px) / 2) 0 0;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-check);
+  background: var(--air-surface);
+  color: var(--air-surface);
+  cursor: pointer;
+  font: inherit;
+}
+.air-check::after {
+  content: "";
+  display: none;
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+}
+.air-check:checked,
+.air-check:indeterminate {
+  border-color: var(--air-accent);
+  background: var(--air-accent);
+}
+.air-check:checked::after {
+  display: block;
+  clip-path: polygon(10% 45%, 23% 32%, 42% 53%, 78% 14%, 92% 27%, 42% 81%);
+}
+.air-check:indeterminate::after {
+  display: block;
+  width: 8px;
+  height: 2px;
+  clip-path: none;
+}
+.air-check[type="radio"] {
+  border-radius: 50%;
+}
+.air-check[type="radio"]:checked::after {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  clip-path: none;
+}
+.air-check:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .air-check-label {
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  min-height: var(--air-control);
-  font: 400 14px/1.5 var(--air-font);
+  min-height: 44px;
+  padding-block: 10px;
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  cursor: pointer;
+}
+.air-check-label:has(:disabled) {
+  color: var(--air-ink-muted);
+  cursor: not-allowed;
+}
+.air-choice-group {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.air-choice-group > legend {
+  margin-bottom: 8px;
+  padding: 0;
+  font: 500 var(--air-text-label)/1.4 var(--air-font);
 }
 /* Native checkbox semantics with switch presentation; the full box is the target. */
 .air-switch {
@@ -248,12 +524,12 @@
   gap: 16px;
   min-height: 44px;
   margin: 12px 0;
-  font: 400 13px/1.5 var(--air-font);
+  font: 400 var(--air-text-label)/1.5 var(--air-font);
 }
 .air-switch-row small {
   display: block;
   color: var(--air-ink-secondary);
-  font-size: 12px;
+  font-size: var(--air-text-meta);
 }
 .air-panel {
   border: 1px solid var(--air-line);
@@ -270,8 +546,14 @@
   border-radius: var(--air-radius-control);
   background: var(--air-surface-soft);
 }
-.air-segments > button {
+.air-segments > button,
+.air-segment {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: anywhere;
   flex: 1;
   min-height: var(--air-control-compact);
   padding: 8px 12px;
@@ -279,17 +561,19 @@
   border-radius: var(--air-radius-chip);
   background: transparent;
   color: var(--air-ink-secondary);
-  font: 500 13px/1.4 var(--air-font);
+  font: 500 var(--air-text-label)/1.4 var(--air-font);
   cursor: pointer;
 }
 .air-segments > button[aria-pressed="true"],
-.air-segments > button[aria-selected="true"] {
+.air-segments > button[aria-selected="true"],
+.air-segment:has(input:checked) {
   border-color: var(--air-line);
   background: var(--air-surface);
   color: var(--air-ink);
 }
 .air-segments > button[aria-pressed="true"]::after,
-.air-segments > button[aria-selected="true"]::after {
+.air-segments > button[aria-selected="true"]::after,
+.air-segment:has(input:checked)::after {
   content: "";
   position: absolute;
   inset-inline-start: calc(50% - 8px);
@@ -299,6 +583,24 @@
   border-radius: 1px;
   background: var(--air-accent);
 }
+.air-segment > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+.air-segment:has(input:focus-visible) {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+.air-segments > button:disabled,
+.air-segment:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .air-notice {
   display: flex;
   gap: 12px;
@@ -306,7 +608,7 @@
   border-radius: var(--air-radius-control);
   background: var(--air-accent-soft);
   color: var(--air-accent);
-  font: 400 14px/1.5 var(--air-font);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
 }
 .air-notice--error {
   background: var(--air-danger-soft);
@@ -327,15 +629,195 @@
   max-height: calc(100dvh - 32px);
   padding: 24px;
   overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 24px 96px;
   border: 1px solid var(--air-line);
   border-radius: var(--air-radius-dialog);
   background: var(--air-surface);
   color: var(--air-ink);
   box-shadow: var(--air-shadow-dialog);
-  font: 400 14px/1.5 var(--air-font);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
 }
 .air-dialog::backdrop {
   background: var(--air-scrim);
+}
+/* Floating primitives share Air's opaque surfaces; the adapter owns interaction. */
+.air-floating-positioner {
+  z-index: var(--air-z-popover);
+  max-inline-size: calc(100vw - 32px);
+}
+.air-popover,
+.air-menu,
+.air-tooltip {
+  box-sizing: border-box;
+  max-inline-size: min(var(--available-width, 100vw), calc(100vw - 32px));
+  max-block-size: min(var(--available-height, 100dvh), calc(100dvh - 32px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-menu);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  box-shadow: var(--air-shadow-menu);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  overflow-wrap: anywhere;
+  transform-origin: var(--transform-origin);
+}
+.air-popover {
+  inline-size: 20rem;
+  padding: 20px;
+}
+.air-menu {
+  inline-size: 18rem;
+  padding: 8px;
+}
+.air-tooltip {
+  inline-size: max-content;
+  max-inline-size: min(18rem, calc(100vw - 32px));
+  padding: 8px 12px;
+  font-size: var(--air-text-label);
+}
+.air-floating-title {
+  margin: 0;
+  font: 500 1.25rem/1.3 var(--air-font);
+  letter-spacing: -0.02em;
+}
+.air-menu-label {
+  padding: 8px 12px;
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-meta);
+}
+.air-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-block-size: var(--air-control);
+  padding: 8px 12px;
+  border-radius: var(--air-radius-chip);
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+}
+.air-menu-item[data-highlighted] {
+  background: var(--air-surface-hover);
+}
+.air-menu-item:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: -2px;
+}
+.air-menu-item[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.air-menu-item--danger {
+  color: var(--air-danger);
+}
+.air-menu-check {
+  color: var(--air-accent);
+  flex: 0 0 18px;
+}
+.air-menu-separator {
+  height: 1px;
+  margin: 8px;
+  background: var(--air-line);
+}
+.air-floating-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-block-start: 24px;
+}
+.air-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--air-z-dialog);
+  background: var(--air-scrim);
+}
+.air-modal-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--air-z-dialog) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.air-modal {
+  box-sizing: border-box;
+  inline-size: 576px;
+  max-inline-size: 100%;
+  max-block-size: calc(100dvh - 32px);
+  padding: 24px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-dialog);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  box-shadow: var(--air-shadow-dialog);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  overflow-wrap: anywhere;
+  opacity: 1;
+  transform: none;
+}
+.air-modal[data-air-motion="pointer"] {
+  transition:
+    opacity var(--air-motion-dialog) var(--air-ease-out),
+    transform var(--air-motion-dialog) var(--air-ease-out);
+}
+.air-modal[data-air-motion="pointer"][data-starting-style],
+.air-modal[data-air-motion="pointer"][data-ending-style] {
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+}
+.air-modal[data-ending-style] {
+  transition-duration: var(--air-motion-exit);
+}
+.air-modal-form {
+  margin-block-start: 24px;
+}
+.air-study-overlays {
+  display: grid;
+  gap: 16px;
+  min-inline-size: 0;
+}
+.air-study-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.air-study-file {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+}
+.air-study-file-copy {
+  flex: 1;
+  min-inline-size: 0;
+}
+.air-study-filename {
+  margin: 0;
+  font: 500 var(--air-text-body)/1.5 var(--air-font);
+  overflow-wrap: anywhere;
+}
+.air-study-empty {
+  margin: 0;
+  padding-block: 24px;
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.air-study-file:focus-visible,
+.air-popover:focus-visible,
+.air-modal:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: -2px;
 }
 :where(
   .air-button,
@@ -356,14 +838,19 @@
   box-shadow: none;
 }
 @media (hover: hover) and (pointer: fine) {
-  .air-button:hover:not(:disabled),
+  .air-check:hover:not(:disabled):not(:checked):not(:indeterminate),
+  .air-segments > button:hover:not(:disabled),
+  .air-segment:hover:not(:has(input:disabled)) {
+    background: var(--air-surface-hover);
+  }
+  .air-button:hover:not(:disabled):not([aria-disabled="true"]),
   .air-icon-button:hover:not(:disabled) {
     background: var(--air-surface-hover);
   }
-  .air-button--primary:hover:not(:disabled) {
+  .air-button--primary:hover:not(:disabled):not([aria-disabled="true"]) {
     background: color-mix(in srgb, var(--air-action) 88%, var(--air-on-action));
   }
-  .air-button--danger:hover:not(:disabled) {
+  .air-button--danger:hover:not(:disabled):not([aria-disabled="true"]) {
     background: color-mix(in srgb, var(--air-danger-soft) 88%, var(--air-danger));
   }
 }
@@ -384,9 +871,29 @@
     --air-control-compact: 44px;
   }
 }
-@media (max-width: 640px) {
+@media (pointer: coarse), (max-width: 640px) {
   .air-field {
-    font-size: 16px;
+    font-size: var(--air-text-editable);
+  }
+}
+@media (max-width: 640px) {
+  .air-modal-viewport {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .air-modal {
+    inline-size: 100%;
+    max-block-size: calc(100dvh - 16px);
+    border-radius: 20px 20px 0 0;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+  .air-modal[data-air-motion="pointer"] {
+    transition-timing-function: var(--air-ease-sheet);
+  }
+  .air-modal[data-air-motion="pointer"][data-starting-style],
+  .air-modal[data-air-motion="pointer"][data-ending-style] {
+    opacity: 1;
+    transform: translateY(100%);
   }
   .air-dialog {
     margin: auto 0 0;
@@ -397,12 +904,66 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .air-modal[data-air-motion="pointer"] {
+    transition: none;
+  }
+  .air-modal[data-air-motion="pointer"][data-starting-style],
+  .air-modal[data-air-motion="pointer"][data-ending-style] {
+    opacity: 1;
+    transform: none;
+  }
   .air-button,
   .air-icon-button {
     transition: none;
   }
-  .air-button:active:not(:disabled),
-  .air-icon-button:active:not(:disabled) {
+  .air-button:active:not(:disabled):not(:focus-visible),
+  .air-icon-button:active:not(:disabled):not(:focus-visible) {
     transform: none;
+    transition: none;
+  }
+}
+
+/* Keep system contrast choices and native glyphs when colours are constrained. */
+@media (forced-colors: active) {
+  .air-popover,
+  .air-menu,
+  .air-tooltip,
+  .air-modal {
+    border-color: CanvasText;
+  }
+  .air-menu-item[data-highlighted] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  .air-check {
+    appearance: auto;
+    background: revert;
+    border: revert;
+    color: revert;
+  }
+  .air-check::after {
+    content: none;
+    display: none;
+  }
+  .air-segment:has(input:checked) {
+    border-color: Highlight;
+  }
+  .air-segment:has(input:checked)::after {
+    background: Highlight;
+  }
+  .air-switch::before {
+    background: Canvas;
+    border-color: ButtonText;
+  }
+  .air-switch::after {
+    background: ButtonText;
+  }
+  .air-switch:checked::before {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+  .air-switch:checked::after {
+    background: HighlightText;
+    forced-color-adjust: none;
   }
 }

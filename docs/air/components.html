@@ -4,10 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=54e940cc480e" />
     <style>
       * {
         box-sizing: border-box;
+      }
+      .study-skip {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: var(--air-z-recovery);
+        transform: translateY(-200%);
+      }
+      .study-skip:focus {
+        transform: none;
       }
       body {
         margin: 0;
@@ -178,20 +188,24 @@
         box-shadow: var(--air-shadow-surface);
       }
       .family-nav {
-        height: 72px;
-        padding: 0 32px;
+        min-height: 72px;
+        padding-block: 12px;
+        padding-inline: 32px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
       }
       .wordmark {
+        min-height: 44px;
+        min-width: 44px;
+        justify-content: center;
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        font-size: 19px;
+        font-size: 1.1875rem;
         font-weight: 500;
-        letter-spacing: -0.7px;
+        letter-spacing: -0.035em;
         white-space: nowrap;
       }
       .mark {
@@ -201,22 +215,54 @@
       .family-links {
         display: flex;
         gap: 24px;
+        flex-wrap: wrap;
         color: var(--air-ink-secondary);
-        font-size: 13px;
+        font-size: 0.8125rem;
       }
       .family-links a {
-        min-height: 40px;
+        min-height: 44px;
         display: flex;
         align-items: center;
       }
       .family-links a:hover {
         color: var(--air-accent);
       }
+      .family-menu {
+        display: none;
+      }
+      .family-menu summary {
+        list-style: none;
+        font-size: 0.875rem;
+      }
+      .family-menu summary::-webkit-details-marker {
+        display: none;
+      }
+      .family-menu summary svg {
+        width: 16px;
+        height: 16px;
+      }
+      .family-menu[open] summary svg {
+        transform: rotate(180deg);
+      }
+      .family-menu-links {
+        display: grid;
+        gap: 4px;
+        padding-block: 12px 4px;
+      }
+      .family-menu-links a {
+        min-height: 44px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        border-radius: var(--air-radius-control);
+        font-size: 0.875rem;
+        color: var(--air-ink-secondary);
+      }
       .hero {
         position: relative;
         isolation: isolate;
         text-align: center;
-        padding: 56px 24px 100px;
+        padding: 56px 24px 0;
         overflow: clip;
       }
       .hero-overline {
@@ -224,16 +270,16 @@
         align-items: center;
         gap: 8px;
         color: var(--air-ink-secondary);
-        font-size: 13px;
+        font-size: 0.8125rem;
       }
       .hero-overline svg {
         width: 15px;
         height: 15px;
       }
       .hero h1 {
-        font-size: clamp(40px, 5.5cqw, 72px);
-        line-height: 1.03;
-        letter-spacing: -0.055em;
+        font-size: clamp(2.5rem, 5.5cqw, 4.5rem);
+        line-height: 1.05;
+        letter-spacing: -0.045em;
         margin: 24px auto 20px;
         max-width: 850px;
       }
@@ -244,8 +290,8 @@
         max-width: 440px;
         margin: auto;
         color: var(--air-ink-secondary);
-        font-size: 16px;
-        line-height: 1.65;
+        font-size: 1rem;
+        line-height: 1.6;
       }
       .hero-actions {
         margin-top: 28px;
@@ -256,6 +302,8 @@
         flex-wrap: wrap;
       }
       .hero-actions .air-button {
+        font-size: 0.875rem;
+        max-width: 100%;
         padding-inline: 20px;
       }
       .hero .air-button svg {
@@ -263,42 +311,82 @@
         height: 16px;
       }
       .light-field {
-        position: absolute;
-        z-index: -1;
-        left: 0;
-        right: 0;
-        bottom: -90px;
-        height: 300px;
+        position: relative;
+        height: 200px;
+        margin: 24px -24px 0;
+        color: var(--air-accent);
+        background-color: var(--air-surface);
+        outline-color: var(--air-surface-soft);
         pointer-events: none;
-        background: radial-gradient(
-          ellipse at 50% 95%,
-          color-mix(in srgb, var(--air-accent) 11%, transparent),
-          transparent 68%
-        );
+        overflow: clip;
       }
-      .light-ribbon {
+      .light-field canvas,
+      .light-fallback {
         position: absolute;
-        width: 74%;
-        height: 160px;
-        left: 13%;
-        bottom: -6px;
-        border-radius: 50%;
-        border-top: 1px solid color-mix(in srgb, var(--air-accent) 18%, transparent);
-        box-shadow: 0 -12px 42px color-mix(in srgb, var(--air-accent) 8%, transparent);
-        background: linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--air-accent-soft) 55%, transparent),
-          transparent 60%
-        );
-        transform: rotate(-5deg);
+        inset: 0;
+        width: 100%;
+        height: 100%;
       }
-      .light-ribbon:after {
-        content: "";
-        position: absolute;
-        inset: 34px -12% -22px;
-        border-radius: 50%;
-        border-top: 1px solid color-mix(in srgb, var(--air-accent) 14%, transparent);
-        transform: rotate(10deg);
+      .light-field canvas {
+        visibility: hidden;
+      }
+      .light-field[data-light-ready="true"] canvas {
+        visibility: visible;
+      }
+      .light-fallback .plane-fill {
+        stop-color: var(--air-surface-soft);
+      }
+      .light-fallback .plane-edge {
+        stroke: var(--air-accent);
+      }
+      .light-study-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin: 16px 0 24px;
+        padding-inline: 4px;
+      }
+      .light-study-controls strong {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .light-study-controls p {
+        margin-top: 4px;
+        color: var(--air-ink-secondary);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .light-study-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .light-study-notes {
+        color: var(--air-ink-secondary);
+        font-size: 12px;
+        line-height: 1.6;
+        margin-top: 16px;
+      }
+      .light-study-notes summary {
+        cursor: pointer;
+        min-height: 44px;
+        display: list-item;
+        align-content: center;
+      }
+      .light-study-notes output {
+        display: block;
+        margin-top: 8px;
+      }
+      @media (max-width: 767px) {
+        .light-study-controls {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .light-study-actions {
+          flex-wrap: wrap;
+        }
       }
       .family-products {
         display: grid;
@@ -330,9 +418,10 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        font-size: 15px;
+        font-size: 0.9375rem;
+        flex-wrap: wrap;
         font-weight: 500;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.015em;
       }
       .product-entry-head svg {
         width: 24px;
@@ -340,7 +429,7 @@
         stroke-width: 1.5;
       }
       .product-entry p {
-        font-size: 13px;
+        font-size: 0.8125rem;
         color: var(--air-ink-secondary);
         margin: 12px 0 16px;
         max-width: 210px;
@@ -350,13 +439,13 @@
         display: flex;
         align-items: center;
         gap: 6px;
-        font-size: 12px;
+        font-size: 0.75rem;
         color: var(--air-ink-muted);
       }
       .product-entry small svg {
         width: 13px;
         height: 13px;
-        transition: transform 160ms var(--air-ease-out);
+        transition: transform var(--air-motion-hover) var(--air-ease-out);
       }
       .product-entry[aria-pressed="true"] small {
         color: var(--air-accent);
@@ -368,7 +457,7 @@
         gap: 16px;
         padding: 20px 40px;
         border-top: 1px solid var(--air-line);
-        font-size: 13px;
+        font-size: 0.8125rem;
       }
       .experiment-link span {
         color: var(--air-ink-secondary);
@@ -377,7 +466,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        min-height: 40px;
+        min-height: 44px;
         white-space: nowrap;
       }
       .experiment-link svg {
@@ -426,7 +515,7 @@
         box-shadow: 0 1px 3px color-mix(in srgb, var(--air-ink) 8%, transparent);
         color: var(--air-ink);
       }
-      .workbench {
+      .editor-workspace {
         height: 680px;
         background: var(--air-surface);
         border: 1px solid var(--air-line);
@@ -488,10 +577,10 @@
         display: grid;
         grid-template-columns: 72px minmax(0, 1fr) 328px;
       }
-      .workbench[data-app="resume"] .work-area {
+      .editor-workspace[data-app="resume"] .work-area {
         grid-template-columns: 72px 420px minmax(0, 1fr);
       }
-      .workbench[data-app="resume"] .inspector {
+      .editor-workspace[data-app="resume"] .inspector {
         border-left: 0;
         border-right: 1px solid var(--air-line);
       }
@@ -536,9 +625,6 @@
         left: 0;
         border-radius: 999px;
       }
-      .rail-space {
-        flex: 1;
-      }
       .canvas-host {
         margin: 8px;
         position: relative;
@@ -568,7 +654,7 @@
         width: 300px;
         transform-origin: top left;
       }
-      .workbench[data-app="img"] #document {
+      .editor-workspace[data-app="img"] #document {
         width: 460px;
       }
       .paper {
@@ -676,8 +762,9 @@
         font-family: var(--air-font);
         font-size: 27px;
       }
-      .resume-paper {
+      #document > .resume-paper {
         font-family: var(--air-font);
+        min-height: 0;
       }
       .resume-role {
         font-size: 12px;
@@ -706,6 +793,11 @@
         padding: 24px;
         scrollbar-gutter: stable;
       }
+      .editor-workspace[data-app="resume"] .inspector-content {
+        width: 100%;
+        max-width: 560px;
+        margin-inline: auto;
+      }
       .panel-actions {
         display: none;
       }
@@ -716,10 +808,16 @@
         color: var(--air-ink-muted);
         font-weight: 400;
       }
+      .numeric-value > span {
+        min-width: 20px;
+        text-align: left;
+      }
       .numeric-value .air-field {
-        width: 68px;
+        width: 76px;
         padding-inline: 8px;
         min-height: 32px;
+        height: 32px;
+        padding-block: 4px;
         text-align: right;
         font-variant-numeric: tabular-nums;
       }
@@ -780,6 +878,174 @@
         max-height: 140px;
         margin-top: 16px;
       }
+      .writing-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .writing-head label {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .writing-tools {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .writing-tools .air-icon-button {
+        min-width: var(--air-control-compact);
+        min-height: var(--air-control-compact);
+        padding: 4px;
+        border-color: transparent;
+        background: transparent;
+      }
+      .writing-tools .air-icon-button[aria-pressed="true"] {
+        background: var(--air-surface-soft);
+        color: var(--air-ink);
+      }
+      .writing-tools code {
+        font: 500 13px var(--air-font-mono);
+      }
+      .writing-field {
+        resize: vertical;
+        field-sizing: content;
+        min-height: 112px;
+        white-space: pre-wrap;
+      }
+      .headline-field {
+        resize: vertical;
+        field-sizing: content;
+        min-height: 64px;
+      }
+      .resume-entry + .resume-entry {
+        border-top: 1px solid var(--air-line);
+        margin-top: 24px;
+        padding-top: 24px;
+      }
+      .entry-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .entry-heading h4 {
+        font: 500 14px/1.5 var(--air-font);
+      }
+      .entry-heading span {
+        font-size: 12px;
+        color: var(--air-ink-muted);
+      }
+      .resume-entry .field-group {
+        margin-bottom: 12px;
+      }
+      .entry-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 8px;
+      }
+      .entry-actions .air-button {
+        padding-inline: 8px;
+        font-size: 12px;
+      }
+      .date-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .date-trigger {
+        text-align: left;
+        cursor: pointer;
+        font-variant-numeric: tabular-nums;
+      }
+      .resume-entry .air-check-label {
+        min-height: 44px;
+        margin-bottom: 12px;
+      }
+      .resume-study-note {
+        margin-top: 24px;
+      }
+      .resume-paper .resume-role,
+      .resume-paper .resume-summary,
+      .resume-paper .resume-detail {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .resume-paper ul {
+        margin: 0 0 12px;
+        padding-left: 12px;
+      }
+      .resume-paper li {
+        font-size: 10px;
+      }
+      .resume-template-choice {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        text-align: left;
+      }
+      .resume-template-choice[aria-pressed="true"] {
+        background: var(--air-surface-soft);
+        border-color: var(--air-line-control);
+        color: var(--air-ink);
+      }
+      .resume-template-choice span {
+        font-size: 12px;
+        color: var(--air-ink-secondary);
+      }
+      #date-dialog {
+        width: min(360px, calc(100% - 32px));
+        overscroll-behavior: contain;
+      }
+      @media (max-width: 640px) {
+        #date-dialog {
+          width: 100%;
+        }
+      }
+      .date-months {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        margin-top: 16px;
+      }
+      .date-months .air-button {
+        min-height: 44px;
+        padding-inline: 4px;
+        border-color: transparent;
+        background: transparent;
+      }
+      .date-months .air-button[aria-pressed="true"] {
+        background: var(--air-surface-soft);
+        color: var(--air-ink);
+        border-color: var(--air-line-control);
+      }
+      #date-dialog .air-field {
+        font-size: var(--air-text-editable);
+      }
+      #date-dialog .dialog-actions {
+        flex-wrap: wrap;
+      }
+      .study-announcement {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      .resume-undo {
+        margin-block: 12px;
+      }
+      @media (pointer: coarse) {
+        .writing-tools .air-icon-button {
+          min-width: 44px;
+          min-height: 44px;
+        }
+      }
       .contact-row + .contact-row {
         border-top: 1px solid var(--air-line);
         padding-top: 24px;
@@ -832,13 +1098,20 @@
       .field-group {
         margin-bottom: 24px;
       }
+      .field-group--numeric {
+        margin-bottom: 16px;
+      }
+      .field-group--numeric .field-title {
+        margin-bottom: 4px;
+      }
       .field-title {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        margin-bottom: 10px;
-        font-size: 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        line-height: 1.4;
         font-weight: 500;
       }
       .field-title output {
@@ -855,7 +1128,7 @@
         min-height: 32px;
       }
       .inspector .air-field {
-        font-size: 13px;
+        font-size: 14px;
       }
       .inspector .air-segments > button {
         font-size: 12px;
@@ -950,12 +1223,22 @@
         margin-top: 3px;
       }
       .curve {
-        width: 100%;
-        height: 100px;
+        width: min(100%, 288px);
+        height: auto;
+        aspect-ratio: 1;
+        display: block;
+        touch-action: none;
         border: 1px solid var(--air-line);
         border-radius: var(--air-radius-control);
         background: var(--air-page);
-        margin: 10px 0 16px;
+        margin: 16px auto 8px;
+      }
+      .inspector[data-curve="true"] .inspector-description {
+        display: none;
+      }
+      .curve-editor {
+        max-width: 320px;
+        margin-inline: auto;
       }
       .curve .grid-line {
         stroke: var(--air-line);
@@ -965,10 +1248,72 @@
         fill: none;
         stroke-width: 2;
       }
-      .curve circle {
+      .range-track {
+        position: relative;
+      }
+      .range-neutral {
+        position: absolute;
+        width: 1px;
+        height: 9px;
+        left: 50%;
+        top: calc(50% - 4px);
+        background: var(--air-line-control);
+        pointer-events: none;
+      }
+      .adjustment-views {
+        margin-bottom: 24px;
+      }
+      .curve .curve-identity {
+        fill: none;
+        stroke: var(--air-line-control);
+        stroke-dasharray: 3 5;
+      }
+      .curve-point {
+        cursor: grab;
+        outline: none;
+      }
+      .curve .curve-hit {
+        fill: transparent;
+        stroke: none;
+      }
+      .curve .curve-dot {
         fill: var(--air-surface);
         stroke: var(--air-accent);
         stroke-width: 1.5;
+      }
+      .curve-point[aria-pressed="true"] .curve-dot {
+        fill: var(--air-accent);
+      }
+      .curve-point:focus-visible .curve-dot {
+        stroke: var(--air-ink);
+        stroke-width: 3;
+      }
+      .curve-point:active {
+        cursor: grabbing;
+      }
+      .curve-axis {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--air-ink-muted);
+      }
+      .curve-values {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .curve-values .air-field {
+        margin-top: 8px;
+      }
+      .curve-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 12px 0;
+      }
+      .band-swatches {
+        flex-wrap: wrap;
       }
       .workspace-footer {
         height: 36px;
@@ -1067,12 +1412,12 @@
         border-bottom: 1px solid var(--air-line);
       }
       .component-row h3 {
-        font-size: 17px;
+        font-size: 1.0625rem;
         letter-spacing: -0.3px;
       }
-      .component-row p {
+      .component-row > div:first-child p {
         color: var(--air-ink-muted);
-        font-size: 12px;
+        font-size: var(--air-text-meta);
         line-height: 1.7;
         margin-top: 8px;
       }
@@ -1085,9 +1430,74 @@
       .component-examples .air-field {
         max-width: 240px;
       }
-      .field-demo {
-        width: min(240px, 100%);
+      .component-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+        gap: 24px;
+        align-items: start;
+        min-width: 0;
       }
+      .component-grid > * {
+        min-width: 0;
+      }
+      .component-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        grid-column: 1 / -1;
+      }
+      .component-actions .air-help {
+        margin: 0;
+        flex: 1 1 15rem;
+      }
+      .action-study-stack {
+        display: grid;
+        gap: 20px;
+        min-width: 0;
+      }
+      .action-study-stack .air-choice-group > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .template-study-list {
+        margin: 16px 0 0;
+        padding: 0;
+        list-style: none;
+        font: 400 var(--air-text-body)/1.5 var(--air-font);
+      }
+      .template-study-list li {
+        padding-block: 10px;
+        border-bottom: 1px solid var(--air-line);
+        overflow-wrap: anywhere;
+      }
+      .numeric-study-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+        align-items: center;
+      }
+      .numeric-study-actions .air-help {
+        margin: 0;
+      }
+      .component-index {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 32px;
+      }
+      .component-row {
+        scroll-margin-block-start: 24px;
+      }
+      .choice-children {
+        padding-inline-start: 30px;
+      }
+      .choice-help {
+        margin-bottom: 12px;
+      }
+
       .status-line {
         display: flex;
         align-items: center;
@@ -1149,7 +1559,8 @@
         place-items: center;
         border-radius: 50%;
         color: var(--air-accent);
-        background: var(--air-surface);
+        background: var(--air-accent-soft);
+        border: 1px solid var(--air-line);
         box-shadow: var(--air-shadow-surface);
         position: relative;
       }
@@ -1201,7 +1612,7 @@
         text-underline-offset: 4px;
       }
       .air-dialog h2 {
-        font-size: 24px;
+        font-size: 1.5rem;
         letter-spacing: -0.8px;
         line-height: 1.2;
         margin-bottom: 12px;
@@ -1219,15 +1630,16 @@
         display: flex;
         justify-content: flex-end;
         gap: 8px;
+        flex-wrap: wrap;
         margin-top: 28px;
       }
       .dialog-kicker {
-        font-size: 12px;
+        font-size: var(--air-text-meta);
         color: var(--air-ink-muted);
         margin-bottom: 16px;
       }
       .dialog-meta {
-        font-size: 12px;
+        font-size: var(--air-text-meta);
         color: var(--air-ink-muted);
         margin-top: 12px;
       }
@@ -1262,6 +1674,11 @@
         .hero-actions .air-button svg {
           transition: transform var(--air-motion-hover) var(--air-ease-out);
         }
+        .product-entry:focus-visible small svg,
+        .hero-actions .air-button:focus-visible svg {
+          transition: none;
+          transform: none;
+        }
       }
       @container preview (max-width:1023px) {
         .family-products {
@@ -1276,12 +1693,12 @@
         }
         .hero {
           padding-top: 40px;
-          padding-bottom: 80px;
+          padding-bottom: 0;
         }
         .work-area {
           grid-template-columns: 64px minmax(0, 1fr) 288px;
         }
-        .workbench[data-app="resume"] .work-area {
+        .editor-workspace[data-app="resume"] .work-area {
           grid-template-columns: 64px 360px minmax(0, 1fr);
         }
         .tool-rail {
@@ -1319,11 +1736,26 @@
         }
       }
       @container preview (max-width:767px) {
-        .workbench {
+        .inspector[data-curve="true"] .adjustment-views {
+          margin-bottom: 4px;
+        }
+        .curve {
+          width: min(100%, 224px);
+          margin: 4px auto;
+        }
+        .curve-axis {
+          max-width: 224px;
+          margin-inline: auto;
+        }
+        .curve-values {
+          margin-top: 4px;
+        }
+
+        .editor-workspace {
           height: 740px;
         }
         .work-area,
-        .workbench[data-app="resume"] .work-area {
+        .editor-workspace[data-app="resume"] .work-area {
           grid-template-columns: 1fr;
           grid-template-rows: minmax(210px, 0.9fr) minmax(290px, 1.1fr);
         }
@@ -1335,7 +1767,7 @@
           padding: 16px;
         }
         #document,
-        .workbench[data-app="img"] #document {
+        .editor-workspace[data-app="img"] #document {
           width: max-content;
         }
         .paper {
@@ -1408,11 +1840,8 @@
           left: calc(50% - 8px);
           bottom: 0;
         }
-        .rail-space {
-          display: none;
-        }
         .inspector,
-        .workbench[data-app="resume"] .inspector {
+        .editor-workspace[data-app="resume"] .inspector {
           grid-row: 2;
           border-left: 0;
           border-right: 0;
@@ -1477,35 +1906,35 @@
         .view-toggle {
           display: inline-flex;
         }
-        .workbench[data-expanded="true"] .canvas-zoom {
+        .editor-workspace[data-expanded="true"] .canvas-zoom {
           display: flex;
         }
-        .workbench[data-expanded="true"] .work-area {
+        .editor-workspace[data-expanded="true"] .work-area {
           grid-template-rows: 1fr;
         }
-        .workbench[data-expanded="true"] .inspector {
+        .editor-workspace[data-expanded="true"] .inspector {
           display: none;
         }
-        .workbench[data-editing-expanded="true"]:not([data-expanded="true"]) .work-area {
+        .editor-workspace[data-editing-expanded="true"]:not([data-expanded="true"]) .work-area {
           grid-template-rows: 112px minmax(0, 1fr);
         }
-        .workbench[data-expanded="true"] .paper {
+        .editor-workspace[data-expanded="true"] .paper {
           width: 240px;
           min-width: 240px;
           min-height: 330px;
           font-size: 10px;
           padding: 24px;
         }
-        .workbench[data-expanded="true"] .paper .document-extra {
+        .editor-workspace[data-expanded="true"] .paper .document-extra {
           display: block;
         }
-        .workbench[data-expanded="true"] .paper h3 {
+        .editor-workspace[data-expanded="true"] .paper h3 {
           font-size: 25px;
         }
-        .workbench[data-expanded="true"] .canvas-host {
+        .editor-workspace[data-expanded="true"] .canvas-host {
           align-items: center;
         }
-        .workbench[data-expanded="true"] .image-art {
+        .editor-workspace[data-expanded="true"] .image-art {
           width: 90%;
           height: auto;
           aspect-ratio: 1.2;
@@ -1530,35 +1959,62 @@
         .inspector .air-field {
           font-size: 16px;
         }
+        .inspector select.air-field {
+          font-size: 1rem;
+        }
       }
-      @container preview (max-width:639px) {
+      @container preview (max-width:40rem) {
         .family-nav {
-          height: 64px;
-          padding-inline: 20px;
+          position: relative;
+          display: block;
+          min-height: 64px;
+          padding: 10px 16px;
         }
         .family-links {
           display: none;
         }
+        .family-menu {
+          display: block;
+        }
+        .family-nav .wordmark {
+          /* Match the summary's text line plus padding when text is enlarged. */
+          min-height: max(44px, calc(1.225rem + 18px));
+        }
+        .family-menu summary {
+          position: absolute;
+          top: 10px;
+          right: 16px;
+          min-height: 44px;
+        }
+        .family-menu[open] .family-menu-links {
+          border-top: 1px solid var(--air-line);
+          margin-top: 10px;
+        }
+      }
+      @container preview (max-width:22rem) {
+        .wordmark-name {
+          display: none;
+        }
+      }
+      @container preview (max-width:639px) {
         .hero {
-          padding: 28px 20px 68px;
+          padding: 28px 20px 0;
+        }
+        .light-field {
+          margin-inline: -20px;
         }
         .hero h1 {
-          font-size: clamp(38px, 10.5cqw, 48px);
-          letter-spacing: -0.05em;
-          line-height: 1.04;
+          font-size: clamp(2.5rem, 10.5cqw, 3rem);
+          letter-spacing: -0.045em;
+          line-height: 1.05;
         }
         .hero p {
-          font-size: 14px;
-          max-width: 300px;
-        }
-        .hero-overline {
-          font-size: 12px;
+          max-width: 30ch;
         }
         .hero-actions {
           margin-top: 24px;
         }
         .hero-actions .air-button {
-          font-size: 13px;
           min-height: 44px;
         }
         .family-products {
@@ -1568,7 +2024,7 @@
         .product-entry {
           padding: 20px 8px;
           display: grid;
-          grid-template-columns: 1fr auto;
+          grid-template-columns: minmax(0, 1fr) auto;
           column-gap: 12px;
           border-radius: 0;
         }
@@ -1596,7 +2052,7 @@
           height: 16px;
         }
         .product-entry-head {
-          font-size: 15px;
+          font-size: 0.9375rem;
           gap: 10px;
         }
         .product-entry-head svg {
@@ -1610,7 +2066,7 @@
           gap: 4px;
         }
         .experiment-link span {
-          font-size: 12px;
+          font-size: 0.8125rem;
         }
         .family-products .product-entry:hover {
           background: transparent;
@@ -1620,11 +2076,26 @@
           height: 40px;
         }
         .wordmark {
-          font-size: 18px;
+          font-size: 1.1875rem;
         }
         .mark {
           width: 32px;
           height: 32px;
+        }
+      }
+      @media (max-height: 500px) and (min-width: 640px) {
+        .hero {
+          padding-top: 20px;
+        }
+        .hero h1 {
+          font-size: 2.5rem;
+          margin-block: 16px;
+        }
+        .hero-actions {
+          margin-top: 20px;
+        }
+        .light-field {
+          height: 120px;
         }
       }
       @media (max-width: 900px) {
@@ -1753,13 +2224,17 @@
         .inspector .air-field {
           font-size: 16px;
         }
+        .inspector select.air-field {
+          font-size: 1rem;
+        }
         .tiny-segments button,
         .product-switch button,
         .editor-actions .air-button,
         .dialog-close {
           min-height: 44px;
         }
-        .swatch {
+        .swatch,
+        .inspector .swatch {
           width: 44px;
           height: 44px;
         }
@@ -1784,6 +2259,7 @@
     </style>
   </head>
   <body>
+    <a class="air-button study-skip" href="#study-main">Skip to design reference</a>
     <header class="study-bar">
       <div class="study-title">
         <b>Air</b><span>by Cloakyard</span><span>·</span><span>Design study · refinement 03</span>
@@ -1812,17 +2288,70 @@
         ><a href="#motion">Motion</a>
       </nav>
     </div>
-    <main>
+    <main id="study-main" tabindex="-1">
       <div class="preview-wrap" data-size="desktop" id="experience">
         <div class="experience">
           <nav class="family-nav" aria-label="Landing preview">
-            <div class="wordmark"><span data-icon="brand"></span>Cloakyard</div>
+            <a class="wordmark" href="#experience" aria-label="Cloakyard home">
+              <svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient
+                    id="brand-fill"
+                    x1="11"
+                    y1="6"
+                    x2="51"
+                    y2="58"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="#6FC3FF" />
+                    <stop offset=".45" stop-color="#3975F6" />
+                    <stop offset="1" stop-color="#2444D7" />
+                  </linearGradient>
+                </defs>
+                <circle cx="32" cy="32" r="30" fill="url(#brand-fill)" />
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="29.25"
+                  stroke="white"
+                  stroke-opacity=".28"
+                  stroke-width="1.5"
+                />
+                <g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M29.03 46.85V24.58a1.49 1.49 0 0 0-1.49-1.49h-7.42a2.97 2.97 0 0 0-2.97 2.97v17.82a2.97 2.97 0 0 0 2.97 2.97h17.82a2.97 2.97 0 0 0 2.97-2.97v-7.43a1.49 1.49 0 0 0-1.49-1.48H17.15"
+                  />
+                  <rect x="34.97" y="17.15" width="11.88" height="11.88" rx="1.49" />
+                </g></svg
+              ><span class="wordmark-name">Cloakyard</span>
+            </a>
             <div class="family-links">
               <a href="#workspace">The tools</a><a href="#components">Our approach</a
               ><a href="https://github.com/cloakyard"
                 >Source <span data-icon="arrow" style="margin-left: 6px; width: 14px"></span
               ></a>
             </div>
+            <details class="family-menu">
+              <summary class="air-button air-button--quiet">
+                Explore
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <div class="family-menu-links">
+                <a href="#workspace">The tools</a>
+                <a href="#components">Our approach</a>
+                <a href="https://github.com/cloakyard">Source</a>
+              </div>
+            </details>
           </nav>
           <section class="hero">
             <div class="hero-overline">
@@ -1830,15 +2359,50 @@
             </div>
             <h1>Your work.<br /><span>A little lighter.</span></h1>
             <p>
-              Thoughtful tools for the things you need to do.<br />With a little more space, and a
-              lot less noise.
+              Thoughtful tools for the things you need to do. With a little more space, and a lot
+              less noise.
             </p>
             <div class="hero-actions">
               <a class="air-button air-button--primary" href="#workspace"
                 >Find your flow <span data-icon="right"></span></a
               ><a class="air-button air-button--quiet" href="#components">Meet the family</a>
             </div>
-            <div class="light-field" aria-hidden="true"><div class="light-ribbon"></div></div>
+            <div class="light-field" id="air-light" aria-hidden="true">
+              <svg class="light-fallback" viewBox="0 0 1200 240" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="air-plane" x2="0" y2="1">
+                    <stop class="plane-fill" stop-opacity=".8" />
+                    <stop offset="1" class="plane-fill" stop-opacity="0" />
+                  </linearGradient>
+                  <linearGradient id="air-edge-fade">
+                    <stop stop-color="white" stop-opacity="0" />
+                    <stop offset=".2" stop-color="white" />
+                    <stop offset=".8" stop-color="white" />
+                    <stop offset="1" stop-color="white" stop-opacity="0" />
+                  </linearGradient>
+                  <mask id="air-light-mask">
+                    <path d="M0 0H1200V240H0Z" fill="url(#air-edge-fade)" />
+                  </mask>
+                </defs>
+                <g mask="url(#air-light-mask)">
+                  <path d="M0 100Q600 84 1200 145V240H0Z" fill="url(#air-plane)" />
+                  <path
+                    class="plane-edge"
+                    d="M0 100Q600 84 1200 145"
+                    fill="none"
+                    stroke-opacity=".22"
+                  />
+                  <path d="M0 182Q600 132 1200 139V240H0Z" fill="url(#air-plane)" />
+                  <path
+                    class="plane-edge"
+                    d="M0 182Q600 132 1200 139"
+                    fill="none"
+                    stroke-opacity=".28"
+                  />
+                </g>
+              </svg>
+              <canvas></canvas>
+            </div>
           </section>
           <div class="family-products">
             <button class="product-entry" data-app="pdf" aria-pressed="true">
@@ -1852,7 +2416,9 @@
               <small>Open the workspace <span data-icon="arrow"></span></small>
             </button>
             <button class="product-entry" data-app="resume" aria-pressed="false">
-              <div class="product-entry-head"><span data-icon="resume"></span>CloakResume</div>
+              <div class="product-entry-head">
+                <span data-icon="resume"></span><span>Cloak<wbr />Resume</span>
+              </div>
               <p>Your experience, beautifully told.</p>
               <small>Open the workspace <span data-icon="arrow"></span></small>
             </button>
@@ -1865,6 +2431,18 @@
           <div class="experiment-link">
             <span>A little room for curiosity, too.</span
             ><a href="https://kerr.cloakyard.com">Explore KERR <span data-icon="arrow"></span></a>
+          </div>
+        </div>
+        <div class="light-study-controls" aria-label="Air light study controls">
+          <div>
+            <strong>Air light · motion study</strong>
+            <p id="light-status" role="status">
+              Still artwork. The interactive light loads when visible.
+            </p>
+          </div>
+          <div class="light-study-actions">
+            <button class="air-button" id="light-replay">Replay arrival</button
+            ><button class="air-button" id="light-still" aria-pressed="false">Still artwork</button>
           </div>
         </div>
         <div class="specimen-title" id="workspace">
@@ -1881,7 +2459,7 @@
             ><button data-app="resume" aria-pressed="false">Resume</button>
           </div>
         </div>
-        <div class="workbench" data-expanded="false">
+        <div class="editor-workspace" data-expanded="false">
           <header class="editor-bar">
             <div class="editor-brand">
               <span data-icon="brand"></span><span id="product-name">CloakPDF</span>
@@ -1962,7 +2540,16 @@
             </p>
           </article>
         </div>
-        <div class="component-row">
+        <nav class="component-index" aria-label="Component studies">
+          <a class="air-button air-button--quiet" href="#action-study">Actions</a>
+          <a class="air-button air-button--quiet" href="#field-study">Fields</a>
+          <a class="air-button air-button--quiet" href="#compound-study">Search & units</a>
+          <a class="air-button air-button--quiet" href="#select-study">Menus</a>
+          <a class="air-button air-button--quiet" href="#choice-study">Choices</a>
+          <a class="air-button air-button--quiet" href="#overlay-study">Overlays</a>
+          <a class="air-button air-button--quiet" href="#floating-study">Floating controls</a>
+        </nav>
+        <div class="component-row" id="action-study">
           <div>
             <h3>Actions, with hierarchy.</h3>
             <p>
@@ -1970,59 +2557,353 @@
               small, tactile press.
             </p>
           </div>
-          <div class="component-examples">
-            <button class="air-button air-button--primary" id="sample-export">
-              Export document <span data-icon="right"></span></button
-            ><button class="air-button">Cancel</button
-            ><button class="air-button air-button--quiet">Reset</button
-            ><button class="air-button" disabled>Unavailable</button>
+          <div class="action-study-stack">
+            <div class="component-examples">
+              <button class="air-button air-button--primary" id="sample-export">
+                Export document <span data-icon="right"></span>
+              </button>
+              <button class="air-button" disabled>Unavailable</button>
+            </div>
+            <div>
+              <button
+                class="air-button"
+                id="reference-task"
+                type="button"
+                aria-label="Prepare preview"
+                aria-describedby="task-help"
+                data-state="idle"
+              >
+                <span class="air-action-labels" aria-hidden="true">
+                  <span data-state-label="idle" data-active>Prepare preview</span>
+                  <span data-state-label="busy">Preparing…</span>
+                  <span data-state-label="success">Prepare again</span>
+                  <span data-state-label="error">Try again</span>
+                </span>
+              </button>
+              <p class="air-help" id="task-help">
+                State study. Start, then choose an outcome below. No files are processed.
+              </p>
+              <p class="air-help" id="task-status" role="status" aria-atomic="true">
+                Ready to try.
+              </p>
+            </div>
+            <fieldset class="air-choice-group">
+              <legend>Resolve this study</legend>
+              <div>
+                <button
+                  class="air-button air-button--quiet"
+                  id="task-complete"
+                  type="button"
+                  disabled
+                >
+                  Show success
+                </button>
+                <button class="air-button air-button--quiet" id="task-fail" type="button" disabled>
+                  Show error
+                </button>
+                <button
+                  class="air-button air-button--quiet"
+                  id="task-cancel"
+                  type="button"
+                  disabled
+                >
+                  Cancel study
+                </button>
+              </div>
+            </fieldset>
           </div>
         </div>
-        <div class="component-row">
+        <div class="component-row" id="field-study">
           <div>
             <h3>Fields, with clarity.</h3>
             <p>
-              One quiet contour. Persistent labels and nearby help. Focus replaces the contour with
-              blue, without a second line or a change in layout.
+              One quiet contour, in every state. Labels stay in place. Help explains the next step;
+              focus never adds a second line.
+            </p>
+          </div>
+          <form class="component-grid" id="field-study-form" novalidate>
+            <div>
+              <label class="air-label" for="reference-name">File name · required</label>
+              <input
+                class="air-field"
+                id="reference-name"
+                name="file-name"
+                value="Field notes"
+                required
+                autocomplete="off"
+                aria-describedby="name-help name-error"
+              />
+              <p class="air-help" id="name-help">Use a name you’ll recognise later.</p>
+              <p class="air-help air-help--error" id="name-error" hidden>Enter a file name.</p>
+            </div>
+            <div>
+              <label class="air-label" for="reference-error">Page range</label>
+              <input
+                class="air-field"
+                id="reference-error"
+                name="page-range"
+                value="0–4"
+                autocomplete="off"
+                aria-invalid="true"
+                aria-describedby="range-help range-error"
+              />
+              <p class="air-help" id="range-help">One page or an ordered range, like 1–4.</p>
+              <p class="air-help air-help--error" id="range-error">
+                Use page 1 or later and put the smaller number first.
+              </p>
+            </div>
+            <div>
+              <label class="air-label" for="reference-readonly">Original file</label>
+              <input
+                class="air-field"
+                id="reference-readonly"
+                name="original"
+                value="Field notes.pdf"
+                readonly
+                aria-describedby="readonly-help"
+              />
+              <p class="air-help" id="readonly-help">
+                Read only. You can still select and copy this name.
+              </p>
+            </div>
+            <div>
+              <label class="air-label" for="reference-disabled">Encryption password</label>
+              <input
+                class="air-field"
+                id="reference-disabled"
+                name="password"
+                type="password"
+                disabled
+                autocomplete="off"
+                aria-describedby="disabled-help"
+              />
+              <p class="air-help" id="disabled-help">Unavailable for this unencrypted sample.</p>
+            </div>
+            <div>
+              <label class="air-label" for="reference-note">Export note · optional</label>
+              <textarea
+                class="air-field"
+                id="reference-note"
+                name="note"
+                rows="3"
+                placeholder="A short note…"
+                aria-describedby="note-help"
+              ></textarea>
+              <p class="air-help" id="note-help">
+                Multiline writing uses the same contour and spacing.
+              </p>
+            </div>
+            <div class="component-actions">
+              <button class="air-button" type="submit">Check details</button>
+              <p class="air-help" role="status" id="field-study-status">
+                Interaction study. No file is created.
+              </p>
+            </div>
+          </form>
+        </div>
+        <div class="component-row" id="compound-study">
+          <div>
+            <h3>A place for every detail.</h3>
+            <p>
+              Clear controls and fixed units belong to the field. One continuous edge keeps the
+              whole thing calm.
+            </p>
+          </div>
+          <div class="component-grid">
+            <div role="search" aria-label="Sample templates">
+              <label class="air-label" for="reference-search">Find a template</label>
+              <div class="air-field-group">
+                <input
+                  class="air-field"
+                  id="reference-search"
+                  name="template-search"
+                  type="search"
+                  placeholder="Search by name…"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-describedby="search-help"
+                  aria-controls="template-study-results"
+                />
+                <span class="air-field-actions"
+                  ><button
+                    class="air-icon-button air-button--quiet air-field-clear"
+                    id="reference-clear"
+                    type="button"
+                    aria-label="Clear template search"
+                    hidden
+                  >
+                    <span data-icon="close"></span></button
+                ></span>
+              </div>
+              <p class="air-help" id="search-help">Filter these three sample names.</p>
+              <p class="air-help" id="search-status" role="status" aria-atomic="true">
+                3 templates.
+              </p>
+              <ul class="template-study-list" id="template-study-results">
+                <li>Field notes</li>
+                <li>Modern minimal</li>
+                <li>Studio résumé</li>
+              </ul>
+            </div>
+            <form id="number-study-form" novalidate>
+              <label class="air-label" for="reference-quality">Image quality · required</label>
+              <div class="air-field-group">
+                <input
+                  class="air-field"
+                  id="reference-quality"
+                  name="quality"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  max="100"
+                  step="1"
+                  value="80"
+                  required
+                  aria-describedby="quality-help quality-error"
+                />
+                <span class="air-field-unit" aria-hidden="true">%</span>
+              </div>
+              <p class="air-help" id="quality-help">Percent. Use a whole number from 1 to 100.</p>
+              <p class="air-help air-help--error" id="quality-error" hidden>
+                Enter a whole number from 1 to 100.
+              </p>
+              <div class="numeric-study-actions">
+                <button class="air-button" type="submit">Apply quality</button>
+                <p class="air-help" id="quality-committed">Applied study value: 80%.</p>
+              </div>
+              <p class="air-help" id="quality-status" role="status" aria-atomic="true">
+                No image is processed.
+              </p>
+            </form>
+          </div>
+        </div>
+        <div class="component-row" id="select-study">
+          <div>
+            <h3>Menus, with the same care.</h3>
+            <p>
+              A little breathing room for the arrow. Quiet option rows, a clear selection and one
+              consistent surface.
             </p>
           </div>
           <div class="component-examples">
-            <div class="field-demo">
-              <label class="air-label" for="reference-name">File name</label
-              ><input class="air-field" id="reference-name" value="Field notes" />
-              <p class="air-help">Saved to your chosen location.</p>
+            <div style="width: 240px; max-width: 100%">
+              <label class="air-label" for="reference-format">Image format</label>
+              <select class="air-field" id="reference-format">
+                <option>PNG</option>
+                <option>JPEG</option>
+                <option>WebP</option>
+                <option disabled>AVIF · unavailable in this study</option>
+              </select>
+              <p class="air-help">Open to compare the complete menu.</p>
             </div>
-            <div class="field-demo">
-              <label class="air-label" for="reference-error">Page range</label
-              ><input
-                class="air-field"
-                id="reference-error"
-                value="0–4"
-                aria-invalid="true"
-                aria-describedby="range-error"
-              />
-              <p class="air-help air-help--error" id="range-error">Start with page 1 or later.</p>
+            <div style="width: 240px; max-width: 100%">
+              <label class="air-label" for="reference-select-disabled">Preset</label>
+              <select class="air-field" id="reference-select-disabled" disabled>
+                <option>Original quality</option>
+              </select>
+              <p class="air-help">Unavailable choices remain identifiable.</p>
             </div>
           </div>
         </div>
-        <div class="component-row">
+        <div class="component-row" id="choice-study">
           <div>
             <h3>Choices, with precision.</h3>
             <p>
-              Neutral selection surfaces. Blue for focus and the active indicator. Visual colour
-              data keeps its real values.
+              A shared shape and a clear state. Native keyboard behavior, generous label targets and
+              no decorative movement during work.
             </p>
           </div>
-          <div class="component-examples">
-            <div class="air-segments" aria-label="Reference alignment">
-              <button aria-pressed="true">Left</button><button aria-pressed="false">Centre</button
-              ><button aria-pressed="false">Right</button>
+          <div class="component-grid">
+            <fieldset class="air-choice-group">
+              <legend>Include in export</legend>
+              <p class="air-help choice-help" id="include-help">
+                A mixed selection keeps its own visible mark.
+              </p>
+              <label class="air-check-label"
+                ><input
+                  class="air-check"
+                  id="reference-all"
+                  type="checkbox"
+                  aria-describedby="include-help"
+                />All additions</label
+              >
+              <div class="choice-children">
+                <label class="air-check-label"
+                  ><input
+                    class="air-check"
+                    data-reference-child
+                    type="checkbox"
+                    checked
+                  />Annotations</label
+                >
+                <label class="air-check-label"
+                  ><input class="air-check" data-reference-child type="checkbox" />Bookmarks</label
+                >
+              </div>
+              <label class="air-check-label"
+                ><input class="air-check" type="checkbox" disabled />Embedded files ·
+                unavailable</label
+              >
+            </fieldset>
+            <fieldset class="air-choice-group">
+              <legend>Pages</legend>
+              <label class="air-check-label"
+                ><input
+                  type="radio"
+                  name="reference-pages"
+                  value="all"
+                  class="air-check"
+                  checked
+                />All pages</label
+              >
+              <label class="air-check-label"
+                ><input
+                  type="radio"
+                  name="reference-pages"
+                  value="current"
+                  class="air-check"
+                />Current page</label
+              >
+              <label class="air-check-label"
+                ><input
+                  type="radio"
+                  name="reference-pages"
+                  value="selection"
+                  class="air-check"
+                  disabled
+                />Selection · unavailable</label
+              >
+            </fieldset>
+            <fieldset class="air-choice-group">
+              <legend>Alignment</legend>
+              <div class="air-segments">
+                <label class="air-segment"
+                  ><input type="radio" name="reference-align" value="left" checked />Left</label
+                >
+                <label class="air-segment"
+                  ><input type="radio" name="reference-align" value="centre" />Centre</label
+                >
+                <label class="air-segment"
+                  ><input type="radio" name="reference-align" value="right" />Right</label
+                >
+              </div>
+              <p class="air-help">One choice. Use arrow keys to move within the group.</p>
+            </fieldset>
+            <div>
+              <label class="air-switch-row"
+                ><span>Keep original quality<small>No additional compression.</small></span
+                ><input
+                  class="air-switch"
+                  id="reference-switch"
+                  type="checkbox"
+                  role="switch"
+                  checked
+              /></label>
+              <label class="air-switch-row"
+                ><span>Sync to a workspace<small>Unavailable in this local study.</small></span
+                ><input class="air-switch" type="checkbox" role="switch" disabled
+              /></label>
             </div>
-            <label class="air-check-label"
-              ><input type="checkbox" class="air-check" checked />Keep original quality</label
-            ><label class="air-check-label"
-              ><input type="radio" name="pages" class="air-check" checked />All pages</label
-            >
           </div>
         </div>
         <div class="component-row">
@@ -2046,6 +2927,41 @@
             </div>
           </div>
         </div>
+        <div class="component-row" id="floating-study">
+          <div>
+            <h3>Small surfaces. Clear purpose.</h3>
+            <p>
+              Settings stay close to their trigger. Actions work by touch or keyboard. Confirmation
+              keeps the safe choice within reach.
+            </p>
+          </div>
+          <div id="air-overlay-root">
+            <p class="air-help" role="status" id="air-overlay-load-status">
+              Preparing the interactive examples…
+            </p>
+            <button type="button" class="air-button" id="air-overlay-retry" hidden>
+              Retry examples</button
+            ><noscript
+              ><p class="air-help">
+                These interaction examples need JavaScript. Their complete rules are in the design
+                contract.
+              </p></noscript
+            >
+          </div>
+        </div>
+        <div class="component-row" id="overlay-study">
+          <div>
+            <h3>Overlays, with clear boundaries.</h3>
+            <p>
+              The same surface, readable spacing and reachable actions. A dialog becomes a sheet on
+              a phone; Escape returns you to where you started.
+            </p>
+          </div>
+          <div class="component-examples">
+            <button class="air-button" id="inspect-overlay">Inspect export dialog</button>
+            <p class="air-help">Uses the active editor’s sample export options.</p>
+          </div>
+        </div>
       </section>
       <section class="reference" id="motion">
         <div class="reference-header">
@@ -2059,8 +2975,9 @@
           <div class="motion-copy">
             <h3>Finishing should feel good.</h3>
             <p>
-              A brief, soft settle confirms completion. No confetti, looping ornaments or moving
-              text. Try it again—the interaction restarts cleanly without stacking effects.
+              A clear lift and soft landing confirm completion. No confetti, looping ornaments or
+              moving text. Try it again—the motion continues from its current position without
+              stacking effects.
             </p>
           </div>
           <div class="save-example">
@@ -2074,7 +2991,8 @@
             <strong>Press · 120ms</strong><span>2% compression, immediate release feedback.</span>
           </div>
           <div>
-            <strong>Popover · 180ms</strong><span>From its trigger. Four pixels, at most.</span>
+            <strong>Menus · immediate</strong
+            ><span>Frequent controls respond without a transition.</span>
           </div>
           <div>
             <strong>Dialog · 240ms</strong><span>Soft arrival. A sheet rises on a phone.</span>
@@ -2086,11 +3004,21 @@
         </div>
         <p class="air-help" style="margin-top: 28px">
           Reduced motion preserves feedback without spatial movement. Theme changes are immediate.
-          This study uses a static light field; the optional production shader is a separate
-          performance and accessibility review.
+          Air’s two planes catch a soft light on arrival and respond to a mouse. The landing artwork
+          rests when idle and releases its graphics resources when hidden or offscreen. Review the
+          motion and its still alternative before the design is locked.
         </p>
       </section>
     </main>
+    <details class="reference light-study-notes">
+      <summary>Light study · rendering notes</summary>
+      <p>
+        Custom Air composition, locally bundled with Shaders 4.0.4. No hosted presets, media,
+        telemetry or continuous loop. Reduced motion, unavailable graphics and constrained devices
+        use the still artwork. Pointer response is for a mouse; touch keeps the brief arrival.
+      </p>
+      <output id="light-metrics" aria-live="off">Waiting for the light to become visible.</output>
+    </details>
     <footer class="study-footer">
       <span>Air · a Cloakyard design study. Product migration has not started.</span
       ><a href="../../DESIGN.md">Read the complete design contract</a>
@@ -2120,7 +3048,39 @@
         </div>
       </form>
     </dialog>
-    <script>
+    <p class="study-announcement" id="resume-announcement" role="status"></p>
+    <dialog
+      class="air-dialog"
+      id="date-dialog"
+      aria-labelledby="date-title"
+      aria-describedby="date-help"
+    >
+      <h2 id="date-title">Choose date</h2>
+      <p id="date-help">Choose a month and year, or keep just the year.</p>
+      <label class="air-label" for="date-year">Year</label
+      ><input
+        class="air-field"
+        id="date-year"
+        inputmode="numeric"
+        maxlength="4"
+        autocomplete="off"
+        aria-describedby="date-error"
+      />
+      <p class="air-help air-help--error" id="date-error" role="status" hidden>
+        Enter a four-digit year.
+      </p>
+      <div class="date-months" role="group" aria-label="Month"></div>
+      <label class="air-check-label"
+        ><input class="air-check" id="date-year-only" type="checkbox" />Year only</label
+      >
+      <div class="dialog-actions">
+        <button class="air-button air-button--quiet" id="date-clear">Clear</button
+        ><button class="air-button" id="date-cancel" autofocus>Cancel</button
+        ><button class="air-button air-button--primary" id="date-apply">Use date</button>
+      </div>
+    </dialog>
+    <script type="module">
+      import { createDialogMotion, createCompletionMotion } from "./motion.mjs";
       const paths = {
         right: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
         arrow: '<path d="M7 17 17 7M7 7h10v10"/>',
@@ -2152,8 +3112,7 @@
         alert: '<path d="M12 3 2 21h20zM12 9v5m0 3h.01"/>',
         close: '<path d="m6 6 12 12M6 18 18 6"/>',
       };
-      const brand =
-        '<svg class="mark" viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="brand-fill" x1="11" y1="6" x2="51" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#6FC3FF"/><stop offset=".45" stop-color="#3975F6"/><stop offset="1" stop-color="#2444D7"/></linearGradient></defs><circle cx="32" cy="32" r="30" fill="url(#brand-fill)"/><circle cx="32" cy="32" r="29.25" stroke="white" stroke-opacity=".28" stroke-width="1.5"/><g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M29.03 46.85V24.58a1.49 1.49 0 0 0-1.49-1.49h-7.42a2.97 2.97 0 0 0-2.97 2.97v17.82a2.97 2.97 0 0 0 2.97 2.97h17.82a2.97 2.97 0 0 0 2.97-2.97v-7.43a1.49 1.49 0 0 0-1.49-1.48H17.15"/><rect x="34.97" y="17.15" width="11.88" height="11.88" rx="1.49"/></g></svg>';
+      const brand = document.querySelector(".wordmark .mark").outerHTML;
       let brandCount = 0;
       function icon(name) {
         return name === "brand"
@@ -2183,9 +3142,10 @@
           file: "Coastal light.png",
           tools: [
             ["sliders", "Adjust"],
-            ["crop", "Crop"],
-            ["spark", "Retouch"],
-            ["layers", "Layers"],
+            ["crop", "Crop & rotate"],
+            ["spark", "Spot heal"],
+            ["sliders", "Levels"],
+            ["sun", "Selective color"],
           ],
           active: 0,
         },
@@ -2197,7 +3157,7 @@
             ["file", "Contact"],
             ["work", "Experience"],
             ["template", "Template"],
-            ["sliders", "Format"],
+            ["sliders", "Options"],
           ],
           active: 0,
         },
@@ -2207,6 +3167,86 @@
         title: "Product Designer",
         about: "I help small teams turn complex problems into clear, considered experiences.",
       };
+      const resumeOptions = { paper: "A4", colour: "#34534D", treatment: "sans" };
+      let resumeNextId = 3,
+        removedRole = null;
+      const resumeRoles = [
+        {
+          id: 1,
+          role: "Product Designer",
+          company: "North Studio",
+          location: "Remote",
+          start: "Aug 2022",
+          end: "Sep 2026",
+          current: true,
+          detail:
+            "Designing **useful tools** with care for the details.\nHelping a small team build a clearer design language.",
+        },
+        {
+          id: 2,
+          role: "Designer",
+          company: "Fieldwork",
+          location: "Bengaluru",
+          start: "2020",
+          end: "Jul 2022",
+          current: false,
+          detail: "Turned complex workflows into approachable everyday experiences.",
+        },
+      ];
+      const richFormats = [
+        ["bold", "Bold", "**", "**", "<b>B</b>"],
+        ["italic", "Italic", "*", "*", "<i>I</i>"],
+        ["underline", "Underline", "<u>", "</u>", "<u>U</u>"],
+        ["code", "Code", "`", "`", "<code>&lt;/&gt;</code>"],
+      ];
+      function richField(label, id, value, extra = "") {
+        return `<div class="field-group"><div class="writing-head"><label for="${id}">${label}</label><div class="writing-tools" role="group" aria-label="${label} formatting">${richFormats.map(([key, name, , , glyph]) => `<button class="air-icon-button" aria-label="${name} · ${label}" aria-pressed="false" data-format="${key}" data-writing="${id}">${glyph}</button>`).join("")}</div><textarea class="air-field writing-field" id="${id}" data-rich ${extra} rows="4">${escapeValue(value)}</textarea></div>`;
+      }
+      function roleMarkup(role, i) {
+        const input = (label, key) =>
+          field(
+            `<label for="role-${role.id}-${key}">${label}</label>`,
+            `<input class="air-field" id="role-${role.id}-${key}" data-role="${role.id}" data-key="${key}" value="${escapeValue(role[key])}"/>`,
+          );
+        const date = (label, key) =>
+          field(
+            `<label id="role-${role.id}-${key}-label">${label}</label>`,
+            `<button class="air-field date-trigger" id="role-${role.id}-${key}" aria-labelledby="role-${role.id}-${key}-label role-${role.id}-${key}" aria-haspopup="dialog" data-date="${key}" data-role="${role.id}" ${key === "end" && role.current ? "disabled" : ""}>${key === "end" && role.current ? "Present" : escapeValue(role[key]) || "Choose date…"}</button>`,
+          );
+        return `<section class="resume-entry" data-entry="${role.id}" aria-label="Experience ${i + 1}"><div class="entry-heading"><h4>Experience ${i + 1}</h4><span>${i + 1} of ${resumeRoles.length}</span></div>${input("Role", "role")}${input("Company", "company")}${input("Location", "location")}<div class="date-row">${date("Start", "start")}${date("End", "end")}</div><label class="air-check-label"><input type="checkbox" class="air-check" data-current="${role.id}" ${role.current ? "checked" : ""}/>I currently work here</label>${richField("Highlights", `role-${role.id}-detail`, role.detail, `data-role="${role.id}" data-key="detail"`)}<p class="air-help">One highlight per line in this study.</p><div class="entry-actions"><button class="air-button air-button--quiet" data-role-move="${role.id}" data-direction="-1" aria-label="Move experience ${i + 1} up" ${i === 0 ? "disabled" : ""}>Move up</button><button class="air-button air-button--quiet" data-role-move="${role.id}" data-direction="1" aria-label="Move experience ${i + 1} down" ${i === resumeRoles.length - 1 ? "disabled" : ""}>Move down</button><button class="air-button air-button--quiet" data-role-remove="${role.id}" aria-label="Remove experience ${i + 1}">Remove</button></div></section>`;
+      }
+      function paintResume() {
+        if (currentApp !== "resume") return;
+        const paper = doc.querySelector(".resume-paper");
+        paper.querySelector("h3").textContent = profile.name || "Your name";
+        paper.querySelector(".resume-role").textContent = profile.title;
+        paper.querySelector(".resume-summary").replaceChildren(...renderRich(profile.about));
+        paper.querySelector(".resume-experience").innerHTML = resumeRoles
+          .map(
+            (role) =>
+              `<p><strong>${escapeValue(role.role)} · ${escapeValue(role.company)}</strong><br/>${escapeValue(role.location)}<br/>${escapeValue(role.start)}${role.start && (role.current || role.end) ? " — " : ""}${role.current ? "Present" : escapeValue(role.end)}</p><ul data-preview-role="${role.id}"></ul>`,
+          )
+          .join("");
+        resumeRoles.forEach((role) => {
+          const list = paper.querySelector(`[data-preview-role="${role.id}"]`);
+          role.detail
+            .split("\n")
+            .filter((line) => line.trim())
+            .forEach((line) => {
+              const li = document.createElement("li");
+              li.className = "resume-detail";
+              li.append(...renderRich(line));
+              list.append(li);
+            });
+        });
+        paper.querySelectorAll("h3,h4").forEach((el) => (el.style.color = resumeOptions.colour));
+        paper.style.fontFamily =
+          resumeOptions.treatment === "serif" ? "Georgia, serif" : "var(--air-font)";
+
+        paper.querySelector(".paper-note").textContent =
+          `${resumeOptions.paper} · simplified preview, no pagination`;
+        fitDocument();
+      }
       const signatureDraft = {
         mode: "draw",
         ink: false,
@@ -2228,16 +3268,135 @@
       const pdfMarkup =
         '<article class="paper"><div class="paper-label">Field notes · October</div><h3>A little space<br/>to think.</h3><p>Good work starts with a clear page.<br/>And a little room to make it your own.</p><div class="paper-rule"></div><h4>What matters most</h4><p>Keep the useful things close.<br/>Let <mark>everything else</mark> breathe.</p><div class="document-extra"><h4>Make room for the next idea</h4><p>A thought, a sketch, a small improvement.<br/>Sometimes that’s all it takes.</p></div><p class="paper-note">01 / A quieter kind of workspace.</p></article>';
       const resumeMarkup =
-        '<article class="paper resume-paper"><div class="paper-label">Product designer</div><h3>Alex Morgan</h3><div class="resume-role">Thoughtful systems. Useful experiences.</div><div class="paper-rule"></div><h4>ABOUT</h4><p>I help small teams turn complex problems into clear, considered experiences.</p><h4>EXPERIENCE</h4><p><strong>Product Designer · North Studio</strong><br/>2022 — Present</p><p>Designing tools that help people do their best work, with care for the details.</p><div class="document-extra"><h4>EDUCATION</h4><p>Bachelor of Design<br/>2016 — 2020</p></div><p class="paper-note">Sample résumé content</p></article>';
+        '<article class="paper resume-paper"><h3>Alex Morgan</h3><div class="resume-role"></div><div class="paper-rule"></div><h4>ABOUT</h4><p class="resume-summary"></p><h4>EXPERIENCE</h4><div class="resume-experience"></div><p class="paper-note"></p></article>';
       const imageMarkup =
         '<div class="image-art"><svg viewBox="0 0 600 500" role="img" aria-label="Illustrated coastal landscape for the image-editor design preview"><defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#aabdc8"/><stop offset="1" stop-color="#e7dfce"/></linearGradient><linearGradient id="sea" x2="0" y2="1"><stop stop-color="#6d929e"/><stop offset="1" stop-color="#92b1b4"/></linearGradient><linearGradient id="sand" x2=".5" y2="1"><stop stop-color="#ddd0b4"/><stop offset="1" stop-color="#a58664"/></linearGradient></defs><path fill="url(#sky)" d="M0 0h600v500H0z"/><circle cx="428" cy="125" r="36" fill="#f4ead2" opacity=".8"/><path fill="url(#sea)" d="M0 232c138-10 268 3 600-4v272H0z"/><path d="M0 304c118-85 261-11 302 30 47 45 184 21 298 3v163H0z" fill="url(#sand)"/><path d="M0 297c143-76 252-1 304 39 58 39 191 22 296 6" fill="none" stroke="#edf0e5" stroke-opacity=".85" stroke-width="4"/><path d="M0 374c127-19 195 11 279 65l81 61H0z" fill="#8c9271"/><path d="M0 410c153-45 195 29 253 90H0z" fill="#65765b"/><path d="M0 246h600M215 272h289M80 283h202" stroke="#eef4ef" stroke-opacity=".25"/></svg><span class="image-tag">Sample illustration</span></div>';
       function field(title, content) {
         return `<div class="field-group"><div class="field-title">${title}</div>${content}</div>`;
       }
       const controlValues = {};
-      function slider(label, id, value, unit = "%") {
+      function slider(label, id, value, unit = "%", min = 0, max = 100, step = 1) {
         value = controlValues[id] ?? value;
-        return `<div class="field-group"><div class="field-title"><label for="${id}">${label}</label><div class="numeric-value"><input class="air-field" id="${id}-value" type="number" min="0" max="100" value="${value}" aria-label="${label} value" aria-describedby="${id}-error" data-range="${id}"/><span>${unit}</span></div></div><input class="air-range" id="${id}" type="range" min="0" max="100" value="${value}" data-unit="${unit}"/><p class="air-help air-help--error" id="${id}-error" hidden>Enter a value from 0 to 100.</p></div>`;
+        return `<div class="field-group field-group--numeric"><div class="field-title"><label for="${id}">${label}</label><div class="numeric-value"><input class="air-field" id="${id}-value" type="number" min="${min}" max="${max}" step="${step}" value="${value}" aria-label="${label} value" aria-describedby="${id}-error" data-range="${id}"/><span>${unit}</span></div></div><div class="range-track">${min < 0 ? '<span class="range-neutral" aria-hidden="true"></span>' : ""}<input class="air-range" id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" aria-valuetext="${value}${unit ? " " + unit : ""}" data-unit="${unit}"/></div><p class="air-help air-help--error" id="${id}-error" hidden>Enter a value from ${min} to ${max}, in steps of ${step}.</p></div>`;
+      }
+      const adjustNames = [
+        "Contrast",
+        "Highlights",
+        "Shadows",
+        "Whites",
+        "Blacks",
+        "Saturation",
+        "Vibrance",
+        "Temperature",
+        "Vignette",
+        "Sharpen",
+      ];
+      let adjustView = "adjust",
+        colourBand = "Red";
+      const colourBands = ["Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple", "Magenta"];
+      const bandColours = [
+        "#e36161",
+        "#dc9659",
+        "#d1b548",
+        "#5d9967",
+        "#54aeb5",
+        "#638acf",
+        "#9a77c9",
+        "#c06da4",
+      ];
+      function imageScope() {
+        return field(
+          "Apply to",
+          '<div class="air-segments" aria-label="Adjustment scope"><button aria-pressed="true">Whole</button><button aria-pressed="false" disabled title="Requires a subject mask in the app">Subject</button><button aria-pressed="false" disabled title="Requires a subject mask in the app">Background</button></div><p class="air-help">Subject/background need a local mask.</p>',
+        );
+      }
+      function constrainLevels() {
+        const bounds = [
+          ["levels-black", 0, Number(controlValues["levels-white"] ?? 255) - 1],
+          ["levels-white", Number(controlValues["levels-black"] ?? 0) + 1, 255],
+        ];
+        for (const [id, min, max] of bounds) {
+          const range = document.getElementById(id),
+            value = document.getElementById(id + "-value");
+          if (!range) continue;
+          range.min = value.min = min;
+          range.max = value.max = max;
+          document.getElementById(id + "-error").textContent =
+            `Enter a whole number from ${min} to ${max}. Input black must stay below input white.`;
+        }
+      }
+      let curvePoints = [
+          { x: 0, y: 0 },
+          { x: 128, y: 128 },
+          { x: 255, y: 255 },
+        ],
+        curveSelected = 1,
+        curveDrag = null;
+      function curveMarkup() {
+        return '<div class="curve-editor"><svg class="curve" id="tone-curve" viewBox="0 0 300 300" role="group" aria-label="Tone curve" aria-describedby="curve-instructions"><path class="grid-line" d="M90 30v240M150 30v240M210 30v240M30 90h240M30 150h240M30 210h240"/><path class="curve-identity" d="M30 270L270 30"/><path class="curve-line" id="curve-line"/><g id="curve-points"></g></svg><div class="curve-axis"><span>Shadows</span><span>Highlights</span></div><div class="curve-values"><label class="air-label">Input<input class="air-field" id="curve-x" type="number" min="0" max="255" step="1" aria-describedby="curve-error"/></label><label class="air-label">Output<input class="air-field" id="curve-y" type="number" min="0" max="255" step="1" aria-describedby="curve-error"/></label></div><p class="air-help air-help--error" id="curve-error" hidden>Use whole numbers from 0 to 255. Input must stay between neighbouring points.</p><div class="curve-actions"><button class="air-button air-button--quiet" id="curve-add">Add point</button><button class="air-button air-button--quiet" id="curve-remove">Remove</button><button class="air-button air-button--quiet" id="curve-reset">Reset</button></div><p class="air-help" id="curve-instructions">Select a point. Drag or use arrow keys; Shift moves by 10.</p><p class="air-help">Curve interaction study. Image processing remains in the app.</p></div>';
+      }
+      function drawCurve(rebuild = false) {
+        const plot = inspector.querySelector("#tone-curve");
+        if (!plot) return;
+        const nodes = plot.querySelector("#curve-points");
+        if (rebuild)
+          nodes.innerHTML = curvePoints
+            .map(
+              (_, i) =>
+                `<g class="curve-point" role="button" tabindex="0" data-curve-point="${i}"><circle class="curve-hit" r="30"/><circle class="curve-dot" r="5"/></g>`,
+            )
+            .join("");
+        // Smooth the visual study through its points; the production LUT is unchanged.
+        const coordinate = (x, y) =>
+          `${30 + (x * 240) / 255} ${270 - (Math.max(0, Math.min(255, y)) * 240) / 255}`;
+        const slope = (index) => {
+          const before = curvePoints[Math.max(0, index - 1)],
+            after = curvePoints[Math.min(curvePoints.length - 1, index + 1)];
+          return (after.y - before.y) / (after.x - before.x);
+        };
+        let line = `M${coordinate(curvePoints[0].x, curvePoints[0].y)}`;
+        for (let i = 1; i < curvePoints.length; i++) {
+          const a = curvePoints[i - 1],
+            b = curvePoints[i],
+            dx = (b.x - a.x) / 3;
+          line += ` C${coordinate(a.x + dx, a.y + slope(i - 1) * dx)} ${coordinate(b.x - dx, b.y - slope(i) * dx)} ${coordinate(b.x, b.y)}`;
+        }
+        plot.querySelector("#curve-line").setAttribute("d", line);
+        nodes.querySelectorAll("[data-curve-point]").forEach((node, i) => {
+          const p = curvePoints[i];
+          node.setAttribute(
+            "transform",
+            `translate(${30 + (p.x * 240) / 255} ${270 - (p.y * 240) / 255})`,
+          );
+          node.setAttribute("aria-label", `Point ${i + 1}, input ${p.x}, output ${p.y}`);
+          node.setAttribute("aria-pressed", String(i === curveSelected));
+        });
+        const x = inspector.querySelector("#curve-x"),
+          y = inspector.querySelector("#curve-y"),
+          point = curvePoints[curveSelected];
+        x.value = point.x;
+        y.value = point.y;
+        const endpoint = curveSelected === 0 || curveSelected === curvePoints.length - 1;
+        x.readOnly = endpoint;
+        x.min = endpoint ? point.x : curvePoints[curveSelected - 1].x + 1;
+        x.max = endpoint ? point.x : curvePoints[curveSelected + 1].x - 1;
+        inspector.querySelector("#curve-remove").disabled = endpoint;
+        inspector.querySelector("#curve-add").disabled = curvePoints.length >= 12;
+        x.setAttribute("aria-invalid", "false");
+        y.setAttribute("aria-invalid", "false");
+        inspector.querySelector("#curve-error").hidden = true;
+      }
+      function moveCurvePoint(x, y) {
+        const point = curvePoints[curveSelected],
+          end = curveSelected === 0 || curveSelected === curvePoints.length - 1;
+        point.x = end
+          ? point.x
+          : Math.max(
+              curvePoints[curveSelected - 1].x + 1,
+              Math.min(curvePoints[curveSelected + 1].x - 1, Math.round(x)),
+            );
+        point.y = Math.max(0, Math.min(255, Math.round(y)));
+        drawCurve();
       }
       function renderPanel() {
         const a = apps[currentApp],
@@ -2280,19 +3439,18 @@
             "<span>Select a passage on the page to add emphasis.</span></p>";
         } else if (currentApp === "img") {
           content =
-            field(
-              "Apply to",
-              '<div class="air-segments" aria-label="Adjustment scope"><button aria-pressed="true">Whole image</button><button aria-pressed="false" disabled title="Requires a subject mask in the app">Subject</button><button aria-pressed="false" disabled title="Requires a subject mask in the app">Background</button></div><p class="air-help">Subject controls become available after creating a mask.</p>',
-            ) +
-            slider("Exposure", "exposure", 50) +
-            slider("Warmth", "warmth", 40) +
-            field(
-              "Tone curve",
-              '<svg class="curve" viewBox="0 0 260 100" aria-label="Tone curve preview"><path class="grid-line" d="M65 0v100M130 0v100M195 0v100M0 25h260M0 50h260M0 75h260"/><path class="curve-line" d="M12 88C86 92 84 16 248 12"/><circle cx="105" cy="47" r="4"/></svg>',
-            ) +
-            '<div class="air-segments" aria-label="Image view"><button aria-pressed="true">After</button><button aria-pressed="false">Before</button></div><p class="panel-tip">' +
-            icon("info") +
-            "<span>The image keeps its own colour. The tools stay neutral.</span></p>";
+            '<div class="air-segments adjustment-views" aria-label="Adjustment view"><button aria-pressed="' +
+            (adjustView === "adjust") +
+            '" data-adjust-view="adjust">Adjustments</button><button aria-pressed="' +
+            (adjustView === "curve") +
+            '" data-adjust-view="curve">Tone curve</button></div>' +
+            (adjustView === "curve"
+              ? curveMarkup()
+              : imageScope() +
+                slider("Exposure", "exposure", 0, "EV", -2, 2, 0.1) +
+                adjustNames
+                  .map((name) => slider(name, "adjust-" + name.toLowerCase(), 0, "", -100, 100))
+                  .join(""));
         } else {
           content =
             field(
@@ -2301,12 +3459,9 @@
             ) +
             field(
               '<label for="person-title">Professional title</label>',
-              '<input class="air-field" id="person-title" value="Product Designer"/>',
+              '<textarea class="air-field headline-field" id="person-title" rows="2" aria-describedby="headline-help">Product Designer</textarea><p class="air-help" id="headline-help">The app supports four rendered lines. This study keeps all your text.</p>',
             ) +
-            field(
-              '<label for="person-about">About you</label>',
-              '<textarea class="air-field" id="person-about" rows="4">I help small teams turn complex problems into clear, considered experiences.</textarea>',
-            ) +
+            richField("About you", "person-about", profile.about) +
             '<p class="panel-tip">' +
             icon("lock") +
             "<span>Your story stays on your device.</span></p>";
@@ -2348,62 +3503,73 @@
               "Aspect ratio",
               '<div class="air-segments" aria-label="Crop ratio"><button aria-pressed="true" data-ratio="1.2">Original</button><button aria-pressed="false" data-ratio="1">Square</button></div>',
             ) +
-            slider("Straighten", "straighten", 50, "") +
+            slider("Rotation", "straighten", 0, "°", -45, 45) +
             '<label class="air-check-label"><input class="air-check" type="checkbox" checked/>Keep aspect ratio</label><p class="panel-tip">' +
             icon("crop") +
             "<span>Geometry controls keep the same field rhythm and precise values.</span></p>";
         if (currentApp === "img" && a.active === 2)
           content =
-            field(
-              "Brush",
-              '<div class="air-segments" aria-label="Brush edge"><button aria-pressed="true">Soft</button><button aria-pressed="false">Hard</button></div>',
-            ) +
-            slider("Size", "brush-size", 32, " px") +
-            slider("Strength", "brush-strength", 60) +
+            slider("Brush size", "brush-size", 32, "px", 0, 100) +
+            slider("Edge feather", "brush-feather", 6, "px", 0, 30) +
             '<p class="panel-tip">' +
             icon("info") +
-            "<span>These are representative brush controls. Painting is not part of this study.</span></p>";
+            "<span>Click a spot to heal it from neighbouring pixels. Brush-control study; painting stays in the app.</span></p>";
         if (currentApp === "img" && a.active === 3)
           content =
-            '<div class="air-segments" aria-label="Layer selection" style="flex-direction:column"><button aria-pressed="true">Light adjustments</button><button aria-pressed="false">Coastal image</button></div><div class="panel-separator"></div>' +
-            slider("Layer opacity", "layer-opacity", 100) +
-            '<label class="air-check-label"><input class="air-check" type="checkbox" checked/>Visible</label><p class="panel-tip">' +
-            icon("layers") +
-            "<span>Layers, history and page lists share one row language.</span></p>";
+            imageScope() +
+            slider("Input black", "levels-black", 0, "", 0, 255) +
+            slider("Midtone", "levels-gamma", 1, "γ", 0.1, 3, 0.1) +
+            slider("Input white", "levels-white", 255, "", 0, 255) +
+            slider("Output black", "levels-output-black", 0, "", 0, 255) +
+            slider("Output white", "levels-output-white", 255, "", 0, 255) +
+            '<p class="air-help">Precision-control study. The app retains its existing gamma mapping and ordered input limits.</p>';
+        if (currentApp === "img" && a.active === 4)
+          content =
+            imageScope() +
+            field(
+              "Colour band",
+              '<div class="swatches band-swatches" aria-label="Colour band">' +
+                colourBands
+                  .map(
+                    (name, i) =>
+                      `<button class="swatch" aria-label="${name}" aria-pressed="${name === colourBand}" data-band="${name}" style="--swatch:${bandColours[i]}"><i></i></button>`,
+                  )
+                  .join("") +
+                '</div><p class="air-help">' +
+                colourBand +
+                "</p>",
+            ) +
+            slider("Hue", "hsl-" + colourBand + "-hue", 0, "°", -60, 60) +
+            slider("Saturation", "hsl-" + colourBand + "-saturation", 0, "", -100, 100) +
+            slider("Luminance", "hsl-" + colourBand + "-luminance", 0, "", -50, 50);
         if (currentApp === "resume" && a.active === 2)
           content =
-            field(
-              '<label for="role-name">Role</label>',
-              '<input class="air-field" id="role-name" value="Product Designer"/>',
-            ) +
-            field(
-              '<label for="company-name">Company</label>',
-              '<input class="air-field" id="company-name" value="North Studio"/>',
-            ) +
-            field(
-              '<label for="start-year">Start year</label>',
-              '<input class="air-field" id="start-year" type="number" value="2022"/>',
-            ) +
-            '<label class="air-check-label"><input class="air-check" type="checkbox" checked/>I currently work here</label>';
+            resumeRoles.map(roleMarkup).join("") +
+            `<div class="resume-undo" ${removedRole ? "" : "hidden"}><p class="air-help">Experience removed.</p><button class="air-button" id="undo-role">Undo removal</button></div><button class="air-button" id="add-role">Add experience</button><p class="air-help resume-study-note">Changes stay in this tab. The app retains separate rich-text bullets, full history and document saving.</p>`;
         if (currentApp === "resume" && a.active === 3)
           content =
-            field(
-              "Document style",
-              '<div class="air-segments" aria-label="Document style"><button aria-pressed="true" data-document-font="sans">Clean</button><button aria-pressed="false" data-document-font="serif">Editorial</button></div>',
-            ) +
-            '<p class="air-help">The document can have its own character. Its controls stay in the Air family.</p><div class="panel-separator"></div><p class="panel-tip">' +
-            icon("template") +
-            "<span>These sample treatments are design previews, not the full template gallery.</span></p>";
+            '<p class="air-help">Two typography studies. The app’s full template library and layouts will be preserved.</p><div class="panel-separator"></div>' +
+            [
+              ["sans", "Clean", "System sans"],
+              ["serif", "Editorial", "Serif"],
+            ]
+              .map(
+                ([key, title, description]) =>
+                  `<button class="air-button resume-template-choice" data-document-font="${key}" aria-pressed="${resumeOptions.treatment === key}">${title}<span>${description}</span></button>`,
+              )
+              .join("") +
+            '<p class="air-help">These are simplified treatments, not production templates.</p>';
         if (currentApp === "resume" && a.active === 4)
           content =
             field(
               '<label for="paper-size">Paper size</label>',
-              '<select class="air-field" id="paper-size"><option>A4</option><option>US Letter</option></select>',
+              `<select class="air-field" id="paper-size"><option ${resumeOptions.paper === "A4" ? "selected" : ""}>A4</option><option ${resumeOptions.paper === "US Letter" ? "selected" : ""}>US Letter</option></select>`,
             ) +
-            slider("Text size", "text-size", 50, "") +
-            '<label class="air-check-label"><input class="air-check" type="checkbox" checked/>Keep sections together</label><p class="panel-tip">' +
-            icon("info") +
-            "<span>Formatting changes belong to the document, not the app theme.</span></p>";
+            field(
+              '<label for="resume-colour">Primary colour</label>',
+              `<input class="air-field" id="resume-colour" value="${resumeOptions.colour}" spellcheck="false" aria-describedby="resume-colour-help"/><p class="air-help" id="resume-colour-help" aria-live="polite">Six-digit hex, for example #34534D.</p><div class="swatches">${["#34534D", "#285AD7", "#202329", "#854C37"].map((colour, i) => `<button class="swatch" data-resume-colour="${colour}" aria-label="${["Forest", "Blue", "Graphite", "Clay"][i]} document colour" aria-pressed="${resumeOptions.colour === colour}" style="--swatch:${colour}"><i></i></button>`).join("")}</div>`,
+            ) +
+            '<p class="air-help">Paper stays white in both themes. Colour belongs to your document.</p><div class="panel-separator"></div><button class="air-button" id="resume-save">Save résumé · JSON</button><p class="air-help">PDF export and editable JSON saving are separate actions in the app. This study creates no files.</p>';
         if (currentApp === "resume" && a.active === 1)
           content =
             contacts
@@ -2413,7 +3579,20 @@
               )
               .join("") +
             '<p class="air-help">Reorder with buttons or a keyboard. Contact rows share the same quiet fields as the rest of the editor.</p>';
-        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}<button class="air-icon-button view-toggle" id="expand-controls" aria-label="${document.querySelector(".workbench").dataset.editingExpanded === "true" ? "Restore split view" : "Expand controls"}" aria-pressed="${document.querySelector(".workbench").dataset.editingExpanded === "true"}">${icon("expand")}</button></div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Find the balance that feels right for your image.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-done">Done</button></div>`;
+        inspector.dataset.curve = String(
+          currentApp === "img" && a.active === 0 && adjustView === "curve",
+        );
+        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}<button class="air-icon-button view-toggle" id="expand-controls" aria-label="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true" ? "Restore split view" : "Expand controls"}" aria-pressed="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true"}">${icon("expand")}</button></div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Precise light, colour and detail.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-done">Done</button></div>`;
+        if (currentApp === "img" && a.active === 0 && adjustView === "curve") {
+          drawCurve(true);
+          if (inspector.querySelector("#mobile-tool").getClientRects().length) {
+            document.querySelector(".editor-workspace").dataset.editingExpanded = "true";
+            const expand = inspector.querySelector("#expand-controls");
+            expand.setAttribute("aria-label", "Restore split view");
+            expand.setAttribute("aria-pressed", "true");
+          }
+        }
+        if (currentApp === "img" && a.active === 3) constrainLevels();
         if (currentApp === "pdf" && a.active === 1) restoreSignature();
         if (currentApp === "resume" && a.active === 0) {
           inspector.querySelector("#person-name").value = profile.name;
@@ -2484,23 +3663,25 @@
         zoom = 1;
         doc.style.transform = "";
         doc.style.filter =
-          id === "img" ? `brightness(${0.5 + Number(controlValues.exposure ?? 50) / 100})` : "";
-        document.querySelector(".workbench").dataset.app = id;
+          id === "img" ? `brightness(${2 ** Number(controlValues.exposure ?? 0)})` : "";
+        document.querySelector(".editor-workspace").dataset.app = id;
         const area = document.querySelector(".work-area");
         if (id === "resume") area.insertBefore(inspector, area.querySelector(".canvas-host"));
         else area.append(inspector);
         if (id === "pdf") paintHighlight();
-        if (id === "resume") {
-          doc.querySelector("h3").textContent = profile.name;
-          doc.querySelector(".resume-role").textContent = profile.title;
-          doc.querySelector(".resume-paper p").textContent = profile.about;
-        }
+        if (id === "resume") paintResume();
+        document.querySelector("#open-dialog").innerHTML =
+          (id === "resume" ? "Export PDF" : "Export") + icon("right");
 
         document.querySelector("#zoom-value").textContent = "Fit";
         renderPanel();
         fitDocument();
       }
       function fitDocument() {
+        const resumePaper = doc.querySelector(".resume-paper");
+        if (resumePaper)
+          resumePaper.style.minHeight =
+            resumePaper.offsetWidth * (resumeOptions.paper === "A4" ? 297 / 210 : 11 / 8.5) + "px";
         const canvas = document.querySelector(".canvas-content"),
           frame = document.querySelector(".document-frame");
         const style = getComputedStyle(canvas);
@@ -2514,7 +3695,20 @@
         frame.style.height = doc.offsetHeight * scale + "px";
         doc.style.transform = `scale(${scale})`;
       }
-      const canvasResize = new ResizeObserver(fitDocument);
+      let previousCompact = false;
+      const canvasResize = new ResizeObserver(() => {
+        const compact = Boolean(inspector.querySelector("#mobile-tool")?.getClientRects().length);
+        const enteringCompact = compact && !previousCompact;
+        previousCompact = compact;
+        if (
+          enteringCompact &&
+          currentApp === "img" &&
+          apps.img.active === 0 &&
+          adjustView === "curve"
+        )
+          renderPanel();
+        fitDocument();
+      });
       canvasResize.observe(document.querySelector(".canvas-content"));
       canvasResize.observe(doc);
       setApp("pdf");
@@ -2546,7 +3740,7 @@
           restoreSignature();
         }
         if (button.id === "expand-controls") {
-          const workspace = document.querySelector(".workbench");
+          const workspace = document.querySelector(".editor-workspace");
           const expanded = workspace.dataset.editingExpanded !== "true";
           workspace.dataset.editingExpanded = String(expanded);
           button.setAttribute("aria-pressed", String(expanded));
@@ -2561,6 +3755,52 @@
           renderPanel();
           inspector.querySelector(`#contact-${to}`).focus();
         }
+        if (button.dataset.adjustView) {
+          adjustView = button.dataset.adjustView;
+          renderPanel();
+          inspector.querySelector(`[data-adjust-view="${adjustView}"]`).focus();
+        }
+        if (button.dataset.band) {
+          colourBand = button.dataset.band;
+          renderPanel();
+          inspector.querySelector(`[data-band="${colourBand}"]`).focus();
+        }
+        if (button.id === "curve-add") {
+          let gap = 0,
+            at = 0;
+          for (let i = 1; i < curvePoints.length; i++)
+            if (curvePoints[i].x - curvePoints[i - 1].x > gap) {
+              gap = curvePoints[i].x - curvePoints[i - 1].x;
+              at = i;
+            }
+          const left = curvePoints[at - 1],
+            right = curvePoints[at];
+          curvePoints.splice(at, 0, {
+            x: Math.round((left.x + right.x) / 2),
+            y: Math.round((left.y + right.y) / 2),
+          });
+          curveSelected = at;
+          drawCurve(true);
+          inspector.querySelector(`[data-curve-point="${at}"]`).focus();
+        }
+        if (
+          button.id === "curve-remove" &&
+          curveSelected > 0 &&
+          curveSelected < curvePoints.length - 1
+        ) {
+          curvePoints.splice(curveSelected, 1);
+          curveSelected--;
+          drawCurve(true);
+          inspector.querySelector(`[data-curve-point="${curveSelected}"]`).focus();
+        }
+        if (button.id === "curve-reset") {
+          curvePoints = [
+            { x: 0, y: 0 },
+            { x: 255, y: 255 },
+          ];
+          curveSelected = 0;
+          drawCurve(true);
+        }
         if (button.dataset.tool) {
           apps[currentApp].active = Number(button.dataset.tool);
           renderPanel();
@@ -2571,9 +3811,13 @@
             .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
         if (button.dataset.ratio)
           doc.querySelector(".image-art").style.aspectRatio = button.dataset.ratio;
-        if (button.dataset.documentFont)
-          doc.querySelector(".resume-paper").style.fontFamily =
-            button.dataset.documentFont === "serif" ? "Georgia, serif" : "var(--air-font)";
+        if (button.dataset.documentFont) {
+          resumeOptions.treatment = button.dataset.documentFont;
+          inspector
+            .querySelectorAll("[data-document-font]")
+            .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+          paintResume();
+        }
         if (button.id === "preview-mask") {
           const mask = button.getAttribute("aria-pressed") !== "true";
           button.setAttribute("aria-pressed", String(mask));
@@ -2597,10 +3841,26 @@
           paintHighlight();
         }
       });
+      const familyMenu = document.querySelector(".family-menu");
+      familyMenu.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && familyMenu.open) {
+          event.preventDefault();
+          familyMenu.open = false;
+          familyMenu.querySelector("summary").focus();
+        }
+      });
+      familyMenu.addEventListener("click", (event) => {
+        if (event.target.closest("a")) familyMenu.open = false;
+      });
       document.addEventListener("input", (event) => {
         const target = event.target;
         if (target.matches("input[type=range]")) {
           controlValues[target.id] = target.value;
+          if (target.id.startsWith("levels-")) constrainLevels();
+          target.setAttribute(
+            "aria-valuetext",
+            target.value + (target.dataset.unit ? " " + target.dataset.unit : ""),
+          );
           const valueField = document.querySelector("#" + target.id + "-value");
           valueField.value = target.value;
           valueField.setAttribute("aria-invalid", "false");
@@ -2610,15 +3870,31 @@
             paintHighlight();
           }
           if (target.id === "exposure")
-            doc.style.filter = `brightness(${0.5 + Number(target.value) / 100})`;
+            doc.style.filter = `brightness(${2 ** Number(target.value)})`;
         }
         if (target.dataset.range) {
           const range = document.getElementById(target.dataset.range);
           const number = Number(target.value);
-          if (target.value !== "" && number >= Number(range.min) && number <= Number(range.max)) {
+          if (
+            target.value !== "" &&
+            target.validity.valid &&
+            number >= Number(range.min) &&
+            number <= Number(range.max)
+          ) {
             range.value = target.value;
             target.setAttribute("aria-invalid", "false");
-            range.dispatchEvent(new Event("input", { bubbles: true }));
+            controlValues[range.id] = range.value;
+            if (range.id.startsWith("levels-")) constrainLevels();
+            range.setAttribute(
+              "aria-valuetext",
+              range.value + (range.dataset.unit ? " " + range.dataset.unit : ""),
+            );
+            document.getElementById(range.id + "-error").hidden = true;
+            if (range.id === "exposure") doc.style.filter = `brightness(${2 ** number})`;
+            if (range.id === "opacity") {
+              highlightOpacity = number;
+              paintHighlight();
+            }
           } else {
             target.setAttribute("aria-invalid", "true");
             document.getElementById(target.dataset.range + "-error").hidden = false;
@@ -2628,15 +3904,15 @@
           contacts[Number(target.dataset.contact)].value = target.value;
         if (target.id === "person-name") {
           profile.name = target.value;
-          doc.querySelector("h3").textContent = target.value;
+          paintResume();
         }
         if (target.id === "person-title") {
           profile.title = target.value;
-          doc.querySelector(".resume-role").textContent = target.value;
+          paintResume();
         }
         if (target.id === "person-about") {
           profile.about = target.value;
-          doc.querySelector(".resume-paper p").textContent = target.value;
+          paintResume();
         }
 
         if (target.getAttribute("aria-label") === "Hex colour") {
@@ -2651,6 +3927,88 @@
             highlightColour = target.value;
             paintHighlight();
           }
+        }
+      });
+      document.addEventListener("input", (event) => {
+        const target = event.target;
+        if (target.id !== "curve-x" && target.id !== "curve-y") return;
+        if (target.value === "" || !target.validity.valid) {
+          target.setAttribute("aria-invalid", "true");
+          inspector.querySelector("#curve-error").hidden = false;
+          return;
+        }
+        curvePoints[curveSelected][target.id === "curve-x" ? "x" : "y"] = Number(target.value);
+        drawCurve();
+      });
+      document.addEventListener("focusin", (event) => {
+        const point = event.target.closest("[data-curve-point]");
+        if (point) {
+          curveSelected = Number(point.dataset.curvePoint);
+          drawCurve();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        const node = event.target.closest("[data-curve-point]");
+        if (!node) return;
+        curveSelected = Number(node.dataset.curvePoint);
+        const p = curvePoints[curveSelected],
+          n = event.shiftKey ? 10 : 1;
+        if (
+          [
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Enter",
+            " ",
+            "Delete",
+            "Backspace",
+          ].includes(event.key)
+        )
+          event.preventDefault();
+        if (event.key === "ArrowLeft") moveCurvePoint(p.x - n, p.y);
+        if (event.key === "ArrowRight") moveCurvePoint(p.x + n, p.y);
+        if (event.key === "ArrowUp") moveCurvePoint(p.x, p.y + n);
+        if (event.key === "ArrowDown") moveCurvePoint(p.x, p.y - n);
+        if (event.key === "Enter" || event.key === " ") drawCurve();
+        if (
+          (event.key === "Delete" || event.key === "Backspace") &&
+          curveSelected > 0 &&
+          curveSelected < curvePoints.length - 1
+        )
+          inspector.querySelector("#curve-remove").click();
+      });
+      document.addEventListener("pointerdown", (event) => {
+        const point = event.target.closest("[data-curve-point]");
+        if (!point || !event.isPrimary) return;
+        event.preventDefault();
+        curveSelected = Number(point.dataset.curvePoint);
+        point.focus();
+        const plot = point.closest("svg");
+        curveDrag = { id: event.pointerId, original: curvePoints.map((p) => ({ ...p })) };
+        plot.setPointerCapture(event.pointerId);
+        drawCurve();
+      });
+      document.addEventListener("pointermove", (event) => {
+        if (!curveDrag || curveDrag.id !== event.pointerId) return;
+        const plot = inspector.querySelector("#tone-curve");
+        if (!plot) {
+          curveDrag = null;
+          return;
+        }
+        const p = new DOMPoint(event.clientX, event.clientY).matrixTransform(
+          plot.getScreenCTM().inverse(),
+        );
+        moveCurvePoint(((p.x - 30) * 255) / 240, ((270 - p.y) * 255) / 240);
+      });
+      document.addEventListener("pointerup", () => {
+        curveDrag = null;
+      });
+      document.addEventListener("pointercancel", () => {
+        if (curveDrag) {
+          curvePoints = curveDrag.original;
+          curveDrag = null;
+          drawCurve();
         }
       });
       let signaturePointer = null;
@@ -2713,7 +4071,7 @@
           expanded = b.getAttribute("aria-pressed") !== "true";
         b.setAttribute("aria-pressed", String(expanded));
         b.setAttribute("aria-label", expanded ? "Return to editing" : "Expand preview");
-        document.querySelector(".workbench").dataset.expanded = String(expanded);
+        document.querySelector(".editor-workspace").dataset.expanded = String(expanded);
       });
       function setZoom(delta) {
         zoom = Math.max(0.75, Math.min(1.25, zoom + delta));
@@ -2722,23 +4080,9 @@
       }
       document.querySelector("#zoom-out").addEventListener("click", () => setZoom(-0.1));
       document.querySelector("#zoom-in").addEventListener("click", () => setZoom(0.1));
-      const dialog = document.querySelector("#export-dialog"),
-        reduce = matchMedia("(prefers-reduced-motion:reduce)");
-      let dialogAnimation;
-      function dialogMotion(enter) {
-        const sheet = matchMedia("(max-width:640px)").matches;
-        const resting = { opacity: 1, transform: "translateY(0) scale(1)" };
-        const displaced = {
-          opacity: sheet ? 1 : 0,
-          transform: sheet ? "translateY(100%)" : "translateY(4px) scale(.98)",
-        };
-        return dialog.animate(enter ? [displaced, resting] : [resting, displaced], {
-          duration: enter ? 240 : 160,
-          easing: sheet ? "cubic-bezier(.32,.72,0,1)" : "cubic-bezier(.23,1,.32,1)",
-        });
-      }
+      const dialog = document.querySelector("#export-dialog");
+      const exportMotion = createDialogMotion(dialog);
       function openDialog(event) {
-        dialogAnimation?.cancel();
         document.querySelector("#export-title").textContent =
           currentApp === "img"
             ? "Export image"
@@ -2748,7 +4092,7 @@
         const formats = {
           pdf: ["PDF", "PNG", "JPEG", "WebP", "Contact sheet", "Split pages"],
           img: ["JPEG", "PNG", "WebP", "AVIF", "HEIC"],
-          resume: ["PDF", "JSON backup"],
+          resume: ["PDF"],
         }[currentApp];
         let options = field(
           '<label for="export-format">Format</label>',
@@ -2771,28 +4115,27 @@
           options +=
             slider("Quality", "export-quality", 92) +
             '<div class="export-dimensions"><div><label class="air-label" for="export-width">Width · px</label><input class="air-field" id="export-width" type="number" value="1200"/></div><div><label class="air-label" for="export-height">Height · px</label><input class="air-field" id="export-height" type="number" value="1000"/></div></div><label class="air-check-label"><input class="air-check" type="checkbox" checked/>Keep aspect ratio</label><label class="air-check-label"><input class="air-check" type="checkbox" checked/>Remove metadata</label><p class="air-help">Privacy review and face detection remain separate, explicit actions in the app.</p>';
-        if (currentApp === "resume")
-          options +=
-            '<p class="air-help">PDF keeps your selected template and paper size. A JSON backup keeps the editable résumé.</p>';
+        if (currentApp === "resume") {
+          const saving = Boolean(event.target.closest("#resume-save"));
+          document.querySelector("#export-title").textContent = saving
+            ? "Save editable résumé"
+            : "Export PDF";
+          options = `<p class="air-help">${saving ? "JSON preserves the editable résumé. Load it in the app to continue." : `The app exports PDF directly using your chosen template, ${resumeOptions.paper} paper and document colour.`}</p>`;
+        }
         document.querySelector("#export-options").innerHTML = options;
         dialog.showModal();
         document.querySelector("#export-name").value = apps[currentApp].file.replace(
           /\.(pdf|png)$/,
           "",
         );
-        if (event.detail !== 0 && !reduce.matches) dialogAnimation = dialogMotion(true);
+        exportMotion.enter(event);
       }
       function closeDialog(event, value = "cancel") {
-        dialogAnimation?.cancel();
-        if (event.detail === 0 || reduce.matches) {
-          dialog.close(value);
-          return;
-        }
-        dialogAnimation = dialogMotion(false);
-        dialogAnimation.finished.then(() => dialog.close(value)).catch(() => {});
+        exportMotion.close(event, value);
       }
       document.querySelector("#open-dialog").addEventListener("click", openDialog);
       document.querySelector("#sample-export").addEventListener("click", openDialog);
+      document.querySelector("#inspect-overlay").addEventListener("click", openDialog);
       dialog.querySelector(".dialog-close").addEventListener("click", closeDialog);
       dialog.querySelectorAll("form button").forEach((button) =>
         button.addEventListener("click", (event) => {
@@ -2800,7 +4143,6 @@
           closeDialog(event, button.value);
         }),
       );
-      dialog.addEventListener("cancel", () => dialogAnimation?.cancel());
       dialog.addEventListener("keydown", (event) => {
         if (event.key !== "Tab") return;
         const controls = [...dialog.querySelectorAll("button,input,select,textarea")],
@@ -2814,21 +4156,688 @@
           first.focus();
         }
       });
-      let completionAnimation;
+
+      // Study-only copy of Resume richText helpers; product retains its tested implementation.
+      const MARKER_RE = /(\*\*|__|\*|_|`|<u>)/;
+
+      function closingMarker(marker) {
+        return marker === "<u>" ? "</u>" : marker;
+      }
+
+      function parseInline(input) {
+        const out = [];
+        let remaining = input;
+        while (remaining.length > 0) {
+          const match = MARKER_RE.exec(remaining);
+          if (!match) {
+            out.push({ type: "text", value: remaining });
+            break;
+          }
+          if (match.index > 0) {
+            out.push({ type: "text", value: remaining.slice(0, match.index) });
+          }
+          const marker = match[0];
+          const rest = remaining.slice(match.index + marker.length);
+          // Underscores inside identifiers (e.g. event_source_id) are literal text.
+          if (
+            marker.startsWith("_") &&
+            /[\p{L}\p{N}]/u.test(remaining[match.index - 1] ?? "") &&
+            /[\p{L}\p{N}]/u.test(rest[0] ?? "")
+          ) {
+            out.push({ type: "text", value: marker });
+            remaining = rest;
+            continue;
+          }
+          const close = closingMarker(marker);
+          const closeIdx = findClose(rest, close);
+          if (closeIdx === -1) {
+            // No matching close — treat as literal.
+            out.push({ type: "text", value: marker });
+            remaining = rest;
+            continue;
+          }
+          const inner = rest.slice(0, closeIdx);
+          remaining = rest.slice(closeIdx + close.length);
+          if (marker === "**" || marker === "__") {
+            out.push({ type: "bold", children: parseInline(inner) });
+          } else if (marker === "*" || marker === "_") {
+            out.push({ type: "italic", children: parseInline(inner) });
+          } else if (marker === "`") {
+            out.push({ type: "code", value: inner });
+          } else if (marker === "<u>") {
+            out.push({ type: "underline", children: parseInline(inner) });
+          }
+        }
+        return out;
+      }
+
+      function findClose(s, marker) {
+        // Look for the next occurrence of the same marker that isn't stuck to the opening.
+        let i = 0;
+        while (i < s.length) {
+          const idx = s.indexOf(marker, i);
+          if (idx === -1) return -1;
+          // Ensure we don't match a different-length marker as a prefix (e.g. `*` inside `**`).
+          if (marker === "*" && s[idx + 1] === "*") {
+            i = idx + 2;
+            continue;
+          }
+          if (marker === "_" && s[idx + 1] === "_") {
+            i = idx + 2;
+            continue;
+          }
+          return idx;
+        }
+        return -1;
+      }
+
+      function toggleSelection(textarea, marker) {
+        const { selectionStart: s, selectionEnd: e, value } = textarea;
+        const m = marker.length;
+        const closeMarker = closingMarker(marker);
+        const c = closeMarker.length;
+
+        // Inline formatting is scoped to a line. Wrap each selected line separately,
+        // leaving blank lines and indentation intact so toolbar actions match preview.
+        const selected = value.slice(s, e);
+        if (/[\r\n]/.test(selected)) {
+          const inner = selected
+            .split(/(\r\n|\r|\n)/)
+            .map((line) => {
+              if (!line.trim()) return line;
+              const start = line.length - line.trimStart().length;
+              const end = line.trimEnd().length;
+              return toggleSelection(
+                { value: line, selectionStart: start, selectionEnd: end },
+                marker,
+              ).value;
+            })
+            .join("");
+          return {
+            value: value.slice(0, s) + inner + value.slice(e),
+            start: s,
+            end: s + inner.length,
+          };
+        }
+
+        // Markers sit immediately outside the selection: **[foo]**
+        if (
+          s >= m &&
+          e + c <= value.length &&
+          value.slice(s - m, s) === marker &&
+          value.slice(e, e + c) === closeMarker
+        ) {
+          const next = value.slice(0, s - m) + value.slice(s, e) + value.slice(e + c);
+          return { value: next, start: s - m, end: e - m };
+        }
+
+        // Markers sit just inside the selection: [**foo**]
+        if (
+          e - s >= m + c &&
+          value.slice(s, s + m) === marker &&
+          value.slice(e - c, e) === closeMarker
+        ) {
+          const next = value.slice(0, s) + value.slice(s + m, e - c) + value.slice(e);
+          return { value: next, start: s, end: e - m - c };
+        }
+
+        // Collapsed cursor inside a matched pair on the same line — unwrap it.
+        if (s === e) {
+          const enclosing = findEnclosingPair(value, s, marker);
+          if (enclosing) {
+            const { open, close } = enclosing;
+            const next =
+              value.slice(0, open) + value.slice(open + m, close) + value.slice(close + c);
+            // Clamp the caret to the new (unwrapped) region.
+            const caret = Math.max(open, Math.min(s - m, close - m));
+            return { value: next, start: caret, end: caret };
+          }
+        }
+
+        // Default: wrap the selection (or insert placeholder when empty).
+        const placeholder = "text";
+        const inner = selected || placeholder;
+        const next = `${value.slice(0, s)}${marker}${inner}${closeMarker}${value.slice(e)}`;
+        const innerStart = s + m;
+        const innerEnd = innerStart + inner.length;
+        return { value: next, start: innerStart, end: innerEnd };
+      }
+
+      /**
+       * Compute which inline markers are "open" at the given cursor position.
+       * Scoped to the current line since our grammar doesn't span newlines.
+       *
+       * Uses a simple toggle-on-encounter scan — longer markers (`**`, `__`)
+       * are matched before single-character ones so `*` inside `**…**` isn't
+       * mistaken for italic start/end.
+       */
+      function formatStateAt(value, pos, selectionEnd = pos) {
+        // A multiline toolbar action selects the markers too. Inspect the first
+        // selected character after opening markers so the chosen format stays active.
+        if (selectionEnd > pos) {
+          pos +=
+            value.slice(pos, selectionEnd).match(/^\s*(?:(?:\*\*|__|\*|_|`|<u>))*/)?.[0].length ??
+            0;
+        }
+        const lineStart = value.lastIndexOf("\n", pos - 1) + 1;
+        const end = Math.min(pos, value.length);
+        let boldStar = false;
+        let boldUnder = false;
+        let italicStar = false;
+        let italicUnder = false;
+        let code = false;
+        let underline = false;
+        let i = lineStart;
+        while (i < end) {
+          // Inside a code span the other markers are literal — ignore them.
+          if (code) {
+            if (value[i] === "`") {
+              code = false;
+              i += 1;
+            } else {
+              i += 1;
+            }
+            continue;
+          }
+          if (value.startsWith("<u>", i)) {
+            underline = true;
+            i += 3;
+          } else if (value.startsWith("</u>", i)) {
+            underline = false;
+            i += 4;
+          } else if (value.slice(i, i + 2) === "**") {
+            boldStar = !boldStar;
+            i += 2;
+          } else if (value.slice(i, i + 2) === "__") {
+            boldUnder = !boldUnder;
+            i += 2;
+          } else if (value[i] === "*") {
+            italicStar = !italicStar;
+            i += 1;
+          } else if (value[i] === "_") {
+            italicUnder = !italicUnder;
+            i += 1;
+          } else if (value[i] === "`") {
+            code = true;
+            i += 1;
+          } else {
+            i += 1;
+          }
+        }
+        return {
+          bold: boldStar || boldUnder,
+          italic: italicStar || italicUnder,
+          underline,
+          code,
+        };
+      }
+
+      /**
+       * Scan the current line for a matched marker pair that encloses `pos`.
+       * Returns the absolute indices of the opening and closing markers, or
+       * null if `pos` isn't inside such a pair.
+       */
+      function findEnclosingPair(value, pos, marker) {
+        const lineStart = value.lastIndexOf("\n", pos - 1) + 1;
+        const nextNl = value.indexOf("\n", pos);
+        const lineEnd = nextNl === -1 ? value.length : nextNl;
+        const m = marker.length;
+
+        if (marker === "<u>") {
+          const pattern = /<u>|<\/u>/g;
+          pattern.lastIndex = lineStart;
+          let open = null;
+          for (
+            let match = pattern.exec(value);
+            match && match.index < lineEnd;
+            match = pattern.exec(value)
+          ) {
+            if (match[0] === "<u>") open = match.index;
+            else if (open !== null) {
+              if (pos >= open + m && pos <= match.index) return { open, close: match.index };
+              open = null;
+            }
+          }
+          return null;
+        }
+
+        // Collect marker positions on this line while respecting longer variants.
+        const positions = [];
+        let i = lineStart;
+        while (i < lineEnd) {
+          if (marker === "*" && value.slice(i, i + 2) === "**") {
+            i += 2;
+            continue;
+          }
+          if (marker === "_" && value.slice(i, i + 2) === "__") {
+            i += 2;
+            continue;
+          }
+          if (value.slice(i, i + m) === marker) {
+            positions.push(i);
+            i += m;
+          } else {
+            i += 1;
+          }
+        }
+
+        for (let k = 0; k + 1 < positions.length; k += 2) {
+          const open = positions[k];
+          const close = positions[k + 1];
+          if (pos >= open + m && pos <= close) {
+            return { open, close };
+          }
+        }
+        return null;
+      }
+
+      function renderRich(value) {
+        function nodes(tokens) {
+          return tokens.map((token) => {
+            if (token.type === "text") return document.createTextNode(token.value);
+            const element = document.createElement(
+              { bold: "strong", italic: "em", underline: "u", code: "code" }[token.type],
+            );
+            if (token.type === "code") element.textContent = token.value;
+            else element.append(...nodes(token.children));
+            return element;
+          });
+        }
+        return value
+          .split(/\r\n|\r|\n/)
+          .flatMap((line, i) => [
+            ...(i ? [document.createElement("br")] : []),
+            ...nodes(parseInline(line)),
+          ]);
+      }
+      function refreshWriting(textarea) {
+        if (!textarea?.matches("[data-rich]")) return;
+        const state = formatStateAt(textarea.value, textarea.selectionStart, textarea.selectionEnd);
+        textarea
+          .closest(".field-group")
+          .querySelectorAll("[data-format]")
+          .forEach((button) =>
+            button.setAttribute("aria-pressed", String(state[button.dataset.format])),
+          );
+      }
+      function formatWriting(textarea, key) {
+        const format = richFormats.find((item) => item[0] === key);
+        if (!format || !textarea) return;
+        const next = toggleSelection(textarea, format[2]);
+        const scroll = textarea.closest(".inspector-content"),
+          top = scroll.scrollTop;
+        textarea.focus({ preventScroll: true });
+        textarea.select();
+        // Native edit command keeps this operation in the textarea's undo history.
+        if (!document.execCommand("insertText", false, next.value)) {
+          textarea.value = next.value;
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        textarea.setSelectionRange(next.start, next.end);
+        scroll.scrollTop = top;
+        refreshWriting(textarea);
+      }
+      document.addEventListener("selectionchange", () => refreshWriting(document.activeElement));
+      document.addEventListener("select", (event) => refreshWriting(event.target), true);
+      document.addEventListener("keydown", (event) => {
+        if (
+          !event.target.matches("[data-rich]") ||
+          event.isComposing ||
+          !(event.metaKey || event.ctrlKey) ||
+          event.altKey
+        )
+          return;
+        const key = { b: "bold", i: "italic", u: "underline" }[event.key.toLowerCase()];
+        if (key) {
+          event.preventDefault();
+          formatWriting(event.target, key);
+        }
+      });
+      document.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("[data-format]")) event.preventDefault();
+      });
+      function resumeAnnounce(message) {
+        document.querySelector("#resume-announcement").textContent = message;
+      }
+      function focusRole(id) {
+        inspector.querySelector(`#role-${id}-role`)?.focus();
+      }
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        if (button.dataset.format)
+          formatWriting(document.getElementById(button.dataset.writing), button.dataset.format);
+        if (button.dataset.roleMove) {
+          const from = resumeRoles.findIndex((role) => role.id === Number(button.dataset.roleMove));
+          const to = from + Number(button.dataset.direction);
+          if (to < 0 || to >= resumeRoles.length) return;
+          const [role] = resumeRoles.splice(from, 1);
+          resumeRoles.splice(to, 0, role);
+          renderPanel();
+          paintResume();
+          focusRole(role.id);
+          resumeAnnounce(`Experience moved to position ${to + 1}.`);
+        }
+        if (button.dataset.roleRemove) {
+          const at = resumeRoles.findIndex((role) => role.id === Number(button.dataset.roleRemove));
+          removedRole = { at, role: resumeRoles.splice(at, 1)[0] };
+          renderPanel();
+          paintResume();
+          inspector.querySelector("#undo-role").focus();
+          resumeAnnounce("Experience removed. Undo removal is available.");
+        }
+        if (button.id === "undo-role" && removedRole) {
+          const { at, role } = removedRole;
+          resumeRoles.splice(at, 0, role);
+          removedRole = null;
+          renderPanel();
+          paintResume();
+          focusRole(role.id);
+          resumeAnnounce("Experience restored.");
+        }
+        if (button.id === "add-role") {
+          const role = {
+            id: resumeNextId++,
+            role: "",
+            company: "",
+            location: "",
+            start: "",
+            end: "",
+            current: false,
+            detail: "",
+          };
+          resumeRoles.push(role);
+          renderPanel();
+          paintResume();
+          focusRole(role.id);
+          resumeAnnounce("New experience added.");
+        }
+        if (button.dataset.resumeColour) {
+          const field = inspector.querySelector("#resume-colour");
+          field.value = button.dataset.resumeColour;
+          field.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        if (button.id === "resume-save") openDialog(event);
+      });
+      document.addEventListener("input", (event) => {
+        const target = event.target;
+        if (target.dataset.role && target.dataset.key) {
+          resumeRoles.find((role) => role.id === Number(target.dataset.role))[target.dataset.key] =
+            target.value;
+          paintResume();
+        }
+        if (target.matches("[data-rich]")) refreshWriting(target);
+        if (target.id === "resume-colour") {
+          const valid = /^#[a-f\d]{6}$/i.test(target.value);
+          target.setAttribute("aria-invalid", String(!valid));
+          const help = document.querySelector("#resume-colour-help");
+          help.textContent = valid
+            ? "Document colour updated."
+            : "Enter a six-digit hex value, like #34534D.";
+          help.classList.toggle("air-help--error", !valid);
+          if (valid) {
+            resumeOptions.colour = target.value.toUpperCase();
+            paintResume();
+            inspector
+              .querySelectorAll("[data-resume-colour]")
+              .forEach((button) =>
+                button.setAttribute(
+                  "aria-pressed",
+                  String(button.dataset.resumeColour === resumeOptions.colour),
+                ),
+              );
+          }
+        }
+      });
+      document.addEventListener("change", (event) => {
+        const target = event.target;
+        if (target.dataset.current) {
+          const role = resumeRoles.find((role) => role.id === Number(target.dataset.current));
+          role.current = target.checked;
+          const end = inspector.querySelector(`#role-${role.id}-end`);
+          end.disabled = role.current;
+          end.textContent = role.current ? "Present" : role.end || "Choose date…";
+          paintResume();
+        }
+        if (target.id === "paper-size") {
+          resumeOptions.paper = target.value;
+          paintResume();
+        }
+      });
+      const dateDialog = document.querySelector("#date-dialog"),
+        dateYear = document.querySelector("#date-year"),
+        dateOnly = document.querySelector("#date-year-only");
+      const monthNames = Array.from({ length: 12 }, (_, i) =>
+        new Intl.DateTimeFormat("en", { month: "short" }).format(new Date(2020, i, 1)),
+      );
+      let dateDraft = null;
+      function renderDateMonths() {
+        dateDialog.querySelector(".date-months").innerHTML = monthNames
+          .map(
+            (month, i) =>
+              `<button class="air-button" aria-pressed="${!dateOnly.checked && dateDraft.month === i}" data-month="${i}">${month}</button>`,
+          )
+          .join("");
+      }
+      document.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+        if (button.dataset.date) {
+          const role = resumeRoles.find((role) => role.id === Number(button.dataset.role));
+          const value = role[button.dataset.date],
+            match = value.match(/^(?:(\w{3}) )?(\d{4})$/);
+          dateDraft = {
+            role,
+            key: button.dataset.date,
+            trigger: button.id,
+            month: match?.[1] ? monthNames.indexOf(match[1]) : 0,
+          };
+          dateYear.value = match?.[2] || "";
+          dateOnly.checked = !match?.[1];
+          dateYear.setAttribute("aria-invalid", "false");
+          document.querySelector("#date-error").hidden = true;
+          document.querySelector("#date-title").textContent =
+            button.dataset.date === "start" ? "Start date" : "End date";
+          renderDateMonths();
+          dateDialog.showModal();
+        }
+        if (button.dataset.month !== undefined) {
+          dateDraft.month = Number(button.dataset.month);
+          dateOnly.checked = false;
+          dateDialog
+            .querySelectorAll("[data-month]")
+            .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+        }
+        if (button.id === "date-cancel") dateDialog.close();
+        if (button.id === "date-apply" || button.id === "date-clear") {
+          if (button.id === "date-apply" && !/^\d{4}$/.test(dateYear.value)) {
+            dateYear.setAttribute("aria-invalid", "true");
+            document.querySelector("#date-error").hidden = false;
+            dateYear.focus();
+            return;
+          }
+          dateDraft.role[dateDraft.key] =
+            button.id === "date-clear"
+              ? ""
+              : (dateOnly.checked ? "" : monthNames[dateDraft.month] + " ") + dateYear.value;
+          const trigger = document.getElementById(dateDraft.trigger);
+          trigger.textContent = dateDraft.role[dateDraft.key] || "Choose date…";
+          paintResume();
+          dateDialog.close();
+        }
+      });
+      dateDialog.addEventListener("keydown", (event) => {
+        if (event.key !== "Tab") return;
+        const controls = [...dateDialog.querySelectorAll("button,input")].filter(
+          (control) => !control.disabled,
+        );
+        const first = controls[0],
+          last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+      dateOnly.addEventListener("change", renderDateMonths);
+      dateYear.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.querySelector("#date-apply").click();
+        }
+      });
+      dateDialog.addEventListener("close", () =>
+        document.getElementById(dateDraft?.trigger)?.focus(),
+      );
+
+      const taskStudy = document.querySelector("#reference-task");
+      const taskStatus = document.querySelector("#task-status");
+      const taskOutcomes = ["complete", "fail", "cancel"].map((name) =>
+        document.querySelector(`#task-${name}`),
+      );
+      function showTaskState(state, message) {
+        taskStudy.dataset.state = state;
+        taskStudy.setAttribute("aria-busy", String(state === "busy"));
+        taskStudy.setAttribute("aria-disabled", String(state === "busy"));
+        for (const label of taskStudy.querySelectorAll("[data-state-label]")) {
+          const active = label.dataset.stateLabel === state;
+          label.toggleAttribute("data-active", active);
+          if (active) taskStudy.setAttribute("aria-label", label.textContent);
+        }
+        taskStatus.classList.toggle("air-help--error", state === "error");
+        taskStatus.textContent = message;
+        taskOutcomes.forEach((button) => (button.disabled = state !== "busy"));
+      }
+      taskStudy.addEventListener("click", () => {
+        if (taskStudy.dataset.state === "busy") return;
+        showTaskState("busy", "Preparing the sample. Choose an outcome below to finish the study.");
+      });
+      const studyOutcomes = [
+        ["success", "Sample preview ready. No file was created."],
+        ["error", "Sample preview failed. Your settings are kept. Try again."],
+        ["idle", "Study cancelled. Your settings are kept."],
+      ];
+      taskOutcomes.forEach((button, index) =>
+        button.addEventListener("click", () => {
+          if (taskStudy.dataset.state !== "busy") return;
+          // Only the study's outcome controls return focus before disabling themselves.
+          taskStudy.focus();
+          showTaskState(...studyOutcomes[index]);
+        }),
+      );
+
+      const searchStudy = document.querySelector("#reference-search");
+      const searchClear = document.querySelector("#reference-clear");
+      const searchStatus = document.querySelector("#search-status");
+      const templateNames = [...document.querySelectorAll("#template-study-results li")];
+      const searchKey = (value) =>
+        value.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase().trim();
+      function filterTemplates() {
+        const query = searchKey(searchStudy.value);
+        searchClear.hidden = !searchStudy.value;
+        let count = 0;
+        for (const item of templateNames) {
+          item.hidden = !searchKey(item.textContent).includes(query);
+          if (!item.hidden) count++;
+        }
+        const message = count
+          ? `${count} ${count === 1 ? "template" : "templates"}.`
+          : "No templates found. Try another name or clear the search.";
+        if (searchStatus.textContent !== message) searchStatus.textContent = message;
+      }
+      searchStudy.addEventListener("input", (event) => {
+        if (!event.isComposing) filterTemplates();
+      });
+      searchStudy.addEventListener("compositionend", filterTemplates);
+      searchClear.addEventListener("click", () => {
+        searchStudy.value = "";
+        searchStudy.focus();
+        filterTemplates();
+      });
+      filterTemplates();
+
+      const qualityStudy = document.querySelector("#reference-quality");
+      const qualityStatus = document.querySelector("#quality-status");
+      function validateQuality() {
+        const valid = qualityStudy.validity.valid && Number.isInteger(qualityStudy.valueAsNumber);
+        qualityStudy.setAttribute("aria-invalid", String(!valid));
+        document.querySelector("#quality-error").hidden = valid;
+        return valid;
+      }
+      qualityStudy.addEventListener("blur", validateQuality);
+      qualityStudy.addEventListener("input", () => {
+        const message = "Quality changed. Apply when you’re ready.";
+        if (qualityStatus.textContent !== message) qualityStatus.textContent = message;
+      });
+      document.querySelector("#number-study-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!validateQuality()) {
+          qualityStatus.textContent = "Check the quality. The previous study value is unchanged.";
+          qualityStudy.focus();
+          return;
+        }
+        document.querySelector("#quality-committed").textContent =
+          `Applied study value: ${qualityStudy.valueAsNumber}%.`;
+        qualityStatus.textContent = "Quality applied to the study. No image was changed.";
+      });
+
+      const fieldStudy = document.querySelector("#field-study-form");
+      const nameStudy = document.querySelector("#reference-name");
+      const rangeStudy = document.querySelector("#reference-error");
+      const fieldStudyStatus = document.querySelector("#field-study-status");
+      fieldStudy.addEventListener("input", () => {
+        const message = "Details changed. Check them when you’re ready.";
+        if (fieldStudyStatus.textContent !== message) fieldStudyStatus.textContent = message;
+      });
+      function validateStudyField(input) {
+        const value = input.value.trim();
+        const range = /^(\d+)(?:\s*[–-]\s*(\d+))?$/.exec(value);
+        const valid =
+          input === nameStudy
+            ? Boolean(value)
+            : Boolean(
+                range &&
+                Number(range[1]) >= 1 &&
+                (!range[2] || Number(range[2]) >= Number(range[1])),
+              );
+        input.setAttribute("aria-invalid", String(!valid));
+        document.querySelector(input === nameStudy ? "#name-error" : "#range-error").hidden = valid;
+        return valid;
+      }
+      for (const input of [nameStudy, rangeStudy])
+        input.addEventListener("blur", () => validateStudyField(input));
+      fieldStudy.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const invalid = [nameStudy, rangeStudy].filter((input) => !validateStudyField(input));
+        document.querySelector("#field-study-status").textContent = invalid.length
+          ? "Check the highlighted details."
+          : "Details are ready. No file was created.";
+        invalid[0]?.focus();
+      });
+      const allAdditions = document.querySelector("#reference-all");
+      const additionChoices = [...document.querySelectorAll("[data-reference-child]")];
+      function reflectAdditions() {
+        const count = additionChoices.filter((input) => input.checked).length;
+        allAdditions.checked = count === additionChoices.length;
+        allAdditions.indeterminate = count > 0 && count < additionChoices.length;
+      }
+      allAdditions.addEventListener("change", () => {
+        additionChoices.forEach((input) => (input.checked = allAdditions.checked));
+        reflectAdditions();
+      });
+      additionChoices.forEach((input) => input.addEventListener("change", reflectAdditions));
+      reflectAdditions();
+
+      const completionMotion = createCompletionMotion(document.querySelector(".saved-orb"));
       document.querySelector("#play-completion").addEventListener("click", (event) => {
-        const orb = document.querySelector(".saved-orb");
-        completionAnimation?.cancel();
         document.querySelector(".motion-status").textContent =
           "All done. A small detail, thoughtfully finished.";
-        if (event.detail !== 0 && !reduce.matches)
-          completionAnimation = orb.animate(
-            [
-              { transform: "translateY(4px) scale(.96)", opacity: 0.4 },
-              { transform: "translateY(0) scale(1)", opacity: 1 },
-            ],
-            { duration: 240, easing: "cubic-bezier(.23,1,.32,1)" },
-          );
+        completionMotion.play(event);
       });
     </script>
+    <script type="module" src="./light-controller.mjs"></script>
+    <script type="module" src="./overlays-loader.mjs?air=7c0085adfa07"></script>
   </body>
 </html>
