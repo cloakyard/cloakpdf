@@ -1,0 +1,2257 @@
+{
+  "date": "2026-10-13",
+  "scope": "Standalone utility headers, global error recovery and route loading; utility bodies and editor remain pending",
+  "recoveryMatrix": [
+    {
+      "state": "error",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "error",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "root": 16,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    },
+    {
+      "state": "loading",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "root": 32,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": false
+    }
+  ],
+  "utilityMatrix": [
+    {
+      "tool": "Merge PDFs",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Merge PDFs",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Images to PDF",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Extract Images",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "PDF Password",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Compare PDFs",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": true,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    },
+    {
+      "tool": "Digital Signature",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "clipped": [],
+      "headerFont": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "orientationOverlay": false,
+      "overflow": false
+    }
+  ],
+  "recoveryJourneys": [
+    {
+      "test": "copy succeeds and retains focus",
+      "copiedStack": true,
+      "copiedVersion": true,
+      "focus": "Copy error details to clipboard",
+      "status": "Error details copied to clipboard."
+    },
+    {
+      "test": "copy denied gives manual recovery",
+      "status": "Couldn’t copy automatically. Select the error message above to copy it manually."
+    },
+    {
+      "test": "retry remounts recovered content and focuses main",
+      "content": "Recovered test content",
+      "focus": "MAIN"
+    },
+    {
+      "test": "coarse targets",
+      "targets": [
+        {
+          "height": 44,
+          "name": "CloakPDF"
+        },
+        {
+          "height": 44,
+          "name": "Reload app"
+        },
+        {
+          "height": 44,
+          "name": "Try again"
+        },
+        {
+          "height": 44,
+          "name": "Copy detailsCopied"
+        }
+      ]
+    },
+    {
+      "test": "reload action reloads document",
+      "changed": true
+    }
+  ],
+  "limitations": [
+    "Existing phone landscape orientation overlay remains pending alongside utility body migration.",
+    "Physical touch, software keyboard and screen-reader speech not tested.",
+    "Error and loading states exercised using their real components in a disposable local fixture; removed afterward.",
+    "Synthetic fixture errors were expected; no report was sent to GitHub."
+  ]
+}

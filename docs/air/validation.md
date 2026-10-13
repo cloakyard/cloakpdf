@@ -142,3 +142,44 @@ fixture. The canonical fixture now retains only its bundled CSS entry; complete
 product inventory checks remain in the real repository. All fifteen assertions
 pass after the shared fix. Legacy Archivo remains requested during startup by
 unmigrated global surfaces; font removal waits for their migration.
+
+## 2026-10-13 — utility headers and global recovery
+
+The six standalone utilities now share a quiet Air header and open workspace.
+Removed the duplicate instrument frame, execution labels and legacy receipt-like
+metadata. Tool requirements and desktop AI eligibility remain intact. Route chunk
+loading uses a visible text status with no invented progress. The real error
+boundary shares the brand/navigation/prose/buttons: original diagnostics and
+GitHub issue preparation remain available, and no report is sent automatically.
+Clipboard failure now offers manual copying; retry restores focus to the new main.
+Reload explains the risk to unsaved changes.
+
+Validation: 132 header layout/theme cases (six tools × eleven sizes × two themes),
+plus 88 real error/loading component cases (eleven sizes × two themes × 16/32px
+root text); no horizontal overflow or inspected heading/control clipping. The
+error fixture was disposable and removed. Keyboard copy success/failure, retry
+focus, real document reload and coarse targets pass. Desktop light/phone dark
+Merge and phone dark recovery screenshots were inspected.
+
+Fresh check/type, dead-code, 355/355 units, production/PWA build and 137-file asset
+limits pass. The initial Icon size prop failed type checking and was corrected to
+the registry's supported className interface. All six standalone workflows pass
+again against production, using the explicitly documented synthetic demo fixtures,
+including valid merge/image/extract/encrypt/compare/sign outputs. Home PDF-open
+and merge-to-editor routing pass. No PDF processing or output format changed.
+
+Source search removed obsolete site/header/footer/navigation, instrument/status
+selectors and their unused animation. Active editor/tool-body primitives remain.
+The existing phone landscape orientation overlay, standalone file lists/actions/
+results, editor/canvas, AI and deeper loading states remain pending. The layout
+cases do not claim feature parity for those pending surfaces. Physical touch,
+software keyboard and screen-reader speech remain open.
+
+[Evidence](evidence/recovery-utility-2026-10-13.json) ·
+[Merge desktop](evidence/utility-merge-desktop-light.png) ·
+[Merge phone](evidence/utility-merge-phone-dark.png) ·
+[Recovery phone](evidence/recovery-phone-dark.png).
+
+The shared shader runtime/declarations are synchronized as portable design assets,
+with all seventeen isolated assertions passing. PDF does not import that renderer;
+its editor remains free of decorative GPU work. No push or deployment.

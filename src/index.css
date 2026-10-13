@@ -86,35 +86,7 @@
   }
 }
 
-/* ── Cloakyard family shell ─────────────────────────────────────── */
-.site-frame {
-  width: min(calc(100% - (2 * var(--space-sm))), 88rem);
-  margin-inline: auto;
-}
-
-.cloak-site {
-  min-height: 100svh;
-  background: var(--color-paper);
-  color: var(--color-ink);
-}
-
-.cloak-site-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky-nav);
-  height: var(--banner-height);
-  border-bottom: var(--rule-thin) solid var(--color-rule);
-  background: var(--color-paper);
-}
-
-.cloak-site-header__inner {
-  height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-md);
-}
-
+/* Legacy editor and tool-body primitives remain until their migration. */
 .cloak-mono-label {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -124,166 +96,15 @@
   text-transform: uppercase;
 }
 
-.cloak-nav-link,
-.cloak-outline-link,
-.cloak-solid-link {
-  display: inline-flex;
-  min-height: 2.5rem;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2xs);
-  border-radius: var(--radius-input);
-  font-family: var(--font-mono);
-  font-size: 0.71rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition:
-    background-color var(--dur-short) var(--ease-standard),
-    border-color var(--dur-short) var(--ease-standard),
-    color var(--dur-short) var(--ease-standard),
-    transform var(--dur-short) var(--ease-out);
-}
-
-.cloak-nav-link {
-  padding-inline: var(--space-xs);
-  color: var(--color-ink-2);
-}
-
-.cloak-nav-link:hover {
-  color: var(--color-accent);
-}
-
-.cloak-outline-link {
-  border: var(--rule-thin) solid var(--color-rule-strong);
-  padding-inline: var(--space-sm);
-  color: var(--color-ink);
-}
-
-.cloak-outline-link:hover {
-  border-color: var(--color-accent);
-}
-
-.cloak-solid-link {
-  border: var(--rule-thin) solid var(--color-accent);
-  padding-inline: var(--space-sm);
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-}
-
-.cloak-solid-link:hover {
-  background: var(--color-accent-hover);
-}
-
-.cloak-brand-mark,
-.cloak-link-arrow,
-.cloak-ledger__icon,
-.cloak-ledger__arrow,
 .editor-toolrail__icon,
 .cloak-dialog__close svg {
   transition: transform var(--dur-short) var(--ease-out);
 }
 
-.cloak-link-motion {
-  transition: color var(--dur-short) var(--ease-standard);
-}
-
 @media (hover: hover) and (pointer: fine) {
-  .cloak-brand-button:hover .cloak-brand-mark {
-    transform: scale(1.04);
-  }
-
-  .cloak-link-motion:hover .cloak-link-arrow {
-    transform: translateX(4px);
-  }
-
-  .cloak-outline-link:hover svg,
   .cloak-dialog__close:hover:not(:disabled) svg {
     transform: translateY(-1px) rotate(-4deg);
   }
-}
-
-.cloak-nav-link:active,
-.cloak-outline-link:active,
-.cloak-solid-link:active {
-  transform: translateY(1px);
-}
-
-.cloak-nav-link:focus-visible,
-.cloak-outline-link:focus-visible,
-.cloak-solid-link:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-.cloak-instrument-bar {
-  min-height: 2.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  border-bottom: var(--rule-thin) solid var(--color-rule);
-  padding: var(--space-xs) var(--space-sm);
-  color: var(--color-ink-2);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.cloak-status-dot {
-  width: 0.48rem;
-  height: 0.48rem;
-  display: inline-block;
-  border-radius: var(--radius-pill);
-  background: var(--color-accent);
-  animation: cloak-status-arrive var(--dur-normal) var(--ease-out) both;
-}
-
-.cloak-tool-page {
-  padding-block: clamp(3rem, 7vw, 6.5rem);
-}
-
-.cloak-tool-page__head {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(17rem, 4fr);
-  align-items: end;
-  gap: clamp(2rem, 7vw, 8rem);
-  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
-}
-
-.cloak-tool-page__title {
-  min-width: 0;
-  margin: var(--space-sm) 0 0;
-  max-width: 11ch;
-  color: var(--color-ink);
-  font-size: clamp(2.75rem, 6vw, 6.2rem);
-  font-weight: 740;
-  letter-spacing: -0.06em;
-  line-height: 0.92;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-.cloak-tool-page__aside {
-  border-top: var(--rule-thin) solid var(--color-rule-strong);
-  padding-top: var(--space-md);
-}
-
-.cloak-tool-instrument {
-  overflow: hidden;
-  border: var(--rule-thin) solid var(--color-rule-strong);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-}
-
-.cloak-tool-instrument__body {
-  padding: clamp(1rem, 3vw, 2.5rem);
 }
 
 .cloak-file-info {
@@ -323,62 +144,6 @@
   .cloak-action-button:hover:not(:disabled) svg:not(.animate-spin) {
     transform: translateY(-1px) scale(1.05);
   }
-}
-
-.cloak-site-footer {
-  border-top: var(--rule-thin) solid var(--color-night-rule);
-  background: var(--color-night);
-  color: var(--color-night-ink);
-}
-
-.cloak-site-footer__statement {
-  min-width: 0;
-  margin: 0;
-  max-width: 13ch;
-  font-size: clamp(2.4rem, 5vw, 5.2rem);
-  font-weight: 720;
-  letter-spacing: -0.055em;
-  line-height: 0.96;
-  overflow-wrap: anywhere;
-}
-
-.cloak-site-footer a:focus-visible,
-.cloak-site-footer button:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 4px;
-  border-radius: 0.125rem;
-}
-
-.cloak-site-footer a:active,
-.cloak-site-footer button:active {
-  color: var(--color-primary-400);
-}
-
-@media (max-width: 639px), (pointer: coarse) {
-  /* These shared component rules sit outside Tailwind's utility layer, so
-     their 40px/line-height sizing otherwise wins over pointer-coarse:min-h-11.
-     Keep the visual treatment compact while restoring a 44px Android target. */
-  .cloak-outline-link,
-  .cloak-link-motion {
-    min-height: 2.75rem;
-  }
-
-  .cloak-link-motion {
-    align-items: center;
-  }
-
-  .cloak-site-footer a,
-  .cloak-site-footer button {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-  }
-}
-
-/* ── Shared family primitives ───────────────────────────────────── */
-.cloak-focus:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
 }
 
 .cloak-field-label {
@@ -723,24 +488,6 @@
   }
 }
 
-@media (min-width: 640px) {
-  .site-frame {
-    width: min(calc(100% - (2 * var(--space-md))), 88rem);
-  }
-}
-
-/* Pending standalone instrument headers retain their existing breakpoint. */
-@media (max-width: 860px) {
-  .cloak-tool-page__head {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 639px) {
-  .cloak-site-footer__statement {
-    font-size: clamp(2.2rem, 13vw, 3.8rem);
-  }
-}
-
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /* Root stack heights and base background. Mirrors CloakResume's
@@ -835,17 +582,6 @@ body {
   }
 }
 
-@keyframes cloak-status-arrive {
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 @media (pointer: coarse) {
   .cloak-panel-enter {
     transition-duration: var(--dur-short);
@@ -935,10 +671,6 @@ body {
     }
   }
 
-  .cloak-brand-mark,
-  .cloak-link-arrow,
-  .cloak-ledger__icon,
-  .cloak-ledger__arrow,
   .editor-toolrail__icon,
   .cloak-dialog__close svg,
   .cloak-action-button svg {

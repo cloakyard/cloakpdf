@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowUpRight, Check, Copy, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, Copy, RefreshCw } from "lucide-react";
 import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
 declare const __APP_VERSION__: string;
@@ -14,18 +14,11 @@ interface Props {
 interface State {
   error: Error | null;
   copied: boolean;
-}
-
-function GithubMark({ className = "" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-    </svg>
-  );
+  copyFailed: boolean;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { error: null, copied: false };
+  state: State = { error: null, copied: false, copyFailed: false };
 
   private reloadButtonRef = createRef<HTMLButtonElement>();
   private copyResetTimer: ReturnType<typeof setTimeout> | null = null;
@@ -54,7 +47,10 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleReset = (): void => {
-    this.setState({ error: null, copied: false });
+    if (this.copyResetTimer) clearTimeout(this.copyResetTimer);
+    this.setState({ error: null, copied: false, copyFailed: false }, () => {
+      document.querySelector<HTMLElement>("main[tabindex]")?.focus();
+    });
   };
 
   private handleCopy = async (): Promise<void> => {
@@ -63,16 +59,16 @@ export class ErrorBoundary extends Component<Props, State> {
     const text = `CloakPDF ${__APP_VERSION__} — ${new Date().toISOString()}\n\n${error.message}\n\n${error.stack ?? "(no stack)"}\n\nBrowser: ${navigator.userAgent}`;
     try {
       await navigator.clipboard.writeText(text);
-      this.setState({ copied: true });
+      this.setState({ copied: true, copyFailed: false });
       if (this.copyResetTimer) clearTimeout(this.copyResetTimer);
       this.copyResetTimer = setTimeout(() => this.setState({ copied: false }), 2000);
     } catch {
-      // Clipboard unavailable (older browsers, insecure contexts) — silent noop.
+      this.setState({ copied: false, copyFailed: true });
     }
   };
 
   render(): ReactNode {
-    const { error, copied } = this.state;
+    const { error, copied, copyFailed } = this.state;
     if (!error) return this.props.children;
 
     const issueBody = [
@@ -92,243 +88,115 @@ export class ErrorBoundary extends Component<Props, State> {
       `Crash: ${error.message}`,
     )}&body=${encodeURIComponent(issueBody)}`;
 
-    const focusRing =
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-paper)]";
-
     return (
-      <div className="cloak-site flex min-h-svh flex-col">
-        <a
-          href="#error-main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[var(--z-system-overlay)] focus:rounded-md focus:bg-primary-600 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-        >
+      <div className="pdf-site">
+        <a href="#error-main" className="air-button air-button--primary air-page-skip">
           Skip to error details
         </a>
-
-        <header className="cloak-site-header !h-[4.5rem]">
-          <div className="site-frame flex h-full items-center justify-between gap-4">
-            <button
-              type="button"
-              onClick={this.handleReload}
-              aria-label="Reload CloakPDF"
-              className={`flex min-w-0 items-center gap-[0.6rem] rounded-md ${focusRing}`}
-            >
-              <img
-                src="/cloakpdf-mark.svg"
-                alt=""
-                aria-hidden="true"
-                width="40"
-                height="40"
-                className="size-10 shrink-0 rounded-full"
-              />
-              <span
-                translate="no"
-                className="whitespace-nowrap text-[1.125rem] leading-none font-[800] tracking-[-0.02em] text-[var(--color-ink)]"
-              >
-                Cloak<span className="text-[var(--color-accent)]">PDF</span>
-              </span>
-            </button>
-
-            <a
-              href={REPO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cloak-outline-link pointer-coarse:min-h-11"
-              aria-label="View CloakPDF source on GitHub"
-            >
-              <GithubMark className="size-3.5" />
-              <span className="hidden sm:inline">Source</span>
+        <header className="air-page-width air-page-header pdf-header">
+          <button
+            type="button"
+            onClick={this.handleReload}
+            aria-label="Reload CloakPDF"
+            className="air-page-brand pdf-brand"
+          >
+            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
+            <span translate="no">CloakPDF</span>
+          </button>
+          <nav className="air-page-nav" aria-label="Primary navigation">
+            <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+              Source <ArrowUpRight size={14} aria-hidden="true" />
             </a>
-          </div>
+          </nav>
         </header>
-
-        <main
-          id="error-main"
-          tabIndex={-1}
-          className="site-frame w-full flex-1 scroll-mt-20 py-14 sm:py-20"
-        >
-          <div className="mx-auto max-w-[52rem]">
-            <header
-              role="alert"
-              aria-live="assertive"
-              className="border-b border-[var(--color-rule-strong)] pb-10 sm:pb-14"
-            >
-              <p className="m-0 flex items-center gap-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-red-600 uppercase dark:text-red-400">
-                <AlertTriangle className="size-4" aria-hidden="true" />
-                Application error / local session
+        <main id="error-main" tabIndex={-1} className="air-page-width air-page pdf-error-main">
+          <div className="air-prose">
+            <header>
+              <p className="air-page-kicker">
+                <AlertTriangle size={16} aria-hidden="true" /> Something interrupted your session
               </p>
-              <h1 className="mt-6 min-w-0 text-[clamp(3rem,9vw,6rem)] leading-[0.92] font-[760] tracking-[-0.06em] text-[var(--color-ink)] text-balance wrap-anywhere">
-                Something went wrong.
-              </h1>
-              <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--color-ink-2)]">
-                CloakPDF hit an unexpected error. Reload the app first; if the problem returns, the
-                diagnostic below can be attached to a GitHub issue.
+              <h1>Let’s get you back.</h1>
+              <p role="alert">
+                CloakPDF ran into an unexpected error. Try again, or reload the app if the problem
+                continues.
               </p>
             </header>
-
-            <section className="flex items-start gap-3 border-b border-[var(--color-rule)] py-6">
-              <ShieldCheck
-                className="mt-0.5 size-5 shrink-0 text-[var(--color-accent)]"
-                aria-hidden="true"
-              />
-              <div>
-                <h2 className="text-base font-semibold text-[var(--color-ink)]">
-                  Your PDF was not uploaded
-                </h2>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-2)]">
-                  The error happened inside the local browser session; CloakPDF has no document
-                  upload endpoint.
-                </p>
-              </div>
-            </section>
-
-            <section className="border-b border-[var(--color-rule)] py-8 sm:py-10">
-              <div className="mb-4 flex items-center justify-between gap-4">
-                <div>
-                  <p className="m-0 font-mono text-[10px] font-semibold tracking-[0.09em] text-[var(--color-accent)] uppercase">
-                    01 / Diagnostic
-                  </p>
-                  <h2 className="mt-2 text-xl font-[700] tracking-[-0.025em] text-[var(--color-ink)]">
-                    Error details
-                  </h2>
-                </div>
+            <div className="air-page-actions">
+              <button
+                ref={this.reloadButtonRef}
+                type="button"
+                onClick={this.handleReload}
+                className="air-button air-button--primary"
+              >
+                <RefreshCw size={16} aria-hidden="true" /> Reload app
+              </button>
+              <button type="button" onClick={this.handleReset} className="air-button">
+                Try again
+              </button>
+            </div>
+            <p className="air-help">
+              Reloading may lose unsaved changes. Your original PDF remains on your device.
+            </p>
+            <section className="pdf-error-details" aria-labelledby="error-details-title">
+              <div className="pdf-error-heading">
+                <h2 id="error-details-title">Error details</h2>
                 <button
                   type="button"
                   onClick={this.handleCopy}
-                  className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[var(--radius-input)] border border-[var(--color-rule-strong)] px-3 font-mono text-[10px] font-semibold tracking-[0.05em] text-[var(--color-ink-2)] uppercase transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] ${focusRing}`}
-                  aria-label={copied ? "Copied to clipboard" : "Copy error details to clipboard"}
+                  className="air-button"
+                  aria-label="Copy error details to clipboard"
                 >
                   {copied ? (
-                    <Check className="size-3.5" aria-hidden="true" />
+                    <Check size={16} aria-hidden="true" />
                   ) : (
-                    <Copy className="size-3.5" aria-hidden="true" />
+                    <Copy size={16} aria-hidden="true" />
                   )}
-                  {copied ? "Copied" : "Copy"}
+                  <span className="air-action-labels">
+                    <span data-active={!copied || undefined} aria-hidden={copied}>
+                      Copy details
+                    </span>
+                    <span data-active={copied || undefined} aria-hidden={!copied}>
+                      Copied
+                    </span>
+                  </span>
                 </button>
-                <span className="sr-only" role="status" aria-live="polite">
-                  {copied ? "Error details copied to clipboard." : ""}
-                </span>
               </div>
-              <pre className="thin-scrollbar max-h-48 overflow-x-auto rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-[var(--color-ink)] wrap-anywhere">
+              <pre className="pdf-error-message" tabIndex={0} aria-label="Error message">
                 {error.message}
               </pre>
-              <p className="mt-3 font-mono text-[10px] tracking-[0.05em] text-[var(--color-ink-3)] uppercase">
-                CloakPDF {__APP_VERSION__} / {new Date().toLocaleString()}
+              <p className="air-help">CloakPDF {__APP_VERSION__}</p>
+              <p
+                role="status"
+                aria-live="polite"
+                className={`air-help pdf-copy-status${copyFailed ? " air-help--error" : ""}`}
+              >
+                {copyFailed
+                  ? "Couldn’t copy automatically. Select the error message above to copy it manually."
+                  : copied
+                    ? "Error details copied to clipboard."
+                    : ""}
               </p>
             </section>
-
-            <section className="py-8 sm:py-10">
-              <p className="m-0 font-mono text-[10px] font-semibold tracking-[0.09em] text-[var(--color-accent)] uppercase">
-                02 / Recovery
-              </p>
-              <h2 className="mt-2 text-xl font-[700] tracking-[-0.025em] text-[var(--color-ink)]">
-                Continue from a clean app state
-              </h2>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button
-                  ref={this.reloadButtonRef}
-                  type="button"
-                  onClick={this.handleReload}
-                  className={`cloak-action-button inline-flex items-center justify-center gap-2 border border-[var(--color-accent)] bg-[var(--color-accent)] px-6 text-[var(--color-accent-ink)] transition-colors hover:bg-[var(--color-accent-hover)] ${focusRing}`}
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  Reload app
-                </button>
-                <button
-                  type="button"
-                  onClick={this.handleReset}
-                  className={`cloak-action-button inline-flex items-center justify-center border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-6 text-[var(--color-ink)] transition-colors hover:border-[var(--color-accent)] ${focusRing}`}
-                >
-                  Try again
-                </button>
-              </div>
-              <p className="mt-6 text-sm leading-relaxed text-[var(--color-ink-2)]">
-                If this keeps happening,{" "}
-                <a
-                  href={issueUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`font-semibold text-[var(--color-accent)] underline decoration-[var(--color-rule-strong)] underline-offset-4 hover:text-[var(--color-accent-hover)] ${focusRing}`}
-                >
-                  report the issue on GitHub
-                </a>
-                . The version, browser, error, and stack trace will be pre-filled in the report.
-              </p>
-            </section>
+            <p>
+              If this keeps happening,{" "}
+              <a href={issueUrl} target="_blank" rel="noopener noreferrer">
+                report the issue on GitHub
+              </a>
+              . The report will include the version, browser, error and stack trace. You can review
+              it before posting.
+            </p>
           </div>
         </main>
-
-        <footer
-          className="cloak-site-footer mt-auto"
-          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-        >
-          <div className="site-frame py-8 sm:py-10">
-            <div className="grid gap-8 border-b border-[var(--color-night-rule)] pb-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end lg:gap-20">
-              <div>
-                <p className="cloak-mono-label mb-4 text-primary-400">CloakPDF / Cloakyard</p>
-                <p className="cloak-site-footer__statement">
-                  Open a PDF. <span className="text-primary-400">Keep it local.</span>
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs tracking-[0.04em] text-[var(--color-night-muted)] uppercase">
-                <button
-                  type="button"
-                  onClick={this.handleReload}
-                  className="text-left hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
-                >
-                  Home / reload app
-                </button>
-                <a
-                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
-                  href={REPO_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  GitHub
-                </a>
-                <a
-                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
-                  href={issueUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Report error
-                </a>
-                <a
-                  className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
-                  href={CLOAKYARD_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Cloakyard <ArrowUpRight className="ml-1 inline size-3" aria-hidden="true" />
-                </a>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 pt-6 font-mono text-[10px] tracking-[0.06em] text-[var(--color-night-muted)] uppercase sm:flex-row sm:items-center">
-              <span translate="no">CloakPDF v{__APP_VERSION__}</span>
-              <span className="hidden sm:inline" aria-hidden="true">
-                /
-              </span>
-              <span>
-                Built by{" "}
-                <a
-                  className="text-[var(--color-night-ink)] hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400"
-                  href={AUTHOR_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Sumit Sahoo
-                </a>
-              </span>
-              <a
-                href={`${REPO_URL}/blob/main/LICENSE`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary-400 focus-visible:outline-none focus-visible:text-primary-400 sm:ml-auto"
-              >
-                MIT licensed
-              </a>
-            </div>
-          </div>
+        <footer className="air-page-width air-page-footer pdf-footer">
+          <p>
+            Part of <a href={CLOAKYARD_URL}>Cloakyard</a>. Made by{" "}
+            <a href={AUTHOR_URL}>Sumit Sahoo</a>.
+          </p>
+          <nav aria-label="Footer">
+            <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
+              MIT license
+            </a>
+          </nav>
         </footer>
       </div>
     );

@@ -7,12 +7,33 @@
       "path": "src/App.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
-      "airImplemented": false,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": ["docs/air/validation.md"],
-      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated."
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "loading",
+        "error",
+        "recovery"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/recovery-utility-2026-10-13.json"],
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
     {
       "path": "src/components/ActionButton.tsx",
@@ -158,13 +179,34 @@
     {
       "path": "src/components/ErrorBoundary.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "loading",
+        "error",
+        "recovery"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/recovery-utility-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
     {
       "path": "src/components/FileDropZone.tsx",
@@ -260,6 +302,38 @@
       "viewports": [],
       "evidence": [],
       "notes": ""
+    },
+    {
+      "path": "src/components/LoadingState.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "loading",
+        "error",
+        "recovery"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/recovery-utility-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
     {
       "path": "src/components/ModalShell.tsx",
@@ -1178,7 +1252,10 @@
         "coarse-emulation",
         "reduced-motion",
         "forced-colors",
-        "enlarged-text"
+        "enlarged-text",
+        "loading",
+        "error",
+        "recovery"
       ],
       "viewports": [
         "320x568",
@@ -1193,8 +1270,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/recovery-utility-2026-10-13.json"
+      ],
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
     {
       "path": "src/styles/air.css",

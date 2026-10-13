@@ -59,6 +59,19 @@ try {
   assert.equal(baseline.status, 0, baseline.stderr);
   checks.push("isolated bundle passes with no dependencies or sibling files");
 
+  const withoutLightRuntime = structuredClone(manifest);
+  delete withoutLightRuntime.studyAssets["light-runtime.mjs"];
+  await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutLightRuntime));
+  assert.notEqual(verify().status, 0, "Missing shared light lifecycle hash must fail");
+  checks.push("missing light lifecycle hash rejected");
+  await writeFile(resolve(fixture, manifestPath), manifestText);
+  const lightRuntimePath = resolve(fixture, "docs/air/light-runtime.mjs");
+  const lightRuntime = await readFile(lightRuntimePath, "utf8");
+  await writeFile(lightRuntimePath, lightRuntime + "\n// changed lifecycle\n");
+  assert.notEqual(verify().status, 0, "Altered light lifecycle must fail");
+  checks.push("altered light lifecycle rejected");
+  await writeFile(lightRuntimePath, lightRuntime);
+
   const canonicalProbe = resolve(fixture, "design/air/contract.md");
   await mkdir(dirname(canonicalProbe), { recursive: true });
   await writeFile(canonicalProbe, "Deliberately unsynchronized canonical contract.\n");

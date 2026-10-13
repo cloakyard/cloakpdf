@@ -11,7 +11,7 @@
 
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "./components/Layout.tsx";
-import { LoadingSpinner } from "./components/LoadingSpinner.tsx";
+import { LoadingState } from "./components/LoadingState.tsx";
 import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
 import { ReloadPrompt } from "./components/ReloadPrompt.tsx";
@@ -32,24 +32,9 @@ const EditorView = lazy(() => import("./editor/EditorView.tsx"));
 //  components best practice)
 // ═══════════════════════════════════════════════════════════════════
 
-/** Loading fallback for the editor route. Deliberately mirrors EditorShell's own
- *  centred "Opening PDF…" spinner (same size, same viewport-centred position) so
- *  the chunk-load → PDF-parse handoff shows ONE loader in ONE place — never a
- *  top-anchored spinner followed by a centred one. */
+/** A visible, immediate status while the editor chunk becomes available. */
 function EditorLoadingFallback() {
-  return (
-    <div
-      className="fixed inset-0 z-[var(--z-editor)] flex items-center justify-center bg-[var(--color-paper-2)]"
-      role="status"
-      aria-live="polite"
-    >
-      <div
-        className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600"
-        aria-hidden="true"
-      />
-      <span className="sr-only">Opening the PDF editor…</span>
-    </div>
-  );
+  return <LoadingState label="Opening the PDF editor…" fullPage />;
 }
 
 // ── ToolView ─────────────────────────────────────────────────────
@@ -77,63 +62,26 @@ function ToolView({ tool, Component }: ToolViewProps) {
   const Icon = tool.icon;
   const blockedOnMobile = tool.desktopOnly && isMobileDevice();
   return (
-    <div className="cloak-tool-page">
-      <div className="mb-5 flex items-center gap-2 text-primary-600">
-        <Icon className="size-4" aria-hidden="true" />
-        <span className="cloak-mono-label">Standalone utility / local execution</span>
-        {tool.beta && (
-          <span className="rounded-sm border border-primary-200 bg-primary-50 px-2 py-1 font-mono text-[9px] font-semibold tracking-[0.08em] text-primary-700 uppercase dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
-            Beta
-          </span>
+    <div className="pdf-utility air-page">
+      <header className="pdf-utility-header">
+        <p className="air-page-kicker">
+          <Icon className="size-4" aria-hidden="true" /> PDF tools
+          {tool.beta && <span className="pdf-utility-beta">Beta</span>}
+        </p>
+        <h1>{tool.title}</h1>
+        <p className="air-page-lede">{tool.description}</p>
+        {tool.requirements && (
+          <p className="air-help pdf-utility-requirement">{tool.requirements}</p>
         )}
-      </div>
-      <header className="cloak-tool-page__head">
-        <div>
-          <h1 className="cloak-tool-page__title">{tool.title}</h1>
-        </div>
-        <div className="cloak-tool-page__aside">
-          <p className="m-0 text-lg leading-relaxed text-[var(--color-ink-2)]">
-            {tool.description}
-          </p>
-          <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-[10px] uppercase tracking-[0.05em]">
-            <div>
-              <dt className="text-[var(--color-ink-3)]">Execution</dt>
-              <dd className="mt-1 text-[var(--color-ink)]">In browser</dd>
-            </div>
-            <div>
-              <dt className="text-[var(--color-ink-3)]">Document transfer</dt>
-              <dd className="mt-1 text-[var(--color-ink)]">None</dd>
-            </div>
-            {tool.requirements && (
-              <div className="col-span-2 border-t border-[var(--color-rule)] pt-3">
-                <dt className="text-[var(--color-ink-3)]">Requirement</dt>
-                <dd className="mt-1 normal-case tracking-normal text-[var(--color-ink)]">
-                  {tool.requirements}
-                </dd>
-              </div>
-            )}
-          </dl>
-        </div>
       </header>
-
-      <section className="cloak-tool-instrument" aria-label={`${tool.title} workspace`}>
-        <div className="cloak-instrument-bar">
-          <span>CloakPDF / {tool.title}</span>
-          <span className="inline-flex items-center gap-2">
-            <span className="cloak-status-dot" aria-hidden="true" /> Local execution
-          </span>
-        </div>
-        <div className="cloak-tool-instrument__body">
-          {blockedOnMobile ? (
-            <DesktopOnlyNotice tool={tool} />
-          ) : (
-            <Suspense
-              fallback={<LoadingSpinner className="flex items-center justify-center py-20" />}
-            >
-              <Component />
-            </Suspense>
-          )}
-        </div>
+      <section className="pdf-utility-workspace" aria-label={`${tool.title} workspace`}>
+        {blockedOnMobile ? (
+          <DesktopOnlyNotice tool={tool} />
+        ) : (
+          <Suspense fallback={<LoadingState label={`Opening ${tool.title}…`} />}>
+            <Component />
+          </Suspense>
+        )}
       </section>
     </div>
   );
@@ -147,19 +95,13 @@ function ToolView({ tool, Component }: ToolViewProps) {
  */
 function DesktopOnlyNotice({ tool }: { tool: Tool }) {
   return (
-    <div className="rounded-md border border-[var(--color-rule)] bg-[var(--color-paper-2)] p-6 text-[var(--color-ink)] sm:p-8">
-      <h2 className="text-lg font-semibold tracking-[-0.01em] mb-2">
-        {tool.title} runs only on desktop
-      </h2>
-      <p className="leading-relaxed text-[var(--color-ink-2)]">
-        On-device AI loads large model files into memory and pushes the GPU hard during inference.
-        On phones this reliably causes the browser tab to crash or the GPU device to be lost
-        mid-question, so we've disabled the tool on mobile rather than ship a broken experience.
+    <div className="air-recovery-preview pdf-desktop-notice">
+      <h2>{tool.title} needs a laptop or desktop</h2>
+      <p>
+        This on-device AI tool loads large models and needs more memory than most phone browsers can
+        provide. Open CloakPDF on a laptop or desktop to use it.
       </p>
-      <p className="mt-3 leading-relaxed text-[var(--color-ink-2)]">
-        Open this page on a laptop or desktop with at least 16 GB of RAM to use it. Every other
-        CloakPDF tool runs fine on this device.
-      </p>
+      <p className="air-help">Your other PDF tools remain available here.</p>
     </div>
   );
 }

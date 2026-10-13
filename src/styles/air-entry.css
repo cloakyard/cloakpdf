@@ -518,3 +518,112 @@ body:has(.pdf-site) {
     animation: none;
   }
 }
+
+.pdf-utility {
+  padding-block: var(--air-space-48) var(--air-space-64);
+}
+.pdf-utility-header {
+  margin-block-end: var(--air-space-48);
+  max-inline-size: 65ch;
+}
+.pdf-utility-header .air-page-kicker,
+.pdf-error-main .air-page-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--air-space-8);
+}
+.pdf-utility-beta {
+  color: var(--air-ink-muted);
+  font-size: var(--air-text-meta);
+}
+.pdf-utility-requirement {
+  margin-block-start: var(--air-space-16);
+}
+.pdf-utility-workspace {
+  min-inline-size: 0;
+}
+.pdf-desktop-notice {
+  max-inline-size: 65ch;
+}
+.pdf-loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--air-space-12);
+  padding: var(--air-space-48) var(--air-space-24);
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.6 var(--air-font);
+  text-align: center;
+}
+.pdf-loading-state p {
+  margin: 0;
+}
+.pdf-loading-state--page {
+  position: fixed;
+  inset: 0;
+  z-index: var(--air-z-navigation);
+  background: var(--air-page);
+}
+.pdf-loading-mark {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--air-accent);
+  border-radius: 50%;
+}
+.pdf-error-main {
+  flex: 1;
+  padding-block: var(--air-space-64);
+}
+.pdf-error-main .air-prose {
+  margin-inline: auto;
+}
+.pdf-error-main .air-help {
+  font-size: var(--air-text-body);
+}
+.pdf-error-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--air-space-16);
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: var(--air-space-16);
+}
+.pdf-error-heading h2 {
+  margin: 0;
+}
+.pdf-error-details {
+  border-block-start: 1px solid var(--air-line);
+  padding-block-start: var(--air-space-32);
+  margin-block-start: var(--air-space-32);
+}
+.pdf-error-message {
+  padding: var(--air-space-16);
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+  font: 400 var(--air-text-meta)/1.6 var(--air-font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-block-size: 16rem;
+  overflow: auto;
+}
+.pdf-error-message:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+.pdf-copy-status {
+  min-block-size: 3.2em;
+}
+@media (max-width: 600px) {
+  .pdf-error-main {
+    padding-block: var(--air-space-32);
+  }
+  .pdf-utility {
+    padding-block-start: var(--air-space-32);
+  }
+  .pdf-utility-header {
+    margin-block-end: var(--air-space-32);
+  }
+}
