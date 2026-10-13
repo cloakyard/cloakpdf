@@ -1432,16 +1432,10 @@ textarea.air-field {
   color: var(--air-danger);
 }
 .air-file-scenarios {
+  max-inline-size: none;
   margin-block-start: 24px;
   padding-block: 8px;
   border-block: 1px solid var(--air-line);
-}
-.air-file-scenarios summary {
-  display: list-item;
-  min-block-size: 44px;
-  padding-block: 10px;
-  cursor: pointer;
-  font-size: var(--air-text-body);
 }
 .air-file-scenarios .air-check-label {
   margin-block: 8px;
@@ -1467,8 +1461,7 @@ textarea.air-field {
   padding-block-end: 64px;
 }
 .air-file-drop:focus-visible,
-.air-file-output:focus-visible,
-.air-file-scenarios summary:focus-visible {
+.air-file-output:focus-visible {
   outline: 2px solid var(--air-accent);
   outline-offset: 3px;
 }
