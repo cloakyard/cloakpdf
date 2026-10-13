@@ -63,6 +63,7 @@ else {
     "recovery.html",
     "pages.mjs",
     "files.html",
+    "collections.html",
     "files.mjs",
     "motion.mjs",
     "light-controller.mjs",
@@ -70,6 +71,7 @@ else {
     "assets/THIRD_PARTY_LICENSES.txt",
     "overlays-loader.mjs",
     "assets/air-overlays.js",
+    "assets/air-collections.js",
     "assets/OVERLAY_LICENSES.txt",
   ]) {
     if (!studyAssets[asset]) fail(`Missing Air study asset hash: ${asset}`);
@@ -81,15 +83,24 @@ else {
     if (fromCanonical) {
       let canonical = await readFile(resolve(root, "design/air", asset), "utf8");
       if (asset === "overlays-loader.mjs")
-        canonical = canonical.replace(
-          "__AIR_OVERLAY_REVISION__",
-          studyAssets["assets/air-overlays.js"]?.slice(0, 12) ?? "missing",
-        );
-      if (["reading.html", "recovery.html", "files.html"].includes(asset))
+        canonical = canonical
+          .replace(
+            "__AIR_OVERLAY_REVISION__",
+            studyAssets["assets/air-overlays.js"]?.slice(0, 12) ?? "missing",
+          )
+          .replace(
+            "__AIR_COLLECTION_REVISION__",
+            studyAssets["assets/air-collections.js"]?.slice(0, 12) ?? "missing",
+          );
+      if (["reading.html", "recovery.html", "files.html", "collections.html"].includes(asset))
         canonical = canonical
           .replace("__AIR_STYLESHEET__", `../../${stylesheet}?air=${sha256.slice(0, 12)}`)
           .replace("__AIR_PAGES_REVISION__", studyAssets["pages.mjs"]?.slice(0, 12) ?? "missing")
-          .replace("__AIR_FILES_REVISION__", studyAssets["files.mjs"]?.slice(0, 12) ?? "missing");
+          .replace("__AIR_FILES_REVISION__", studyAssets["files.mjs"]?.slice(0, 12) ?? "missing")
+          .replace(
+            "__AIR_OVERLAY_LOADER_REVISION__",
+            studyAssets["overlays-loader.mjs"]?.slice(0, 12) ?? "missing",
+          );
       if (asset === "components.html")
         canonical = canonical
           .replace("__AIR_STYLESHEET__", `../../${stylesheet}?air=${sha256.slice(0, 12)}`)

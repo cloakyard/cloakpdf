@@ -9,12 +9,20 @@ async function load() {
   const restoreFocus = document.activeElement === retry;
   retry.hidden = true;
   try {
-    const url = new URL("./assets/air-overlays.js?air=cd7f69ff30c0", import.meta.url);
+    const collections = host.dataset.study === "collections";
+    const url = new URL(
+      collections
+        ? "./assets/air-collections.js?air=0bbea11f0a18"
+        : "./assets/air-overlays.js?air=cd7f69ff30c0",
+      import.meta.url,
+    );
     const attempt = attempts++;
     // Browsers cache rejected module fetches. A deliberate retry needs a fresh URL.
     if (attempt) url.searchParams.set("retry", String(attempt));
-    const { mountOverlayStudy } = await import(url.href);
-    mountOverlayStudy(host, restoreFocus);
+    const study = await import(url.href);
+    const mount =
+      host.dataset.study === "collections" ? study.mountCollectionStudy : study.mountOverlayStudy;
+    mount(host, restoreFocus);
     observer.disconnect();
   } catch {
     loading = false;

@@ -6,7 +6,7 @@ date: 2026-10-13
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 69673d876d0054b22e59be533373285ea3971dd523b911ef079d39d1cf8169c7
+family-contract-sha256: c6ec55c0fe5949f5abb606c5c143eaa658986588d08e2a0f3d1392d010687a2c
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
@@ -525,9 +525,14 @@ a requirement to replace each editor's established panel ordering.
 - The reference styles native `base-select` pickers so semantics, typeahead,
   keyboard traversal, form values and top-layer placement remain native. Its
   unsupported-browser fallback preserves native operation and the inset arrow,
-  but does not certify a custom menu appearance. Before production rollout, use
-  an established accessible adapter for unsupported target browsers and validate
-  the same appearance/behavior. Do not hand-roll a second keyboard/focus system.
+  but does not certify a custom menu appearance. The collection reference uses
+  pinned Base UI Select with this same Air trigger, popup, options and focus rules.
+  Production React selects use this accessible adapter across all target engines
+  rather than switching their visual language with browser support. Validate form
+  association, disabled/invalid/read-only states, typeahead, dismissal and portal
+  nesting in each integration. Native progressive enhancement remains appropriate
+  for the static reference and minimal-script sites. Do not hand-roll a second
+  keyboard/focus system or import the study's bundled React into an app.
 
 ### Dense editor controls
 
@@ -698,6 +703,46 @@ no screenshot, simulation, orbital illustration, animated preview, or embedded a
   saves only a sample note to this tab's session storage; real product processing,
   persistence, race/cancellation and unsaved-work behavior require separate tests.
 
+### Collections, layers and history
+
+- Use open ruled rows, not a card for every item. A selected row uses the neutral
+  soft surface plus a checked control; blue is reserved for the meaningful marker.
+  Keep names readable and wrapping, with muted type/visibility metadata below.
+  Thumbnails are optional context, never the only way to identify a row.
+- Selection and secondary actions are separate controls. Never put buttons inside
+  another button or a row with button semantics. Icon actions stay available without
+  hover, are named for their item, and retain 44px targets for coarse pointers.
+- “Select visible” operates on the current filter only. Preserve selections outside
+  the filter, state their count explicitly, and show the total affected by bulk
+  actions. Empty results preserve data and offer clear filters; an empty collection
+  offers its appropriate create/import/undo route. Do not silently deselect work.
+- Supply named Move up/down/top/bottom actions where stacking order matters.
+  Dragging is optional. In a filtered stack, disable rearrangement with a visible
+  explanation; clear the filter to work in the complete order. Preserve item IDs,
+  selection and focus through moves; announce the resulting position.
+- Rename preserves the previous value until a valid save. An empty name stays in
+  the field with its error. Dirty dismissal requires a safe discard decision.
+  A removed row returns focus to a persistent recovery control; clearing selection
+  returns to the selection control or filter. Undo/redo controls may use guarded
+  `aria-disabled` to retain focus when reaching a history boundary.
+- History distinguishes current, previous and redo steps without relying on colour.
+  A new edit after undo replaces the future branch. Local selection/filter changes
+  do not create document-history entries. Removing objects cannot leave stale IDs
+  selected. Reversible removals need a persistent Undo route, not a timed-only toast.
+- Long lists preserve semantic reading order and keyboard reachability. The sample
+  uses `content-visibility` above 50 rows; production virtualisation must prove
+  focus, selection, find/filter and announcements before adoption. Reflow collection
+  and history columns using available width and text size; never shrink text to fit.
+- Real loading/error states retain valid rows and selections, explain the failed
+  operation and provide retry/cancel as applicable. Do not apply optimistic edits
+  without an exact rollback. The local collection study has no server or async edits;
+  production loading/race/rollback evidence belongs to the responsible adapter.
+- Preserve domain semantics: PDF stages page order/deletion/rotation until Apply
+  and must keep at least one page; IMG uses its real Fabric object order and snapshot
+  history, excluding transient tool objects; Resume keeps structured entries,
+  its existing edit timing, accessible move controls and removal protection.
+  Shared row appearance is not permission to add unsupported batch/layer features.
+
 ### Editors and canvases
 
 - Consistent action placement: identity/document at start; undo/view/tool context
@@ -764,6 +809,13 @@ screen dialog with an explicit close/back. Never hide essential actions on mobil
 
 Z levels: sticky 30; navigation 50; editor 100; toast 150; dialog 200; popover 900;
 system recovery 1000. Preserve nesting/portal correctness; avoid ad-hoc z-indexes.
+One nested confirmation uses the shared backdrop/viewport offsets `dialog + 2/3`.
+The parent remains mounted and inactive. Escape dismisses only the top layer;
+safe cancellation returns to the parent draft. Explicit discard closes both and
+returns to the original trigger, or a persistent recovery control if it disappeared.
+Submenus follow the same topmost-first Escape rule. A menu-to-dialog handoff must
+not restore menu focus over the opening dialog. Keyboard and reduced-motion
+handoffs are immediate; never animate routine list navigation or rearrangement.
 
 ## 6. Responsive and accessibility contract
 

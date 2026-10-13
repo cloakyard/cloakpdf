@@ -150,6 +150,18 @@ try {
   checks.push("altered file study rejected");
   await writeFile(filesPath, filePage);
 
+  const collectionsPath = resolve(fixture, "docs/air/collections.html");
+  const collectionsPage = await readFile(collectionsPath, "utf8");
+  await writeFile(
+    collectionsPath,
+    `${collectionsPage}\n<!-- Deliberate portability-test drift. -->\n`,
+  );
+  const collectionsDrift = verify();
+  assert.notEqual(collectionsDrift.status, 0);
+  assert.match(collectionsDrift.stderr, /Air study asset drift: collections\.html/);
+  checks.push("altered collection study rejected");
+  await writeFile(collectionsPath, collectionsPage);
+
   await rm(resolve(fixture, manifestPath));
   const missingManifest = verify();
   assert.notEqual(missingManifest.status, 0);
