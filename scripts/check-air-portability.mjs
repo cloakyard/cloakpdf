@@ -114,6 +114,24 @@ try {
   checks.push("altered overlay module rejected");
   await writeFile(overlayPath, overlay);
 
+  const withoutPages = structuredClone(manifest);
+  delete withoutPages.studyAssets["pages.mjs"];
+  await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutPages));
+  const missingPagesHash = verify();
+  assert.notEqual(missingPagesHash.status, 0);
+  assert.match(missingPagesHash.stderr, /Missing Air study asset hash: pages\.mjs/);
+  checks.push("missing reading/recovery behavior hash rejected");
+  await writeFile(resolve(fixture, manifestPath), manifestText);
+
+  const readingPath = resolve(fixture, "docs/air/reading.html");
+  const reading = await readFile(readingPath, "utf8");
+  await writeFile(readingPath, `${reading}\n<!-- Deliberate portability-test drift. -->\n`);
+  const readingDrift = verify();
+  assert.notEqual(readingDrift.status, 0);
+  assert.match(readingDrift.stderr, /Air study asset drift: reading\.html/);
+  checks.push("altered reading page rejected");
+  await writeFile(readingPath, reading);
+
   await rm(resolve(fixture, manifestPath));
   const missingManifest = verify();
   assert.notEqual(missingManifest.status, 0);

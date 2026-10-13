@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=54e940cc480e" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=d5d711391750" />
     <style>
       * {
         box-sizing: border-box;
@@ -2285,7 +2285,8 @@
       </p>
       <nav class="study-nav" aria-label="Design reference">
         <a href="#experience">Experience</a><a href="#components">Components</a
-        ><a href="#motion">Motion</a>
+        ><a href="#motion">Motion</a><a href="reading.html" data-air-page-link>Reading</a
+        ><a href="recovery.html" data-air-page-link>Recovery</a>
       </nav>
     </div>
     <main id="study-main" tabindex="-1">
@@ -3712,16 +3713,32 @@
       canvasResize.observe(document.querySelector(".canvas-content"));
       canvasResize.observe(doc);
       setApp("pdf");
+      function setReferenceTheme(theme) {
+        if (theme === "system") delete document.documentElement.dataset.airTheme;
+        else document.documentElement.dataset.airTheme = theme;
+        document
+          .querySelectorAll("[data-theme]")
+          .forEach((button) =>
+            button.setAttribute("aria-pressed", String(button.dataset.theme === theme)),
+          );
+        const current = new URL(location.href);
+        if (theme === "system") current.searchParams.delete("theme");
+        else current.searchParams.set("theme", theme);
+        history.replaceState(null, "", current);
+        document.querySelectorAll("[data-air-page-link]").forEach((link) => {
+          const target = new URL(link.href);
+          if (theme === "system") target.searchParams.delete("theme");
+          else target.searchParams.set("theme", theme);
+          link.href = target.href;
+        });
+      }
+      const requestedTheme = new URL(location.href).searchParams.get("theme");
+      setReferenceTheme(["light", "dark"].includes(requestedTheme) ? requestedTheme : "system");
       document.addEventListener("click", (event) => {
         const button = event.target.closest("button");
         if (!button) return;
         if (button.dataset.theme) {
-          const theme = button.dataset.theme;
-          if (theme === "system") delete document.documentElement.dataset.airTheme;
-          else document.documentElement.dataset.airTheme = theme;
-          document
-            .querySelectorAll("[data-theme]")
-            .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+          setReferenceTheme(button.dataset.theme);
         }
         if (button.dataset.size) {
           document.querySelector(".preview-wrap").dataset.size = button.dataset.size;

@@ -2,18 +2,18 @@
 name: CloakPDF — Cloakyard Air
 version: 1.0.0
 status: design-review
-date: 2026-10-12
+date: 2026-10-13
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: dc6032235f40df1b56a753d80bd66f7360862c3ef5b68e2fce37893143cf19e5
+family-contract-sha256: cc0c56b98f5a42aff83ebfdaeaffd3ccd2d5ac8ea1de2489c6f5ff91c50e00be
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.0 — refinement 03 candidate** · Direction: **Air** · Updated: **2026-10-12**
+Version: **1.0.0 — refinement 03 candidate** · Direction: **Air** · Updated: **2026-10-13**
 
 The Air direction is approved. This detailed refinement is **under design review**;
 product migration waits for that review. The reference is an interactive design
@@ -604,6 +604,47 @@ no screenshot, simulation, orbital illustration, animated preview, or embedded a
 - Test both container bounds and actual text bounds, with menus open/closed.
   At 200% root font, let actions wrap and groups grow. A long product name may
   wrap at a deliberate word boundary; never reduce its type to hide overflow.
+
+### Reading and recovery pages
+
+- Privacy, help and recovery use the same family mark, navigation, theme, footer
+  and controls as the product. They are complete layouts, not unstyled text below
+  a marketing header. Use one main heading, a skip link and stable section anchors.
+  Active navigation uses text plus the shared 2px blue marker.
+- Reading copy is 1rem/1.6, with a 65ch maximum measure; the lead is 1.125rem/1.65
+  at up to 58ch. Use 1.5rem/500 section headings, ordinary paragraph/list rhythm
+  and 48px between ruled sections. Keep information in open groups; do not turn
+  each policy paragraph into a card. Long URLs/identifiers wrap without page overflow.
+- Wide pages may pair a 14rem contents column with the reading measure and a 64px
+  gap. At 60rem or narrower, contents return to document flow above the text.
+  Use a native disclosure with at least a 44px summary and link targets, preserved
+  without JavaScript. Escape may close it and return focus. Anchor targets have
+  scroll clearance and are focusable for the next keyboard action. Never hide
+  important prose in hover-only content or impose a fixed-height reading area.
+- Page gutters are 32px wide, 24px below 60rem and 16px below 40rem. Header/footer
+  links wrap without clipping or horizontal scrolling. At enlarged text, switch
+  composition earlier; retain readable type and complete destinations.
+- Keep a real product policy's meaning, supported features and revision date.
+  Local processing, local drafts, model/resource downloads and native-app network
+  activity are distinct facts. A family layout cannot make them interchangeable.
+  The illustrative reading study is explicitly not a replacement product policy.
+- A missing page gives a useful destination using a real link; never assume a
+  browser-history entry exists. Product 404 pages must also return the correct
+  route/server status; the reference only demonstrates their appearance.
+- A recoverable failure explains what failed, what work is preserved and the next
+  available action. Keep the content/editable draft and alternative actions visible.
+  An unavailable network or storage layer is not an invalid text field: do not add
+  `aria-invalid` to valid content. Retry must not reset input or move focus without
+  a reason. Announce the outcome in a nearby polite live region.
+- Offer an independent backup when saving cannot succeed. Claim a save only after
+  the storage/write operation succeeds; distinguish a requested download from a
+  verified file. Warn before leaving unsaved edits. Recovery must not rely on the
+  same failed storage mechanism or a decorative completion animation.
+- Reading, navigation, contents disclosure and static recovery guidance remain
+  useful without JavaScript. Reveal enhanced study actions only after handlers
+  exist. The recovery specimen explicitly simulates preview/storage failures and
+  saves only a sample note to this tab's session storage; real product processing,
+  persistence, race/cancellation and unsaved-work behavior require separate tests.
 
 ### Editors and canvases
 
