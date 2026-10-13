@@ -10,7 +10,7 @@
  * Run: node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { CDPSession, KeyInput, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
@@ -666,6 +666,10 @@ async function main(): Promise<void> {
       button.getAttribute("aria-controls"),
     );
     if (!controlledId) fail("Date/time trigger does not expose aria-controls.");
+    // A fresh production profile may show the cache notice over this lower
+    // field. Dismiss it as a user would before interacting with the picker.
+    const cacheNotice = await page.$('button[aria-label="Dismiss cache status"]');
+    if (cacheNotice) await cacheNotice.click();
     await page.click(dateTrigger);
     const dateDialog = 'div[role="dialog"][aria-label="Date and time picker"]';
     await page.waitForSelector(dateDialog);
@@ -805,6 +809,29 @@ async function main(): Promise<void> {
 
     if (errors.length > 0) fail(`Console/page errors:\n${errors.join("\n")}`);
     console.log("✓ editor keyboard interactions passed");
+  } catch (error) {
+    await page.screenshot({ path: "/tmp/cloakpdf-editor-interactions-fail.png", fullPage: true });
+    writeFileSync(
+      "/tmp/cloakpdf-editor-interactions-fail.json",
+      JSON.stringify(
+        await page.evaluate(() => ({
+          text: document.body.innerText,
+          focus: document.activeElement?.outerHTML,
+          disclosures: Array.from(document.querySelectorAll('[aria-haspopup="dialog"]')).map(
+            (element) => ({
+              html: element.outerHTML,
+              rect: element.getBoundingClientRect().toJSON(),
+            }),
+          ),
+          dialogs: Array.from(document.querySelectorAll('[role="dialog"]')).map(
+            (element) => element.outerHTML,
+          ),
+        })),
+        null,
+        2,
+      ),
+    );
+    throw error;
   } finally {
     await browser.close();
   }

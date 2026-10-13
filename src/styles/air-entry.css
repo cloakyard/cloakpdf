@@ -627,3 +627,190 @@ body:has(.pdf-site) {
     margin-block-end: var(--air-space-32);
   }
 }
+
+/* File-constructor composition uses the family collection and action skins. */
+.pdf-constructor {
+  display: grid;
+  gap: var(--air-space-24);
+}
+.pdf-file-queue {
+  min-inline-size: 0;
+}
+.pdf-file-queue > .air-help {
+  margin-block: 8px 16px;
+}
+.pdf-file-queue h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.pdf-queue-sort {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--air-space-12);
+}
+.pdf-segments {
+  inline-size: fit-content;
+  max-inline-size: 100%;
+}
+.pdf-segments--full {
+  inline-size: 100%;
+}
+.pdf-segments > button {
+  flex: 1 0 auto;
+  max-inline-size: 100%;
+  gap: var(--air-space-8);
+}
+.pdf-page-size {
+  max-inline-size: 28rem;
+}
+.pdf-page-size > p {
+  margin-block: 0 8px;
+}
+.pdf-queue-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--air-space-12);
+  padding-block: var(--air-space-16);
+  border-block-end: 1px solid var(--air-line);
+}
+.pdf-queue-row[data-dragging] {
+  opacity: 0.5;
+}
+.pdf-queue-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--air-space-12);
+  flex: 1 1 24rem;
+  min-inline-size: 0;
+}
+.pdf-queue-number {
+  color: var(--air-ink-muted);
+  font-size: var(--air-text-meta);
+  font-variant-numeric: tabular-nums;
+}
+.pdf-queue-preview {
+  object-fit: contain;
+  flex: 0 0 48px;
+  inline-size: 48px;
+  block-size: 48px;
+  border-radius: var(--air-radius-chip);
+  background: var(--air-surface-soft);
+}
+.pdf-queue-identity .air-collection-name {
+  min-inline-size: 0;
+}
+.pdf-queue-identity p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.pdf-queue-row-actions {
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+.pdf-queue-row-actions [aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pdf-queue-grip {
+  cursor: grab;
+}
+.pdf-queue-slot {
+  block-size: 0;
+  display: flex;
+  align-items: center;
+}
+.pdf-queue-slot[data-open] {
+  block-size: 16px;
+}
+.pdf-queue-slot[data-active] {
+  block-size: 40px;
+}
+.pdf-queue-slot[data-open] > span {
+  inline-size: 100%;
+  block-size: 2px;
+  background: var(--air-line-control);
+}
+.pdf-queue-slot[data-active] > span {
+  background: var(--air-accent);
+}
+.pdf-queue-ghost {
+  max-inline-size: min(20rem, calc(100vw - 32px));
+  padding: var(--air-space-16);
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  font: 500 var(--air-text-body)/1.5 var(--air-font);
+  overflow-wrap: anywhere;
+  box-shadow: var(--air-shadow-menu);
+}
+.pdf-operation-actions .air-page-actions {
+  margin: 0;
+}
+.pdf-operation-actions svg,
+.pdf-result > svg,
+.pdf-alert > svg {
+  flex-shrink: 0;
+}
+.pdf-progress-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--air-space-8);
+  margin-block-end: 8px;
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  font-variant-numeric: tabular-nums;
+}
+.pdf-result p,
+.pdf-alert p {
+  margin: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.pdf-file-drop[data-disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+@media (max-width: 640px) {
+  .pdf-queue-identity {
+    gap: var(--air-space-8);
+  }
+  .pdf-operation-actions .air-page-actions > button {
+    inline-size: 100%;
+  }
+}
+.pdf-touch-drag-overlay {
+  z-index: var(--air-z-recovery);
+}
+/* Once files are present, acquisition takes less space than the working queue. */
+.pdf-constructor:has(.pdf-queue-row) .pdf-file-drop {
+  min-block-size: 0;
+}
+@media (min-width: 641px) {
+  .pdf-constructor:has(.pdf-queue-row) .pdf-file-drop {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--air-space-16);
+  }
+  .pdf-constructor:has(.pdf-queue-row) .pdf-file-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .pdf-constructor:has(.pdf-queue-row) .air-file-invitation {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .pdf-constructor:has(.pdf-queue-row) .pdf-file-drop > .air-help {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .pdf-constructor:has(.pdf-queue-row) .pdf-file-browse {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+}

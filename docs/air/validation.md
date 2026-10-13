@@ -183,3 +183,69 @@ software keyboard and screen-reader speech remain open.
 The shared shader runtime/declarations are synchronized as portable design assets,
 with all seventeen isolated assertions passing. PDF does not import that renderer;
 its editor remains free of decorative GPU work. No push or deployment.
+
+## 2026-10-13 — PDF constructors and shared utility controls
+
+Merge PDFs and Images to PDF now use one Air file queue: open ruled rows, full
+wrapped filenames, optional previews, natural sorting, explicit start/up/down/end
+moves, handle-only drag, keyboard reorder and persistent removal/Undo. Sorting
+preserves manual order. Undo restores focus even while sorted or after removing
+the final file. Previews retain lazy decoding and release their object URLs.
+Populated file acquisition compacts above 640px so the queue owns the workspace.
+
+Shared actions preserve their geometry and keyboard focus during real work,
+guard duplicate activation, and announce busy state separately. Segments, errors
+and measured progress use the pinned Air skins. Unknown progress invents neither
+percentage nor fill. Constructors retain inputs on errors, reject invalid intake,
+guard late delivery after navigation and show persistent, truthful download status.
+The old orientation gate is removed: all six non-AI utility entries remain
+reachable at 844×390, and rotating a populated constructor preserves its result.
+
+Validation includes 112 final DOM layout/theme/text cases (two populated tools ×
+14 dimensions × 16/32px text × light/dark), including 639/640/641px neighbours.
+No page overflow, inspected control clipping or undersized coarse control height
+was found. Desktop light and phone dark screenshots were reviewed; this is not
+112 independent visual reviews. Native Safari and Firefox shared-component checks
+pass at actual 200% browser zoom using an explicitly labelled disposable fixture.
+Chromium forced colours/reduced motion, sorted/unsorted Undo, boundary action
+focus and keyboard reorder pass. Physical touch/software keyboard and screen-reader
+speech/navigation remain open, so inventory `validated` remains false.
+
+Real outputs were inspected: reordered Merge pages have distinctive dimensions
+500×600, 300×400, 400×500; reordered Fit images produce 1200×630 then 180×180 pages.
+A held real image operation verifies duplicate guarding, stable action width/height,
+blocked intake/queue edits, and zero late downloads after leaving. Both previews
+are revoked. The temporary fixture and all owned test tabs/emulation were removed.
+
+Required check, dead-code, 355/355 units, production/PWA build and 139-file asset
+limits pass. All six standalone production workflows pass, including a new sorted
+Undo focus/manual-order regression and actual PDF/ZIP/encryption/signature checks.
+Generated demo PDFs were used explicitly because the original scanned/guide
+fixtures are absent. Home routing, responsive motion, fresh-profile desktop/mobile
+editor smokes and extended keyboard/pointer/date/colour interactions pass.
+The separate placement/preview suite passes on all three available root fixtures
+(33, 1 and 4 pages), including signature resize and QR placement on every page.
+Smoke-deferred destructive redaction/smart-erase and full OCR/AI processing remain
+on their dedicated pending migration gates.
+
+Regression testing exposed a real editor registration defect: an outgoing tool's
+passive cleanup could erase the incoming tool's layout registration, making Crop
+pan the canvas. Cleanup now runs in the layout phase; clean production suites pass.
+One persistent-profile retry still served the prior build. A cold-profile cache
+notice also covered the date field during the test; the test now dismisses its
+visible action first and retains diagnostic failure capture. Reserved hidden busy
+labels required the standalone test to match visible source labels. No assertion
+or timeout was weakened and no failure was waived.
+
+Removed duplicate queue JSX, the old action skin/hover motion, sliding segment
+thumb, orientation component/rotation animation, unused drag type and stale source
+references. PDF engine/output formats and AI are unchanged. The shared canonical
+bundle is unchanged. Other utility-specific option/result bodies, AI and editor
+chrome/panels/overlays remain upcoming pieces; this is not a completed PDF refresh.
+No push or deployment.
+
+Evidence: [state/layout record](evidence/constructors-2026-10-13.json),
+[test output](evidence/constructors-checks-2026-10-13.log),
+[desktop](evidence/queue-images-desktop-light.png),
+[phone](evidence/queue-images-phone-dark.png),
+[Safari](evidence/queue-safari-200.png), [Firefox](evidence/queue-firefox-200.png).

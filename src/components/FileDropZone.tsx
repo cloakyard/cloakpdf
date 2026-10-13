@@ -8,6 +8,7 @@ interface FileDropZoneProps {
   accept: string;
   multiple?: boolean;
   onFiles: (files: File[]) => void;
+  disabled?: boolean;
   label?: string;
   hint?: string;
   size?: "default" | "hero";
@@ -19,6 +20,7 @@ export function FileDropZone({
   accept,
   multiple = false,
   onFiles,
+  disabled = false,
   label = "Drop files here",
   hint,
   size = "default",
@@ -54,18 +56,18 @@ export function FileDropZone({
       event.stopPropagation();
       setIsDragOver(false);
       const files = Array.from(event.dataTransfer.files);
-      if (files.length > 0) onFiles(files);
+      if (!disabled && files.length > 0) onFiles(files);
     },
-    [onFiles],
+    [onFiles, disabled],
   );
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(event.target.files ?? []);
-      if (files.length > 0) onFiles(files);
+      if (!disabled && files.length > 0) onFiles(files);
       event.target.value = "";
     },
-    [onFiles],
+    [onFiles, disabled],
   );
 
   if (encryptedFile && onClearEncrypted) {
@@ -78,7 +80,7 @@ export function FileDropZone({
       onDragOver={(event) => {
         if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
-        setIsDragOver(true);
+        if (!disabled) setIsDragOver(true);
       }}
       onDragLeave={(event) => {
         if (
@@ -89,9 +91,11 @@ export function FileDropZone({
         setIsDragOver(false);
       }}
       onDrop={handleDrop}
-      data-dragging={isDragOver || undefined}
+      data-dragging={(!disabled && isDragOver) || undefined}
+      data-disabled={disabled || undefined}
     >
       <input
+        disabled={disabled}
         ref={inputRef}
         type="file"
         accept={accept}

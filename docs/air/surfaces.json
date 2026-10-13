@@ -32,19 +32,53 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/recovery-utility-2026-10-13.json"],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/recovery-utility-2026-10-13.json",
+        "docs/air/evidence/constructors-2026-10-13.json"
+      ],
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
     },
     {
       "path": "src/components/ActionButton.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/ActiveModelBar.tsx",
@@ -93,13 +127,43 @@
     {
       "path": "src/components/AlertBox.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/ChatModelPicker.tsx",
@@ -236,8 +300,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/constructors-2026-10-13.json"
+      ],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
     },
     {
       "path": "src/components/FileInfoBar.tsx",
@@ -249,6 +317,47 @@
       "viewports": [],
       "evidence": [],
       "notes": ""
+    },
+    {
+      "path": "src/components/FileQueue.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/InfoCallout.tsx",
@@ -358,17 +467,6 @@
       "notes": ""
     },
     {
-      "path": "src/components/OrientationLock.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
-    },
-    {
       "path": "src/components/PagePreviewNav.tsx",
       "kind": "app-surface",
       "sourceReviewed": false,
@@ -413,13 +511,43 @@
     {
       "path": "src/components/ProgressBar.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/ReloadPrompt.tsx",
@@ -455,13 +583,43 @@
     {
       "path": "src/components/SegmentedControl.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/Select.tsx",
@@ -488,24 +646,84 @@
     {
       "path": "src/components/SortByNameButton.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/TouchDragOverlay.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/components/motion.tsx",
@@ -1209,24 +1427,84 @@
     {
       "path": "src/standalone/ImagesToPdf.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/standalone/MergePdf.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "empty",
+        "selected",
+        "disabled",
+        "busy",
+        "success",
+        "error",
+        "undo",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
+      "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
     },
     {
       "path": "src/standalone/PdfPassword.tsx",
@@ -1273,9 +1551,10 @@
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/evidence/recovery-utility-2026-10-13.json"
+        "docs/air/evidence/recovery-utility-2026-10-13.json",
+        "docs/air/evidence/constructors-2026-10-13.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
     },
     {
       "path": "src/styles/air.css",

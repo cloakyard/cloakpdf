@@ -70,8 +70,7 @@ function concealModalRoot(root: HTMLElement | null): void {
 
 /**
  * Keep paint order, pointer ownership, and the accessibility tree aligned with
- * the focus stack. Shared dialogs receive consecutive layers; the unmanaged
- * system overlay (OrientationLock) keeps its own higher z-index and priority.
+ * the focus stack. Shared dialogs receive consecutive layers in stack order.
  */
 function syncModalStackPresentation(): void {
   const top = topmostEntry();

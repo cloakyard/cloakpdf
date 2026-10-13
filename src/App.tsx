@@ -12,7 +12,6 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { Layout } from "./components/Layout.tsx";
 import { LoadingState } from "./components/LoadingState.tsx";
-import { OrientationLock } from "./components/OrientationLock.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
 import { ReloadPrompt } from "./components/ReloadPrompt.tsx";
 import { HomeScreen } from "./home/HomeScreen.tsx";
@@ -195,9 +194,8 @@ export function App() {
   }, [navigate]);
 
   // The editor owns the full viewport and its own chrome, so it renders
-  // outside <Layout> (no centered max-width, no app header/footer). Orientation
-  // is intentionally unlocked here — the editor adapts to landscape the way
-  // CloakIMG's does, rather than forcing portrait like the standalone tools.
+  // outside <Layout> (no centered max-width, no app header/footer). All routes
+  // adapt to the available viewport without requesting an orientation lock.
   if (view.kind === "editor") {
     return (
       <>
@@ -221,7 +219,6 @@ export function App() {
         </div>
       </Layout>
       <ReloadPrompt />
-      {view.kind === "tool" && <OrientationLock />}
     </>
   );
 }

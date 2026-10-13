@@ -112,40 +112,6 @@
   padding-block: var(--space-xs);
 }
 
-.cloak-action-row {
-  padding-top: var(--space-lg);
-}
-
-.cloak-action-button {
-  min-height: 3rem;
-  border-radius: var(--radius-input);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: 0.035em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  transition:
-    transform var(--dur-short) var(--ease-out),
-    color var(--dur-short) var(--ease-standard),
-    background-color var(--dur-short) var(--ease-standard),
-    border-color var(--dur-short) var(--ease-standard);
-}
-
-.cloak-action-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.cloak-action-button svg:not(.animate-spin) {
-  transition: transform var(--dur-short) var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cloak-action-button:hover:not(:disabled) svg:not(.animate-spin) {
-    transform: translateY(-1px) scale(1.05);
-  }
-}
-
 .cloak-field-label {
   color: var(--color-ink-3);
   font-family: var(--font-mono);
@@ -599,33 +565,7 @@ body {
   }
 }
 
-/* Subtle rotation cue used by the OrientationLock overlay — tilts a
-   phone glyph back and forth so the user reads "rotate this device"
-   even before they parse the headline. */
-@keyframes ci-rotate-hint {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  35% {
-    transform: rotate(-90deg);
-  }
-  70% {
-    transform: rotate(-90deg);
-  }
-}
-
-/* Class form of the rotate cue (was an inline style on the OrientationLock
-   glyph). Lifting it off inline style lets the reduced-motion rule below win
-   the cascade and disable it. */
-.animate-rotate-hint {
-  animation: ci-rotate-hint 1.4s var(--ease-in-out) 2;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .animate-rotate-hint {
-    animation: none;
-  }
   /* Tailwind's decorative pulse (streaming caret in Ask PDF, the "Detecting…"
      hint in PDF Password) carries no information — silence it. animate-spin is
      deliberately left running: loading spinners are essential status feedback
@@ -672,8 +612,7 @@ body {
   }
 
   .editor-toolrail__icon,
-  .cloak-dialog__close svg,
-  .cloak-action-button svg {
+  .cloak-dialog__close svg {
     transition: none !important;
     transform: none !important;
   }

@@ -1,102 +1,88 @@
-import { Download, Loader2, SquarePen } from "lucide-react";
-import { useState } from "react";
+import { Download, SquarePen } from "lucide-react";
+import { useRef, useState } from "react";
 
 interface ActionButtonProps {
-  onClick: () => void;
+  onClick: () => void | Promise<unknown>;
   processing: boolean;
   label: string;
   processingLabel: string;
   disabled?: boolean;
-  color?: string;
-  /**
-   * Optional secondary action rendered beside the primary (stacked above
-   * sm). Used by tools whose output is a single PDF to offer "& edit" —
-   * run the same operation but hand the result to the unified editor
-   * instead of downloading, saving the download-then-re-upload round trip.
-   */
   secondaryLabel?: string;
-  onSecondaryClick?: () => void;
-  /** Shown on the secondary while it is the in-flight action. Defaults to `processingLabel`. */
+  onSecondaryClick?: () => void | Promise<unknown>;
   secondaryProcessingLabel?: string;
 }
 
+/** Utility actions keep their size and focus while the real operation runs. */
 export function ActionButton({
   onClick,
   processing,
   label,
   processingLabel,
   disabled,
-  color = "bg-primary-600 hover:bg-primary-700",
   secondaryLabel,
   onSecondaryClick,
   secondaryProcessingLabel,
 }: ActionButtonProps) {
-  // Which button kicked off the current run — the spinner and processing
-  // label follow the clicked button, not always the primary.
   const [active, setActive] = useState<"primary" | "secondary">("primary");
-
-  // Tools whose label explicitly says "Download" (e.g. "Unlock & Download")
-  // get a trailing download glyph; tools that show a result panel first
-  // (e.g. Compare) use a different label and stay icon-less.
-  const showDownload = !processing && /download/i.test(label);
-  const hasSecondary = Boolean(secondaryLabel && onSecondaryClick);
-  // Processing always wins. Callers often pass their own validity predicate
-  // (`disabled={!canSubmit}`); nullish coalescing would let an explicit `false`
-  // keep the button clickable while the operation is already in flight.
-  const isDisabled = Boolean(disabled) || processing;
-
+  const pending = useRef(false);
+  const blocked = Boolean(disabled) || processing;
+  const activate = async (which: "primary" | "secondary") => {
+    if (blocked || pending.current) return;
+    pending.current = true;
+    setActive(which);
+    try {
+      await (which === "primary" ? onClick() : onSecondaryClick?.());
+    } finally {
+      pending.current = false;
+    }
+  };
+  const labels = (ready: string, busy: string, isBusy: boolean) => (
+    <span className="air-action-labels">
+      <span data-active={!isBusy || undefined} aria-hidden={isBusy}>
+        {ready}
+      </span>
+      <span data-active={isBusy || undefined} aria-hidden={!isBusy}>
+        {busy}
+      </span>
+    </span>
+  );
   return (
-    <div className="cloak-action-row flex justify-center">
-      {/* When a secondary is present, both buttons live in equal 1fr grid
-          columns — under shrink-to-fit the columns resolve to the widest
-          label, so the pair always renders at matching widths. */}
-      <div
-        className={`grid w-full grid-cols-1 gap-3 sm:w-auto ${hasSecondary ? "sm:grid-cols-2" : ""}`}
-      >
+    <div className="pdf-operation-actions">
+      <div className="air-page-actions">
         <button
           type="button"
-          onClick={() => {
-            setActive("primary");
-            onClick();
-          }}
-          disabled={isDisabled}
+          onClick={() => void activate("primary")}
+          aria-disabled={blocked || undefined}
           aria-busy={processing && active === "primary"}
-          className={`cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-[var(--color-accent-ink)] transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-55 sm:px-8 ${color}`}
+          className="air-button air-button--primary"
         >
-          {/* nowrap: a primary CTA must never wrap to two lines (320px guard). */}
-          <span className="whitespace-nowrap">
-            {processing && active === "primary" ? processingLabel : label}
-          </span>
-          {processing && active === "primary" && (
-            <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-          )}
-          {showDownload && <Download className="w-4 h-4" aria-hidden="true" />}
+          {/download/i.test(label) && <Download size={16} strokeWidth={1.6} aria-hidden="true" />}
+          {labels(label, processingLabel, processing && active === "primary")}
         </button>
-
-        {hasSecondary && (
+        {secondaryLabel && onSecondaryClick && (
           <button
             type="button"
-            onClick={() => {
-              setActive("secondary");
-              onSecondaryClick?.();
-            }}
-            disabled={isDisabled}
+            onClick={() => void activate("secondary")}
+            aria-disabled={blocked || undefined}
             aria-busy={processing && active === "secondary"}
-            className="cloak-action-button cloak-focus inline-flex w-full items-center justify-center gap-2 border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-3 text-[var(--color-ink)] transition-colors hover:border-primary-500 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-8"
+            className="air-button"
           >
-            <span className="whitespace-nowrap">
-              {processing && active === "secondary"
-                ? (secondaryProcessingLabel ?? processingLabel)
-                : secondaryLabel}
-            </span>
-            {processing && active === "secondary" ? (
-              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <SquarePen className="w-4 h-4" aria-hidden="true" />
+            <SquarePen size={16} strokeWidth={1.6} aria-hidden="true" />
+            {labels(
+              secondaryLabel,
+              secondaryProcessingLabel ?? processingLabel,
+              processing && active === "secondary",
             )}
           </button>
         )}
       </div>
+      <span className="sr-only" role="status">
+        {processing
+          ? active === "secondary"
+            ? (secondaryProcessingLabel ?? processingLabel)
+            : processingLabel
+          : ""}
+      </span>
     </div>
   );
 }

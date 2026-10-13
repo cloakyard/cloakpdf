@@ -76,21 +76,31 @@ function sleep(ms: number): Promise<void> {
 async function clickButton(page: Page, label: string, timeout = 30_000): Promise<void> {
   await page.waitForFunction(
     (expected) =>
-      Array.from(document.querySelectorAll("button")).some(
-        (button) =>
-          (button.textContent ?? "").trim() === expected &&
-          !(button instanceof HTMLButtonElement && button.disabled),
-      ),
+      Array.from(document.querySelectorAll("button")).some((button) => {
+        // Ignore reserved hidden labels while preserving the source casing;
+        // innerText applies legacy uppercase CSS on unmigrated controls.
+        const copy = button.cloneNode(true) as HTMLElement;
+        copy.querySelectorAll('[aria-hidden="true"]').forEach((node) => node.remove());
+        return (
+          copy.textContent?.trim() === expected &&
+          !button.disabled &&
+          button.getAttribute("aria-disabled") !== "true"
+        );
+      }),
     { timeout },
     label,
   );
 
   const clicked = await page.evaluate((expected) => {
-    const button = Array.from(document.querySelectorAll("button")).find(
-      (candidate) =>
-        (candidate.textContent ?? "").trim() === expected &&
-        !(candidate instanceof HTMLButtonElement && candidate.disabled),
-    );
+    const button = Array.from(document.querySelectorAll("button")).find((candidate) => {
+      const copy = candidate.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll('[aria-hidden="true"]').forEach((node) => node.remove());
+      return (
+        copy.textContent?.trim() === expected &&
+        !candidate.disabled &&
+        candidate.getAttribute("aria-disabled") !== "true"
+      );
+    });
     if (!(button instanceof HTMLButtonElement)) return false;
     button.click();
     return true;
@@ -261,6 +271,29 @@ async function main(): Promise<void> {
         FIXTURES.scanned,
         FIXTURES.generativeAi,
       );
+      await page.waitForFunction(() => document.querySelectorAll(".pdf-queue-row").length === 4);
+      await clickButton(page, "A → Z");
+      const removeLabel = `Remove ${basename(FIXTURES.multipage)}`;
+      await page.locator(`button[aria-label="${removeLabel}"]`).click();
+      await page.waitForFunction(
+        () => document.activeElement?.textContent?.trim() === "Undo removal",
+      );
+      await clickButton(page, "Undo removal");
+      await page.waitForFunction(
+        (label) => document.activeElement?.getAttribute("aria-label") === label,
+        {},
+        removeLabel,
+      );
+      await clickButton(page, "None");
+      const order = await page.$$eval(".air-collection-name p", (nodes) =>
+        nodes.map((node) => node.textContent),
+      );
+      assert(
+        JSON.stringify(order) ===
+          JSON.stringify(Object.values(FIXTURES).map((file) => basename(file))),
+        "Sort/remove/undo changed the manual merge order.",
+      );
+      console.log("  ✓ sorted removal/undo restores keyboard focus and original manual order");
       const output = await clickAndDownload(page, directory, "Merge 4 files & Download");
       assert(basename(output) === "merged.pdf", `Unexpected merge filename: ${basename(output)}`);
       const expectedPages = Object.values(EXPECTED_PAGE_COUNTS).reduce(
