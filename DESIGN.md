@@ -6,7 +6,7 @@ date: 2026-10-13
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: cc0c56b98f5a42aff83ebfdaeaffd3ccd2d5ac8ea1de2489c6f5ff91c50e00be
+family-contract-sha256: 69673d876d0054b22e59be533373285ea3971dd523b911ef079d39d1cf8169c7
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
@@ -359,6 +359,58 @@ No glass blur behind forms, body copy, tables, or document content.
   state study. Its outcomes are simulated and process no files. Only those study
   controls return focus before disabling themselves; this does not authorize
   production focus jumps. Validate real async cancellation/races in each adapter.
+
+### File acquisition and measured progress
+
+A file area has one matte surface, one control-strength contour, an explicit
+browse action and visible format/count/size help. The drag state changes the
+same plane to `accent-soft` with an `accent` edge; never add a second inset frame,
+a pulsing outline or a decorative upload animation. The filename, size and Remove
+belong in a ruled row within that plane. Wrap long names without widening the
+page. Keep the preview in its own working region, not behind the drop target.
+At 960px and below, the reference stacks selection before preview; this documented
+content breakpoint accommodates two readable columns. Use the same 32/24/16px
+page gutters and inherited theme/control rules. This composition is a study, not
+a requirement to replace each editor's established panel ordering.
+
+- Browse, drop and paste feed the same validation and selection operation.
+  Browse remains available to keyboard, touch and assistive technology; dragging
+  is never required. Keep the actual native file picker. Reset its value after a
+  pick so choosing the same file works. Cancelling the picker leaves work intact.
+- Define supported types, count and size in the product adapter, and show them
+  before selection. The HTML `accept` hint is not validation. Validate decoded
+  contents where the format requires it; an extension or MIME type alone does not
+  prove validity. Wrong type/count/size retains the previous valid selection and
+  offers a specific correction. Corrupt/encrypted files need domain-specific
+  recovery, not a generic network-error message.
+- A missed file drop must not navigate away from work. Nested drag targets must
+  not flicker. Stop accepted drop propagation to avoid opening the same file twice.
+  Do not intercept links/text dragging or paste into editable fields. Paste controls
+  explain empty, unavailable or denied clipboard access and keep Browse available.
+  A pending clipboard read cannot replace a newer selection or removed item.
+- Reserve action geometry for every translated state. There is one primary next
+  action: Browse when empty, Preview/Process when ready, Continue when manually
+  paused, Retry on recoverable failure. A busy initiator remains focusable with
+  guarded `aria-disabled`; never dispatch twice. Removing a focused control returns
+  focus to a surviving action. Do not steal focus for background progress updates.
+- Known progress reflects completed work in its actual unit, with an accessible
+  name, minimum, maximum, current value and readable count. Unknown totals use
+  phase/received-work text and an indeterminate progress role without `aria-valuenow`;
+  hide the determinate fill. Never invent percentages, ETA, completion or timed
+  progress. An empty file gets an explicit message without a misleading full bar.
+  A 6px accent fill has no interpolation, shimmer, spinner or shader work.
+- Announce phase changes/errors politely outside busy content, not every byte.
+  Keep errors next to the operation with a recovery action and preserved input.
+  Cancellation stops the underlying reader/worker/request when supported, invalidates
+  stale results, releases pending waits/resources and preserves useful partial work.
+  Replacement, removal and teardown invalidate earlier completions too. Retry has a
+  defined restart/resume policy; do not imply resumability that the engine lacks.
+- The standalone `files.html` reference actually reads local UTF-8 `.txt`/`.json`
+  files up to 4 MiB, with a bounded 1,200-code-point text preview and safe text rendering.
+  It does not parse JSON, import a résumé, decode images, read PDF structures, upload,
+  persist or modify originals. The optional halfway pause, interruption and hidden
+  total are labelled study controls. Retry rereads from byte zero. Product adapters
+  still require their real error/cancellation/export and cleanup tests.
 
 ### Choice anatomy and semantics
 

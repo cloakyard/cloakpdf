@@ -1348,3 +1348,151 @@ textarea.air-field {
     padding-block: 32px;
   }
 }
+
+/* File intake: one quiet plane, measured progress and an independent text preview. */
+.air-file-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  padding-block-end: 64px;
+}
+.air-file-workspace > section {
+  min-inline-size: 0;
+}
+.air-file-workspace h2 {
+  margin-block: 0 24px;
+}
+.air-file-drop {
+  padding: 24px;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+}
+.air-file-drop[data-dragging] {
+  border-color: var(--air-accent);
+  background: var(--air-accent-soft);
+}
+.air-file-drop > svg {
+  inline-size: 32px;
+  block-size: 32px;
+  color: var(--air-accent);
+}
+.air-file-invitation {
+  margin: 16px 0 8px;
+  font-weight: 500;
+}
+.air-file-drop .air-help {
+  margin-block: 8px;
+}
+.air-file-drop .air-page-actions {
+  margin-block: 16px;
+}
+.air-file-selection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-block-start: 24px;
+  padding-block: 16px;
+  border-block: 1px solid var(--air-line);
+}
+.air-file-selection > div {
+  flex: 1 1 12rem;
+  min-inline-size: 0;
+}
+.air-file-selection p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.air-file-selection #air-file-name {
+  font-size: var(--air-text-body);
+  font-weight: 500;
+}
+.air-file-progress-region {
+  margin-block: 16px;
+}
+.air-file-progress {
+  block-size: 6px;
+  background: var(--air-surface-soft);
+  border-radius: var(--air-radius-check);
+  overflow: hidden;
+}
+.air-file-progress > span {
+  display: block;
+  block-size: 100%;
+  background: var(--air-accent);
+  transform-origin: left;
+}
+.air-file-status {
+  min-block-size: 3em;
+}
+.air-file-status[data-state="error"] {
+  color: var(--air-danger);
+}
+.air-file-scenarios {
+  margin-block-start: 24px;
+  padding-block: 8px;
+  border-block: 1px solid var(--air-line);
+}
+.air-file-scenarios summary {
+  display: list-item;
+  min-block-size: 44px;
+  padding-block: 10px;
+  cursor: pointer;
+  font-size: var(--air-text-body);
+}
+.air-file-scenarios .air-check-label {
+  margin-block: 8px;
+}
+.air-file-output {
+  margin-block: 24px 16px;
+  padding: 24px;
+  min-block-size: 12rem;
+  max-block-size: 24rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-block: 1px solid var(--air-line);
+  font: 400 var(--air-text-body)/1.7 var(--air-font-mono);
+  scrollbar-gutter: stable;
+}
+.air-file-output[data-empty="true"] {
+  font-family: var(--air-font);
+  color: var(--air-ink-muted);
+}
+.air-file-notes {
+  max-inline-size: 65ch;
+  padding-block-end: 64px;
+}
+.air-file-drop:focus-visible,
+.air-file-output:focus-visible,
+.air-file-scenarios summary:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 60rem) {
+  .air-file-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+@media (max-width: 40rem) {
+  .air-file-drop,
+  .air-file-output {
+    padding: 16px;
+  }
+}
+@media (forced-colors: active) {
+  .air-file-drop[data-dragging] {
+    border-color: Highlight;
+  }
+  .air-file-progress {
+    border: 1px solid CanvasText;
+  }
+  .air-file-progress > span {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+}

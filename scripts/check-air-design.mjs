@@ -62,6 +62,8 @@ else {
     "reading.html",
     "recovery.html",
     "pages.mjs",
+    "files.html",
+    "files.mjs",
     "motion.mjs",
     "light-controller.mjs",
     "assets/air-light-shader.js",
@@ -83,10 +85,11 @@ else {
           "__AIR_OVERLAY_REVISION__",
           studyAssets["assets/air-overlays.js"]?.slice(0, 12) ?? "missing",
         );
-      if (asset === "reading.html" || asset === "recovery.html")
+      if (["reading.html", "recovery.html", "files.html"].includes(asset))
         canonical = canonical
           .replace("__AIR_STYLESHEET__", `../../${stylesheet}?air=${sha256.slice(0, 12)}`)
-          .replace("__AIR_PAGES_REVISION__", studyAssets["pages.mjs"]?.slice(0, 12) ?? "missing");
+          .replace("__AIR_PAGES_REVISION__", studyAssets["pages.mjs"]?.slice(0, 12) ?? "missing")
+          .replace("__AIR_FILES_REVISION__", studyAssets["files.mjs"]?.slice(0, 12) ?? "missing");
       if (asset === "components.html")
         canonical = canonical
           .replace("__AIR_STYLESHEET__", `../../${stylesheet}?air=${sha256.slice(0, 12)}`)

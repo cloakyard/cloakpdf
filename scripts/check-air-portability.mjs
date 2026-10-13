@@ -132,6 +132,24 @@ try {
   checks.push("altered reading page rejected");
   await writeFile(readingPath, reading);
 
+  const withoutFiles = structuredClone(manifest);
+  delete withoutFiles.studyAssets["files.mjs"];
+  await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutFiles));
+  const missingFilesHash = verify();
+  assert.notEqual(missingFilesHash.status, 0);
+  assert.match(missingFilesHash.stderr, /Missing Air study asset hash: files\.mjs/);
+  checks.push("missing file lifecycle behavior hash rejected");
+  await writeFile(resolve(fixture, manifestPath), manifestText);
+
+  const filesPath = resolve(fixture, "docs/air/files.html");
+  const filePage = await readFile(filesPath, "utf8");
+  await writeFile(filesPath, `${filePage}\n<!-- Deliberate portability-test drift. -->\n`);
+  const filePageDrift = verify();
+  assert.notEqual(filePageDrift.status, 0);
+  assert.match(filePageDrift.stderr, /Air study asset drift: files\.html/);
+  checks.push("altered file study rejected");
+  await writeFile(filesPath, filePage);
+
   await rm(resolve(fixture, manifestPath));
   const missingManifest = verify();
   assert.notEqual(missingManifest.status, 0);
