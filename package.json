@@ -64,8 +64,7 @@
   "packageManager": "pnpm@12.9.1",
   "knip": {
     "entry": [
-      "tests/e2e/**/*.ts",
-      "src/styles/air.css"
+      "tests/e2e/**/*.ts"
     ],
     "project": [
       "src/**/*.{ts,tsx,css}",

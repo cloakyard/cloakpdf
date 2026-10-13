@@ -39,6 +39,14 @@ try {
     await mkdir(dirname(target), { recursive: true });
     await copyFile(resolve(source, file), target);
   }
+  // A portable design bundle does not include product implementation sources.
+  // Keep the real repository inventory intact; isolate only its bundled CSS
+  // entry in this temporary fixture. Runtime conformance uses the full inventory.
+  const inventoryPath = resolve(fixture, "docs/air/surfaces.json");
+  const inventory = JSON.parse(await readFile(inventoryPath, "utf8"));
+  inventory.surfaces = inventory.surfaces.filter((surface) => surface.path === manifest.stylesheet);
+  assert.equal(inventory.surfaces.length, 1, "Portable CSS must have exactly one inventory entry");
+  await writeFile(inventoryPath, JSON.stringify(inventory));
   function verify() {
     const result = spawnSync(process.execPath, [resolve(fixture, "scripts/check-air-design.mjs")], {
       cwd: fixture,

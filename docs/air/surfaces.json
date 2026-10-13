@@ -6,13 +6,13 @@
     {
       "path": "src/App.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "evidence": ["docs/air/validation.md"],
+      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated."
     },
     {
       "path": "src/components/ActionButton.tsx",
@@ -127,13 +127,33 @@
     {
       "path": "src/components/EncryptedPdfNotice.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/components/ErrorBoundary.tsx",
@@ -149,13 +169,33 @@
     {
       "path": "src/components/FileDropZone.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/components/FileInfoBar.tsx",
@@ -182,13 +222,33 @@
     {
       "path": "src/components/Layout.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/components/LoadingSpinner.tsx",
@@ -248,13 +308,33 @@
     {
       "path": "src/components/PrivacyPolicy.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/components/ProgressBar.tsx",
@@ -270,13 +350,33 @@
     {
       "path": "src/components/ReloadPrompt.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/components/SegmentedControl.tsx",
@@ -313,17 +413,6 @@
     },
     {
       "path": "src/components/SortByNameButton.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
-    },
-    {
-      "path": "src/components/ToolCard.tsx",
       "kind": "app-surface",
       "sourceReviewed": false,
       "airImplemented": false,
@@ -494,7 +583,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -509,7 +598,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -535,7 +624,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -550,7 +639,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -565,7 +654,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -580,7 +669,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -595,7 +684,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -610,7 +699,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -625,7 +714,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -640,7 +729,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -655,7 +744,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -670,7 +759,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -685,7 +774,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -700,7 +789,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -715,7 +804,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -730,7 +819,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -745,7 +834,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -760,7 +849,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -775,7 +864,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -790,7 +879,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -805,7 +894,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -820,7 +909,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -835,7 +924,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -850,7 +939,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -865,7 +954,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -896,26 +985,108 @@
       "notes": ""
     },
     {
+      "path": "src/home/HomeScreen.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+    },
+    {
+      "path": "src/home/ToolEntry.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+    },
+    {
       "path": "src/index.css",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "evidence": ["docs/air/validation.md"],
+      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated."
     },
     {
       "path": "src/main.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
       "path": "src/standalone/AskPdf.tsx",
@@ -995,6 +1166,37 @@
       "notes": ""
     },
     {
+      "path": "src/styles/air-entry.css",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+    },
+    {
       "path": "src/styles/air.css",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -1033,7 +1235,10 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
+      "evidence": [
+        "docs/air/validation.md \u2014 refinement 02 candidate",
+        "docs/air/components.html"
+      ],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]

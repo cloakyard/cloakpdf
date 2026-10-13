@@ -1,0 +1,1736 @@
+{
+  "date": "2026-10-13",
+  "scope": "Air home, shell, privacy, shared file acquisition and encrypted recovery; editor/standalone bodies and global error boundary pending",
+  "layouts": [
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "home",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "font": "-apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 16,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "light",
+      "rootSize": 32,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 16,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 320,
+      "height": 568,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 375,
+      "height": 812,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 390,
+      "height": 844,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 430,
+      "height": 932,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 844,
+      "height": 390,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 768,
+      "height": 1024,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1024,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1280,
+      "height": 720,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1366,
+      "height": 768,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1440,
+      "height": 900,
+      "clipped": [],
+      "overflow": 0
+    },
+    {
+      "page": "privacy",
+      "theme": "dark",
+      "rootSize": 32,
+      "width": 1920,
+      "height": 1080,
+      "clipped": [],
+      "overflow": 0
+    }
+  ],
+  "contrast": [
+    {
+      "background": "rgb(34, 40, 49)",
+      "foreground": "rgb(255, 255, 255)",
+      "text": "Skip to main content",
+      "theme": "light",
+      "ratio": 14.83173212851982
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "CloakPDF",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Editor",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Tools",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Source",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "A little space for your documents",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Your PDF. Your space.",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Edit, organise, sign, and make it yours. A complete PDF tool",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Explore the tools",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "",
+      "theme": "light",
+      "ratio": 15.743934467621905
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "One PDF. Opened here, on your device.",
+      "theme": "light",
+      "ratio": 6.873758629397385
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Your files stay local. No account needed.",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "Find your next step",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Small tasks. Sorted.",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Try redact, merge, or OCR",
+      "theme": "light",
+      "ratio": 15.743934467621905
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "Search includes every editor tool and standalone utility.",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Combine & Convert",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Build a PDF from several files, or pull its contents out",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Merge PDFsCombine multiple PDF files into one document",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Merge PDFs",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Combine multiple PDF files into one document",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Images to PDFConvert images into a PDF document",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Images to PDF",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Convert images into a PDF document",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Extract ImagesPull all embedded images from a PDF and downlo",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Extract Images",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Pull all embedded images from a PDF and download as PNG or Z",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Secure & Sign",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Protect, sign, and compare your documents",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "PDF PasswordAdd or remove a password and control print, copy",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "PDF Password",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Add or remove a password and control print, copy, and edit r",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Compare PDFsVisual side-by-side diff of two PDFs with pixel-",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Compare PDFs",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Visual side-by-side diff of two PDFs with pixel-level change",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Digital SignatureSign PDFs with a cryptographic certificate ",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Digital Signature",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Sign PDFs with a cryptographic certificate for authenticity ",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "On-device AI",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Chat with your PDF, right in your browser",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Ask your PDFBetaAsk questions and get answers extracted from",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Ask your PDF",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "Beta",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Ask questions and get answers extracted from the PDF \u2014 runs ",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "Best on devices with \u2265 16 GB RAM \u2014 pick the Compact tier on ",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "Private by design",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Your documents.Still yours.",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Open a file, work on it here, and save the result to your de",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "The app may download its code, OCR data, or optional AI mode",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Explore the source",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(100, 107, 118)",
+      "text": "CloakPDF v2.0.0",
+      "theme": "light",
+      "ratio": 5.188556616528007
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Made for your files. Part of Cloakyard.",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Cloakyard",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(32, 35, 41)",
+      "text": "Privacy policy",
+      "theme": "light",
+      "ratio": 15.196139852242197
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "MIT license",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(250, 251, 252)",
+      "foreground": "rgb(82, 91, 104)",
+      "text": "Sumit Sahoo",
+      "theme": "light",
+      "ratio": 6.634593002003077
+    },
+    {
+      "background": "rgb(233, 238, 247)",
+      "foreground": "rgb(24, 33, 46)",
+      "text": "Skip to main content",
+      "theme": "dark",
+      "ratio": 13.91972285999866
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "CloakPDF",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Editor",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Tools",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Source",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "A little space for your documents",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Your PDF. Your space.",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Edit, organise, sign, and make it yours. A complete PDF tool",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Explore the tools",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(26, 29, 35)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "",
+      "theme": "dark",
+      "ratio": 15.196471601782546
+    },
+    {
+      "background": "rgb(26, 29, 35)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "One PDF. Opened here, on your device.",
+      "theme": "dark",
+      "ratio": 9.0171348392764
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Your files stay local. No account needed.",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "Find your next step",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Small tasks. Sorted.",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(26, 29, 35)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Try redact, merge, or OCR",
+      "theme": "dark",
+      "ratio": 15.196471601782546
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "Search includes every editor tool and standalone utility.",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Combine & Convert",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Build a PDF from several files, or pull its contents out",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Merge PDFsCombine multiple PDF files into one document",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Merge PDFs",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Combine multiple PDF files into one document",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Images to PDFConvert images into a PDF document",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Images to PDF",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Convert images into a PDF document",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Extract ImagesPull all embedded images from a PDF and downlo",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Extract Images",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Pull all embedded images from a PDF and download as PNG or Z",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Secure & Sign",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Protect, sign, and compare your documents",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "PDF PasswordAdd or remove a password and control print, copy",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "PDF Password",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Add or remove a password and control print, copy, and edit r",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Compare PDFsVisual side-by-side diff of two PDFs with pixel-",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Compare PDFs",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Visual side-by-side diff of two PDFs with pixel-level change",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Digital SignatureSign PDFs with a cryptographic certificate ",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Digital Signature",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Sign PDFs with a cryptographic certificate for authenticity ",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "On-device AI",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Chat with your PDF, right in your browser",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Ask your PDFBetaAsk questions and get answers extracted from",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Ask your PDF",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "Beta",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Ask questions and get answers extracted from the PDF \u2014 runs ",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "Best on devices with \u2265 16 GB RAM \u2014 pick the Compact tier on ",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "Private by design",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Your documents.Still yours.",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Open a file, work on it here, and save the result to your de",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "The app may download its code, OCR data, or optional AI mode",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Explore the source",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(167, 175, 188)",
+      "text": "CloakPDF v2.0.0",
+      "theme": "dark",
+      "ratio": 8.48220445336045
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Made for your files. Part of Cloakyard.",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Cloakyard",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(241, 243, 247)",
+      "text": "Privacy policy",
+      "theme": "dark",
+      "ratio": 16.875992817509335
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "MIT license",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    },
+    {
+      "background": "rgb(16, 18, 22)",
+      "foreground": "rgb(182, 190, 203)",
+      "text": "Sumit Sahoo",
+      "theme": "dark",
+      "ratio": 10.013712838728418
+    }
+  ],
+  "journeys": [
+    "Search ranking, all-token highlight, singular count, no-results reset, Cmd/Ctrl K, Escape, clear focus",
+    "Home browse -> editor page rendering; Merge & edit -> editor",
+    "Six non-AI standalone tools with documented synthetic demo PDFs, validated downloads",
+    "Mobile editor smoke: tool panels, actual crop/annotation/metadata/organize operations and Markdown export",
+    "Responsive motion: six viewports, editor/modal anchoring, reduced motion; one concurrent-run tablet timing failure followed by passing serial rerun",
+    "Native Safari desktop: rendering, search and Escape; native Firefox: 200% browser zoom, toolkit anchor/focus",
+    "Encrypted synthetic PDF: notice, choose-another restores native input focus, password-tool navigation",
+    "Missed file drop prevented; text drop preserved; valid synthetic PDF drop renders Page 1",
+    "88 layout/theme/root-text checks: home and policy, 11 contract dimensions, light/dark, 16/32px root text",
+    "112 computed text contrast pairs; minimum 5.1886:1",
+    "44px clear target, one focus outline and no inner input border; forced colours screenshot; reduced-motion drag icon immobile",
+    "Production preview imports the canonical bundle. Initial production offline notice exposed a legacy font/style path; notice was migrated and font preloads removed. Editor/output font assets remain.",
+    "PWA notice fixture: 12 reflow cases, keyboard focus retained during busy state, repeated update dispatched once."
+  ],
+  "unverified": [
+    "Physical touch/software keyboard",
+    "Screen-reader speech/navigation",
+    "Remaining editor, standalone controls, AI, global loading/recovery Air migration",
+    "Original two absent standalone fixture PDFs; generated demos used instead"
+  ],
+  "noticeCases": [
+    {
+      "theme": "light",
+      "size": 16,
+      "width": 320,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "light",
+      "size": 16,
+      "width": 768,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "light",
+      "size": 16,
+      "width": 1440,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "light",
+      "size": 32,
+      "width": 320,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "light",
+      "size": 32,
+      "width": 768,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "light",
+      "size": 32,
+      "width": 1440,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 16,
+      "width": 320,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 16,
+      "width": 768,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 16,
+      "width": 1440,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 32,
+      "width": 320,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 32,
+      "width": 768,
+      "clipped": 0,
+      "overflow": 0
+    },
+    {
+      "theme": "dark",
+      "size": 32,
+      "width": 1440,
+      "clipped": 0,
+      "overflow": 0
+    }
+  ],
+  "productionUpdate": "Installed previous build showed its old update UI; actual Update now action loaded the new build. Final phone screenshot replaced after update. Legacy Archivo is still requested by pending global surfaces."
+}

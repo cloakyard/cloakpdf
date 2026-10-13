@@ -40,7 +40,7 @@ const AskPdf = lazy(() => import("../standalone/AskPdf.tsx"));
 
 // ── Tool metadata ────────────────────────────────────────────────
 
-export const tools = [
+const tools = [
   // ── Combine & Convert ────────────────────────────────────
   // Multi-file constructors + format conversion — the jobs the single-PDF
   // editor can't do (it edits one document, these build one from many or

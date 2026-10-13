@@ -90,12 +90,16 @@ Generation sampling defaults ([src/rag/chat-model.ts](src/rag/chat-model.ts)): `
 
 ### Design system
 
-[DESIGN.md](DESIGN.md) is the design spec — a YAML front-matter token system plus prose explaining the visual language. Two invariants explicitly called out:
+[DESIGN.md](DESIGN.md) is the portable Cloakyard Air contract. Its canonical source
+is `cloakyard/design/air`; product CSS consumes the generated `src/styles/air.css`
+without overriding family tokens. The same rules apply to all custom controls,
+editor chrome, canvas surrounds, responsive states, and light/dark modes. Document
+output keeps its own appearance.
 
-1. **One accent.** Per-tool / per-category colour stays out of interactive surfaces. The Ocean-Blue primary is the only accent on CTAs, focus rings, hover borders.
-2. **Slate-200 borders, no resting shadow.** Cards earn elevation on hover, not at rest.
-
-Read DESIGN.md before adding new UI surfaces — the design system is doing real work and ad-hoc colour/shadow choices break the calm tone.
+Track source, implementation, state and viewport evidence in `docs/air/surfaces.json`.
+Run `node scripts/check-air-design.mjs`. Implement and validate bounded pieces before
+committing. Remove obsolete styles and references from each migrated surface.
+See AGENTS.md for the required lint, dead-code, unit and browser checks.
 
 ### Deployment
 

@@ -1,7 +1,7 @@
 /** Reusable local-file acquisition surface for every PDF workflow. */
 
 import { ArrowRight, FileUp } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { EncryptedPdfNotice } from "./EncryptedPdfNotice.tsx";
 
 interface FileDropZoneProps {
@@ -27,10 +27,31 @@ export function FileDropZone({
 }: FileDropZoneProps) {
   const hero = size === "hero";
   const [isDragOver, setIsDragOver] = useState(false);
+  const hintId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const wasEncrypted = useRef(false);
+  useEffect(() => {
+    if (wasEncrypted.current && !encryptedFile) inputRef.current?.focus();
+    wasEncrypted.current = Boolean(encryptedFile);
+  }, [encryptedFile]);
+  useEffect(() => {
+    // Missing the acquisition target must not replace the app with a dropped
+    // file. Text/link dragging keeps its normal browser behaviour.
+    const preventFileNavigation = (event: DragEvent) => {
+      if (event.dataTransfer?.types.includes("Files")) event.preventDefault();
+    };
+    document.addEventListener("dragover", preventFileNavigation);
+    document.addEventListener("drop", preventFileNavigation);
+    return () => {
+      document.removeEventListener("dragover", preventFileNavigation);
+      document.removeEventListener("drop", preventFileNavigation);
+    };
+  }, []);
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
+      if (!event.dataTransfer.types.includes("Files")) return;
       event.preventDefault();
+      event.stopPropagation();
       setIsDragOver(false);
       const files = Array.from(event.dataTransfer.files);
       if (files.length > 0) onFiles(files);
@@ -53,15 +74,22 @@ export function FileDropZone({
 
   return (
     <label
+      className={`air-file-drop pdf-file-drop ${hero ? "pdf-file-drop--hero" : ""}`}
       onDragOver={(event) => {
+        if (!event.dataTransfer.types.includes("Files")) return;
         event.preventDefault();
         setIsDragOver(true);
       }}
-      onDragLeave={() => setIsDragOver(false)}
+      onDragLeave={(event) => {
+        if (
+          event.relatedTarget instanceof Node &&
+          event.currentTarget.contains(event.relatedTarget)
+        )
+          return;
+        setIsDragOver(false);
+      }}
       onDrop={handleDrop}
-      data-dragging={isDragOver}
-      style={{ touchAction: "manipulation" }}
-      className={`cloak-dropzone ${hero ? "cloak-dropzone--hero" : ""}`}
+      data-dragging={isDragOver || undefined}
     >
       <input
         ref={inputRef}
@@ -70,35 +98,16 @@ export function FileDropZone({
         multiple={multiple}
         onChange={handleChange}
         aria-label={label}
-        className="absolute inset-0 z-20 size-full cursor-pointer opacity-0"
+        aria-describedby={hintId}
       />
-
-      <span className="cloak-dropzone__bar">
-        <span>Local input / {multiple ? "multiple files" : "one document"}</span>
-        <span>{isDragOver ? "Release to open" : "No upload route"}</span>
+      <FileUp className="pdf-file-icon" strokeWidth={1.5} aria-hidden="true" />
+      <span className="air-file-invitation">{isDragOver ? "Release to open" : label}</span>
+      <span id={hintId} className="air-help">
+        {hint ||
+          `${multiple ? "Choose one or more files" : "Choose one file"}. ${accept.includes("image/") ? "Images" : "PDF"} opened on your device.`}
       </span>
-
-      <span className="cloak-dropzone__body">
-        <FileUp
-          className={`cloak-dropzone__icon ${hero ? "size-9" : "size-7"} shrink-0 text-primary-600`}
-          strokeWidth={1.6}
-          aria-hidden="true"
-        />
-        <span className="min-w-0">
-          <span
-            className={`${hero ? "text-xl sm:text-2xl" : "text-lg"} block font-semibold tracking-[-0.025em] text-[var(--color-ink)]`}
-          >
-            {label}
-          </span>
-          {hint && (
-            <span className="mt-2 block text-sm leading-relaxed text-[var(--color-ink-3)]">
-              {hint}
-            </span>
-          )}
-        </span>
-        <span className="cloak-solid-link cloak-dropzone__action">
-          Browse <ArrowRight className="cloak-link-arrow size-3.5" aria-hidden="true" />
-        </span>
+      <span className="air-button air-button--primary pdf-file-browse" aria-hidden="true">
+        Browse files <ArrowRight size={16} />
       </span>
     </label>
   );

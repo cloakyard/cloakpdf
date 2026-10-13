@@ -25,7 +25,9 @@ describe("ReloadNotice", () => {
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain("Applying update…");
     expect(html).toContain("Updating…");
-    expect(html.match(/disabled=""/g)).toHaveLength(2);
+    expect(html.match(/disabled=""/g)).toHaveLength(1);
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain('class="air-action-labels"');
   });
 
   it("keeps the offline-ready notice compact and dismissible", () => {

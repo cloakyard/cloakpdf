@@ -79,3 +79,66 @@ was connected through `design:portability`; the dead-code check then passed.
 Existing product behavior and appearance are unchanged. Runtime editor/AI/export
 E2E sweeps are reserved for affected production pieces; this checkpoint does not
 claim those have passed. No push or deployment was performed.
+
+## 2026-10-13 — Air entry implementation
+
+Implemented the homepage, ranked tool index, common navigation/footer, privacy
+reading page, shared file acquisition, encrypted-file recovery, and update/offline
+notices. Canonical `src/styles/air.css` now imports through the application entry;
+`air-entry.css` contains composition only. Home search metadata stays independent
+of the lazy editor graph. Route changes focus the new main region immediately.
+Search clear/Escape retain focus, and encrypted-file replacement focuses Browse.
+Missed file drops are prevented without intercepting text/link dragging.
+
+Removed the old ToolCard, landing panel/pipeline/stat/receipt CSS, duplicated shell
+footer branches, generic technical labels and font preloads. Actual editor/output
+fonts remain because pending surfaces still use them. Replaced stale CLAUDE design
+instructions. Refreshed the real 1200×630 social screenshot and its capture selector.
+No shared token, PDF engine, export-byte or AI-pipeline change is included.
+
+Verified:
+
+- `vp check --fix`, dead-code check, 355/355 units, TypeScript, production/PWA build,
+  and deployment asset limits. Contract/source inventory and portability checks pass.
+- 88 DOM layout cases: home + policy, eleven contract dimensions × light/dark ×
+  16/32px root text. No horizontal overflow or clipped inspected controls/headings.
+  112 computed text pairs have minimum 5.1886:1 contrast. Screenshots inspected on
+  desktop/phone and tablet policy; this does not claim 88 independent visual reviews.
+- Landing-search and home-routing E2E pass against both dev and production preview:
+  anchored search, ranking/highlighting/counts, shortcuts, clear/no-result recovery,
+  selected-tool intent, PDF open and Merge & edit hand-off.
+- All six non-AI standalone workflows pass using the documented generated demo
+  fixtures, with output page counts, extracted ZIP, encryption and signature checks.
+  The original scanned/guide fixture PDFs are absent and were not tested.
+- Mobile editor smoke passes: actual operations plus twelve additional panel
+  render checks, preserved 50:50 sheet and Markdown export. The desktop editor
+  sweep was not rerun in this slice.
+  Responsive motion passes six dimensions, editor/modal anchoring and reduced motion.
+  A first concurrent run failed the tablet-portrait settle assertion; a serial rerun
+  passed unchanged, with added failure-state diagnostics. No failure was waived.
+- Native Safari: rendered entry/search, one visible clear action/outline and Escape.
+  Native Firefox: real 200% browser zoom and toolkit anchor/focus. Chromium: 44px
+  clear action, forced colours and reduced motion, missed file/text drop handling,
+  real synthetic-PDF drop → rendered editor page, encrypted notice → replacement
+  focus and PDF Password navigation.
+- Update/offline notices: twelve layout/theme/text cases using a disposable fixture,
+  both states, busy keyboard focus preserved and repeated update dispatch guarded.
+  The fixture was removed after verification. An installed previous build displayed
+  its old update notice; clicking its real Update now action loaded the new build.
+  The final phone screenshot reflects that updated build. First-install cache
+  notification remains real service-worker state; no production toggle was added.
+
+Evidence: `evidence/entry-2026-10-13.json` and `entry-*.png`. The production preview
+uses port 8132. Existing product/reference servers were preserved.
+
+Still open: physical touch/software keyboard, screen-reader speech/navigation,
+full standalone bodies, editor/canvas/overlays, global loading/error boundary and
+AI states. Those sources remain pending. This is a bounded entry implementation,
+not a completed CloakPDF refresh. The user's “commit then continue” instruction
+retains the documented physical/assistive follow-ups; no push or deployment.
+
+Portability initially exposed product-only inventory entries in the isolated test
+fixture. The canonical fixture now retains only its bundled CSS entry; complete
+product inventory checks remain in the real repository. All fifteen assertions
+pass after the shared fix. Legacy Archivo remains requested during startup by
+unmigrated global surfaces; font removal waits for their migration.

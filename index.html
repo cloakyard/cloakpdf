@@ -39,18 +39,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Theme -->
-    <meta name="theme-color" content="#2563EB" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
 
-    <!-- Shared Cloakyard type system: editorial display + technical labels. -->
-    <link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link
-      rel="preload"
-      href="/fonts/jetbrains-mono-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <!-- Air entry uses system fonts. Editor/output fonts load when used. -->
 
     <!-- Resource hints for runtime CDNs (PDF.js worker, Tesseract.js core + lang data) -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
