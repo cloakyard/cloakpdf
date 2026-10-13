@@ -1,23 +1,24 @@
 ---
 name: CloakPDF — Cloakyard Air
 version: 1.0.0
-status: design-review
+status: approved
 date: 2026-10-13
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: c6ec55c0fe5949f5abb606c5c143eaa658986588d08e2a0f3d1392d010687a2c
+family-contract-sha256: 4232d7b9e8e062ff1ca9073c7f3102c4332908b50c43b6925b65b3b4c6d309ee
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.0 — refinement 03 candidate** · Direction: **Air** · Updated: **2026-10-13**
+Version: **1.0.0 — implementation baseline** · Direction: **Air** · Updated: **2026-10-13**
 
-The Air direction is approved. This detailed refinement is **under design review**;
-product migration waits for that review. The reference is an interactive design
-study, not an implementation of the products.
+The detailed Air system is **locked for implementation**. On 2026-10-13 the user
+authorized one final agent review followed by implementation; that review is
+complete. The reference remains an interactive design study, not proof of product
+conformance. Each adopted surface still passes its own feature and device gates.
 
 This is the portable design contract for the Cloakyard web family.
 It applies to existing and future products, all routes, all states, and every

@@ -157,6 +157,8 @@
       }
       .study-nav {
         display: flex;
+        flex-wrap: wrap;
+        min-width: 0;
         gap: 24px;
       }
       .study-nav a {
@@ -2280,8 +2282,8 @@
     </header>
     <div class="study-intro">
       <p>
-        A complete design direction, before product implementation. Try the themes, screen sizes,
-        tools, controls and export interaction.
+        The shared design reference for product implementation. Try the themes, screen sizes, tools,
+        controls and export interaction.
       </p>
       <nav class="study-nav" aria-label="Design reference">
         <a href="#experience">Experience</a><a href="#components">Components</a
@@ -3023,7 +3025,9 @@
       <output id="light-metrics" aria-live="off">Waiting for the light to become visible.</output>
     </details>
     <footer class="study-footer">
-      <span>Air · a Cloakyard design study. Product migration has not started.</span
+      <span
+        >Air · a Cloakyard design study. Implementation baseline · product validation is tracked
+        separately.</span
       ><a href="../../DESIGN.md">Read the complete design contract</a>
     </footer>
     <dialog
