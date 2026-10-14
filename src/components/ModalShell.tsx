@@ -143,6 +143,19 @@ function ModalFrame({
         aria-describedby={describedBy}
         data-testid={testId}
         tabIndex={-1}
+        onKeyDown={(event) => {
+          // Inertness blocks background targets, not their global key listeners.
+          // Keep native field keys inside the modal; the palette alone retains
+          // its existing global toggle shortcut.
+          if (
+            placement === "command" &&
+            (event.metaKey || event.ctrlKey) &&
+            !event.altKey &&
+            event.key.toLowerCase() === "k"
+          )
+            return;
+          event.stopPropagation();
+        }}
         className={`pdf-dialog ${panelClassName}`}
         custom={motion}
         variants={panelMotion}
@@ -180,20 +193,5 @@ export function ModalCloseButton({
     >
       <X size={18} strokeWidth={1.6} aria-hidden="true" />
     </button>
-  );
-}
-
-export function ModalSectionLabel({
-  children,
-  trailing,
-}: {
-  children: ReactNode;
-  trailing?: ReactNode;
-}) {
-  return (
-    <div className="pdf-dialog__section-label">
-      <span>{children}</span>
-      {trailing && <span>{trailing}</span>}
-    </div>
   );
 }

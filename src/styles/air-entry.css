@@ -1320,14 +1320,6 @@ body:has(.pdf-site) {
 .pdf-dialog__footer > button {
   flex: 1 1 auto;
 }
-.pdf-dialog__section-label {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--air-ink-secondary);
-  font: 500 var(--air-text-label)/1.4 var(--air-font);
-}
 .pdf-modal-root[data-placement="command"] {
   align-items: flex-start;
   padding-top: max(16px, 10dvh);
@@ -1493,4 +1485,104 @@ body:has(.pdf-site) {
 }
 .pdf-active-models > p > svg {
   flex: 0 0 18px;
+}
+
+/* Export uses native family choices; only document-specific composition lives here. */
+.pdf-export-trigger {
+  flex-shrink: 0;
+  margin-inline-start: 4px;
+}
+.pdf-export-body {
+  display: grid;
+  gap: 24px;
+}
+.pdf-export-body p,
+.pdf-export-feedback p {
+  margin: 0;
+}
+.pdf-export-body .air-notice > svg,
+.pdf-export-feedback svg {
+  flex: 0 0 18px;
+  margin-top: 2px;
+}
+.pdf-export-formats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 4px 12px;
+}
+.pdf-export-format {
+  padding: 12px;
+  border-radius: var(--air-radius-control);
+}
+.pdf-export-format:has(:checked) {
+  background: var(--air-surface-soft);
+}
+.pdf-export-format-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-weight: 500;
+}
+.pdf-export-format-title svg {
+  flex: 0 0 18px;
+  margin-top: 2px;
+  color: var(--air-ink-secondary);
+}
+.pdf-export-format small {
+  display: block;
+  margin-top: 4px;
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+  color: var(--air-ink-secondary);
+}
+.pdf-export-optional {
+  margin-inline-start: 8px;
+  color: var(--air-ink-muted);
+  font-weight: 400;
+}
+.pdf-export-option {
+  margin: 0;
+  padding-block: 8px;
+  font-size: var(--air-text-body);
+  cursor: pointer;
+}
+.pdf-export-option:has(:disabled) {
+  cursor: not-allowed;
+}
+.pdf-export-quality {
+  margin-block: 8px 16px;
+}
+.pdf-export-quality .air-segment {
+  min-height: 44px;
+  flex-basis: 5rem;
+}
+.pdf-export-quality .air-help {
+  margin-top: 8px;
+}
+.pdf-export-feedback {
+  flex: 1 1 12rem;
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-meta);
+  overflow-wrap: anywhere;
+}
+.pdf-export-footer > button {
+  flex: 0 1 auto;
+}
+@media (max-width: 1023px) {
+  .pdf-export-trigger > span {
+    display: none;
+  }
+  .pdf-export-trigger {
+    padding: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+@media (max-width: 640px) {
+  .pdf-export-footer > button {
+    flex-basis: 100%;
+  }
+}
+
+.pdf-export-feedback:has(.air-notice) {
+  flex-basis: 100%;
 }

@@ -212,16 +212,15 @@ async function main() {
     // deliberately test-only so registration order, layering, and ref counts run.
     await page.click('button[aria-label="Export"]');
     await page.waitForSelector('[data-testid="export-dialog"]');
-    await page.focus('[data-testid="export-dialog"] button[role="switch"][aria-label="Compress"]');
+    await page.focus('[data-testid="export-dialog"] input[role="switch"][aria-label="Compress"]');
     await page.$eval(
-      '[data-testid="export-dialog"] [role="radio"][aria-label^="Markdown"]',
-      (radio) => (radio as HTMLButtonElement).click(),
+      '[data-testid="export-dialog"] input[type="radio"][aria-label^="Markdown"]',
+      (radio) => (radio as HTMLInputElement).click(),
     );
     await page.waitForFunction(() => {
       const focused = document.activeElement;
       return (
-        focused?.getAttribute("role") === "radio" &&
-        focused.getAttribute("aria-checked") === "true" &&
+        focused?.matches('input[type="radio"]:checked') &&
         focused.getAttribute("aria-label")?.startsWith("Markdown")
       );
     });
@@ -318,19 +317,17 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, 300));
       await assertInViewport(page, '[data-testid="export-dialog"]', `${width}px export`);
       const exportFocus = await page.evaluate(() => ({
-        role: document.activeElement?.getAttribute("role"),
-        checked: document.activeElement?.getAttribute("aria-checked"),
+        radio: document.activeElement?.matches('input[type="radio"]:checked'),
       }));
-      if (exportFocus.role !== "radio" || exportFocus.checked !== "true") {
+      if (!exportFocus.radio) {
         fail(`${width}px export did not focus its selected format.`);
       }
 
       await page.keyboard.press("Home");
-      await page.waitForFunction(
-        () =>
-          document
-            .querySelector('[data-testid="export-dialog"] [role="radio"]')
-            ?.getAttribute("aria-checked") === "true",
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[data-testid="export-dialog"] input[type="radio"]')
+          ?.matches(":checked"),
       );
       if (width === 1280) await page.screenshot({ path: "/tmp/export-modal-refined.png" });
 
@@ -345,8 +342,8 @@ async function main() {
 
       await page.keyboard.press("End");
       const selectedFormat = await page.$eval(
-        '[data-testid="export-dialog"] [role="radio"][aria-checked="true"]',
-        (radio) => radio.textContent,
+        '[data-testid="export-dialog"] input[type="radio"]:checked',
+        (radio) => radio.getAttribute("aria-label"),
       );
       if (!selectedFormat?.includes("Markdown"))
         fail("Export End key did not select the last format.");

@@ -65,7 +65,7 @@ export function EditorShell() {
   const wasBusyRef = useRef(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
 
-  // A local transform/export is a blocking state, even though it is not a
+  // An editor transform is a blocking state, even though it is not a
   // dismissible dialog. Move focus to its status surface while the editor is
   // inert, then return to the Export trigger once the operation settles.
   useEffect(() => {

@@ -43,7 +43,9 @@ if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -57,7 +59,7 @@ async function clickByPrefix(page: Page, prefix: string): Promise<boolean> {
   return page.evaluate((p) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
     const el = els.find((e) =>
-      (e.textContent ?? "").trim().toLowerCase().startsWith(p.toLowerCase()),
+      (e as HTMLElement).innerText.trim().toLowerCase().startsWith(p.toLowerCase()),
     );
     if (!el) return false;
     (el as HTMLElement).click();
@@ -155,6 +157,7 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(30_000);
     page.on("console", (m) => {
@@ -290,7 +293,7 @@ async function main() {
             ta: !!document.querySelector('textarea[aria-label="Text annotation"]'),
             marks: (document.body.innerText.match(/\d+\s+marks?/i) ?? [])[0] ?? "?",
             pressed: [...document.querySelectorAll('button[aria-pressed="true"]')].map((e) =>
-              (e.textContent ?? "").trim(),
+              (e as HTMLElement).innerText.trim(),
             ),
           }));
           fail(
@@ -306,7 +309,7 @@ async function main() {
     await pollEval(
       () =>
         [...document.querySelectorAll('button[aria-pressed="true"]')].some(
-          (e) => (e.textContent ?? "").trim() === "Text",
+          (e) => (e as HTMLElement).innerText.trim() === "Text",
         ),
       "text-mode",
     );
@@ -510,20 +513,20 @@ async function main() {
     console.log("  ✓ attachments panel loads");
 
     // 13b. Export modal: pick a format / toggle a convert option, then hit the
-    //      single Download button. Contact sheet (runTask → nupPages) and a PDF
+    //      single Download button. Contact sheet (nupPages) and a PDF
     //      Grayscale convert (rasterise) both land PDFs in the download dir.
     if (!(await clickByText(page, "Export"))) fail("Export button not found.");
-    await page.waitForSelector('button[aria-label="Contact sheet"]', { timeout: 5_000 }); // modal open
-    await page.click('button[aria-label="Contact sheet"]'); // select format
+    await page.waitForSelector('input[aria-label="Contact sheet"]', { timeout: 5_000 }); // modal open
+    await page.locator('input[aria-label="Contact sheet"]').click(); // select format
     if (!(await clickByText(page, "Download"))) fail("Download button not found.");
     const dl = await waitForFile(downloadDir, /_contact-sheet\.pdf$/i, 60_000);
     console.log(`  ✓ export modal · contact sheet → ${dl}`);
 
     if (!(await clickByText(page, "Export"))) fail("Export button not found (2nd open).");
-    await page.waitForSelector('button[aria-label="PDF"]', { timeout: 5_000 });
-    await page.click('button[aria-label="PDF"]'); // back to PDF so options show
-    await page.waitForSelector('button[aria-label="Grayscale"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Grayscale"]'); // toggle the switch on
+    await page.waitForSelector('input[aria-label="PDF"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="PDF"]').click(); // back to PDF so options show
+    await page.waitForSelector('input[aria-label="Grayscale"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Grayscale"]').click(); // toggle the switch on
     if (!(await clickByText(page, "Download"))) fail("Download button not found (2nd).");
     const dl2 = await waitForFile(downloadDir, /_grayscale\.pdf$/i, 60_000);
     console.log(`  ✓ export modal · grayscale → ${dl2}`);
@@ -533,15 +536,15 @@ async function main() {
     //      Text uses the reading-order reflow; Markdown uses liteparse's native
     //      renderer (real ATX headings / lists), so we assert the .md carries it.
     if (!(await clickByText(page, "Export"))) fail("Export button not found (text).");
-    await page.waitForSelector('button[aria-label="Text (.txt)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Text (.txt)"]');
+    await page.waitForSelector('input[aria-label="Text (.txt)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Text (.txt)"]').click();
     if (!(await clickByText(page, "Download"))) fail("Download button not found (text).");
     const dlTxt = await waitForFile(downloadDir, /\.txt$/i, 60_000);
     console.log(`  ✓ export modal · text → ${dlTxt}`);
 
     if (!(await clickByText(page, "Export"))) fail("Export button not found (markdown).");
-    await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Markdown (.md)"]');
+    await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Markdown (.md)"]').click();
     if (!(await clickByText(page, "Download"))) fail("Download button not found (markdown).");
     const dlMd = await waitForFile(downloadDir, /\.md$/i, 60_000);
     const mdText = readFileSync(join(downloadDir, dlMd), "utf8");

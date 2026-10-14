@@ -170,29 +170,6 @@
   transform-origin: center;
 }
 
-.cloak-export-format-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-@media (min-width: 640px) {
-  .cloak-export-format-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .cloak-export-format-grid > * + * {
-    border-top: 0;
-  }
-
-  .cloak-export-format-grid > :nth-child(even) {
-    border-left: var(--rule-thin) solid var(--color-rule);
-  }
-
-  .cloak-export-format-grid > :nth-child(n + 3) {
-    border-top: var(--rule-thin) solid var(--color-rule);
-  }
-}
-
 .cloak-popover {
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: var(--radius-input);

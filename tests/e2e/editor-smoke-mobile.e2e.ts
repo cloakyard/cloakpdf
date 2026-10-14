@@ -67,7 +67,9 @@ async function waitForFile(dir: string, re: RegExp, timeout = 30_000): Promise<s
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -78,7 +80,9 @@ async function clickByText(page: Page, label: string): Promise<boolean> {
 async function hasExactText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    return els.some((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    return els.some(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
   }, label);
 }
 
@@ -193,6 +197,7 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(30_000);
     page.on("console", (m) => {
@@ -415,8 +420,8 @@ async function main() {
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
     await page.click('button[aria-haspopup="dialog"]'); // Export (icon-only on mobile)
-    await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Markdown (.md)"]');
+    await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Markdown (.md)"]').click();
     if (await hasExactText(page, "Infer headings"))
       fail("Stale 'Infer headings' switch still rendered (should be removed).");
     if (!(await clickByText(page, "Download")))

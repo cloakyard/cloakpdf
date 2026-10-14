@@ -8,12 +8,14 @@ export async function auditAirDialog(page: Page, state: string, evidenceDir: str
   const viewport = page.viewport();
   const geometry: unknown[] = [];
   await mkdir(evidenceDir, { recursive: true });
-  await page.evaluate(async () => {
-    await Promise.all(
-      document
-        .querySelector(".pdf-modal-root")!
-        .getAnimations({ subtree: true })
-        .map((animation) => animation.finished.catch(() => {})),
+  await page.waitForFunction(() => {
+    const panel = document.querySelector<HTMLElement>('[role="dialog"]');
+    if (!panel) return false;
+    const style = getComputedStyle(panel);
+    return (
+      Number(style.opacity) === 1 &&
+      new DOMMatrixReadOnly(style.transform).isIdentity &&
+      panel.getAnimations({ subtree: true }).every((animation) => animation.playState !== "running")
     );
   });
   for (const theme of ["light", "dark"] as const) {
@@ -25,7 +27,9 @@ export async function auditAirDialog(page: Page, state: string, evidenceDir: str
       [430, 932],
       [844, 390],
       [768, 1024],
+      [1023, 768],
       [1024, 768],
+      [1025, 768],
       [1280, 720],
       [1366, 768],
       [1440, 900],
@@ -52,10 +56,11 @@ export async function auditAirDialog(page: Page, state: string, evidenceDir: str
               box.top >= -1 &&
               box.right <= innerWidth + 1 &&
               box.bottom <= innerHeight + 1,
-            undersized: [...panel.querySelectorAll<HTMLElement>("button,a")]
+            undersized: [...panel.querySelectorAll<HTMLElement>("button,a,label:has(input)")]
               .filter(
                 (node) =>
-                  !node.matches(":disabled") && node.getBoundingClientRect().height < minimum - 0.5,
+                  !node.matches(":disabled, :has(input:disabled)") &&
+                  node.getBoundingClientRect().height < minimum - 0.5,
               )
               .map((node) => node.textContent),
           };
@@ -83,5 +88,7 @@ export async function auditAirDialog(page: Page, state: string, evidenceDir: str
   });
   await cdp.detach();
   await writeFile(`${evidenceDir}/${state}-geometry.json`, JSON.stringify(geometry, null, 2));
-  console.log(`✓ ${state}: 56 theme/viewport/text cases, including dialog breakpoint neighbors`);
+  console.log(
+    `✓ ${state}: ${geometry.length} theme/viewport/text cases, including dialog breakpoint neighbors`,
+  );
 }

@@ -37,7 +37,9 @@ if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -95,6 +97,7 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(20_000);
     page.on("console", (m) => {
@@ -134,7 +137,7 @@ async function main() {
     await page.click('[role="combobox"][aria-label="Font family"]');
     await page.waitForSelector('[role="listbox"] [role="option"]', { timeout: 5_000 });
     const families = await page.$$eval('[role="listbox"] [role="option"]', (els) =>
-      els.map((e) => (e.textContent ?? "").trim()),
+      els.map((e) => (e as HTMLElement).innerText.trim()),
     );
     if (families.length < 10)
       fail(`Expected ≥10 font families, got ${families.length}: ${families.join(", ")}`);
@@ -147,7 +150,7 @@ async function main() {
     // 2. Pick Roboto (an embedded family) + Underline.
     await page.evaluate(() => {
       const o = Array.from(document.querySelectorAll('[role="listbox"] [role="option"]')).find(
-        (e) => (e.textContent ?? "").trim() === "Roboto",
+        (e) => (e as HTMLElement).innerText.trim() === "Roboto",
       );
       (o as HTMLElement)?.click();
     });
@@ -182,8 +185,8 @@ async function main() {
       { timeout: 60_000 },
     );
     if (!(await clickByText(page, "Export"))) fail("Export button not found.");
-    await page.waitForSelector('button[aria-label="PDF"]', { timeout: 5_000 });
-    await page.click('button[aria-label="PDF"]');
+    await page.waitForSelector('input[aria-label="PDF"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="PDF"]').click();
     if (!(await clickByText(page, "Download"))) fail("Download button not found.");
     const dl = await waitForFile(downloadDir, /\.pdf$/i, 60_000);
 

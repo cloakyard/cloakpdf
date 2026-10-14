@@ -281,7 +281,7 @@ export function EditorProvider({
               resolve();
             } catch (e) {
               // Surface the failure in the editor's error banner. Every byte
-              // transform (Apply) and background task (Export, draft restore)
+              // transform (Apply) and editor task (draft restore)
               // funnels through here, so this is the one place to wire failure
               // feedback — without it a thrown transform/export just made the
               // spinner vanish with no diagnosis. Still reject so success-only

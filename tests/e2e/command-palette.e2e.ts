@@ -83,6 +83,7 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(20_000);
     page.on("console", (m) => {
@@ -119,9 +120,15 @@ async function main() {
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
     const paletteMotion = await page.$eval(PALETTE, (element) => {
       const style = getComputedStyle(element);
-      return { opacity: style.opacity, transform: style.transform };
+      return {
+        opacity: style.opacity,
+        identity: new DOMMatrixReadOnly(style.transform).isIdentity,
+        running: element
+          .getAnimations({ subtree: true })
+          .filter((animation) => animation.playState === "running").length,
+      };
     });
-    if (paletteMotion.opacity !== "1" || paletteMotion.transform !== "none") {
+    if (paletteMotion.opacity !== "1" || !paletteMotion.identity || paletteMotion.running !== 0) {
       fail(`Command palette must open immediately; got ${JSON.stringify(paletteMotion)}.`);
     }
     const closeSelector = `${PALETTE} button[aria-label="Close command palette"]`;

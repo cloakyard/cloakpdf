@@ -569,3 +569,46 @@ Evidence: [state record](evidence/ai-modals-2026-10-14.json),
 [checks](evidence/ai-modals-checks-2026-10-14.log),
 [desktop](evidence/ai-modals-details-1440-light.png),
 [phone](evidence/ai-modals-loading-390-dark.png).
+
+## 2026-10-14 — Export dialog interior
+
+All six formats now use native Air radios, open switch rows, native compression
+segments and neutral actions. Long filenames wrap. The compact Export trigger
+stays icon-only below 1024px to avoid tablet crowding. Removed the numbered grid,
+accent strips, unused modal-label helper/CSS and obsolete adapter imports/comments.
+Other editor consumers still use the old Switch/Segmented adapters and remain tracked.
+
+Export owns its phase and retry feedback inside the dialog. A synchronous guard
+prevents duplicate work; choices and dismissal are protected during preparation.
+The existing processing routines have no cancellation API, so the status explicitly
+asks the user to keep the window open until settlement. Failure retains settings
+and focus, and Retry works. Temporary download anchors/URLs now clean up on failure.
+
+Passing: format/lint/types, dead-code, 366 tests in 36 files, production build/PWA,
+127-asset deployment limits, design integrity and 17 portability assertions.
+Export, shared-modal, AI-state/recovery, command-palette, desktop/mobile editor,
+rotation, embedded-font and responsive-motion browser suites pass. The shared frame
+now stops global editor key listeners from reaching background work; native field
+keys and the palette toggle are retained. A pending-redaction shortcut regression
+and 192 additional AI state layouts pass. The output suite verifies every format, all compression
+levels/modifiers and combinations, exact unchanged source bytes/history, PNG geometry,
+ZIP page order, grayscale pixel channels, flattened forms and stripped metadata.
+All six formats burn pending redactions; PDF operators, PNG pixels and OCR extraction
+prove covered content cannot survive. Unapplied Organize warnings remain explicit.
+
+320 layout cases cover five states across all required viewports and 640/1024px
+neighbors, both themes and 16/32px root text. Label targets are checked as well as
+buttons. Native Safari/Firefox keyboard operation, trigger return and actual 200%
+zoom pass. Forced colours and reduced motion reviewed. Physical touch, software
+keyboard and assistive speech acceptance remain open (`validated: false`).
+
+No dependencies or contract changes. Net production change: 20 lines removed.
+Editor chunk: 305.35 → 303.46 kB raw, 86.61 → 86.60 kB gzip. CSS grows 0.16 kB gzip
+for native choice composition. Two synthetic-document proof PNGs are committed;
+full captures and geometry remain local. No push/deploy. Command palette is next,
+then Ask PDF chat/indexing/citations and every remaining editor surface.
+
+Evidence: [record](evidence/export-2026-10-14.json),
+[checks](evidence/export-checks-2026-10-14.log),
+[desktop](evidence/export-desktop-1440-light.png),
+[phone](evidence/export-images-390-dark.png).
