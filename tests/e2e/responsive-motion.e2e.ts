@@ -31,7 +31,7 @@ interface ViewportCase {
 
 const VIEWPORTS: ViewportCase[] = [
   { name: "desktop", width: 1440, height: 900, touch: false, layout: "desktop" },
-  { name: "tablet landscape", width: 1024, height: 768, touch: true, layout: "tablet" },
+  { name: "tablet landscape", width: 1024, height: 768, touch: true, layout: "desktop" },
   { name: "tablet portrait", width: 768, height: 1024, touch: true, layout: "tablet" },
   { name: "mobile", width: 390, height: 844, touch: true, layout: "mobile" },
   { name: "small mobile", width: 320, height: 568, touch: true, layout: "mobile" },
@@ -212,7 +212,9 @@ async function openEditor(page: Page) {
 
 async function panelState(page: Page) {
   return page.evaluate(() => {
-    const panel = document.querySelector(".cloak-panel-enter") as HTMLElement | null;
+    const panel = document.querySelector(
+      ".editor-mobile-sheet__body, .cloak-panel-enter",
+    ) as HTMLElement | null;
     const sheet = document.querySelector('[data-testid="mobile-tool-sheet"]') as HTMLElement | null;
     const column = sheet?.parentElement as HTMLElement | null;
     const properties = document.querySelector(".editor-properties") as HTMLElement | null;
@@ -265,7 +267,13 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
     fail(`${viewport.name}: tool-panel motion caused horizontal overflow.`);
   }
 
-  if (viewport.touch) {
+  if (shouldUseSheet) {
+    if (
+      opening.animation !== "none" ||
+      !hasOnlyTransitionDuration(opening.transitionDuration, "0s")
+    )
+      fail(`${viewport.name}: frequent mobile tool changes should be immediate.`);
+  } else if (viewport.touch) {
     if (
       opening.animation !== "none" ||
       !hasOnlyTransitionDuration(opening.transitionDuration, "0.16s")
@@ -297,8 +305,8 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
       ["opening", opening.sheetFraction],
       ["settled", settled.sheetFraction],
     ] as const) {
-      if (fraction === null || fraction < 0.49 || fraction > 0.51) {
-        fail(`${viewport.name}: ${label} sheet was not an exact 50:50 split.`);
+      if (fraction === null || fraction < 0.49 || fraction > 0.85) {
+        fail(`${viewport.name}: ${label} sheet did not preserve a usable preview/control split.`);
       }
     }
   } else if (
@@ -375,11 +383,11 @@ async function auditReducedMotion(page: Page) {
   const panel = await panelState(page);
   if (
     panel.animation !== "none" ||
-    !hasOnlyTransitionDuration(panel.transitionDuration, "0.1s") ||
+    !hasOnlyTransitionDuration(panel.transitionDuration, "0s") ||
     panel.transform !== "none" ||
     panel.opacity !== "1"
   ) {
-    fail("Reduced-motion editor did not collapse movement to a brief opacity cue.");
+    fail("Reduced-motion mobile controls should remain immediate.");
   }
 }
 

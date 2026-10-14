@@ -710,3 +710,55 @@ Evidence: [record](evidence/chat-2026-10-14.json),
 [checks](evidence/chat-checks-2026-10-14.log),
 [desktop](evidence/chat-desktop-1440-light.png),
 [phone](evidence/chat-phone-390-dark.png).
+
+## 2026-10-14 — Editor navigation and compact toolbar
+
+The filename, shared page selector, view controls, history and Export now share
+one 64px toolbar at normal text size across the required widths. Desktop shows
+the filename alone. Tablet/phone use the document mark to disclose the full name
+and Back to home; pointer hover, keyboard activation, tap, Escape and outside
+dismissal work without a second permanent row. Pending redaction/erase marks
+remain visible as a compact badge with detail in that disclosure. Enlarged text
+may reflow instead of clipping controls.
+
+The 72px labelled Air rail has neutral selection and one blue marker. The mobile
+picker uses full tool names, persistent single-contour search, ranked matches,
+clear/empty states and immediate navigation. Expand/split preserves the mounted
+document and tool values; Cancel/Done returns focus to the picker. Width-led
+768/1024px breakpoints keep ordinary 1280×720 laptops in desktop mode and use the
+working sheet for short sub-tablet landscape.
+
+Palette commands now run after the outgoing modal releases inertness. First and
+repeated tool selection focus the tool heading in Chromium and native Firefox.
+Safari document-disclosure activation explicitly focuses its trigger so Escape
+returns correctly. Global history shortcuts respect modal and busy ownership.
+
+Passing: format/lint/types, dead-code, 366 unit tests in 36 files, production/PWA
+build with all 128 deploy assets within the 25 MiB limit, 83 inventory records
+and 17 portability assertions. The navigation suite covers 176 layouts across
+18 sizes, both themes, normal/200% root text, coarse targets, expanded controls,
+changed-breakpoint neighbors and four additional long-filename cases. It verifies
+page/zoom and actual stage-node preservation, density changes, real apply/undo,
+modal shortcut ownership, mobile search/focus, document disclosure, reduced
+motion and forced colours. Existing desktop/mobile editor, feature, interaction,
+palette, export, modal and responsive-motion suites pass. Organize's smoke gate
+now waits for the committed board and busy state, rather than the removed subtitle.
+
+Final desktop/laptop/tablet/mobile light and dark renders inspected. Native Safari
+and Firefox keyboard paths and actual 200% browser zoom pass, including the new
+document disclosure and Escape return. Only synthetic-document proof images and
+compact records enter Git; larger captures remain local. Physical touch/software
+keyboard, real OS IME and assistive speech acceptance remain open (`validated: false`).
+
+Removed the duplicate editor stepper, previous header/rail/mobile skins, old
+short-edge breakpoint rules and unused rail/ledger icon motion selectors. Existing
+legacy panel/canvas consumers remain tracked for their own replacement. No added
+dependencies. This completes the navigation slice, not the full editor or family.
+
+Next: properties/page context, overview and thumbnails, then remaining canvas
+chrome, panel interiors and overlays with the same validation and commit gates.
+
+Evidence: [record](evidence/navigation-2026-10-14.json),
+[checks](evidence/navigation-checks-2026-10-14.log),
+[desktop](evidence/navigation-desktop-1440-light.png),
+[phone](evidence/navigation-phone-390-dark.png).

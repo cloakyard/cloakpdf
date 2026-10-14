@@ -97,7 +97,7 @@ export function EditorShell() {
   useEffect(() => {
     if (!doc) return;
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      if (busyLabel || !(e.metaKey || e.ctrlKey) || e.altKey) return;
       const key = e.key.toLowerCase();
       if (key === "k") {
         // Never stack Command Palette over Export (or another modal). A second
@@ -108,6 +108,7 @@ export function EditorShell() {
         setPaletteOpen((o) => !o);
         return;
       }
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       if (isEditableTarget(e.target)) return;
       if (key === "z") {
         e.preventDefault();
@@ -123,7 +124,7 @@ export function EditorShell() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [doc, canUndo, canRedo, undo, redo, paletteOpen]);
+  }, [doc, busyLabel, canUndo, canRedo, undo, redo, paletteOpen]);
 
   // OCR's side-by-side preview takes over the center once an extraction exists
   // for the current doc, regardless of focus/overview; otherwise the normal
@@ -250,7 +251,7 @@ export function EditorShell() {
           {!isMobile && <ToolRail onOpenPalette={openPalette} />}
 
           <div className="flex min-w-0 flex-1 flex-col">
-            {center}
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
             {isMobile && <MobileEditorSurface />}
           </div>
 

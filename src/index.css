@@ -96,10 +96,6 @@
   text-transform: uppercase;
 }
 
-.editor-toolrail__icon {
-  transition: transform var(--dur-short) var(--ease-out);
-}
-
 .cloak-field-label {
   color: var(--color-ink-3);
   font-family: var(--font-mono);
@@ -140,30 +136,6 @@
 
 .cloak-ledger > * + * {
   border-top: var(--rule-thin) solid var(--color-rule);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cloak-ledger button:hover .cloak-ledger__icon {
-    transform: rotate(-4deg) scale(1.04);
-  }
-
-  .cloak-ledger button:hover .cloak-ledger__arrow {
-    transform: translateX(4px);
-  }
-}
-
-.editor-toolrail button .editor-toolrail__icon {
-  transform-origin: center;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .editor-toolrail button:hover .editor-toolrail__icon {
-    transform: translateY(-1px) scale(1.04);
-  }
-}
-
-.editor-toolrail__active-bar {
-  transform-origin: center;
 }
 
 .cloak-popover {
@@ -418,8 +390,7 @@ body {
 
   .cloak-panel-enter,
   .cloak-state-enter,
-  .cloak-status-dot,
-  .editor-toolrail__active-bar {
+  .cloak-status-dot {
     animation: none !important;
     transform: none !important;
   }
@@ -451,11 +422,6 @@ body {
       opacity: 0;
       transform: none;
     }
-  }
-
-  .editor-toolrail__icon {
-    transition: none !important;
-    transform: none !important;
   }
 }
 

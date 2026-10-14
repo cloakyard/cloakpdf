@@ -192,7 +192,7 @@ async function main() {
     executablePath: CHROME_PATH,
     userDataDir: USER_DATA_DIR,
     headless: true,
-    // iPhone-ish portrait: shortEdge 390 < 760 → mobile sheet layout.
+    // iPhone-ish portrait: width 390 < 768 → mobile sheet layout.
     defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
   });
 
@@ -333,8 +333,10 @@ async function main() {
     await waitForText(page, /\d+ redactions?/i, 8_000);
     await page.click('button[aria-label="Done"]'); // ✓ — no burn, just close
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
-    if (!(await page.$('[data-testid="mobile-pending-marks"]')))
-      fail("Redact: pending-mark count is not visible in the collapsed mobile tool strip.");
+    if (!(await page.$('[data-testid="pending-marks"]')))
+      fail("Redact: pending-mark count is not visible in the persistent editor header.");
+    if ((await page.$eval(".editor-topbar", (n) => n.getBoundingClientRect().height)) !== 64)
+      fail("Pending marks must not add another toolbar row.");
     await pickTool(page, "Redact"); // reopen
     await waitForText(page, /\d+ redactions?/i, 8_000); // mark persisted across ✓
     if (!(await clickByText(page, "Clear all"))) fail("Redact 'Clear all' not found.");

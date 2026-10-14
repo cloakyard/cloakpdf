@@ -410,7 +410,15 @@ async function main() {
     await page.click('button[aria-label="Delete page 1"]');
     if (!(await clickByText(page, "Apply changes"))) fail("Organize Apply button not found.");
     const pagesAfterOrganize = pagesBeforeOrganize - 1;
-    await waitForText(page, new RegExp(`\\b${pagesAfterOrganize} pages\\b`), 60_000);
+    await page.waitForFunction(
+      (count) =>
+        document.querySelectorAll(
+          'button[aria-label^="Delete page "], button[aria-label^="Restore page "]',
+        ).length === count &&
+        !document.querySelector('main[aria-label="PDF editor"][aria-busy="true"]'),
+      { timeout: 60_000 },
+      pagesAfterOrganize,
+    );
     console.log(
       `  ✓ organize delete + apply (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
     );

@@ -43,6 +43,8 @@ type ModalPlacement = "center" | "command";
 interface ModalShellProps {
   open: boolean;
   onClose: () => void;
+  /** Run a queued command only after the outgoing trap releases inertness/focus. */
+  onAfterClose?: () => void;
   children: ReactNode;
   labelledBy?: string;
   describedBy?: string;
@@ -70,6 +72,7 @@ export function ModalShell({ open, ...props }: ModalShellProps) {
 
 function ModalFrame({
   onClose,
+  onAfterClose,
   children,
   labelledBy,
   describedBy,
@@ -84,6 +87,10 @@ function ModalFrame({
   const present = useIsPresent();
   const dialogRef = useRef<HTMLDivElement>(null);
   const isTopmost = useFocusTrap(dialogRef, true);
+  const afterCloseRef = useRef(onAfterClose);
+  afterCloseRef.current = onAfterClose;
+  // Registered after the trap: its unmount cleanup releases the modal first.
+  useEffect(() => () => afterCloseRef.current?.(), []);
 
   useEffect(() => {
     document.dispatchEvent(new CustomEvent(CLOAK_MODAL_OPEN_EVENT));

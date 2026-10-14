@@ -995,3 +995,21 @@ journeys across all apps; it is not inferred from the pilot alone.
   matrix; never infer all-feature coverage from the home page.
 - Keep a per-component/state inventory and evidence in `docs/air/`. Local tokens
   and this complete contract travel with the repository.
+- Editor navigation uses the 72px labelled rail and neutral selected tile with a
+  2×16px blue marker. Labels enlarge with text settings; a 4.5rem minimum lets
+  the rail grow rather than squeezing enlarged words. Search retains the full
+  tool names and descriptions. The filename, page controls, view controls and
+  document actions share one 64px toolbar at normal text size, retaining real
+  40/44px targets. Tablet/phone chrome hides the filename and back action in a
+  document-mark popover, available by hover or keyboard/touch activation; the
+  full filename remains accessible. Enlarged text may reflow without clipping.
+  Keep the desktop filename alone beside the mark; the page selector owns the count.
+- Editor widths follow 768/1024px. Below 1024px, a height under 500px uses the
+  working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps
+  its desktop rail. The phone picker uses full-name rows and persistent search.
+- The mobile working sheet starts at half height, reserving at least 18rem for
+  controls when possible while keeping 64px of preview. Expand controls uses
+  the available editor region; Return to split view preserves tool values and
+  the mounted document. Cancel/Done return focus to the tool selector.
+- Tool navigation is immediate, including active-rail scrolling. Global history
+  shortcuts cannot change the document behind a modal or during a busy operation.

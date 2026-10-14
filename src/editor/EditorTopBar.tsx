@@ -1,19 +1,6 @@
-// EditorTopBar.tsx — The editor's top chrome, laid out as three grid zones so
-// the centre never drifts:
-//   • left   — back, logo, file pill (desktop).
-//   • centre — desktop/tablet: the canvas controls, each in its own bordered
-//              pill so they read as peer groups — the page stepper (focus/single
-//              view only), the page-density toggle (with a sliding indicator),
-//              and the zoom group (focus only). Pinned to the true middle
-//              (grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]). mobile: the
-//              page stepper (centred).
-//   • right  — undo/redo/(reset desktop), Export.
-// On mobile the file pill, logo, density toggle and zoom buttons collapse (no
-// room); view mode is driven by the tool you pick, and zoom is pinch-to-zoom.
-
+// Air document identity, history and view controls. Canvas state stays in the provider.
 import {
   ChevronLeft,
-  ChevronRight,
   Grid2x2,
   Grid3x3,
   Maximize2,
@@ -25,291 +12,260 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { PagePreviewNav } from "../components/PagePreviewNav.tsx";
+import { CLOAK_MODAL_OPEN_EVENT } from "../utils/modal-events.ts";
 import { countPendingDestructive } from "./doc.ts";
 import { useEditorActions, useEditorRead, useEditorView } from "./EditorContext.tsx";
 import { ExportButton } from "./ExportModal.tsx";
 import { DEFAULT_VIEW } from "./types.ts";
 
-// Page-density options for the view control: single page (focus, editable) vs
-// a 2- or 3-column browse grid. The active icon reflects the current density.
 const DENSITIES = [
   { cols: 1, icon: Square, label: "Single page" },
   { cols: 2, icon: Grid2x2, label: "2-column grid" },
   { cols: 3, icon: Grid3x3, label: "3-column grid" },
 ] as const;
+const ICON = "air-icon-button air-button--quiet";
 
-const ICON_BTN =
-  "flex h-9 w-9 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-800 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text dark:active:bg-dark-bg disabled:opacity-30 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
-
-// Segmented button shared by the centre cluster — the page stepper chevrons and
-// the density/grid icons use the exact same shape so they read as one section.
-const SEG_BTN =
-  "flex h-7 w-8 items-center justify-center rounded-sm pointer-coarse:min-h-11 pointer-coarse:min-w-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
-const SEG_IDLE =
-  "text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:bg-slate-200/70 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text disabled:opacity-30 disabled:pointer-events-none";
-
-// Smaller icon button for the centre zoom pill — h-7 to match the density pill.
-const ZOOM_BTN =
-  "flex h-7 w-7 items-center justify-center rounded-sm text-slate-500 hover:bg-slate-100 hover:text-slate-800 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted dark:hover:bg-dark-surface-alt dark:hover:text-dark-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
+/** Native light-dismiss keeps compact document context available to touch and keyboard. */
+function DocumentInfo({
+  name,
+  pending,
+  onExit,
+}: {
+  name: string;
+  pending: number;
+  onExit: () => void;
+}) {
+  const popup = useRef<HTMLDivElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hovering = useRef(false);
+  const clearTimer = () => clearTimeout(timer.current);
+  const leave = () => {
+    clearTimer();
+    if (hovering.current) timer.current = setTimeout(() => popup.current?.hidePopover(), 160);
+  };
+  useEffect(() => {
+    const close = () => {
+      clearTimeout(timer.current);
+      popup.current?.hidePopover();
+    };
+    document.addEventListener(CLOAK_MODAL_OPEN_EVENT, close);
+    return () => {
+      clearTimeout(timer.current);
+      document.removeEventListener(CLOAK_MODAL_OPEN_EVENT, close);
+    };
+  }, []);
+  return (
+    <>
+      <button
+        type="button"
+        className={`${ICON} editor-document-trigger`}
+        aria-label="Document information"
+        aria-describedby="editor-document-name"
+        popoverTarget="editor-document-info"
+        onPointerEnter={(event) => {
+          if (event.pointerType !== "mouse") return;
+          clearTimer();
+          timer.current = setTimeout(() => {
+            if (!popup.current?.matches(":popover-open")) {
+              hovering.current = true;
+              popup.current?.showPopover();
+            }
+          }, 350);
+        }}
+        onPointerLeave={leave}
+        onClick={(event) => {
+          event.currentTarget.focus();
+          clearTimer();
+          if (hovering.current) event.preventDefault();
+          hovering.current = false;
+        }}
+      >
+        <img src="/cloakpdf-mark.svg" alt="" width="28" height="28" />
+        {pending > 0 && (
+          <span
+            className="editor-document-pending"
+            data-testid="pending-marks"
+            role="status"
+            aria-label={`${pending} pending marks, applied when you export`}
+          >
+            {pending}
+          </span>
+        )}
+      </button>
+      <div
+        ref={popup}
+        id="editor-document-info"
+        popover="auto"
+        role="region"
+        aria-label="Document information"
+        className="editor-document-info"
+        onPointerEnter={clearTimer}
+        onPointerLeave={leave}
+        onToggle={(event) => {
+          if (event.newState === "closed") hovering.current = false;
+        }}
+      >
+        <p id="editor-document-name">{name}</p>
+        {pending > 0 && (
+          <p className="air-help">{pending} pending marks will be applied when you export.</p>
+        )}
+        <button type="button" className="air-button air-button--quiet" onClick={onExit}>
+          <ChevronLeft aria-hidden="true" /> Back to home
+        </button>
+      </div>
+    </>
+  );
+}
 
 export function EditorTopBar() {
   const { doc, viewMode, selectedPage, canUndo, canRedo, canReset, layout } = useEditorRead();
   const view = useEditorView();
   const { exit, setViewMode, setView, setSelectedPage, undo, redo, reset } = useEditorActions();
   const isMobile = layout === "mobile";
-  const isDesktop = layout === "desktop";
-
-  // Icon buttons get a 44px hit area on mobile (touch), keeping the dense 36px
-  // glyph box on desktop where a mouse is precise and the bar is height-limited.
-  const iconBtn = isMobile ? ICON_BTN.replace("h-9 w-9", "h-11 w-11") : ICON_BTN;
-
-  // Redaction / erase marks are burned in at export, not at Apply — surface a
-  // persistent count so the un-applied destructive state is visible no matter
-  // which tool is active (or none).
+  const isCompact = layout !== "desktop";
   const pendingMarks = countPendingDestructive(doc);
-
-  const zoomPct = Math.round(view.zoom * 100);
-
-  // Density: 1 column === focus (single editable page); >1 === overview grid.
-  // Clamp to the 1–3 segments the toggle renders so the sliding indicator can
-  // never translate past the last segment if gridCols is ever set out of range.
   const activeCols = Math.min(3, Math.max(1, viewMode === "focus" ? 1 : view.gridCols));
-  const setDensity = (cols: number) => {
-    if (cols === 1) {
-      setViewMode("focus");
-    } else {
-      setView((v) => ({ ...v, gridCols: cols }));
-      setViewMode("overview");
-    }
-  };
-
-  // Mobile keeps a touch-sized stepper on its own (density is dropped on phones
-  // for space). Focus/single view only — in overview you page by tapping a thumb.
-  const mobileStepper =
-    doc && viewMode === "focus" ? (
-      <PagePreviewNav
-        page={selectedPage}
-        total={doc.pageCount}
-        onChange={setSelectedPage}
-        compact
-      />
-    ) : null;
-
-  // Page stepper — its own bordered pill so it reads as a peer of the zoom pill
-  // rather than sharing a container with the density toggle. Present in
-  // focus/single view only (it's how you page through edits); in overview you
-  // page by tapping a thumbnail.
-  const stepperControl =
-    doc && doc.pageCount > 1 && viewMode === "focus" ? (
-      <div className="editor-topbar__control flex items-center gap-0.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
-        <button
-          type="button"
-          onClick={() => setSelectedPage(Math.max(0, selectedPage - 1))}
-          disabled={selectedPage <= 0}
-          aria-label="Previous page"
-          className={`${SEG_BTN} ${SEG_IDLE}`}
-        >
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <span
-          role="status"
-          aria-live="polite"
-          className="px-1.5 text-center font-mono text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted"
-        >
-          {selectedPage + 1} / {doc.pageCount}
-        </span>
-        <button
-          type="button"
-          onClick={() => setSelectedPage(Math.min(doc.pageCount - 1, selectedPage + 1))}
-          disabled={selectedPage >= doc.pageCount - 1}
-          aria-label="Next page"
-          className={`${SEG_BTN} ${SEG_IDLE}`}
-        >
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-    ) : null;
-
-  // Density toggle — its own bordered pill, present for any multipage doc. The
-  // thumb sits behind the icons and translates to the active segment, so changing
-  // density glides rather than hard-swapping the highlight.
-  const densityControl =
-    doc && doc.pageCount > 1 ? (
-      <div className="editor-topbar__control flex items-center rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
-        <div className="relative flex">
-          <span
-            aria-hidden="true"
-            className="cloak-selection-indicator pointer-events-none absolute left-0 top-0 h-7 w-8 rounded-sm bg-primary-600 pointer-coarse:h-11 pointer-coarse:w-11"
-            style={{ transform: `translateX(${(activeCols - 1) * 100}%)` }}
-          />
-          {DENSITIES.map(({ cols, icon: Icon, label }) => {
-            const on = activeCols === cols;
-            return (
-              <button
-                key={cols}
-                type="button"
-                onClick={() => setDensity(cols)}
-                aria-label={label}
-                aria-pressed={on}
-                title={label}
-                className={`relative z-10 ${SEG_BTN} ${
-                  on
-                    ? "text-white"
-                    : "text-slate-500 hover:text-slate-800 dark:text-dark-text-muted dark:hover:text-dark-text"
-                }`}
-              >
-                <Icon className="h-4 w-4" aria-hidden="true" />
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    ) : null;
-
-  // Zoom controls live in the centre too — they act on the PDF in the canvas,
-  // like the stepper and density toggle. Focus/single view only (overview has no
-  // zoom); rendered only off mobile (phones use pinch-to-zoom).
-  const zoomControl =
-    doc && viewMode === "focus" ? (
-      <div className="editor-topbar__control flex items-center gap-0.5 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] p-0.5">
-        <button
-          type="button"
-          onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.2, v.zoom / 1.2) }))}
-          className={ZOOM_BTN}
-          aria-label="Zoom out"
-        >
-          <ZoomOut className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <span className="min-w-10 text-center font-mono text-xs font-medium tabular-nums text-slate-600 dark:text-dark-text-muted">
-          {zoomPct}%
-        </span>
-        <button
-          type="button"
-          onClick={() => setView((v) => ({ ...v, zoom: Math.min(8, v.zoom * 1.2) }))}
-          className={ZOOM_BTN}
-          aria-label="Zoom in"
-        >
-          <ZoomIn className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <span className="mx-0.5 h-5 w-px bg-slate-200 dark:bg-dark-border" aria-hidden="true" />
-        <button
-          type="button"
-          onClick={() => setView((v) => ({ ...DEFAULT_VIEW, gridCols: v.gridCols }))}
-          className={ZOOM_BTN}
-          aria-label="Fit to screen"
-        >
-          <Maximize2 className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
-    ) : null;
 
   return (
-    <header
-      className={`editor-topbar grid h-16 shrink-0 items-center overflow-x-clip border-b border-[var(--color-rule)] bg-[var(--color-surface)] px-3 ${
-        isMobile
-          ? "grid-cols-[auto_minmax(0,1fr)_auto]"
-          : "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
-      }`}
-    >
-      {/* LEFT zone */}
-      <div className="flex min-w-0 items-center gap-2">
-        <button type="button" onClick={exit} className={iconBtn} aria-label="Back to home">
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-        </button>
-
-        {!isMobile && (
-          <img
-            src="/cloakpdf-mark.svg"
-            alt=""
-            width="40"
-            height="40"
-            className="h-10 w-10 rounded-full"
-          />
-        )}
-
-        {/* File pill is desktop-only: at tablet width the centre pill + right
-            controls leave the left grid zone too narrow, which truncated the
-            filename to an orphan "· N pages". */}
-        {doc && isDesktop && (
-          <div className="editor-topbar__file ml-1 flex min-w-0 items-center gap-2 rounded-md border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-1.5">
-            <span className="max-w-50 truncate text-sm font-medium text-slate-700 dark:text-dark-text">
-              {doc.fileName}
-            </span>
-            <span className="font-mono text-xs tabular-nums text-slate-500 dark:text-dark-text-muted">
-              · {doc.pageCount} {doc.pageCount === 1 ? "page" : "pages"}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* CENTRE zone — desktop/tablet: page stepper + density toggle + zoom, the
-          canvas controls grouped at the true middle; mobile: the touch stepper. */}
-      <div className="flex items-center justify-center gap-2">
-        {isMobile ? (
-          mobileStepper
+    <header className="editor-topbar" data-layout={layout}>
+      <div className="editor-topbar__identity">
+        {isCompact ? (
+          <DocumentInfo name={doc?.fileName ?? "CloakPDF"} pending={pendingMarks} onExit={exit} />
         ) : (
           <>
-            {stepperControl}
-            {densityControl}
-            {zoomControl}
+            <button
+              type="button"
+              onClick={exit}
+              className={ICON}
+              aria-label="Back to home"
+              title="Back to home"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
+            <img src="/cloakpdf-mark.svg" alt="" width="28" height="28" />
+            <div className="editor-topbar__file">
+              <span title={doc?.fileName}>{doc?.fileName ?? "CloakPDF"}</span>
+            </div>
           </>
         )}
       </div>
-
-      {/* RIGHT zone */}
-      <div className="flex items-center justify-self-end gap-1">
-        {pendingMarks > 0 && !isMobile && (
-          <div
-            role="status"
-            title={`${pendingMarks} redaction/erase ${
-              pendingMarks === 1 ? "mark" : "marks"
-            } pending — burned into the file when you export`}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 font-mono text-xs font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
-          >
-            <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="tabular-nums">{pendingMarks}</span>
-            <span className="hidden sm:inline">pending</span>
-            <span className="sr-only">
-              {pendingMarks === 1 ? "mark" : "marks"} pending, applied when you export
+      {doc && (
+        <div className="editor-topbar__views" aria-label="Document view" role="group">
+          {viewMode === "focus" && (
+            <PagePreviewNav
+              page={selectedPage}
+              total={doc.pageCount}
+              onChange={setSelectedPage}
+              compact
+            />
+          )}
+          {!isMobile && (
+            <>
+              {doc.pageCount > 1 && (
+                <div className="editor-topbar__group" role="group" aria-label="Page layout">
+                  {DENSITIES.map(({ cols, icon: Icon, label }) => (
+                    <button
+                      key={cols}
+                      type="button"
+                      onClick={() => {
+                        if (cols > 1) setView((v) => ({ ...v, gridCols: cols }));
+                        setViewMode(cols === 1 ? "focus" : "overview");
+                      }}
+                      aria-label={label}
+                      aria-pressed={activeCols === cols}
+                      title={label}
+                      className={ICON}
+                    >
+                      <Icon aria-hidden="true" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {viewMode === "focus" && (
+                <div className="editor-topbar__group" role="group" aria-label="Zoom">
+                  <button
+                    type="button"
+                    onClick={() => setView((v) => ({ ...v, zoom: Math.max(0.2, v.zoom / 1.2) }))}
+                    disabled={view.zoom <= 0.2}
+                    className={ICON}
+                    aria-label="Zoom out"
+                  >
+                    <ZoomOut aria-hidden="true" />
+                  </button>
+                  <span className="editor-topbar__value">{Math.round(view.zoom * 100)}%</span>
+                  <button
+                    type="button"
+                    onClick={() => setView((v) => ({ ...v, zoom: Math.min(8, v.zoom * 1.2) }))}
+                    disabled={view.zoom >= 8}
+                    className={ICON}
+                    aria-label="Zoom in"
+                  >
+                    <ZoomIn aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setView((v) => ({ ...DEFAULT_VIEW, gridCols: v.gridCols }))}
+                    className={ICON}
+                    aria-label="Fit to screen"
+                    title="Fit to screen"
+                  >
+                    <Maximize2 aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+          {pendingMarks > 0 && !isCompact && (
+            <span
+              className="editor-pending-marks"
+              data-testid="pending-marks"
+              role="status"
+              aria-label={`${pendingMarks} ${pendingMarks === 1 ? "mark" : "marks"} pending, applied when you export`}
+              title="Redaction and erase marks are applied when you export"
+            >
+              <ShieldAlert aria-hidden="true" />
+              {pendingMarks} pending
             </span>
-          </div>
-        )}
-        <div className="flex items-center">
+          )}
+        </div>
+      )}
+      <div className="editor-topbar__actions">
+        <div className="editor-topbar__group" role="group" aria-label="Document history">
           <button
             type="button"
             onClick={undo}
             disabled={!canUndo}
-            className={iconBtn}
+            className={ICON}
             aria-label="Undo"
+            title="Undo (⌘Z / Ctrl+Z)"
           >
-            <Undo2 className="h-5 w-5" aria-hidden="true" />
+            <Undo2 aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={redo}
             disabled={!canRedo}
-            className={iconBtn}
+            className={ICON}
             aria-label="Redo"
+            title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
           >
-            <Redo2 className="h-5 w-5" aria-hidden="true" />
+            <Redo2 aria-hidden="true" />
           </button>
-          {/* Reset stays desktop-only: a 4th 44px button would crowd the
-              mobile centre stepper off-screen on 320px phones. Mobile reach to
-              "reset to original" is a tracked follow-up (overflow menu). */}
           {!isMobile && (
             <button
               type="button"
               onClick={reset}
               disabled={!canReset}
-              className={iconBtn}
+              className={ICON}
               aria-label="Reset to original"
+              title="Reset to original"
             >
-              <RotateCcw className="h-5 w-5" aria-hidden="true" />
+              <RotateCcw aria-hidden="true" />
             </button>
           )}
         </div>
-
         <ExportButton />
       </div>
     </header>

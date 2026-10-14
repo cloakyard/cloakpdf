@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-14",
+  "scope": "CloakPDF editor toolbar, rail, mobile picker and navigation focus",
+  "baseCommit": "12b11b5",
+  "contractVersion": "1.0.0",
+  "changes": [
+    "Single 64px toolbar at normal text size on desktop/tablet/mobile; desktop filename only, shared page count; compact filename/home disclosure from the document mark",
+    "Air neutral view/history controls, labelled rail and persistent pending-mark status",
+    "Full-name mobile tool list with labelled search, empty/clear states and expand/split controls",
+    "Width-based 768/1024px layouts; short sub-tablet landscape uses mobile working sheet",
+    "Modal/busy shortcut ownership and deferred palette command handoff after focus-trap cleanup",
+    "Native hover/keyboard/touch document popover, Escape/outside dismissal and focus return; closes before a modal takes ownership; compact pending-mark badge"
+  ],
+  "matrix": {
+    "cases": 176,
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "767x1024",
+      "768x1024",
+      "769x1024",
+      "1023x768",
+      "1024x768",
+      "1025x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "844x499",
+      "844x500",
+      "844x501"
+    ],
+    "states": ["closed", "picker", "expanded", "document", "rail"],
+    "result": "No tested chrome overflow, clipping or undersized controls. All normal-text headers are exactly 64px; enlarged text may reflow. Expanded mobile scroll body remains reachable.",
+    "additionalLongFilenameCases": 4
+  },
+  "features": [
+    "Page/zoom and actual stage-image node persist across same-mode tool changes",
+    "Grid/focus transitions retain selected page",
+    "First and repeated palette tool choice focuses the heading; following Tab enters tool controls",
+    "Mobile ranking, no results, clear focus, keyboard selection, expand/split and Cancel focus return",
+    "Real page-number apply and Undo; history blocked behind Export",
+    "Reduced-motion and forced-colour selection; long filename retained without header overflow",
+    "Document disclosure hover, keyboard traversal, outside/Escape dismissal, modal handoff and long-name containment; actual mobile pending marks retain a 64px toolbar"
+  ],
+  "checks": {
+    "formatLintTypes": "pass",
+    "deadCode": "pass",
+    "unitTests": 366,
+    "unitFiles": 36,
+    "productionBuild": "pass, 128 deploy assets within 25 MiB",
+    "designInventory": 83,
+    "portabilityAssertions": 17,
+    "browserSuites": [
+      "editor-navigation",
+      "editor-smoke",
+      "editor-smoke-mobile",
+      "editor-features",
+      "editor-interactions",
+      "command-palette",
+      "export-dialog",
+      "responsive-motion",
+      "modal-system"
+    ]
+  },
+  "manualReview": [
+    "Final desktop/laptop/tablet/mobile light and dark renders reviewed",
+    "Native Safari and Firefox keyboard paths and actual 200% browser zoom, including compact document disclosure and verified Escape trigger return",
+    "Firefox first and repeated palette tool selection focuses the tool heading"
+  ],
+  "cleanup": {
+    "removed": [
+      "Duplicated editor page stepper and old header wrappers",
+      "Old rail hover glyph/bar motion and orphan ledger icon/arrow selectors",
+      "Abbreviated mobile tool grid and separate search ledger",
+      "Old short-edge breakpoint rules and stale desktop-only comments"
+    ],
+    "dependenciesAdded": 0,
+    "productionLinesNet": 140
+  },
+  "limits": [
+    "Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open",
+    "Inspector, overview/thumbnails, canvas chrome and tool interiors are not migrated by this slice",
+    "Existing non-abortable tool processing retains its prior behavior"
+  ],
+  "proof": ["navigation-desktop-1440-light.png", "navigation-phone-390-dark.png"],
+  "localEvidence": "/tmp/cloakpdf-air-navigation",
+  "next": "Properties, page context, overview and thumbnails, then remaining canvas/panels/overlays"
+}

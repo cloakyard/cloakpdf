@@ -58,24 +58,48 @@ function CommandMatch({ text, query }: { text: string; query: string }) {
 }
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const pendingCommand = useRef<PaletteCommand | null>(null);
   return (
     <ModalShell
       open={open}
       onClose={onClose}
+      onAfterClose={() => {
+        const command = pendingCommand.current;
+        pendingCommand.current = null;
+        if (!command) return;
+        command.run();
+        // Re-selecting the active tool does not rerun its focus effect.
+        if (command.id.startsWith("tool-"))
+          document
+            .querySelector<HTMLElement>(".editor-properties h2, .editor-mobile-sheet__header h2")
+            ?.focus({ preventScroll: true });
+      }}
       placement="command"
       labelledBy="command-palette-title"
       describedBy="command-palette-description"
       panelClassName="pdf-dialog--command"
       testId="command-palette"
     >
-      <CommandPaletteContent onClose={onClose} />
+      <CommandPaletteContent
+        onClose={onClose}
+        onChoose={(command) => {
+          pendingCommand.current = command;
+          onClose();
+        }}
+      />
     </ModalShell>
   );
 }
 
 // The modal mounts this content per opening, including the global shortcut toggle.
 // Search and selection therefore reset before the first paint, without an effect.
-function CommandPaletteContent({ onClose }: { onClose: () => void }) {
+function CommandPaletteContent({
+  onClose,
+  onChoose,
+}: {
+  onClose: () => void;
+  onChoose: (command: PaletteCommand) => void;
+}) {
   const { canUndo, canRedo, canReset } = useEditorRead();
   const { setActiveTool, setViewMode, undo, redo, reset } = useEditorActions();
 
@@ -160,8 +184,7 @@ function CommandPaletteContent({ onClose }: { onClose: () => void }) {
 
   const choose = (cmd: PaletteCommand | undefined) => {
     if (!cmd) return;
-    onClose();
-    cmd.run();
+    onChoose(cmd);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {

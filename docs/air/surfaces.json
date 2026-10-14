@@ -653,9 +653,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/export-2026-10-14.json",
-        "docs/air/evidence/palette-2026-10-14.json"
+        "docs/air/evidence/palette-2026-10-14.json",
+        "docs/air/evidence/navigation-2026-10-14.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox."
     },
     {
       "path": "src/components/ModelCard.tsx",
@@ -1061,8 +1062,12 @@
         "640x800",
         "641x800"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/palette-2026-10-14.json"],
-      "notes": "Air interior implemented; real tool/history actions, query/selection and responsive focus return verified. Physical touch, software keyboard, real OS IME and assistive speech acceptance remain open."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/palette-2026-10-14.json",
+        "docs/air/evidence/navigation-2026-10-14.json"
+      ],
+      "notes": "Air interior implemented; real tool/history actions, query/selection and responsive focus return verified. Physical touch, software keyboard, real OS IME and assistive speech acceptance remain open. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox."
     },
     {
       "path": "src/editor/EditorContext.tsx",
@@ -1078,13 +1083,45 @@
     {
       "path": "src/editor/EditorShell.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
+      "sourceReviewed": true,
       "airImplemented": false,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "selected",
+        "disabled",
+        "empty",
+        "search",
+        "enlarged-text",
+        "coarse-emulation",
+        "expanded",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "767x1024",
+        "768x1024",
+        "769x1024",
+        "1023x768",
+        "1024x768",
+        "1025x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "844x499",
+        "844x500",
+        "844x501"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
+      "notes": "Navigation integration reviewed: width-led breakpoints, short sub-tablet working sheet, zero-min-height mounted preview wrapper, busy/modal shortcut guards. Complete shell loading/recovery, canvas and panel migration remain pending."
     },
     {
       "path": "src/editor/EditorToolStage.tsx",
@@ -1100,13 +1137,49 @@
     {
       "path": "src/editor/EditorTopBar.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": ["docs/air/evidence/compare-2026-10-14.json"],
-      "notes": "Only the shared mobile PagePreviewNav consumer adopts Air here; obsolete size prop removed. 320px coarse paging and desktop/mobile feature suites pass. Complete editor chrome migration remains pending."
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "selected",
+        "disabled",
+        "empty",
+        "search",
+        "enlarged-text",
+        "coarse-emulation",
+        "expanded",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "767x1024",
+        "768x1024",
+        "769x1024",
+        "1023x768",
+        "1024x768",
+        "1025x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "844x499",
+        "844x500",
+        "844x501"
+      ],
+      "evidence": [
+        "docs/air/evidence/compare-2026-10-14.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/navigation-2026-10-14.json"
+      ],
+      "notes": "Air 64px toolbar at normal text size on every required width. Desktop filename only; tablet/mobile document-mark popover reveals filename/home with hover, keyboard or touch; Escape/outside dismissal and modal handoff verified. Compact pending-mark badge preserves the single row. Shared page selector, neutral view/history controls, page/zoom/history/export preserved. Enlarged text may reflow. Physical/assistive acceptance remains open."
     },
     {
       "path": "src/editor/EditorView.tsx",
@@ -1167,13 +1240,45 @@
     {
       "path": "src/editor/MobileEditorSurface.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "selected",
+        "disabled",
+        "empty",
+        "search",
+        "enlarged-text",
+        "coarse-emulation",
+        "expanded",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "767x1024",
+        "768x1024",
+        "769x1024",
+        "1023x768",
+        "1024x768",
+        "1025x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "844x499",
+        "844x500",
+        "844x501"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
+      "notes": "Air full-name tool list with one labelled compound search; ranked matches, clear/empty states and immediate transitions. Expand/split preserves mounted document and tool state; Cancel/Done returns focus. Tool panel interiors remain a separate slice. Physical/assistive acceptance remains open."
     },
     {
       "path": "src/editor/OverviewGrid.tsx",
@@ -1252,13 +1357,45 @@
     {
       "path": "src/editor/ToolRail.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "selected",
+        "disabled",
+        "empty",
+        "search",
+        "enlarged-text",
+        "coarse-emulation",
+        "expanded",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "767x1024",
+        "768x1024",
+        "769x1024",
+        "1023x768",
+        "1024x768",
+        "1025x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "844x499",
+        "844x500",
+        "844x501"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
+      "notes": "Air 72px labelled rail; enlarged text may grow the rail, full accessible names, neutral selection with 2x16px marker and immediate navigation. Search uses the existing palette. Physical/assistive acceptance remains open."
     },
     {
       "path": "src/editor/panels/AnnotateTool.tsx",
@@ -1697,8 +1834,12 @@
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/extract-2026-10-14.json"],
-      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/extract-2026-10-14.json",
+        "docs/air/evidence/navigation-2026-10-14.json"
+      ],
+      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers."
     },
     {
       "path": "src/main.tsx",
@@ -2059,9 +2200,10 @@
         "docs/air/evidence/recovery-utility-2026-10-13.json",
         "docs/air/evidence/constructors-2026-10-13.json",
         "docs/air/evidence/extract-2026-10-14.json",
-        "docs/air/evidence/password-2026-10-14.json"
+        "docs/air/evidence/password-2026-10-14.json",
+        "docs/air/evidence/navigation-2026-10-14.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers."
     },
     {
       "path": "src/styles/air.css",
@@ -2102,7 +2244,10 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
+      "evidence": [
+        "docs/air/validation.md \u2014 refinement 02 candidate",
+        "docs/air/components.html"
+      ],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]
