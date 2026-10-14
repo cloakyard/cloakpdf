@@ -38,7 +38,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/components/ProgressBar.tsx`           | app-surface | Done         | Done               | Pending    |
 | `src/components/ReloadPrompt.tsx`          | app-surface | Done         | Done               | Pending    |
 | `src/components/SegmentedControl.tsx`      | app-surface | Done         | Done               | Pending    |
-| `src/components/Select.tsx`                | app-surface | Pending      | Pending            | Pending    |
+| `src/components/Select.tsx`                | app-surface | Done         | Done               | Pending    |
 | `src/components/SignaturePad.tsx`          | app-surface | Pending      | Pending            | Pending    |
 | `src/components/SortByNameButton.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/components/TouchDragOverlay.tsx`      | app-surface | Done         | Done               | Pending    |
@@ -68,6 +68,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/FillFormTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/FindActTool.tsx`        | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/MetadataTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/NupTool.tsx`            | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/OcrTool.tsx`            | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/OrganizeTool.tsx`       | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/PrimaryAction.tsx`      | app-surface | Done         | Done               | Pending    |
@@ -75,7 +76,6 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/ScrubTool.tsx`          | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/SelectTextTool.tsx`     | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/SignatureTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
-| `src/editor/panels/SimpleTools.tsx`        | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/SmartEraseTool.tsx`     | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/StampTools.tsx`         | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/StripFurnitureTool.tsx` | app-surface | Pending      | Pending            | Pending    |

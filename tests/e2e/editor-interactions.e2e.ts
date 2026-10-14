@@ -743,7 +743,12 @@ async function main(): Promise<void> {
       fail(`Custom colour field does not expose both axes: ${JSON.stringify(axes)}.`);
     }
     const saturation = `${colorDialog} input[aria-label="Saturation"]`;
-    await page.focus(saturation);
+    // Let the dialog's scheduled opening focus settle before testing Tab order.
+    await page.waitForFunction(
+      (selector) => document.activeElement === document.querySelector(selector),
+      {},
+      saturation,
+    );
     const saturationBefore = await page.$eval(saturation, (input) =>
       Number((input as HTMLInputElement).value),
     );

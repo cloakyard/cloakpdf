@@ -906,3 +906,57 @@ Evidence: [record](evidence/geometry-2026-10-14.json),
 [checks](evidence/geometry-checks-2026-10-14.log),
 [desktop](evidence/geometry-desktop-1440-dark.png),
 [phone](evidence/geometry-phone-390-light.png).
+
+## N-up/booklet and shared custom select — 2026-10-14
+
+This slice replaces the N-up inspector's old layout picker/toggle/preview skin
+with Air. The preview is a single gapless sheet, uses the writer's booklet order
+(including blank padding), and shows fold/trim marks only when enabled. Options
+survive tool navigation. Pending annotations, signatures and code drafts disable
+Apply and provide direct review links; their owning tools retain responsibility
+for applying appearance settings before the page structure changes.
+
+The writer embeds the visible CropBox/MediaBox intersection using the inverse
+visible-page matrix. Output sheet sizes and letterboxing use physical points,
+including saved rotation and UserUnit. Source text stays vector/searchable, form
+appearances are fixed into the sheet, and content-free blank pages occupy their
+cells without failing. One placement loop serves grids and booklet sides.
+
+The shared Select now uses Air's field, inset icon, menu rows, focus and 40/44px
+anatomy. Its existing portal/keyboard/typeahead behavior is retained. A Safari
+pointer click now explicitly focuses the combobox so subsequent keys work;
+menus anchor at their actual edge and track trigger reflow with a cleaned-up
+ResizeObserver. The obsolete Select skins and unused popover-row CSS are removed. Shared
+whole-document help text now uses Air semantic colours.
+`SimpleTools.tsx` is replaced by the explicit `NupTool.tsx` name. No dependencies.
+
+Validation:
+
+- Five new unit cases failed against the old writer (four physical page sizes and
+  an empty stream) and pass after the fix. Full suite: 381 tests in 37 files.
+- `nup-layout.e2e.ts`: 23 real PDF output sheets compared against independently
+  rendered PDF.js source pages across all five layouts. Eight rotated/unit cases,
+  cropped offsets, mixed portrait/landscape, true blank pages and a native field;
+  the form text is searchable and appearance pixels are retained.
+- 70 layout cases: 1440×900, 1280×720, 1024×768, 768×1024, 390×844, 844×390,
+  320×568; light/dark, fine/coarse targets, keyboard picker, blank padding, mark
+  toggling, pending-annotation review, Apply/Undo and exact page counts. Additional
+  desktop/phone 200% text, forced-colour and reduced-motion checks pass.
+- Representative desktop/laptop/tablet/mobile images inspected in both themes;
+  native Safari and Firefox pointer-open + keyboard selection and enlarged zoom
+  inspected. Firefox's toolbar confirmed 200%. Safari's pointer focus issue was
+  reproduced before the fix and verified after it.
+- The existing colour-picker interaction test now waits for its scheduled opening
+  focus before checking Tab order, removing a race without changing picker behavior.
+
+Evidence: `evidence/nup-2026-10-14.json`, selected screenshots and the check log.
+Physical touch/software keyboard, OS IME, assistive speech, non-widget annotation
+appearance and the full product migration remain open. Searchable OCR geometry and
+stale-result recovery are next. This implements Air 1.0.1; the family contract is
+unchanged and the PDF product appendix is regenerated from Cloakyard.
+
+Final gates: 381 unit tests, 16 production smoke + seven extended browser suites
+and N-up integration (24 suites), lint/types/format, dead-code, build/PWA/128 asset
+limits, design inventory, isolated/adversarial portability and exact family sync
+all pass. Main-repo lint/types/build pass. Existing large-bundle advisory remains;
+no dependency was added. No push or deployment.

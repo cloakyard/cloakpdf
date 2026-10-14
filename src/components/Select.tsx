@@ -1,12 +1,5 @@
 /**
- * Select — the app's custom dropdown, replacing the native `<select>`.
- *
- * Why this exists: a native `<select>` on mobile pops the OS picker (a full
- * grey iOS/Android wheel that ignores the app's design language), and on the
- * desktop it can't be styled past the trigger. This component renders an
- * app-styled trigger + a listbox popover that matches the rest of the system
- * (hairline border, one Ocean-Blue accent, compact shadowed popover — the
- * same idiom as ColorPicker / DateTimeInput).
+ * Air select-only combobox: one field contour, inset icon, and custom menu rows.
  *
  * The list is PORTALED to <body> with `position: fixed`, anchored to the
  * trigger's rect. That's deliberate: the editor's mobile bottom sheet and the
@@ -60,19 +53,6 @@ interface SelectProps<T extends string> {
   /** Extra classes for the trigger (e.g. width). */
   className?: string;
 }
-
-const TRIGGER_BASE =
-  "inline-flex w-full items-center justify-between gap-1.5 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] text-[var(--color-ink)] transition-[color,background-color,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50";
-
-const TRIGGER_SIZE = {
-  sm: "px-2 py-1 text-xs pointer-coarse:min-h-11",
-  md: "px-2.5 py-1.5 text-sm pointer-coarse:min-h-11",
-} as const;
-
-const OPTION_SIZE = {
-  sm: "px-2.5 py-1.5 text-xs pointer-coarse:min-h-11",
-  md: "px-3 py-2 text-sm pointer-coarse:min-h-11",
-} as const;
 
 const optText = <T extends string>(o: SelectOption<T>): string =>
   o.searchText ?? (typeof o.label === "string" ? o.label : String(o.value));
@@ -131,22 +111,21 @@ export function Select<T extends string>({
     const vw = viewport?.width ?? document.documentElement.clientWidth;
     const viewportBottom = viewportTop + vh;
     const viewportRight = viewportLeft + vw;
-    const margin = 8;
+    const margin = 16;
     const gap = 4;
-    const spaceBelow = viewportBottom - r.bottom - margin;
-    const spaceAbove = r.top - viewportTop - margin;
+    const spaceBelow = viewportBottom - r.bottom - margin - gap;
+    const spaceAbove = r.top - viewportTop - margin - gap;
     const below = spaceBelow >= spaceAbove || spaceBelow >= 240;
-    const maxHeight = Math.max(120, Math.floor(Math.min(280, below ? spaceBelow : spaceAbove)));
-    const left = Math.max(
-      viewportLeft + margin,
-      Math.min(r.left, viewportRight - r.width - margin),
-    );
+    const maxHeight = Math.max(0, Math.floor(Math.min(280, below ? spaceBelow : spaceAbove)));
+    const width = Math.min(r.width, vw - margin * 2);
+    const left = Math.max(viewportLeft + margin, Math.min(r.left, viewportRight - width - margin));
     setMenuStyle({
       position: "fixed",
       left,
-      width: r.width,
+      width,
       maxHeight,
-      top: below ? r.bottom + gap : Math.max(viewportTop + margin, r.top - maxHeight - gap),
+      top: below ? r.bottom + gap : undefined,
+      bottom: below ? undefined : window.innerHeight - r.top + gap,
     });
     setMenuAbove(!below);
   }, []);
@@ -160,6 +139,9 @@ export function Select<T extends string>({
   const openMenu = useCallback(
     (active: number, animated: boolean) => {
       if (disabled || firstEnabled < 0) return;
+      // Safari does not focus buttons on pointer click. A select-only combobox
+      // keeps keyboard ownership on its trigger while the listbox is open.
+      triggerRef.current?.focus({ preventScroll: true });
       place();
       setAnimateMenu(animated);
       setActiveIndex(active);
@@ -193,8 +175,13 @@ export function Select<T extends string>({
     window.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("scroll", onMove);
+    // Editor reflow can finish after the window resize event. Track the actual
+    // control size as well so the portal stays attached through that second layout.
+    const observer = new ResizeObserver(onMove);
+    if (triggerRef.current) observer.observe(triggerRef.current);
     return () => {
       cancelAnimationFrame(raf);
+      observer.disconnect();
       window.removeEventListener("scroll", onMove, { capture: true });
       window.removeEventListener("resize", onMove);
       window.visualViewport?.removeEventListener("resize", onMove);
@@ -343,17 +330,17 @@ export function Select<T extends string>({
             : openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled, event.detail > 0)
         }
         onKeyDown={onKeyDown}
-        className={`${TRIGGER_BASE} ${TRIGGER_SIZE[size]} ${className}`}
+        data-size={size}
+        className={`air-field air-select-trigger pdf-select ${className}`}
       >
         <span
-          className={`min-w-0 truncate text-left ${selected ? "" : "text-[var(--color-ink-3)]"}`}
+          className={`min-w-0 truncate text-left ${selected ? "" : "text-[var(--air-ink-muted)]"}`}
         >
           {selected ? selected.label : (placeholder ?? "")}
         </span>
-        <ChevronDown
-          className={`cloak-disclosure-icon h-4 w-4 shrink-0 text-slate-400 ${open ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        />
+        <span className="air-select-icon" aria-hidden="true">
+          <ChevronDown className={`cloak-disclosure-icon ${open ? "rotate-180" : ""}`} />
+        </span>
       </button>
 
       {open &&
@@ -364,10 +351,11 @@ export function Select<T extends string>({
             id={listId}
             role="listbox"
             aria-label={ariaLabel}
+            aria-labelledby={ariaLabel ? undefined : id}
             style={menuStyle}
             data-side={menuAbove ? "above" : "below"}
             data-motion={animateMenu ? "surface" : "instant"}
-            className="cloak-popover cloak-popover-motion cloak-popover__list thin-scrollbar z-[var(--z-popover)] overflow-y-auto overscroll-contain"
+            className="air-menu air-select-popup pdf-select-popup cloak-popover-motion thin-scrollbar"
           >
             {options.map((o, i) => {
               const isSel = o.value === value;
@@ -381,15 +369,13 @@ export function Select<T extends string>({
                   aria-disabled={o.disabled || undefined}
                   onPointerEnter={() => !o.disabled && setActiveIndex(i)}
                   onClick={() => choose(i)}
-                  data-active={isActive ? "true" : undefined}
-                  className={`cloak-popover__option cursor-pointer justify-between ${OPTION_SIZE[size]} ${
-                    o.disabled
-                      ? "cursor-not-allowed text-slate-300 dark:text-dark-text-muted/50"
-                      : ""
-                  }`}
+                  data-highlighted={isActive || undefined}
+                  data-selected={isSel || undefined}
+                  data-disabled={o.disabled || undefined}
+                  className="air-menu-item"
                 >
                   <span className="min-w-0 truncate">{o.label}</span>
-                  {isSel && <Check className="h-3.5 w-3.5 text-primary-600" aria-hidden="true" />}
+                  {isSel && <Check className="air-menu-check" aria-hidden="true" />}
                 </li>
               );
             })}

@@ -2648,3 +2648,55 @@ body:has(.pdf-site) {
     border-style: dashed;
   }
 }
+
+/* A print-layout preview is one sheet of white paper in either appearance. */
+.pdf-nup-preview {
+  margin: 0;
+}
+.pdf-nup-preview__surround {
+  margin-block: var(--air-space-8);
+  padding: var(--air-space-16);
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface-soft);
+}
+.pdf-nup-preview__paper {
+  position: relative;
+  max-inline-size: 200px;
+  margin-inline: auto;
+  background: white;
+  box-shadow: var(--air-shadow-surface);
+}
+.pdf-nup-preview__marks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.pdf-nup-pending {
+  display: grid;
+  gap: var(--air-space-8);
+}
+.pdf-nup-pending p {
+  margin: 0;
+}
+
+.pdf-select[data-size="sm"] {
+  min-height: var(--air-control-compact);
+  padding-block: 4px;
+}
+.pdf-select-popup {
+  margin: 0;
+  list-style: none;
+  z-index: var(--air-z-popover);
+}
+.pdf-select-popup [data-highlighted] {
+  outline: 2px solid var(--air-accent);
+  outline-offset: -2px;
+}
+@media (pointer: coarse) {
+  .pdf-select[data-size="sm"] {
+    min-height: 44px;
+  }
+}

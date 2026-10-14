@@ -34,7 +34,7 @@ import {
   WatermarkPanel,
   WatermarkStage,
 } from "./panels/StampTools.tsx";
-import { NupPanel } from "./panels/SimpleTools.tsx";
+import { NupPanel } from "./panels/NupTool.tsx";
 
 export interface ToolImpl {
   /** Registers canvas interaction for focus tools; absent for overview/options tools. */

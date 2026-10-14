@@ -1,9 +1,5 @@
-// WholeDocPanel.tsx — Shared right-panel layout for "whole-document" tools that
-// have no canvas interaction: a blurb, optional controls, and one Apply button.
-// Identical in the desktop right panel and the mobile bottom sheet (it's just a
-// column of controls), so these tools are mobile-clean for free. Apply is
-// disabled + relabelled while a transform is running so the user can't
-// double-fire it.
+// Shared options body for whole-document tools. PrimaryAction handles busy
+// state and routes Apply through the mobile sheet when appropriate.
 
 import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { PrimaryAction } from "./PrimaryAction.tsx";
@@ -34,12 +30,12 @@ export function WholeDocPanel({
 }: Props) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">{blurb}</p>
+      <p className="text-sm text-[var(--air-ink-secondary)]">{blurb}</p>
       {children}
       {/* On mobile this renders nothing and routes to the sheet's global ✓; on
           desktop it's the panel's own Apply button (see PrimaryAction). */}
       <PrimaryAction label={applyLabel} onApply={onApply} disabled={disabled} danger={danger} />
-      {note && <p className="text-xs text-slate-500 dark:text-dark-text-muted">{note}</p>}
+      {note && <p className="air-help">{note}</p>}
     </div>
   );
 }

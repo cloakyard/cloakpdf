@@ -197,32 +197,6 @@
   transition: transform var(--dur-normal) linear;
 }
 
-.cloak-popover__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cloak-popover__option {
-  position: relative;
-  display: flex;
-  min-height: 2.5rem;
-  align-items: center;
-  gap: var(--space-2xs);
-  padding: 0.55rem 0.65rem;
-  color: var(--color-ink-2);
-}
-
-.cloak-popover__option + .cloak-popover__option {
-  border-top: var(--rule-thin) solid var(--color-rule);
-}
-
-.cloak-popover__option[data-active="true"] {
-  box-shadow: inset 2px 0 0 var(--color-accent);
-  background: var(--color-accent-soft);
-  color: var(--color-ink);
-}
-
 .cloak-search-field {
   display: flex;
   min-height: 2.75rem;

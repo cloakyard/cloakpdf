@@ -887,13 +887,36 @@
     {
       "path": "src/components/Select.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "default",
+        "keyboard/pointer open",
+        "selected",
+        "disabled pending draft",
+        "blank booklet padding",
+        "fold marks on/off",
+        "apply/undo",
+        "overflow/reflow",
+        "reduced motion",
+        "forced colors",
+        "200% text"
+      ],
+      "viewports": [
+        "1440x900",
+        "1280x720",
+        "1024x768",
+        "768x1024",
+        "390x844",
+        "844x390",
+        "320x568",
+        "light and dark",
+        "fine and coarse",
+        "native Safari and Firefox keyboard/zoom"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/nup-2026-10-14.json"],
+      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete."
     },
     {
       "path": "src/components/SignaturePad.tsx",
@@ -1722,6 +1745,40 @@
       "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
+      "path": "src/editor/panels/NupTool.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "keyboard/pointer open",
+        "selected",
+        "disabled pending draft",
+        "blank booklet padding",
+        "fold marks on/off",
+        "apply/undo",
+        "overflow/reflow",
+        "reduced motion",
+        "forced colors",
+        "200% text"
+      ],
+      "viewports": [
+        "1440x900",
+        "1280x720",
+        "1024x768",
+        "768x1024",
+        "390x844",
+        "844x390",
+        "320x568",
+        "light and dark",
+        "fine and coarse",
+        "native Safari and Firefox keyboard/zoom"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/nup-2026-10-14.json"],
+      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete."
+    },
+    {
       "path": "src/editor/panels/OcrTool.tsx",
       "kind": "app-surface",
       "sourceReviewed": false,
@@ -1875,21 +1932,6 @@
         "docs/air/evidence/geometry-2026-10-14.json"
       ],
       "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
-    },
-    {
-      "path": "src/editor/panels/SimpleTools.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
-      ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
     },
     {
       "path": "src/editor/panels/SmartEraseTool.tsx",
@@ -2487,10 +2529,7 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
-        "docs/air/components.html"
-      ],
+      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]

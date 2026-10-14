@@ -406,7 +406,7 @@ export interface NupOptions {
  * the 2-up cells (left, then right, for each printed side), padded with `-1`
  * blank leaves so the count is a multiple of 4. Printing the result
  * double-sided (flip on the short edge) and folding the stack in half yields
- * the pages in reading order. Pure and exported for unit testing.
+ * the pages in reading order. Shared with the print preview.
  *
  * For an 8-page document the (1-based) side order is 8|1, 2|7, 6|3, 4|5.
  */
@@ -463,7 +463,7 @@ function drawBookletMarks(page: ReturnType<PDFDocument["addPage"]>, w: number, h
  * Arrange multiple PDF pages onto single sheets — fixed N-up grids or a
  * saddle-stitch booklet.
  *
- * Each output sheet has the same dimensions as the first source page; source
+ * Each output sheet has the visible physical dimensions of the first source page; source
  * pages are scaled to fit their cell, preserving aspect ratio (letterboxed).
  * `"booklet"` reorders + pads the pages (see {@link bookletOrder}) and lays them
  * 2-up so the printed, folded stack reads in order — with optional fold/trim
@@ -486,65 +486,52 @@ export async function nupPages(
   const pageCount = source.getPageCount();
   if (pageCount === 0) throw new Error("The PDF has no pages.");
 
-  const { width: outW, height: outH } = source.getPage(0).getSize();
-  // Embed all source pages into the result document as reusable XObjects.
-  const embeddedPages = await Promise.all(source.getPages().map((page) => result.embedPage(page)));
-
-  // ── Booklet: 2-up in imposition order, padded to a multiple of 4 ──────────
-  if (layout === "booklet") {
-    const cellW = outW / 2;
-    const order = bookletOrder(pageCount);
-    for (let side = 0; side < order.length / 2; side++) {
-      const outPage = result.addPage([outW, outH]);
-      for (let slot = 0; slot < 2; slot++) {
-        const srcIdx = order[side * 2 + slot];
-        if (srcIdx < 0) continue; // blank padding leaf
-        const { width: pw, height: ph } = source.getPage(srcIdx).getSize();
-        const scale = Math.min(cellW / pw, outH / ph);
-        const drawW = pw * scale;
-        const drawH = ph * scale;
-        const x = slot * cellW + (cellW - drawW) / 2;
-        const y = (outH - drawH) / 2;
-        outPage.drawPage(embeddedPages[srcIdx], { x, y, width: drawW, height: drawH });
-      }
-      if (options.cropMarks) drawBookletMarks(outPage, outW, outH);
-    }
-    return result.save();
-  }
-
-  // ── Fixed grids ──────────────────────────────────────────────────────────
-  const cols = layout === "1x2" ? 1 : layout === "3x3" ? 3 : 2;
-  const rows = layout === "2x1" ? 1 : layout === "3x3" ? 3 : 2;
+  // Printed sheets keep widget appearances, not editable form fields.
+  source.getForm().flatten({ updateFieldAppearances: false });
+  const geometries = source.getPages().map(visiblePageGeometry);
+  const { width: outW, height: outH } = geometries[0];
+  const embeddedPages = await Promise.all(
+    source.getPages().map(async (page, i) => {
+      // Empty pages have no stream to embed, but still occupy their layout cell.
+      if (!page.node.Contents()) return null;
+      const { width, height, matrix } = geometries[i];
+      const box = visibleRectToPdf(page, { x: 0, y: 0, width, height });
+      const [a, b, c, d, e, f] = matrix;
+      const det = a * d - b * c;
+      // The source XObject clips in raw PDF space, then maps into visible points.
+      // This preserves vectors, CropBox offsets, saved rotation and UserUnit.
+      return result.embedPage(
+        page,
+        {
+          left: box.x,
+          bottom: box.y,
+          right: box.x + box.width,
+          top: box.y + box.height,
+        },
+        [d / det, -b / det, -c / det, a / det, (c * f - d * e) / det, (b * e - a * f) / det],
+      );
+    }),
+  );
+  const isBooklet = layout === "booklet";
+  const [cols, rows] = isBooklet ? [2, 1] : layout.split("x").map(Number);
+  const order = isBooklet ? bookletOrder(pageCount) : source.getPageIndices();
   const perSheet = cols * rows;
   const cellW = outW / cols;
   const cellH = outH / rows;
-  const totalSheets = Math.ceil(pageCount / perSheet);
-
-  for (let sheet = 0; sheet < totalSheets; sheet++) {
+  for (let start = 0; start < order.length; start += perSheet) {
     const outPage = result.addPage([outW, outH]);
-
     for (let slot = 0; slot < perSheet; slot++) {
-      const srcIdx = sheet * perSheet + slot;
-      if (srcIdx >= pageCount) break;
-
-      const col = slot % cols;
-      const row = Math.floor(slot / cols);
-
-      // Scale the source page to fit inside its cell while preserving aspect
-      // ratio, then centre it (letterbox). Drawing it stretched to cellW×cellH
-      // distorts any page whose aspect differs from the cell's (e.g. portrait
-      // pages in a 2x1 grid) — the live preview shows the letterboxed result.
-      const { width: pw, height: ph } = source.getPage(srcIdx).getSize();
+      const srcIdx = order[start + slot];
+      const embedded = embeddedPages[srcIdx];
+      if (!embedded) continue;
+      const { width: pw, height: ph } = geometries[srcIdx];
       const scale = Math.min(cellW / pw, cellH / ph);
-      const drawW = pw * scale;
-      const drawH = ph * scale;
-
-      // PDF y-axis is bottom-up; row 0 visually is the top row.
-      const x = col * cellW + (cellW - drawW) / 2;
-      const y = outH - (row + 1) * cellH + (cellH - drawH) / 2;
-
-      outPage.drawPage(embeddedPages[srcIdx], { x, y, width: drawW, height: drawH });
+      const x = (slot % cols) * cellW + (cellW - pw * scale) / 2;
+      const y = outH - (Math.floor(slot / cols) + 1) * cellH + (cellH - ph * scale) / 2;
+      // EmbeddedPage.width/height describe its raw box, before its Matrix.
+      outPage.drawPage(embedded, { x, y, xScale: scale, yScale: scale });
     }
+    if (isBooklet && options.cropMarks) drawBookletMarks(outPage, outW, outH);
   }
 
   return result.save();

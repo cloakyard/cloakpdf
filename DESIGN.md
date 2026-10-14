@@ -1043,3 +1043,13 @@ journeys across all apps; it is not inferred from the pilot alone.
   Composition owns Enter/Escape; explicit completion/cancellation returns canvas
   focus, while blur follows the user's new target. Touch resize targets are 44px
   with nearest-handle resolution when targets overlap.
+
+- N-up previews use one gapless paper sheet at the first visible page's physical
+  size. Share booklet imposition order with output, including blank leaves; show
+  fold/trim marks only when enabled. Retain page crop, rotation, physical units,
+  vector text and native form appearances. Explain the print-layout tradeoff.
+  Pending annotation/signature/code drafts must be applied in their owning tools
+  before rearranging pages; preserve the selected layout while reviewing them.
+- Custom selects use the local Air field/menu anatomy, 40/44px targets and an inset
+  icon. Keep keyboard ownership on the trigger even after a Safari pointer click;
+  anchor the menu through inspector reflow, scrolling, zoom and short viewports.
