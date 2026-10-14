@@ -69,7 +69,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/FindActTool.tsx`        | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/MetadataTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/NupTool.tsx`            | app-surface | Done         | Done               | Pending    |
-| `src/editor/panels/OcrTool.tsx`            | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/OcrTool.tsx`            | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/OrganizeTool.tsx`       | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/PrimaryAction.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/RedactTool.tsx`         | app-surface | Pending      | Pending            | Pending    |

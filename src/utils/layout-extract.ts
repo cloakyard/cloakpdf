@@ -56,7 +56,9 @@ export interface LayoutPage {
   width: number;
   /** Page height in PDF points. */
   height: number;
-  /** liteparse's layout-preserved page text (whitespace approximates layout). */
+  /** Origin of positioned runs, when extracted with PDF.js. */
+  source?: "text" | "ocr";
+  /** Layout-preserved page text (whitespace approximates layout). */
   text: string;
   /** Positioned text runs in document order. */
   items: LayoutItem[];
@@ -71,10 +73,12 @@ export interface FractionRect {
 }
 
 export interface ExtractLayoutOptions {
+  /** Stop between pages and discard an in-flight recognition result. */
+  signal?: AbortSignal;
   /** Tesseract language code for OCR of scanned pages. Defaults to `"eng"`. */
   language?: string;
-  /** Set `false` to skip OCR entirely (digital text layer only). */
-  ocr?: boolean;
+  /** False skips OCR; image-only preserves every existing native text layer. */
+  ocr?: boolean | "image-only";
   /** Render DPI used when OCR'ing scanned pages. Higher = sharper, slower. Defaults to 200. */
   dpi?: number;
   /** Password for an encrypted PDF. */
@@ -1052,8 +1056,9 @@ function pageTextLength(page: LayoutPage): number {
 }
 
 /** Page numbers whose extracted text is too thin to trust — OCR candidates. */
-function sparsePageNumbers(pages: LayoutPage[]): number[] {
-  return pages.filter((p) => pageTextLength(p) < MIN_TEXT_CHARS).map((p) => p.pageNumber);
+function sparsePageNumbers(pages: LayoutPage[], options: ExtractLayoutOptions): number[] {
+  const threshold = options.ocr === "image-only" ? 1 : MIN_TEXT_CHARS;
+  return pages.filter((p) => pageTextLength(p) < threshold).map((p) => p.pageNumber);
 }
 
 /**
@@ -1105,6 +1110,7 @@ async function ocrScannedPages(
   dpi: number,
   onOcrPage: ((done: number, total: number) => void) | undefined,
   existingPdf?: PDFDocumentProxy,
+  signal?: AbortSignal,
 ): Promise<void> {
   const { createWorker } = await import("tesseract.js");
   // Reuse the caller's already-open PDF.js document when given one (saves a
@@ -1129,9 +1135,11 @@ async function ocrScannedPages(
     // Create the worker *inside* the try so a createWorker rejection still
     // hits the outer finally that destroys our PDF.js document — and only
     // terminate a worker that was actually created.
+    signal?.throwIfAborted();
     const worker = await createWorker(language);
     try {
       for (const pageNumber of pageNumbers) {
+        signal?.throwIfAborted();
         const target = pages.find((p) => p.pageNumber === pageNumber);
         if (!target || pageNumber < 1 || pageNumber > pdf.numPages) continue;
         const page = await pdf.getPage(pageNumber);
@@ -1144,46 +1152,53 @@ async function ocrScannedPages(
           const viewport =
             pageScale === scale ? baseViewport : page.getViewport({ scale: pageScale });
           const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext("2d", { willReadFrequently: true });
-          if (!ctx) continue;
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-          const { data } = await worker.recognize(canvas);
-          canvas.width = 0;
-          canvas.height = 0;
+          try {
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            if (!ctx)
+              throw new Error("Could not render this page for recognition. Please try again.");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+            const { data } = await worker.recognize(canvas, {}, { text: true, blocks: true });
+            signal?.throwIfAborted();
 
-          // Page dimensions in points (liteparse may report 0 for image-only pages).
-          if (!target.width || !target.height) {
+            // OCR boxes belong to the rendered, cropped and rotated physical page,
+            // even when the native parser supplied different raw dimensions.
             const base = page.getViewport({ scale: 1 });
             target.width = base.width;
             target.height = base.height;
-          }
+            target.source = "ocr";
 
-          const items: LayoutItem[] = [];
-          for (const block of data.blocks ?? []) {
-            for (const paragraph of block.paragraphs) {
-              for (const line of paragraph.lines) {
-                for (const word of line.words) {
-                  const text = word.text?.trim();
-                  if (!text) continue;
-                  const { x0, y0, x1, y1 } = word.bbox;
-                  items.push({
-                    text,
-                    x: x0 / pageScale,
-                    y: y0 / pageScale,
-                    width: (x1 - x0) / pageScale,
-                    height: (y1 - y0) / pageScale,
-                    fontSize: (y1 - y0) / pageScale,
-                  });
+            const items: LayoutItem[] = [];
+            for (const block of data.blocks ?? []) {
+              for (const paragraph of block.paragraphs) {
+                for (const line of paragraph.lines) {
+                  for (const word of line.words) {
+                    const text = word.text?.trim();
+                    if (!text) continue;
+                    const { x0, y0, x1, y1 } = word.bbox;
+                    items.push({
+                      text,
+                      x: x0 / pageScale,
+                      y: y0 / pageScale,
+                      width: (x1 - x0) / pageScale,
+                      height: (y1 - y0) / pageScale,
+                      fontSize: (y1 - y0) / pageScale,
+                    });
+                  }
                 }
               }
             }
+            target.items = items;
+            target.text = items.length
+              ? layoutToReadingOrderText(target)
+              : (data.text ?? "").trim();
+          } finally {
+            canvas.width = 0;
+            canvas.height = 0;
           }
-          target.items = items;
-          target.text = items.length ? layoutToReadingOrderText(target) : (data.text ?? "").trim();
         } finally {
           page.cleanup();
         }
@@ -1210,14 +1225,24 @@ export async function extractLayout(
   file: File,
   options: ExtractLayoutOptions = {},
 ): Promise<LayoutPage[]> {
+  options.signal?.throwIfAborted();
   const language = options.language ?? "eng";
   const dpi = options.dpi ?? 200;
   const { pages } = await parseWithLiteParse(file, { outputFormat: "json" }, options);
 
   if (options.ocr !== false) {
-    const sparse = sparsePageNumbers(pages);
+    const sparse = sparsePageNumbers(pages, options);
     if (sparse.length > 0) {
-      await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage);
+      await ocrScannedPages(
+        file,
+        pages,
+        sparse,
+        language,
+        dpi,
+        options.onOcrPage,
+        undefined,
+        options.signal,
+      );
     }
   }
 
@@ -1249,6 +1274,7 @@ export async function extractMarkdown(
   file: File,
   options: ExtractLayoutOptions = {},
 ): Promise<string> {
+  options.signal?.throwIfAborted();
   const language = options.language ?? "eng";
   const dpi = options.dpi ?? 200;
   const { result, pages } = await parseWithLiteParse(
@@ -1262,7 +1288,7 @@ export async function extractMarkdown(
   );
   const markdown = result?.text ?? "";
 
-  const sparse = options.ocr !== false ? sparsePageNumbers(pages) : [];
+  const sparse = options.ocr !== false ? sparsePageNumbers(pages, options) : [];
 
   // Fully digital (or OCR off): liteparse's native Markdown already covers the
   // whole document — use it verbatim.
@@ -1281,7 +1307,16 @@ export async function extractMarkdown(
   // renderer emits one document-wide markdown blob that can't be positionally
   // merged with our separately-OCR'd pages, so native structure only survives
   // for 100 %-digital PDFs. A single scanned page degrades the whole export.
-  await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage);
+  await ocrScannedPages(
+    file,
+    pages,
+    sparse,
+    language,
+    dpi,
+    options.onOcrPage,
+    undefined,
+    options.signal,
+  );
   return layoutToMarkdown(pages);
 }
 
@@ -1337,13 +1372,21 @@ async function pageLayoutFromTextLayer(
       fontSize: height * page.userUnit,
     });
   }
-  return { pageNumber, width: viewport.width, height: viewport.height, text: "", items };
+  return {
+    pageNumber,
+    width: viewport.width,
+    height: viewport.height,
+    text: "",
+    items,
+    source: "text",
+  };
 }
 
 export async function extractTextGeometry(
   file: File,
   options: ExtractLayoutOptions = {},
 ): Promise<LayoutPage[]> {
+  options.signal?.throwIfAborted();
   const language = options.language ?? "eng";
   const ocrEnabled = options.ocr !== false;
   const dpi = options.dpi ?? 200;
@@ -1356,6 +1399,7 @@ export async function extractTextGeometry(
   try {
     const total = pdf.numPages;
     for (let i = 1; i <= total; i++) {
+      options.signal?.throwIfAborted();
       const page = await pdf.getPage(i);
       try {
         pages.push(await pageLayoutFromTextLayer(page, i));
@@ -1366,13 +1410,20 @@ export async function extractTextGeometry(
     }
 
     if (ocrEnabled) {
-      const sparse = pages
-        .filter((p) => pageTextLength(p) < MIN_TEXT_CHARS)
-        .map((p) => p.pageNumber);
+      const sparse = sparsePageNumbers(pages, options);
       if (sparse.length > 0) {
         // Hand our already-open document to the OCR pass so it doesn't decode +
         // parse the same file a second time.
-        await ocrScannedPages(file, pages, sparse, language, dpi, options.onOcrPage, pdf);
+        await ocrScannedPages(
+          file,
+          pages,
+          sparse,
+          language,
+          dpi,
+          options.onOcrPage,
+          pdf,
+          options.signal,
+        );
       }
     }
   } finally {

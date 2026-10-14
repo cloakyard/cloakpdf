@@ -7,7 +7,7 @@
  *
  * This file is a thin re-export barrel over the cohesive modules in
  * `./pdf/*`. Shared private helpers in `./pdf/raster.ts` (getPdfJs,
- * renderPageToCanvas, canvasToImageBytes, decodeImageToPngBytes) and the
+ * canvasToImageBytes, decodeImageToPngBytes) and the
  * per-module private helpers are intentionally NOT re-exported.
  */
 
@@ -45,7 +45,7 @@ export {
   stripMetadata,
 } from "./pdf/metadata.ts";
 
-export { extractTextOcr, createSearchablePdf, createSearchablePdfFromLayout } from "./pdf/ocr.ts";
+export { createSearchablePdfFromLayout } from "./pdf/ocr.ts";
 
 export { redactPdf } from "./pdf/redact.ts";
 

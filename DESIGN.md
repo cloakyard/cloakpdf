@@ -1053,3 +1053,16 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Custom selects use the local Air field/menu anatomy, 40/44px targets and an inset
   icon. Keep keyboard ownership on the trigger even after a Safari pointer click;
   anchor the menu through inspector reflow, scrolling, zoom and short viewports.
+
+- OCR uses the shared Air language select and actions. Wide preview areas show
+  text beside unmodified paper; narrow areas switch between Text and Source so
+  neither pane loses half its working height. Recognised text is selectable,
+  keyboard-scrollable and wraps at enlarged text sizes. Use the toolbar's page
+  navigation, without duplicating its count in the preview.
+- OCR results belong to one immutable document revision, including pending marks.
+  Discard late extraction results after navigation or document changes. Apply
+  destructive marks before recognition, and review other drafts in their owning
+  tools. Never reuse pre-redaction text or duplicate an existing native text layer.
+- Fit invisible OCR text to word boxes in the cropped, rotated physical page frame.
+  Missing positions or unencodable characters must fail explicitly and retain the
+  preview for copy/retry; never report success after silently dropping words.

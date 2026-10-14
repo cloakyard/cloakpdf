@@ -960,3 +960,69 @@ and N-up integration (24 suites), lint/types/format, dead-code, build/PWA/128 as
 limits, design inventory, isolated/adversarial portability and exact family sync
 all pass. Main-repo lint/types/build pass. Existing large-bundle advisory remains;
 no dependency was added. No push or deployment.
+
+## Searchable OCR and review surface — 2026-10-14
+
+The OCR inspector now uses Air labels, language select, actions and notices. The
+preview uses theme-aware reading chrome and unchanged white document paper. Wide
+areas show two panes; a container query switches narrow areas to Text/Source,
+retaining their working height. Recognised text wraps and can be selected and
+keyboard-scrolled. Page navigation remains in the compact toolbar.
+
+Recognition uses PDF.js's visible physical frame for native text and Tesseract's
+word boxes for image-only pages. Structured blocks are explicitly requested from
+Tesseract 7; previously its text-only default left the writer without positioned
+words. OCR dimensions now always follow the rendered crop/rotation/UserUnit frame,
+including the shared layout/export extraction path. The writer uses the existing
+visible-page matrix and fits each word's width and height. Independent PDF.js
+inspection confirms the invisible layer leaves every original pixel unchanged.
+Native text is preserved once rather than duplicated.
+
+The preview is tied to the immutable document revision, including pending marks.
+Navigation/document changes abort between pages and discard an in-flight result;
+workers, canvases and PDF resources are released. Pending destructive marks have
+an explicit apply action before recognition, while other drafts link to their
+owning tools. This prevents previously extracted text from reintroducing redacted
+content. Extraction errors remain visible; writer failures retain the preview for
+copy/retry. Unsupported characters and missing positions now fail explicitly,
+rather than silently omitting text. Language selection is explicit: the former
+Auto entry merely selected English on the primary path.
+
+Removed the unused Tesseract-only OCR helper, synthetic top-stacked text writer,
+their raster/preprocessing helpers and stale barrel/comment references. Replaced
+the panel's legacy Segmented/colour skins and duplicate layout/plain-text modes
+with one extraction path and the shared Air primitives. No dependency added.
+
+Validation:
+
+- 381 unit tests in 37 files; lint/format/types, dead-code and production build pass.
+- `ocr-layout.e2e.ts` exercises actual OCR, eight combinations of 0/90/180/270°
+  rotation and UserUnit 1/2 with offset CropBoxes, native and blank pages, known
+  word-box placement, real recognised-line bounds and identical page pixels.
+  Missing geometry and unencodable output reject explicitly. The shared liteparse
+  export path also returns real OCR boxes in the correct physical frame.
+- Real UI extract/apply/re-extract/undo, persistent extraction failure, application
+  retry, delayed abandoned reads, pending-redaction protection, and absence of
+  redacted text both before and after searchable output all pass.
+- 20 preview states across 1440×900, 1280×720, 1024×768, 768×1024, 390×844,
+  844×390 and 320×568, light/dark and fine/coarse input. Menu containment, 40/44px
+  controls, 200% text, forced colours and reduced motion checked. Representative
+  desktop/laptop/tablet/phone images inspected in both themes.
+- Native Safari and Firefox performed actual extraction and apply; the shared
+  language select accepted pointer-open + End/Home/Enter. Preview reviewed and
+  temporary tabs closed. This is not physical-touch or assistive-speech evidence.
+- 16 production smoke suites, seven extended editor suites and the OCR/geometry
+  integrations pass (25 browser suites). The geometry regression includes 48
+  responsive layouts and the existing writer/output matrix.
+
+Evidence: `evidence/ocr-2026-10-14.json`, selected screenshots and check log.
+Unicode font embedding beyond WinAnsi and scanned regions on mixed native/image
+pages remain tracked follow-ups. Existing native layers are deliberately retained;
+unsupported OCR export raises a visible error without changing the document.
+Physical touch/software keyboard, OS IME, assistive speech and full product/family
+migration remain open. This implements Air 1.0.1; the family contract is unchanged.
+
+Final gates also include isolated/adversarial portability, 84-surface inventory,
+exact six-document/five-bundle sync and main-repo lint/types/build. The 128 output
+assets meet the deployment size limit; the existing large-chunk advisory remains.
+No push or deployment.

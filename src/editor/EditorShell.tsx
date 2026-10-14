@@ -129,8 +129,8 @@ export function EditorShell() {
   // OCR's side-by-side preview takes over the center once an extraction exists
   // for the current doc, regardless of focus/overview; otherwise the normal
   // stage / page grid. On mobile it fills the canvas half above the tool sheet —
-  // the recognised-text/page panels stack under that width.
-  const showOcrPreview = activeTool === OCR_ID && ocrHasPreview(ocrSlice, doc?.id);
+  // the text/source switch preserves the available height on narrow screens.
+  const showOcrPreview = activeTool === OCR_ID && ocrHasPreview(ocrSlice, doc);
   const center = showOcrPreview ? (
     <OcrPreview />
   ) : viewMode === "overview" ? (

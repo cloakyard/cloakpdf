@@ -2700,3 +2700,87 @@ body:has(.pdf-site) {
     min-height: 44px;
   }
 }
+
+/* OCR keeps the document's paper separate from theme-aware reading chrome. */
+.pdf-ocr-panel,
+.pdf-ocr-panel__notice {
+  display: grid;
+  gap: var(--air-space-16);
+  color: var(--air-ink-secondary);
+  font: var(--air-text-body) / 1.5 var(--air-font);
+}
+.pdf-ocr-panel p {
+  margin: 0;
+}
+.pdf-ocr-panel__notice {
+  gap: var(--air-space-8);
+}
+.pdf-ocr-preview {
+  container-type: inline-size;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  flex-direction: column;
+  padding: var(--air-space-16);
+  background: var(--air-surface-soft);
+  color: var(--air-ink);
+}
+.pdf-ocr-preview__switch {
+  display: none;
+}
+.pdf-ocr-preview__panes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--air-space-24);
+  flex: 1;
+  min-height: 0;
+}
+.pdf-ocr-preview__text,
+.pdf-ocr-preview__source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--air-space-8);
+  min-height: 0;
+  min-width: 0;
+}
+.pdf-ocr-preview h3 {
+  margin: 0;
+}
+.pdf-ocr-preview pre {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  overflow: auto;
+  padding: var(--air-space-16);
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: var(--air-text-body) / 1.6 var(--air-font);
+}
+.pdf-ocr-preview__paper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+@container (max-width: 35rem) {
+  .pdf-ocr-preview__switch {
+    display: block;
+    margin-bottom: var(--air-space-8);
+  }
+  .pdf-ocr-preview__panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pdf-ocr-preview h3 {
+    display: none;
+  }
+  .pdf-ocr-preview[data-view="text"] .pdf-ocr-preview__source,
+  .pdf-ocr-preview[data-view="source"] .pdf-ocr-preview__text {
+    display: none;
+  }
+}

@@ -1,0 +1,777 @@
+{
+  "date": "2026-10-14",
+  "contract": "Air 1.0.1",
+  "scope": "OCR panel, responsive preview, searchable output and result lifecycle",
+  "output": {
+    "positionedPages": 8,
+    "realOcrPages": 8,
+    "blankPages": 1,
+    "nativePages": 1,
+    "progress": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "layout": [
+      {
+        "pageNumber": 1,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 2,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 3,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 4,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 5,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 6,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 7,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 8,
+        "width": 400,
+        "height": 300,
+        "text": "Air readable document\nPrivate number 7429",
+        "items": [
+          {
+            "text": "Air",
+            "x": 32.04,
+            "y": 51.120000000000005,
+            "width": 21.96,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "readable",
+            "x": 60.120000000000005,
+            "y": 51.120000000000005,
+            "width": 68.4,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "document",
+            "x": 134.64000000000001,
+            "y": 51.120000000000005,
+            "width": 78.48,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "Private",
+            "x": 33.480000000000004,
+            "y": 106.92,
+            "width": 54,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "number",
+            "x": 93.96000000000001,
+            "y": 106.92,
+            "width": 60.120000000000005,
+            "height": 12.96,
+            "fontSize": 12.96
+          },
+          {
+            "text": "7429",
+            "x": 159.84,
+            "y": 106.92,
+            "width": 38.52,
+            "height": 12.96,
+            "fontSize": 12.96
+          }
+        ],
+        "source": "ocr"
+      },
+      {
+        "pageNumber": 9,
+        "width": 400,
+        "height": 300,
+        "text": "Already searchable.",
+        "items": [
+          {
+            "text": "Already searchable.",
+            "x": 32,
+            "y": 42,
+            "width": 159.06600000000003,
+            "height": 18,
+            "fontSize": 18
+          }
+        ],
+        "source": "text"
+      },
+      {
+        "pageNumber": 10,
+        "width": 400,
+        "height": 300,
+        "text": "",
+        "items": [],
+        "source": "ocr"
+      }
+    ]
+  },
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 836,
+      "textHeight": 777.8125,
+      "paperHeight": 369,
+      "paperRatio": 1.3333333333333333,
+      "target": 40,
+      "coarse": false
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 656,
+      "textHeight": 597.8125,
+      "paperHeight": 309,
+      "paperRatio": 1.3333333333333333,
+      "target": 40,
+      "coarse": false
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 704,
+      "textHeight": 645.8125,
+      "paperHeight": 213,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 960,
+      "textHeight": 868,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 960,
+      "textHeight": 0,
+      "paperHeight": 282,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 390,
+      "textHeight": 298,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 390,
+      "textHeight": 0,
+      "paperHeight": 268.5,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 844,
+      "height": 390,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 64,
+      "textHeight": 34,
+      "paperHeight": 5.8125,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 216,
+      "textHeight": 124,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 216,
+      "textHeight": 0,
+      "paperHeight": 123.984375,
+      "paperRatio": 1.3334593572778828,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 836,
+      "textHeight": 777.8125,
+      "paperHeight": 369,
+      "paperRatio": 1.3333333333333333,
+      "target": 40,
+      "coarse": false
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 656,
+      "textHeight": 597.8125,
+      "paperHeight": 309,
+      "paperRatio": 1.3333333333333333,
+      "target": 40,
+      "coarse": false
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 704,
+      "textHeight": 645.8125,
+      "paperHeight": 213,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 960,
+      "textHeight": 868,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 960,
+      "textHeight": 0,
+      "paperHeight": 282,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 390,
+      "textHeight": 298,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 390,
+      "textHeight": 0,
+      "paperHeight": 268.5,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 844,
+      "height": 390,
+      "view": "Both",
+      "overflow": false,
+      "previewHeight": 64,
+      "textHeight": 34,
+      "paperHeight": 5.8125,
+      "paperRatio": 1.3333333333333333,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "view": "Text",
+      "overflow": false,
+      "previewHeight": 216,
+      "textHeight": 124,
+      "paperHeight": 0,
+      "paperRatio": 0,
+      "target": 44,
+      "coarse": true
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "view": "Source",
+      "overflow": false,
+      "previewHeight": 216,
+      "textHeight": 0,
+      "paperHeight": 123.984375,
+      "paperRatio": 1.3334593572778828,
+      "target": 44,
+      "coarse": true
+    }
+  ],
+  "workflow": [
+    "failure retains result for retry",
+    "extract failure remains visible",
+    "abandoned read cannot publish stale result",
+    "apply and undo",
+    "redactions applied before recognition",
+    "redacted text absent from OCR preview and subsequent native text layer"
+  ],
+  "nativeBrowsers": {
+    "Safari": "Real extract and apply; pointer-opened language select plus End/Home/Enter; rendered preview reviewed. Temporary tab closed.",
+    "Firefox": "Real extract and apply; pointer-opened language select plus End/Home/Enter; rendered preview reviewed. Temporary tab closed."
+  },
+  "open": [
+    "Unicode font embedding beyond WinAnsi; explicit error retains preview, never silent skipping",
+    "OCR of scanned regions on pages that also contain native text",
+    "physical touch/software keyboard",
+    "OS IME",
+    "assistive speech",
+    "full product/family migration"
+  ]
+}
