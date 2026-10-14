@@ -582,6 +582,9 @@ export async function loadPipeline(
   handle.promise = (async () => {
     const t = await getTransformers();
     const useWebGpu = await detectWebGpu();
+    // Cancel can happen during module/GPU preparation. A superseded loader
+    // must not start downloads or abort the controller of a newer retry.
+    if (_pipelineCache.get(modelId) !== handle.promise) throw new Error("load-cancelled");
     // Register this download so the wrapped `env.fetch` can attach an
     // abort signal to its network requests. Must come *after*
     // `getTransformers()` (which installs the wrapper) and *before*
