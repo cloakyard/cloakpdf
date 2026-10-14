@@ -213,7 +213,7 @@ async function openEditor(page: Page) {
 async function panelState(page: Page) {
   return page.evaluate(() => {
     const panel = document.querySelector(
-      ".editor-mobile-sheet__body, .cloak-panel-enter",
+      ".editor-mobile-sheet__body, .editor-properties__body",
     ) as HTMLElement | null;
     const sheet = document.querySelector('[data-testid="mobile-tool-sheet"]') as HTMLElement | null;
     const column = sheet?.parentElement as HTMLElement | null;
@@ -267,31 +267,11 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
     fail(`${viewport.name}: tool-panel motion caused horizontal overflow.`);
   }
 
-  if (shouldUseSheet) {
-    if (
-      opening.animation !== "none" ||
-      !hasOnlyTransitionDuration(opening.transitionDuration, "0s")
-    )
-      fail(`${viewport.name}: frequent mobile tool changes should be immediate.`);
-  } else if (viewport.touch) {
-    if (
-      opening.animation !== "none" ||
-      !hasOnlyTransitionDuration(opening.transitionDuration, "0.16s")
-    ) {
-      fail(
-        `${viewport.name}: coarse-pointer panel did not use the compact motion profile: ${JSON.stringify(opening)}.`,
-      );
-    }
-    if (!closeTo(matrixScale(opening.transform), 1, 0.001)) {
-      fail(`${viewport.name}: touch panel scaled text during its entrance.`);
-    }
-  } else if (
+  if (
     opening.animation !== "none" ||
-    !hasOnlyTransitionDuration(opening.transitionDuration, "0.2s")
+    !hasOnlyTransitionDuration(opening.transitionDuration, "0s")
   ) {
-    fail(
-      `${viewport.name}: desktop panel did not use the full motion profile: ${JSON.stringify(opening)}.`,
-    );
+    fail(`${viewport.name}: frequent tool changes should be immediate.`);
   }
 
   // `none` and an identity matrix are both stable resting states.

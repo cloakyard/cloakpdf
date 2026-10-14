@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-14",
+  "scope": "Air editor inspector, overview, page collections and shared Apply actions",
+  "contract": "1.0.0",
+  "layoutCases": 88,
+  "viewports": [
+    "320x568",
+    "375x812",
+    "390x844",
+    "430x932",
+    "844x390",
+    "768x1024",
+    "1024x768",
+    "1280x720",
+    "1366x768",
+    "1440x900",
+    "1920x1080"
+  ],
+  "states": [
+    "light",
+    "dark",
+    "normal text",
+    "200% root text",
+    "coarse emulation",
+    "overview",
+    "organize",
+    "selected",
+    "pending deletion",
+    "all removed",
+    "unavailable thumbnail",
+    "scan error/retry",
+    "keyboard",
+    "reduced motion",
+    "forced colors"
+  ],
+  "geometry": {
+    "horizontalOverflow": 0,
+    "undersizedActionTargets": 0,
+    "minimumStageWidth": 320
+  },
+  "features": [
+    "keyboard reorder/boundary/focus/announcement",
+    "portrait/landscape rotation fits",
+    "delete/restore/all-deleted guard",
+    "blank-page scan failure/retry",
+    "real pointer drag",
+    "overview-to-canvas focus",
+    "thumbnail error",
+    "real export rotation/order/page count",
+    "Apply/Undo/Redo/Reset/Cancel",
+    "single-page density and 60-page offscreen focus",
+    "reduced motion/forced colors"
+  ],
+  "uncaughtErrors": [],
+  "nativeReview": [
+    "Safari: named reorder retains focus; Option-Tab/Space rotation; actual 200% zoom confirmed in page menu; scrollable controls and preview retained",
+    "Firefox: named reorder retains focus at boundary; Tab/Enter next move; actual 200% zoom confirmed in toolbar; controls reflow"
+  ],
+  "preserved": [
+    "64px top toolbar at normal text size",
+    "PDF paper/content colours",
+    "staged operations until Apply",
+    "mobile shared Done action",
+    "existing thumbnail paint containment"
+  ],
+  "fixes": [
+    "Undo/Redo/Reset restore page count with page metadata",
+    "Cancel clears the active draft; desktop exposes Cancel for pending actions",
+    "new page geometry invalidates stale organize plans even at the same page count",
+    "saved and pending rotations use full thumbnail bounds",
+    "scan failures offer retry; obsolete scan results are discarded"
+  ],
+  "cleanup": [
+    "old inspector/grid/organize/Apply skins",
+    "unused panel entrance motion",
+    "unused thumbnail image-class override",
+    "obsolete M0/M2 and mobile animation comments",
+    "count-only plan reset and redundant post-Apply reset"
+  ],
+  "dependenciesAdded": 0,
+  "openGates": [
+    "physical touch and software keyboard",
+    "real OS IME",
+    "assistive speech acceptance"
+  ],
+  "next": "Canvas surround, selection/zoom/pan chrome, then remaining tool interiors and overlays"
+}

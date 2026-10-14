@@ -1013,3 +1013,16 @@ journeys across all apps; it is not inferred from the pilot alone.
   the mounted document. Cancel/Done return focus to the tool selector.
 - Tool navigation is immediate, including active-rail scrolling. Global history
   shortcuts cannot change the document behind a modal or during a busy operation.
+- Inspector headers use sentence case and secondary descriptions; omit the repeated
+  document page-count subtitle. Use the shared primary/secondary action skins and
+  immediate tool changes. Keep Cancel reachable for pending desktop work too.
+- Browse and Organize share one responsive page grid. The density is a maximum:
+  fewer columns preserve readable text and 40/44px actions; a single page keeps
+  the requested thumbnail size. Keep page identity separate from output position.
+  Selected browse tiles use a neutral surface and one blue marker. Deleted pages
+  keep readable Restore controls and an explicit state label. Named reorder actions
+  retain visible focus at boundaries and in long lists; announce the new position.
+- Thumbnail geometry includes saved and pending rotation without cropping the
+  bitmap. An unavailable preview has a labelled fallback. Apply/Undo/Redo/Reset
+  must keep bytes, page count, thumbnails and pending plans in agreement; explicit
+  Cancel discards the tool draft while ordinary tool navigation preserves it.

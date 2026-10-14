@@ -2306,3 +2306,269 @@ body:has(.pdf-site) {
     background: Highlight;
   }
 }
+
+/* Editor inspectors and page collections share Air controls; PDF paper stays white. */
+.editor-properties {
+  display: flex;
+  flex: 0 0 var(--air-inspector);
+  min-inline-size: 0;
+  flex-direction: column;
+  border-inline-start: 1px solid var(--air-line);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.editor-properties[data-compact] {
+  flex-basis: 288px;
+}
+.editor-properties__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-block-end: 1px solid var(--air-line);
+}
+.editor-properties__title {
+  font-size: var(--air-text-body);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.editor-properties__description {
+  margin-block-start: 4px;
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-meta);
+}
+.editor-properties__body {
+  min-block-size: 0;
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+.editor-properties__empty {
+  display: grid;
+  gap: 16px;
+  color: var(--air-ink-secondary);
+}
+.editor-properties__empty > p:first-child {
+  color: var(--air-ink);
+  font-weight: 500;
+}
+.editor-page-collection {
+  flex: 1;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow-y: auto;
+  padding: clamp(12px, 2vw, 24px);
+  background: var(--air-page);
+  color: var(--air-ink);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.editor-page-grid {
+  display: grid;
+  /* Requested density is a maximum, not permission to crush controls or text. */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      min(100%, max(8rem, calc((100% - (var(--page-columns) - 1) * 12px) / var(--page-columns)))),
+      1fr
+    )
+  );
+  gap: 16px 12px;
+  align-items: start;
+  max-inline-size: 1024px;
+  margin-inline: auto;
+  padding: 0;
+  list-style: none;
+}
+.editor-page-card {
+  position: relative;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding: 8px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+  color: var(--air-ink);
+  text-align: start;
+}
+.editor-properties__title:focus-visible,
+.editor-page-open:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+.editor-page-open {
+  cursor: pointer;
+  font: inherit;
+}
+.editor-page-open[aria-current="page"] {
+  background: var(--air-surface-soft);
+}
+.editor-page-open[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -1px;
+  inset-block-end: 12px;
+  inline-size: 2px;
+  block-size: 16px;
+  background: var(--air-accent);
+}
+.editor-page-card > .editor-page-thumb {
+  inline-size: 100%;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-check);
+}
+.editor-page-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+  padding-inline: 4px;
+  font-size: var(--air-text-meta);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.editor-page-organize {
+  cursor: grab;
+}
+.editor-page-organize:active {
+  cursor: grabbing;
+}
+.editor-page-organize[data-deleted] > .editor-page-thumb {
+  opacity: 0.45;
+}
+.editor-page-deleted {
+  color: var(--air-danger);
+}
+.editor-page-organize[data-dragging] {
+  opacity: 0.6;
+}
+.editor-page-organize[data-drop-target] {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 2px;
+}
+.editor-page-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding-block-start: 4px;
+  border-block-start: 1px solid var(--air-line);
+}
+.editor-page-actions .air-icon-button {
+  min-inline-size: 0;
+  padding: 8px;
+  color: var(--air-ink-secondary);
+}
+.editor-page-actions svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
+}
+.editor-page-actions [aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.editor-page-actions .air-icon-button:active {
+  transform: none;
+  transition: none;
+}
+.editor-page-actions .editor-page-delete[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--air-surface-soft);
+  color: var(--air-ink);
+}
+@container (max-width: 187px) {
+  .editor-page-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.editor-thumb-unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 12px;
+  background: var(--air-surface-soft);
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.editor-organize-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.editor-organize-panel h3 {
+  color: var(--air-ink);
+  font-size: var(--air-text-label);
+  font-weight: 500;
+}
+.editor-organize-panel svg {
+  flex: 0 0 auto;
+}
+.editor-organize-summary {
+  padding-block: 12px;
+  border-block: 1px solid var(--air-line);
+}
+.editor-organize-summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+.editor-organize-summary dd {
+  color: var(--air-ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.editor-organize-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.editor-organize-quick > button {
+  flex: 1 1 8rem;
+  padding-inline: 8px;
+}
+.editor-organize-note {
+  font-size: var(--air-text-meta);
+}
+.editor-organize-warning {
+  padding: 12px;
+  border-inline-start: 2px solid var(--air-warning);
+  background: var(--air-warning-soft);
+  color: var(--air-warning);
+  font-size: var(--air-text-label);
+}
+@media (hover: hover) and (pointer: fine) {
+  .editor-page-open:hover {
+    background: var(--air-surface-soft);
+  }
+  .editor-page-actions .editor-page-delete:hover {
+    color: var(--air-danger);
+  }
+}
+@media (forced-colors: active) {
+  .editor-page-open[aria-current="page"] {
+    border-color: Highlight;
+  }
+  .editor-page-open[aria-current="page"]::after {
+    background: Highlight;
+  }
+  .editor-page-organize[data-drop-target] {
+    outline-color: Highlight;
+  }
+  .editor-page-organize[data-deleted] {
+    border-style: dashed;
+  }
+}

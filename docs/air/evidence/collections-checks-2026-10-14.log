@@ -1,0 +1,22 @@
+Air inspector/page collection checkpoint — 2026-10-14
+PASS vp check --fix: 231 files, no warnings/lint/type errors
+PASS pnpm check:dead (knip)
+PASS pnpm test: 366 tests in 36 files
+PASS production/PWA build: 128 deployment assets within 25 MiB
+PASS design check: 84 surface records
+PASS portability: 17 assertions, isolated bundle with 22 files
+PASS canonical sync: six portable specifications, contract 4232d7b9e8e0
+PASS root repository: lint/format, tsc, production build, design and portability
+PASS native Safari/Firefox: named page actions, focus retention, actual 200% browser zoom
+Open acceptance gates: physical touch/software keyboard, real OS IME, assistive speech.
+Runtime suite outcomes from production preview:
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+✓ editor-features passed on all 3 fixtures.
+✓ editor keyboard interactions passed
+✓ Command palette + keyboard shortcuts passed.
+✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+✓ Shared modal system passed.

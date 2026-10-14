@@ -762,3 +762,56 @@ Evidence: [record](evidence/navigation-2026-10-14.json),
 [checks](evidence/navigation-checks-2026-10-14.log),
 [desktop](evidence/navigation-desktop-1440-light.png),
 [phone](evidence/navigation-phone-390-dark.png).
+
+## 2026-10-14 — Inspector and page collections
+
+The inspector now uses the Air type scale and controls, with a pinned tool heading,
+secondary description and reachable Cancel. The empty panel offers a direct path
+to Organize, without a repeated page-count subtitle. Tool changes are immediate.
+The shared Apply action adopts the family skin across desktop panels while mobile
+keeps its single Done action.
+
+Browse and Organize now share responsive grid geometry and quiet page cards.
+Selected pages use a neutral surface and one blue marker. Page identity is separate
+from output position; deleted pages retain readable Restore controls and an explicit
+Removed label. Four named page actions reflow to two columns when necessary. Moving
+a page keeps the same action focused and visible, including at boundaries and in
+long collections, and announces its new position. Saved and pending rotations show
+the whole thumbnail. Unavailable previews retain labelled geometry.
+
+Real output/history tests exposed and fixed a stale count after Undo/Reset: restored
+bytes, page metadata and page count now agree. New page geometry invalidates an old
+Organize plan even when its count is unchanged. Explicit Cancel clears the active
+draft; ordinary tool navigation still preserves it. Desktop Apply registration also
+exposes Cancel before a pending edit is committed. Blank scanning reports a recoverable
+failure instead of claiming no blanks were found, and discards obsolete results.
+
+Passing: 88 collection layouts (all 11 required sizes, light/dark, normal/200% root
+text, both collection modes), no horizontal overflow or undersized page actions.
+The suite checks portrait/landscape rotations, keyboard and real pointer reordering,
+delete/restore/all-removed safeguards, scan failure/retry, thumbnail fallback,
+overview-to-canvas focus, real exported page count/order/rotation, Apply/Undo/Redo/
+Reset/Cancel, one-page density, and visible focus in a 60-page document. Reduced
+motion and forced colours inspected. Native Safari and Firefox named-action keyboard
+paths and actual 200% browser zoom pass; Safari uses its standard Option-Tab path.
+
+The nine existing navigation, desktop/mobile editor, feature, interaction, palette,
+export, modal and responsive-motion suites pass. The combined desktop/mobile suites
+mount all 22 tools. Format/lint/types, dead-code, 366 unit tests in 36 files,
+production/PWA build and 128-asset size gate, 84 surface records, and 17 portability
+assertions pass. Physical touch/software keyboard, real OS IME and assistive speech
+acceptance remain open (`validated: false`).
+
+Removed the former inspector/collection/Organize/Apply skins, the unused panel
+entrance animation and thumbnail class override, stale milestone/animation comments,
+and the count-only plan reset. Reused family styles and one small grid wrapper; no
+new dependency. Only two synthetic proof images and compact evidence enter Git.
+The shared contract remains 1.0.0; its portable PDF appendix records the new rules.
+
+Next: canvas surround, page/selection chrome, zoom/pan and context overlays, followed
+by every remaining tool interior. This completes the collection slice, not the editor.
+
+Evidence: [record](evidence/collections-2026-10-14.json),
+[checks](evidence/collections-checks-2026-10-14.log),
+[desktop](evidence/collections-desktop-1440-light.png),
+[phone](evidence/collections-phone-390-dark.png).

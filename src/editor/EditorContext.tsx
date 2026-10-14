@@ -399,7 +399,13 @@ export function EditorProvider({
     const entry = historyRef.current.current();
     const cur = docRef.current;
     if (!entry || !cur) return;
-    setDoc({ ...cur, bytes: entry.bytes, pages: entry.pages, objects: entry.objects });
+    setDoc({
+      ...cur,
+      bytes: entry.bytes,
+      pages: entry.pages,
+      pageCount: entry.pages.length,
+      objects: entry.objects,
+    });
     setSelectedPageState((p) => Math.min(p, Math.max(0, entry.pages.length - 1)));
     setHistoryVersion((v) => v + 1);
   }, []);
@@ -429,7 +435,13 @@ export function EditorProvider({
     const base = historyRef.current.resetToBase();
     const cur = docRef.current;
     if (!base || !cur) return;
-    setDoc({ ...cur, bytes: base.bytes, pages: base.pages, objects: base.objects });
+    setDoc({
+      ...cur,
+      bytes: base.bytes,
+      pages: base.pages,
+      pageCount: base.pages.length,
+      objects: base.objects,
+    });
     setSelectedPageState((p) => Math.min(p, Math.max(0, base.pages.length - 1)));
     toolCheckpointRef.current = historyRef.current.index();
     setHistoryVersion((v) => v + 1);
@@ -614,8 +626,15 @@ export function EditorProvider({
       if (historyRef.current.index() === before) break;
     }
     restoreEntry();
+    // Leaving a tool preserves its draft; explicit Cancel discards that draft.
+    if (activeTool)
+      setToolState((previous) => {
+        const next = { ...previous };
+        delete next[activeTool];
+        return next;
+      });
     setActiveToolState(null);
-  }, [restoreEntry]);
+  }, [activeTool, restoreEntry]);
 
   const clearError = useCallback(() => setError(null), []);
 

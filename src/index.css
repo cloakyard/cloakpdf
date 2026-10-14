@@ -338,10 +338,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Motion vocabulary: panel and state entrances are interruptible transitions,
+/* Remaining utility state entrances are interruptible transitions,
    not keyframes. They animate paint/composite properties only and never editor
    geometry. Touch keeps the same timing but never scales text. */
-.cloak-panel-enter,
 .cloak-state-enter {
   opacity: 1;
   transform: translateY(0);
@@ -351,11 +350,6 @@ body {
 }
 
 @starting-style {
-  .cloak-panel-enter {
-    opacity: 0;
-    transform: translateY(6px) scale(0.995);
-  }
-
   .cloak-state-enter {
     opacity: 0;
     transform: translateY(4px);
@@ -363,19 +357,8 @@ body {
 }
 
 @media (pointer: coarse) {
-  .cloak-panel-enter {
-    transition-duration: var(--dur-short);
-  }
-
   .cloak-state-enter {
     transition-duration: var(--dur-short);
-  }
-
-  @starting-style {
-    .cloak-panel-enter {
-      opacity: 0;
-      transform: translateY(4px);
-    }
   }
 }
 
@@ -388,14 +371,12 @@ body {
     animation: none;
   }
 
-  .cloak-panel-enter,
   .cloak-state-enter,
   .cloak-status-dot {
     animation: none !important;
     transform: none !important;
   }
 
-  .cloak-panel-enter,
   .cloak-state-enter,
   .cloak-popover-motion {
     transition: opacity var(--dur-instant) var(--ease-out) !important;
@@ -416,7 +397,6 @@ body {
   }
 
   @starting-style {
-    .cloak-panel-enter,
     .cloak-state-enter,
     .cloak-popover-motion:not([data-motion="instant"]) {
       opacity: 0;
