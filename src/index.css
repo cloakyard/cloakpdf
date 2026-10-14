@@ -107,11 +107,6 @@
   }
 }
 
-.cloak-file-info {
-  border-block: var(--rule-thin) solid var(--color-rule);
-  padding-block: var(--space-xs);
-}
-
 .cloak-field-label {
   color: var(--color-ink-3);
   font-family: var(--font-mono);

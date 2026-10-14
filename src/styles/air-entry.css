@@ -814,3 +814,95 @@ body:has(.pdf-site) {
     grid-row: 1 / 3;
   }
 }
+
+/* Extracted artwork stays intact; its selection and captions use Air. */
+.pdf-file-info {
+  margin: 0;
+}
+.pdf-file-info-name {
+  color: var(--air-ink);
+  font-size: var(--air-text-body);
+  font-weight: 500;
+}
+.pdf-extract {
+  display: grid;
+  gap: var(--air-space-24);
+}
+.pdf-extract h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.pdf-extract .air-collection-heading > div:first-child {
+  flex: 1 1 20rem;
+  min-inline-size: 0;
+}
+.pdf-extract .air-collection-heading p {
+  margin-block: var(--air-space-8) 0;
+}
+.pdf-extract-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
+  gap: var(--air-space-24) var(--air-space-16);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pdf-extract-grid > li {
+  min-inline-size: 0;
+}
+.pdf-extract-choice {
+  display: block;
+  block-size: 100%;
+  border-block-end: 1px solid var(--air-line);
+  cursor: pointer;
+}
+.pdf-extract-choice[data-selected] {
+  background: var(--air-surface-soft);
+}
+.pdf-extract-choice:has(:disabled) {
+  cursor: progress;
+}
+.pdf-extract-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  padding: var(--air-space-12);
+  background: var(--air-surface-soft);
+  border-radius: var(--air-radius-control);
+}
+.pdf-extract-preview img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: contain;
+}
+.pdf-extract-caption {
+  display: flex;
+  align-items: start;
+  gap: var(--air-space-8);
+  padding: var(--air-space-12) var(--air-space-8);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.pdf-extract-caption > span {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.pdf-extract-name,
+.pdf-extract-caption .air-help {
+  display: block;
+}
+.pdf-extract-selection {
+  margin: 0;
+  padding-block: var(--air-space-16);
+  border-block: 1px solid var(--air-line);
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pdf-extract-choice:hover:not(:has(:disabled)) {
+    background: var(--air-surface-hover);
+  }
+}

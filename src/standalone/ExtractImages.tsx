@@ -6,14 +6,14 @@
  * images or a ZIP of all selected images.
  */
 
-import { CheckSquare, ImageDown, X } from "lucide-react";
+import { Check } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActionButton } from "../components/ActionButton.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
-import { LoadingSpinner } from "../components/LoadingSpinner.tsx";
+import { LoadingState } from "../components/LoadingState.tsx";
 import { ProgressBar } from "../components/ProgressBar.tsx";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { usePdfFile } from "../hooks/usePdfFile.ts";
@@ -127,6 +127,7 @@ async function paintImageToCanvas(
  */
 async function extractImagesFromPdf(
   pdf: PDFDocumentProxy,
+  signal: AbortSignal,
   onProgress?: (done: number, total: number) => void,
 ): Promise<ExtractedImage[]> {
   const images: ExtractedImage[] = [];
@@ -138,312 +139,410 @@ async function extractImagesFromPdf(
   const thumbCanvas = document.createElement("canvas");
   const tctx = thumbCanvas.getContext("2d")!;
 
-  for (let p = 1; p <= pdf.numPages; p++) {
-    const page = await pdf.getPage(p);
-    const ops = await page.getOperatorList();
-
-    // Track which named objects we've already extracted on this page to
-    // avoid duplicates when the same XObject is painted more than once.
-    const seen = new Set<string>();
-    let indexOnPage = 0;
-
-    for (let i = 0; i < ops.fnArray.length; i++) {
-      const fn = ops.fnArray[i];
-
-      let imgData: PdfjsImageData | null = null;
-
-      if (fn === pdfjsLib.OPS.paintImageXObject || fn === pdfjsLib.OPS.paintImageXObjectRepeat) {
-        // Named image reference — look up in the correct object store.
-        const objName = ops.argsArray[i]?.[0] as string | undefined;
-        if (!objName || typeof objName !== "string" || seen.has(objName)) continue;
-        seen.add(objName);
-        try {
-          imgData = await fetchNamedImage(page, objName);
-        } catch {
-          continue;
-        }
-      } else if (fn === pdfjsLib.OPS.paintInlineImageXObject) {
-        // Inline image — the image data is embedded directly in the args.
-        const arg = ops.argsArray[i]?.[0];
-        if (!arg || typeof arg !== "object") continue;
-        imgData = arg as PdfjsImageData;
-      } else {
-        continue;
-      }
-
-      // Skip tiny images (likely artifacts or masks)
-      if (!imgData || imgData.width < 10 || imgData.height < 10) continue;
-
+  try {
+    for (let p = 1; p <= pdf.numPages; p++) {
+      signal.throwIfAborted();
+      const page = await pdf.getPage(p);
       try {
-        canvas.width = imgData.width;
-        canvas.height = imgData.height;
+        const ops = await page.getOperatorList();
+        signal.throwIfAborted();
 
-        const painted = await paintImageToCanvas(imgData, ctx);
-        if (!painted) continue;
+        // Track which named objects we've already extracted on this page to
+        // avoid duplicates when the same XObject is painted more than once.
+        const seen = new Set<string>();
+        let indexOnPage = 0;
 
-        // Convert to PNG blob
-        const blob = await new Promise<Blob>((resolve, reject) =>
-          canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob failed"))), "image/png"),
-        );
+        for (let i = 0; i < ops.fnArray.length; i++) {
+          signal.throwIfAborted();
+          const fn = ops.fnArray[i];
 
-        // Build a smaller thumbnail for the preview grid
-        const thumbScale = Math.min(1, 200 / Math.max(imgData.width, imgData.height));
-        const tw = Math.round(imgData.width * thumbScale);
-        const th = Math.round(imgData.height * thumbScale);
-        thumbCanvas.width = tw;
-        thumbCanvas.height = th;
-        tctx.drawImage(canvas, 0, 0, tw, th);
-        const dataUrl = thumbCanvas.toDataURL("image/png");
+          let imgData: PdfjsImageData | null = null;
 
-        images.push({
-          page: p,
-          indexOnPage,
-          width: imgData.width,
-          height: imgData.height,
-          dataUrl,
-          blob,
-        });
-        indexOnPage++;
-      } catch {
-        // Skip images that can't be decoded
+          if (
+            fn === pdfjsLib.OPS.paintImageXObject ||
+            fn === pdfjsLib.OPS.paintImageXObjectRepeat
+          ) {
+            // Named image reference — look up in the correct object store.
+            const objName = ops.argsArray[i]?.[0] as string | undefined;
+            if (!objName || typeof objName !== "string" || seen.has(objName)) continue;
+            seen.add(objName);
+            try {
+              imgData = await fetchNamedImage(page, objName);
+            } catch {
+              continue;
+            }
+          } else if (fn === pdfjsLib.OPS.paintInlineImageXObject) {
+            // Inline image — the image data is embedded directly in the args.
+            const arg = ops.argsArray[i]?.[0];
+            if (!arg || typeof arg !== "object") continue;
+            imgData = arg as PdfjsImageData;
+          } else {
+            continue;
+          }
+
+          // Skip tiny images (likely artifacts or masks)
+          if (!imgData || imgData.width < 10 || imgData.height < 10) continue;
+
+          try {
+            canvas.width = imgData.width;
+            canvas.height = imgData.height;
+
+            const painted = await paintImageToCanvas(imgData, ctx);
+            if (!painted) continue;
+
+            // Convert to PNG blob
+            const blob = await new Promise<Blob>((resolve, reject) =>
+              canvas.toBlob(
+                (b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+                "image/png",
+              ),
+            );
+
+            // Build a smaller thumbnail for the preview grid
+            const thumbScale = Math.min(1, 200 / Math.max(imgData.width, imgData.height));
+            const tw = Math.round(imgData.width * thumbScale);
+            const th = Math.round(imgData.height * thumbScale);
+            thumbCanvas.width = tw;
+            thumbCanvas.height = th;
+            tctx.drawImage(canvas, 0, 0, tw, th);
+            const dataUrl = thumbCanvas.toDataURL("image/png");
+
+            images.push({
+              page: p,
+              indexOnPage,
+              width: imgData.width,
+              height: imgData.height,
+              dataUrl,
+              blob,
+            });
+            indexOnPage++;
+          } catch {
+            // Skip images that can't be decoded
+          }
+        }
+      } finally {
+        page.cleanup();
       }
+      onProgress?.(p, pdf.numPages);
+      // Yield so the progress counter repaints between pages instead of the
+      // whole extraction pinning the main thread (matches the compress/grayscale
+      // per-page-yield pattern in pdf-operations.ts).
+      await new Promise((r) => setTimeout(r, 0));
     }
 
-    page.cleanup();
-    onProgress?.(p, pdf.numPages);
-    // Yield so the progress counter repaints between pages instead of the
-    // whole extraction pinning the main thread (matches the compress/grayscale
-    // per-page-yield pattern in pdf-operations.ts).
-    await new Promise((r) => setTimeout(r, 0));
+    signal.throwIfAborted();
+    return images;
+  } finally {
+    // Release canvas memory even when a scan is cancelled or fails.
+    canvas.width = 0;
+    canvas.height = 0;
+    thumbCanvas.width = 0;
+    thumbCanvas.height = 0;
   }
-
-  // Release canvas memory
-  canvas.width = 0;
-  canvas.height = 0;
-  thumbCanvas.width = 0;
-  thumbCanvas.height = 0;
-
-  return images;
 }
 
 export default function ExtractImages() {
+  const root = useRef<HTMLDivElement>(null);
+  const focusRequest = useRef<"intake" | "result" | null>(null);
+  const alive = useRef(true);
+  const activeScan = useRef<{
+    controller: AbortController;
+    task?: ReturnType<typeof pdfjsLib.getDocument>;
+  } | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [completed, setCompleted] = useState<{
+    file: File;
+    selection: Set<number>;
+    name: string;
+  } | null>(null);
+  const downloadTask = useAsyncProcess();
+  const cancelScan = useCallback(() => {
+    const scan = activeScan.current;
+    activeScan.current = null;
+    scan?.controller.abort();
+    // Destroy PDF.js work immediately; the loader's finally also releases it.
+    void scan?.task?.destroy().catch(() => {});
+  }, []);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      cancelScan();
+    };
+  }, [cancelScan]);
 
   const pdf = usePdfFile<ExtractedImage[]>({
     load: async (file) => {
-      setProgress(null);
-      const arrayBuffer = await file.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
-      const doc = await loadingTask.promise;
+      const scan: NonNullable<typeof activeScan.current> = { controller: new AbortController() };
+      activeScan.current = scan;
+      const { signal } = scan.controller;
       try {
-        const extracted = await extractImagesFromPdf(doc, (done, total) =>
-          setProgress({ done, total }),
-        );
-        if (extracted.length === 0) {
-          // Bubbling up via thrown Error lets usePdfFile surface the message
-          // and reset the file in one step — matching the prior behaviour.
-          throw new Error("No extractable images found in this PDF.");
-        }
-        return extracted;
+        const arrayBuffer = await file.arrayBuffer();
+        signal.throwIfAborted();
+        const task = pdfjsLib.getDocument({ data: arrayBuffer, wasmUrl: PDFJS_WASM_URL });
+        scan.task = task;
+        const doc = await task.promise;
+        signal.throwIfAborted();
+        return await extractImagesFromPdf(doc, signal, (done, total) => {
+          if (activeScan.current === scan && alive.current) setProgress({ done, total });
+        });
       } finally {
-        void loadingTask.destroy();
-        setProgress(null);
+        await scan.task?.destroy();
+        if (activeScan.current === scan) {
+          activeScan.current = null;
+          if (alive.current) setProgress(null);
+        }
       }
     },
     onReset: () => {
+      cancelScan();
       setSelected(new Set());
       setProgress(null);
+      setCompleted(null);
+      downloadTask.setError(null);
     },
-    loadErrorMessage: "Failed to extract images. The file may be corrupted or password-protected.",
+    loadErrorMessage: "Couldn’t read this PDF. Choose another file and try again.",
   });
-  const downloadTask = useAsyncProcess();
-
   const file = pdf.file;
   const images = pdf.data ?? [];
   const loading = pdf.loading;
   const downloading = downloadTask.processing;
-  const error = pdf.loadError ?? downloadTask.error;
+  const error = pdf.loadError
+    ? "Couldn’t read this PDF. Choose a valid PDF and try again."
+    : downloadTask.error
+      ? "Couldn’t prepare this download. Your images and selection are still here. Try fewer images or try again."
+      : null;
 
-  const toggleImage = useCallback((idx: number) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+  useEffect(() => {
+    if (!focusRequest.current) return;
+    if (loading) {
+      root.current
+        ?.querySelector<HTMLElement>(".pdf-file-info button, [data-cancel-scan]")
+        ?.focus();
+      return;
+    }
+    const selector =
+      focusRequest.current === "result" && pdf.data
+        ? "[data-extract-heading]"
+        : 'input[type="file"], .pdf-encrypted button';
+    const target = root.current?.querySelector<HTMLElement>(selector);
+    if (target) {
+      target.focus();
+      focusRequest.current = null;
+    }
+  }, [loading, file, pdf.data, pdf.loadError, pdf.encryptedFile]);
+
+  const changeFile = () => {
+    if (downloading) return;
+    focusRequest.current = "intake";
+    pdf.reset();
+  };
+  const acceptFiles = (files: File[]) => {
+    if (loading || downloading || !files.length) return;
+    const file = files[0];
+    if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
+      pdf.setLoadError("Choose a PDF file to extract its images.");
+      return;
+    }
+    focusRequest.current = "result";
+    pdf.onFiles(files);
+  };
+  const toggleImage = (index: number) => {
+    if (downloading) return;
+    setSelected((previous) => {
+      const next = new Set(previous);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
       return next;
     });
-  }, []);
-
-  const selectAll = useCallback(() => {
-    setSelected(new Set(images.map((_, i) => i)));
-  }, [images]);
-
-  const clearAll = useCallback(() => {
-    setSelected(new Set());
-  }, []);
-
-  const handleDownload = useCallback(async () => {
-    if (selected.size === 0) return;
+  };
+  const handleDownload = async () => {
+    if (!file || !selected.size) return;
+    setCompleted(null);
     await downloadTask.run(async () => {
-      const baseName = file?.name.replace(/\.pdf$/i, "") ?? "extracted";
-      const selectedImages = Array.from(selected)
+      const baseName = file.name.replace(/\.pdf$/i, "");
+      const chosen = Array.from(selected)
         .sort((a, b) => a - b)
         .map((i) => images[i]);
-
-      if (selectedImages.length === 1) {
-        const img = selectedImages[0];
-        downloadBlob(img.blob, `${baseName}_p${img.page}_img${img.indexOnPage + 1}.png`);
+      let blob: Blob;
+      let name: string;
+      if (chosen.length === 1) {
+        const image = chosen[0];
+        blob = image.blob;
+        name = `${baseName}_p${image.page}_img${image.indexOnPage + 1}.png`;
       } else {
         const { makeZip } = await import("../utils/zip.ts");
-        const zipBlob = await makeZip(
-          selectedImages.map((img) => ({
-            name: `${baseName}_p${img.page}_img${img.indexOnPage + 1}.png`,
-            data: img.blob,
+        blob = await makeZip(
+          chosen.map((image) => ({
+            name: `${baseName}_p${image.page}_img${image.indexOnPage + 1}.png`,
+            data: image.blob,
           })),
         );
-        downloadBlob(zipBlob, `${baseName}_images.zip`);
+        name = `${baseName}_images.zip`;
       }
-    }, "Failed to download images. Please try again.");
-  }, [file, images, selected, downloadTask]);
-
+      if (!alive.current) return;
+      downloadBlob(blob, name);
+      setCompleted({ file, selection: selected, name });
+    }, "Couldn’t prepare the download. Your images and selection are still here. Try again.");
+  };
   const totalSize = useMemo(
-    () => Array.from(selected).reduce((sum, i) => sum + images[i].blob.size, 0),
+    () => Array.from(selected).reduce((sum, i) => sum + (images[i]?.blob.size ?? 0), 0),
     [selected, images],
   );
 
   return (
-    <div className="space-y-6">
+    <div className="pdf-extract" ref={root}>
       {!file ? (
         <FileDropZone
           accept=".pdf,application/pdf"
-          onFiles={pdf.onFiles}
+          onFiles={acceptFiles}
+          disabled={loading}
           encryptedFile={pdf.encryptedFile}
-          onClearEncrypted={pdf.reset}
+          onClearEncrypted={changeFile}
           label="Drop a PDF file here"
-          hint="All embedded images will be extracted for download"
+          hint="Find embedded images and download them as PNG or ZIP"
         />
       ) : (
-        <>
-          <FileInfoBar
-            fileName={file.name}
-            details={formatFileSize(file.size)}
-            onChangeFile={pdf.reset}
-            extra={
-              !loading && images.length > 0 ? (
-                <span className="text-primary-600 ml-2">
-                  ({images.length} image{images.length !== 1 && "s"} found)
-                </span>
-              ) : undefined
-            }
-          />
-
-          {loading ? (
-            progress ? (
-              <ProgressBar current={progress.done} total={progress.total} label="Scanning pages…" />
-            ) : (
-              <div className="flex items-center justify-center py-12">
-                <LoadingSpinner className="" />
-              </div>
-            )
-          ) : (
-            <>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
-                  Select images to download
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={selectAll}
-                    className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    <CheckSquare className="h-4 w-4" aria-hidden="true" />
-                    Select all
-                  </button>
-                  <button
-                    type="button"
-                    onClick={clearAll}
-                    className="-mx-2 inline-flex min-h-11 items-center gap-1.5 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)] transition-colors hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    <X className="h-4 w-4" aria-hidden="true" />
-                    Clear
-                  </button>
-                </div>
-              </div>
-
-              {/* xl adds a column rather than growing cells — previews are
-                  rasterised at ≤200px, and 6-up at the shell's 1408px
-                  ceiling puts cells right at that native size. A 7th
-                  column would shrink thumbnails below it. */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => toggleImage(i)}
-                    aria-label={`Image ${i + 1} from page ${img.page}${selected.has(i) ? ", selected" : ""}`}
-                    aria-pressed={selected.has(i)}
-                    className={`relative group rounded-lg overflow-hidden border transition-colors cursor-pointer text-left w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${
-                      selected.has(i)
-                        ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
-                        : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"
-                    }`}
-                  >
-                    <div className="aspect-square bg-slate-50 dark:bg-dark-surface flex items-center justify-center p-2">
-                      <img
-                        src={img.dataUrl}
-                        alt={`Image ${i + 1} from page ${img.page}`}
-                        width={img.width}
-                        height={img.height}
-                        className="max-w-full max-h-full object-contain"
-                      />
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 border-t border-[var(--color-night-rule)] bg-[var(--color-night)] px-2 py-1.5">
-                      <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-night-ink)]">
-                        Page {img.page}
-                      </span>
-                      <span className="font-mono text-[10px] tabular-nums text-[var(--color-night-muted)]">
-                        {img.width} × {img.height}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {selected.size > 0 && (
-                <div className="border-y border-[var(--color-rule)] py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="font-mono text-[11px] tabular-nums text-[var(--color-ink-3)]">
-                      <span className="font-semibold text-[var(--color-ink)]">{selected.size}</span>{" "}
-                      image{selected.size !== 1 && "s"} selected
-                      <span className="mx-1.5 text-[var(--color-rule-strong)]">|</span>
-                      {formatFileSize(totalSize)}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <ImageDown className="h-4 w-4 text-primary-500" aria-hidden="true" />
-                      <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                        PNG
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* "N as ZIP", not "N Images as ZIP" — the summary card above
-                  already says "N images selected", and the longer form
-                  overflows the no-wrap CTA at 320px. */}
-              <ActionButton
-                onClick={handleDownload}
-                processing={downloading}
-                disabled={downloading || selected.size === 0}
-                label={selected.size === 1 ? "Download Image" : `Download ${selected.size} as ZIP`}
-                processingLabel="Preparing download…"
-              />
-            </>
-          )}
-        </>
+        <FileInfoBar
+          fileName={file.name}
+          details={formatFileSize(file.size)}
+          onChangeFile={changeFile}
+          disabled={downloading}
+          changeLabel={loading ? "Cancel scan" : "Change file"}
+        />
       )}
-
+      {loading && (
+        <div>
+          {progress ? (
+            <ProgressBar current={progress.done} total={progress.total} label="Scanning pages…" />
+          ) : (
+            <LoadingState label={file ? "Reading images…" : "Reading PDF…"} />
+          )}
+          {!file && (
+            <button className="air-button" type="button" data-cancel-scan onClick={changeFile}>
+              Cancel scan
+            </button>
+          )}
+        </div>
+      )}
+      {file &&
+        !loading &&
+        pdf.data &&
+        (images.length === 0 ? (
+          <div className="air-collection-empty">
+            <h2 data-extract-heading tabIndex={-1}>
+              No embedded images found
+            </h2>
+            <p className="air-help">
+              This PDF may contain text or vector artwork. Choose another PDF to extract embedded
+              images.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="air-collection-heading">
+              <div>
+                <h2 data-extract-heading tabIndex={-1}>
+                  {images.length} image{images.length === 1 ? "" : "s"} found
+                </h2>
+                <p className="air-help">
+                  Choose the images you’d like to keep. Each download uses its full resolution.
+                </p>
+              </div>
+              <div className="air-collection-actions">
+                <button
+                  type="button"
+                  className="air-button"
+                  aria-disabled={downloading || selected.size === images.length || undefined}
+                  onClick={() => {
+                    if (!downloading && selected.size !== images.length)
+                      setSelected(new Set(images.map((_, i) => i)));
+                  }}
+                >
+                  Select all
+                </button>
+                <button
+                  type="button"
+                  className="air-button air-button--quiet"
+                  aria-disabled={downloading || selected.size === 0 || undefined}
+                  onClick={() => {
+                    if (!downloading && selected.size) setSelected(new Set());
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+            <ul className="pdf-extract-grid" aria-label="Extracted images">
+              {images.map((image, index) => (
+                <li key={index}>
+                  <label
+                    className="pdf-extract-choice"
+                    data-selected={selected.has(index) || undefined}
+                  >
+                    <span className="pdf-extract-preview">
+                      <img
+                        src={image.dataUrl}
+                        alt=""
+                        width={image.width}
+                        height={image.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                    <span className="pdf-extract-caption">
+                      <input
+                        type="checkbox"
+                        className="air-check"
+                        checked={selected.has(index)}
+                        disabled={downloading}
+                        aria-label={`Image ${index + 1} from page ${image.page}`}
+                        onChange={() => toggleImage(index)}
+                      />
+                      <span>
+                        <span className="pdf-extract-name">
+                          Image {index + 1} · Page {image.page}
+                        </span>
+                        <span className="air-help">
+                          {image.width} × {image.height} px
+                        </span>
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <p className="pdf-extract-selection" role="status" aria-atomic="true">
+              {selected.size} of {images.length} selected
+              {selected.size > 0
+                ? ` · ${formatFileSize(totalSize)}`
+                : " · Choose at least one image to download"}
+            </p>
+            <ActionButton
+              onClick={handleDownload}
+              processing={downloading}
+              disabled={!selected.size}
+              label={
+                selected.size === 0
+                  ? "Download selected images"
+                  : selected.size === 1
+                    ? "Download image"
+                    : `Download ${selected.size} as ZIP`
+              }
+              processingLabel="Preparing download…"
+            />
+            {completed?.file === file && completed.selection === selected && (
+              <div className="air-notice air-notice--success pdf-result" role="status">
+                <Check size={18} strokeWidth={1.6} aria-hidden="true" />
+                <p>
+                  {completed.name} is ready. Download requested. Your images and selection remain
+                  here.
+                </p>
+              </div>
+            )}
+          </>
+        ))}
       {error && <AlertBox message={error} />}
     </div>
   );

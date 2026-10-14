@@ -29,7 +29,7 @@
  *   ) : (
  *     <>
  *       <FileInfoBar fileName={pdf.file.name} onChangeFile={pdf.reset} ... />
- *       {pdf.loading ? <LoadingSpinner /> : (pdf.data ?? []).map(...)}
+ *       {pdf.loading ? <LoadingState label="Reading PDF…" /> : (pdf.data ?? []).map(...)}
  *     </>
  *   );
  */

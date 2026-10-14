@@ -1,35 +1,40 @@
 interface FileInfoBarProps {
   fileName: string;
   details: string;
-  /**
-   * Click handler for the "Change file" link. When omitted the link is
-   * hidden — useful for read-only contexts where the displayed file is an
-   * intermediate result rather than a user choice.
-   */
+  status?: string;
   onChangeFile?: () => void;
-  extra?: React.ReactNode;
+  changeLabel?: string;
+  disabled?: boolean;
 }
 
-/** Standard "selected file" header shown by every tool. */
-export function FileInfoBar({ fileName, details, onChangeFile, extra }: FileInfoBarProps) {
+/** Shared selected-file identity; file names remain readable at every width. */
+export function FileInfoBar({
+  fileName,
+  details,
+  status,
+  onChangeFile,
+  changeLabel = "Change file",
+  disabled = false,
+}: FileInfoBarProps) {
   return (
-    <div className="cloak-file-info cloak-state-enter flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
-      <p className="min-w-0 wrap-anywhere font-mono text-xs text-[var(--color-ink-2)]">
-        <span className="font-medium">{fileName}</span> —{" "}
-        <span className="tabular-nums">{details}</span>
-        {extra}
-      </p>
+    <div className="air-file-selection pdf-file-info">
+      <div>
+        <p className="pdf-file-info-name">{fileName}</p>
+        <p className="air-help">{details}</p>
+        <p className="air-help" role="status">
+          {status}
+        </p>
+      </div>
       {onChangeFile && (
         <button
           type="button"
-          onClick={onChangeFile}
-          // inline-flex + min-h-11 + the negative margin mirror ComparePdf's
-          // "Change" buttons: a 44px tap target on touch with desktop spacing
-          // unchanged (the -mx-2 cancels the px-2 so the resting layout matches
-          // the old bare link).
-          className="-mx-2 inline-flex min-h-11 items-center rounded-sm px-2 font-mono text-[11px] uppercase tracking-[0.04em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="air-button"
+          aria-disabled={disabled || undefined}
+          onClick={() => {
+            if (!disabled) onChangeFile();
+          }}
         >
-          Change file
+          {changeLabel}
         </button>
       )}
     </div>

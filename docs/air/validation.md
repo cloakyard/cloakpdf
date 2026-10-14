@@ -249,3 +249,68 @@ Evidence: [state/layout record](evidence/constructors-2026-10-13.json),
 [desktop](evidence/queue-images-desktop-light.png),
 [phone](evidence/queue-images-phone-dark.png),
 [Safari](evidence/queue-safari-200.png), [Firefox](evidence/queue-firefox-200.png).
+
+## 2026-10-14 — Extract Images and shared file identity
+
+Extract Images now uses Air file identity, an open thumbnail gallery with native
+checkboxes, full-resolution captions, guarded bulk selection, selected count/size,
+and shared actions/notices. Previews preserve artwork on neutral functional planes;
+this is product composition using existing skins, not a new family control or
+palette. Selection stays immediate. Valid PDFs without images retain their filename
+and show an empty result; malformed/unsupported files offer a readable recovery.
+Encrypted files keep the existing Password hand-off and focus-safe replacement.
+
+Loading exposes real page progress and Cancel scan. Cancellation/unmount aborts the
+scan, destroys its PDF.js task and releases canvases; late results cannot overwrite
+a replacement document. Busy ZIP work preserves action geometry/focus and blocks
+selection/replacement/repeated dispatch. Leaving prevents a late download. Errors
+retain images and selection for retry; completion truthfully says download requested.
+Shared FileInfoBar consumers inherit wrapped names, plain metadata and the same
+change action. Password's remaining options/results and the other utilities are
+separate upcoming slices. AskPDF's loaded-model consumer remains on its AI gate.
+
+Validation: 176 DOM cases cover selected/success, busy ZIP, empty and corrupt
+recovery at all eleven contract dimensions × light/dark × 16/32px root text.
+There is no document overflow, inspected clipping or undersized coarse target.
+These are geometry checks, not 176 independent visual reviews. Representative
+phone, tablet, laptop and desktop screenshots were reviewed. Safari and Firefox
+loaded the actual three-image synthetic PDF at native 200% browser zoom; selection,
+scrolling and reachable actions pass. Forced colours preserve checkbox/check/focus
+indicators; reduced motion reports no running animation. Physical touch/software
+keyboard and screen-reader speech/navigation remain open (`validated: false`).
+
+The enhanced six-tool production regression verifies an individual full-resolution
+PNG signature/dimensions, full/partial ZIP entry counts and names, byte equality
+for the individual PNG and both partial-archive entries, document-order output
+despite reverse selection, failed ZIP retry with selection
+intact, zero-selection guards, empty results and intake focus. Holding the second
+real canvas conversion verifies measured 1-of-3 progress, focused Cancel scan,
+worker termination, zeroed canvas and a replacement PDF surviving the obsolete
+callback. A separate held ZIP read verifies fixed 358×44 action geometry, one
+operation despite repeated native key activation and zero downloads after leaving.
+
+Passing required gates: `vp check`, `pnpm check:dead`, `pnpm test` (355/355 in 34
+files), `vp run build` (production/PWA and 139 deployable assets), and
+`E2E_URL=http://127.0.0.1:8132 E2E_DEMO_FIXTURES=1 node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts`
+(all six). Design inventory/source/portability and canonical sync checks are recorded
+in the companion log. The original scanned/guide fixtures are absent; generated
+demo fixtures are explicitly used. Full editor, OCR and AI gates stay with their
+pending migrations; no engine algorithms/output format changed in this slice.
+
+Initial verification found the replaced spinner unused; it and its old hook example
+were removed. Lint findings in test method wrappers were corrected. ZIP byte
+inspection first exceeded Node's 1 MiB subprocess buffer; only the test's `unzip -p`
+buffer was increased to 64 MiB. A final rerun first used an incorrect environment
+variable and attempted port 5173; using the documented `E2E_URL` passed all six.
+No assertions/timeouts were weakened and no required failure was waived.
+
+Removed LoadingSpinner, the old file-info selector and replaced extractor styles.
+Canonical skins/tokens are unchanged. Own browser tabs/emulation are cleaned up;
+the synthetic test download was moved to temporary storage. No user tab reload,
+push or deployment. Evidence: [state record](evidence/extract-2026-10-14.json),
+[checks](evidence/extract-checks-2026-10-14.log),
+[desktop](evidence/extract-desktop-light.png), [phone](evidence/extract-phone-dark.png),
+[tablet](evidence/extract-tablet-light.png), [laptop](evidence/extract-laptop-dark.png),
+[recovery](evidence/extract-recovery-phone-dark.png),
+[forced colours](evidence/extract-forced-colours.png),
+[Safari](evidence/extract-safari-200.png), [Firefox](evidence/extract-firefox-200.png).

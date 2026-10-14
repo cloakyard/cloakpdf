@@ -349,16 +349,12 @@ export default function PdfPassword() {
           fileName={file.name}
           details={formatFileSize(file.size)}
           onChangeFile={reset}
-          extra={
-            pdfState === "detecting" ? (
-              <span className="ml-2 animate-pulse font-mono text-[10px] uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                Detecting…
-              </span>
-            ) : pdfState === "encrypted" ? (
-              <span className="ml-2 rounded-sm border border-primary-200 bg-primary-50 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-primary-600 dark:border-primary-800 dark:bg-primary-900/30 dark:text-primary-400">
-                Password protected
-              </span>
-            ) : undefined
+          status={
+            pdfState === "detecting"
+              ? "Detecting…"
+              : pdfState === "encrypted"
+                ? "Password protected"
+                : undefined
           }
         />
       )}

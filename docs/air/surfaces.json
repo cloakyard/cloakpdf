@@ -310,13 +310,41 @@
     {
       "path": "src/components/FileInfoBar.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "native-browser-zoom",
+        "loading",
+        "empty",
+        "error",
+        "encrypted",
+        "selected",
+        "busy",
+        "success",
+        "cancel",
+        "replacement"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/extract-2026-10-14.json"],
+      "notes": "Shared Air ruled file identity, wrapped name, plain status and guarded Change file action. Extract, Compare, Password and Signature consumers pass their real standalone workflows. Loaded-model AskPDF integration remains on the AI gate; physical/assistive acceptance remains open."
     },
     {
       "path": "src/components/FileQueue.tsx",
@@ -400,17 +428,6 @@
       ],
       "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
-    },
-    {
-      "path": "src/components/LoadingSpinner.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
     },
     {
       "path": "src/components/LoadingState.tsx",
@@ -1346,8 +1363,8 @@
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": ["docs/air/validation.md"],
-      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated."
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/extract-2026-10-14.json"],
+      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
     },
     {
       "path": "src/main.tsx",
@@ -1416,13 +1433,41 @@
     {
       "path": "src/standalone/ExtractImages.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "native-browser-zoom",
+        "loading",
+        "empty",
+        "error",
+        "encrypted",
+        "selected",
+        "busy",
+        "success",
+        "cancel",
+        "replacement"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/extract-2026-10-14.json"],
+      "notes": "Air image gallery, native checkbox selection, file identity, PNG/ZIP action and recovery states. 176 DOM layout/theme/text cases; reviewed representative screenshots and Safari/Firefox 200% zoom. Real PNG/ZIP bytes/order, failure/retry, measured scan cancellation/replacement, worker/canvas release and late download suppression pass. Physical touch/software keyboard and screen-reader speech remain open."
     },
     {
       "path": "src/standalone/ImagesToPdf.tsx",
@@ -1514,8 +1559,8 @@
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "evidence": ["docs/air/evidence/extract-2026-10-14.json"],
+      "notes": " Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
     },
     {
       "path": "src/styles/air-entry.css",
@@ -1552,9 +1597,10 @@
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/recovery-utility-2026-10-13.json",
-        "docs/air/evidence/constructors-2026-10-13.json"
+        "docs/air/evidence/constructors-2026-10-13.json",
+        "docs/air/evidence/extract-2026-10-14.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
     },
     {
       "path": "src/styles/air.css",
@@ -1595,10 +1641,7 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
-        "docs/air/components.html"
-      ],
+      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]

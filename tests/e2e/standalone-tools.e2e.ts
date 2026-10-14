@@ -18,12 +18,24 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { PDFDocument } from "@pdfme/pdf-lib";
 import type { Browser, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
+
+declare global {
+  interface Window {
+    __extractProbe?: {
+      calls: number;
+      terminated: number;
+      release?: () => void;
+      canvas?: HTMLCanvasElement;
+    };
+  }
+}
 
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
@@ -337,15 +349,80 @@ async function main(): Promise<void> {
           FIXTURES.scanned,
         );
         await page.waitForFunction(
-          () => /\(\d+ images? found\)/.test(document.body.textContent ?? ""),
+          () =>
+            /\d+ images? found/.test(
+              document.querySelector("[data-extract-heading]")?.textContent ?? "",
+            ),
           { timeout: 120_000 },
         );
         const found = await page.evaluate(() => {
-          const match = (document.body.textContent ?? "").match(/\((\d+) images? found\)/);
+          const match = (document.querySelector("[data-extract-heading]")?.textContent ?? "").match(
+            /(\d+) images? found/,
+          );
           return match ? Number(match[1]) : 0;
         });
         assert(found > 1, `Expected multiple embedded images in scanned fixture; found ${found}.`);
+        const choices = await page.$$('.pdf-extract-grid input[type="checkbox"]');
+        assert(choices.length === found, "Extracted image count and checkbox count differ.");
+        assert(
+          await page.$eval(
+            ".pdf-operation-actions button",
+            (button) => button.getAttribute("aria-disabled") === "true",
+          ),
+          "Empty selection can download.",
+        );
+        await choices[0].focus();
+        await page.keyboard.press("Space");
+        await page.waitForFunction(
+          () => document.querySelector<HTMLInputElement>(".pdf-extract-grid input")?.checked,
+        );
+        const png = await clickAndDownload(page, directory, "Download image");
+        const pngBytes = readFileSync(png);
+        assert(
+          pngBytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])),
+          "Single-image output is not a PNG.",
+        );
+        const displayedSize = await page.$eval(".pdf-extract-caption .air-help", (node) =>
+          node.textContent
+            ?.match(/(\d+) × (\d+)/)
+            ?.slice(1)
+            .map(Number),
+        );
+        assert(
+          displayedSize &&
+            pngBytes.readUInt32BE(16) === displayedSize[0] &&
+            pngBytes.readUInt32BE(20) === displayedSize[1],
+          "Downloaded PNG does not retain the displayed full resolution.",
+        );
+        await page.waitForFunction(() =>
+          /Download requested/.test(document.querySelector(".pdf-result")?.textContent ?? ""),
+        );
         await clickButton(page, "Select all");
+        // Fail one actual PNG read in ZIP assembly, then retry without replacing
+        // the file or selection. No production test switches are involved.
+        await page.evaluate(() => {
+          const original = Reflect.get(
+            Blob.prototype,
+            "arrayBuffer",
+          ) as typeof Blob.prototype.arrayBuffer;
+          Blob.prototype.arrayBuffer = function () {
+            if (this.type === "image/png") {
+              Blob.prototype.arrayBuffer = original;
+              return Promise.reject(new Error("Deliberate ZIP read failure"));
+            }
+            return original.call(this);
+          };
+        });
+        await clickButton(page, `Download ${found} as ZIP`);
+        await page.waitForFunction(() =>
+          /Your images and selection are still here/.test(
+            document.querySelector('[role="alert"]')?.textContent ?? "",
+          ),
+        );
+        assert(
+          (await page.$$eval(".pdf-extract-grid input:checked", (nodes) => nodes.length)) === found,
+          "Download failure discarded selection.",
+        );
         const output = await clickAndDownload(page, directory, `Download ${found} as ZIP`);
         assert(
           output.endsWith(".zip"),
@@ -359,7 +436,122 @@ async function main(): Promise<void> {
           readFileSync(output).toString("latin1").includes(".png"),
           "Extracted ZIP did not contain PNG filenames.",
         );
-        console.log(`  ✓ found, selected, and downloaded ${found} images as a validated ZIP`);
+        const allNames = execFileSync("unzip", ["-Z1", output], { encoding: "utf8" })
+          .trim()
+          .split("\n");
+        assert(
+          execFileSync("unzip", ["-p", output, basename(png)], {
+            maxBuffer: 64 * 1024 * 1024,
+          }).equals(pngBytes),
+          "ZIP changed the individually downloaded PNG bytes.",
+        );
+        const allArchive = join(directory, "all-images.zip");
+        await writeFile(allArchive, readFileSync(output));
+        await rm(output);
+        await clickButton(page, "Clear");
+        // Select in reverse order; the archive must preserve document order.
+        await choices[choices.length - 1].click();
+        await choices[0].click();
+        const partial = await clickAndDownload(page, directory, "Download 2 as ZIP");
+        const partialNames = execFileSync("unzip", ["-Z1", partial], { encoding: "utf8" })
+          .trim()
+          .split("\n");
+        assert(
+          JSON.stringify(partialNames) ===
+            JSON.stringify([allNames[0], allNames[allNames.length - 1]]),
+          "Partial ZIP did not preserve the selected images in document order.",
+        );
+        for (const name of partialNames)
+          assert(
+            execFileSync("unzip", ["-p", partial, name], { maxBuffer: 64 * 1024 * 1024 }).equals(
+              execFileSync("unzip", ["-p", allArchive, name], { maxBuffer: 64 * 1024 * 1024 }),
+            ),
+            "Partial selection changed image bytes.",
+          );
+        await clickButton(page, "Change file");
+        assert(
+          await page.$eval('input[type="file"]', (input) => document.activeElement === input),
+          "Change file did not return focus to intake.",
+        );
+        const emptyPath = join(directory, "no-images.pdf");
+        const empty = await PDFDocument.create();
+        empty.addPage();
+        await writeFile(emptyPath, await empty.save());
+        await uploadFiles(page, 'input[type="file"]', emptyPath);
+        await page.waitForFunction(() =>
+          /No embedded images found/.test(
+            document.querySelector("[data-extract-heading]")?.textContent ?? "",
+          ),
+        );
+        assert(
+          (await page.$(".pdf-file-info")) !== null && (await page.$('[role="alert"]')) === null,
+          "A valid image-free PDF became a load error or lost its identity.",
+        );
+        console.log(
+          `  ✓ keyboard selection, full-resolution PNG, all ${found} images and partial ZIPs preserve bytes/order; empty result and intake focus pass`,
+        );
+        await clickButton(page, "Change file");
+        await page.evaluate(() => {
+          window.__extractProbe = { calls: 0, terminated: 0 };
+          const original = Reflect.get(
+            HTMLCanvasElement.prototype,
+            "toBlob",
+          ) as typeof HTMLCanvasElement.prototype.toBlob;
+          HTMLCanvasElement.prototype.toBlob = function (callback, ...args) {
+            return original.call(
+              this,
+              (blob) => {
+                const probe = window.__extractProbe!;
+                probe.calls++;
+                if (probe.calls === 2) {
+                  probe.canvas = this;
+                  probe.release = () => callback(blob);
+                } else callback(blob);
+              },
+              ...args,
+            );
+          };
+          const terminate = Reflect.get(
+            Worker.prototype,
+            "terminate",
+          ) as typeof Worker.prototype.terminate;
+          Worker.prototype.terminate = function () {
+            window.__extractProbe!.terminated++;
+            return terminate.call(this);
+          };
+        });
+        await uploadFiles(page, 'input[type="file"]', FIXTURES.scanned);
+        await page.waitForFunction(
+          () =>
+            document.querySelector('[role="progressbar"]')?.getAttribute("aria-valuenow") === "1" &&
+            typeof window.__extractProbe?.release === "function",
+        );
+        assert(
+          await page.evaluate(() => document.activeElement?.textContent?.trim() === "Cancel scan"),
+          "Loading did not retain a reachable cancellation focus.",
+        );
+        await clickButton(page, "Cancel scan");
+        await uploadFiles(page, 'input[type="file"]', emptyPath);
+        await page.waitForFunction(
+          () =>
+            document.querySelector("[data-extract-heading]")?.textContent ===
+            "No embedded images found",
+        );
+        await page.evaluate(() => window.__extractProbe!.release!());
+        await page.waitForFunction(
+          () =>
+            window.__extractProbe!.canvas!.width === 0 && window.__extractProbe!.terminated >= 2,
+        );
+        assert(
+          await page.$eval(
+            "[data-extract-heading]",
+            (node) => node.textContent === "No embedded images found",
+          ),
+          "Cancelled scan overwrote its replacement.",
+        );
+        console.log(
+          "  ✓ ZIP failure/retry retains selection; cancelling a measured scan releases the worker/canvas and cannot replace newer results",
+        );
       },
     );
 
