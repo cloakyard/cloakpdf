@@ -654,3 +654,59 @@ Evidence: [record](evidence/palette-2026-10-14.json),
 [checks](evidence/palette-checks-2026-10-14.log),
 [desktop](evidence/palette-desktop-1440-light.png),
 [phone](evidence/palette-phone-390-dark.png).
+
+## 2026-10-14 — Ask PDF conversation and recovery
+
+Ask PDF now uses an Air reading panel, labelled single-contour composer, quiet
+source-page actions and normal sentence-case author/status labels. Text/OCR and
+search preparation report actual page/passage units; unknown work has no invented
+percentage. Markdown keeps readable prose, locally scrolling code/tables and safe
+links. Answers do not embed remote images. Source actions open the original local
+PDF in a new tab, with page fragments and object-URL cleanup.
+
+A synchronous send guard protects the next draft while answering. Failed answers
+retain partial text and their original question; retry preserves the next draft
+and returns focus. Preparation errors wait for an explicit retry instead of
+restarting themselves. Per-attempt ownership ignores obsolete indexing results,
+and session/turn ownership ignores late tokens after file replacement/navigation.
+Model readiness now depends on stable loader methods, avoiding preparation resets
+on every render. Streaming updates are immediate and scroll only the transcript;
+scrolling up preserves the reader's position, with a keyboard-accessible return.
+
+Passing: format/lint/types, dead-code, 366 units in 36 files, production/PWA build
+and 128-asset size gate, 83 inventory records and 17 portability assertions.
+The chat suite covers 448 viewport/theme/root-text cases across seven states,
+including all contract sizes and 640/1024px neighbors. It checks unknown and all
+measured progress stages, explicit errors/retry, duplicate sends, synthetic IME,
+Shift+Enter, the 500-character limit, partial answers, focus/draft retention,
+byte-identical source links, unsafe markdown, scroll ownership, replacement,
+navigation, URL revocation, reduced motion and forced colours.
+
+Real-model integration passes against the production build: initial/warm answers,
+exact factual extraction, tier swap, preserved document history and free/reload.
+AI modal recovery/storage/download tests also pass (192 layout cases), plus the
+real-model details/picker layouts. Native Safari/Firefox keyboard and actual 200%
+zoom inspected with deterministic synthetic answers. Safari source navigation
+opens the original PDF. Physical touch/software keyboard, real OS IME and assistive
+speech acceptance remain open (`validated: false`). Underlying extraction/embedding
+is not abortable; replacement discards obsolete results rather than pretending the
+work stopped. The full editor and family migration remain pending.
+
+Removed the old weighted progress helper, transcript/composer skins, per-token
+smooth scrolling, destructive answer-error clearing and obsolete model comments.
+Deleted the unused InfoCallout component and its centre-only selector; the base
+notice still has live FindAct/Redact consumers and stays on the editor TODO.
+Production removes 216 net lines with zero dependencies. Ask PDF JavaScript drops
+596.21 → 589.71 kB raw / 179.08 → 177.51 kB gzip; shared CSS drops 144.03 → 142.91 kB
+raw / 24.86 → 24.72 kB gzip. The test-only RAG double is isolated in the browser
+harness and adds no production switch. Only two synthetic proof images and compact
+evidence enter Git; private real-model replies and the larger capture matrix stay
+local. No push/deploy.
+
+Next: editor header/tool navigation, then properties/page navigation/thumbnails,
+canvas surround and all remaining panels/overlays.
+
+Evidence: [record](evidence/chat-2026-10-14.json),
+[checks](evidence/chat-checks-2026-10-14.log),
+[desktop](evidence/chat-desktop-1440-light.png),
+[phone](evidence/chat-phone-390-dark.png).

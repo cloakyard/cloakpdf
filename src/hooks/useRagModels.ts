@@ -233,14 +233,17 @@ export function useRagModels(): UseRagModelsReturn {
     });
   }, [chat, embed, rerank, chatVariant, chatModelId, autoLoadPaused]);
 
+  const { ensureReady: ensureChatReady } = chat;
+  const { ensureReady: ensureEmbedReady } = embed;
+  const { ensureReady: ensureRerankReady } = rerank;
   const ensureReady = useCallback(async () => {
     const [chatPipe, embedPipe, rerankPipe] = await Promise.all([
-      chat.ensureReady(),
-      embed.ensureReady(),
-      rerank.ensureReady(),
+      ensureChatReady(),
+      ensureEmbedReady(),
+      ensureRerankReady(),
     ]);
     return { chat: chatPipe, embed: embedPipe, rerank: rerankPipe };
-  }, [chat, embed, rerank]);
+  }, [ensureChatReady, ensureEmbedReady, ensureRerankReady]);
 
   const confirm = useCallback(() => {
     setAutoLoadPaused(false);

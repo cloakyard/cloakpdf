@@ -119,10 +119,6 @@
   padding: var(--space-sm);
 }
 
-.cloak-notice--center {
-  align-items: center;
-}
-
 .cloak-notice--warning {
   border-color: color-mix(in oklab, var(--color-status-warning) 45%, var(--color-rule));
   background: var(--color-status-warning-soft);

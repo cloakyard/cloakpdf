@@ -232,7 +232,7 @@
         "1920x1080"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-setup-2026-10-14.json"],
-      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames, modal interiors and chat remain separate pending surfaces. Physical touch/assistive speech remain open."
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open."
     },
     {
       "path": "src/components/AlertBox.tsx",
@@ -307,7 +307,7 @@
         "1920x1080"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-setup-2026-10-14.json"],
-      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames, modal interiors and chat remain separate pending surfaces. Physical touch/assistive speech remain open."
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open."
     },
     {
       "path": "src/components/ChatModelPickerModal.tsx",
@@ -548,17 +548,6 @@
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/constructors-2026-10-13.json"],
       "notes": "Air constructor/shared control implementation. Real processing/order/undo/focus and output checks pass. Shared controls reviewed through constructor integration; specialised consumers remain pending. Physical touch/software keyboard and assistive speech acceptance remain open."
-    },
-    {
-      "path": "src/components/InfoCallout.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
     },
     {
       "path": "src/components/Layout.tsx",
@@ -1746,12 +1735,48 @@
       "path": "src/standalone/AskPdf.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
-      "airImplemented": false,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": ["docs/air/evidence/ai-modals-2026-10-14.json"],
-      "notes": " Modal checkpoint: shared Air frame and consolidated model-details owner; interior migration remains pending. See ai-modals-2026-10-14 evidence."
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "native-browser-zoom",
+        "coarse-emulation",
+        "empty",
+        "indexing",
+        "index-error",
+        "no-readable-text",
+        "streaming",
+        "answer",
+        "citations",
+        "retry",
+        "replacement",
+        "long-content",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1023x768",
+        "1024x768",
+        "1025x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "639x800",
+        "640x800",
+        "641x800"
+      ],
+      "evidence": ["docs/air/evidence/chat-2026-10-14.json", "docs/air/validation.md"],
+      "notes": "Air conversation, composer, measured indexing, page links and explicit recovery implemented. 448 deterministic layout cases and real-model integration pass; Safari/Firefox keyboard and actual 200% zoom inspected. Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open."
     },
     {
       "path": "src/standalone/ComparePdf.tsx",
@@ -2077,10 +2102,7 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
-        "docs/air/components.html"
-      ],
+      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]
