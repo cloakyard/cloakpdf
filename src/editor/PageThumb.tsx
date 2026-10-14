@@ -15,8 +15,9 @@
 // Pass `aspect` (box mode) to override the ratio, e.g. an N-up cell is the page
 // aspect × rows/cols.
 
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import { FileImage } from "lucide-react";
+import { useEditorActions } from "./EditorContext.tsx";
 import type { PageMeta } from "./doc.ts";
 
 export function PageThumb({
@@ -28,7 +29,7 @@ export function PageThumb({
   className = "",
   loading,
 }: {
-  page: Pick<PageMeta, "widthPt" | "heightPt" | "thumbUrl">;
+  page: Pick<PageMeta, "index" | "widthPt" | "heightPt" | "thumbUrl">;
   alt: string;
   /** Box aspect ratio override; defaults to the page's own width / height. */
   aspect?: number;
@@ -41,8 +42,9 @@ export function PageThumb({
   className?: string;
   loading?: "lazy" | "eager";
 }) {
-  const [failedUrl, setFailedUrl] = useState<string | null>(null);
-  const unavailable = !page.thumbUrl || failedUrl === page.thumbUrl;
+  const { reportPreviewFailure } = useEditorActions();
+  const thumbUrl = page.thumbUrl;
+  const unavailable = !thumbUrl;
   const quarterTurn = Math.abs(rotation % 180) === 90;
   // Page metadata and PDF.js bitmap already include saved rotation. CSS adds
   // only the pending organize rotation.
@@ -71,7 +73,8 @@ export function PageThumb({
   );
   const image = (
     <img
-      src={page.thumbUrl ?? undefined}
+      key={thumbUrl}
+      src={thumbUrl ?? undefined}
       alt={alt}
       className={
         fit
@@ -81,7 +84,7 @@ export function PageThumb({
       style={fit ? (rotation ? { transform: `rotate(${rotation}deg)` } : undefined) : imgStyle}
       draggable={false}
       loading={loading}
-      onError={() => setFailedUrl(page.thumbUrl)}
+      onError={() => thumbUrl && reportPreviewFailure(page.index, thumbUrl)}
     />
   );
 

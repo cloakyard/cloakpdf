@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { FileImage } from "lucide-react";
 import { m, useMotionValue } from "../components/motion.tsx";
 import { useEditorActions, useEditorRead, useEditorView } from "./EditorContext.tsx";
 import { paintDestructiveMarks } from "./overlay-paint.ts";
@@ -55,35 +56,37 @@ function measureInlineWidth(text: string, font: string): number {
  *  willReadFrequently because the erase preview reads it back with getImageData.
  *  Same-origin blob: URL, so the canvas is never tainted. */
 function usePageBitmap(thumbUrl: string | null | undefined): HTMLCanvasElement | null {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [decoded, setDecoded] = useState<{ url: string; canvas: HTMLCanvasElement } | null>(null);
   useEffect(() => {
-    // Drop the prior page's bitmap up front so a sampler (erase preview) never
-    // reads the wrong page during the async decode; it falls back to the
-    // placeholder for the frame or two until the new page decodes.
-    setCanvas(null);
+    // The returned bitmap is keyed by URL, so a sampler never receives the
+    // previous page (including its released canvas) while decoding the next.
     if (!thumbUrl) return;
     let cancelled = false;
+    let bitmap: HTMLCanvasElement | null = null;
     const img = new Image();
     img.decoding = "async";
     img.onload = () => {
       if (cancelled) return;
       const c = document.createElement("canvas");
+      bitmap = c;
       c.width = img.naturalWidth;
       c.height = img.naturalHeight;
       const ctx = c.getContext("2d", { willReadFrequently: true });
       if (!ctx) return;
       ctx.drawImage(img, 0, 0);
-      setCanvas(c);
+      setDecoded({ url: thumbUrl, canvas: c });
     };
     img.onerror = () => {
-      if (!cancelled) setCanvas(null);
+      if (!cancelled) setDecoded(null);
     };
     img.src = thumbUrl;
     return () => {
       cancelled = true;
+      img.onload = img.onerror = null;
+      if (bitmap) bitmap.width = bitmap.height = 0;
     };
   }, [thumbUrl]);
-  return canvas;
+  return decoded && decoded.url === thumbUrl ? decoded.canvas : null;
 }
 
 /** Coarse-pointer (touch) primary input — phones/tablets, where the fit-to-screen
@@ -280,7 +283,7 @@ function InlineTextEditor({
 export function PdfStage() {
   const { doc, selectedPage } = useEditorRead();
   const view = useEditorView();
-  const { setView } = useEditorActions();
+  const { setView, reportPreviewFailure } = useEditorActions();
   const stageProps = useActiveStageProps();
   const inlineEditor = useActiveInlineEditor();
   // The inline editor is open over the focused page → a tap on the page (off the
@@ -433,7 +436,8 @@ export function PdfStage() {
   const page = doc?.pages[selectedPage] ?? null;
   // Decoded raster of the focused page — fed to the overlay painters so erase
   // marks render as a true fill / mosaic preview rather than a flat placeholder.
-  const pageBitmap = usePageBitmap(page?.thumbUrl);
+  const thumbUrl = page?.thumbUrl;
+  const pageBitmap = usePageBitmap(thumbUrl);
 
   // Fit-contain: size the page box to the largest rect with the page's exact
   // aspect ratio that fits the available area — never stretches, in either
@@ -871,8 +875,8 @@ export function PdfStage() {
       ref={stageRef}
       className="editor-canvas"
       style={{ cursor: isPanning ? "grabbing" : "grab" }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
+      onPointerDown={page.thumbUrl ? onPointerDown : undefined}
+      onPointerMove={page.thumbUrl ? onPointerMove : undefined}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
     >
@@ -880,9 +884,14 @@ export function PdfStage() {
         <m.div
           ref={wrapRef}
           role="region"
-          tabIndex={0}
-          aria-label={`Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Scroll to pan; pinch or Control or Command plus scroll to zoom; use 0 to reset the view.`}
-          aria-keyshortcuts={keyboardShortcuts}
+          tabIndex={page.thumbUrl ? 0 : -1}
+          data-preview-unavailable={!page.thumbUrl || undefined}
+          aria-label={
+            page.thumbUrl
+              ? `Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Scroll to pan; pinch or Control or Command plus scroll to zoom; use 0 to reset the view.`
+              : `Page ${selectedPage + 1} preview unavailable. Use Retry previews to restore the editing canvas.`
+          }
+          aria-keyshortcuts={page.thumbUrl ? keyboardShortcuts : undefined}
           className="editor-paper"
           style={{
             transform: transformValue,
@@ -899,20 +908,25 @@ export function PdfStage() {
                   maxHeight: "100%",
                 }),
           }}
-          onKeyDown={onStageKeyDown}
+          onKeyDown={page.thumbUrl ? onStageKeyDown : undefined}
         >
-          {page.thumbUrl ? (
+          {thumbUrl && (
             <img
-              src={page.thumbUrl}
+              key={thumbUrl}
+              src={thumbUrl}
               alt={`Page ${selectedPage + 1}`}
               className="editor-paper-image"
+              onError={() => thumbUrl && reportPreviewFailure(page.index, thumbUrl)}
               draggable={false}
             />
-          ) : (
-            <div className="h-full w-full bg-white" />
           )}
-          <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
-          {editorOpen && fit && inlineEditor && (
+          <canvas
+            ref={canvasRef}
+            hidden={!page.thumbUrl}
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full"
+          />
+          {page.thumbUrl && editorOpen && fit && inlineEditor && (
             // Key by session id so a new edit always remounts (re-seeds its
             // value); a style-only update (same id) re-renders in place.
             <InlineTextEditor
@@ -925,6 +939,16 @@ export function PdfStage() {
           )}
         </m.div>
       </div>
+      {!page.thumbUrl && (
+        <div
+          className="editor-canvas-unavailable"
+          role="img"
+          aria-label={`Page ${selectedPage + 1}: preview unavailable`}
+        >
+          <FileImage size={20} aria-hidden="true" />
+          <span>Preview unavailable</span>
+        </div>
+      )}
     </div>
   );
 }

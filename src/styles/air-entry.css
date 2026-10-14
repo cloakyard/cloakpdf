@@ -2784,3 +2784,51 @@ body:has(.pdf-site) {
     display: none;
   }
 }
+
+/* Transient recovery chrome stays outside the scaled PDF paper. */
+.editor-preview-recovery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  flex: 0 0 auto;
+  max-block-size: 40%;
+  overflow: auto;
+  padding: 8px 16px;
+  border-block-end: 1px solid var(--air-line);
+  background: var(--air-surface);
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+}
+.editor-preview-recovery p {
+  flex: 1 1 12rem;
+  margin: 0;
+}
+.editor-preview-recovery strong {
+  color: var(--air-ink);
+  font-weight: 500;
+}
+.editor-preview-recovery .air-button {
+  flex: 0 0 auto;
+}
+
+.editor-paper[data-preview-unavailable] {
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+.editor-canvas-unavailable {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+  pointer-events: none;
+}
+.editor-canvas-unavailable svg {
+  flex: 0 0 auto;
+}

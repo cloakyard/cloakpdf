@@ -1026,3 +1026,57 @@ Final gates also include isolated/adversarial portability, 84-surface inventory,
 exact six-document/five-bundle sync and main-repo lint/types/build. The 128 output
 assets meet the deployment size limit; the existing large-chunk advisory remains.
 No push or deployment.
+
+## 2026-10-14 — Preview failure recovery and retained work
+
+The editor keeps valid PDF bytes when a preview fails, and names unavailable
+content in the canvas, page grids, OCR source and print preview. One Air retry
+strip sits outside the scaled paper. It preserves the mobile preview area, including
+at 200% root text. The unavailable-canvas label stays in the surround so it remains
+readable at small fit sizes. Direct canvas placement is unavailable until recovery.
+
+Retry renders only missing pages. Thumbnails are explicitly a transient cache:
+repair preserves the document and page-array identity, form drafts, pending masks,
+Organize plans, actual OCR review and the history cursor/redo branch. Retired URLs
+are revoked only when no snapshot still uses them. Byte replacement/unmount aborts
+late work; generated partial URLs and canvas memory are released. Preview rasters
+are limited to 8 million pixels and a 4096px side independently of output DPI; a
+10,000pt-square original retains its physical geometry with a 2828px preview.
+Image exports still fail explicitly when rendering/encoding fails.
+
+Cleanup removes the all-or-nothing thumbnail API, unused renderer cleanup option,
+redundant thumbnail PNG creation during blank-page scanning, PageThumb's duplicate
+local failure state, an obsolete hook example and stale OCR architecture references.
+No dependency or family-contract revision; the PDF appendix specifies recovery.
+
+Validation:
+
+- 44 canvas/grid layouts across all eleven Air viewport sizes in light/dark;
+  coarse emulation, reduced motion, 200% root text, reachable retry and keyboard
+  focus return. Synthetic documents only in committed screenshots.
+- Faulted initial encode, failed retry, broken image decode, partial render,
+  cancelled work, unchanged geometry, retained redaction/page plan/OCR result,
+  Undo/Redo, late retry after replacement, bounded poster and fail-closed PNG export.
+- Native Safari and Firefox: the real editor/provider with a synthetic PDF and
+  one-shot encoder failure. Both restore the rendered page; Firefox also verifies
+  Export focus return at normal scale; actual 200% Firefox zoom retains a reachable
+  retry and restores the page. The temporary harness adds no production testing API.
+- 384 units in 39 files; lint/format/types, dead-code, production build and all
+  128 deployment/PWA assets. All 16 production browser smoke suites, seven extended
+  suites, geometry, N-up, OCR and preview-recovery integrations pass. Geometry
+  covers 48 responsive layouts; N-up covers 70 layouts/23 real output sheets;
+  OCR covers 20 review states plus actual recognition/output/privacy checks.
+- A repeated AI modal retry failure exposed a pre-existing preparation race:
+  cancelling during module/GPU setup could let the older load abort a newer retry.
+  Commit `cf2cbed` checks loader ownership before starting downloads. A deterministic unit
+  regression and real browser cancel/retry pass. The actual multipage AI suite also
+  passes indexing, grounded questions, warm return, tier swap and memory release/reload.
+- Product/root portable-design, isolation and exact bundle/document synchronization
+  checks pass. Existing large-chunk build advisory remains; no push or deployment.
+
+Evidence: `evidence/preview-recovery-2026-10-14.json`, three adjacent PNGs and
+`evidence/preview-recovery-checks-2026-10-14.log`. Full synthetic captures and native
+harness stay in `/tmp/cloakpdf-air-preview/`. Physical touch/software keyboards,
+OS IME and assistive speech remain open. This does not approve unmigrated tool
+panels. Next: Redact and Smart Erase interiors, including their custom controls,
+selection states, destructive-output verification and removal of replaced skins.

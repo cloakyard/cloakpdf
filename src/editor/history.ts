@@ -49,6 +49,31 @@ export class EditorHistory {
     return [...urls];
   }
 
+  /** Thumbnails are a transient cache, shared by snapshots of the same bytes.
+   * Repair only that cache; document/geometry identity, edits and cursor survive. */
+  replacePreviews(
+    bytes: Uint8Array,
+    livePages: PageMeta[],
+    replacements: Map<number, string | null>,
+  ): string[] {
+    const pageSets = new Set([
+      livePages,
+      ...this.stack.filter((entry) => entry.bytes === bytes).map((entry) => entry.pages),
+    ]);
+    const old = new Set<string>();
+    for (const pages of pageSets)
+      for (const page of pages) {
+        if (!replacements.has(page.index)) continue;
+        if (page.thumbUrl) old.add(page.thumbUrl);
+        page.thumbUrl = replacements.get(page.index) ?? null;
+      }
+    const retained = new Set([
+      ...this.thumbUrls(),
+      ...livePages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])),
+    ]);
+    return [...old].filter((url) => !retained.has(url));
+  }
+
   clear(): void {
     const dropped = this.stack;
     this.stack = [];

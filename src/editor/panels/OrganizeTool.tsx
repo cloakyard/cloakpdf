@@ -15,7 +15,7 @@
 import { ChevronDown, ChevronUp, FileX, Repeat2, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assemblePdf, type AssembleOp } from "../../utils/pdf-operations.ts";
-import { renderThumbnailsAndScores, revokeThumbnails } from "../../utils/pdf-renderer.ts";
+import { pageWhitenessScores } from "../../utils/pdf-renderer.ts";
 import { type CanvasDoc, type CanvasObject, docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useEditorView, useToolSlice } from "../EditorContext.tsx";
 import { PageCollection } from "../PageCollection.tsx";
@@ -287,9 +287,8 @@ export function Panel() {
     const scanBytes = doc.bytes;
     setScanning(true);
     setScanError(false);
-    void renderThumbnailsAndScores(docToFile(doc)).then(
-      ({ thumbnails, scores }) => {
-        revokeThumbnails(thumbnails);
+    void pageWhitenessScores(docToFile(doc)).then(
+      (scores) => {
         if (liveBytes.current !== scanBytes) return;
         setScanning(false);
         setBlanks(scores.map((s, i) => (s >= BLANK_THRESHOLD ? i : -1)).filter((i) => i >= 0));

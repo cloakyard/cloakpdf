@@ -31,6 +31,7 @@ import {
   type CanvasObject,
   createDocFromBytes,
   createDocFromFile,
+  docToFile,
   flattenDestructiveObjects,
   hasPendingDestructive,
   nextId,
@@ -44,6 +45,7 @@ import {
   loadDraft,
   saveDraft,
 } from "./draft-store.ts";
+import { renderPagePreviews } from "../utils/pdf-renderer.ts";
 import { EditorHistory } from "./history.ts";
 import { findEditorTool } from "./tools.ts";
 import { DEFAULT_VIEW, type Layout, type ViewMode, type ViewState } from "./types.ts";
@@ -71,6 +73,8 @@ export interface PendingApply {
 }
 
 interface ActionsValue {
+  reportPreviewFailure: (pageIndex: number, url: string) => void;
+  retryPreviews: () => Promise<void>;
   loadFile: (file: File) => Promise<void>;
   setActiveTool: (id: string | null) => void;
   patchToolState: (toolId: string, partial: Record<string, unknown>) => void;
@@ -123,6 +127,7 @@ interface ActionsValue {
 }
 
 interface ReadValue {
+  previewRetry: { pending: boolean; failed: boolean };
   doc: CanvasDoc | null;
   loading: boolean;
   busyLabel: string | null;
@@ -217,6 +222,67 @@ export function EditorProvider({
   docRef.current = doc;
 
   const historyRef = useRef(new EditorHistory());
+  const [previewVersion, setPreviewVersion] = useState(0);
+  const previewRequest = useRef<AbortController | null>(null);
+  const [previewRetry, setPreviewRetry] = useState({ pending: false, failed: false });
+  useEffect(() => {
+    setPreviewRetry({ pending: false, failed: false });
+    return () => {
+      previewRequest.current?.abort();
+      previewRequest.current = null;
+    };
+  }, [doc?.id, doc?.bytes]);
+
+  const replacePreviews = useCallback(
+    (bytes: Uint8Array, replacements: Map<number, string | null>) => {
+      const current = docRef.current;
+      if (!current || current.bytes !== bytes) return;
+      const retired = historyRef.current.replacePreviews(bytes, current.pages, replacements);
+      revokeThumbnails(retired);
+      // Publish the derived cache change without replacing the document and
+      // resetting in-progress tool forms, OCR results or page plans.
+      setPreviewVersion((version) => version + 1);
+    },
+    [],
+  );
+
+  const reportPreviewFailure = useCallback(
+    (index: number, url: string) => {
+      const current = docRef.current;
+      // Late image events cannot invalidate a newer revision or replacement URL.
+      if (current?.pages[index]?.thumbUrl === url)
+        replacePreviews(current.bytes, new Map([[index, null]]));
+    },
+    [replacePreviews],
+  );
+
+  const retryPreviews = useCallback(async () => {
+    const current = docRef.current;
+    if (!current || previewRequest.current || busyRef.current) return;
+    const missing = current.pages.filter((page) => !page.thumbUrl).map((page) => page.index);
+    if (!missing.length) return;
+    const controller = new AbortController();
+    previewRequest.current = controller;
+    setPreviewRetry({ pending: true, failed: false });
+    try {
+      const urls = await renderPagePreviews(
+        docToFile(current),
+        missing,
+        undefined,
+        controller.signal,
+      );
+      if (controller.signal.aborted || docRef.current?.bytes !== current.bytes) {
+        revokeThumbnails(urls.filter((url): url is string => url !== null));
+        return;
+      }
+      replacePreviews(current.bytes, new Map(missing.map((index, i) => [index, urls[i]])));
+      setPreviewRetry({ pending: false, failed: urls.some((url) => !url) });
+    } catch {
+      if (!controller.signal.aborted) setPreviewRetry({ pending: false, failed: true });
+    } finally {
+      if (previewRequest.current === controller) previewRequest.current = null;
+    }
+  }, [replacePreviews]);
   const pendingApplyRef = useRef<PendingApply | null>(null);
   const [pendingApplyVersion, setPendingApplyVersion] = useState(0);
   const toolCheckpointRef = useRef(0);
@@ -693,6 +759,8 @@ export function EditorProvider({
 
   const actions = useMemo<ActionsValue>(
     () => ({
+      reportPreviewFailure,
+      retryPreviews,
       loadFile,
       setActiveTool,
       patchToolState,
@@ -721,6 +789,8 @@ export function EditorProvider({
       exit,
     }),
     [
+      reportPreviewFailure,
+      retryPreviews,
       loadFile,
       setActiveTool,
       patchToolState,
@@ -756,6 +826,7 @@ export function EditorProvider({
       loading,
       busyLabel,
       error,
+      previewRetry,
       encryptedFile,
       viewMode,
       selectedPage,
@@ -778,6 +849,8 @@ export function EditorProvider({
       loading,
       busyLabel,
       error,
+      previewRetry,
+      previewVersion,
       encryptedFile,
       viewMode,
       selectedPage,

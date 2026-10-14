@@ -1066,3 +1066,13 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Fit invisible OCR text to word boxes in the cropped, rotated physical page frame.
   Missing positions or unencodable characters must fail explicitly and retain the
   preview for copy/retry; never report success after silently dropping words.
+
+- Preview failure must not discard readable PDF bytes or represent missing content
+  as a blank page. Name unavailable previews across the canvas and page collections;
+  keep a reachable Air retry action outside the scaled document. Disable direct
+  canvas editing until the page preview is available.
+- Retry only failed previews from the current bytes. Preserve tool drafts, OCR
+  results, pending marks, page plans, geometry and undo/redo. Preview cache repair
+  is not a document edit. Discard late repairs after replacement or byte changes,
+  release retired URLs/canvases, and bound preview memory independently of export
+  resolution. A failed image export must fail explicitly, never emit blank output.

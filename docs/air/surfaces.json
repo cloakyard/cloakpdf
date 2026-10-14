@@ -1121,7 +1121,13 @@
         "coarse-emulation",
         "expanded",
         "reduced-motion",
-        "forced-colors"
+        "forced-colors",
+        "preview unavailable",
+        "preview retry",
+        "preview retry failure",
+        "stale retry",
+        "200% root text",
+        "keyboard focus return"
       ],
       "viewports": [
         "320x568",
@@ -1143,8 +1149,12 @@
         "844x500",
         "844x501"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
-      "notes": "Navigation integration reviewed: width-led breakpoints, short sub-tablet working sheet, zero-min-height mounted preview wrapper, busy/modal shortcut guards. Complete shell loading/recovery, canvas and panel migration remain pending."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/evidence/preview-recovery-2026-10-14.json"
+      ],
+      "notes": "Navigation integration reviewed: width-led breakpoints, short sub-tablet working sheet, zero-min-height mounted preview wrapper, busy/modal shortcut guards. Complete shell loading/recovery, canvas and panel migration remain pending. Preview recovery checkpoint: 44 canvas/grid layouts, enlarged text, failed retry, retained drafts/OCR/history, stale results and native Safari/Firefox recovery reviewed. Physical and assistive acceptance remains open; pending tool interiors are not approved by this slice. Only preview recovery composition changed here. General loading/error/draft banners still require their own Air migration."
     },
     {
       "path": "src/editor/EditorToolStage.tsx",
@@ -1414,7 +1424,12 @@
         "scan error/retry",
         "keyboard",
         "reduced motion",
-        "forced colors"
+        "forced colors",
+        "preview unavailable",
+        "preview retry",
+        "preview retry failure",
+        "stale retry",
+        "keyboard focus return"
       ],
       "viewports": [
         "320x568",
@@ -1432,9 +1447,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/collections-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/evidence/preview-recovery-2026-10-14.json"
       ],
-      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Preview recovery checkpoint: 44 canvas/grid layouts, enlarged text, failed retry, retained drafts/OCR/history, stale results and native Safari/Firefox recovery reviewed. Physical and assistive acceptance remains open; pending tool interiors are not approved by this slice."
     },
     {
       "path": "src/editor/PdfStage.tsx",
@@ -1453,7 +1469,12 @@
         "synthetic composition",
         "keyboard",
         "reduced motion",
-        "forced colors"
+        "forced colors",
+        "preview unavailable",
+        "preview retry",
+        "preview retry failure",
+        "stale retry",
+        "keyboard focus return"
       ],
       "viewports": [
         "320x568",
@@ -1477,9 +1498,40 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/evidence/preview-recovery-2026-10-14.json"
       ],
-      "notes": "Air canvas surround, paper focus and inline field implemented. 68 layouts and direct edit/gesture/output regressions pass. Native Safari/Firefox browser zoom inspected. Physical touch/IME/assistive acceptance remains open. Preview failure handling remains open. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air canvas surround, paper focus and inline field implemented. 68 layouts and direct edit/gesture/output regressions pass. Native Safari/Firefox browser zoom inspected. Physical touch/IME/assistive acceptance remains open. Preview failure handling remains open. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Preview recovery checkpoint: 44 canvas/grid layouts, enlarged text, failed retry, retained drafts/OCR/history, stale results and native Safari/Firefox recovery reviewed. Physical and assistive acceptance remains open; pending tool interiors are not approved by this slice."
+    },
+    {
+      "path": "src/editor/PreviewRecovery.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "preview unavailable",
+        "preview retry",
+        "preview retry failure",
+        "stale retry",
+        "200% root text",
+        "keyboard focus return"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/preview-recovery-2026-10-14.json"],
+      "notes": " Preview recovery checkpoint: 44 canvas/grid layouts, enlarged text, failed retry, retained drafts/OCR/history, stale results and native Safari/Firefox recovery reviewed. Physical and assistive acceptance remains open; pending tool interiors are not approved by this slice."
     },
     {
       "path": "src/editor/PropertiesPanel.tsx",

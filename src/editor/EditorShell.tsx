@@ -16,6 +16,7 @@ import { EditorToolStage } from "./EditorToolStage.tsx";
 import { EditorTopBar } from "./EditorTopBar.tsx";
 import { MobileEditorSurface } from "./MobileEditorSurface.tsx";
 import { OverviewMode } from "./OverviewMode.tsx";
+import { PreviewRecovery } from "./PreviewRecovery.tsx";
 import { PdfStage } from "./PdfStage.tsx";
 import { PropertiesPanel } from "./PropertiesPanel.tsx";
 import { ToolRail } from "./ToolRail.tsx";
@@ -251,8 +252,11 @@ export function EditorShell() {
           {!isMobile && <ToolRail onOpenPalette={openPalette} />}
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
-            {isMobile && <MobileEditorSurface />}
+            <PreviewRecovery />
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
+              {isMobile && <MobileEditorSurface />}
+            </div>
           </div>
 
           {!isMobile && <PropertiesPanel collapsed={isTablet} />}
