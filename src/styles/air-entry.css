@@ -33,7 +33,7 @@
 .pdf-header .air-page-nav a {
   gap: var(--air-space-4);
 }
-.pdf-site :where(a, button):focus-visible,
+.pdf-site :where(a, button:not(.air-button, .air-icon-button)):focus-visible,
 .pdf-main:focus-visible {
   outline: 2px solid var(--air-accent);
   outline-offset: 3px;
@@ -905,4 +905,48 @@ body:has(.pdf-site) {
   .pdf-extract-choice:hover:not(:has(:disabled)) {
     background: var(--air-surface-hover);
   }
+}
+
+/* Security options use the existing Air field, choice and notice skins. */
+.pdf-password {
+  display: grid;
+  gap: var(--air-space-24);
+}
+.pdf-password h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.pdf-password-fields {
+  display: grid;
+  gap: var(--air-space-24);
+  max-inline-size: 40rem;
+}
+.pdf-password-permissions {
+  max-inline-size: 40rem;
+}
+.pdf-password-permissions .air-help {
+  display: block;
+  margin-block-start: var(--air-space-4);
+}
+.pdf-password-permissions > .air-check-label {
+  border-block: 1px solid var(--air-line);
+  padding-block: var(--air-space-16);
+}
+.pdf-password-permissions > div:not([hidden]) {
+  display: grid;
+  gap: var(--air-space-24);
+  margin-block-start: var(--air-space-24);
+}
+.pdf-permission-row {
+  border-block-end: 1px solid var(--air-line);
+  padding-block: var(--air-space-12);
+}
+.pdf-password-notice-title {
+  font-weight: 500;
+}
+.pdf-password-recovery {
+  display: grid;
+  justify-items: start;
+  gap: var(--air-space-16);
 }

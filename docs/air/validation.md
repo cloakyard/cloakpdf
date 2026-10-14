@@ -314,3 +314,73 @@ push or deployment. Evidence: [state record](evidence/extract-2026-10-14.json),
 [recovery](evidence/extract-recovery-phone-dark.png),
 [forced colours](evidence/extract-forced-colours.png),
 [Safari](evidence/extract-safari-200.png), [Firefox](evidence/extract-firefox-200.png).
+
+## 2026-10-14 — Password options and results
+
+PDF Password now uses Air's single-contour grouped fields, labelled visibility
+controls, native permission choices, open layout and shared actions/notices. Add
+and remove modes retain the selected file and clear, focused recovery. Permission
+restrictions are explicitly enabled; the six bits/defaults and AES-256 engine are
+unchanged. The viewer-compatibility disclosure remains next to the choices.
+Malformed PDFs now offer a real retry/change-file state instead of falling through
+to protection options. Wrong passwords receive one inline error and focused input.
+
+Detection cancellation restores intake focus and invalidates old callbacks; it does
+not claim to abort the parser. Replacing the file clears secrets, visibility,
+permission choices and prior feedback. Busy operations keep drafts read-only,
+disable settings/replacement, guard duplicate dispatch synchronously and suppress
+late download/editor delivery after navigation. Completion says download requested
+and preserves the source. A forced file-read failure followed by an unchanged-input
+retry successfully opened the editor.
+
+Validation records 264 DOM geometry observations across six states (add/mismatch
+with permissions, protection busy, detection, corrupt recovery, wrong password and
+unlock success), every eleven contract dimensions, both themes and 16/32px root
+text. Another 44 observations recheck the final canonical icon-button geometry.
+No document overflow, inspected clipping or undersized coarse target was found.
+These are geometry observations, not 308 independent visual reviews. Representative
+phone/tablet/laptop/desktop screenshots were inspected. Native Safari and Firefox
+passed actual 200% zoom with populated fields, visibility and permission controls.
+Forced colours retain labels/focus; reduced motion has no running animation.
+Physical touch/software keyboard and screen-reader speech/navigation acceptance
+remain open (`validated: false`).
+
+Final keyboard review caught a product fallback focus rule overriding the shared
+field action's inset outline. The fallback now excludes canonical Air buttons and
+icons; the field action computes to the specified -4px inset. The field group has
+one 1px border, the input has zero border and no shadow. No shared tokens/skins
+changed. The wrong-password error is inline only, and the visibility control uses
+the canonical icon-button class. A corrected mismatch now clears immediately while
+typing instead of waiting for blur; the production test asserts that behavior.
+Evidence JSON formatting was corrected before the final passing check. Final build
+and standalone checks were repeated after these corrections.
+
+The six-tool production regression verifies show/hide, mismatch correction,
+permission mask -44 and AES-256 encryption dictionary, complete raw-stream equality
+after protection/unlocking, unencrypted output/page count, wrong-password retry,
+empty-password compatibility and real editor handoff. It holds a real file read to
+verify cancellation focus and replacement surviving obsolete detection. A separate
+held operation keeps a 358×44 action, accepts one read despite repeated native key
+activation, and delivers zero downloads after leaving.
+
+Required checks pass: `vp check`, `pnpm check:dead`, `pnpm test` (355/355 in 34
+files), `vp run build` (production/PWA, 135 assets within 25 MiB), all six standalone
+production flows with `E2E_URL=http://127.0.0.1:8132 E2E_DEMO_FIXTURES=1`, design
+inventory/source/portability and canonical sync. Generated demo fixtures explicitly
+substitute for absent scanned/guide originals. Editor, OCR and AI migration gates
+remain separate. No assertions or timeouts were weakened and no required failure
+was waived.
+
+Removed the replaced password input skin, uppercase mono headings, tinted status
+icons, old disclosure/info-callout usage and redundant async state. Existing
+components still used by unmigrated tools remain tracked. Own native/IAB tabs,
+zoom/emulation and synthetic download were cleaned up; browser password saving was
+declined. No user tab reload, push or deployment.
+
+Evidence: [state record](evidence/password-2026-10-14.json),
+[checks](evidence/password-checks-2026-10-14.log),
+[desktop](evidence/password-desktop-light.png), [phone](evidence/password-phone-dark.png),
+[tablet recovery](evidence/password-tablet-recovery-light.png),
+[laptop recovery](evidence/password-laptop-recovery-dark.png),
+[forced colours](evidence/password-forced-colours.png),
+[Safari](evidence/password-safari-200.png), [Firefox](evidence/password-firefox-200.png).

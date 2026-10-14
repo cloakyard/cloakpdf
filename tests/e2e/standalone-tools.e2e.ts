@@ -22,12 +22,17 @@ import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { PDFDocument } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFDict, PDFName, PDFNumber, PDFRawStream } from "@pdfme/pdf-lib";
+import { protectPdf, unlockPdf } from "../../src/utils/pdf-security.ts";
 import type { Browser, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
 
 declare global {
   interface Window {
+    __passwordProbe?: {
+      release?: () => Promise<void>;
+      original: typeof File.prototype.arrayBuffer;
+    };
     __extractProbe?: {
       calls: number;
       terminated: number;
@@ -568,7 +573,31 @@ async function main(): Promise<void> {
         );
         await page.waitForSelector("#new-password", { timeout: 30_000 });
         await page.type("#new-password", "cloakpdf-e2e-password");
+        await page.click('[aria-label="Show new password"]');
+        assert(
+          await page.$eval("#new-password", (input) => (input as HTMLInputElement).type === "text"),
+          "Password visibility did not change.",
+        );
+        await page.click('[aria-label="Hide new password"]');
+        await page.type("#confirm-password", "different");
+        await page.focus("#new-password");
+        assert(
+          await page.$eval(
+            "#confirm-password",
+            (input) => input.getAttribute("aria-invalid") === "true",
+          ),
+          "Mismatch was not exposed on blur.",
+        );
+        await page.$eval("#confirm-password", (input) => {
+          (input as HTMLInputElement).select();
+        });
         await page.type("#confirm-password", "cloakpdf-e2e-password");
+        assert(
+          await page.$eval("#confirm-password", (input) => !input.hasAttribute("aria-invalid")),
+          "Corrected mismatch stayed invalid until blur.",
+        );
+        await page.click(".pdf-password-permissions > label input");
+        await page.click('input[aria-label="Copy text & images"]');
         const output = await clickAndDownload(page, directory, "Protect & Download");
         assert(
           basename(output) === `${basename(FIXTURES.sample, ".pdf")}_protected.pdf`,
@@ -588,7 +617,136 @@ async function main(): Promise<void> {
         await page.waitForFunction(() =>
           (document.body.textContent ?? "").includes("Password added successfully"),
         );
-        console.log(`  ✓ AES-256 encrypted ${EXPECTED_PAGE_COUNTS.sample}-page output downloaded`);
+        const encryption = protectedPdf.context.lookup(
+          protectedPdf.context.trailerInfo.Encrypt,
+          PDFDict,
+        );
+        assert(
+          encryption.lookup(PDFName.of("P"), PDFNumber).asNumber() === -44,
+          "Selected permission bits were not preserved.",
+        );
+        assert(
+          encryption.lookup(PDFName.of("V"), PDFNumber).asNumber() === 5,
+          "Protection changed from AES-256.",
+        );
+        const encryptedFile = new File([readFileSync(output)], "protected.pdf", {
+          type: "application/pdf",
+        });
+        const decoded = await PDFDocument.load(
+          await unlockPdf(encryptedFile, "cloakpdf-e2e-password"),
+        );
+        const original = await PDFDocument.load(readFileSync(FIXTURES.sample));
+        const streams = (doc: PDFDocument) =>
+          doc.context
+            .enumerateIndirectObjects()
+            .map(([, object]) => object)
+            .filter((object): object is PDFRawStream => object instanceof PDFRawStream)
+            .map((object) => Buffer.from(object.contents).toString("base64"))
+            .sort();
+        assert(
+          JSON.stringify(streams(decoded)) === JSON.stringify(streams(original)),
+          "Protection roundtrip changed source streams.",
+        );
+        await clickButton(page, "Change file");
+        assert(
+          await page.$eval('input[type="file"]', (input) => input === document.activeElement),
+          "File change lost intake focus.",
+        );
+        await uploadFiles(page, 'input[type="file"]', output);
+        await page.waitForSelector("#current-password");
+        await page.type("#current-password", "incorrect");
+        await clickButton(page, "Unlock & Download");
+        await page.waitForFunction(
+          () =>
+            document.querySelector("#current-password")?.getAttribute("aria-invalid") === "true",
+        );
+        assert(
+          await page.$eval(
+            "#current-password",
+            (input) =>
+              input === document.activeElement && (input as HTMLInputElement).value === "incorrect",
+          ),
+          "Wrong-password recovery discarded value or failed to focus input.",
+        );
+        await page.$eval("#current-password", (input) => {
+          (input as HTMLInputElement).select();
+        });
+        await page.type("#current-password", "cloakpdf-e2e-password");
+        const unlockedPath = await clickAndDownload(page, directory, "Unlock & Download");
+        const unlocked = await PDFDocument.load(readFileSync(unlockedPath));
+        assert(
+          !unlocked.context.trailerInfo.Encrypt &&
+            unlocked.getPageCount() === original.getPageCount(),
+          "Unlocked output is encrypted or changed page count.",
+        );
+        assert(
+          JSON.stringify(streams(unlocked)) === JSON.stringify(streams(original)),
+          "Unlocked output changed source streams.",
+        );
+        await clickButton(page, "Unlock & edit");
+        await page.waitForSelector('img[alt="Page 1"]', { timeout: 60_000 });
+        console.log(
+          `  ✓ AES-256/permissions, visibility/mismatch recovery, wrong-password retry, source-stream fidelity and unlock-to-editor pass`,
+        );
+        await openTool(page, "PDF Password");
+        const emptyProtected = join(directory, "empty-password.pdf");
+        await writeFile(
+          emptyProtected,
+          await protectPdf(new File([readFileSync(FIXTURES.sample)], "sample.pdf"), ""),
+        );
+        await uploadFiles(page, 'input[type="file"]', emptyProtected);
+        await page.waitForSelector("#current-password");
+        const emptyUnlocked = await clickAndDownload(page, directory, "Unlock & Download");
+        assert(
+          (await PDFDocument.load(readFileSync(emptyUnlocked))).getPageCount() ===
+            original.getPageCount(),
+          "Empty-password unlock failed.",
+        );
+        console.log("  ✓ Empty-password PDF unlock remains supported");
+        await clickButton(page, "Change file");
+        await page.evaluate(() => {
+          const original = Reflect.get(
+            File.prototype,
+            "arrayBuffer",
+          ) as typeof File.prototype.arrayBuffer;
+          window.__passwordProbe = { original };
+          File.prototype.arrayBuffer = function () {
+            return new Promise((resolve, reject) => {
+              window.__passwordProbe!.release = async () => {
+                try {
+                  resolve(await original.call(this));
+                } catch (error) {
+                  reject(error);
+                }
+              };
+            });
+          };
+        });
+        await uploadFiles(page, 'input[type="file"]', output);
+        await page.waitForFunction(() => document.activeElement?.textContent === "Cancel check");
+        await clickButton(page, "Cancel check");
+        assert(
+          await page.$eval('input[type="file"]', (input) => input === document.activeElement),
+          "Cancelled detection did not focus intake.",
+        );
+        await page.evaluate(() => {
+          File.prototype.arrayBuffer = window.__passwordProbe!.original;
+        });
+        await uploadFiles(page, 'input[type="file"]', FIXTURES.sample);
+        await page.waitForSelector("#new-password");
+        await page.evaluate(async () => {
+          await window.__passwordProbe!.release!();
+        });
+        // Two browser frames let the old parser's promise and React updates settle.
+        await page.evaluate(
+          () =>
+            new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        );
+        assert(
+          (await page.$("#new-password")) && !(await page.$("#current-password")),
+          "Obsolete encrypted-file detection replaced the newer plain PDF.",
+        );
+        console.log("  ✓ Cancelling detection preserves the newer file and restores intake focus");
       },
     );
 

@@ -1554,13 +1554,40 @@
     {
       "path": "src/standalone/PdfPassword.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": ["docs/air/evidence/extract-2026-10-14.json"],
-      "notes": " Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "enlarged-text",
+        "reduced-motion",
+        "forced-colors",
+        "detecting",
+        "busy",
+        "success",
+        "error",
+        "recovery",
+        "permissions",
+        "visibility"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/password-2026-10-14.json"],
+      "notes": "Air password fields, permissions, feedback and recovery implemented. AES-256/permission bits and source-stream fidelity, wrong/empty-password handling, unlock-to-editor, duplicate/late delivery guards and cancellation/replacement pass. All contract sizes/themes/text sizes and native Safari/Firefox 200% zoom reviewed. Physical touch/software keyboard and screen-reader speech acceptance remain open."
     },
     {
       "path": "src/styles/air-entry.css",
@@ -1598,9 +1625,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/recovery-utility-2026-10-13.json",
         "docs/air/evidence/constructors-2026-10-13.json",
-        "docs/air/evidence/extract-2026-10-14.json"
+        "docs/air/evidence/extract-2026-10-14.json",
+        "docs/air/evidence/password-2026-10-14.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open."
     },
     {
       "path": "src/styles/air.css",

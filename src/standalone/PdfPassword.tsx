@@ -1,342 +1,290 @@
-/**
- * PDF Password tool.
- *
- * Uploads a PDF, auto-detects whether it is encrypted, then shows the
- * appropriate form:
- *   - Unencrypted PDF → Add Password (protects with AES-256) with optional
- *     permission restrictions (print, copy, modify, annotate, fill forms).
- *   - Encrypted PDF   → Remove Password (decrypts using the supplied password)
- *
- * All processing happens entirely in the browser — no files are uploaded.
- */
-
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
-  ClipboardList,
-  Copy,
-  Eye,
-  EyeOff,
-  Lock,
-  LockOpen,
-  type LucideIcon,
-  MessageSquare,
-  Pencil,
-  Printer,
-} from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+/** Local PDF protection/removal; document security stays in pdf-security.ts. */
+import { AlertTriangle, Check, Eye, EyeOff } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "../components/ActionButton.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
-import { InfoCallout } from "../components/InfoCallout.tsx";
-import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
+import { LoadingState } from "../components/LoadingState.tsx";
 import { downloadPdf, errorMessage, formatFileSize, pdfFilename } from "../utils/file-helpers.ts";
 import { openEditorWithFile } from "../utils/nav.ts";
 import { isPdfEncrypted, protectPdf, unlockPdf } from "../utils/pdf-security.ts";
 
-type PdfState = "idle" | "detecting" | "unencrypted" | "encrypted";
-
-// PDF permission bit masks (§7.6.3.2 Table 22)
-const PERM_PRINT = 0x004;
-const PERM_MODIFY = 0x008;
-const PERM_COPY = 0x010;
-const PERM_ANNOTATE = 0x020;
-const PERM_FILL_FORMS = 0x100;
-const PERM_PRINT_HQ = 0x800;
-
-interface Permissions {
-  print: boolean;
-  printHighQuality: boolean;
-  modify: boolean;
-  copy: boolean;
-  annotate: boolean;
-  fillForms: boolean;
-}
-
-function buildPermissionsMask(p: Permissions): number {
-  let mask = -4; // ALL_PERMS = 0xFFFFFFFC
-  if (!p.print) mask &= ~PERM_PRINT;
-  if (!p.printHighQuality) mask &= ~PERM_PRINT_HQ;
-  if (!p.modify) mask &= ~PERM_MODIFY;
-  if (!p.copy) mask &= ~PERM_COPY;
-  if (!p.annotate) mask &= ~PERM_ANNOTATE;
-  if (!p.fillForms) mask &= ~PERM_FILL_FORMS;
-  return mask;
-}
-
-const PERMISSION_ROWS: {
-  key: keyof Permissions;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-}[] = [
-  { key: "print", icon: Printer, label: "Print", description: "Allow printing the document" },
+type PdfState = "idle" | "detecting" | "unencrypted" | "encrypted" | "error";
+const PERMISSION_ROWS = [
+  { key: "print", bit: 0x004, label: "Print", description: "Allow printing the document" },
   {
     key: "printHighQuality",
-    icon: Printer,
+    bit: 0x800,
     label: "Print (high quality)",
     description: "Allow high-resolution printing",
   },
   {
     key: "copy",
-    icon: Copy,
+    bit: 0x010,
     label: "Copy text & images",
     description: "Allow selecting and copying content",
   },
   {
     key: "modify",
-    icon: Pencil,
+    bit: 0x008,
     label: "Modify content",
     description: "Allow editing document content",
   },
   {
     key: "annotate",
-    icon: MessageSquare,
+    bit: 0x020,
     label: "Add / edit annotations",
     description: "Allow adding comments and annotations",
   },
   {
     key: "fillForms",
-    icon: ClipboardList,
+    bit: 0x100,
     label: "Fill form fields",
     description: "Allow filling interactive form fields",
   },
-];
+] as const;
+type Permissions = Record<(typeof PERMISSION_ROWS)[number]["key"], boolean>;
+const DEFAULT_PERMISSIONS: Permissions = {
+  print: true,
+  printHighQuality: true,
+  modify: false,
+  copy: false,
+  annotate: false,
+  fillForms: true,
+};
+function buildPermissionsMask(permissions: Permissions): number {
+  return PERMISSION_ROWS.reduce((mask, row) => (permissions[row.key] ? mask : mask & ~row.bit), -4);
+}
 
 interface PasswordFieldProps {
   id: string;
   label: string;
-  hint?: string;
   value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  autoComplete?: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  hint?: string;
   invalid?: boolean;
   show: boolean;
   onToggleShow: () => void;
+  busy: boolean;
+  autoComplete: string;
 }
-
 function PasswordField({
   id,
   label,
-  hint,
   value,
   onChange,
-  placeholder = "Enter password",
-  autoComplete = "off",
-  invalid = false,
+  onBlur,
+  hint,
+  invalid,
   show,
   onToggleShow,
+  busy,
+  autoComplete,
 }: PasswordFieldProps) {
-  const hintId = `${id}-hint`;
-
   return (
-    <div className="space-y-2 py-4">
-      <label htmlFor={id} className="block text-sm font-medium text-[var(--color-ink)]">
+    <div>
+      <label className="air-label" htmlFor={id}>
         {label}
       </label>
-      <div className="relative">
+      <div className="air-field-group">
         <input
           id={id}
           name={id}
+          className="air-field"
           type={show ? "text" : "password"}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           autoComplete={autoComplete}
-          aria-describedby={hintId}
+          autoCapitalize="none"
+          spellCheck={false}
+          readOnly={busy}
           aria-invalid={invalid || undefined}
-          className="cloak-focus min-h-11 w-full rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-3 py-2 pr-12 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] transition-[color,background-color,border-color]"
+          aria-describedby={hint ? `${id}-hint` : undefined}
         />
-        <button
-          type="button"
-          onClick={onToggleShow}
-          className="cloak-focus absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded text-slate-400 hover:text-slate-600 dark:hover:text-dark-text transition-colors"
-          aria-label={show ? "Hide password" : "Show password"}
-        >
-          {show ? (
-            <EyeOff className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <Eye className="h-4 w-4" aria-hidden="true" />
-          )}
-        </button>
+        <span className="air-field-actions">
+          <button
+            type="button"
+            className="air-icon-button air-button--quiet air-field-clear"
+            aria-label={`${show ? "Hide" : "Show"} ${label.toLowerCase()}`}
+            disabled={busy}
+            onClick={onToggleShow}
+          >
+            {show ? (
+              <EyeOff size={18} strokeWidth={1.6} aria-hidden="true" />
+            ) : (
+              <Eye size={18} strokeWidth={1.6} aria-hidden="true" />
+            )}
+          </button>
+        </span>
       </div>
-      <p
-        id={hintId}
-        role={invalid ? "alert" : undefined}
-        className={`min-h-[1lh] text-xs ${invalid ? "text-red-600 dark:text-red-400" : "text-[var(--color-ink-3)]"}`}
-      >
-        {hint ?? "\u00a0"}
-      </p>
+      {hint && (
+        <p
+          id={`${id}-hint`}
+          className={`air-help${invalid ? " air-help--error" : ""}`}
+          role={invalid ? "alert" : undefined}
+        >
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
 
 export default function PdfPassword() {
+  const root = useRef<HTMLDivElement>(null);
+  const generation = useRef(0);
+  const alive = useRef(true);
+  const inFlight = useRef(false);
+  const focusRequest = useRef<"intake" | "result" | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [pdfState, setPdfState] = useState<PdfState>("idle");
-
-  // Add-password state
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [confirmInvalid, setConfirmInvalid] = useState(false);
+  const [currentInvalid, setCurrentInvalid] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
-
-  // Remove-password state
-  const [currentPassword, setCurrentPassword] = useState("");
   const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [restrictPermissions, setRestrictPermissions] = useState(false);
+  const [permissions, setPermissions] = useState<Permissions>(DEFAULT_PERMISSIONS);
 
-  // Permissions state (only used when adding a password)
-  const [showPerms, setShowPerms] = useState(false);
-  const [permissions, setPermissions] = useState<Permissions>({
-    print: true,
-    printHighQuality: true,
-    modify: false,
-    copy: false,
-    annotate: false,
-    fillForms: true,
-  });
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      generation.current++;
+    };
+  }, []);
+  useEffect(() => {
+    if (!focusRequest.current) return;
+    const selector =
+      pdfState === "detecting"
+        ? ".pdf-file-info button"
+        : focusRequest.current === "intake"
+          ? 'input[type="file"]'
+          : "[data-password-heading]";
+    const target = root.current?.querySelector<HTMLElement>(selector);
+    if (target) {
+      target.focus();
+      if (pdfState !== "detecting") focusRequest.current = null;
+    }
+  }, [pdfState, file]);
 
-  // Shared operation state — uses useAsyncProcess for the processing/error
-  // machine. `success` stays local because it's a boolean, not a message.
-  const task = useAsyncProcess();
-  const processing = task.processing;
-  const error = task.error;
-  const setError = task.setError;
-  const [success, setSuccess] = useState(false);
-
-  // The unlock path can't use task.run (it needs to rewrite the error message
-  // per failure mode), so it carries its own processing flag + re-entrancy
-  // guard — otherwise both unlock buttons stay enabled and spinner-less while
-  // a decrypt is in flight, letting a user fire "& Download" and "& edit"
-  // concurrently. `busy` folds both paths into one signal for the buttons.
-  const [unlocking, setUnlocking] = useState(false);
-  const unlockInFlight = useRef(false);
-  const busy = processing || unlocking;
-
-  const handleFile = useCallback(
-    async (files: File[]) => {
-      const pdf = files[0];
-      if (!pdf) return;
-      setFile(pdf);
-      setError(null);
-      setSuccess(false);
-      setNewPassword("");
-      setConfirmPassword("");
-      setCurrentPassword("");
-      setPdfState("detecting");
-      try {
-        const encrypted = await isPdfEncrypted(pdf);
-        setPdfState(encrypted ? "encrypted" : "unencrypted");
-      } catch {
-        setPdfState("unencrypted"); // fallback: let the operation surface the real error
-      }
-    },
-    [setError],
-  );
-
-  const reset = useCallback(() => {
-    setFile(null);
-    setPdfState("idle");
-    setError(null);
-    setSuccess(false);
+  const clearDraft = () => {
     setNewPassword("");
     setConfirmPassword("");
     setCurrentPassword("");
-    setShowPerms(false);
-  }, [setError]);
-
-  const togglePermission = useCallback((key: keyof Permissions) => {
-    setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
-  }, []);
-
-  const handleAddPassword = useCallback(async () => {
-    if (!file) return;
-    if (!newPassword) {
-      setError("Please enter a password.");
+    setShowNewPw(false);
+    setShowConfirmPw(false);
+    setShowCurrentPw(false);
+    setConfirmInvalid(false);
+    setCurrentInvalid(false);
+    setRestrictPermissions(false);
+    setPermissions(DEFAULT_PERMISSIONS);
+    setError(null);
+    setSuccess(null);
+  };
+  const reset = () => {
+    if (inFlight.current) return;
+    generation.current++;
+    focusRequest.current = "intake";
+    setFile(null);
+    setPdfState("idle");
+    clearDraft();
+  };
+  const handleFile = async (files: File[]) => {
+    if (inFlight.current || !files.length) return;
+    const pdf = files[0];
+    if (pdf.type !== "application/pdf" && !/\.pdf$/i.test(pdf.name)) {
+      setError("Choose a PDF file to add or remove its password.");
       return;
     }
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+    const request = ++generation.current;
+    focusRequest.current = "result";
+    clearDraft();
+    setFile(pdf);
+    setPdfState("detecting");
+    try {
+      const encrypted = await isPdfEncrypted(pdf);
+      if (alive.current && request === generation.current)
+        setPdfState(encrypted ? "encrypted" : "unencrypted");
+    } catch {
+      if (alive.current && request === generation.current) setPdfState("error");
+    }
+  };
+  const changeValue = (set: (value: string) => void, value: string) => {
+    if (inFlight.current) return;
+    set(value);
+    setSuccess(null);
+    setError(null);
+  };
+  const run = async (delivery: "download" | "editor" = "download") => {
+    if (!file || inFlight.current || !["encrypted", "unencrypted"].includes(pdfState)) return;
+    if (pdfState === "unencrypted" && (!newPassword || newPassword !== confirmPassword)) {
+      setConfirmInvalid(Boolean(newPassword));
+      root.current
+        ?.querySelector<HTMLInputElement>(newPassword ? "#confirm-password" : "#new-password")
+        ?.focus();
       return;
     }
-    setSuccess(false);
-    const ok = await task.run(async () => {
-      const permMask = showPerms ? buildPermissionsMask(permissions) : undefined;
-      const bytes = await protectPdf(file, newPassword, undefined, permMask);
-      downloadPdf(bytes, pdfFilename(file, "_protected"));
-    }, "Failed to add password.");
-    if (ok) setSuccess(true);
-  }, [file, newPassword, confirmPassword, showPerms, permissions, task, setError]);
-
-  /**
-   * Unlock the PDF and hand the bytes to the chosen delivery (download for
-   * the primary CTA, the unified editor for the secondary "Unlock & edit").
-   * Doesn't use task.run — this handler needs to rewrite the error message
-   * based on the failure mode (incorrect password vs. missing password vs.
-   * generic), which run()'s fallback-string contract can't express.
-   */
-  const runUnlock = useCallback(
-    async (deliver: (bytes: Uint8Array) => void) => {
-      if (!file) return;
-      if (unlockInFlight.current) return; // mirror task.run's double-click guard
-      unlockInFlight.current = true;
-      setUnlocking(true);
-      setSuccess(false);
-      try {
-        const bytes = await unlockPdf(file, currentPassword);
-        deliver(bytes);
-        setError(null);
-      } catch (e) {
-        const msg = errorMessage(e, "Failed to unlock PDF.");
-        if (msg.toLowerCase().includes("incorrect") || msg.toLowerCase().includes("invalid")) {
-          setError("Incorrect password. Please check and try again.");
-        } else if (
-          msg.toLowerCase().includes("password") ||
-          msg.toLowerCase().includes("encrypt")
-        ) {
-          setError("A password is required to open this PDF. Please enter the current password.");
-        } else {
-          setError(msg);
-        }
-      } finally {
-        unlockInFlight.current = false;
-        setUnlocking(false);
-      }
-    },
-    [file, currentPassword, setError],
-  );
-
-  const handleRemovePassword = useCallback(
-    () =>
-      runUnlock((bytes) => {
-        if (!file) return;
-        downloadPdf(bytes, pdfFilename(file, "_unlocked"));
-        setSuccess(true);
-      }),
-    [runUnlock, file],
-  );
-
-  const handleUnlockAndEdit = useCallback(
-    () =>
-      runUnlock((bytes) => {
-        if (!file) return;
-        openEditorWithFile(
-          new File([bytes.slice()], pdfFilename(file, "_unlocked"), { type: "application/pdf" }),
+    inFlight.current = true;
+    const request = generation.current;
+    setBusy(true);
+    setError(null);
+    setCurrentInvalid(false);
+    setSuccess(null);
+    try {
+      const protect = pdfState === "unencrypted";
+      const bytes = protect
+        ? await protectPdf(
+            file,
+            newPassword,
+            undefined,
+            restrictPermissions ? buildPermissionsMask(permissions) : undefined,
+          )
+        : await unlockPdf(file, currentPassword);
+      if (!alive.current || request !== generation.current) return;
+      const name = pdfFilename(file, protect ? "_protected" : "_unlocked");
+      if (delivery === "editor" && !protect) {
+        openEditorWithFile(new File([bytes.slice()], name, { type: "application/pdf" }));
+      } else {
+        downloadPdf(bytes, name);
+        setSuccess(
+          `${protect ? "Password added successfully." : "Password removed successfully."} ${name} is ready. Download requested. Your source file is unchanged.`,
         );
-      }),
-    [runUnlock, file],
-  );
-
+      }
+    } catch (cause) {
+      if (!alive.current || request !== generation.current) return;
+      const incorrect =
+        pdfState === "encrypted" &&
+        /incorrect|invalid password|password is incorrect/i.test(errorMessage(cause, ""));
+      setCurrentInvalid(incorrect);
+      setError(
+        incorrect
+          ? null
+          : pdfState === "encrypted"
+            ? "Couldn’t unlock this PDF. Your file and password are still here. Check the password or choose another PDF."
+            : "Couldn’t protect this PDF. Your file and settings are still here. Try again or choose another PDF.",
+      );
+      if (incorrect) root.current?.querySelector<HTMLInputElement>("#current-password")?.focus();
+    } finally {
+      inFlight.current = false;
+      if (alive.current && request === generation.current) setBusy(false);
+    }
+  };
+  const ready = pdfState === "unencrypted" || pdfState === "encrypted";
   const passwordsMatch = newPassword === confirmPassword;
-  const canSubmitAdd = !!file && !!newPassword && passwordsMatch && !busy;
-  const canSubmitRemove = !!file && !busy;
+  const confirmMismatch = confirmInvalid && !passwordsMatch;
 
   return (
-    <div className="space-y-6">
-      {/* File picker */}
+    <div className="pdf-password" ref={root}>
       {!file ? (
         <FileDropZone
           accept=".pdf,application/pdf"
@@ -349,163 +297,175 @@ export default function PdfPassword() {
           fileName={file.name}
           details={formatFileSize(file.size)}
           onChangeFile={reset}
-          status={
-            pdfState === "detecting"
-              ? "Detecting…"
-              : pdfState === "encrypted"
-                ? "Password protected"
-                : undefined
-          }
+          disabled={busy}
+          changeLabel={pdfState === "detecting" ? "Cancel check" : "Change file"}
+          status={pdfState === "encrypted" ? "Password protected" : undefined}
         />
       )}
-
-      {/* Panel: Add Password (unencrypted PDF) */}
-      {pdfState === "unencrypted" && (
-        <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
-          <div className="flex items-center gap-3 py-3">
-            <Lock className="h-4 w-4 text-primary-600" aria-hidden="true" />
-            <div>
-              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
-                Add Password
-              </h2>
-              <p className="mt-0.5 text-xs text-[var(--color-ink-3)]">Encrypt with AES-256</p>
-            </div>
-          </div>
-          <PasswordField
-            id="new-password"
-            label="New password"
-            value={newPassword}
-            onChange={setNewPassword}
-            placeholder="Enter new password…"
-            autoComplete="new-password"
-            show={showNewPw}
-            onToggleShow={() => setShowNewPw((v) => !v)}
-          />
-          <PasswordField
-            id="confirm-password"
-            label="Confirm password"
-            hint={confirmPassword && !passwordsMatch ? "Passwords do not match" : undefined}
-            invalid={Boolean(confirmPassword && !passwordsMatch)}
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            placeholder="Re-enter new password…"
-            autoComplete="new-password"
-            show={showConfirmPw}
-            onToggleShow={() => setShowConfirmPw((v) => !v)}
-          />
-        </div>
-      )}
-
-      {/* Collapsible permissions section (only for Add Password) */}
-      {pdfState === "unencrypted" && (
-        <>
+      {pdfState === "detecting" && <LoadingState label="Checking PDF security…" />}
+      {pdfState === "error" && (
+        <div className="pdf-password-recovery">
+          <h2 data-password-heading tabIndex={-1}>
+            Couldn’t read this PDF
+          </h2>
+          <p className="air-help">
+            Choose a valid PDF, or try reading this file again. Your source file is unchanged.
+          </p>
           <button
             type="button"
-            onClick={() => setShowPerms((v) => !v)}
-            aria-expanded={showPerms}
-            aria-controls="perm-panel"
-            className="-mx-2 flex min-h-11 items-center gap-2 rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)] transition-colors hover:text-[var(--color-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="air-button"
+            onClick={() => file && void handleFile([file])}
           >
-            <ChevronRight
-              className={`cloak-disclosure-icon w-4 h-4 ${showPerms ? "rotate-90" : ""}`}
-              aria-hidden="true"
-            />
-            Restrict permissions
+            Try again
           </button>
-
-          {showPerms && (
-            <div id="perm-panel" className="space-y-6">
-              <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
-                <div className="py-2.5">
-                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                    Allowed Operations
-                  </p>
+        </div>
+      )}
+      {ready && (
+        <>
+          <div className="pdf-password-heading">
+            <h2 data-password-heading tabIndex={-1}>
+              {pdfState === "unencrypted" ? "Add password" : "Remove password"}
+            </h2>
+            <p className="air-help">
+              {pdfState === "unencrypted"
+                ? "Encrypt a copy with AES-256. Keep your password somewhere safe."
+                : "Decrypt and save an unlocked copy, or continue in the editor."}
+            </p>
+          </div>
+          <div className="pdf-password-fields">
+            {pdfState === "unencrypted" ? (
+              <>
+                <PasswordField
+                  id="new-password"
+                  label="New password"
+                  value={newPassword}
+                  onChange={(value) => changeValue(setNewPassword, value)}
+                  hint="Required to open the protected copy."
+                  autoComplete="new-password"
+                  show={showNewPw}
+                  onToggleShow={() => setShowNewPw(!showNewPw)}
+                  busy={busy}
+                />
+                <PasswordField
+                  id="confirm-password"
+                  label="Confirm password"
+                  value={confirmPassword}
+                  onChange={(value) => changeValue(setConfirmPassword, value)}
+                  onBlur={() => setConfirmInvalid(Boolean(confirmPassword) && !passwordsMatch)}
+                  invalid={confirmMismatch}
+                  hint={
+                    confirmMismatch
+                      ? "Passwords do not match. Enter the same password in both fields."
+                      : "Enter the new password again."
+                  }
+                  autoComplete="new-password"
+                  show={showConfirmPw}
+                  onToggleShow={() => setShowConfirmPw(!showConfirmPw)}
+                  busy={busy}
+                />
+              </>
+            ) : (
+              <PasswordField
+                id="current-password"
+                label="Current password"
+                value={currentPassword}
+                onChange={(value) => changeValue(setCurrentPassword, value)}
+                invalid={currentInvalid}
+                hint={
+                  currentInvalid
+                    ? "Incorrect password. Check it and try again."
+                    : "Leave blank if the PDF uses an empty password."
+                }
+                autoComplete="current-password"
+                show={showCurrentPw}
+                onToggleShow={() => setShowCurrentPw(!showCurrentPw)}
+                busy={busy}
+              />
+            )}
+          </div>
+          {pdfState === "unencrypted" && (
+            <div className="pdf-password-permissions">
+              <label className="air-check-label">
+                <input
+                  type="checkbox"
+                  className="air-check"
+                  checked={restrictPermissions}
+                  disabled={busy}
+                  aria-controls="perm-panel"
+                  onChange={(event) => {
+                    setRestrictPermissions(event.target.checked);
+                    setSuccess(null);
+                  }}
+                />
+                <span>
+                  Restrict permissions
+                  <span className="air-help">
+                    {restrictPermissions
+                      ? "Only the selected operations will be allowed in compatible viewers."
+                      : "All operations are allowed unless you turn on restrictions."}
+                  </span>
+                </span>
+              </label>
+              <div id="perm-panel" hidden={!restrictPermissions}>
+                <fieldset className="air-choice-group" disabled={busy}>
+                  <legend>Allowed operations</legend>
+                  {PERMISSION_ROWS.map(({ key, label, description }) => (
+                    <label key={key} className="air-check-label pdf-permission-row">
+                      <input
+                        className="air-check"
+                        type="checkbox"
+                        checked={permissions[key]}
+                        aria-label={label}
+                        aria-describedby={`permission-${key}-help`}
+                        onChange={() => {
+                          setPermissions((previous) => ({ ...previous, [key]: !previous[key] }));
+                          setSuccess(null);
+                        }}
+                      />
+                      <span>
+                        {label}
+                        <span id={`permission-${key}-help`} className="air-help">
+                          {description}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+                <div className="air-notice air-notice--warning pdf-result">
+                  <AlertTriangle size={18} strokeWidth={1.6} aria-hidden="true" />
+                  <div>
+                    <p className="pdf-password-notice-title">Viewer compatibility</p>
+                    <p>
+                      Permission restrictions depend on the PDF viewer. Some viewers may ignore them
+                      and allow all operations.
+                    </p>
+                  </div>
                 </div>
-                {PERMISSION_ROWS.map(({ key, icon: Icon, label, description }) => (
-                  <label
-                    key={key}
-                    className="flex min-h-14 cursor-pointer items-center justify-between gap-3 py-3 transition-colors hover:bg-[var(--color-paper)]"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className="h-4 w-4 shrink-0 text-primary-500" aria-hidden="true" />
-                      <div>
-                        <p className="text-sm font-medium text-[var(--color-ink)]">{label}</p>
-                        <p className="text-xs text-[var(--color-ink-3)]">{description}</p>
-                      </div>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={permissions[key]}
-                      onChange={() => togglePermission(key)}
-                      className="accent-primary-600 w-4 h-4 rounded shrink-0"
-                    />
-                  </label>
-                ))}
               </div>
-
-              <InfoCallout icon={AlertTriangle} title="Viewer compatibility" accent="warning">
-                Permission restrictions are enforced by Adobe Acrobat/Reader. Other viewers such as
-                macOS Preview and Chrome may ignore them and allow all operations regardless.
-              </InfoCallout>
             </div>
+          )}
+          <ActionButton
+            onClick={() => run()}
+            processing={busy}
+            disabled={pdfState === "unencrypted" && (!newPassword || !passwordsMatch)}
+            label={pdfState === "unencrypted" ? "Protect & Download" : "Unlock & Download"}
+            processingLabel={pdfState === "unencrypted" ? "Protecting…" : "Unlocking…"}
+            secondaryLabel={pdfState === "encrypted" ? "Unlock & edit" : undefined}
+            onSecondaryClick={pdfState === "encrypted" ? () => run("editor") : undefined}
+          />
+          {busy && (
+            <p className="air-help">
+              Keep this tool open until it finishes. Your source file is unchanged.
+            </p>
           )}
         </>
       )}
-
-      {/* Panel: Remove Password (encrypted PDF) */}
-      {pdfState === "encrypted" && (
-        <div className="divide-y divide-[var(--color-rule)] border-y border-[var(--color-rule)]">
-          <div className="flex items-center gap-3 py-3">
-            <LockOpen className="h-4 w-4 text-primary-600" aria-hidden="true" />
-            <div>
-              <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink)]">
-                Remove Password
-              </h2>
-              <p className="mt-0.5 text-xs text-[var(--color-ink-3)]">
-                Decrypt and save an unlocked copy
-              </p>
-            </div>
-          </div>
-          <PasswordField
-            id="current-password"
-            label="Current password"
-            hint="Leave blank if the PDF uses an empty password."
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            placeholder="Enter current password…"
-            autoComplete="current-password"
-            show={showCurrentPw}
-            onToggleShow={() => setShowCurrentPw((v) => !v)}
-          />
+      {success && (
+        <div className="air-notice air-notice--success pdf-result" role="status">
+          <Check size={18} strokeWidth={1.6} aria-hidden="true" />
+          <p>{success}</p>
         </div>
       )}
-
-      {/* Action button. Labels budgeted for the 320px CTA (ActionButton
-          labels never wrap): "Remove Password & Download" overflowed the pill.
-          The secondary "& edit" exists only on the unlock path — the protect
-          path's output is encrypted, which the editor can't open. */}
-      {(pdfState === "unencrypted" || pdfState === "encrypted") && (
-        <ActionButton
-          onClick={pdfState === "unencrypted" ? handleAddPassword : handleRemovePassword}
-          processing={busy}
-          disabled={pdfState === "unencrypted" ? !canSubmitAdd : !canSubmitRemove}
-          label={pdfState === "unencrypted" ? "Protect & Download" : "Unlock & Download"}
-          processingLabel={pdfState === "unencrypted" ? "Protecting…" : "Unlocking…"}
-          secondaryLabel={pdfState === "encrypted" ? "Unlock & edit" : undefined}
-          onSecondaryClick={pdfState === "encrypted" ? handleUnlockAndEdit : undefined}
-        />
-      )}
-
-      {/* Success */}
-      {success && (
-        <InfoCallout icon={CheckCircle2} live>
-          {pdfState === "unencrypted"
-            ? "Password added successfully. The protected PDF has been downloaded."
-            : "Password removed successfully. The unlocked PDF has been downloaded."}
-        </InfoCallout>
-      )}
-
-      {/* Error */}
       {error && <AlertBox message={error} />}
     </div>
   );
