@@ -90,7 +90,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/main.tsx`                             | app-surface | Done         | Done               | Pending    |
 | `src/standalone/AskPdf.tsx`                | app-surface | Pending      | Pending            | Pending    |
 | `src/standalone/ComparePdf.tsx`            | app-surface | Pending      | Pending            | Pending    |
-| `src/standalone/DigitalSignature.tsx`      | app-surface | Pending      | Pending            | Pending    |
+| `src/standalone/DigitalSignature.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/standalone/ExtractImages.tsx`         | app-surface | Done         | Done               | Pending    |
 | `src/standalone/ImagesToPdf.tsx`           | app-surface | Done         | Done               | Pending    |
 | `src/standalone/MergePdf.tsx`              | app-surface | Done         | Done               | Pending    |

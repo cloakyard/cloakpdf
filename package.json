@@ -63,6 +63,9 @@
   },
   "packageManager": "pnpm@12.9.1",
   "knip": {
+    "ignoreBinaries": [
+      "openssl"
+    ],
     "entry": [
       "tests/e2e/**/*.ts"
     ],

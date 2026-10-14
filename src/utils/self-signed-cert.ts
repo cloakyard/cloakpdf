@@ -37,7 +37,12 @@ export function buildSelfSignedCert(commonName: string): {
   cert.validity.notAfter.setFullYear(cert.validity.notAfter.getFullYear() + 1);
 
   const attrs: forge.pki.CertificateField[] = [
-    { name: "commonName", value: commonName },
+    {
+      name: "commonName",
+      value: commonName,
+      // Forge expects a value type here; @types incorrectly declares an ASN.1 class.
+      valueTagClass: forge.asn1.Type.UTF8 as unknown as forge.asn1.Class,
+    },
     { name: "organizationName", value: SELF_SIGNED_ORG },
   ];
 

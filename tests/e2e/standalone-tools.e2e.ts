@@ -10,6 +10,7 @@
  * Requirements:
  *   - `vp dev` running at http://localhost:5173 (override with E2E_URL)
  *   - Chrome at CHROME_PATH
+ *   - OpenSSL/LibreSSL with `cms` for independent signature verification
  *   - the local PDFs documented in tests/fixtures/README.md, or generated
  *     demo PDFs with E2E_DEMO_FIXTURES=1
  *
@@ -23,12 +24,19 @@ import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { PDFDocument, PDFDict, PDFName, PDFNumber, PDFRawStream } from "@pdfme/pdf-lib";
+import forge from "node-forge";
+import { buildSelfSignedCert } from "../../src/utils/self-signed-cert.ts";
 import { protectPdf, unlockPdf } from "../../src/utils/pdf-security.ts";
 import type { Browser, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
 
 declare global {
   interface Window {
+    __signatureImport?: {
+      original: typeof File.prototype.arrayBuffer;
+      release?: () => Promise<void>;
+    };
+    __signatureWorker?: { calls: number; terminated: number; original: typeof Worker };
     __passwordProbe?: {
       release?: () => Promise<void>;
       original: typeof File.prototype.arrayBuffer;
@@ -792,38 +800,303 @@ async function main(): Promise<void> {
         );
         await clickButton(page, "Generate");
         await page.waitForSelector("#common-name");
-        await page.type("#common-name", "CloakPDF E2E");
-        await clickButton(page, "Generate Certificate");
-        await page.waitForFunction(
-          () => (document.body.textContent ?? "").includes("Certificate Loaded"),
-          { timeout: 120_000 },
-        );
+        await page.type("#common-name", "CloakPDF E2E — Zoë");
+        await clickButton(page, "Generate certificate");
+        await page.waitForSelector("#certificate-loaded", { timeout: 120_000 });
         await page.type("#sig-reason", "Standalone tool regression");
         await page.type("#sig-location", "Local browser");
         await page.type("#sig-contact", "e2e@cloakpdf.test");
         const output = await clickAndDownload(page, directory, "Sign & Download PDF", 120_000);
         assert(
           basename(output) === `${basename(FIXTURES.sample, ".pdf")}_signed.pdf`,
-          `Unexpected signed PDF name: ${basename(output)}`,
+          "Unexpected signed filename.",
         );
-        assert(
-          (await pdfPageCount(output)) === EXPECTED_PAGE_COUNTS.sample,
-          "Signing changed page count.",
-        );
-        const signedBytes = readFileSync(output).toString("latin1");
-        assert(
-          /\/ByteRange\s*\[/.test(signedBytes),
-          "Signed PDF has no ByteRange signature entry.",
-        );
-        assert(
-          /\/SubFilter\s*\/adbe\.pkcs7\.detached/.test(signedBytes),
-          "Signed PDF has no detached PKCS#7 signature marker.",
-        );
+        const verifyOutput = async (
+          path: string,
+          expectedName: string,
+          expectedCertificates: number,
+        ) => {
+          const bytes = readFileSync(path);
+          const text = bytes.toString("latin1");
+          const ranges = [
+            ...text.matchAll(/\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/g),
+          ];
+          assert(ranges.length === 1, "Expected one signature ByteRange.");
+          const [start, length, second, tail] = ranges[0].slice(1).map(Number);
+          assert(
+            start === 0 && second + tail === bytes.length && second > length,
+            "Signature ByteRange is incomplete.",
+          );
+          const content = Buffer.concat([bytes.subarray(0, length), bytes.subarray(second)]);
+          const fromDer = forge.asn1.fromDer as unknown as (
+            bytes: string,
+            options: { parseAllBytes: boolean },
+          ) => forge.asn1.Asn1;
+          const der = fromDer(
+            forge.util.hexToBytes(bytes.subarray(length + 1, second - 1).toString("ascii")),
+            { parseAllBytes: false },
+          );
+          const message = forge.pkcs7.messageFromAsn1(der) as forge.pkcs7.PkcsSignedData;
+          assert(
+            message.certificates.length === expectedCertificates,
+            "Certificate chain was lost.",
+          );
+          assert(
+            forge.util.decodeUtf8(message.certificates[0].subject.getField("CN")?.value) ===
+              expectedName,
+            "Signer identity changed.",
+          );
+          const derFile = path + ".der",
+            contentFile = path + ".content",
+            verifiedFile = path + ".verified";
+          await writeFile(derFile, Buffer.from(forge.asn1.toDer(der).getBytes(), "binary"));
+          await writeFile(contentFile, content);
+          // Independently verify cryptographic integrity, not CA trust for test certificates.
+          execFileSync(
+            "openssl",
+            [
+              "cms",
+              "-verify",
+              "-binary",
+              "-inform",
+              "DER",
+              "-in",
+              derFile,
+              "-content",
+              contentFile,
+              "-noverify",
+              "-out",
+              verifiedFile,
+            ],
+            { stdio: "pipe" },
+          );
+          assert(readFileSync(verifiedFile).equals(content), "CMS verified content differs.");
+          const original = await PDFDocument.load(readFileSync(FIXTURES.sample));
+          const signed = await PDFDocument.load(bytes);
+          const streams = (doc: PDFDocument) =>
+            doc.context
+              .enumerateIndirectObjects()
+              .map(([, object]) => object)
+              .filter((object): object is PDFRawStream => object instanceof PDFRawStream)
+              .map((object) => Buffer.from(object.contents).toString("base64"))
+              .sort();
+          assert(signed.getPageCount() === original.getPageCount(), "Signing changed page count.");
+          assert(
+            JSON.stringify(streams(original)) === JSON.stringify(streams(signed)),
+            "Signing changed source streams.",
+          );
+        };
+        await verifyOutput(output, "CloakPDF E2E — Zoë", 1);
         await page.waitForFunction(() =>
-          (document.body.textContent ?? "").includes("PDF signed and downloaded successfully"),
+          document
+            .querySelector(".air-notice--success")
+            ?.textContent?.includes("Download requested"),
+        );
+        await page.type("#common-name", " changed");
+        assert(
+          !(await page.$("#certificate-loaded")),
+          "Edited name retained an older signing identity.",
+        );
+        assert(
+          await page.$eval(
+            ".pdf-signature > .pdf-operation-actions button",
+            (button) => button.getAttribute("aria-disabled") === "true",
+          ),
+          "Stale identity still permits signing.",
+        );
+        await clickButton(page, "Change file");
+        await uploadFiles(page, 'input[type="file"]', output);
+        await page.waitForSelector("#existing-signatures");
+        assert(
+          await page.$eval(
+            ".pdf-signature-record",
+            (node) =>
+              node.textContent?.includes("CloakPDF E2E") &&
+              node.textContent.includes("Standalone tool regression"),
+          ),
+          "Existing signer/metadata missing.",
+        );
+        assert(
+          await page.$eval(".air-notice--warning", (node) =>
+            node.textContent?.includes("invalidate"),
+          ),
+          "Existing-signature disclosure missing.",
         );
         console.log(
-          `  ✓ generated a self-signed certificate and downloaded a signed ${EXPECTED_PAGE_COUNTS.sample}-page PDF`,
+          "  ✓ generated signature verifies with OpenSSL CMS; source streams and reopened metadata survive; editing identity invalidates the old certificate",
+        );
+
+        await clickButton(page, "Change file");
+        await uploadFiles(page, 'input[type="file"]', FIXTURES.sample);
+        await page.waitForSelector("#certificate-heading");
+        const leaf = buildSelfSignedCert("Imported fixture signer");
+        const issuer = buildSelfSignedCert("Fixture issuer");
+        leaf.cert.setIssuer(issuer.cert.subject.attributes);
+        leaf.cert.sign(issuer.key as forge.pki.rsa.PrivateKey, forge.md.sha256.create());
+        const p12 = join(
+          directory,
+          "Certificate with a deliberately long filename for wrapping and recovery.p12",
+        );
+        const emptyP12 = join(directory, "empty-password.p12");
+        const makeP12 = async (path: string, password: string) =>
+          writeFile(
+            path,
+            Buffer.from(
+              forge.asn1
+                .toDer(
+                  forge.pkcs12.toPkcs12Asn1(
+                    leaf.key as forge.pki.rsa.PrivateKey,
+                    [leaf.cert, issuer.cert],
+                    password,
+                    {
+                      algorithm: "3des",
+                    },
+                  ),
+                )
+                .getBytes(),
+              "binary",
+            ),
+          );
+        await makeP12(p12, "air-certificate-password");
+        await makeP12(emptyP12, "");
+        await uploadFiles(page, 'input[accept=".p12,.pfx,application/x-pkcs12"]', p12);
+        await page.type("#cert-password", "incorrect");
+        await page.locator('button[aria-label="Show certificate password"]').click();
+        assert(
+          await page.$eval(
+            "#cert-password",
+            (input) => (input as HTMLInputElement).type === "text",
+          ),
+          "Certificate visibility failed.",
+        );
+        await page.locator('button[aria-label="Hide certificate password"]').click();
+        await clickButton(page, "Load certificate");
+        await page.waitForFunction(() =>
+          document
+            .querySelector('[role="alert"]')
+            ?.textContent?.includes("Couldn’t load this certificate"),
+        );
+        assert(
+          await page.$eval(
+            "#cert-password",
+            (input) =>
+              input === document.activeElement && (input as HTMLInputElement).value === "incorrect",
+          ),
+          "Certificate recovery lost input/focus.",
+        );
+        await page.$eval("#cert-password", (input) => (input as HTMLInputElement).select());
+        await page.type("#cert-password", "air-certificate-password");
+        await clickButton(page, "Load certificate");
+        await page.waitForSelector("#certificate-loaded");
+        // Headless Chromium replaces an existing same-name download. Retire the
+        // already-verified synthetic output so the next download is observable.
+        await rm(output);
+        const imported = await clickAndDownload(page, directory, "Sign & Download PDF");
+        await verifyOutput(imported, "Imported fixture signer", 2);
+        await clickButton(page, "Change certificate");
+        assert(
+          await page.$eval(
+            'input[accept=".p12,.pfx,application/x-pkcs12"]',
+            (input) => input === document.activeElement,
+          ),
+          "Certificate replacement lost intake focus.",
+        );
+        await uploadFiles(page, 'input[accept=".p12,.pfx,application/x-pkcs12"]', emptyP12);
+        await clickButton(page, "Load certificate");
+        await page.waitForSelector("#certificate-loaded");
+        await rm(imported);
+        const emptySigned = await clickAndDownload(page, directory, "Sign & Download PDF");
+        await verifyOutput(emptySigned, "Imported fixture signer", 2);
+        console.log(
+          "  ✓ imported PKCS#12 chain, wrong-password retry, visibility and empty-password certificate produce independently verified output",
+        );
+
+        await clickButton(page, "Change certificate");
+        const corruptCert = join(directory, "corrupt.p12");
+        await writeFile(corruptCert, "Not a certificate");
+        await uploadFiles(page, 'input[accept=".p12,.pfx,application/x-pkcs12"]', corruptCert);
+        await clickButton(page, "Load certificate");
+        await page.waitForFunction(() =>
+          document
+            .querySelector('[role="alert"]')
+            ?.textContent?.includes("Couldn’t load this certificate"),
+        );
+        await page.evaluate(() => {
+          const original = Reflect.get(
+            File.prototype,
+            "arrayBuffer",
+          ) as typeof File.prototype.arrayBuffer;
+          window.__signatureImport = { original };
+          File.prototype.arrayBuffer = function () {
+            if (this.name !== "corrupt.p12") return original.call(this);
+            return new Promise((resolve) => {
+              window.__signatureImport!.release = async () => resolve(await original.call(this));
+            });
+          };
+        });
+        await clickButton(page, "Load certificate");
+        await page.waitForFunction(() => Boolean(window.__signatureImport!.release));
+        await clickButton(page, "Cancel certificate load");
+        assert(
+          await page.$eval("#cert-password", (input) => input === document.activeElement),
+          "Cancelled import lost field focus.",
+        );
+        await clickButton(page, "Change certificate");
+        await uploadFiles(page, 'input[accept=".p12,.pfx,application/x-pkcs12"]', emptyP12);
+        await clickButton(page, "Load certificate");
+        // The replacement must complete before the cancelled read resolves.
+        await page.waitForSelector("#certificate-loaded");
+        await page.evaluate(async () => {
+          File.prototype.arrayBuffer = window.__signatureImport!.original;
+          await window.__signatureImport!.release!();
+        });
+        assert(
+          !(await page.$('[role="alert"]')) &&
+            (await page.$eval(".pdf-signature-record", (node) => node.textContent))?.includes(
+              "Imported fixture signer",
+            ),
+          "An obsolete certificate read replaced or errored over the new identity.",
+        );
+        await clickButton(page, "Generate");
+        await page.type("#common-name", "Cancelled fixture");
+        await page.evaluate(() => {
+          const original = window.Worker;
+          window.__signatureWorker = { original, calls: 0, terminated: 0 };
+          window.Worker = class extends original {
+            postMessage() {
+              window.__signatureWorker!.calls++;
+            }
+            terminate() {
+              window.__signatureWorker!.terminated++;
+              super.terminate();
+            }
+          };
+        });
+        await clickButton(page, "Generate certificate");
+        await clickButton(page, "Cancel certificate generation");
+        assert(
+          await page.evaluate(
+            () =>
+              window.__signatureWorker!.calls === 1 && window.__signatureWorker!.terminated === 1,
+          ),
+          "Cancellation did not terminate the real worker.",
+        );
+        assert(
+          await page.$eval(
+            "#common-name",
+            (input) =>
+              input === document.activeElement &&
+              (input as HTMLInputElement).value === "Cancelled fixture",
+          ),
+          "Cancelled generation lost name/focus.",
+        );
+        await page.evaluate(() => {
+          window.Worker = window.__signatureWorker!.original;
+        });
+        await clickButton(page, "Generate certificate");
+        await page.waitForSelector("#certificate-loaded");
+        console.log(
+          "  ✓ malformed certificate recovery, import cancellation/replacement and real-worker cancellation/retry preserve input and focus",
         );
       },
     );

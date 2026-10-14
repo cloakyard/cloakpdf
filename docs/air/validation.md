@@ -384,3 +384,69 @@ Evidence: [state record](evidence/password-2026-10-14.json),
 [laptop recovery](evidence/password-laptop-recovery-dark.png),
 [forced colours](evidence/password-forced-colours.png),
 [Safari](evidence/password-safari-200.png), [Firefox](evidence/password-firefox-200.png).
+
+## 2026-10-14 — Digital Signature options and results
+
+Digital Signature now uses the pinned Air file summaries, single-contour fields,
+grouped certificate-password visibility control, segmented source choice, shared
+actions/notices and open metadata groups. Import, generation, existing signatures,
+optional details, loading, completion and recovery all share the same language.
+Long names and filenames wrap. Self-signed trust and existing-signature invalidation
+disclosures remain visible; embedded details explicitly do not claim validation.
+
+PDF detection cancellation ignores obsolete results and restores intake focus.
+Certificate generation cancellation terminates the actual crypto worker; cancelled
+imports skip parsing after their file read finishes. A new import can complete
+before that obsolete read resolves: the cancellable operation owns its synchronous
+guard, so ActionButton does not retain a second pending guard. Replacement/mode
+changes clear stale identities and secrets. Busy drafts are read-only, duplicate
+signing is guarded, and leaving suppresses late downloads. Wrong passwords and
+malformed certificates retain the file and focus the password field. Signing
+failures retain identity and details for retry. Completion says download requested.
+
+Output verification exposed two pre-existing encoding issues. PDF Contents padding
+now permits only zero bytes after the complete DER object, without trimming real
+DER nibbles. Self-signed names explicitly use UTF8String; imported attribute display
+and CMS issuer encoding preserve Unicode instead of double-encoding the signer
+identifier. The embedded original certificate/chain, RSA-2048 and SHA-256 remain
+intact. The production suite independently verifies generated Unicode signatures,
+imported leaf/issuer chains and empty-password PKCS#12 output using OpenSSL/LibreSSL
+CMS. It skips CA trust for these synthetic certificates, not signature integrity.
+ByteRange coverage, page counts, exact source streams and reopened metadata pass.
+
+484 DOM geometry observations cover eleven contract sizes, both themes and
+16/32px root text across generated-ready, signing-busy, success, existing signature,
+certificate error, imported-ready, corrupt PDF, detection, generation, import busy
+and encrypted PDF states. No document overflow, inspected clipping or undersized
+coarse targets were found. These are geometry observations, not independent visual
+reviews; representative desktop/laptop/tablet/phone screenshots were inspected.
+Native Safari and Firefox passed actual 200% zoom with generation and metadata
+fields. Forced colours preserve labels and focus; reduced motion has zero running
+animations. Physical touch/software keyboard and screen-reader speech/navigation
+remain open, so inventory `validated` stays false.
+
+Required checks: `vp check`, `pnpm check:dead`, `pnpm test` (359/359 in 35 files),
+`vp run build` (production/PWA; 129 deployment assets within 25 MiB), all six
+standalone production workflows with `E2E_URL=http://127.0.0.1:8132
+E2E_DEMO_FIXTURES=1`, design inventory/source/portability and canonical sync. The
+E2E harness now selects icon controls by accessible label and retires already
+verified synthetic downloads before same-name replacement; no assertion or timeout
+was weakened. Generated demo PDFs substitute for missing original fixtures. AI,
+OCR, editor migrations and full product acceptance remain separate.
+
+Removed the old signature input skin, boxed/tinted metadata, uppercase mono
+labels, custom action presentation, obsolete imports and redundant async state.
+The cancelled import no longer leaves a dangling action guard. InfoCallout and
+useAsyncProcess still have real consumers in other tools and are retained. New
+CSS only composes shared tokens; no new palette, breakpoint or control skin was
+introduced. No contract change, push or deployment.
+
+Evidence: [state record](evidence/signature-2026-10-14.json),
+[checks](evidence/signature-checks-2026-10-14.log),
+[desktop](evidence/signature-generated-desktop-light.png),
+[phone](evidence/signature-generated-phone-dark.png),
+[existing signature](evidence/signature-existing-tablet-light.png),
+[import recovery](evidence/signature-import-recovery-laptop-dark.png),
+[imported identity](evidence/signature-imported-phone-light.png),
+[forced colours](evidence/signature-forced-colours.png),
+[Safari](evidence/signature-safari-200.png), [Firefox](evidence/signature-firefox-200.png).

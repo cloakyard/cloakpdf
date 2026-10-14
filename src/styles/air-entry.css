@@ -950,3 +950,51 @@ body:has(.pdf-site) {
   justify-items: start;
   gap: var(--air-space-16);
 }
+
+/* Certificate and signature metadata remain open, readable working groups. */
+.pdf-signature,
+.pdf-signature-section,
+.pdf-signature-fields {
+  display: grid;
+  gap: var(--air-space-24);
+  min-inline-size: 0;
+}
+.pdf-signature h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.pdf-signature h3,
+.pdf-signature-notice-title {
+  margin: 0;
+  font-size: var(--air-text-body);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.pdf-signature-fields {
+  max-inline-size: 40rem;
+}
+.pdf-signature-section > .air-button {
+  justify-self: start;
+}
+.pdf-signature-record {
+  display: grid;
+  gap: var(--air-space-16);
+  border-block: 1px solid var(--air-line);
+  padding-block: var(--air-space-20);
+}
+.pdf-signature-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--air-space-16) var(--air-space-24);
+  margin: 0;
+  font-size: var(--air-text-body);
+}
+.pdf-signature-details dt {
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-label);
+}
+.pdf-signature-details dd {
+  margin: var(--air-space-4) 0 0;
+  overflow-wrap: anywhere;
+}

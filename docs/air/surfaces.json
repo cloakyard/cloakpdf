@@ -1422,13 +1422,45 @@
     {
       "path": "src/standalone/DigitalSignature.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "native-browser-zoom",
+        "empty",
+        "loading",
+        "error",
+        "encrypted",
+        "generated",
+        "imported",
+        "existing-signature",
+        "busy",
+        "success",
+        "cancel",
+        "replacement",
+        "forced-colours",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/signature-2026-10-14.json"],
+      "notes": "Air certificate import/generation, single-contour fields, metadata, existing signatures and recovery. 484 DOM geometry observations; representative screenshots and native Safari/Firefox 200% zoom. Independent CMS verification, source-stream equality, Unicode identity, wrong/empty passwords, real-worker cancellation, import replacement before an obsolete read resolves and late-output suppression. Removed replaced mono/uppercase/tinted controls and redundant state/imports; dead-code scan passes. Physical touch/software keyboard and screen-reader speech remain open."
     },
     {
       "path": "src/standalone/ExtractImages.tsx",
@@ -1669,7 +1701,10 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
+      "evidence": [
+        "docs/air/validation.md \u2014 refinement 02 candidate",
+        "docs/air/components.html"
+      ],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]
