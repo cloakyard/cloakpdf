@@ -20,13 +20,7 @@ export type { FlatField, ProfileKey, FieldFill } from "./pdf/form-detect.ts";
 export { detectFlatFields, fillFlatFormFields } from "./pdf/form-detect.ts";
 
 export type { NupLayout } from "./pdf/transform.ts";
-export {
-  compressPdf,
-  grayscalePdf,
-  imagesToPdf,
-  nupPages,
-  cropPagesIndividual,
-} from "./pdf/transform.ts";
+export { compressPdf, grayscalePdf, imagesToPdf, nupPages } from "./pdf/transform.ts";
 
 export {
   addWatermark,

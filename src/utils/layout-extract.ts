@@ -1334,7 +1334,7 @@ async function pageLayoutFromTextLayer(
       y: Math.min(ay, by),
       width: Math.abs(bx - ax),
       height: Math.abs(by - ay),
-      fontSize: height,
+      fontSize: height * page.userUnit,
     });
   }
   return { pageNumber, width: viewport.width, height: viewport.height, text: "", items };

@@ -11,6 +11,7 @@
 // into body content. Identical on desktop + mobile (the Panel is a plain column
 // of controls; PrimaryAction routes Apply to the mobile sheet's ✓).
 
+import { docToFile } from "../doc.ts";
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { canvas as canvasTheme, canvasAccent } from "../../config/theme.ts";
@@ -20,9 +21,7 @@ import {
   type FurnitureGroup,
   furnitureCropMargins,
 } from "../../utils/layout-extract.ts";
-import { cropPagesIndividual } from "../../utils/pdf-operations.ts";
-import type { CropMargins } from "../../types.ts";
-import { docToFile } from "../doc.ts";
+import { cropDoc } from "../crop.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
@@ -137,17 +136,18 @@ export function Panel() {
   const apply = useCallback(() => {
     if (nothingSelected) return;
     void applyTransform(async (d) => {
-      const map = new Map<number, CropMargins>();
-      for (const p of d.pages) {
-        map.set(p.index, {
-          left: 0,
-          right: 0,
-          top: topPct * p.heightPt,
-          bottom: bottomPct * p.heightPt,
-        });
-      }
-      const { bytes } = await cropPagesIndividual(docToFile(d), map);
-      return { bytes, label: "Strip furniture" };
+      const keeps = new Map(
+        d.pages.map((p) => [
+          p.index,
+          {
+            xPct: 0,
+            yPct: topPct,
+            wPct: 1,
+            hPct: 1 - topPct - bottomPct,
+          },
+        ]),
+      );
+      return { ...(await cropDoc(d, keeps)), label: "Strip furniture" };
     }).then(() => patchToolState(TOOL_ID, { topPct: 0, bottomPct: 0 }));
   }, [nothingSelected, topPct, bottomPct, applyTransform, patchToolState]);
 
@@ -244,7 +244,6 @@ export function Panel() {
 
           <p className="text-xs text-slate-500 dark:text-dark-text-muted">
             Cropping is non-destructive — the content stays in the file but won't show or print.
-            Rotated pages are skipped.
           </p>
         </>
       )}

@@ -28,7 +28,7 @@ export function PageThumb({
   className = "",
   loading,
 }: {
-  page: Pick<PageMeta, "widthPt" | "heightPt" | "rotation" | "thumbUrl">;
+  page: Pick<PageMeta, "widthPt" | "heightPt" | "thumbUrl">;
   alt: string;
   /** Box aspect ratio override; defaults to the page's own width / height. */
   aspect?: number;
@@ -44,12 +44,9 @@ export function PageThumb({
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const unavailable = !page.thumbUrl || failedUrl === page.thumbUrl;
   const quarterTurn = Math.abs(rotation % 180) === 90;
-  // PDF.js already includes the saved /Rotate in its bitmap; CSS adds only
-  // the pending rotation. Reserve the displayed shape for both sources.
-  const baseRatio =
-    Math.abs(page.rotation % 180) === 90
-      ? page.heightPt / page.widthPt
-      : page.widthPt / page.heightPt;
+  // Page metadata and PDF.js bitmap already include saved rotation. CSS adds
+  // only the pending organize rotation.
+  const baseRatio = page.widthPt / page.heightPt;
   const ratio = aspect ?? (quarterTurn ? 1 / baseRatio : baseRatio);
   const imgStyle: CSSProperties | undefined = rotation
     ? {

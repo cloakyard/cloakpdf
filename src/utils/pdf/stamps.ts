@@ -3,6 +3,7 @@
  * signature placement, page numbers, headers/footers, and Bates numbering.
  */
 
+import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFDocument, rgb, degrees, StandardFonts } from "@pdfme/pdf-lib";
 import type {
   WatermarkOptions,
@@ -106,15 +107,17 @@ export async function addWatermark(
         entry = { image, widthPt: rendered.widthPt, heightPt: rendered.heightPt };
         cache.set(text, entry);
       }
-      const { width, height } = page.getSize();
-      const { x, y } = place(entry.widthPt, entry.heightPt, width, height);
-      page.drawImage(entry.image, {
-        x,
-        y,
-        width: entry.widthPt,
-        height: entry.heightPt,
-        rotate: degrees(options.rotation),
-        opacity: options.opacity,
+      await drawOnVisiblePage(page, ({ width, height }) => {
+        const stamp = entry;
+        const { x, y } = place(stamp.widthPt, stamp.heightPt, width, height);
+        page.drawImage(stamp.image, {
+          x,
+          y,
+          width: stamp.widthPt,
+          height: stamp.heightPt,
+          rotate: degrees(options.rotation),
+          opacity: options.opacity,
+        });
       });
     }
     return pdf.save();
@@ -124,18 +127,19 @@ export async function addWatermark(
   for (const { page, index } of targets) {
     const text = resolveStampTokens(options.text, { ...ctxBase, page: index + 1 });
     if (!text) continue;
-    const { width, height } = page.getSize();
-    const textWidth = font.widthOfTextAtSize(text, options.fontSize);
-    const textHeight = font.heightAtSize(options.fontSize);
-    const { x, y } = place(textWidth, textHeight, width, height);
-    page.drawText(text, {
-      x,
-      y,
-      size: options.fontSize,
-      font,
-      color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
-      opacity: options.opacity,
-      rotate: degrees(options.rotation),
+    await drawOnVisiblePage(page, ({ width, height }) => {
+      const textWidth = font.widthOfTextAtSize(text, options.fontSize);
+      const textHeight = font.heightAtSize(options.fontSize);
+      const { x, y } = place(textWidth, textHeight, width, height);
+      page.drawText(text, {
+        x,
+        y,
+        size: options.fontSize,
+        font,
+        color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+        opacity: options.opacity,
+        rotate: degrees(options.rotation),
+      });
     });
   }
 
@@ -152,7 +156,7 @@ export async function addWatermark(
  * @param file - The PDF file to sign.
  * @param signatureDataUrl - A `data:image/png;base64,…` string of the signature.
  * @param pageIndices - Array of 0-based page indices to place the signature on.
- * @param position - `{ x, y, width, height }` in PDF points for placement.
+ * @param position - `{ x, y, width, height }` in visible, rotated points with a bottom-left origin.
  * @returns PDF bytes with the signature embedded on the specified pages.
  */
 export async function addSignature(
@@ -186,11 +190,13 @@ export async function addSignature(
     const pos = isMap ? (position.get(idx) ?? fallback) : position;
     if (!pos) continue;
     const page = pdf.getPage(idx);
-    page.drawImage(signatureImage, {
-      x: pos.x,
-      y: pos.y,
-      width: pos.width,
-      height: pos.height,
+    await drawOnVisiblePage(page, () => {
+      page.drawImage(signatureImage, {
+        x: pos.x,
+        y: pos.y,
+        width: pos.width,
+        height: pos.height,
+      });
     });
   }
 
@@ -238,26 +244,27 @@ export async function addPageNumbers(file: File, options: PageNumberOptions): Pr
     }
 
     const page = pages[i];
-    const { width, height } = page.getSize();
-    const textWidth = font.widthOfTextAtSize(text, options.fontSize);
-    const { margin } = options;
+    await drawOnVisiblePage(page, ({ width, height }) => {
+      const textWidth = font.widthOfTextAtSize(text, options.fontSize);
+      const { margin } = options;
 
-    const isLeft = options.position === "top-left" || options.position === "bottom-left";
-    const isRight = options.position === "top-right" || options.position === "bottom-right";
-    const isTop =
-      options.position === "top-left" ||
-      options.position === "top-center" ||
-      options.position === "top-right";
+      const isLeft = options.position === "top-left" || options.position === "bottom-left";
+      const isRight = options.position === "top-right" || options.position === "bottom-right";
+      const isTop =
+        options.position === "top-left" ||
+        options.position === "top-center" ||
+        options.position === "top-right";
 
-    const x = isLeft ? margin : isRight ? width - textWidth - margin : (width - textWidth) / 2;
-    const y = isTop ? height - margin - options.fontSize : margin;
+      const x = isLeft ? margin : isRight ? width - textWidth - margin : (width - textWidth) / 2;
+      const y = isTop ? height - margin - options.fontSize : margin;
 
-    page.drawText(text, {
-      x,
-      y,
-      size: options.fontSize,
-      font,
-      color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+      page.drawText(text, {
+        x,
+        y,
+        size: options.fontSize,
+        font,
+        color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+      });
     });
   }
 
@@ -296,47 +303,47 @@ export async function addHeaderFooter(
     if (options.skipFirstPage && i === 0) continue;
 
     const page = pages[i];
-    const { width, height } = page.getSize();
+    await drawOnVisiblePage(page, ({ width, height }) => {
+      const resolve = (t: string) => resolveStampTokens(t, { ...ctxBase, page: i + 1 });
 
-    const resolve = (t: string) => resolveStampTokens(t, { ...ctxBase, page: i + 1 });
+      const drawSlot = (raw: string, x: number, y: number) => {
+        if (!raw.trim()) return;
+        const text = resolve(raw);
+        page.drawText(text, {
+          x,
+          y,
+          size: options.fontSize,
+          font,
+          color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+        });
+      };
 
-    const drawSlot = (raw: string, x: number, y: number) => {
-      if (!raw.trim()) return;
-      const text = resolve(raw);
-      page.drawText(text, {
-        x,
-        y,
-        size: options.fontSize,
-        font,
-        color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
-      });
-    };
+      const m = options.margin;
+      const yTop = height - m - options.fontSize;
+      const yBot = m;
 
-    const m = options.margin;
-    const yTop = height - m - options.fontSize;
-    const yBot = m;
+      // Header row
+      drawSlot(options.headerLeft, m, yTop);
+      if (options.headerCenter.trim()) {
+        const tw = font.widthOfTextAtSize(resolve(options.headerCenter), options.fontSize);
+        drawSlot(options.headerCenter, (width - tw) / 2, yTop);
+      }
+      if (options.headerRight.trim()) {
+        const tw = font.widthOfTextAtSize(resolve(options.headerRight), options.fontSize);
+        drawSlot(options.headerRight, width - m - tw, yTop);
+      }
 
-    // Header row
-    drawSlot(options.headerLeft, m, yTop);
-    if (options.headerCenter.trim()) {
-      const tw = font.widthOfTextAtSize(resolve(options.headerCenter), options.fontSize);
-      drawSlot(options.headerCenter, (width - tw) / 2, yTop);
-    }
-    if (options.headerRight.trim()) {
-      const tw = font.widthOfTextAtSize(resolve(options.headerRight), options.fontSize);
-      drawSlot(options.headerRight, width - m - tw, yTop);
-    }
-
-    // Footer row
-    drawSlot(options.footerLeft, m, yBot);
-    if (options.footerCenter.trim()) {
-      const tw = font.widthOfTextAtSize(resolve(options.footerCenter), options.fontSize);
-      drawSlot(options.footerCenter, (width - tw) / 2, yBot);
-    }
-    if (options.footerRight.trim()) {
-      const tw = font.widthOfTextAtSize(resolve(options.footerRight), options.fontSize);
-      drawSlot(options.footerRight, width - m - tw, yBot);
-    }
+      // Footer row
+      drawSlot(options.footerLeft, m, yBot);
+      if (options.footerCenter.trim()) {
+        const tw = font.widthOfTextAtSize(resolve(options.footerCenter), options.fontSize);
+        drawSlot(options.footerCenter, (width - tw) / 2, yBot);
+      }
+      if (options.footerRight.trim()) {
+        const tw = font.widthOfTextAtSize(resolve(options.footerRight), options.fontSize);
+        drawSlot(options.footerRight, width - m - tw, yBot);
+      }
+    });
   }
 
   return pdf.save();
@@ -370,26 +377,27 @@ export async function addBatesNumbers(
     const text = `${options.prefix}${padded}${options.suffix}`;
 
     const page = pages[i];
-    const { width, height } = page.getSize();
-    const textWidth = font.widthOfTextAtSize(text, options.fontSize);
-    const { margin } = options;
+    await drawOnVisiblePage(page, ({ width, height }) => {
+      const textWidth = font.widthOfTextAtSize(text, options.fontSize);
+      const { margin } = options;
 
-    const isLeft = options.position === "top-left" || options.position === "bottom-left";
-    const isRight = options.position === "top-right" || options.position === "bottom-right";
-    const isTop =
-      options.position === "top-left" ||
-      options.position === "top-center" ||
-      options.position === "top-right";
+      const isLeft = options.position === "top-left" || options.position === "bottom-left";
+      const isRight = options.position === "top-right" || options.position === "bottom-right";
+      const isTop =
+        options.position === "top-left" ||
+        options.position === "top-center" ||
+        options.position === "top-right";
 
-    const x = isLeft ? margin : isRight ? width - textWidth - margin : (width - textWidth) / 2;
-    const y = isTop ? height - margin - options.fontSize : margin;
+      const x = isLeft ? margin : isRight ? width - textWidth - margin : (width - textWidth) / 2;
+      const y = isTop ? height - margin - options.fontSize : margin;
 
-    page.drawText(text, {
-      x,
-      y,
-      size: options.fontSize,
-      font,
-      color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+      page.drawText(text, {
+        x,
+        y,
+        size: options.fontSize,
+        font,
+        color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
+      });
     });
   }
 

@@ -2,16 +2,15 @@
 // "keep" rectangle on the focused page (everything outside it dims); the Panel
 // applies that fractional crop to every page (or just this one). Crop lives in
 // the tool slice — not as a doc object — because it maps to per-page crop boxes,
-// not an overlay mark. On Apply, `cropPagesIndividual` sets each page's crop box
-// from the SAME fractional rect (so mixed-size pages crop consistently); the
-// trim is non-destructive (hidden content stays in the file). Reuses the crop
-// geometry the standalone Crop Pages tool proved. See CLAUDE.md.
+// not an overlay mark. On Apply, `cropDoc` sets each page's crop box and remaps
+// pending marks from the same fractional rect, including mixed sizes and saved
+// rotation. Hidden content stays in the file.
 
+import { cropDoc } from "../crop.ts";
 import { Loader2, Scan, Wand2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { canvas as canvasTheme, canvasAccent } from "../../config/theme.ts";
-import type { CropMargins } from "../../types.ts";
-import { cropPagesIndividual, detectContentBox, deskewPdf } from "../../utils/pdf-operations.ts";
+import { detectContentBox, deskewPdf } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { type StagePoint, useStageProps } from "../stage.tsx";
@@ -181,21 +180,8 @@ export function Panel() {
     if (!keep) return;
     void applyTransform(async (d) => {
       const targets = scope === "all" ? d.pages.map((p) => p.index) : [selectedPage];
-      const map = new Map<number, CropMargins>();
-      for (const idx of targets) {
-        const page = d.pages[idx];
-        if (!page) continue;
-        const W = page.widthPt;
-        const H = page.heightPt;
-        map.set(idx, {
-          left: keep.xPct * W,
-          right: (1 - keep.xPct - keep.wPct) * W,
-          top: keep.yPct * H,
-          bottom: (1 - keep.yPct - keep.hPct) * H,
-        });
-      }
-      const { bytes } = await cropPagesIndividual(docToFile(d), map);
-      return { bytes, label: "Crop pages" };
+      const result = await cropDoc(d, new Map(targets.map((index) => [index, keep])));
+      return { ...result, label: "Crop pages" };
     }).then(() => patchToolState(TOOL_ID, { keep: null }));
   }, [keep, scope, selectedPage, applyTransform, patchToolState]);
 
@@ -276,8 +262,7 @@ export function Panel() {
       </div>
 
       <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        Cropping is non-destructive — hidden content stays in the file but won't print. Rotated
-        pages are skipped.
+        Cropping is non-destructive — hidden content stays in the file but won't print.
       </p>
     </WholeDocPanel>
   );

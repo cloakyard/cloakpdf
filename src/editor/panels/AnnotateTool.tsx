@@ -755,9 +755,7 @@ export function Stage() {
         initialText: "",
       });
       const ph = docRef.current?.pages[page]?.heightPt ?? 0;
-      const rotation = docRef.current?.pages[page]?.rotation ?? 0;
-      // Skip the suggestion on rotated pages — pt→sizeFrac via heightPt skews.
-      if (ph <= 0 || rotation !== 0) return;
+      if (ph <= 0) return;
       const openSizePt = textSizePtRef.current;
       void (async () => {
         const geom = await getPageGeometry(page);

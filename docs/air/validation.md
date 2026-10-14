@@ -863,3 +863,46 @@ Evidence: [record](evidence/canvas-2026-10-14.json),
 [checks](evidence/canvas-checks-2026-10-14.log),
 [desktop](evidence/canvas-desktop-1440-light.png),
 [phone](evidence/canvas-phone-390-dark.png).
+
+## 2026-10-14 — Visible page geometry and export placement
+
+The focus canvas, thumbnails and point-sized tools now share the visible rotated
+page frame, including CropBox/MediaBox intersection, non-origin boxes and UserUnit.
+A single graphics-state wrapper maps vector overlays back into PDF coordinates.
+Source streams and saved rotation remain intact. Annotations, signatures, QR and
+barcode, watermark/seal, numbers, headers/footers, Bates and flat form text use it.
+Native form widgets retain their own PDF coordinates.
+
+Crop and Strip furniture now trim rotated pages and existing crops. Pending marks
+are remapped to stay attached to content at the same physical size; undo restores
+the prior geometry/objects. Invalid/empty crops are ignored. Font suggestions use
+physical points and no longer skip saved rotation. Removed raw rotation metadata,
+the duplicate thumbnail rotation adjustment, duplicated crop conversions, the unused
+crop barrel export, obsolete skip branches and stale copy. No new dependencies.
+
+The new integration suite compares outputs with PDF.js across 12 configurations:
+all four rotations with UserUnit 1/2, non-origin/intersecting/disjoint/reversed boxes,
+and negative rotation. It checks 10 overlay writers, source pixels, crop pixels,
+pending-mark equivalence, erase/redaction followed by vector placement and font size.
+48 rotated-page layouts pass in six sizes/light/dark. Desktop/laptop/tablet/phone
+renders inspected; direct UI crop/undo keeps an annotation around sideways text.
+Four native-form round trips preserve field value, widget bounds and page boxes.
+
+All 16 smoke and seven extended browser suites pass (synthetic demo fixtures).
+The geometry suite uses the dev server because it exercises source modules directly:
+`E2E_URL=http://127.0.0.1:8122 node --experimental-strip-types tests/e2e/page-geometry.e2e.ts`.
+The final production build also passes canvas (68 layouts), collections (88) and
+rotate/apply/export regressions. Format/lint/types, knip, 376 unit tests/37 files,
+production/PWA build and the 128-asset gate pass. The first five crop regressions
+failed against the old implementation and pass after the fix.
+
+N-up/booklet and searchable OCR output require a separate geometry matrix. Preview
+recovery and remaining panel/overlay interiors remain pending. Native form visual/
+assistive acceptance, physical touch/software keyboard and OS IME remain open.
+Air 1.0.1 and the portable contract are unchanged; this implements existing output
+fidelity requirements and does not complete the PDF migration.
+
+Evidence: [record](evidence/geometry-2026-10-14.json),
+[checks](evidence/geometry-checks-2026-10-14.log),
+[desktop](evidence/geometry-desktop-1440-dark.png),
+[phone](evidence/geometry-phone-390-light.png).

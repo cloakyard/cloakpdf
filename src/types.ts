@@ -45,7 +45,7 @@ export interface PdfMetadata {
   modificationDate: string;
 }
 
-/** Absolute position and dimensions (in PDF points) for signature placement. */
+/** Signature box in visible, rotated page points, with a bottom-left origin. */
 export interface Position {
   x: number;
   y: number;
@@ -136,7 +136,7 @@ export interface HeaderFooterOptions {
   skipFirstPage: boolean;
 }
 
-/** Crop margins in PDF points. */
+/** Margins to trim from the current visible page, in physical points. */
 export interface CropMargins {
   top: number;
   right: number;

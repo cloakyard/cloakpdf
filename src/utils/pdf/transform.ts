@@ -3,6 +3,7 @@
  * images-to-PDF, N-up, and crop/uncrop.
  */
 
+import { visiblePageGeometry, visibleRectToPdf } from "./page-geometry.ts";
 import {
   PDFArray,
   PDFDict,
@@ -549,22 +550,9 @@ export async function nupPages(
   return result.save();
 }
 
-/**
- * Crop each page to its own crop box — the per-page counterpart of
- * {@link cropPages}, used by auto-crop where every page is trimmed to fit its
- * own content. `marginsByIndex` maps a 0-based page index to the margins (in
- * PDF points) to hide on that page; pages absent from the map are left as-is.
- *
- * Rotated pages (/Rotate 90/180/270) are skipped: the caller computes margins
- * in the rendered (rotated) frame while the crop box lives in unrotated user
- * space, so applying them there would mis-place the box. Leaving rotated pages
- * untouched is the safe choice (the manual margin tool still handles them).
- *
- * Returns the new bytes plus `croppedCount` — how many pages actually got a
- * crop box — so the caller can tell the user when nothing was trimmable (e.g.
- * every candidate page was rotated) instead of silently handing back an
- * unchanged file.
- */
+/** Trim margins from the current visible page, including saved rotation and
+ * CropBox offsets. Margins are physical points; repeated crops trim further.
+ * Invalid/empty requests leave the page unchanged and are excluded from the count. */
 export async function cropPagesIndividual(
   file: File,
   marginsByIndex: Map<number, CropMargins>,
@@ -576,12 +564,18 @@ export async function cropPagesIndividual(
   for (const [index, m] of marginsByIndex) {
     const page = pages[index];
     if (!page) continue;
-    if (page.getRotation().angle % 360 !== 0) continue;
-    const { width, height } = page.getSize();
-    const w = width - m.left - m.right;
-    const h = height - m.top - m.bottom;
+    if (Object.values(m).some((value) => !Number.isFinite(value) || value < -1e-7)) continue;
+    // Fraction arithmetic can produce a tiny negative margin at a page edge.
+    const left = Math.max(0, m.left),
+      right = Math.max(0, m.right);
+    const top = Math.max(0, m.top),
+      bottom = Math.max(0, m.bottom);
+    const { width, height } = visiblePageGeometry(page);
+    const w = width - left - right;
+    const h = height - top - bottom;
     if (w > 0 && h > 0) {
-      page.setCropBox(m.left, m.bottom, w, h);
+      const box = visibleRectToPdf(page, { x: left, y: bottom, width: w, height: h });
+      page.setCropBox(box.x, box.y, box.width, box.height);
       croppedCount++;
     }
   }
