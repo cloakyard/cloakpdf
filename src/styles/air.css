@@ -1,4 +1,4 @@
-/* Cloakyard Air 1.0.0 — portable family foundations and opt-in component shells.
+/* Cloakyard Air 1.0.1 — portable family foundations and opt-in component shells.
  * Source: cloakyard/design/air/air.css. Never override --air-* in product styles.
  * Document templates, image pixels and PDF content keep their own styles. */
 :root {
@@ -15,6 +15,7 @@
   --air-action: light-dark(#222831, #e9eef7);
   --air-on-action: light-dark(#ffffff, #18212e);
   --air-accent: light-dark(#285ad7, #9ebcff);
+  --air-paper-accent: #285ad7;
   --air-accent-soft: light-dark(#edf2ff, #202f4e);
   --air-danger: light-dark(#b42335, #ff9ea8);
   --air-danger-soft: light-dark(#fff0f1, #382229);

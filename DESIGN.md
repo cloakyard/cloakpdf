@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.0
+version: 1.0.1
 status: approved
-date: 2026-10-13
+date: 2026-10-14
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 4232d7b9e8e062ff1ca9073c7f3102c4332908b50c43b6925b65b3b4c6d309ee
+family-contract-sha256: 201f7c381b5f28d504d733c10f82f6559ef1f92684fb3b9d9b4d503c54d2419e
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.0 — implementation baseline** · Direction: **Air** · Updated: **2026-10-13**
+Version: **1.0.1 — implementation baseline** · Direction: **Air** · Updated: **2026-10-14**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -185,6 +185,11 @@ just individual token values: 4.5:1 normal text, 3:1 large text and required UI
 indicators. `line` is decorative separation and cannot be the sole indicator of a
 control. Errors/warnings/success also use text and an appropriate icon.
 
+`paper-accent` keeps the light accent (`#285ad7`) on white document paper in either
+appearance. Use it for on-paper selection handles and inline editing focus, where
+the surrounding dark theme's brighter accent would lose contrast against white.
+It never changes author content or exported colours.
+
 ### Type
 
 - UI and display: `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`.
@@ -256,28 +261,28 @@ No glass blur behind forms, body copy, tables, or document content.
 
 ## 4. Component contracts — custom controls included
 
-| Component                       | Required shared behaviour and appearance                                                                                                                                                               |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Brand/header/footer             | Same wordmark spacing and header rhythm; existing family mark, 28px in editor (24px compact) and 36px marketing. Compact neutral footer with product links, privacy, source, and version where useful. |
-| Buttons                         | Sans label; stable box; neutral secondary; monochrome primary; visible hover/press/focus; descriptive action verb; busy state preserves width.                                                         |
-| Icon buttons                    | Accessible name, tooltip for unfamiliar meaning, 40px fine/44px touch target; selected and disabled semantics.                                                                                         |
-| Text/number/date fields         | Visible persistent label; shared boundary, height, radius, focus; unit beside value; help/error beneath; correct input type and autocomplete.                                                          |
-| Select/listbox                  | Native semantics or established accessible primitive; same field shell; arrow inset; wrapping long labels; keyboard navigation; viewport-aware menu.                                                   |
-| Check/radio/switch              | Label and control share hit target; explicit state; keyboard operation; same accent/focus.                                                                                                             |
-| Slider/scrubber                 | Label, current value/unit, keyboard input, touch-friendly hit area, reset or precise entry when needed; no hidden critical gesture.                                                                    |
-| Segments/tabs                   | Neutral group, one clear selection, correct roles/states and arrow keys where expected; same radius/density.                                                                                           |
-| Tool/section rail               | Stable order, labels/accessible names, neutral selected tile and blue indicator; search/more access on small screens; no coloured tool rainbow.                                                        |
-| Inspector/entry group           | Consistent heading, help, spacing and primary action; advanced settings disclosed; controls stay in reach on short screens.                                                                            |
-| Colour picker/curves            | UI shell follows Air; actual colour field/histogram/curve are functional data, not branding. Provide labels, numeric entry, focus, clipping protection.                                                |
-| Lists/layers/history            | Same row states, selection/focus, progress and empty-state language; long names wrap/truncate with full-name access; accessible reorder alternatives.                                                  |
-| Drop zone/import                | Clear local-file action and supported types; equivalent browse action; drag-over, wrong type, encrypted/invalid/large-file states; readable progress.                                                  |
-| Dialog/sheet                    | Named title/description; close, scroll body, action region; focus containment/return; Escape; background inert; preserve state across resizing.                                                        |
-| Popover/menu/tooltip            | Anchored, viewport-aware, opaque; common elevation/radius; keyboard dismissal; no clipping inside parent scroll regions.                                                                               |
-| Toast/notice/error              | Shared icon/text/action layout, semantic role/live region, understandable recovery; never cover primary or modal actions.                                                                              |
-| Progress/AI model state         | Honest determinate progress when known; explicit size, consent, download/cancel/retry/error/cached/ready states; no fake percentages.                                                                  |
-| Rich text/signature/drawing     | Air toolbar and focus; preserve content formatting; keyboard/tap alternative where feasible; undo/reset; visible selection.                                                                            |
-| Privacy/help/404/error boundary | Same typography, width, navigation and controls; clear return/retry path; technical detail only when relevant.                                                                                         |
-| PWA/install/update              | Same notice/dialog language; do not reload over unsaved work; readable offline/cache/download distinctions.                                                                                            |
+| Component                       | Required shared behaviour and appearance                                                                                                                                                                                                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Brand/header/footer             | Same wordmark spacing and header rhythm; existing family mark at 36×36px across landing, reading and editor headers, including tablet and phone. Never shrink the mark to fit chrome; retain at least a 44px interactive target. Compact neutral footer with product links, privacy, source, and version where useful. |
+| Buttons                         | Sans label; stable box; neutral secondary; monochrome primary; visible hover/press/focus; descriptive action verb; busy state preserves width.                                                                                                                                                                         |
+| Icon buttons                    | Accessible name, tooltip for unfamiliar meaning, 40px fine/44px touch target; selected and disabled semantics.                                                                                                                                                                                                         |
+| Text/number/date fields         | Visible persistent label; shared boundary, height, radius, focus; unit beside value; help/error beneath; correct input type and autocomplete.                                                                                                                                                                          |
+| Select/listbox                  | Native semantics or established accessible primitive; same field shell; arrow inset; wrapping long labels; keyboard navigation; viewport-aware menu.                                                                                                                                                                   |
+| Check/radio/switch              | Label and control share hit target; explicit state; keyboard operation; same accent/focus.                                                                                                                                                                                                                             |
+| Slider/scrubber                 | Label, current value/unit, keyboard input, touch-friendly hit area, reset or precise entry when needed; no hidden critical gesture.                                                                                                                                                                                    |
+| Segments/tabs                   | Neutral group, one clear selection, correct roles/states and arrow keys where expected; same radius/density.                                                                                                                                                                                                           |
+| Tool/section rail               | Stable order, labels/accessible names, neutral selected tile and blue indicator; search/more access on small screens; no coloured tool rainbow.                                                                                                                                                                        |
+| Inspector/entry group           | Consistent heading, help, spacing and primary action; advanced settings disclosed; controls stay in reach on short screens.                                                                                                                                                                                            |
+| Colour picker/curves            | UI shell follows Air; actual colour field/histogram/curve are functional data, not branding. Provide labels, numeric entry, focus, clipping protection.                                                                                                                                                                |
+| Lists/layers/history            | Same row states, selection/focus, progress and empty-state language; long names wrap/truncate with full-name access; accessible reorder alternatives.                                                                                                                                                                  |
+| Drop zone/import                | Clear local-file action and supported types; equivalent browse action; drag-over, wrong type, encrypted/invalid/large-file states; readable progress.                                                                                                                                                                  |
+| Dialog/sheet                    | Named title/description; close, scroll body, action region; focus containment/return; Escape; background inert; preserve state across resizing.                                                                                                                                                                        |
+| Popover/menu/tooltip            | Anchored, viewport-aware, opaque; common elevation/radius; keyboard dismissal; no clipping inside parent scroll regions.                                                                                                                                                                                               |
+| Toast/notice/error              | Shared icon/text/action layout, semantic role/live region, understandable recovery; never cover primary or modal actions.                                                                                                                                                                                              |
+| Progress/AI model state         | Honest determinate progress when known; explicit size, consent, download/cancel/retry/error/cached/ready states; no fake percentages.                                                                                                                                                                                  |
+| Rich text/signature/drawing     | Air toolbar and focus; preserve content formatting; keyboard/tap alternative where feasible; undo/reset; visible selection.                                                                                                                                                                                            |
+| Privacy/help/404/error boundary | Same typography, width, navigation and controls; clear return/retry path; technical detail only when relevant.                                                                                                                                                                                                         |
+| PWA/install/update              | Same notice/dialog language; do not reload over unsaved work; readable offline/cache/download distinctions.                                                                                                                                                                                                            |
 
 ### Field anatomy and validation
 
@@ -1026,3 +1031,15 @@ journeys across all apps; it is not inferred from the pilot alone.
   bitmap. An unavailable preview has a labelled fallback. Apply/Undo/Redo/Reset
   must keep bytes, page count, thumbnails and pending plans in agreement; explicit
   Cancel discards the tool draft while ordinary tool navigation preserves it.
+
+- The canvas surround inherits Air surface-soft, with 16/24/32px space according
+  to the available viewport. Keep navigation in the compact toolbar, not another
+  canvas row. Page focus has one visible contour; direct manipulation is immediate.
+- On white PDF paper, selection chrome uses Air's light accent in both themes for
+  contrast. Author content retains its own colours and fonts. Inline document text
+  editing is an output-aligned exception to ordinary field height/radius: its box
+  follows the placed text, uses 4px corners and one focus contour, and remains
+  opaque. Touch editing has a 16px visible floor even when the page is zoomed out.
+  Composition owns Enter/Escape; explicit completion/cancellation returns canvas
+  focus, while blur follows the user's new target. Touch resize targets are 44px
+  with nearest-handle resolution when targets overlap.

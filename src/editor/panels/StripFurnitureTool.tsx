@@ -13,7 +13,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { canvas as canvasTheme } from "../../config/theme.ts";
+import { canvas as canvasTheme, canvasAccent } from "../../config/theme.ts";
 import {
   detectRunningFurniture,
   extractTextGeometry,
@@ -49,7 +49,7 @@ export function Stage() {
       ctx.fillStyle = canvasTheme.selectionDim;
       if (top > 0) ctx.fillRect(0, 0, w, top);
       if (bot > 0) ctx.fillRect(0, h - bot, w, bot);
-      ctx.strokeStyle = canvasTheme.accentStrong;
+      ctx.strokeStyle = canvasAccent(ctx);
       ctx.lineWidth = 1.5;
       if (top > 0) {
         ctx.beginPath();

@@ -815,3 +815,51 @@ Evidence: [record](evidence/collections-2026-10-14.json),
 [checks](evidence/collections-checks-2026-10-14.log),
 [desktop](evidence/collections-desktop-1440-light.png),
 [phone](evidence/collections-phone-390-dark.png).
+
+## 2026-10-14 — Canvas and consistent header identity
+
+The landing and editor now share the same 36×36px mark at every required width.
+The document trigger remains at least 44px and the normal-text toolbar stays 64px.
+Air 1.0.1 records this family rule and a dedicated on-paper accent, so dark mode
+keeps readable selection handles against white PDF paper. The surrounding canvas
+uses quiet Air surfaces, responsive 16/24/32px space and one paper focus contour.
+
+Inline text has an opaque background and a single focus contour. Author font,
+colour, exported size and multiline leading remain intact. Zoomed-out touch
+editing keeps a visible 16px font floor; the field stays inside the page. Composition
+candidate Enter/Escape does not commit or cancel, explicit cancellation returns
+focus to paper, and clicking another control commits once without stealing focus.
+Browser/OS modifier shortcuts keep native ownership. Overlapping resize targets
+choose the nearest handle, with 44px touch targets and unchanged visible handles.
+
+Passing: 68 canvas layouts across the 11 required sizes plus six breakpoint
+neighbors, light/dark and normal/200% root text; no document overflow or clipped
+paper. Desktop/laptop/tablet/phone captures inspected in both themes. Synthetic
+composition, keyboard/blur ownership, selection pixels, forced colours and reduced
+motion pass. Native Safari text cancellation/focus and native Safari/Firefox actual
+200% browser zoom pass. Physical touch/software keyboard, real OS IME and assistive
+speech acceptance remain open (`validated: false`).
+
+All 15 applicable browser suites pass: canvas, desktop/mobile editor smoke, features,
+interactions, palette, navigation (176 layouts), collections (88), export, modals,
+responsive motion, annotation fonts, desktop/mobile placement/resize and stamp
+preview. These include real exported annotations, embedded fonts, signature/QR
+Apply and history. Format/lint/types, dead-code, 367 units in 36 files, production/
+PWA build, the 128-asset size gate, design integrity and 17 isolated portability
+assertions pass. Mobile placement now waits for its real signature canvas rather
+than a description deliberately removed from compact controls in the earlier slice.
+
+Removed unused canvas palette fields, duplicate accent literals/options, old
+canvas/inline-field skins and small-logo overrides. Inventories read the pinned
+manifest version instead of a separate hardcoded version. No new dependencies.
+Only two synthetic proof images and compact results are checked in.
+
+Follow-up: saved /Rotate and non-origin CropBox placement must be checked through
+preview and every export writer together; their pre-existing coordinate mismatch
+is not changed here. Preview failure handling and the remaining tool interiors/
+overlays also remain pending. This is a bounded canvas slice, not a completed editor.
+
+Evidence: [record](evidence/canvas-2026-10-14.json),
+[checks](evidence/canvas-checks-2026-10-14.log),
+[desktop](evidence/canvas-desktop-1440-light.png),
+[phone](evidence/canvas-phone-390-dark.png).

@@ -45,7 +45,7 @@ if (removed.some((surface) => surface.validated)) {
 }
 const data = {
   schemaVersion: 1,
-  contractVersion: "1.0.0",
+  contractVersion: JSON.parse(await readFile(resolve(output, "bundle.json"), "utf8")).version,
   note: "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   surfaces,
 };

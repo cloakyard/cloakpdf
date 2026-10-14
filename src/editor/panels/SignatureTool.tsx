@@ -22,7 +22,6 @@ import { PrimaryAction } from "./PrimaryAction.tsx";
 import { useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
 import {
-  ACCENT,
   type Box,
   CORNER_IDS,
   drawSelectionChrome,
@@ -269,7 +268,7 @@ export function Stage() {
         const img = getImg(payload?.dataUrl ?? "");
         if (img) ctx.drawImage(img, x, y, bw, bh);
         if (o.id === selectedId) {
-          drawSelectionChrome(ctx, rectToBox(r), w, h, { handles: CORNER_IDS, accent: ACCENT });
+          drawSelectionChrome(ctx, rectToBox(r), w, h, { handles: CORNER_IDS });
         } else {
           // Unselected: a faint dashed outline so every placed signature stays
           // discoverable (and visibly present before it's applied).
@@ -302,14 +301,22 @@ export function Stage() {
   useStageProps({
     cursor: hoverHandle ? HANDLE_CURSOR[hoverHandle] : dataUrl ? "copy" : "default",
     paintOverlay,
-    onPointerDown: (p) => {
+    onPointerDown: (p, e) => {
       const { w, h } = paintWHRef.current;
       // A corner handle of the selected signature wins → start an aspect-locked
       // resize.
       const sel = sigsOnPage(selectedPage).find((o) => o.id === selectedId);
       if (sel?.rect) {
         const r = rectOf(sel.id, sel.rect);
-        const handle = hitHandle(rectToBox(r), p.xPct * w, p.yPct * h, w, h, CORNER_IDS);
+        const handle = hitHandle(
+          rectToBox(r),
+          p.xPct * w,
+          p.yPct * h,
+          w,
+          h,
+          CORNER_IDS,
+          e.pointerType === "touch" ? 22 : undefined,
+        );
         if (handle) {
           resizeRef.current = {
             id: sel.id,

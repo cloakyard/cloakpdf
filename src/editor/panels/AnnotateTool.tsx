@@ -35,7 +35,15 @@ import {
   Underline,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { canvasAccent } from "../../config/theme.ts";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 import { Select } from "../../components/Select.tsx";
 import type {
@@ -69,7 +77,6 @@ import {
   useStageProps,
 } from "../stage.tsx";
 import {
-  ACCENT,
   type Box,
   CORNER_IDS,
   drawSelectionChrome,
@@ -1008,7 +1015,7 @@ export function Stage() {
         if (textMode) {
           // Text tool: preview the box you're dragging as a dashed accent rect.
           ctx.save();
-          ctx.strokeStyle = ACCENT;
+          ctx.strokeStyle = canvasAccent(ctx);
           ctx.lineWidth = 1.5;
           ctx.setLineDash([5, 3]);
           ctx.strokeRect(draftBox.x * w, draftBox.y * h, draftBox.w * w, draftBox.h * h);
@@ -1062,7 +1069,6 @@ export function Stage() {
               : (sel.payload as Annotation);
         drawSelectionChrome(ctx, annotationBBox(live, w, h), w, h, {
           handles: isResizable(live) ? handlesFor(live) : [],
-          accent: ACCENT,
         });
       }
     },
@@ -1086,7 +1092,7 @@ export function Stage() {
   );
 
   const onPointerDown = useCallback(
-    (p: StagePoint) => {
+    (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => {
       startRef.current = { x: p.xPct, y: p.yPct };
       // Select AND Icon mode share the interactive path: a handle starts a
       // resize, a hit starts a drag. They differ only on a miss — Select just
@@ -1101,7 +1107,15 @@ export function Stage() {
         const selAnn = selObj?.payload as Annotation | undefined;
         if (selObj && selObj.pageIndex === selectedPage && selAnn && isResizable(selAnn)) {
           const bbox = annotationBBox(selAnn, w, h);
-          const handle = hitHandle(bbox, p.xPct * w, p.yPct * h, w, h, handlesFor(selAnn));
+          const handle = hitHandle(
+            bbox,
+            p.xPct * w,
+            p.yPct * h,
+            w,
+            h,
+            handlesFor(selAnn),
+            e.pointerType === "touch" ? 22 : undefined,
+          );
           if (handle) {
             resizeStartRef.current = {
               id: selObj.id,

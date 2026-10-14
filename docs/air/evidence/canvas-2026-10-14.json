@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-14",
+  "scope": "Air PDF canvas chrome, inline editing, selection handles and shared header brand size",
+  "contract": "1.0.1",
+  "layoutCases": 68,
+  "viewports": [
+    "320x568",
+    "375x812",
+    "390x844",
+    "430x932",
+    "844x390",
+    "768x1024",
+    "1024x768",
+    "1280x720",
+    "1366x768",
+    "1440x900",
+    "1920x1080",
+    "767x1024",
+    "769x1024",
+    "1279x720",
+    "1281x720",
+    "844x499",
+    "844x501"
+  ],
+  "states": [
+    "light",
+    "dark",
+    "normal text",
+    "200% root text",
+    "coarse emulation",
+    "selected annotation",
+    "inline text",
+    "synthetic composition",
+    "keyboard",
+    "reduced motion",
+    "forced colors"
+  ],
+  "geometry": {
+    "horizontalOverflow": 0,
+    "outOfBoundsPaper": 0,
+    "minimumStageHeight": 64,
+    "headerMarkPx": 36,
+    "normalTextToolbarHeightPx": 64
+  },
+  "inline": {
+    "font": 16,
+    "within": true
+  },
+  "uncaughtErrors": [],
+  "features": [
+    "single focus contour and opaque text field",
+    "composition candidate Enter/Escape ownership",
+    "Escape cancels and returns focus to paper",
+    "multiline Enter and one blur commit",
+    "outside click retains focus",
+    "browser modifier commands retain native ownership",
+    "pointer, keyboard, wheel and pinch canvas navigation",
+    "nearest overlapping handle and 44px touch hit target",
+    "signature and QR placement/resize/apply on desktop and mobile emulation",
+    "real annotation font embedding and underline export",
+    "live stamp preview and cleanup"
+  ],
+  "nativeReview": [
+    "Safari: text placement, cancellation with canvas focus return and no committed mark; Command-plus from canvas produces actual 200% browser zoom; compact header and scrollable controls inspected",
+    "Firefox: canvas focus and Command-plus produce actual 200% browser zoom; compact header, paper and scrollable controls inspected"
+  ],
+  "browserSuites": [
+    "editor-canvas",
+    "editor-smoke",
+    "editor-smoke-mobile",
+    "editor-features",
+    "editor-interactions",
+    "command-palette",
+    "editor-navigation",
+    "editor-collections",
+    "export-dialog",
+    "modal-system",
+    "responsive-motion",
+    "annotate-fonts",
+    "place-resize",
+    "place-resize-mobile",
+    "stamp-preview"
+  ],
+  "checks": {
+    "unitTests": 367,
+    "unitFiles": 36,
+    "deadCode": "pass",
+    "formatLintTypes": "pass",
+    "buildPwaAssetLimit": "pass",
+    "designPortability": "pass"
+  },
+  "cleanup": [
+    "unused canvas palette fields",
+    "duplicate accent palette and per-consumer override",
+    "old canvas and inline-field utility skins",
+    "smaller editor logo overrides",
+    "obsolete gesture comments",
+    "hardcoded inventory contract version"
+  ],
+  "dependenciesAdded": 0,
+  "openGates": [
+    "physical touch and software keyboard",
+    "real OS IME",
+    "assistive speech acceptance"
+  ],
+  "followUp": "Saved /Rotate and non-origin CropBox must be audited through preview and all export writers together. This pre-existing geometry issue is not changed by the visual slice. Remaining panel interiors and overlays are not complete."
+}

@@ -130,6 +130,9 @@ else {
     ...contract.matchAll(/^\| `([\w-]+)`\s*\|\s*`(#[a-f\d]{6})`\s*\|\s*`(#[a-f\d]{6})`/gm),
   ];
   if (palette.length !== 21) fail("The contract colour table is incomplete.");
+  const paperAccent = css.match(/--air-paper-accent:\s*(#[a-f\d]{6});/)?.[1];
+  if (paperAccent !== palette.find((entry) => entry[1] === "accent")?.[2])
+    fail("On-paper selection must use the family's light accent.");
   for (const [, token, light, dark] of palette) {
     const pair = css.match(
       new RegExp(`--air-${token}:\\s*light-dark\\((${"#[a-f\\d]{6}"}),\\s*(${"#[a-f\\d]{6}"})\\);`),

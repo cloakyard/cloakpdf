@@ -9,7 +9,7 @@
 
 import { Loader2, Scan, Wand2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { canvas as canvasTheme } from "../../config/theme.ts";
+import { canvas as canvasTheme, canvasAccent } from "../../config/theme.ts";
 import type { CropMargins } from "../../types.ts";
 import { cropPagesIndividual, detectContentBox, deskewPdf } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
@@ -64,7 +64,7 @@ export function Stage() {
       ctx.fillRect(0, y + bh, w, h - (y + bh)); // bottom
       ctx.fillRect(0, y, x, bh); // left
       ctx.fillRect(x + bw, y, w - (x + bw), bh); // right
-      ctx.strokeStyle = canvasTheme.accentStrong;
+      ctx.strokeStyle = canvasAccent(ctx);
       ctx.lineWidth = 1.5;
       ctx.strokeRect(x, y, bw, bh);
       ctx.restore();

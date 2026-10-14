@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.0.1",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -1177,9 +1177,10 @@
       "evidence": [
         "docs/air/evidence/compare-2026-10-14.json",
         "docs/air/validation.md",
-        "docs/air/evidence/navigation-2026-10-14.json"
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Air 64px toolbar at normal text size on every required width. Desktop filename only; tablet/mobile document-mark popover reveals filename/home with hover, keyboard or touch; Escape/outside dismissal and modal handoff verified. Compact pending-mark badge preserves the single row. Shared page selector, neutral view/history controls, page/zoom/history/export preserved. Enlarged text may reflow. Physical/assistive acceptance remains open."
+      "notes": "Air 64px toolbar at normal text size on every required width. Desktop filename only; tablet/mobile document-mark popover reveals filename/home with hover, keyboard or touch; Escape/outside dismissal and modal handoff verified. Compact pending-mark badge preserves the single row. Shared page selector, neutral view/history controls, page/zoom/history/export preserved. Enlarged text may reflow. Physical/assistive acceptance remains open. Canvas checkpoint: same 36px mark as landing at every size; compact 64px toolbar retained."
     },
     {
       "path": "src/editor/EditorView.tsx",
@@ -1411,13 +1412,43 @@
     {
       "path": "src/editor/PdfStage.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "normal text",
+        "200% root text",
+        "coarse emulation",
+        "selected annotation",
+        "inline text",
+        "synthetic composition",
+        "keyboard",
+        "reduced motion",
+        "forced colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "767x1024",
+        "769x1024",
+        "1279x720",
+        "1281x720",
+        "844x499",
+        "844x501"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/canvas-2026-10-14.json"],
+      "notes": "Air canvas surround, paper focus and inline field implemented. 68 layouts and direct edit/gesture/output regressions pass. Native Safari/Firefox browser zoom inspected. Physical touch/IME/assistive acceptance remains open. Saved rotation/CropBox coordinate mapping and preview failure handling require separate coherent follow-up."
     },
     {
       "path": "src/editor/PropertiesPanel.tsx",
@@ -1551,9 +1582,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/AttachmentsTool.tsx",
@@ -1581,9 +1613,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/BookmarksTool.tsx",
@@ -1611,9 +1644,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/CropTool.tsx",
@@ -1626,9 +1660,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/FillFormTool.tsx",
@@ -1824,9 +1859,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/SimpleTools.tsx",
@@ -1884,9 +1920,10 @@
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/evidence/canvas-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
       "path": "src/editor/panels/WholeDocPanel.tsx",

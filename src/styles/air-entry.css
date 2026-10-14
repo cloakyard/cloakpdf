@@ -1,5 +1,87 @@
 /* CloakPDF composition. All appearance values inherit the portable Air bundle.
  * Editor chrome and standalone tool bodies are tracked migration slices. */
+.editor-canvas {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-block-size: 0;
+  min-inline-size: 0;
+  overflow: hidden;
+  padding: var(--air-space-16);
+  background: var(--air-surface-soft);
+  touch-action: none;
+  user-select: none;
+}
+.editor-paper {
+  position: relative;
+  background: white;
+  outline: 1px solid var(--air-line);
+  box-shadow: var(--air-shadow-surface);
+  touch-action: none;
+  user-select: none;
+}
+.editor-paper:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+.editor-paper-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  background: white;
+}
+/* These pixels sit on white PDF paper in either appearance. Use the light Air
+   accent for legible handles; preserve the author's text colour and type. */
+.editor-paper > canvas,
+.editor-inline-text {
+  color-scheme: light;
+  color: var(--air-paper-accent);
+}
+.editor-inline-text {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-check);
+  background: white;
+  line-height: 1.25;
+  box-shadow: none;
+  resize: none;
+  user-select: text;
+  -webkit-user-select: text;
+  touch-action: auto;
+}
+.editor-inline-text:focus {
+  border-color: transparent;
+  outline: 2px solid var(--air-paper-accent);
+  outline-offset: 0;
+}
+textarea.editor-inline-text {
+  /* Match the multiline annotation preview and PDF writer. */
+  line-height: 1.2;
+}
+@media (min-width: 768px) and (min-height: 500px) {
+  .editor-canvas {
+    padding: var(--air-space-24);
+  }
+}
+@media (min-width: 1280px) and (min-height: 500px) {
+  .editor-canvas {
+    padding: var(--air-space-32);
+  }
+}
+@media (forced-colors: active) {
+  .editor-paper-image,
+  .editor-paper > canvas {
+    forced-color-adjust: none;
+  }
+  .editor-paper:focus-visible,
+  .editor-inline-text:focus {
+    outline-color: Highlight;
+  }
+}
 .pdf-site {
   min-block-size: 100svh;
   display: flex;
@@ -1986,11 +2068,6 @@ body:has(.pdf-site) {
 .editor-topbar__identity {
   flex: 1 1 120px;
 }
-.editor-topbar__identity img {
-  width: 28px;
-  height: 28px;
-  flex: 0 0 auto;
-}
 .editor-topbar__file {
   min-width: 0;
   display: grid;
@@ -2257,6 +2334,9 @@ body:has(.pdf-site) {
 }
 .editor-document-trigger {
   position: relative;
+  padding: 3px;
+  min-width: 44px;
+  min-height: 44px;
 }
 .editor-document-pending {
   position: absolute;
@@ -2278,10 +2358,6 @@ body:has(.pdf-site) {
 @media (max-width: 767px) {
   .editor-topbar {
     padding-inline: 4px;
-  }
-  .editor-topbar__identity img {
-    width: 24px;
-    height: 24px;
   }
   .editor-topbar__actions {
     gap: 4px;

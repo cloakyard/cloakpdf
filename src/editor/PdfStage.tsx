@@ -4,10 +4,6 @@
 // overlay canvas on top; pointer events are normalised to page-fraction space
 // and forwarded to the active tool, or used to pan when no tool is active.
 //
-// Generalized from RedactPdf's proven surface: <img> page preview +
-// absolutely-positioned <canvas> overlay synced by a ResizeObserver, fraction
-// coordinates via getBoundingClientRect.
-
 import {
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
@@ -122,9 +118,13 @@ function isCoarsePointer(): boolean {
 function InlineTextEditor({
   descriptor,
   fit,
+  zoom,
+  returnFocus,
 }: {
   descriptor: InlineEditorDescriptor;
   fit: { w: number; h: number };
+  zoom: number;
+  returnFocus: () => void;
 }) {
   const {
     xPct,
@@ -147,6 +147,7 @@ function InlineTextEditor({
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const committedRef = useRef(false);
   const escapedRef = useRef(false);
+  const composingRef = useRef(false);
   // Latest callbacks via refs: the owning tool rebuilds onCommit/onCancel every
   // render (and on a font-size auto-suggest snap), so depending on their
   // identity in the unmount effect would fire a premature commit mid-edit.
@@ -184,7 +185,7 @@ function InlineTextEditor({
 
   // True on-page size; floored to a legible editing size on touch (see above).
   const truePx = sizeFrac * fit.h;
-  const fontSizePx = Math.max(isCoarsePointer() ? 16 : 6, truePx);
+  const fontSizePx = Math.max(isCoarsePointer() ? Math.max(16, 16 / zoom) : 6, truePx);
   const font = `${fontStyle} ${fontWeight} ${fontSizePx}px ${fontCss}`;
   const padX = fontSizePx * 0.12; // mirrors TEXT_BG_PAD_EM in the burn/preview path
 
@@ -192,35 +193,46 @@ function InlineTextEditor({
   // line mode → a single-line input that auto-grows with its content. Either way,
   // keep the box inside the page so the stage's overflow-hidden doesn't clip it.
   // VISUAL ONLY: the committed annotation anchor stays xPct/yPct.
-  const widthPx = isBox
-    ? (boxWFrac as number) * fit.w
-    : Math.max(fontSizePx * 1.5, measureInlineWidth(value, font) + fontSizePx * 0.7);
-  const boxH = isBox ? (boxHFrac as number) * fit.h : fontSizePx * 1.25;
+  const widthPx = Math.min(
+    fit.w,
+    Math.max(
+      fontSizePx * 1.5,
+      isBox ? (boxWFrac as number) * fit.w : measureInlineWidth(value, font) + fontSizePx * 0.7,
+    ),
+  );
+  const boxH = Math.min(
+    fit.h,
+    Math.max(fontSizePx * 1.25, isBox ? (boxHFrac as number) * fit.h : 0),
+  );
   const left = Math.max(0, Math.min(xPct * fit.w, fit.w - widthPx));
   const top = Math.max(0, Math.min(yPct * fit.h, fit.h - boxH));
 
-  const onKeyDown = (e: {
-    key: string;
-    preventDefault: () => void;
-    stopPropagation: () => void;
-  }) => {
+  const onKeyDown = (e: ReactKeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    e.stopPropagation();
+    // Candidate confirmation/cancellation belongs to the input method.
+    if (composingRef.current || e.nativeEvent.isComposing || e.nativeEvent.keyCode === 229) return;
     // In box mode Enter inserts a newline (multi-line text); only Escape exits.
     // In line mode Enter commits, matching a one-line label.
     if (e.key === "Enter" && !isBox) {
       e.preventDefault();
       commit();
+      returnFocus();
     } else if (e.key === "Escape") {
       e.preventDefault();
       cancel();
+      returnFocus();
     }
-    // Keep editor keystrokes (incl. Backspace) off the window-level
-    // delete-selected listener; that listener also bails on a focused input.
-    e.stopPropagation();
   };
   const shared = {
     value,
     onChange: (e: { target: { value: string } }) => setValue(e.target.value),
     onKeyDown,
+    onCompositionStart: () => {
+      composingRef.current = true;
+    },
+    onCompositionEnd: () => {
+      composingRef.current = false;
+    },
     onBlur: commit,
     // Keep mouse/pen editing gestures inside the field. Touch pointers reach
     // the canvas gesture tracker so a second finger can still form a pinch;
@@ -242,23 +254,17 @@ function InlineTextEditor({
       textDecoration: textDecoration ?? "none",
       fontSize: `${fontSizePx}px`,
       color: colorHex,
-      userSelect: "text" as const,
-      WebkitUserSelect: "text" as const,
-      touchAction: "auto" as const,
     },
     "aria-label": "Text annotation",
   };
 
   // Escape the stage's `select-none`, which would otherwise suppress
   // the caret / soft keyboard (notably on iOS Safari).
-  const baseClass =
-    "absolute m-0 select-text touch-auto rounded-[3px] border border-primary-500/80 bg-white/90 outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
-
   return isBox ? (
     <textarea
       {...shared}
       ref={inputRef as Ref<HTMLTextAreaElement>}
-      className={`${baseClass} resize-none leading-[1.2]`}
+      className="editor-inline-text"
       style={{ ...shared.style, padding: `0 ${padX}px`, overflowY: "auto", overflowX: "hidden" }}
     />
   ) : (
@@ -266,7 +272,7 @@ function InlineTextEditor({
       {...shared}
       ref={inputRef as Ref<HTMLInputElement>}
       type="text"
-      className={`${baseClass} p-0 leading-tight`}
+      className="editor-inline-text"
     />
   );
 }
@@ -292,9 +298,7 @@ export function PdfStage() {
     view: ViewState;
   } | null>(null);
   const toolPointerIdRef = useRef<number | null>(null);
-  // Active touch points for pinch-to-zoom — the only way to zoom on a phone,
-  // where the top-bar zoom buttons are hidden (no room) and Ctrl/Cmd+wheel can't
-  // happen. `pinchActive` suppresses single-finger tool/pan for the rest of a
+  // Active touch points for pinch-to-zoom. `pinchActive` suppresses tool/pan for the rest of a
   // two-finger gesture so a lifted finger doesn't draw a stray mark.
   const pointersRef = useRef(new Map<number, ViewportPoint>());
   const pinchRef = useRef<PinchSnapshot | null>(null);
@@ -735,6 +739,9 @@ export function PdfStage() {
   // inside the canvas region; typing controls remain untouched.
   const onStageKeyDown = useCallback(
     (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      // Browser/OS commands (including page zoom) keep their native ownership.
+      // Unmodified +/-/0 remain the canvas shortcuts; Shift still accelerates pan.
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       const target = e.target;
       if (
         target instanceof HTMLElement &&
@@ -862,7 +869,7 @@ export function PdfStage() {
   return (
     <div
       ref={stageRef}
-      className="relative flex min-h-0 flex-1 touch-none select-none overflow-hidden bg-slate-100 p-4 dark:bg-dark-bg sm:p-8"
+      className="editor-canvas"
       style={{ cursor: isPanning ? "grabbing" : "grab" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -876,7 +883,7 @@ export function PdfStage() {
           tabIndex={0}
           aria-label={`Page ${selectedPage + 1} editing canvas. ${keyboardHelp} Scroll to pan; pinch or Control or Command plus scroll to zoom; use 0 to reset the view.`}
           aria-keyshortcuts={keyboardShortcuts}
-          className="relative shadow-sm ring-1 ring-slate-200/70 dark:ring-dark-border touch-none select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          className="editor-paper"
           style={{
             transform: transformValue,
             transformOrigin: "center center",
@@ -898,7 +905,7 @@ export function PdfStage() {
             <img
               src={page.thumbUrl}
               alt={`Page ${selectedPage + 1}`}
-              className="block h-full w-full object-contain pointer-events-none bg-white"
+              className="editor-paper-image"
               draggable={false}
             />
           ) : (
@@ -908,7 +915,13 @@ export function PdfStage() {
           {editorOpen && fit && inlineEditor && (
             // Key by session id so a new edit always remounts (re-seeds its
             // value); a style-only update (same id) re-renders in place.
-            <InlineTextEditor key={inlineEditor.editorId} descriptor={inlineEditor} fit={fit} />
+            <InlineTextEditor
+              key={inlineEditor.editorId}
+              descriptor={inlineEditor}
+              fit={fit}
+              zoom={view.zoom}
+              returnFocus={() => wrapRef.current?.focus({ preventScroll: true })}
+            />
           )}
         </m.div>
       </div>

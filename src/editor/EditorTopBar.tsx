@@ -82,7 +82,7 @@ function DocumentInfo({
           hovering.current = false;
         }}
       >
-        <img src="/cloakpdf-mark.svg" alt="" width="28" height="28" />
+        <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
         {pending > 0 && (
           <span
             className="editor-document-pending"
@@ -144,7 +144,7 @@ export function EditorTopBar() {
             >
               <ChevronLeft aria-hidden="true" />
             </button>
-            <img src="/cloakpdf-mark.svg" alt="" width="28" height="28" />
+            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
             <div className="editor-topbar__file">
               <span title={doc?.fileName}>{doc?.fileName ?? "CloakPDF"}</span>
             </div>

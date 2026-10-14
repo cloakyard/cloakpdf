@@ -1,6 +1,6 @@
 /**
  * Runtime colour values for canvas output and user-selectable swatches.
- * Portable interface tokens live in `tokens.css`; Tailwind aliases are mapped
+ * Portable interface tokens live in `styles/air.css`; Tailwind aliases are mapped
  * to those tokens in `index.css`. Keep values here only when JavaScript must
  * paint pixels or pass a colour through an inline canvas style.
  */
@@ -20,24 +20,13 @@ export const colorPresets = [
 export const canvas = {
   /** Background fill for generated sheets/images */
   background: "#FFFFFF",
-  /** Light border around thumbnails / cells */
-  border: "#E2E8F0",
-  /** Label text colour */
-  label: "#64748B",
-  /** Product accent used for canvas selection chrome */
-  accent: "#2563EB",
-  /** Strong accent stroke for active crop/trim boundaries */
-  accentStrong: "rgba(37, 99, 235, 0.95)",
-  /** Medium accent stroke for detected regions */
-  accentMedium: "rgba(37, 99, 235, 0.70)",
-  /** Soft accent fill for detected regions */
-  accentSoft: "rgba(37, 99, 235, 0.10)",
   /** Neutral dim applied outside a retained canvas selection */
   selectionDim: "rgba(15, 23, 42, 0.45)",
-  /** Redaction box fill */
-  redactFill: "rgba(0,0,0,0.85)",
-  /** Redaction box stroke (red — intentionally distinct from theme) */
-  redactStroke: "#FF4444",
   /** Pixel-diff highlight for ComparePdf (RGBA channels 0–255) */
   diffHighlight: { r: 239, g: 68, b: 68, a: 180 },
 } as const;
+
+/** Resolve Air's on-paper accent once per overlay paint, without a second palette. */
+export function canvasAccent(ctx: CanvasRenderingContext2D): string {
+  return getComputedStyle(ctx.canvas).color;
+}

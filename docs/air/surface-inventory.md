@@ -55,7 +55,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/OverviewMode.tsx`              | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/PageCollection.tsx`            | app-surface | Done         | Done               | Pending    |
 | `src/editor/PageThumb.tsx`                 | app-surface | Done         | Done               | Pending    |
-| `src/editor/PdfStage.tsx`                  | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/PdfStage.tsx`                  | app-surface | Done         | Done               | Pending    |
 | `src/editor/PropertiesPanel.tsx`           | app-surface | Done         | Done               | Pending    |
 | `src/editor/ToolControls.tsx`              | app-surface | Done         | Done               | Pending    |
 | `src/editor/ToolRail.tsx`                  | app-surface | Done         | Done               | Pending    |

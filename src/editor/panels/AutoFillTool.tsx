@@ -8,7 +8,7 @@
 
 import { Loader2, ScanLine, UserCog } from "lucide-react";
 import { useCallback, useEffect, useId, useState } from "react";
-import { canvas as canvasTheme } from "../../config/theme.ts";
+import { canvasAccent } from "../../config/theme.ts";
 import { extractTextGeometry } from "../../utils/layout-extract.ts";
 import {
   detectFlatFields,
@@ -74,6 +74,7 @@ export function Stage() {
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
       ctx.save();
+      const accent = canvasAccent(ctx);
       for (let i = 0; i < fields.length; i++) {
         const f = fields[i];
         if (f.pageIndex !== pageIndex) continue;
@@ -82,9 +83,9 @@ export function Stage() {
         const bw = f.rect.wPct * w;
         const bh = f.rect.hPct * h;
         // A tinted blank with a dashed outline so empty fields are visible.
-        ctx.fillStyle = canvasTheme.accentSoft;
+        ctx.fillStyle = `color-mix(in srgb, ${accent} 10%, transparent)`;
         ctx.fillRect(x, y, bw, bh);
-        ctx.strokeStyle = canvasTheme.accentMedium;
+        ctx.strokeStyle = `color-mix(in srgb, ${accent} 70%, transparent)`;
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 2]);
         ctx.strokeRect(x, y, bw, bh);

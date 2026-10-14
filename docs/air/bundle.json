@@ -1,19 +1,19 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "4232d7b9e8e062ff1ca9073c7f3102c4332908b50c43b6925b65b3b4c6d309ee"
+    "contractSha256": "201f7c381b5f28d504d733c10f82f6559ef1f92684fb3b9d9b4d503c54d2419e"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
-    "components.html": "a490b8d9632b292b6c619a4a1fc033755c527518a29d9dc2b3fbf9683116ac3d",
-    "reading.html": "b29fc835634e537b988bea1d95d28f6179a8a704b0ec5aeb5d619c65b5bb5f1e",
-    "recovery.html": "01776bbfb8cb86910e2ffac14cbb1015b380ea095abb648c5b582ec2db0e539f",
+    "components.html": "b317b6ba810f57e41ef2a2f6aa13ea4ffdf1dc8148fbc9449519251e3ccfabbe",
+    "reading.html": "063a8540678a8172637b0e4635a748d1578077554f6fa518ded523630e0ec57e",
+    "recovery.html": "2096819d4b8dd868f52226431931b30af9a62a98c8ea5ab1c4d66c25901a742e",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",
-    "files.html": "bc3c9e7f36497ffc595c96b649aff0627543084790cf32119dcd3449cad0dbfe",
-    "collections.html": "f91a769b4826c7d79115ecf7fa5160266d0a83a8fdb5f2b653ddc25472c1bc85",
+    "files.html": "d6e002e95a8c5ebe8eacc07b6ca25c7766a4d48e7dc6a7202fefd7c13b83d800",
+    "collections.html": "dc6b5dacb5e3f64e8a6157ac76f8d6224298266a609bd07abf8f5d5885af89c4",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "9ed84c388b39cff2f3ebed3f04c4e99d5951023838b659498d51ce0952a179b0",
     "light-controller.mjs": "ac38e635e3eb51e99c09975143fc26d03452aabb929ad246d2471fb7c44737d2",
@@ -26,6 +26,6 @@
     "assets/air-collections.js": "0bbea11f0a1843404398d261dc01f53c63dd63836919de49bf19f70ce6aa6cc5",
     "assets/OVERLAY_LICENSES.txt": "e58320bc919098b8d78f84c1d7f808e2cfd9efa6b8ab322365ecb4c0fd08fd23"
   },
-  "sha256": "80fb336bb4eb8067383d8329c9576e57a8208744a434b4cdd025247fdfc599b0",
+  "sha256": "e0ada5a11b20d5ec8d9179ab0f8df2eaf3c0c40cc74b9a520ff315f842de6dfa",
   "note": "Pinned family bundle. Runtime migration is tracked separately in surfaces.json."
 }
