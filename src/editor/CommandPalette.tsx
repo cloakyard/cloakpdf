@@ -193,13 +193,12 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       placement="command"
       labelledBy="command-palette-title"
       describedBy="command-palette-count"
-      panelClassName="cloak-dialog--command max-h-[calc(100svh-2rem)] sm:max-h-[min(640px,80svh)] sm:w-[min(680px,100%)]"
+      panelClassName="pdf-dialog--command"
       testId="command-palette"
     >
       <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-rule)] px-4 py-3">
         <div className="min-w-0">
-          <p className="cloak-dialog__eyebrow">Workbench / navigation</p>
-          <h2 id="command-palette-title" className="cloak-dialog__title">
+          <h2 id="command-palette-title" className="pdf-dialog__title">
             Command index
           </h2>
         </div>

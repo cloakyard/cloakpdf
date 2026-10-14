@@ -489,7 +489,9 @@ async function main() {
     });
     await page.waitForSelector(".pdf-ai-setup");
     console.log("  · Partial-cache setup visible");
-    await page.waitForNetworkIdle({ idleTime: 500 });
+    // Observe a settled partial-cache gate without waiting for unrelated
+    // service-worker/preload traffic. Model requests are counted separately.
+    await new Promise((resolve) => setTimeout(resolve, 800));
     const partialState = await page.evaluate(() => ({
       status: (document.querySelector("[data-rag-status]") as HTMLElement)?.dataset.ragStatus,
       selected: (document.querySelector(".pdf-ai-tiers input:checked") as HTMLInputElement)?.value,

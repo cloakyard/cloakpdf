@@ -412,16 +412,14 @@ export function ExportButton() {
         onClose={() => setOpen(false)}
         labelledBy="export-dialog-title"
         describedBy="export-dialog-description"
-        panelClassName="max-h-[90svh] sm:max-h-[min(700px,calc(100svh-64px))] sm:w-[min(560px,100%)]"
         testId="export-dialog"
       >
-        <header className="cloak-dialog__header">
+        <header className="pdf-dialog__header">
           <div className="min-w-0 flex-1">
-            <p className="cloak-dialog__eyebrow">Output / local execution</p>
-            <h2 id="export-dialog-title" className="cloak-dialog__title">
+            <h2 id="export-dialog-title" className="pdf-dialog__title">
               Export document
             </h2>
-            <p id="export-dialog-description" className="cloak-dialog__description truncate">
+            <p id="export-dialog-description" className="pdf-dialog__description truncate">
               {doc
                 ? `${doc.fileName} · ${doc.pageCount} ${doc.pageCount === 1 ? "page" : "pages"}`
                 : "Choose an output format and download it directly."}
@@ -430,7 +428,7 @@ export function ExportButton() {
           <ModalCloseButton onClick={() => setOpen(false)} label="Close export" />
         </header>
 
-        <div className="cloak-dialog__body thin-scrollbar flex flex-col gap-4">
+        <div className="pdf-dialog__body thin-scrollbar flex flex-col gap-4">
           {pendingMarks > 0 && (
             <div className="cloak-notice cloak-notice--warning text-xs" role="note">
               <Layers className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -561,7 +559,7 @@ export function ExportButton() {
           )}
         </div>
 
-        <footer className="cloak-dialog__footer sm:justify-between">
+        <footer className="pdf-dialog__footer sm:justify-between">
           <div className="hidden min-w-0 sm:block">
             <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.06em] text-[var(--color-ink-3)]">
               Local output

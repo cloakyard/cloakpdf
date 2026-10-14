@@ -20,7 +20,6 @@
  *   - `status`      — coarse rollup ("idle" / "downloading" / "ready" /
  *     "error" / "awaiting-consent") so consumers don't have to combine
  *     the three state machines themselves.
- *   - `progress`    — merged byte-count progress across all downloads.
  *   - `chatVariant` — currently-selected tier id; drives picker UI.
  *   - `setChatVariant` — swap tiers; unloads the previous chat
  *     pipeline and resets `chat.status` to `idle` so the user re-
@@ -29,9 +28,10 @@
  *     with the three pipelines once they're all loaded.
  *   - `cancel()`    — dismisses all consent dialogs in lockstep.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { clearAllCachedIndexes } from "../rag/index.ts";
 import {
+  AI_MODELS,
   type ChatVariantId,
   clearAllReadyFlags,
   getActiveChatModelId,
@@ -40,7 +40,6 @@ import {
   setActiveChatVariant,
 } from "../utils/ai-models.ts";
 import {
-  type AiProgress,
   cancelScheduledDispose,
   disposeAllModels,
   evictModelCacheBytes,
@@ -66,8 +65,8 @@ export interface UseRagModelsReturn {
    * first paint of a returning visitor.
    */
   status: AiModelStatus;
-  /** Combined byte progress when at least one model is downloading. */
-  progress: AiProgress | null;
+  /** Every model in the selected bundle has a cache hint. */
+  cached: boolean;
   /** Combined error (chat first, then embed, then rerank) or `null`. */
   error: string | null;
   /** Currently-selected chat tier — feed into the picker UI. */
@@ -174,6 +173,7 @@ export function useRagModels(): UseRagModelsReturn {
   // Active chat tier in React state so the picker can swap it and
   // downstream components re-render with the new `chat.info`.
   const [chatVariant, setChatVariantState] = useState<ChatVariantId>(() => getActiveChatVariant());
+  const [autoLoadPaused, setAutoLoadPaused] = useState(false);
   const chatModelId = getChatModelId(chatVariant);
 
   const chat = useAiModel(chatModelId);
@@ -206,7 +206,7 @@ export function useRagModels(): UseRagModelsReturn {
   const hasIdleSubHook =
     chat.status === "idle" || embed.status === "idle" || rerank.status === "idle";
   const status: AiModelStatus =
-    rollup === "idle" && canAutoLoad && hasIdleSubHook ? "loading" : rollup;
+    rollup === "idle" && canAutoLoad && !autoLoadPaused && hasIdleSubHook ? "loading" : rollup;
   const error = chat.error ?? embed.error ?? rerank.error;
 
   /**
@@ -216,7 +216,7 @@ export function useRagModels(): UseRagModelsReturn {
    */
   const attemptedRef = useRef<ChatVariantId | null>(null);
   useEffect(() => {
-    if (attemptedRef.current === chatVariant) return;
+    if (autoLoadPaused || attemptedRef.current === chatVariant) return;
     if (
       !isModelMarkedReady(chatModelId) ||
       !isModelMarkedReady("embed") ||
@@ -231,75 +231,7 @@ export function useRagModels(): UseRagModelsReturn {
       // Each `useAiModel` already routes failures into its own `error`
       // state — the rollup surfaces them.
     });
-  }, [chat, embed, rerank, chatVariant, chatModelId]);
-
-  // Combined progress: a single bar that tracks the *whole* bundle,
-  // not three leapfrogging ones.
-  //
-  // **Why this isn't just `sum(model.progress)`.** Two bugs an earlier
-  // naive aggregator hit, both visible to the user:
-  //
-  //   1. When a model finishes, `useAiModel` clears its `progress` to
-  //      null. A naive sum would then drop that model's bytes from
-  //      both `loaded` and `total`, so the bar would either crash
-  //      backwards (if `total` was the only term using the
-  //      registry-estimate fallback) or stall at a fraction (if
-  //      `total` kept the estimate but `loaded` lost the bytes).
-  //   2. Transformers.js often reports a per-file `total` that's a
-  //      few percent below the registry's `approxSizeBytes` estimate
-  //      (different quant builds, packaging overhead). With the
-  //      registry estimate as the denominator and reported bytes as
-  //      the numerator, the percent caps below 100% — the canonical
-  //      "stopped at 85%" symptom that triggered this rewrite.
-  //
-  // The fix: each model contributes max(reported, registry-estimate)
-  // to `total` regardless of status, and contributes its **full**
-  // expected size to `loaded` the moment its status flips to
-  // "ready". Active downloads contribute their reported `loaded`.
-  // Idle / awaiting-consent models contribute 0 to loaded but still
-  // their full size to total — so the bar starts at a realistic
-  // small percent and climbs smoothly to 100% as each model
-  // completes, with no mid-stream resets.
-  const progress: AiProgress | null = useMemo(() => {
-    const items = [chat, embed, rerank];
-    // Render the combined bar while anything is actively moving OR
-    // anything has reported partial progress. Once *everything* is
-    // ready/idle/error, return null so the dialog can close.
-    const anyActive = items.some(
-      (m) => m.progress != null || m.status === "downloading" || m.status === "loading",
-    );
-    if (!anyActive) return null;
-
-    let loaded = 0;
-    let total = 0;
-    let file = "";
-    let statusText = "Downloading";
-
-    for (const m of items) {
-      // Each model's expected contribution = max(reported-total, registry-estimate).
-      // The max() protects against Transformers.js under-reporting; the registry
-      // estimate is itself an approximation, so a slightly-high reported total
-      // still wins.
-      const expected = Math.max(m.progress?.total ?? 0, m.info.approxSizeBytes);
-      total += expected;
-
-      if (m.status === "ready") {
-        // Done — count the full expected size as loaded so the percent
-        // reaches 100% on the last model finishing, instead of capping
-        // at whatever the reported sum was.
-        loaded += expected;
-      } else if (m.progress) {
-        loaded += m.progress.loaded;
-        file ||= m.progress.file;
-        statusText = m.progress.status ?? statusText;
-      }
-      // idle / awaiting-consent / error: contribute 0 to `loaded`,
-      // but their `expected` is already in `total` so the bar
-      // accurately shows "this much of the whole still to go".
-    }
-
-    return { loaded, total, file, status: statusText };
-  }, [chat, embed, rerank]);
+  }, [chat, embed, rerank, chatVariant, chatModelId, autoLoadPaused]);
 
   const ensureReady = useCallback(async () => {
     const [chatPipe, embedPipe, rerankPipe] = await Promise.all([
@@ -311,6 +243,7 @@ export function useRagModels(): UseRagModelsReturn {
   }, [chat, embed, rerank]);
 
   const confirm = useCallback(() => {
+    setAutoLoadPaused(false);
     chat.confirm();
     embed.confirm();
     rerank.confirm();
@@ -323,6 +256,7 @@ export function useRagModels(): UseRagModelsReturn {
   }, [chat, embed, rerank]);
 
   const cancel = useCallback(() => {
+    setAutoLoadPaused(true);
     chat.cancel();
     embed.cancel();
     rerank.cancel();
@@ -339,6 +273,7 @@ export function useRagModels(): UseRagModelsReturn {
     (next: ChatVariantId) => {
       if (next === chatVariant) return;
       const previousId = getActiveChatModelId();
+      setAutoLoadPaused(false);
       setActiveChatVariant(next);
       setChatVariantState(next);
       void unloadModel(previousId);
@@ -347,6 +282,7 @@ export function useRagModels(): UseRagModelsReturn {
   );
 
   const dispose = useCallback(async () => {
+    setAutoLoadPaused(true);
     await disposeAllModels();
     // `disposeAllModels` only clears the runtime-level pipeline
     // cache; without these resets each sub-hook keeps its local
@@ -357,10 +293,6 @@ export function useRagModels(): UseRagModelsReturn {
     chat.reset();
     embed.reset();
     rerank.reset();
-    // Reset the auto-load guard so a fresh ensureReady() on a
-    // post-dispose return-visitor re-fires correctly instead of
-    // being skipped by the "I already tried this variant" check.
-    attemptedRef.current = null;
   }, [chat, embed, rerank]);
 
   /**
@@ -384,18 +316,28 @@ export function useRagModels(): UseRagModelsReturn {
    * private-mode failure on any one shouldn't roll back the others.
    */
   const evict = useCallback(async (): Promise<ModelCacheEvictResult> => {
+    setAutoLoadPaused(true);
     await disposeAllModels();
-    const result = await evictModelCacheBytes();
-    await clearAllCachedIndexes();
-    clearAllReadyFlags();
+    const [cache, indexes] = await Promise.allSettled([
+      evictModelCacheBytes(),
+      clearAllCachedIndexes(true),
+    ]);
+    const deleted =
+      cache.status === "fulfilled" &&
+      cache.value.failedCaches === 0 &&
+      cache.value.cacheApiAvailable &&
+      indexes.status === "fulfilled";
+    if (deleted) clearAllReadyFlags();
     // Same reasoning as `dispose`: tell each sub-hook the pipeline
     // is gone so the rollup status drops to "idle" and the UI re-
     // renders with the buttons disabled.
     chat.reset();
     embed.reset();
     rerank.reset();
+    if (!deleted || cache.status !== "fulfilled")
+      throw new Error("Could not delete all cached models and document indexes.");
     attemptedRef.current = null;
-    return result;
+    return cache.value;
   }, [chat, embed, rerank]);
 
   // Derived booleans for the storage-action buttons. Recomputed on
@@ -405,17 +347,14 @@ export function useRagModels(): UseRagModelsReturn {
   const canFreeMemory =
     chat.status === "ready" || embed.status === "ready" || rerank.status === "ready";
   const canDelete =
-    canFreeMemory ||
-    isModelMarkedReady(chatModelId) ||
-    isModelMarkedReady("embed") ||
-    isModelMarkedReady("rerank");
+    canFreeMemory || Object.values(AI_MODELS).some((model) => isModelMarkedReady(model.id));
 
   return {
     chat,
     embed,
     rerank,
     status,
-    progress,
+    cached: canAutoLoad,
     error,
     chatVariant,
     setChatVariant,

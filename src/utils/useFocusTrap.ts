@@ -38,12 +38,27 @@ function topmostEntry(): FocusTrapEntry | undefined {
 }
 
 function focusableNodes(entry: FocusTrapEntry): HTMLElement[] {
-  return Array.from(entry.ref.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
+  const nodes = Array.from(
+    entry.ref.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+  ).filter(
     (element) =>
       (element.offsetParent !== null || element === document.activeElement) &&
-      !element.closest("[inert]") &&
-      !element.closest('[aria-hidden="true"]'),
+      !element.matches(":disabled") &&
+      !element.closest('[inert],[aria-hidden="true"]'),
   );
+  // A native radio group has one Tab stop; arrow keys retain native behavior.
+  return nodes.filter((element) => {
+    if (!(element instanceof HTMLInputElement) || element.type !== "radio" || !element.name)
+      return true;
+    const group = nodes.filter(
+      (node): node is HTMLInputElement =>
+        node instanceof HTMLInputElement &&
+        node.type === "radio" &&
+        node.name === element.name &&
+        node.form === element.form,
+    );
+    return (group.find((node) => node.checked) ?? group[0]) === element;
+  });
 }
 
 function focusEntryBoundary(entry: FocusTrapEntry, last = false): void {
@@ -204,19 +219,17 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean
         e.preventDefault();
         return;
       }
-      const first = nodes[0];
-      const last = nodes[nodes.length - 1];
-      const activeEl = document.activeElement;
-      if (!ref.current.contains(activeEl)) {
-        e.preventDefault();
-        focusBoundary(e.shiftKey);
-      } else if (e.shiftKey && activeEl === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && activeEl === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      // Own the whole sequence. Safari may exclude links from native Tab
+      // navigation, so boundary-only trapping can send focus to browser chrome.
+      e.preventDefault();
+      const index = nodes.indexOf(document.activeElement as HTMLElement);
+      const next =
+        index < 0
+          ? e.shiftKey
+            ? nodes.length - 1
+            : 0
+          : (index + (e.shiftKey ? -1 : 1) + nodes.length) % nodes.length;
+      nodes[next].focus();
     };
 
     const onFocusIn = (e: FocusEvent) => {
@@ -281,11 +294,18 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean
         if (document.activeElement === document.body || root?.contains(document.activeElement)) {
           const next = topmostEntry();
           if (next) focusEntryBoundary(next);
+          else {
+            const key = previouslyFocused?.dataset.dialogReturnFocus;
+            if (key)
+              document
+                .querySelector<HTMLElement>(`[data-dialog-return-focus="${CSS.escape(key)}"]`)
+                ?.focus();
+          }
         }
       }
 
-      // AnimatePresence may keep the outgoing root mounted briefly. Keep that
-      // visual-only exit out of focus, hit-testing, and the accessibility tree.
+      // Remove the released root from hit testing and accessibility before React
+      // removes it; ModalShell holds ownership until its exit has completed.
       concealModalRoot(root);
     };
   }, [ref, active, isTopmost]);

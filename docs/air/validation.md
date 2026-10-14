@@ -523,3 +523,49 @@ Evidence: `evidence/ai-setup-2026-10-14.json`, compact check log, and two repres
 screenshots. Remaining screenshots and raw geometry stay outside Git. Modal
 interiors, download/error/progress, storage actions, chat and editor are **not**
 certified by this slice. Physical touch/assistive speech remain open.
+
+## 2026-10-14 — Shared modal frame and AI model dialogs
+
+The shared modal frame now follows Air geometry and motion, with a scrollable
+phone sheet, consistent 44px close target and ownership retained through exit.
+Consent/loading/error, model details, confirmed cache deletion, model switching
+and loaded-model actions use the same controls. Export and command palette adopt
+the frame; their interior migrations remain separate work.
+
+Progress reports models actually ready and bytes received, never an estimated
+percentage. Free memory stays idle until explicit reload. Warm-load cancellation
+remains recoverable. Cache deletion handles CacheStorage denial and aborted IDB
+transactions without false success; successful deletion waits for the IDB commit.
+Other cached tiers remain discoverable. Pending tier selection resets before a
+reopened dialog paints. Safari's default Tab behavior exposed skipped model links;
+the shared focus loop now includes every eligible control while preserving one
+Tab stop per native radio group. AI triggers explicitly retain return focus.
+
+268 geometry cases cover details, deletion confirmation, loading, download error
+and model switching across every Air viewport, both themes and 16/32px root text;
+four states also include 639/640/641px breakpoint neighbors. No horizontal overflow
+or undersized coarse targets. Screenshots reviewed, including short landscape,
+forced colours, enlarged text and actual Safari/Firefox 200% browser zoom.
+Pointer timing, keyboard/reduced motion, exit inertness and reopen pass. Physical
+touch/software keyboard and assistive speech remain open (`validated: false`).
+
+Passing: formatting/lint/types, dead-code, 366 unit tests, production build/PWA and
+127-asset limit; shared-modal, model-state/recovery, real AI, command palette,
+responsive-motion and three-fixture editor feature suites; design/portability.
+The real AI suite verifies questions/extraction, warm return, cancelled pending
+choice, model switching, one radio Tab stop, RAM release and explicit reload of
+the existing document session. Persistent tests now bypass old service-worker
+builds while retaining actual model/index caches. The modal-state test similarly
+bypasses the service worker to intercept model requests reliably.
+
+Removed the old dialog skin, unused animation presets, aggregate progress helper,
+single-model consent API, duplicated details owners/storage markup and local
+geometry overrides. No dependencies or contract changes. Ask PDF decreases from
+611.72/181.88 to 596.20/179.08 kB raw/gzip. Two proof images enter Git; the larger
+review set remains local. No push/deploy. Chat/indexing/citations, export/palette
+interiors, every remaining editor surface and sibling apps remain tracked.
+
+Evidence: [state record](evidence/ai-modals-2026-10-14.json),
+[checks](evidence/ai-modals-checks-2026-10-14.log),
+[desktop](evidence/ai-modals-details-1440-light.png),
+[phone](evidence/ai-modals-loading-390-dark.png).

@@ -96,15 +96,8 @@
   text-transform: uppercase;
 }
 
-.editor-toolrail__icon,
-.cloak-dialog__close svg {
+.editor-toolrail__icon {
   transition: transform var(--dur-short) var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .cloak-dialog__close:hover:not(:disabled) svg {
-    transform: translateY(-1px) rotate(-4deg);
-  }
 }
 
 .cloak-field-label {
@@ -140,105 +133,6 @@
   border-color: color-mix(in oklab, var(--color-status-danger) 42%, var(--color-rule));
   background: var(--color-status-danger-soft);
   color: var(--color-ink-2);
-}
-
-.cloak-modal-scrim {
-  background: var(--color-overlay);
-}
-
-.cloak-dialog {
-  border: var(--rule-thin) solid var(--color-rule-strong);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  box-shadow: var(--shadow-overlay);
-}
-
-.cloak-dialog__header {
-  display: flex;
-  flex: none;
-  align-items: flex-start;
-  gap: var(--space-xs);
-  justify-content: space-between;
-  border-bottom: var(--rule-thin) solid var(--color-rule);
-  padding: var(--space-xs) var(--space-sm);
-}
-
-.cloak-dialog__eyebrow,
-.cloak-dialog__section-label {
-  color: var(--color-ink-3);
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-.cloak-dialog__title {
-  margin: 0.2rem 0 0;
-  color: var(--color-ink);
-  font-size: 1rem;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
-}
-
-.cloak-dialog__description {
-  margin-top: 0.25rem;
-  color: var(--color-ink-2);
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.cloak-dialog__close {
-  display: grid;
-  width: 2.75rem;
-  height: 2.75rem;
-  flex: none;
-  place-items: center;
-  border-radius: var(--radius-input);
-  color: var(--color-ink-3);
-  transition:
-    color var(--dur-short) var(--ease-standard),
-    background-color var(--dur-short) var(--ease-standard);
-}
-
-.cloak-dialog__close:hover:not(:disabled) {
-  background: var(--color-paper-2);
-  color: var(--color-ink);
-}
-
-.cloak-dialog__close:disabled {
-  cursor: not-allowed;
-  opacity: 0.42;
-}
-
-.cloak-dialog__body {
-  min-height: 0;
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: var(--space-sm);
-}
-
-.cloak-dialog__footer {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-2xs);
-  border-top: var(--rule-thin) solid var(--color-rule);
-  background: color-mix(in oklab, var(--color-paper-2) 52%, var(--color-surface));
-  padding: var(--space-xs) var(--space-sm) max(var(--space-xs), env(safe-area-inset-bottom));
-}
-
-.cloak-dialog__section-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-xs);
-  padding-inline: 0.125rem;
 }
 
 .cloak-ledger {
@@ -429,26 +323,6 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 639px) {
-  .cloak-dialog:not(.cloak-dialog--command):not(.cloak-dialog--floating) {
-    border-bottom: 0;
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
-  }
-
-  .cloak-dialog__footer {
-    align-items: stretch;
-    flex-direction: column-reverse;
-  }
-
-  .cloak-dialog__body {
-    padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom));
-  }
-
-  .cloak-dialog__footer > button {
-    width: 100%;
-  }
-}
-
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /* Root stack heights and base background. Mirrors CloakResume's
@@ -606,8 +480,7 @@ body {
     }
   }
 
-  .editor-toolrail__icon,
-  .cloak-dialog__close svg {
+  .editor-toolrail__icon {
     transition: none !important;
     transform: none !important;
   }

@@ -412,11 +412,9 @@ export async function evictModelCacheBytes(): Promise<ModelCacheEvictResult> {
       if (ok) deleted += 1;
     } catch (e) {
       failed += 1;
-      // Best-effort — a failure on one entry shouldn't abort the
-      // rest. We don't surface this to the user because there's
-      // nothing actionable; the failure mode is "the bytes are still
-      // there and will be re-evicted next time the user clicks
-      // delete". The console log is for triage.
+      // Continue through the remaining caches. The returned failure count keeps
+      // explicit deletion retryable and prevents startup from marking an upgrade
+      // complete; retain the original error here for diagnosis.
       console.warn(`[ai-runtime] failed to delete CacheStorage "${name}"`, e);
     }
   }

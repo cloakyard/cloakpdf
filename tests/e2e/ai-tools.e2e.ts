@@ -44,6 +44,7 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { launch } from "puppeteer-core";
+import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 
 /**
  * Fixture selector. `FIXTURE=sample` (default) drives the short
@@ -168,6 +169,8 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+    // Exercise the served candidate while retaining the real model/index caches.
+    await page.setBypassServiceWorker(true);
     page.setDefaultTimeout(60_000);
 
     // Seed the chat-tier preference + any RAG feature flags *before*
@@ -1014,6 +1017,28 @@ async function main() {
         bail(`Model picker did not own modal/radio state: ${JSON.stringify(pickerInitial)}.`);
       }
 
+      await auditAirDialog(
+        page,
+        "model-picker",
+        process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-modal-states",
+      );
+      await page.focus(".pdf-ai-tiers input:checked");
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("Tab");
+      if ((await page.evaluate(() => document.activeElement?.textContent?.trim())) !== "Cancel")
+        bail("Model picker radio group introduced an extra Tab stop.");
+      await page.keyboard.press("Escape");
+      await page.waitForSelector('[data-testid="chat-model-picker-dialog"]', { hidden: true });
+      await page.click('button[aria-label="Change model"]');
+      await page.waitForSelector('[data-testid="chat-model-picker-dialog"]');
+      if (
+        (await page.$eval(
+          ".pdf-ai-tiers input:checked",
+          (node) => (node as HTMLInputElement).value,
+        )) !== pickerInitial.selectedText
+      )
+        bail("Cancelled pending tier was persisted.");
+
       // Pick the other tier through the radiogroup's keyboard contract. This
       // exercises native radio selection and focus, not just pointer activation.
       await page.keyboard.press("ArrowRight");
@@ -1182,6 +1207,33 @@ async function main() {
         );
       }
     }
+
+    // Releasing RAM must not be undone by the returning-visitor auto-loader.
+    await page.click('button[aria-label="Free memory"]');
+    await page.waitForFunction(
+      () => document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status") === "idle",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const released = await page.evaluate(() => ({
+      status: document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status"),
+      focused: document.activeElement?.hasAttribute("data-ai-load-models"),
+      label: document.querySelector("[data-ai-load-models]")?.textContent?.trim(),
+    }));
+    if (released.status !== "idle" || !released.focused || released.label !== "Load models")
+      bail(`Free memory did not stay idle with a reachable reload: ${JSON.stringify(released)}`);
+    await page.click("[data-ai-load-models]");
+    await page.waitForFunction(
+      () =>
+        document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status") === "ready",
+      { timeout: MODEL_LOAD_TIMEOUT_MS },
+    );
+    await page.waitForFunction(
+      () => !document.querySelector<HTMLTextAreaElement>("textarea")?.disabled,
+      { timeout: 90_000 },
+    );
+    console.log(
+      "  ✓ Free memory stays idle; explicit reload restores the existing document session",
+    );
 
     console.log("✓ AI chat smoke test passed.");
 

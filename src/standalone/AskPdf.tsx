@@ -20,6 +20,7 @@ import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ActiveModelBar } from "../components/ActiveModelBar.tsx";
 import { AiConsentModal } from "../components/AiConsentModal.tsx";
+import { AiModelDetailsModal } from "../components/AiModelDetailsModal.tsx";
 import { AiModelGate } from "../components/AiModelGate.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { ChatModelPickerModal } from "../components/ChatModelPickerModal.tsx";
@@ -67,6 +68,7 @@ export default function AskPdf() {
   const [variantPickerOpen, setVariantPickerOpen] = useState(false);
 
   const rag = useRagModels();
+  const [modelDetailsOpen, setModelDetailsOpen] = useState(false);
 
   const sessionRef = useRef<RagSession | null>(null);
   // Token-stream coalescing: tokens arrive faster than a frame; buffer the
@@ -333,15 +335,12 @@ export default function AskPdf() {
           action grants consent once; its dialog then owns progress and cancellation. */}
       <AiModelGate
         status={rag.status}
+        cached={rag.cached}
         models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
-        roles={["chat", "retrieval", "rerank"]}
         chatVariant={rag.chatVariant}
         onChatVariantChange={rag.setChatVariant}
         onDownload={rag.confirm}
-        onFreeMemory={rag.dispose}
-        onDeleteCachedModels={rag.evict}
-        canFreeMemory={rag.canFreeMemory}
-        canDelete={rag.canDelete}
+        onViewDetails={() => setModelDetailsOpen(true)}
       >
         {/* Children render only when all three models are ready. */}
         {pdf.file && (
@@ -419,24 +418,37 @@ export default function AskPdf() {
       {rag.status === "ready" && (
         <ActiveModelBar
           models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
-          roles={["chat", "retrieval", "rerank"]}
+          onViewDetails={() => setModelDetailsOpen(true)}
           onChange={() => setVariantPickerOpen(true)}
           disabled={task.processing || isIndexing}
-          onFreeMemory={rag.dispose}
-          onDeleteCachedModels={rag.evict}
+          onFreeMemory={async () => {
+            await rag.dispose();
+            requestAnimationFrame(() => {
+              document.querySelector<HTMLButtonElement>("[data-ai-load-models]")?.focus();
+            });
+          }}
           canFreeMemory={rag.canFreeMemory}
-          canDelete={rag.canDelete}
         />
       )}
 
       {task.error && <AlertBox message={task.error} />}
 
+      <AiModelDetailsModal
+        open={modelDetailsOpen}
+        onClose={() => setModelDetailsOpen(false)}
+        models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
+        roles={["chat", "retrieval", "rerank"]}
+        onFreeMemory={rag.dispose}
+        onDelete={rag.evict}
+        canFreeMemory={rag.canFreeMemory}
+        canDelete={rag.canDelete}
+        storageActionsDisabled={task.processing || isIndexing}
+      />
       <AiConsentModal
         open={dialogOpen}
         models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
         roles={["chat", "retrieval", "rerank"]}
         status={rag.status}
-        progress={rag.progress}
         // Per-model arrays parallel to `models` — drive the per-model
         // breakdown beneath the overall bar so users see *which*
         // pipeline the current bytes are flowing into.
