@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-14",
+  "scope": "AI setup gate and shared tier picker only; modal interiors and chat remain pending",
+  "contract": "Air 1.0.0",
+  "sourceSha256": {
+    "src/components/AiModelGate.tsx": "3539ce748fe69cd76fad2378c3d166e9ee598756a4e89e5ddfebdf527eb808a8",
+    "src/components/ChatModelPicker.tsx": "3ea73c26a54663c8e62c063a9511e8ea92ff6e3e420a1ea590444f2e4e3056e9",
+    "src/hooks/useRagModels.ts": "86aef4afa5b08a4d2aabbebd08b17814f06a473e696379ea2daa5e7f67131633",
+    "src/standalone/AskPdf.tsx": "ffc23ae8def8cba8db6d4d3ebb030386e76d9cc26230d906b39a115751583c43",
+    "src/styles/air-entry.css": "473337d84a48199321642dca5fa8fbf5572e09c21e039d7d438244dfc63b7b25"
+  },
+  "geometry": {
+    "cases": 88,
+    "states": ["compact", "quality"],
+    "themes": ["light", "dark"],
+    "rootTextPx": [16, 32],
+    "viewports": [
+      [320, 568],
+      [375, 812],
+      [390, 844],
+      [430, 932],
+      [844, 390],
+      [768, 1024],
+      [1024, 768],
+      [1280, 720],
+      [1366, 768],
+      [1440, 900],
+      [1920, 1080]
+    ],
+    "horizontalOverflow": 0,
+    "undersizedTargets": 0
+  },
+  "additionalChecks": [
+    "Native Safari and Firefox 200% zoom, radio arrows and focus",
+    "Coarse landscape: 44px buttons, full-label radio targets",
+    "Forced colours: native radio appearance and keyboard selection",
+    "Reduced motion: zero setup animations",
+    "Real cold model loading, warm reload, document question/extraction, Quality-to-Compact tier switch and answer passed",
+    "Modal ownership, tier Home/End and wrapping arrows, one Tab stop, changed bundle estimates, persistence and partial-cache no-unrequested-fetch passed"
+  ],
+  "screenshots": ["ai-setup-1440-light.png", "ai-setup-390-dark.png"],
+  "localArtifacts": "/Users/sumitsahoo/.codex/visualizations/2026/10/11/01a12abe-1cfd-7980-bf8e-f585aee286a5/air-ai-setup",
+  "cleanup": [
+    "Removed duplicate gate auto-load effect; useRagModels is the sole bundle loader",
+    "Removed unused gate single-model/optional-ready/loading/title/blurb API",
+    "Removed old picker keyboard/roving button implementation, palette classes and redundant icons",
+    "Removed repeated hardware warning and stale two-model/detected-RAM prose",
+    "Updated old native-radio test selectors and removed retired OrientationLock assertions"
+  ],
+  "open": [
+    "AI model details/consent/progress/error/cache modal interiors",
+    "Shared modal frame and remaining consumers",
+    "Physical touch and assistive speech acceptance"
+  ]
+}

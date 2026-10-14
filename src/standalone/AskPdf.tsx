@@ -4,7 +4,7 @@
  *
  * This component is a thin shell around `createRagSession`. Per file:
  *
- *   1. Wait for both AI models to be ready.
+ *   1. Wait for all three AI models to be ready.
  *   2. Build a `RagSession` — caches hit IndexedDB; cache misses run
  *      text-layer extraction (+ OCR fallback), chunk, embed, persist.
  *   3. Drive a typewriter chat: every question runs through the graph
@@ -14,7 +14,7 @@
  * loaded — not lazily on the first question — so the user isn't left
  * staring at a "Thinking…" spinner that's really doing extraction.
  */
-import { AlertTriangle, Database, Loader2, MemoryStick, ScanSearch, Send } from "lucide-react";
+import { AlertTriangle, Database, Loader2, ScanSearch, Send } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -26,7 +26,6 @@ import { ChatModelPickerModal } from "../components/ChatModelPickerModal.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { FileInfoBar } from "../components/FileInfoBar.tsx";
 import { InfoCallout } from "../components/InfoCallout.tsx";
-import { findTool } from "../config/tool-registry.ts";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { usePdfFile } from "../hooks/usePdfFile.ts";
 import { useRagModels } from "../hooks/useRagModels.ts";
@@ -328,136 +327,17 @@ export default function AskPdf() {
     [handleAsk],
   );
 
-  // RAM heads-up — always shown until the model is ready (warning
-  // is moot at that point). We tried gating this on
-  // `navigator.deviceMemory < 8` to hide it on machines that look
-  // comfortable, but the signal is too unreliable to use as a
-  // visibility switch:
-  //   - Chrome caps the reading at 8 GB for privacy, so a 16 / 32 GB
-  //     desktop reports the same value as an 8 GB one — we'd hide
-  //     the hint on devices we can't actually verify.
-  //   - Firefox / Safari don't ship the API at all (returns `null`).
-  //
-  // The detected RAM line still lives in `AiModelDetailsModal` for
-  // users who want to inspect what we read; this surface just gives
-  // every user the recommendation up-front. Mobile users never reach
-  // this code — `App.tsx` short-circuits to a "desktop only" view
-  // when `tool.desktopOnly` and `isMobileDevice()` both hold.
-  const askPdfTool = findTool("ask-pdf");
-  const ramRequirement = askPdfTool?.requirements ?? null;
-  const showRamNote = ramRequirement !== null && rag.status !== "ready";
-
   return (
     <div className="space-y-6" data-rag-status={rag.status} data-rag-chat-status={rag.chat.status}>
-      {showRamNote && (
-        // Compact single-line RAM heads-up rendered at the *top* of
-        // the tool so users see it before they bother uploading a
-        // file — on a low-RAM device that decision matters before
-        // the download cost is paid. Lives outside the file-state
-        // conditional so it stays visible across the drop-zone /
-        // gate / indexing / scanned-hint stages, and hides once the
-        // model is loaded (warning is moot at that point).
-        // Amber icon flags it as a "watch out", not a hard block —
-        // users can still proceed.
-        <p className="flex items-start gap-1.5 text-xs text-slate-500 dark:text-dark-text-muted px-1">
-          <MemoryStick
-            className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500 dark:text-amber-400"
-            aria-hidden="true"
-          />
-          <span>
-            {ramRequirement}. The two models load into memory together — lower-RAM devices may run
-            slowly or close this tab during inference.
-          </span>
-        </p>
-      )}
-
-      {/*
-        Sequential flow — gate first, PDF second.
-        ─────────────────────────────────────────
-        Old layout asked for a PDF upload *before* downloading the
-        models, which meant the user committed a file (and looked at
-        an unactionable "Loading…" state) before they'd even seen the
-        download size or picked a chat tier. New layout walks the
-        user through one step at a time:
-            (1) gate card — tier picker + Download CTA
-            (2) PDF drop zone — only shown once the rollup says all
-                three pipelines are loaded
-            (3) indexing card — while the embedder chunks the file
-            (4) chat panel — with the composer enabled
-
-        The gate's `ready`/`loading` overrides take the *rollup*
-        status (`rag.status`) instead of just the chat status — that
-        way the children only mount when every pipeline is actually
-        usable, not the moment chat alone resolves. Without the
-        override the gate would render an unusable chat panel during
-        the brief window where chat is "ready" but embed/rerank are
-        still mid-load (partial-cache return-visit edge case).
-      */}
+      {/* Wait for the complete bundle before accepting a PDF. The visible download
+          action grants consent once; its dialog then owns progress and cancellation. */}
       <AiModelGate
-        ai={rag.chat}
+        status={rag.status}
         models={[rag.chat.info, rag.embed.info, rag.rerank.info]}
         roles={["chat", "retrieval", "rerank"]}
         chatVariant={rag.chatVariant}
         onChatVariantChange={rag.setChatVariant}
-        // Copy that matches the *current* state. The "Download AI
-        // models…" headline only makes sense on a first-run download
-        // (or an explicit re-download via the consent dialog); on a
-        // returning visitor with the bytes already cached we're not
-        // downloading, we're restoring — and the headline shouldn't
-        // claim otherwise. Mapping by rollup status keeps the gate
-        // honest across all three lifecycle paths the user can land
-        // on (cold first-visit, warm reload, partial cache).
-        title={
-          rag.status === "loading"
-            ? "Restoring AI models from your device cache…"
-            : rag.status === "downloading"
-              ? "Downloading AI models…"
-              : "Download AI models to chat with your PDFs"
-        }
-        blurb={
-          rag.status === "loading"
-            ? "We're loading the models you already downloaded — no network needed. This usually takes a few seconds."
-            : rag.status === "downloading"
-              ? "Hang tight — the models are streaming into your browser cache. After this, every future visit loads in seconds."
-              : "Ask your PDF runs entirely on your device. Pick a chat-model size below, download it once, then choose a PDF to start chatting."
-        }
-        ready={rag.status === "ready"}
-        loading={
-          rag.status === "downloading" ||
-          rag.status === "loading" ||
-          rag.status === "awaiting-consent"
-        }
-        // Gate's "Download model" click should kick off the actual
-        // download for every pipeline in the bundle. We use
-        // `rag.confirm` (not `rag.ensureReady`) deliberately:
-        //
-        //   - `ensureReady` would push each model through the
-        //     `awaiting-consent` state and the user would have to
-        //     click "Download model" *again* in the consent dialog
-        //     that opens. Two identical buttons for the same
-        //     decision is bad UX — the gate already shows the
-        //     picker, the aggregate footprint, and a "View details"
-        //     link covering everything the consent body would
-        //     repeat. The dialog's job from here is just to show
-        //     progress, not to gather a second confirmation.
-        //   - `confirm` calls each sub-hook's confirm directly,
-        //     which calls `startDownload` and flips status
-        //     `idle → downloading` in one shot. The dialog opens
-        //     in download state (per `dialogOpen` below covering
-        //     `downloading`), the progress UI renders, no extra
-        //     click needed.
-        //   - Also fixes the partial-cache edge case: confirm
-        //     iterates all three sub-models, so
-        //     even if chat is already cached and ready, embed +
-        //     rerank still get a fresh startDownload call.
         onDownload={rag.confirm}
-        // Storage actions in the gate-side details modal — covers
-        // the "I freed memory and now I want to delete the disk
-        // cache too" path without forcing the user to re-download
-        // just to surface a delete button. canFreeMemory is false
-        // here (gate only shows when not ready), so the dialog
-        // hides Free Memory; canDelete may be true if disk cache
-        // survives, so Delete appears when there's something to do.
         onFreeMemory={rag.dispose}
         onDeleteCachedModels={rag.evict}
         canFreeMemory={rag.canFreeMemory}

@@ -210,17 +210,9 @@ export function useRagModels(): UseRagModelsReturn {
   const error = chat.error ?? embed.error ?? rerank.error;
 
   /**
-   * Return-visitor auto-load.
-   *
-   * When ALL THREE models are flagged as previously downloaded in
-   * localStorage, kick off `ensureReady()` without waiting on a UI
-   * click. Without this, only `chat` auto-loads (the gate is bound
-   * to `rag.chat` and its own auto-load effect doesn't know about
-   * the embedder or reranker).
-   *
-   * The guard is rekeyed by `chatVariant` so swapping tiers re-arms
-   * auto-load for the *new* tier — if the user picked something they
-   * already cached, the warm-load fires automatically.
+   * Returning visitors load the complete bundle here. The gate is presentational;
+   * a partial cache stays on setup until the user requests the remaining models.
+   * Changing tiers re-arms this guard for the newly selected bundle.
    */
   const attemptedRef = useRef<ChatVariantId | null>(null);
   useEffect(() => {
@@ -232,18 +224,8 @@ export function useRagModels(): UseRagModelsReturn {
     ) {
       return;
     }
-    // Deliberately *not* gated on "all three sub-hooks still idle".
-    // {@link AiModelGate} ships its own chat-only auto-load that
-    // fires from a child useEffect — and child effects run *before*
-    // this parent effect on the same render. By the time we get here
-    // on first mount, `chat.status` has already flipped to "loading"
-    // and an idle-only guard would (silently) skip the all-three
-    // load; embed + rerank would stay idle forever, the rollup would
-    // drop to "idle" once chat finished, and the gate would flash
-    // "Download model" — exactly the bug the e2e regression now
-    // pins. `ensureReady()` is idempotent on a loading/ready
-    // pipeline (queues another consumer, no fresh fetch), so re-
-    // calling it on chat is safe.
+    // Each ensureReady call is idempotent for a loading/ready pipeline, including
+    // a StrictMode remount with only some pipelines already resident.
     attemptedRef.current = chatVariant;
     void Promise.all([chat.ensureReady(), embed.ensureReady(), rerank.ensureReady()]).catch(() => {
       // Each `useAiModel` already routes failures into its own `error`

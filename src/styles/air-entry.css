@@ -1126,3 +1126,129 @@ body:has(.pdf-site) {
   min-block-size: 0;
   object-fit: contain;
 }
+
+/* AI setup uses the family radio/field primitives; the same picker lives in the
+   model-switch dialog. Model runtime and chat interiors are separate migrations. */
+.pdf-ai-setup {
+  display: grid;
+  gap: 24px;
+  max-inline-size: 960px;
+  margin-inline: auto;
+  padding-block: 24px;
+  border-block: 1px solid var(--air-line);
+  color: var(--air-ink);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.pdf-ai-setup h2 {
+  margin: 0 0 8px;
+  font: 500 1.5rem/1.25 var(--air-font);
+  letter-spacing: -0.03em;
+}
+.pdf-ai-setup header > p {
+  max-inline-size: 65ch;
+  margin: 0;
+  color: var(--air-ink-secondary);
+}
+.pdf-ai-tier-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 12px;
+}
+.pdf-ai-tier {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface);
+}
+.pdf-ai-tier:has(:checked) {
+  background: var(--air-surface-soft);
+}
+.pdf-ai-tier:has(:focus-visible) {
+  border-color: transparent;
+  outline: 2px solid var(--air-accent);
+  outline-offset: 0;
+}
+.pdf-ai-tier > .air-check:focus-visible {
+  outline: none;
+}
+.pdf-ai-tier-copy {
+  display: grid;
+  gap: 8px;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.pdf-ai-tier-name {
+  color: var(--air-ink);
+  font-weight: 500;
+}
+.pdf-ai-tier-description {
+  color: var(--air-ink-secondary);
+}
+.pdf-ai-tier-model,
+.pdf-ai-tier-metrics {
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-meta);
+}
+.pdf-ai-tier-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-ai-tiers:disabled .pdf-ai-tier-copy {
+  opacity: 0.5;
+}
+.pdf-ai-setup-summary > .air-button {
+  margin-top: 12px;
+}
+.pdf-ai-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin: 0;
+}
+.pdf-ai-metrics dt {
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-label);
+}
+.pdf-ai-metrics dd {
+  margin: 4px 0 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-ai-setup-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--air-line);
+}
+.pdf-ai-privacy {
+  display: flex;
+  align-items: flex-start;
+  flex: 1 1 20rem;
+  gap: 8px;
+  margin: 0;
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-meta);
+}
+.pdf-ai-privacy > svg {
+  flex: 0 0 18px;
+  margin-top: 2px;
+}
+.pdf-ai-setup-footer > .air-button {
+  flex: 1 0 auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pdf-ai-tier:not(:has(:disabled)):hover {
+    background: var(--air-surface-soft);
+  }
+}
+@media (forced-colors: active) {
+  .pdf-ai-tier:has(:focus-visible) {
+    outline-color: Highlight;
+  }
+}

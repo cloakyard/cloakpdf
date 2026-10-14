@@ -493,3 +493,33 @@ Evidence: [state record](evidence/compare-2026-10-14.json),
 [checks](evidence/compare-checks-2026-10-14.log),
 [desktop](evidence/compare-side-by-side-1440-light-16.png),
 [phone](evidence/compare-overlay-390-dark-16.png).
+
+## 2026-10-14 — AI setup and shared model tier picker
+
+The setup gate now presents native Air radio choices, full-bundle download and
+estimated peak-RAM totals, model-source/privacy disclosure and a neutral download
+action. One controlled status replaces unused overrides and the gate's duplicate
+chat-only loader; `useRagModels` owns return-visitor loading for the full bundle.
+A partial cache waits for the explicit download action. Removed old palette,
+monospace controls, fake radio-button bookkeeping, duplicate warning and stale
+single/two-model API commentary. No dependencies added.
+
+88 geometry cases cover both tiers × all 11 required viewports × light/dark ×
+16/32px root text, without page overflow or undersized targets. Reviewed desktop,
+laptop, tablet and narrow screenshots. Coarse landscape gives 44px buttons;
+forced colours use native radios; reduced motion has no setup animations. Native
+Safari and Firefox radio navigation and real 200% page zoom pass.
+
+Required format/lint/types, dead code, 366 unit tests, production build and design/
+portability checks pass. The real AI suite passes cold loading, cached return,
+questions/extraction and Quality→Compact model switching with a generated answer.
+The shared-modal suite passes ownership/stack/focus plus native tier arrows,
+Home/End, one Tab stop, changed estimates, persistence and the partial-cache guard.
+One initial network-idle timeout did not recur on the diagnostic rerun; no product
+failure was observed. The old shared modal motion still reports an invalid numeric
+translateY warning and is queued with the modal-frame migration.
+
+Evidence: `evidence/ai-setup-2026-10-14.json`, compact check log, and two representative
+screenshots. Remaining screenshots and raw geometry stay outside Git. Modal
+interiors, download/error/progress, storage actions, chat and editor are **not**
+certified by this slice. Physical touch/assistive speech remain open.

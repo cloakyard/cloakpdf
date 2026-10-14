@@ -995,20 +995,19 @@ async function main() {
 
       const pickerInitial = await page.evaluate(() => ({
         dialogs: document.querySelectorAll('[role="dialog"][aria-modal="true"]').length,
-        group: Boolean(document.querySelector('[role="radiogroup"][aria-label="Chat model tier"]')),
-        focusedRole: document.activeElement?.getAttribute("role"),
-        focusedChecked: document.activeElement?.getAttribute("aria-checked"),
+        group: Boolean(document.querySelector(".pdf-ai-tiers")),
+        focusedType: (document.activeElement as HTMLInputElement)?.type,
+        focusedChecked: (document.activeElement as HTMLInputElement)?.checked,
         appInert: (document.getElementById("app") as HTMLElement | null)?.inert,
         overflow: document.body.style.overflow,
-        selectedText: document
-          .querySelector('[role="radio"][aria-checked="true"]')
-          ?.textContent?.trim(),
+        selectedText: (document.querySelector(".pdf-ai-tiers input:checked") as HTMLInputElement)
+          ?.value,
       }));
       if (
         pickerInitial.dialogs !== 1 ||
         !pickerInitial.group ||
-        pickerInitial.focusedRole !== "radio" ||
-        pickerInitial.focusedChecked !== "true" ||
+        pickerInitial.focusedType !== "radio" ||
+        pickerInitial.focusedChecked !== true ||
         !pickerInitial.appInert ||
         pickerInitial.overflow !== "hidden"
       ) {
@@ -1016,17 +1015,17 @@ async function main() {
       }
 
       // Pick the other tier through the radiogroup's keyboard contract. This
-      // exercises roving focus and `aria-checked`, not just pointer activation.
+      // exercises native radio selection and focus, not just pointer activation.
       await page.keyboard.press("ArrowRight");
       const swapTarget = await page.evaluate(() => {
         const titleEl = document.getElementById("chat-model-picker-title");
         const dialog = titleEl?.closest('[role="dialog"]');
         if (!dialog) return null;
-        const selected = dialog.querySelector('[role="radio"][aria-checked="true"]');
-        if (!(selected instanceof HTMLButtonElement) || document.activeElement !== selected) {
+        const selected = dialog.querySelector(".pdf-ai-tiers input:checked");
+        if (!(selected instanceof HTMLInputElement) || document.activeElement !== selected) {
           return null;
         }
-        return (selected.textContent ?? "").trim().slice(0, 80);
+        return selected.value;
       });
       if (!swapTarget || swapTarget === pickerInitial.selectedText?.slice(0, 80)) {
         bail("ArrowRight did not move the model-picker radio selection to the other tier.");

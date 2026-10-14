@@ -116,13 +116,36 @@
     {
       "path": "src/components/AiModelGate.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "compact",
+        "quality",
+        "busy",
+        "keyboard",
+        "light",
+        "dark",
+        "enlarged-text",
+        "coarse-emulation",
+        "forced-colors",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-setup-2026-10-14.json"],
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames, modal interiors and chat remain separate pending surfaces. Physical touch/assistive speech remain open."
     },
     {
       "path": "src/components/AlertBox.tsx",
@@ -168,13 +191,36 @@
     {
       "path": "src/components/ChatModelPicker.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "compact",
+        "quality",
+        "busy",
+        "keyboard",
+        "light",
+        "dark",
+        "enlarged-text",
+        "coarse-emulation",
+        "forced-colors",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-setup-2026-10-14.json"],
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames, modal interiors and chat remain separate pending surfaces. Physical touch/assistive speech remain open."
     },
     {
       "path": "src/components/ChatModelPickerModal.tsx",
