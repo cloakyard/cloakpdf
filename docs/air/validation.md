@@ -612,3 +612,45 @@ Evidence: [record](evidence/export-2026-10-14.json),
 [checks](evidence/export-checks-2026-10-14.log),
 [desktop](evidence/export-desktop-1440-light.png),
 [phone](evidence/export-images-390-dark.png).
+
+## 2026-10-14 — Command palette interior
+
+The palette now uses the shared Air compound search, quiet clear action, normal
+case category labels, neutral selected rows and a small blue selection marker.
+Descriptions wrap; keyboard hints remain readable on phones. The command modal
+uses the same full-width phone sheet as other dialogs. Empty results have a real
+recovery action outside the listbox, with no nested scroller clipping the action.
+
+Replaced numbered rows, tiny mono labels, the tinted ledger and old search contour.
+Removed post-paint reset/clamp effects and pointer-driven auto-scrolling. Content
+mounts fresh for every opening, including Cmd/Ctrl-K toggles. IME composition holds
+filtering until confirmation and cannot execute commands or dismiss the modal.
+A stable trigger key preserves focus across desktop/mobile control replacement.
+No dependencies, token overrides or parallel component implementations were added.
+
+Passing: format/lint/types, dead-code, 366 units in 36 files, production/PWA build
+and 127-asset deployment limit, 84 surface records and 17 portability assertions.
+Command palette, shared-modal, real Export outputs, AI states/recovery and responsive
+motion suites pass. The palette covers real Crop, Page numbers and Attach handoffs,
+name-first ranking, actual Undo/Redo/Reset history, keyboard wrapping/scrolling,
+clear/no-results recovery, composition, reopen, focus return and forced colours.
+
+192 layout cases cover default/filtered/empty states, 16 viewport sizes including
+640/1024px neighbors, both themes and 16/32px root text. Query state survives the
+matrix. Three additional short/enlarged cases check focused recovery visibility.
+Export's 320 and AI dialogs' 192 layout cases also pass after shared changes.
+Native Safari/Firefox keyboard and actual 200% zoom inspected. Firefox's final
+recovery check used the updated production preview after its cached build was
+replaced. Physical touch/software keyboard, real OS IME and assistive speech gates
+remain open (`validated: false`). The rest of the editor remains explicitly pending.
+
+Editor JavaScript decreases 303.46 → 302.42 kB raw / 86.60 → 86.41 kB gzip; shared
+CSS grows 142.88 → 144.03 kB raw / 24.63 → 24.86 kB gzip. Production adds 127 net
+lines for composition and input behavior. Only two synthetic-document proof PNGs
+and compact evidence enter Git; larger browser captures stay local. No push/deploy.
+Next: Ask PDF chat, indexing, citations and recovery, then remaining editor surfaces.
+
+Evidence: [record](evidence/palette-2026-10-14.json),
+[checks](evidence/palette-checks-2026-10-14.log),
+[desktop](evidence/palette-desktop-1440-light.png),
+[phone](evidence/palette-phone-390-dark.png).

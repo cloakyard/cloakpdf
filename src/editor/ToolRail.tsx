@@ -38,8 +38,12 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
           rather than a tool. */}
       <button
         type="button"
-        onClick={onOpenPalette}
+        onClick={(event) => {
+          event.currentTarget.focus();
+          onOpenPalette();
+        }}
         title="Search tools (⌘K / Ctrl+K)"
+        data-dialog-return-focus="editor-tool-picker"
         aria-label="Search tools"
         aria-keyshortcuts="Meta+K Control+K"
         className="relative flex min-h-12 w-full cursor-pointer flex-col items-center justify-center gap-0.5 border-y border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-ink-2)] transition-colors hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-ink)] focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)]"

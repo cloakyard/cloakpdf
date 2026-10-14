@@ -177,6 +177,7 @@ export function MobileEditorSurface() {
             <div className="min-w-0">
               <h2
                 ref={headingRef}
+                data-dialog-return-focus="editor-tool-picker"
                 tabIndex={-1}
                 className="block text-sm font-semibold text-slate-800 outline-none dark:text-dark-text"
               >
@@ -219,6 +220,7 @@ export function MobileEditorSurface() {
                 return !current;
               })
             }
+            data-dialog-return-focus="editor-tool-picker"
             aria-expanded={pickerOpen}
             className="flex w-full items-center justify-center gap-2 px-4 py-3 text-slate-700 dark:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
             aria-label={pickerOpen ? "Close tools" : "Open tools"}

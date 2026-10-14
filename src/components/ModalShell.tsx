@@ -92,7 +92,8 @@ function ModalFrame({
   useEffect(() => {
     if (!present || !dismissOnEscape) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || !isTopmost()) return;
+      if (event.key !== "Escape" || event.isComposing || event.keyCode === 229 || !isTopmost())
+        return;
       event.preventDefault();
       event.stopImmediatePropagation();
       onClose();

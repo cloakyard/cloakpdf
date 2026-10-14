@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-14",
+  "scope": "CloakPDF command palette interior and responsive trigger focus",
+  "baseCommit": "5f8ab8c",
+  "contractVersion": "1.0.0",
+  "changes": [
+    "Shared Air compound search with persistent label and reserved quiet clear action",
+    "Neutral result rows, restrained match highlighting, readable category labels and keyboard hints",
+    "Full-width phone sheet; wrapped descriptions and empty-state recovery outside the listbox",
+    "Fresh content on every opening; IME-aware filtering and confirmation; composition Escape does not dismiss shared dialogs",
+    "Stable desktop/mobile focus return when the trigger is replaced during resizing; immediate command selection"
+  ],
+  "matrix": {
+    "cases": 192,
+    "states": {
+      "commands": 64,
+      "filtered": 64,
+      "empty": 64
+    },
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1023x768",
+      "1024x768",
+      "1025x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "639x800",
+      "640x800",
+      "641x800"
+    ],
+    "result": "Contained at every size, no page/dialog horizontal overflow or undersized visible targets; query preserved through resizing and theme changes"
+  },
+  "features": [
+    "Arrow wrapping and active-row scrolling; initial focus and Tab loop; clear action hidden when empty and restores input focus",
+    "Name-first ranking preserves description matches; crop, page-number and Attach selection; actual editor Undo/Redo/Reset history actions",
+    "Synthetic composition holds results until commit; Enter/Arrow/Escape cannot navigate, run or dismiss during composition",
+    "Shortcut toggle resets search before paint; Escape returns to remounted tool trigger",
+    "No-results Enter is a no-op; recovery stays outside the empty listbox and remains fully visible on short/enlarged screens",
+    "Forced-colour selection remains visible; immediate palette animation contract retained"
+  ],
+  "checks": {
+    "formatLintTypes": "pass, no warnings",
+    "deadCode": "pass",
+    "unitTests": 366,
+    "unitFiles": 36,
+    "productionBuild": "pass, 127 assets within 25 MiB limit",
+    "designInventory": 84,
+    "portabilityAssertions": 17,
+    "browserSuites": [
+      "command-palette",
+      "modal-system",
+      "export-dialog",
+      "ai-modal-states",
+      "responsive-motion"
+    ],
+    "regressionLayouts": {
+      "export": 320,
+      "aiStates": 192
+    }
+  },
+  "manualReview": [
+    "Desktop/laptop/tablet/mobile light and dark renders, wrapping rows, empty results and forced colours",
+    "Native Safari and Firefox: ranking, arrow selection, Enter tool handoff, clear recovery, Escape and trigger return",
+    "Actual 200% browser zoom in Safari and Firefox; final Firefox empty-state recovery inspected against the updated production preview"
+  ],
+  "cleanup": {
+    "removed": [
+      "Numbered rows, uppercase mono hints, tinted result ledger and border-based search field",
+      "Post-paint reset/clamp effects and pointer-triggered auto-scrolling",
+      "Stale palette tool-count and Ocean-Blue comments"
+    ],
+    "dependenciesAdded": 0,
+    "productionLinesNet": 127
+  },
+  "bundleKb": {
+    "editorBefore": {
+      "raw": 303.46,
+      "gzip": 86.6
+    },
+    "editorAfter": {
+      "raw": 302.42,
+      "gzip": 86.41
+    },
+    "cssBefore": {
+      "raw": 142.88,
+      "gzip": 24.63
+    },
+    "cssAfter": {
+      "raw": 144.03,
+      "gzip": 24.86
+    }
+  },
+  "limits": [
+    "Physical touch and software keyboard not exercised",
+    "Assistive speech and real OS IME acceptance remain open; synthetic composition and accessibility semantics tested",
+    "Remaining editor controls and Ask PDF chat are not migrated by this slice"
+  ],
+  "proof": ["palette-desktop-1440-light.png", "palette-phone-390-dark.png"],
+  "localEvidence": "/tmp/cloakpdf-air-palette",
+  "next": "Ask PDF chat, indexing, citations and recovery, then remaining editor chrome/canvas/panels"
+}

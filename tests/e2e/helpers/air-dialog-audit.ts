@@ -59,6 +59,7 @@ export async function auditAirDialog(page: Page, state: string, evidenceDir: str
             undersized: [...panel.querySelectorAll<HTMLElement>("button,a,label:has(input)")]
               .filter(
                 (node) =>
+                  node.getClientRects().length > 0 &&
                   !node.matches(":disabled, :has(input:disabled)") &&
                   node.getBoundingClientRect().height < minimum - 0.5,
               )

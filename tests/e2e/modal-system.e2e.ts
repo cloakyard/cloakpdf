@@ -176,9 +176,10 @@ async function main() {
         document.body.dataset.modalOpenEventReceived === "true"
       );
     });
-    const initialPaletteFocus = await page.evaluate(() =>
-      document.activeElement?.getAttribute("aria-label"),
-    );
+    const initialPaletteFocus = await page.evaluate(() => {
+      const focused = document.activeElement;
+      return focused instanceof HTMLInputElement ? focused.labels?.[0]?.textContent : null;
+    });
     if (initialPaletteFocus !== "Search tools and actions") {
       fail(`Palette initial focus was ${initialPaletteFocus ?? "missing"}.`);
     }
