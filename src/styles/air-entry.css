@@ -998,3 +998,131 @@ body:has(.pdf-site) {
   margin: var(--air-space-4) 0 0;
   overflow-wrap: anywhere;
 }
+
+/* Comparison chrome uses shared controls. Paper and difference pixels are content. */
+.pdf-page-nav,
+.pdf-compare-actions,
+.pdf-compare-toolbar,
+.pdf-compare-page-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--air-space-12);
+  min-inline-size: 0;
+}
+.pdf-page-nav {
+  flex-wrap: nowrap;
+  gap: var(--air-space-4);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  font-variant-numeric: tabular-nums;
+}
+.pdf-page-nav > span {
+  text-align: center;
+}
+.pdf-compare,
+.pdf-compare-file,
+.pdf-compare-results {
+  display: grid;
+  gap: var(--air-space-24);
+  min-inline-size: 0;
+}
+.pdf-compare-file {
+  align-content: start;
+  gap: var(--air-space-12);
+}
+.pdf-compare h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.pdf-compare-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--air-space-24);
+  min-inline-size: 0;
+}
+.pdf-compare-toolbar,
+.pdf-compare-page-status {
+  justify-content: space-between;
+}
+.pdf-compare-page-status {
+  border-block-end: 1px solid var(--air-line);
+  padding-block-end: var(--air-space-16);
+}
+.pdf-compare-page-status > p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--air-space-8) var(--air-space-16);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  font-variant-numeric: tabular-nums;
+}
+.pdf-compare-page-status > p > span:first-child {
+  color: var(--air-ink-secondary);
+}
+.pdf-compare-preview,
+.pdf-compare-overlay {
+  margin: 0;
+  min-inline-size: 0;
+}
+.pdf-compare figcaption {
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-label)/1.5 var(--air-font);
+  margin-block-end: var(--air-space-12);
+  overflow-wrap: anywhere;
+}
+.pdf-compare-preview > img {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+.pdf-compare-missing {
+  display: grid;
+  place-items: center;
+  min-block-size: 12rem;
+  padding: var(--air-space-24);
+  background: var(--air-surface-soft);
+  color: var(--air-ink-secondary);
+  font-size: var(--air-text-body);
+  text-align: center;
+}
+.pdf-compare-overlay {
+  inline-size: min(100%, 48rem);
+  justify-self: center;
+}
+.pdf-compare-plane {
+  position: relative;
+}
+.pdf-compare-plane > img {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 100%;
+}
+.pdf-compare-pages {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: var(--air-space-8);
+  align-items: stretch;
+  min-inline-size: 0;
+}
+.pdf-compare-pages > button {
+  flex: 0 0 7.5rem;
+  flex-direction: column;
+  justify-content: start;
+  white-space: normal;
+  gap: var(--air-space-8);
+  padding: var(--air-space-12);
+}
+.pdf-compare-thumbnail {
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  block-size: 6rem;
+}
+.pdf-compare-thumbnail > img {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  object-fit: contain;
+}

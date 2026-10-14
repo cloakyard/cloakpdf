@@ -23,7 +23,7 @@ import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { PDFDocument, PDFDict, PDFName, PDFNumber, PDFRawStream } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFDict, PDFName, PDFNumber, PDFRawStream, rgb } from "@pdfme/pdf-lib";
 import forge from "node-forge";
 import { buildSelfSignedCert } from "../../src/utils/self-signed-cert.ts";
 import { protectPdf, unlockPdf } from "../../src/utils/pdf-security.ts";
@@ -32,6 +32,12 @@ import { launch } from "puppeteer-core";
 
 declare global {
   interface Window {
+    __compareProbe?: {
+      created: string[];
+      revoked: string[];
+      release?: () => void;
+      restore: () => void;
+    };
     __signatureImport?: {
       original: typeof File.prototype.arrayBuffer;
       release?: () => Promise<void>;
@@ -758,34 +764,259 @@ async function main(): Promise<void> {
       },
     );
 
-    await withTool(browser, downloadRoot, "Compare PDFs", "compare-pdfs", async (page) => {
-      await uploadFiles(
-        page,
-        'input[type="file"][aria-label="Drop the original PDF"]',
-        compareFixture,
-      );
-      await uploadFiles(
-        page,
-        'input[type="file"][aria-label="Drop the modified PDF"]',
-        compareFixture,
-      );
-      await clickButton(page, "Compare PDFs");
-      await page.waitForFunction(
-        () =>
-          (document.body.textContent ?? "").includes("1 page compared") &&
-          (document.body.textContent ?? "").includes("1 identical") &&
-          !!document.querySelector('img[alt="Original — page 1"]') &&
-          !!document.querySelector('img[alt="Modified — page 1"]'),
-        { timeout: 120_000 },
-      );
-      const identicalBadge = await page.evaluate(() =>
-        Array.from(document.querySelectorAll("span")).some(
-          (span) => (span.textContent ?? "").trim() === "Identical",
-        ),
-      );
-      assert(identicalBadge, "Comparing the same page was not classified as Identical.");
-      console.log("  ✓ compared sample.pdf page 1 with itself; both sides rendered as Identical");
-    });
+    await withTool(
+      browser,
+      downloadRoot,
+      "Compare PDFs",
+      "compare-pdfs",
+      async (page, directory) => {
+        const originalInput = 'input[type="file"][aria-label="Drop the original PDF"]';
+        const modifiedInput = 'input[type="file"][aria-label="Drop the modified PDF"]';
+        const startComparison = async (pages: number) => {
+          await clickButton(page, "Compare PDFs");
+          await page.waitForFunction(
+            (count) =>
+              document.querySelector("#comparison-heading")?.textContent ===
+              `${count} ${count === 1 ? "page" : "pages"} compared`,
+            { timeout: 120_000 },
+            pages,
+          );
+        };
+        await page.evaluate(() => {
+          const create = URL.createObjectURL.bind(URL),
+            revoke = URL.revokeObjectURL.bind(URL);
+          const probe = {
+            created: [] as string[],
+            revoked: [] as string[],
+            restore: () => {
+              URL.createObjectURL = create;
+              URL.revokeObjectURL = revoke;
+            },
+          };
+          window.__compareProbe = probe;
+          URL.createObjectURL = (blob) => {
+            const url = create(blob);
+            probe.created.push(url);
+            return url;
+          };
+          URL.revokeObjectURL = (url) => {
+            probe.revoked.push(url);
+            revoke(url);
+          };
+        });
+        await uploadFiles(page, originalInput, compareFixture);
+        await uploadFiles(page, modifiedInput, compareFixture);
+        await startComparison(1);
+        assert(
+          (await page.$('img[alt="Original — page 1"]')) &&
+            (await page.$('img[alt="Modified — page 1"]')),
+          "Both comparison sides must render.",
+        );
+        assert(
+          (await page.$eval(".pdf-compare-page-status", (el) => el.textContent))?.includes(
+            "Identical",
+          ),
+          "Same-page comparison should be identical.",
+        );
+        await clickButton(page, "Difference overlay");
+        await page.waitForSelector('img[alt="Differences — page 1"]');
+        const transparent = await page.$eval('img[alt="Differences — page 1"]', async (element) => {
+          const image = element as HTMLImageElement;
+          await image.decode();
+          const canvas = document.createElement("canvas");
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          const context = canvas.getContext("2d")!;
+          context.drawImage(image, 0, 0);
+          const bytes = context.getImageData(0, 0, canvas.width, canvas.height).data;
+          const clear = bytes.every((value, index) => index % 4 !== 3 || value === 0);
+          canvas.width = canvas.height = 0;
+          return clear;
+        });
+        assert(transparent, "Identical overlay retained raster-noise highlights.");
+        await page.locator('input[type="checkbox"]').click();
+        assert(
+          !(await page.$('img[alt^="Differences"]')),
+          "Difference toggle did not hide the overlay.",
+        );
+        await clickButton(page, "New comparison");
+        assert(
+          await page.evaluate(
+            () => document.activeElement?.getAttribute("aria-label") === "Drop the original PDF",
+          ),
+          "Reset did not restore intake focus.",
+        );
+        assert(
+          await page.evaluate(() =>
+            window.__compareProbe!.created.every((url) =>
+              window.__compareProbe!.revoked.includes(url),
+            ),
+          ),
+          "Reset leaked result URLs.",
+        );
+
+        // One real content edit, one missing page and different page geometry.
+        const sourceBytes = readFileSync(compareFixture);
+        const modified = await PDFDocument.load(sourceBytes);
+        modified
+          .getPage(0)
+          .drawRectangle({ x: 20, y: 20, width: 100, height: 100, color: rgb(0, 0, 0) });
+        modified
+          .getPage(0)
+          .setSize(modified.getPage(0).getWidth() + 60, modified.getPage(0).getHeight());
+        modified.addPage([300, 200]).drawText("Extra page");
+        const changed = join(directory, "changed.pdf");
+        await writeFile(changed, await modified.save());
+        await uploadFiles(page, originalInput, compareFixture);
+        await uploadFiles(page, modifiedInput, changed);
+        await startComparison(2);
+        assert(
+          (await page.$eval(".pdf-compare-page-status", (el) => el.textContent))?.includes(
+            "% changed",
+          ),
+          "Content and size changes were not detected.",
+        );
+        await clickButton(page, "Difference overlay");
+        await page.waitForSelector('img[alt="Differences — page 1"]');
+        const geometry = await page.$$eval(".pdf-compare-plane img", (images) =>
+          images.map((image) => {
+            const node = image as HTMLImageElement;
+            return { width: node.getBoundingClientRect().width, natural: node.naturalWidth };
+          }),
+        );
+        assert(
+          geometry[0].width < geometry[1].width &&
+            Math.abs(
+              geometry[0].width / geometry[1].width - geometry[0].natural / geometry[1].natural,
+            ) < 0.005,
+          "Different page sizes were stretched in the overlay.",
+        );
+        await page.locator('button[aria-label="Next page"]').click();
+        assert(
+          (await page.$eval(".pdf-compare-page-status", (el) => el.textContent))?.includes(
+            "Only in modified PDF",
+          ),
+          "Missing original page status is absent.",
+        );
+        assert(
+          await page.$eval(
+            'button[aria-label="Next page"]',
+            (el) => (el as HTMLButtonElement).disabled,
+          ),
+          "Next should be disabled at the last page.",
+        );
+        await page.setViewport({ width: 320, height: 568 });
+        await page.evaluate(() => {
+          document.documentElement.style.fontSize = "32px";
+        });
+        await page.waitForFunction(() => {
+          const strip = document.querySelector(".pdf-compare-pages")!.getBoundingClientRect();
+          const selected = document
+            .querySelector('.pdf-compare-pages [aria-pressed="true"]')!
+            .getBoundingClientRect();
+          return selected.left >= strip.left && selected.right <= strip.right;
+        });
+        await page.evaluate(() => {
+          document.documentElement.style.fontSize = "";
+        });
+        await page.setViewport({ width: 1280, height: 900 });
+        await clickButton(page, "Side by side");
+        assert(
+          (await page.$eval(".pdf-compare-missing", (el) => el.textContent))?.includes("No page 2"),
+          "Missing-page preview disappeared.",
+        );
+        await page.focus('.pdf-compare-pages button[aria-label^="Page 1:"]');
+        await page.keyboard.press("Enter");
+        await page.waitForFunction(
+          () =>
+            document
+              .querySelector('.pdf-compare-pages button[aria-label^="Page 1:"]')
+              ?.getAttribute("aria-pressed") === "true",
+        );
+        assert(
+          readFileSync(compareFixture).equals(sourceBytes),
+          "Comparison modified its source file.",
+        );
+        await page.locator('[data-compare-side="1"] .pdf-file-info button').click();
+        assert(
+          await page.evaluate(() =>
+            window.__compareProbe!.created.every((url) =>
+              window.__compareProbe!.revoked.includes(url),
+            ),
+          ),
+          "Replacing one file leaked comparison URLs.",
+        );
+        assert(
+          await page.$('[data-compare-side="0"] .pdf-file-info'),
+          "Replacing modified PDF lost the original.",
+        );
+        const broken = join(directory, "broken.pdf");
+        await writeFile(broken, "Not a PDF");
+        await uploadFiles(page, modifiedInput, broken);
+        await page.waitForSelector(".pdf-compare-read-error");
+        await page.locator('[data-compare-side="1"] .pdf-file-info button').click();
+        const encrypted = join(directory, "encrypted.pdf");
+        await writeFile(
+          encrypted,
+          await protectPdf(new File([sourceBytes], "source.pdf"), "test-password", "test-owner"),
+        );
+        await uploadFiles(page, modifiedInput, encrypted);
+        await page.waitForSelector(".pdf-encrypted");
+        await clickButton(page, "Choose another file");
+        await uploadFiles(page, modifiedInput, compareFixture);
+        // Hold a real encoder callback so cancel/error/retry are deterministic.
+        await page.evaluate(() => {
+          // Preserve the native receiver when invoking the held encoder.
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          const original = HTMLCanvasElement.prototype.toBlob;
+          HTMLCanvasElement.prototype.toBlob = function (callback, ...args) {
+            HTMLCanvasElement.prototype.toBlob = original;
+            window.__compareProbe!.release = () => original.call(this, callback, ...args);
+          };
+        });
+        await clickButton(page, "Compare PDFs");
+        await page.waitForFunction(() => !!window.__compareProbe!.release);
+        await clickButton(page, "Cancel comparison");
+        assert(
+          await page.evaluate(() => document.activeElement?.textContent?.includes("Compare PDFs")),
+          "Cancel did not restore compare focus.",
+        );
+        await page.evaluate(() => {
+          window.__compareProbe!.release!();
+          delete window.__compareProbe!.release;
+        });
+        await page.evaluate(() => {
+          // Preserve the native receiver when invoking the held encoder.
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          const original = HTMLCanvasElement.prototype.toBlob;
+          HTMLCanvasElement.prototype.toBlob = function (callback) {
+            HTMLCanvasElement.prototype.toBlob = original;
+            callback(null);
+          };
+        });
+        await clickButton(page, "Compare PDFs");
+        await page.waitForSelector("#comparison-error");
+        assert(
+          (await page.$$(".pdf-file-info")).length === 2,
+          "Failed comparison discarded inputs.",
+        );
+        await startComparison(1);
+        await page.locator('button[aria-label="Back to home"]').click();
+        await page.waitForFunction(() => !document.querySelector(".pdf-compare"));
+        assert(
+          await page.evaluate(() =>
+            window.__compareProbe!.created.every((url) =>
+              window.__compareProbe!.revoked.includes(url),
+            ),
+          ),
+          "Leaving Compare leaked result URLs.",
+        );
+        await page.evaluate(() => window.__compareProbe!.restore());
+        console.log(
+          "  ✓ identical pixels/overlay; changed content and page geometry; missing page; keyboard navigation; source preservation; reset/replacement/unmount URL cleanup; encrypted/corrupt input; cancel and retry",
+        );
+      },
+    );
 
     await withTool(
       browser,

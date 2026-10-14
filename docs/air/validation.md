@@ -450,3 +450,46 @@ Evidence: [state record](evidence/signature-2026-10-14.json),
 [imported identity](evidence/signature-imported-phone-light.png),
 [forced colours](evidence/signature-forced-colours.png),
 [Safari](evidence/signature-safari-200.png), [Firefox](evidence/signature-firefox-200.png).
+
+## 2026-10-14 — Compare inputs and results
+
+Compare now uses Air file identity, segmented modes, page navigation, native
+labelled difference selection and thumbnail controls. Both names remain visible;
+missing pages and changed pixels have explicit text. Different page sizes keep
+original pixel coordinates instead of stretching the documents. The selected
+thumbnail stays visible on navigation and resize without scrolling the document.
+
+Cancellation owns both PDF.js tasks and active renders. Failed or cancelled reads,
+encoders and partially built pages release all canvases/URLs, including URLs created
+before a result is added. Replacement/reset/unmount revoke finished previews;
+obsolete reads cannot replace new files. Failures retain inputs and focus recovery.
+Original bytes are untouched. Comparison remains visual, not metadata comparison.
+
+484 geometry observations cover 11 states × 11 contract sizes × light/dark ×
+16/32px root text. Representative screenshots were reviewed; thumbnail containment
+was corrected before the final result pass. Coarse controls are at least 44px;
+forced-colour keyboard toggling and reduced motion pass. The compact editor pager
+works at 320px. Native Safari and Firefox render, toggle and navigate at actual
+200% zoom. The full-page forced-colour screenshot includes an off-viewport fixed
+skip link; a live geometry check confirms its bottom is -28px and it is hidden
+until focus. Physical touch/software keyboard and screen-reader acceptance remain
+open; inventory `validated` remains false.
+
+Passing: format/lint/type, dead-code, 366 tests in 36 files, build/PWA and 128-asset
+limits, all six standalone production workflows, desktop and mobile editor smoke,
+portable design integrity/inventory and canonical sync. Expanded comparison tests
+verify identical transparent overlays, real changed pixels, unequal dimensions,
+missing pages, keyboard/resize navigation, source equality, encrypted/corrupt
+recovery, cancellation/retry and URL cleanup on reset, replacement and unmount.
+
+Removed the old inline comparison pipeline, unused average, colour badges,
+uppercase mono labels, thumbnail skin and unused stepper size/variant API/tests.
+No dependencies, shared tokens or contract changes. Compare's chunk is 11.20 kB raw / 4.14 kB gzip (previously 12.37 /
+3.69 kB). The gzip increase pays for cancellation/recovery and geometry preservation.
+Only two representative screenshots enter Git; the larger local review set is
+referenced by the evidence record. No push or deployment.
+
+Evidence: [state record](evidence/compare-2026-10-14.json),
+[checks](evidence/compare-checks-2026-10-14.log),
+[desktop](evidence/compare-side-by-side-1440-light-16.png),
+[phone](evidence/compare-overlay-390-dark-16.png).

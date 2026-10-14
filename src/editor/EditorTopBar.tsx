@@ -92,7 +92,6 @@ export function EditorTopBar() {
         page={selectedPage}
         total={doc.pageCount}
         onChange={setSelectedPage}
-        size="touch"
         compact
       />
     ) : null;

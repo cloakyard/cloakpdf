@@ -1,0 +1,282 @@
+{
+  "date": "2026-10-14",
+  "surface": "Compare PDFs and shared PagePreviewNav",
+  "productionUrl": "http://127.0.0.1:8132/",
+  "contract": "Air 1.0.0 unchanged",
+  "viewports": [
+    [320, 568],
+    [375, 812],
+    [390, 844],
+    [430, 932],
+    [844, 390],
+    [768, 1024],
+    [1024, 768],
+    [1280, 720],
+    [1366, 768],
+    [1440, 900],
+    [1920, 1080]
+  ],
+  "states": [
+    "empty",
+    "ready",
+    "busy",
+    "cancelled",
+    "error",
+    "corrupt",
+    "encrypted",
+    "checking",
+    "side-by-side",
+    "overlay",
+    "missing-page"
+  ],
+  "geometry": {
+    "cases": 484,
+    "notes": "Fine segments use the contract 32px compact minimum; other buttons 40px. Separate coarse probe checks 44px. Geometry observations are not independent visual sign-offs.",
+    "themes": ["light", "dark"],
+    "rootFontPx": [16, 32],
+    "rawGeometryPath": "/Users/sumitsahoo/.codex/visualizations/2026/10/11/01a12abe-1cfd-7980-bf8e-f585aee286a5/air-compare/geometry.json",
+    "byState": {
+      "empty": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "ready": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "busy": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "cancelled": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "error": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "corrupt": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "encrypted": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "checking": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "side-by-side": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "overlay": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      },
+      "missing-page": {
+        "observations": 44,
+        "maxDocumentOverflowPx": 0,
+        "undersizedControls": 0,
+        "thumbnailOverflow": 0
+      }
+    }
+  },
+  "extras": [
+    {
+      "case": "coarse-targets",
+      "coarse": true,
+      "overflow": 0,
+      "targets": [
+        {
+          "height": 44,
+          "label": "Change file",
+          "width": 108.671875
+        },
+        {
+          "height": 44,
+          "label": "Change file",
+          "width": 108.671875
+        },
+        {
+          "height": 44,
+          "label": "New comparison",
+          "width": 144.5078125
+        },
+        {
+          "height": 44,
+          "label": "Side by side",
+          "width": 100.96875
+        },
+        {
+          "height": 44,
+          "label": "Difference overlay",
+          "width": 138.6171875
+        },
+        {
+          "height": 44,
+          "label": "Previous page",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "label": "Next page",
+          "width": 44
+        },
+        {
+          "height": 200.1953125,
+          "label": "Page 1: 10.8% changed",
+          "width": 120
+        },
+        {
+          "height": 200.1953125,
+          "label": "Page 2: Only in modified PDF",
+          "width": 120
+        }
+      ]
+    },
+    {
+      "result": {
+        "type": "string",
+        "value": "{\"case\":\"forced-colors-reduced-motion\",\"forced\":true,\"reduced\":true,\"overlayHidden\":true,\"overflow\":0,\"animations\":0}"
+      }
+    },
+    {
+      "case": "mobile-editor-stepper",
+      "count": "2/4",
+      "overflow": 0,
+      "pagerWidth": 112,
+      "targets": [
+        {
+          "height": 44,
+          "width": 44
+        },
+        {
+          "height": 44,
+          "width": 44
+        }
+      ],
+      "width": 320
+    }
+  ],
+  "native": {
+    "safari": "Native 200%: render, modes, difference toggle and missing-page navigation pass; zoom restored and owned tab closed.",
+    "firefox": "Native 200%: render, modes, difference toggle and missing-page navigation pass; zoom restored and owned tab closed."
+  },
+  "reviewedScreenshots": [
+    "compare-side-by-side-1440-light-16.png",
+    "compare-overlay-390-dark-16.png"
+  ],
+  "additionalScreenshotDirectory": "/Users/sumitsahoo/.codex/visualizations/2026/10/11/01a12abe-1cfd-7980-bf8e-f585aee286a5/air-compare",
+  "additionalScreenshots": [
+    "compare-busy-1440-dark-16.png",
+    "compare-busy-1440-light-16.png",
+    "compare-busy-320-light-32.png",
+    "compare-busy-390-dark-16.png",
+    "compare-busy-390-light-16.png",
+    "compare-busy-768-dark-16.png",
+    "compare-cancelled-1440-dark-16.png",
+    "compare-cancelled-1440-light-16.png",
+    "compare-cancelled-320-light-32.png",
+    "compare-cancelled-390-dark-16.png",
+    "compare-cancelled-390-light-16.png",
+    "compare-cancelled-768-dark-16.png",
+    "compare-checking-1440-dark-16.png",
+    "compare-checking-1440-light-16.png",
+    "compare-checking-320-light-32.png",
+    "compare-checking-390-dark-16.png",
+    "compare-checking-390-light-16.png",
+    "compare-checking-768-dark-16.png",
+    "compare-corrupt-1440-dark-16.png",
+    "compare-corrupt-1440-light-16.png",
+    "compare-corrupt-320-light-32.png",
+    "compare-corrupt-390-dark-16.png",
+    "compare-corrupt-390-light-16.png",
+    "compare-corrupt-768-dark-16.png",
+    "compare-editor-stepper-320.png",
+    "compare-empty-1440-dark-16.png",
+    "compare-empty-1440-light-16.png",
+    "compare-empty-320-light-32.png",
+    "compare-empty-390-dark-16.png",
+    "compare-empty-390-light-16.png",
+    "compare-empty-768-dark-16.png",
+    "compare-encrypted-1440-dark-16.png",
+    "compare-encrypted-1440-light-16.png",
+    "compare-encrypted-320-light-32.png",
+    "compare-encrypted-390-dark-16.png",
+    "compare-encrypted-390-light-16.png",
+    "compare-encrypted-768-dark-16.png",
+    "compare-error-1440-dark-16.png",
+    "compare-error-1440-light-16.png",
+    "compare-error-320-light-32.png",
+    "compare-error-390-dark-16.png",
+    "compare-error-390-light-16.png",
+    "compare-error-768-dark-16.png",
+    "compare-firefox-200.png",
+    "compare-forced-colors.png",
+    "compare-missing-page-1440-dark-16.png",
+    "compare-missing-page-1440-light-16.png",
+    "compare-missing-page-320-light-32.png",
+    "compare-missing-page-390-dark-16.png",
+    "compare-missing-page-390-light-16.png",
+    "compare-missing-page-768-dark-16.png",
+    "compare-overlay-1440-dark-16.png",
+    "compare-overlay-1440-light-16.png",
+    "compare-overlay-320-light-32.png",
+    "compare-overlay-390-light-16.png",
+    "compare-overlay-768-dark-16.png",
+    "compare-ready-1440-dark-16.png",
+    "compare-ready-1440-light-16.png",
+    "compare-ready-320-light-32.png",
+    "compare-ready-390-dark-16.png",
+    "compare-ready-390-light-16.png",
+    "compare-ready-768-dark-16.png",
+    "compare-safari-200.png",
+    "compare-side-by-side-1440-dark-16.png",
+    "compare-side-by-side-320-light-32.png",
+    "compare-side-by-side-390-dark-16.png",
+    "compare-side-by-side-390-light-16.png",
+    "compare-side-by-side-768-dark-16.png"
+  ],
+  "remaining": [
+    "Physical touch and software keyboard",
+    "Screen-reader speech/navigation",
+    "Full editor and AI migrations"
+  ],
+  "cleanup": [
+    "Old inline render/diff/URL pipeline removed",
+    "Unused average difference removed",
+    "Colour badges and old thumbnail/mono styling removed",
+    "PagePreviewNav size/variant API and obsolete styling tests removed; both real consumers retained",
+    "Abort ownership covers reads, tasks, renders, encoders and late results",
+    "No new dependencies or family tokens"
+  ],
+  "sourceSha256": {
+    "src/standalone/ComparePdf.tsx": "b9f3abf494717aec1e73ad68df4c7609c2fa860706ae9ef1bd92af03f09144f7",
+    "src/utils/pdf-compare.ts": "cdec7aea3f01e89f4604460b5ed0b033be4e862e8ca71790c2d3b1728ddf1679",
+    "src/components/PagePreviewNav.tsx": "df6b59b7436e0c0374aeec14d81436695e394b5b81dad33184f4738521f189e5",
+    "src/styles/air-entry.css": "13be873ca316a73f445496464ca745a899ea8865adb7ef3860aca5bcf585fb0f"
+  }
+}
