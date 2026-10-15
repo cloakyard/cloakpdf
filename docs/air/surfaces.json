@@ -1903,6 +1903,36 @@
       "notes": "Air panel migration; byte-owned search, retained query/results/selection, explicit Scrub failure/retry and selected-category readiness. Native Safari and Firefox (actual 200% zoom) reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open. Annotation colours are output data."
     },
     {
+      "path": "src/editor/panels/HeaderFooterTool.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "empty",
+        "focused",
+        "selected",
+        "disabled",
+        "invalid",
+        "reading",
+        "read-failure",
+        "apply-failure",
+        "retry",
+        "applied",
+        "undo",
+        "cancel",
+        "overflow"
+      ],
+      "viewports": ["phone", "landscape phone", "tablet", "laptop", "desktop"],
+      "evidence": [
+        "docs/air/evidence/header-footer-2026-10-15.json",
+        "tests/e2e/header-footer.e2e.ts",
+        "tests/e2e/page-geometry.e2e.ts"
+      ],
+      "notes": "Air grouped six-field editor with explicit token target, shared title/clock snapshot, precise Size/Margin and Skip first page. Validates fit/overlap and preserves byte-owned drafts on failure; awaited Apply/mobile Done, retirement and explicit re-arm. 44 size/theme regions, 12 enlarged-text states, Safari and Firefox 200% reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open."
+    },
+    {
       "path": "src/editor/panels/MetadataTool.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -2347,7 +2377,7 @@
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/geometry-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Stamp extracted to WatermarkTool.tsx and audited separately on 2026-10-15. Page numbers extracted to PageNumbersTool.tsx and audited separately on 2026-10-15. Header/footer and Bates remain pending; keep their live shared adapters."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Stamp extracted to WatermarkTool.tsx and audited separately on 2026-10-15. Page numbers extracted to PageNumbersTool.tsx and audited separately on 2026-10-15. Header/footer extracted to HeaderFooterTool.tsx on 2026-10-15. Only Bates remains pending; retain its live shared adapters until migrated."
     },
     {
       "path": "src/editor/panels/StripFurnitureTool.tsx",
@@ -2373,6 +2403,36 @@
         "docs/air/evidence/crop-furniture-2026-10-15.json"
       ],
       "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
+    },
+    {
+      "path": "src/editor/panels/TextTokens.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "empty",
+        "focused",
+        "selected",
+        "disabled",
+        "invalid",
+        "reading",
+        "read-failure",
+        "apply-failure",
+        "retry",
+        "applied",
+        "undo",
+        "cancel",
+        "overflow"
+      ],
+      "viewports": ["phone", "landscape phone", "tablet", "laptop", "desktop"],
+      "evidence": [
+        "docs/air/evidence/header-footer-2026-10-15.json",
+        "tests/e2e/header-footer.e2e.ts",
+        "tests/e2e/page-geometry.e2e.ts"
+      ],
+      "notes": "Air grouped six-field editor with explicit token target, shared title/clock snapshot, precise Size/Margin and Skip first page. Validates fit/overlap and preserves byte-owned drafts on failure; awaited Apply/mobile Done, retirement and explicit re-arm. 44 size/theme regions, 12 enlarged-text states, Safari and Firefox 200% reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
     {
       "path": "src/editor/panels/WatermarkTool.tsx",
@@ -2401,9 +2461,10 @@
         "docs/air/evidence/stamp-panel-2026-10-15.json",
         "tests/e2e/stamp-panel.e2e.ts",
         "tests/e2e/page-geometry.e2e.ts",
-        "docs/air/evidence/page-numbers-2026-10-15.json"
+        "docs/air/evidence/page-numbers-2026-10-15.json",
+        "docs/air/evidence/header-footer-2026-10-15.json"
       ],
-      "notes": "Air text/tokens, shape/finish, colour, precision fields and sliders. Byte-owned preview, actual title/frozen time, promised mobile Done, retry and explicit re-arm. 44 size/theme region captures plus 12 enlarged-text cases; native Safari/Firefox including real 200% zoom. Physical touch/software keyboard/OS IME/assistive speech remain open. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows."
+      "notes": "Air text/tokens, shape/finish, colour, precision fields and sliders. Byte-owned preview, actual title/frozen time, promised mobile Done, retry and explicit re-arm. 44 size/theme region captures plus 12 enlarged-text cases; native Safari/Firefox including real 200% zoom. Physical touch/software keyboard/OS IME/assistive speech remain open. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Header/footer checkpoint shares TextTokens and the title/clock lifecycle; full Stamp regression passes."
     },
     {
       "path": "src/editor/panels/WholeDocPanel.tsx",
@@ -2434,7 +2495,7 @@
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/page-numbers-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers. Header/footer checkpoint removes unused useTokenInsert/TokenBar native-setter code; remaining shared controls have live Bates/annotation/form/code consumers."
     },
     {
       "path": "src/editor/registry.tsx",

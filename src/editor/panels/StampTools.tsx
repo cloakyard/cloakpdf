@@ -1,48 +1,17 @@
-// StampTools.tsx — Content-additive overlay tools that place repeating text on
-// every page: header/footer and Bates numbering. Stamp and Page numbers have
-// dedicated adapters. Each
-// is an option form + Apply (reusing WholeDocPanel for the busy-aware button)
-// with a visual position picker so the layout is obvious without freeform drag.
-// All are additive (page count/geometry unchanged) so overlay objects are
-// preserved.
-//
-// Each tool renders a LIVE preview on the focused page so the placement, size,
-// colour, and format read as WYSIWYG before you commit — Apply then burns the
-// same text into the bytes. The form state therefore lives in the shared tool
-// slice (not local useState) so a sibling Stage can read it. The preview geometry below mirrors each writer in
-// utils/pdf/stamps.ts (margin / position / baseline) so preview == output.
-
+// Bates numbering; shared overlay controls remain until this final legacy panel migrates.
 import { useCallback } from "react";
-import type { BatesNumberOptions, HeaderFooterOptions, PageNumberPosition } from "../../types.ts";
-import {
-  addBatesNumbers,
-  addHeaderFooter,
-  baseFileName,
-  resolveStampTokens,
-} from "../../utils/pdf-operations.ts";
+import type { BatesNumberOptions, PageNumberPosition } from "../../types.ts";
+import { addBatesNumbers } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
-import {
-  ColorRow,
-  Labeled,
-  PositionGrid,
-  RangeField,
-  type Rgb,
-  TextField,
-  Toggle,
-  TokenBar,
-  useTokenInsert,
-} from "./controls.tsx";
+import { ColorRow, Labeled, PositionGrid, RangeField, type Rgb, TextField } from "./controls.tsx";
 import { Segmented, WholeDocPanel } from "./WholeDocPanel.tsx";
 
 const INK = { r: 30, g: 41, b: 59 };
-const GREY = { r: 100, g: 116, b: 139 };
 
-const HELVETICA = "Helvetica, Arial, sans-serif";
 const COURIER = "'Courier New', Courier, monospace";
 
-const HEADER_FOOTER_TOOL_ID = "header-footer";
 const BATES_TOOL_ID = "bates-numbering";
 
 /**
@@ -92,185 +61,6 @@ function splitPosition(p: PageNumberPosition): {
     isTop: p.startsWith("top"),
     align: p.endsWith("left") ? "left" : p.endsWith("right") ? "right" : "center",
   };
-}
-
-// ── Header & footer ──────────────────────────────────────────────────────────
-
-function TripleRow({
-  label,
-  values,
-  onChange,
-}: {
-  label: string;
-  values: [string, string, string];
-  onChange: (v: [string, string, string]) => void;
-}) {
-  const cls =
-    "w-full rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2 py-1.5 text-sm text-slate-800 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500";
-  return (
-    <Labeled label={label}>
-      <div className="grid grid-cols-3 gap-1.5">
-        {(["Left", "Center", "Right"] as const).map((ph, i) => (
-          <input
-            key={ph}
-            type="text"
-            name={`${label.toLowerCase().replace(/\s+/g, "-")}-${ph.toLowerCase()}`}
-            autoComplete="off"
-            placeholder={`${ph}…`}
-            value={values[i]}
-            aria-label={`${label} ${ph}`}
-            onChange={(e) => {
-              const next: [string, string, string] = [...values];
-              next[i] = e.target.value;
-              onChange(next);
-            }}
-            className={cls}
-          />
-        ))}
-      </div>
-    </Labeled>
-  );
-}
-
-const HEADER_FOOTER_DEFAULTS: HeaderFooterOptions = {
-  headerLeft: "",
-  headerCenter: "",
-  headerRight: "",
-  footerLeft: "",
-  footerCenter: "",
-  footerRight: "",
-  fontSize: 10,
-  color: GREY,
-  margin: 36,
-  skipFirstPage: false,
-};
-
-function readHeaderFooter(slice: Record<string, unknown>): HeaderFooterOptions {
-  const str = (k: keyof HeaderFooterOptions) => (slice[k] as string) ?? "";
-  return {
-    headerLeft: str("headerLeft"),
-    headerCenter: str("headerCenter"),
-    headerRight: str("headerRight"),
-    footerLeft: str("footerLeft"),
-    footerCenter: str("footerCenter"),
-    footerRight: str("footerRight"),
-    fontSize: (slice.fontSize as number) ?? HEADER_FOOTER_DEFAULTS.fontSize,
-    color: (slice.color as Rgb) ?? HEADER_FOOTER_DEFAULTS.color,
-    margin: (slice.margin as number) ?? HEADER_FOOTER_DEFAULTS.margin,
-    skipFirstPage: (slice.skipFirstPage as boolean) ?? HEADER_FOOTER_DEFAULTS.skipFirstPage,
-  };
-}
-
-export function HeaderFooterStage() {
-  const { doc, selectedPage } = useEditorRead();
-  const o = readHeaderFooter(useToolSlice(HEADER_FOOTER_TOOL_ID));
-  const page = doc?.pages[selectedPage] ?? null;
-  const widthPt = page?.widthPt ?? 0;
-  const total = doc?.pageCount ?? 1;
-  const fileName = doc?.fileName ?? "";
-  const { fontSize, margin, skipFirstPage } = o;
-  const { r, g, b } = o.color;
-  const slots = [
-    o.headerLeft,
-    o.headerCenter,
-    o.headerRight,
-    o.footerLeft,
-    o.footerCenter,
-    o.footerRight,
-  ];
-  const paintOverlay = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-      if (widthPt <= 0) return;
-      if (skipFirstPage && selectedPage === 0) return;
-      const resolve = (t: string) =>
-        resolveStampTokens(t, {
-          page: selectedPage + 1,
-          total,
-          title: "",
-          filename: baseFileName(fileName),
-          date: new Date(),
-        });
-      const rows: { raw: string; isTop: boolean; align: "left" | "center" | "right" }[] = [
-        { raw: slots[0], isTop: true, align: "left" },
-        { raw: slots[1], isTop: true, align: "center" },
-        { raw: slots[2], isTop: true, align: "right" },
-        { raw: slots[3], isTop: false, align: "left" },
-        { raw: slots[4], isTop: false, align: "center" },
-        { raw: slots[5], isTop: false, align: "right" },
-      ];
-      for (const row of rows) {
-        if (!row.raw.trim()) continue;
-        paintStampText(ctx, w, h, w / widthPt, {
-          text: resolve(row.raw),
-          fontSizePt: fontSize,
-          marginPt: margin,
-          isTop: row.isTop,
-          align: row.align,
-          color: { r, g, b },
-          fontFamily: HELVETICA,
-        });
-      }
-    },
-    // slots spread so each text edit repaints; primitive deps cover the rest.
-    [widthPt, selectedPage, skipFirstPage, total, fileName, fontSize, margin, r, g, b, ...slots],
-  );
-  useStageProps({ paintOverlay });
-  return null;
-}
-
-export function HeaderFooterPanel() {
-  const { applyTransform, patchToolState } = useEditorActions();
-  const { containerProps, insert } = useTokenInsert();
-  const o = readHeaderFooter(useToolSlice(HEADER_FOOTER_TOOL_ID));
-  const set = (p: Partial<HeaderFooterOptions>) => patchToolState(HEADER_FOOTER_TOOL_ID, p);
-  const empty =
-    !o.headerLeft &&
-    !o.headerCenter &&
-    !o.headerRight &&
-    !o.footerLeft &&
-    !o.footerCenter &&
-    !o.footerRight;
-  return (
-    <WholeDocPanel
-      blurb="Add repeating text to the top and/or bottom of every page."
-      applyLabel="Add header & footer"
-      disabled={empty}
-      onApply={() =>
-        void applyTransform(async (d) => ({
-          bytes: await addHeaderFooter(docToFile(d), o),
-          label: "Header & footer",
-        }))
-      }
-    >
-      <div className="flex flex-col gap-4" {...containerProps}>
-        <TripleRow
-          label="Header"
-          values={[o.headerLeft, o.headerCenter, o.headerRight]}
-          onChange={([l, c, r]) => set({ headerLeft: l, headerCenter: c, headerRight: r })}
-        />
-        <TripleRow
-          label="Footer"
-          values={[o.footerLeft, o.footerCenter, o.footerRight]}
-          onChange={([l, c, r]) => set({ footerLeft: l, footerCenter: c, footerRight: r })}
-        />
-        <TokenBar onInsert={insert} />
-      </div>
-      <ColorRow value={o.color} onChange={(color) => set({ color })} />
-      <RangeField
-        label="Size"
-        value={o.fontSize}
-        min={7}
-        max={18}
-        suffix="pt"
-        onChange={(fontSize) => set({ fontSize })}
-      />
-      <Toggle
-        label="Skip first page"
-        checked={o.skipFirstPage}
-        onChange={(skipFirstPage) => set({ skipFirstPage })}
-      />
-    </WholeDocPanel>
-  );
 }
 
 // ── Bates numbering ──────────────────────────────────────────────────────────

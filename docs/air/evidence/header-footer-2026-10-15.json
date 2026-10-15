@@ -1,0 +1,471 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-320x568-dark.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-320x568-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-375x812-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-375x812-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-390x844-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-390x844-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-430x932-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-430x932-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-844x390-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-844x390-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-768x1024-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-768x1024-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1024x768-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1024x768-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1280x720-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1280x720-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1366x768-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1366x768-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1440x900-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1440x900-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-text-1920x1080-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "header-footer-values-1920x1080-dark.png"
+    }
+  ],
+  "outputContent": {
+    "text": [
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 1",
+      "Body content on page 2  Header proof   15/10/2026   16:38 Air review   Page 2 of 3   Private",
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 3  Header proof   15/10/2026   16:38 Air review   Page 3 of 3   Private"
+    ],
+    "metadata": {
+      "PDFFormatVersion": "1.7",
+      "Language": null,
+      "EncryptFilterName": null,
+      "IsLinearized": false,
+      "IsAcroFormPresent": false,
+      "IsXFAPresent": false,
+      "IsCollectionPresent": false,
+      "IsSignaturesPresent": false,
+      "Producer": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "ModDate": "D:20261015110814Z",
+      "Creator": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "CreationDate": "D:20261015110806Z",
+      "Title": "Header proof",
+      "Author": "Synthetic author"
+    },
+    "attachments": ["reference.txt"]
+  },
+  "errors": [],
+  "date": "2026-10-15",
+  "surface": "Header & footer",
+  "contract": "Air 1.0.1",
+  "unitTests": 420,
+  "unitFiles": 44,
+  "browserSuites": 26,
+  "enlargedTextCases": 12,
+  "layoutReview": "All 44 region captures and 12 enlarged-text captures visually inspected; forced colours/reduced motion reviewed. Stamp token controls rechecked on desktop/light and phone/dark.",
+  "nativeReview": [
+    "Safari: title insertion, Tab traversal, Header/Footer switch, saved text, panel focus, Undo and explicit re-arm",
+    "Firefox: final production build, actual 200% browser zoom, insertion, numeric error and keyboard slider recovery, successful Apply and panel focus; zoom reset"
+  ],
+  "cleanup": [
+    "Removed TripleRow, old HeaderFooter panel/stage/default reader and duplicate slot geometry",
+    "Removed useTokenInsert/TokenBar native-setter/event path and unused imports",
+    "Shared TextTokens and byte-owned metadata/clock reader with Stamp",
+    "Kept live Bates/annotation/form/code controls; no dependencies added"
+  ],
+  "bundle": {
+    "editorRawKB": 311.08,
+    "editorGzipKB": 95.94,
+    "editorGzipDeltaKB": 1.02,
+    "cssRawKB": 145.94,
+    "cssGzipKB": 25.47,
+    "cssGzipDeltaKB": 0,
+    "deploymentAssets": 128,
+    "pwaEntries": 77
+  },
+  "checks": [
+    "format/lint/types",
+    "dead-code",
+    "420 unit tests",
+    "build/PWA/asset limits",
+    "16 production smoke suites",
+    "7 extended feature suites",
+    "focused Header/footer, Stamp and geometry",
+    "design inventory, exact bundle sync and standalone portability"
+  ],
+  "testRepair": "Compression comparison now fixes the zero-argument creation clock and restores it afterwards. Identical lossless presets can otherwise differ by compressed timestamp bytes across a second boundary; explicit-date parsing is unchanged.",
+  "pending": [
+    "Physical touch and software keyboard",
+    "Real OS IME",
+    "Assistive speech acceptance",
+    "Bates and remaining editor/shell surfaces",
+    "Complete PDF and family migration"
+  ]
+}

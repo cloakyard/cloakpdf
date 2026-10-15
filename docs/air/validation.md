@@ -1564,3 +1564,48 @@ Evidence: `docs/air/evidence/page-numbers-2026-10-15.json`, three proof images a
 DESIGN are synchronized; family Air 1.0.1 is unchanged. Physical touch/software
 keyboards, real OS IME and assistive speech remain open. Full PDF/family migration
 is unfinished. Next: Header & footer, then Bates and remaining shell states.
+
+## 2026-10-15 — Header & footer and shared text controls
+
+Header & footer now uses Air Header/Footer segments, three full-width labelled
+alignment fields per group, explicit insertion destination/expanded text, shared
+colour/precision controls and the Air cover-page switch. All six values persist
+across group, tool and viewport changes. Raw invalid Size/Margin drafts survive;
+feedback associates with their fields and the last valid values stay in preview.
+Long resolved text wraps; insertion replaces selection without late focus theft.
+
+Stamp and Header/footer share TextTokens and the byte-scoped title/clock reader.
+Read failures offer retry; abandoned work cannot update a later tool visit. One
+captured timestamp reaches preview/output. Shared layout resolves all six slots;
+the writer checks exact font widths on every visible page and rejects overlap,
+clipping, multiline or unsupported text and empty expansion. Failed output keeps
+the original bytes/draft. Apply/mobile Done awaits saving; success retires the
+preview before Undo and explicit Start another re-arms it. Busy focus stays inside
+settings. Cancel restores the checkpoint. Real output preserves text, metadata,
+attachments and rotation/CropBox/UserUnit geometry.
+
+Removed TripleRow, old Header/footer panel/stage/default reader, duplicate slot
+layout and the unused native-value token setter/event path. Remaining controls
+have live consumers. No dependencies added. Editor 311.08 kB raw / 95.94 kB gzip
+(+1.02); CSS 145.94 / 25.47 (unchanged gzip). 128 assets, 77 PWA entries.
+
+Checks pass: format/lint/types, dead code, **420 units in 44 files**, production
+build/asset limits, design inventory, portable bundle and exact synchronization.
+**26 browser suites** pass: sixteen production smoke, seven extended, Header/footer,
+Stamp and page geometry. Compression's byte comparison initially crossed a clock
+boundary; it now fixes creation time for the preset comparison and restores Date
+in finally. Assertions remain strict; explicit date parsing stays unchanged.
+
+Visually inspected 44 Header/footer regions (eleven sizes, both themes, two regions),
+twelve enlarged-text captures, forced colours and reduced motion. Stamp regression
+and its desktop/light + phone/dark token controls pass. Native Safari validates
+insertion, keyboard traversal, group changes, Apply/panel focus/Undo/re-arm. Native
+Firefox validates actual 200% zoom, invalid-number feedback, keyboard slider recovery
+and Apply. Zoom reset; temporary native tabs closed. The in-app tab at 8132 holds
+synthetic Air header-footer.pdf with title and centered page/total footer pending.
+
+Evidence: `docs/air/evidence/header-footer-2026-10-15.json`, two proof PNGs and the
+adjacent checks log. Full captures remain in `/tmp/cloakpdf-air-review/`. Portable
+DESIGN includes the canonical product rules; family Air 1.0.1 is unchanged. Physical
+touch/software keyboard, actual OS IME and assistive speech stay open. Next: Bates,
+then remaining editor/shell states. Full PDF and family migration are unfinished.

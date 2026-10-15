@@ -1,3 +1,4 @@
+import { headerFooterRuns, validateHeaderFooter } from "./header-footer.ts";
 import { pageNumberText, validatePageNumbers } from "./page-numbering.ts";
 /**
  * Overlay operations that draw onto pages: watermarks, seal/rectangle stamps,
@@ -281,63 +282,37 @@ export async function addHeaderFooter(
 ): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
   const pages = pdf.getPages();
-  const totalPages = pages.length;
-  // {title}/{filename}/{date} are constant; {page}/{total} vary per page.
+  validateHeaderFooter(options, pages.length);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
   const ctxBase: Omit<TokenContext, "page"> = {
-    total: totalPages,
+    total: pages.length,
     title: pdf.getTitle() ?? "",
     filename: baseFileName(file.name),
-    date: new Date(),
+    date: new Date(options.timestamp ?? Date.now()),
   };
-
-  for (let i = 0; i < totalPages; i++) {
+  let count = 0;
+  for (let i = 0; i < pages.length; i++) {
     if (options.skipFirstPage && i === 0) continue;
-
     const page = pages[i];
     await drawOnVisiblePage(page, ({ width, height }) => {
-      const resolve = (t: string) => resolveStampTokens(t, { ...ctxBase, page: i + 1 });
-
-      const drawSlot = (raw: string, x: number, y: number) => {
-        if (!raw.trim()) return;
-        const text = resolve(raw);
-        page.drawText(text, {
-          x,
-          y,
+      const runs = headerFooterRuns(options, { ...ctxBase, page: i + 1 }, width, height, (text) =>
+        font.widthOfTextAtSize(text, options.fontSize),
+      );
+      for (const run of runs) {
+        page.drawText(run.text, {
+          x: run.x,
+          y: height - run.y,
           size: options.fontSize,
           font,
           color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),
         });
-      };
-
-      const m = options.margin;
-      const yTop = height - m - options.fontSize;
-      const yBot = m;
-
-      // Header row
-      drawSlot(options.headerLeft, m, yTop);
-      if (options.headerCenter.trim()) {
-        const tw = font.widthOfTextAtSize(resolve(options.headerCenter), options.fontSize);
-        drawSlot(options.headerCenter, (width - tw) / 2, yTop);
-      }
-      if (options.headerRight.trim()) {
-        const tw = font.widthOfTextAtSize(resolve(options.headerRight), options.fontSize);
-        drawSlot(options.headerRight, width - m - tw, yTop);
-      }
-
-      // Footer row
-      drawSlot(options.footerLeft, m, yBot);
-      if (options.footerCenter.trim()) {
-        const tw = font.widthOfTextAtSize(resolve(options.footerCenter), options.fontSize);
-        drawSlot(options.footerCenter, (width - tw) / 2, yBot);
-      }
-      if (options.footerRight.trim()) {
-        const tw = font.widthOfTextAtSize(resolve(options.footerRight), options.fontSize);
-        drawSlot(options.footerRight, width - m - tw, yBot);
+        count++;
       }
     });
   }
+  if (!count)
+    throw new Error("These fields resolve to empty text. Enter text or choose another field.");
 
   return pdf.save();
 }

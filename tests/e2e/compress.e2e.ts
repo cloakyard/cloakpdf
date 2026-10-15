@@ -116,11 +116,26 @@ async function main() {
           };
 
           const origTextLen = await textLenOf(u8);
+          // A fresh PDF embeds its creation/modification time. Freeze only the
+          // zero-argument clock so byte comparisons measure the presets, not
+          // timestamp compression across a second boundary. Explicit date parsing
+          // (including PDF.js metadata) keeps its normal behaviour.
+          const realDate = Date;
+          const fixedTime = Date.UTC(2026, 9, 15, 12, 0, 0);
+          window.Date = new Proxy(realDate, {
+            construct: (target, args) =>
+              Reflect.construct(target, args.length ? args : [fixedTime]),
+            get: (target, key) => (key === "now" ? () => fixedTime : Reflect.get(target, key)),
+          });
           const results: Record<string, { size: number; textLen: number }> = {};
-          for (const q of qualities) {
-            const file = new File([u8], fileName, { type: "application/pdf" });
-            const out = await ops.compressPdf(file, q);
-            results[q] = { size: out.byteLength, textLen: await textLenOf(out) };
+          try {
+            for (const q of qualities) {
+              const file = new File([u8], fileName, { type: "application/pdf" });
+              const out = await ops.compressPdf(file, q);
+              results[q] = { size: out.byteLength, textLen: await textLenOf(out) };
+            }
+          } finally {
+            window.Date = realDate;
           }
           return { origTextLen, results };
         },

@@ -3435,6 +3435,11 @@ body:has(.pdf-site) {
   }
 }
 
+.pdf-stamp-panel .air-help,
+.pdf-header-footer-panel .air-help {
+  overflow-wrap: anywhere;
+}
+
 /* Overlay tool composition and the shared Air precision controls. */
 .pdf-overlay-settings {
   border: 0;
@@ -3445,16 +3450,18 @@ body:has(.pdf-site) {
   flex-direction: column;
   gap: 24px;
 }
-.pdf-stamp-tokens {
+.pdf-text-tokens {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.pdf-stamp-tokens .air-button {
+.pdf-text-tokens .air-button {
   padding-inline: 12px;
 }
 .pdf-stamp-numbers,
-.pdf-numbering-values {
+.pdf-numbering-values,
+.pdf-header-footer-values,
+.pdf-header-footer-fields {
   display: flex;
   flex-direction: column;
   gap: 16px;

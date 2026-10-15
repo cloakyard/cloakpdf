@@ -126,6 +126,8 @@ export interface PageNumberOptions {
 
 /** Configuration options for the Header & Footer tool. */
 export interface HeaderFooterOptions {
+  /** Captured preview time; reused for every saved date/time field. */
+  timestamp?: number;
   headerLeft: string;
   headerCenter: string;
   headerRight: string;

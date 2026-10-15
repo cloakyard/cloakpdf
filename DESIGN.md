@@ -1238,3 +1238,24 @@ journeys across all apps; it is not inferred from the pilot alone.
   Done, retain failed drafts and prevent duplicate saves. Retire successful previews
   before Undo; Start another numbering explicitly re-arms them. Keep busy focus in
   Page number settings. Cancel restores the tool checkpoint.
+
+- Header & footer uses shared Air Header/Footer segments and three full-width,
+  persistently labelled alignment fields per group. Preserve all six values when
+  switching groups, tools or viewport. Show the token insertion destination and
+  its expanded preview; default to the left field of the selected group. Insertion
+  replaces the selection, returns the caret and yields to subsequent focus changes.
+- Share token controls and the byte-scoped document-title/clock reader with Stamp.
+  Use one captured timestamp in preview and output; failed reads offer retry and
+  abandoned reads cannot update a later visit. Long resolved text wraps in help.
+- Reuse PrecisionField for Size (7–18 pt) and Margin (12–72 pt), keeping raw invalid
+  drafts, associated errors and the last valid preview. Skip first page is the Air
+  switch and must not leave a one-page PDF with no eligible pages.
+- Share header/footer token expansion and alignment geometry between preview and
+  output. Check exact embedded-font widths on every visible page; keep 4 pt clear
+  between occupied fields. Reject clipped/overlapping text, multiline fields,
+  unsupported characters and empty expanded output with an actionable message.
+  Preserve catalog data, source text, rotation, CropBox and UserUnit on success.
+- Await Apply/mobile Done, retain failed drafts, keep busy focus in settings, retire
+  successful previews before Undo and explicitly re-arm Start another header & footer.
+  Cancel restores the checkpoint. Replaced TripleRow and native-value token insertion
+  paths must not remain; retain only shared controls with live consumers.

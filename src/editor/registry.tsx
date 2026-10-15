@@ -26,12 +26,8 @@ import * as Watermark from "./panels/WatermarkTool.tsx";
 import * as Signature from "./panels/SignatureTool.tsx";
 import * as SmartErase from "./panels/SmartEraseTool.tsx";
 import * as StripFurniture from "./panels/StripFurnitureTool.tsx";
-import {
-  BatesPanel,
-  BatesStage,
-  HeaderFooterPanel,
-  HeaderFooterStage,
-} from "./panels/StampTools.tsx";
+import { BatesPanel, BatesStage } from "./panels/StampTools.tsx";
+import * as HeaderFooter from "./panels/HeaderFooterTool.tsx";
 import { NupPanel } from "./panels/NupTool.tsx";
 
 export interface ToolImpl {
@@ -68,7 +64,7 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
   // Content-additive stamp-family tools — each paints a live preview on the
   // focused page (Stage) before Apply burns the same text into the bytes.
   "add-page-numbers": { Stage: PageNumbers.Stage, Panel: PageNumbers.Panel },
-  "header-footer": { Stage: HeaderFooterStage, Panel: HeaderFooterPanel },
+  "header-footer": { Stage: HeaderFooter.Stage, Panel: HeaderFooter.Panel },
   "bates-numbering": { Stage: BatesStage, Panel: BatesPanel },
   // QR / barcode: place on the page (tap), drag to move, corner-drag to resize;
   // a vector code burns in at Apply.

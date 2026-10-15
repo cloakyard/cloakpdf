@@ -5,17 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 import { SegmentedControl } from "../../components/SegmentedControl.tsx";
 import type { WatermarkOptions } from "../../types.ts";
-import {
-  addWatermark,
-  baseFileName,
-  getPdfMetadata,
-  resolveStampTokens,
-  STAMP_TOKENS,
-} from "../../utils/pdf-operations.ts";
+import { addWatermark, baseFileName, resolveStampTokens } from "../../utils/pdf-operations.ts";
 import { clearStampCache, paintStamp, renderStampDataUrl } from "../../utils/pdf/stamp-render.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
+import { TextTokens } from "./TextTokens.tsx";
+import { useTextOverlayContext, type TextOverlayContext } from "./useTextOverlayContext.ts";
 import { PrecisionField } from "./PrecisionField.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
@@ -37,7 +33,6 @@ const NUMBERS = [
   { key: "inkTexture", label: "Texture", min: 0, max: 50, step: 5, unit: "%", factor: 100 },
 ] as const;
 type NumberKey = (typeof NUMBERS)[number]["key"];
-type Context = { bytes: Uint8Array; title: string; timestamp: number };
 const optionsOf = (slice: Record<string, unknown>): WatermarkOptions =>
   (slice.options as WatermarkOptions) ?? DEFAULTS;
 const validNumber = (raw: string, field: (typeof NUMBERS)[number]) =>
@@ -52,7 +47,7 @@ export function Stage() {
   const { doc, selectedPage } = useEditorRead();
   const slice = useToolSlice(TOOL);
   const o = optionsOf(slice);
-  const context = slice.context as Context | undefined;
+  const context = slice.context as TextOverlayContext | undefined;
   const active = slice.sourceBytes === doc?.bytes && context?.bytes === doc?.bytes;
   const widthPt = doc?.pages[selectedPage]?.widthPt ?? 0;
   const resolved = resolveStampTokens(o.text, {
@@ -104,38 +99,13 @@ export function Panel() {
   const { applyTransform, patchToolState } = useEditorActions();
   const slice = useToolSlice(TOOL);
   const o = optionsOf(slice);
-  const context = slice.context as Context | undefined;
-  const current = context?.bytes === doc?.bytes ? context : undefined;
+  const { current, readFailed, retryRead } = useTextOverlayContext(TOOL, slice);
   const active = slice.sourceBytes === doc?.bytes && !!doc;
-  const [attempt, setAttempt] = useState(0);
-  const [readFailed, setReadFailed] = useState(false);
   const [failed, setFailed] = useState(false);
   const applying = useRef(false);
   const textRef = useRef<HTMLInputElement>(null);
-  const initialized = !!slice.initialized;
   const bytes = doc?.bytes,
     fileName = doc?.fileName;
-  useEffect(() => {
-    if (!bytes || context?.bytes === bytes) return;
-    let live = true;
-    setReadFailed(false);
-    const file = new File([bytes as Uint8Array<ArrayBuffer>], fileName ?? "document.pdf");
-    void getPdfMetadata(file).then(
-      (metadata) => {
-        if (!live) return;
-        patchToolState(TOOL, {
-          context: { bytes, title: metadata.title, timestamp: Date.now() },
-          ...(!initialized ? { initialized: true, sourceBytes: bytes } : {}),
-        });
-      },
-      () => {
-        if (live) setReadFailed(true);
-      },
-    );
-    return () => {
-      live = false;
-    };
-  }, [bytes, fileName, attempt, initialized, patchToolState, context]);
   const busy = busyLabel !== null;
   const drafts = (slice.numbers as Partial<Record<NumberKey, string>>) ?? {};
   const touched = (slice.touched as Partial<Record<NumberKey, boolean>>) ?? {};
@@ -253,23 +223,7 @@ export function Panel() {
             aria-describedby="stamp-preview-text"
           />
         </div>
-        <div className="pdf-property-field">
-          <span className="air-label">Insert field</span>
-          <div className="pdf-stamp-tokens" role="group" aria-label="Insert field">
-            {STAMP_TOKENS.map((t) => (
-              <button
-                type="button"
-                key={t.token}
-                className="air-button"
-                disabled={busy || !active}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => insert(t.token)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <TextTokens disabled={busy || !active} onInsert={insert} />
         <p id="stamp-preview-text" className="air-help">
           {current
             ? `Preview: ${resolved || "No text on this page. Enter text or choose another field."}`
@@ -281,12 +235,7 @@ export function Panel() {
               <AlertTriangle size={16} aria-hidden="true" />
               Couldn't read document fields. Your PDF and settings are unchanged.
             </p>
-            <button
-              className="air-button"
-              type="button"
-              disabled={busy}
-              onClick={() => setAttempt((n) => n + 1)}
-            >
+            <button className="air-button" type="button" disabled={busy} onClick={retryRead}>
               Read fields again
             </button>
           </>
