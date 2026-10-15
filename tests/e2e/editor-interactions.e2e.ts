@@ -745,13 +745,16 @@ async function main(): Promise<void> {
     if (!axes.includes("Saturation") || !axes.includes("Brightness")) {
       fail(`Custom colour field does not expose both axes: ${JSON.stringify(axes)}.`);
     }
+    const brightness = `${colorDialog} input[aria-label="Brightness"]`;
     const saturation = `${colorDialog} input[aria-label="Saturation"]`;
     // Let the dialog's scheduled opening focus settle before testing Tab order.
     await page.waitForFunction(
       (selector) => document.activeElement === document.querySelector(selector),
       {},
-      saturation,
+      brightness,
     );
+    await page.click(`${colorDialog} summary`);
+    await page.focus(saturation);
     const saturationBefore = await page.$eval(saturation, (input) =>
       Number((input as HTMLInputElement).value),
     );
@@ -761,11 +764,13 @@ async function main(): Promise<void> {
     );
     if (saturationAfter <= saturationBefore)
       fail("Saturation slider did not respond to ArrowRight.");
+    await page.keyboard.down("Shift");
     await page.keyboard.press("Tab");
+    await page.keyboard.up("Shift");
     const focusedAxis = await page.evaluate(() =>
       document.activeElement?.getAttribute("aria-label"),
     );
-    if (focusedAxis !== "Brightness") fail(`Tab moved to ${focusedAxis}, not Brightness.`);
+    if (focusedAxis !== "Hue") fail(`Shift+Tab moved to ${focusedAxis}, not Hue.`);
     await page.keyboard.press("Escape");
     await page.waitForSelector(colorDialog, { hidden: true });
     const colorFocusRestored = await page.$eval(

@@ -2972,26 +2972,6 @@ body:has(.pdf-site) {
   gap: 12px;
   margin-bottom: 12px;
 }
-.pdf-color__plane {
-  position: relative;
-  height: 128px;
-  margin: 8px;
-  border-radius: var(--air-radius-chip);
-  touch-action: none;
-  user-select: none;
-  cursor: crosshair;
-  forced-color-adjust: none;
-}
-.pdf-color__point {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 2px solid white;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px black;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
 .pdf-color__axis {
   display: block;
   margin-top: 8px;
@@ -3818,4 +3798,21 @@ body:has(.pdf-site) {
   .pdf-annotate-styles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.pdf-color__precise {
+  margin-top: 8px;
+}
+.pdf-color__precise summary {
+  display: list-item;
+  align-content: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: var(--air-text-label);
+  color: var(--air-ink-secondary);
+}
+.pdf-color__precise summary:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 2px;
+  border-radius: var(--air-radius-chip);
 }

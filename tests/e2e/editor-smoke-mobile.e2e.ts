@@ -269,11 +269,11 @@ async function main() {
     // ColorPicker popover is portaled to <body> so the sheet's overflow can't
     // clip it — open it and assert it renders fully inside the viewport.
     await page.click('button[aria-label^="Custom color"]');
-    await page.waitForSelector('[aria-label="Saturation and brightness picker"]', {
+    await page.waitForSelector('[aria-label="Colour wheel"]', {
       timeout: 5_000,
     });
     const swatchOnScreen = await page.evaluate(() => {
-      const el = document.querySelector('[aria-label="Saturation and brightness picker"]');
+      const el = document.querySelector('[aria-label="Colour wheel"]');
       if (!el) return false;
       const r = el.getBoundingClientRect();
       return (

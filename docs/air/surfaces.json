@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.1",
+  "contractVersion": "1.0.2",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -384,8 +384,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/privacy-panels-2026-10-15.json"],
-      "notes": "Air panel/colour/collection implementation. 44 panel and 22 picker layouts; native Safari and Firefox including 200% zoom. Actual detection/search, cancel/retry/stale bytes, mark undo and all erase-method output verified. Physical touch/software keyboard, OS IME and assistive speech remain open. Author colours/gradient/erase content are output data."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/privacy-panels-2026-10-15.json",
+        "docs/air/evidence/colour-wheel-2026-10-15.json"
+      ],
+      "notes": "Air 1.0.2 wheel/brightness/hex with native precise axes; all nine consumer tools. Exact spectrum/cursor mapping, RGB round-trip, black/grey continuity, external values, invalid hex, pointer capture/cancel and secondary-pointer isolation covered. 22 size/theme views, six text200 views, forced colours/reduced motion; native Safari and Firefox 200%. Physical touch/software keyboard and spoken assistive acceptance remain open."
     },
     {
       "path": "src/components/DateTimeInput.tsx",

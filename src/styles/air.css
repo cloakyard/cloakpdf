@@ -1748,3 +1748,60 @@ textarea.air-field {
     forced-color-adjust: none;
   }
 }
+
+/* Author colours are data. The wheel is full brightness; its value has a separate axis. */
+.air-colour-wheel {
+  position: relative;
+  width: min(100% - 24px, 208px);
+  aspect-ratio: 1;
+  margin: 16px auto;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle closest-side, #fff, #fff0),
+    conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  box-shadow: 0 0 0 1px var(--air-line-control);
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+  forced-color-adjust: none;
+}
+.air-colour-wheel__point {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px black;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+input.air-colour-brightness {
+  appearance: none;
+  background-size: 100% 8px;
+  background-position: center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.air-colour-brightness::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--air-surface);
+  border-radius: 50%;
+  background: var(--air-ink);
+  box-shadow: 0 0 0 1px var(--air-line-control);
+}
+.air-colour-brightness::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--air-surface);
+  border-radius: 50%;
+  background: var(--air-ink);
+  box-shadow: 0 0 0 1px var(--air-line-control);
+}
+@media (forced-colors: active) {
+  input.air-colour-brightness {
+    appearance: auto;
+    background-image: none !important;
+  }
+}

@@ -1809,3 +1809,38 @@ Next: FillFormTool — field types, custom selectors/switches, field-error and e
 states, geometry, raw value persistence, fill/flatten output, awaited mobile Apply,
 failure/retry, Undo/Cancel and all responsive/theme states. Then AutoFillTool and
 NupTool; remove their remaining adapters only after verifying all consumers.
+
+## 2026-10-15 — Shared colour wheel
+
+Air 1.0.2 replaces the shared picker square with a hue/saturation wheel, brightness
+track, exact hex and optional independent native hue/saturation ranges. All nine
+PDF tool consumers use the same adapter; ten visible instances round-trip through
+real tool state. Reused presets, popover anchoring and focus handoff. Removed the
+obsolete plane/point styles and per-axis callbacks, extracted one portable math
+module used by the reference and PDF. No dependency added; ColorPicker itself is
+smaller. Editor 315.68/96.79 kB raw/gzip (+0.23 gzip); CSS 143.18/25.02 (+0.24 gzip versus
+Annotate); 128 deployment assets, 77 PWA entries.
+
+Exact spectrum/cursor mapping, 4096 RGB round trips, centre/rim clipping, hue at the
+red seam, black/grey continuity, external values, invalid hex retention/recovery,
+mouse capture/cancel, primary-pointer ownership, emulated touch/cancel, native
+keyboard axes and Escape return are covered. Twenty-two required size/theme views,
+six text200 views and forced-colours/reduced-motion inspected, without horizontal
+overflow. Scrollable popovers keep precise controls accessible in short viewports.
+
+429 units, check/dead/build/asset limits, focused wheel suite, all 16 production
+smoke suites, seven extended suites and focused privacy panels pass. Existing
+mobile test now targets the wheel; keyboard test follows the revised disclosure
+and native axis order. No output assertion removed. The wheel harness explicitly
+detaches its CDP session before closing to avoid retaining a Node resource.
+Native Safari verifies wheel pointer selection, black-to-colour, brightness keys,
+reopening and Escape focus. Firefox verifies precise keyboard controls, invalid
+hex recovery and internal scrolling at actual 200% browser zoom. Physical touch,
+software keyboards and spoken assistive acceptance remain open.
+
+Evidence: `docs/air/evidence/colour-wheel-2026-10-15*`; full captures and JSON in
+`/tmp/cloakpdf-air-review/colour-wheel-*`. Canonical rules, CSS, math/types, reference
+and portable DESIGN/bundle are synchronized; standalone drift checks include the
+colour module. This completes the shared PDF picker piece, not the whole product.
+Next: FillFormTool, then AutoFillTool/NupTool; IMG/Resume picker adoption is tracked
+upstream separately. Local commits only; no deployment.

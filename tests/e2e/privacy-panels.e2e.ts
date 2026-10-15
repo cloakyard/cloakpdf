@@ -237,6 +237,7 @@ try {
   const trigger = '.pdf-color button[aria-label^="Custom color"]';
   await page.locator(trigger).click();
   await page.waitForSelector(popup);
+  await page.click(`${popup} summary`);
   await page.focus('[aria-label="Saturation"]');
   const beforeSat = await page.$eval(
     '[aria-label="Saturation"]',

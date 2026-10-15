@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=e0ada5a11b20" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=b2b01cee2dad" />
     <style>
       * {
         box-sizing: border-box;
@@ -2254,6 +2254,31 @@
           transform: none !important;
         }
       }
+      .colour-study-controls {
+        max-width: 320px;
+        min-width: 0;
+      }
+      .colour-study-controls input[type="range"] {
+        display: block;
+        width: 100%;
+        height: 44px;
+        margin: 0;
+        accent-color: var(--air-accent);
+        background-color: transparent;
+      }
+      .colour-study-controls summary {
+        min-height: 44px;
+        align-content: center;
+        cursor: pointer;
+        font-size: var(--air-text-label);
+      }
+      .colour-study-controls output {
+        float: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .colour-study-controls .air-label {
+        margin-top: 8px;
+      }
     </style>
   </head>
   <body>
@@ -2547,9 +2572,61 @@
           <a class="air-button air-button--quiet" href="#compound-study">Search & units</a>
           <a class="air-button air-button--quiet" href="#select-study">Menus</a>
           <a class="air-button air-button--quiet" href="#choice-study">Choices</a>
+          <a class="air-button air-button--quiet" href="#colour-study">Colour wheel</a>
           <a class="air-button air-button--quiet" href="#overlay-study">Overlays</a>
           <a class="air-button air-button--quiet" href="#floating-study">Floating controls</a>
         </nav>
+        <div class="component-row" id="colour-study">
+          <div>
+            <h3>A colour, in one gesture.</h3>
+            <p>
+              Choose around the wheel, then adjust brightness. Exact values stay close at hand. This
+              inline study defines the control; products own their popover and output tests.
+            </p>
+          </div>
+          <div class="colour-study-controls">
+            <div
+              class="air-colour-wheel"
+              role="group"
+              aria-label="Colour wheel"
+              aria-describedby="colour-help"
+            >
+              <span class="air-colour-wheel__point" aria-hidden="true"></span>
+            </div>
+            <p class="air-help" id="colour-help">Choose a hue. Move inward for a softer colour.</p>
+            <label class="air-label" for="colour-brightness"
+              >Brightness <output id="colour-brightness-value"></output
+            ></label>
+            <input
+              class="air-colour-brightness"
+              id="colour-brightness"
+              type="range"
+              min="0"
+              max="100"
+              value="85"
+            />
+            <label class="air-label" for="colour-hex">Hex colour</label
+            ><input
+              class="air-field"
+              id="colour-hex"
+              name="colour"
+              value="#285ad7"
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="colour-hex-help"
+            />
+            <p class="air-help" id="colour-hex-help">Changes apply as you choose a colour.</p>
+            <details>
+              <summary>Fine tune hue &amp; saturation</summary>
+              <label class="air-label" for="colour-hue"
+                >Hue <output id="colour-hue-value"></output></label
+              ><input id="colour-hue" type="range" min="0" max="360" />
+              <label class="air-label" for="colour-saturation"
+                >Saturation <output id="colour-saturation-value"></output></label
+              ><input id="colour-saturation" type="range" min="0" max="100" />
+            </details>
+          </div>
+        </div>
         <div class="component-row" id="action-study">
           <div>
             <h3>Actions, with hierarchy.</h3>
@@ -4855,6 +4932,90 @@
           "All done. A small detail, thoughtfully finished.";
         completionMotion.play(event);
       });
+    </script>
+    <script type="module">
+      import { hexToHsv, hsvToHex, wheelPosition, wheelValue } from "./colour.mjs";
+      const study = document.querySelector("#colour-study");
+      const wheel = study.querySelector(".air-colour-wheel");
+      const point = wheel.firstElementChild;
+      const hex = study.querySelector("#colour-hex");
+      const help = study.querySelector("#colour-hex-help");
+      const axes = ["brightness", "hue", "saturation"];
+      let colour = hexToHsv(hex.value),
+        gesture = null;
+      function renderColour() {
+        const pos = wheelPosition(colour.h, colour.s);
+        point.style.left = `${pos.x}%`;
+        point.style.top = `${pos.y}%`;
+        hex.value = hsvToHex(colour.h, colour.s, colour.v);
+        point.style.background = hex.value;
+        hex.removeAttribute("aria-invalid");
+        help.textContent = "Changes apply as you choose a colour.";
+        help.className = "air-help";
+        axes.forEach((name, i) => {
+          const input = study.querySelector(`#colour-${name}`);
+          const value = Math.round([colour.v * 100, colour.h, colour.s * 100][i]);
+          input.value = value;
+          study.querySelector(`#colour-${name}-value`).textContent = value + (i === 1 ? "°" : "%");
+        });
+        study.querySelector("#colour-brightness").style.backgroundImage =
+          `linear-gradient(to right, #000, ${hsvToHex(colour.h, colour.s, 1)})`;
+      }
+      function pick(event) {
+        const rect = wheel.getBoundingClientRect();
+        colour = {
+          ...wheelValue(
+            (event.clientX - rect.left - rect.width / 2) / (rect.width / 2),
+            (event.clientY - rect.top - rect.height / 2) / (rect.height / 2),
+            colour.h,
+          ),
+          v: colour.v || 1,
+        };
+        renderColour();
+      }
+      wheel.onpointerdown = (event) => {
+        if (!event.isPrimary || event.button !== 0 || gesture) return;
+        event.preventDefault();
+        gesture = { id: event.pointerId, colour };
+        wheel.setPointerCapture(event.pointerId);
+        pick(event);
+      };
+      wheel.onpointermove = (event) => {
+        if (gesture?.id === event.pointerId) pick(event);
+      };
+      wheel.onpointerup = (event) => {
+        if (gesture?.id === event.pointerId) gesture = null;
+      };
+      wheel.onpointercancel = wheel.onlostpointercapture = (event) => {
+        if (gesture?.id !== event.pointerId) return;
+        colour = gesture.colour;
+        gesture = null;
+        renderColour();
+      };
+      axes.forEach(
+        (name, i) =>
+          (study.querySelector(`#colour-${name}`).oninput = (event) => {
+            colour = {
+              ...colour,
+              [["v", "h", "s"][i]]: Number(event.target.value) / (i === 1 ? 1 : 100),
+            };
+            renderColour();
+          }),
+      );
+      hex.oninput = () => {
+        if (/^#[0-9a-f]{6}$/i.test(hex.value)) {
+          colour = hexToHsv(hex.value);
+          renderColour();
+        }
+      };
+      hex.onblur = () => {
+        if (!/^#[0-9a-f]{6}$/i.test(hex.value)) {
+          hex.setAttribute("aria-invalid", "true");
+          help.className = "air-help air-help--error";
+          help.textContent = "Use 6 hexadecimal digits, such as #285AD7.";
+        }
+      };
+      renderColour();
     </script>
     <script type="module" src="./light-controller.mjs"></script>
     <script type="module" src="./overlays-loader.mjs?air=82810322a6e9"></script>

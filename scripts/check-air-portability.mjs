@@ -117,6 +117,15 @@ try {
   checks.push("altered motion module rejected");
   await writeFile(motionPath, motion);
 
+  const colourPath = resolve(fixture, "docs/air/colour.mjs");
+  const colour = await readFile(colourPath, "utf8");
+  await writeFile(colourPath, `${colour}\n// Deliberate colour-math drift.\n`);
+  const colourDrift = verify();
+  assert.notEqual(colourDrift.status, 0);
+  assert.match(colourDrift.stderr, /Air study asset drift: colour\.mjs/);
+  checks.push("altered colour math rejected");
+  await writeFile(colourPath, colour);
+
   const withoutOverlays = structuredClone(manifest);
   delete withoutOverlays.studyAssets["assets/air-overlays.js"];
   await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutOverlays));

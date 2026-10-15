@@ -66,6 +66,8 @@ else {
     "collections.html",
     "files.mjs",
     "motion.mjs",
+    "colour.mjs",
+    "colour.d.mts",
     "light-controller.mjs",
     "light-runtime.mjs",
     "light-runtime.d.mts",
