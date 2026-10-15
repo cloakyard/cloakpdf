@@ -83,9 +83,4 @@ export {
 
 export { addPdfBookmarks } from "./pdf/bookmarks.ts";
 
-export type { PdfAttachment } from "./pdf/attachments.ts";
-export {
-  listPdfAttachments,
-  attachFilesToPdf,
-  removeAttachmentsFromPdf,
-} from "./pdf/attachments.ts";
+export { listPdfAttachments } from "./pdf/attachments.ts";

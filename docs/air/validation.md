@@ -1315,3 +1315,54 @@ AI-modal animation timing assertion; no assertion or production motion was chang
 The final serial production suite passes all 16 suites. A metadata harness run reloaded while
 build/spec generation ran alongside it; its stable rerun passes all 28 layouts
 and output/retry checks. No blocked run is counted as a pass.
+
+## 2026-10-15 — Attach, identity and recovery
+
+Attach now uses Air open rows, full wrapping filenames, decoded sizes, distinct
+accessible removal names, 40/44px targets and explicit reading/failure/retry states.
+Failed selections survive tool and viewport changes, remain byte-scoped, and can
+be retried or discarded. Cancel retires drafts; successful edits retire them before
+Undo. Repeated activation is guarded. Pending privacy marks block identity-based
+attachment edits until resolved. Mobile Done preserves a failed selection.
+
+The former name-based remover confused Unicode display names with name-tree keys.
+The new reader supports nested Kids and PDFHexString names, identifies duplicate
+filenames independently, and rejects malformed/cyclic trees instead of returning
+an empty report. New entries use unique sorted keys while preserving display names.
+Removal cleans standard AF/attachment-annotation references and unshared filespecs,
+streams and obsolete tree objects. Shared data survives; unsupported remaining
+references fail without changing the source. This is not a blanket PDF sanitisation
+claim. Catalog EmbeddedFiles is the managed scope.
+
+Browser testing exposed shared busy-state focus always returning to Export. It now
+returns to the initiating control or a surviving action when a removed row vanishes;
+closed dialogs retain their Export fallback. Real export regression checks pass.
+Safari native add/remove/Undo and chooser cancellation pass; Firefox keyboard removal,
+Undo and actual 200% zoom pass. Final production preview add/remove/Undo passes.
+An isolated native dev harness became stale after HMR; final verification used
+the actual production preview. No production test hook was added. Temporary native tabs are closed and Firefox zoom restored.
+
+Passing gates: `pnpm exec vp check`, `pnpm check:dead`, 400 unit tests in 40 files,
+`pnpm run build`, design check (86 inventory records), isolated portability (17
+assertions), all 16 production smoke suites, seven extended suites and the focused
+Attach/Bookmarks suites (25 browser suites total). Synthetic fixtures were used
+explicitly. Final chooser-focus/traversal cleanup received fresh checks/units/build
+and focused Attach validation, plus production UI review. AI runtime was untouched.
+The focused suite covers all 22 required size/theme layouts, 16 empty/read/error/
+retry examples, 200% root text, forced colours/reduced motion, complete decoded
+output, physical stream removal, duplicate identity, repeat actions, stale reads,
+focus, source preservation, Undo/Redo, mobile Done/Cancel and privacy-mark guards.
+
+Removed old panel skins, truncated-name rows, void uncaught operations, name-only
+identity, dead barrel exports and redundant graph traversal. Existing FileEmbedder
+is reused; no dependency was added. Editor 290.52 kB raw / 88.34 kB gzip (previously
+291.21 / 88.29), CSS 144.58 / 25.29 (previously 144.23 / 25.24); build has 128 assets
+under 25 MiB and 77 precache entries. Existing chunk-size warning remains nonfailing.
+The canonical PDF appendix and generated DESIGN are synchronized; Air 1.0.1 is unchanged.
+
+Evidence: `evidence/attachments-2026-10-15.json`, dated checks log and three proof
+images. Physical touch/software keyboards, real OS IME and assistive speech remain
+open; inventory stays `validated: false`. Next: Crop and Strip furniture interiors,
+including shared whole-document controls and promised failure/retry handling, then
+remaining tools and shell loading/error/restored-draft banners. Full PDF/family
+migration remains unfinished. No push or deployment.

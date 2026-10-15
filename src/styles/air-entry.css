@@ -3291,3 +3291,30 @@ body:has(.pdf-site) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Open attachment rows keep complete names and actions readable at every width. */
+.pdf-attachment-list,
+.pdf-attachment-selection {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pdf-attachment-list li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--air-line);
+}
+.pdf-attachment-list p,
+.pdf-attachment-selection li {
+  overflow-wrap: anywhere;
+  color: var(--air-ink);
+}
+.pdf-attachment-selection li {
+  padding-block: 4px;
+}
+.pdf-attachment-selection span {
+  display: block;
+}

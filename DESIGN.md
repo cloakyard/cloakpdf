@@ -1141,3 +1141,19 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Pending Apply remains registered when validation rejects before processing.
   Concurrent flush callers wait for the same operation; failed mobile Done keeps
   the tool and its draft available for correction and retry.
+
+- Attach uses open file rows, complete wrapping filenames, decoded sizes and
+  named 40/44px remove controls. Duplicate names remain distinct files. Show read
+  errors and retry explicitly; never substitute an empty list for a failed read.
+- Failed attachment selections belong to exact source bytes, survive tool/viewport
+  navigation and remain available for retry or discard. Cancel retires them;
+  successful actions retire them before Undo. Immediate actions are guarded,
+  promised and undoable; mobile Done closes without discarding a failed selection.
+- Attachment handling preserves Unicode names and nested name trees. Remove by
+  revision-scoped identity, clear standard associated-file/annotation references,
+  delete unshared embedded bytes and preserve shared streams and unrelated content.
+  Unsupported surviving references fail explicitly, without changing the source.
+  Pending privacy marks must be resolved before attachment edits use listed identities.
+- After a blocking operation, restore the initiating control when it survives.
+  A removed row supplies a surviving action as its focus destination. Closed
+  dialogs fall back to Export; failed tool operations must not jump there.

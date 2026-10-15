@@ -1735,17 +1735,28 @@
     {
       "path": "src/editor/panels/AttachmentsTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+      "states": [
+        "empty / reading / failed read / retry",
+        "complete Unicode and duplicate filenames / exact identity removal",
+        "failed selection retained across tool and viewport changes / discard / Cancel",
+        "add and remove failure / retry / Undo and Redo / guarded repeat activation",
+        "pending privacy marks / forced colours / reduced motion / enlarged text"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "viewports": [
+        "320–1920px: all 11 required viewport classes, light/dark",
+        "200% root text at 320/390/1440px",
+        "Native Safari and Firefox with actual Firefox 200% zoom"
+      ],
+      "evidence": [
+        "docs/air/evidence/attachments-2026-10-15.json",
+        "docs/air/evidence/attachments-checks-2026-10-15.log",
+        "tests/e2e/attachments.e2e.ts",
+        "tests/unit/attachments.test.ts"
+      ],
+      "notes": "Air implemented and automated/native review passed. Shared busy focus returns to the initiating action or a surviving Attach button. Byte operations preserve Unicode, nested trees and duplicate identity; unshared removed data is deleted, shared streams survive. Physical-device and assistive acceptance remains open; validated stays false."
     },
     {
       "path": "src/editor/panels/AutoFillTool.tsx",

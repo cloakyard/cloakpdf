@@ -68,13 +68,15 @@ export function EditorShell() {
 
   // An editor transform is a blocking state, even though it is not a
   // dismissible dialog. Move focus to its status surface while the editor is
-  // inert, then return to the Export trigger once the operation settles.
+  // inert, then restore the initiating control. Removed rows can nominate a
+  // surviving action; closed dialogs fall back to Export.
   useEffect(() => {
     if (busyLabel) {
       if (!wasBusyRef.current) {
         busyRestoreRef.current =
-          document.querySelector<HTMLElement>('button[aria-label="Export"]') ??
-          (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+          document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+            ? document.activeElement
+            : null;
       }
       wasBusyRef.current = true;
       const frame = requestAnimationFrame(() => busyOverlayRef.current?.focus());
@@ -85,7 +87,12 @@ export function EditorShell() {
     const restore = busyRestoreRef.current;
     busyRestoreRef.current = null;
     const frame = requestAnimationFrame(() => {
-      if (restore?.isConnected && !restore.hasAttribute("disabled")) restore.focus();
+      const target =
+        restore?.isConnected && !restore.hasAttribute("disabled")
+          ? restore
+          : (document.querySelector<HTMLElement>("[data-busy-focus-fallback]") ??
+            document.querySelector<HTMLElement>('button[aria-label="Export"]'));
+      target?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [busyLabel]);
