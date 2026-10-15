@@ -361,9 +361,11 @@ async function main() {
     // 4. Undo/redo keyboard shortcuts. At base both should be disabled; applying
     //    page numbers commits one history entry → Undo lights.
     if (!(await btnDisabled(page, "Undo"))) fail("Undo should be disabled at base.");
+    await page.waitForSelector(".pdf-numbering-panel .air-button--primary:not(:disabled)", {
+      timeout: 10_000,
+    });
     if (!(await clickByText(page, "Add page numbers"))) fail("Page numbers Apply not found.");
-    await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add page numbers/i, 60_000); // restored after apply
+    await waitForText(page, /No pending numbers/i, 60_000); // restored after apply
     await page.waitForFunction(
       () => !(document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled,
       { timeout: 10_000 },

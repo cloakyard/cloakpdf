@@ -16,6 +16,7 @@ import { clearStampCache, paintStamp, renderStampDataUrl } from "../../utils/pdf
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
+import { PrecisionField } from "./PrecisionField.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const TOOL = "stamp-pdf";
@@ -291,7 +292,7 @@ export function Panel() {
           </>
         )}
       </section>
-      <fieldset className="pdf-stamp-settings" disabled={busy || !active}>
+      <fieldset className="pdf-overlay-settings" disabled={busy || !active}>
         <legend className="sr-only">Stamp appearance</legend>
         <div className="pdf-property-field">
           <span className="air-label">Shape</span>
@@ -339,53 +340,22 @@ export function Panel() {
               });
             };
             return (
-              <div className="pdf-stamp-number" key={f.key}>
-                <div className="pdf-stamp-number__heading">
-                  <label className="air-label" htmlFor={`stamp-${f.key}`}>
-                    {f.label}
-                  </label>
-                  <div className="pdf-stamp-number__value">
-                    <input
-                      id={`stamp-${f.key}`}
-                      name={`stamp-${f.key}`}
-                      className="air-field"
-                      type="number"
-                      inputMode="decimal"
-                      min={f.min}
-                      max={f.max}
-                      step={f.step}
-                      value={raw}
-                      aria-label={`${f.label} (${f.unit})`}
-                      aria-invalid={!!error}
-                      aria-describedby={error ? `stamp-${f.key}-error` : undefined}
-                      onChange={(e) => update(e.target.value)}
-                      onBlur={() =>
-                        patchToolState(TOOL, { touched: { ...touched, [f.key]: true } })
-                      }
-                    />
-                    <span aria-hidden="true">{f.unit}</span>
-                  </div>
-                </div>
-                <div className="pdf-stamp-range-track">
-                  {f.min < 0 && <span className="pdf-stamp-neutral" aria-hidden="true" />}
-                  <input
-                    className="pdf-stamp-range"
-                    type="range"
-                    aria-label={`${f.label} slider`}
-                    aria-valuetext={`${Math.round((o[f.key] ?? 0) * f.factor)} ${f.unit}`}
-                    min={f.min}
-                    max={f.max}
-                    step={f.step}
-                    value={(o[f.key] ?? 0) * f.factor}
-                    onChange={(e) => update(e.target.value)}
-                  />
-                </div>
-                {error && (
-                  <p id={`stamp-${f.key}-error`} className="air-help air-help--error">
-                    Enter {f.min} to {f.max} {f.unit}, in steps of {f.step}.
-                  </p>
-                )}
-              </div>
+              <PrecisionField
+                key={f.key}
+                id={`stamp-${f.key}`}
+                label={f.label}
+                unit={f.unit}
+                min={f.min}
+                max={f.max}
+                step={f.step}
+                raw={raw}
+                value={Math.round((o[f.key] ?? 0) * f.factor)}
+                error={
+                  error ? `Enter ${f.min} to ${f.max} ${f.unit}, in steps of ${f.step}.` : undefined
+                }
+                onChange={update}
+                onBlur={() => patchToolState(TOOL, { touched: { ...touched, [f.key]: true } })}
+              />
             );
           })}
         </section>

@@ -1,6 +1,6 @@
 // StampTools.tsx — Content-additive overlay tools that place repeating text on
-// every page: page numbers, header/footer and Bates numbering. Stamp has its
-// own WatermarkTool adapter. Each
+// every page: header/footer and Bates numbering. Stamp and Page numbers have
+// dedicated adapters. Each
 // is an option form + Apply (reusing WholeDocPanel for the busy-aware button)
 // with a visual position picker so the layout is obvious without freeform drag.
 // All are additive (page count/geometry unchanged) so overlay objects are
@@ -13,17 +13,10 @@
 // utils/pdf/stamps.ts (margin / position / baseline) so preview == output.
 
 import { useCallback } from "react";
-import type {
-  BatesNumberOptions,
-  HeaderFooterOptions,
-  PageNumberFormat,
-  PageNumberOptions,
-  PageNumberPosition,
-} from "../../types.ts";
+import type { BatesNumberOptions, HeaderFooterOptions, PageNumberPosition } from "../../types.ts";
 import {
   addBatesNumbers,
   addHeaderFooter,
-  addPageNumbers,
   baseFileName,
   resolveStampTokens,
 } from "../../utils/pdf-operations.ts";
@@ -49,7 +42,6 @@ const GREY = { r: 100, g: 116, b: 139 };
 const HELVETICA = "Helvetica, Arial, sans-serif";
 const COURIER = "'Courier New', Courier, monospace";
 
-const PAGE_NUMBERS_TOOL_ID = "add-page-numbers";
 const HEADER_FOOTER_TOOL_ID = "header-footer";
 const BATES_TOOL_ID = "bates-numbering";
 
@@ -100,140 +92,6 @@ function splitPosition(p: PageNumberPosition): {
     isTop: p.startsWith("top"),
     align: p.endsWith("left") ? "left" : p.endsWith("right") ? "right" : "center",
   };
-}
-
-// ── Page numbers ───────────────────────────────────────────────────────────
-
-const PAGE_NUMBER_DEFAULTS: PageNumberOptions = {
-  position: "bottom-center",
-  format: "1",
-  fontSize: 12,
-  color: INK,
-  margin: 36,
-  startNumber: 1,
-  firstPage: 1,
-};
-
-function readPageNumbers(slice: Record<string, unknown>): PageNumberOptions {
-  return {
-    position: (slice.position as PageNumberPosition) ?? PAGE_NUMBER_DEFAULTS.position,
-    format: (slice.format as PageNumberFormat) ?? PAGE_NUMBER_DEFAULTS.format,
-    fontSize: (slice.fontSize as number) ?? PAGE_NUMBER_DEFAULTS.fontSize,
-    color: (slice.color as Rgb) ?? PAGE_NUMBER_DEFAULTS.color,
-    margin: (slice.margin as number) ?? PAGE_NUMBER_DEFAULTS.margin,
-    startNumber: (slice.startNumber as number) ?? PAGE_NUMBER_DEFAULTS.startNumber,
-    firstPage: (slice.firstPage as number) ?? PAGE_NUMBER_DEFAULTS.firstPage,
-  };
-}
-
-/** The page-number string for one page — mirrors the format switch in the burn. */
-function formatPageNumber(format: PageNumberFormat, displayNum: number, lastNum: number): string {
-  switch (format) {
-    case "Page 1":
-      return `Page ${displayNum}`;
-    case "1 / N":
-      return `${displayNum} / ${lastNum}`;
-    case "Page 1 of N":
-      return `Page ${displayNum} of ${lastNum}`;
-    default:
-      return `${displayNum}`;
-  }
-}
-
-export function PageNumbersStage() {
-  const { doc, selectedPage } = useEditorRead();
-  const o = readPageNumbers(useToolSlice(PAGE_NUMBERS_TOOL_ID));
-  const page = doc?.pages[selectedPage] ?? null;
-  const widthPt = page?.widthPt ?? 0;
-  const total = doc?.pageCount ?? 1;
-  const { position, format, fontSize, margin, startNumber, firstPage } = o;
-  const { r, g, b } = o.color;
-  const paintOverlay = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-      if (widthPt <= 0) return;
-      // Pages before `firstPage` carry no number (the cover-skip), so the preview
-      // shows nothing there either.
-      if (selectedPage < firstPage - 1) return;
-      const displayNum = selectedPage - (firstPage - 1) + startNumber;
-      const lastNum = total - firstPage + startNumber;
-      const text = formatPageNumber(format, displayNum, lastNum);
-      const { isTop, align } = splitPosition(position);
-      paintStampText(ctx, w, h, w / widthPt, {
-        text,
-        fontSizePt: fontSize,
-        marginPt: margin,
-        isTop,
-        align,
-        color: { r, g, b },
-        fontFamily: HELVETICA,
-      });
-    },
-    [
-      widthPt,
-      selectedPage,
-      firstPage,
-      startNumber,
-      total,
-      format,
-      position,
-      fontSize,
-      margin,
-      r,
-      g,
-      b,
-    ],
-  );
-  useStageProps({ paintOverlay });
-  return null;
-}
-
-export function PageNumbersPanel() {
-  const { applyTransform, patchToolState } = useEditorActions();
-  const o = readPageNumbers(useToolSlice(PAGE_NUMBERS_TOOL_ID));
-  const set = (p: Partial<PageNumberOptions>) => patchToolState(PAGE_NUMBERS_TOOL_ID, p);
-  return (
-    <WholeDocPanel
-      blurb="Stamp page numbers in a corner of every page."
-      applyLabel="Add page numbers"
-      onApply={() =>
-        void applyTransform(async (d) => ({
-          bytes: await addPageNumbers(docToFile(d), o),
-          label: "Page numbers",
-        }))
-      }
-    >
-      <PositionGrid value={o.position} onChange={(position) => set({ position })} />
-      <Labeled label="Format">
-        <Segmented<PageNumberFormat>
-          value={o.format}
-          onChange={(format) => set({ format })}
-          options={[
-            { value: "1", label: "1" },
-            { value: "Page 1", label: "Page 1" },
-            { value: "1 / N", label: "1 / N" },
-            { value: "Page 1 of N", label: "of N" },
-          ]}
-        />
-      </Labeled>
-      <ColorRow value={o.color} onChange={(color) => set({ color })} />
-      <RangeField
-        label="Size"
-        value={o.fontSize}
-        min={8}
-        max={24}
-        suffix="pt"
-        onChange={(fontSize) => set({ fontSize })}
-      />
-      <RangeField
-        label="Margin"
-        value={o.margin}
-        min={12}
-        max={72}
-        suffix="pt"
-        onChange={(margin) => set({ margin })}
-      />
-    </WholeDocPanel>
-  );
 }
 
 // ── Header & footer ──────────────────────────────────────────────────────────

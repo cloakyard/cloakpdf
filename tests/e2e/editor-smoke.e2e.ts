@@ -471,9 +471,11 @@ async function main() {
     if (!pnBtn) fail("Page numbers rail tool not found.");
     await pnBtn.click();
     await waitForText(page, /Add page numbers/i, 5_000);
+    await page.waitForSelector(".pdf-numbering-panel .air-button--primary:not(:disabled)", {
+      timeout: 10_000,
+    });
     if (!(await clickByText(page, "Add page numbers"))) fail("Page numbers Apply not found.");
-    await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add page numbers/i, 60_000);
+    await waitForText(page, /No pending numbers/i, 60_000);
     console.log("  ✓ stamp-family apply (page numbers)");
 
     // 11. Fill form: the fixture has no AcroForm, so the reader reports it.

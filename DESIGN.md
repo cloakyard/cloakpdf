@@ -1219,3 +1219,22 @@ journeys across all apps; it is not inferred from the pilot alone.
   before Undo. Start another stamp explicitly re-arms the settings. Keep busy focus
   in the panel and mobile Done open until success. Preserve existing text, metadata,
   attachments and visible-page geometry. A watermark is not redaction.
+
+- Page numbers uses the shared six-position grid, custom Air format menu and colour
+  picker. Keep the 3×2 spatial layout, named 44px cells and a neutral selected surface
+  with a blue marker. Full format names remain visible in the menu. The same grid
+  serves Bates; do not fork it for another numbering tool.
+- Stamp and Page numbers share one precision-field adapter and its styling. Keep
+  16px between numeric rows, including rows without sliders. First page and Start at
+  use whole-number entry; Size and Margin pair entry with a slider. Preserve invalid
+  drafts through tool/layout changes, show field-associated errors after blur and
+  preview the last valid settings while preventing Apply. First page skips earlier
+  PDF pages; Start at chooses the initial label. Totals show the last sequence label.
+- Use one formatter for page-number preview and output. Validate the sequence,
+  dimensions and actual text fit on every visible page, including mixed sizes,
+  rotation, CropBox and UserUnit. Report the page that cannot fit; never silently
+  clip numbers or change the working PDF on failure. Preserve text and catalog data.
+- Scope the pending numbering preview to exact document bytes. Await Apply/mobile
+  Done, retain failed drafts and prevent duplicate saves. Retire successful previews
+  before Undo; Start another numbering explicitly re-arms them. Keep busy focus in
+  Page number settings. Cancel restores the tool checkpoint.

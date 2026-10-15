@@ -1,0 +1,584 @@
+
+## check
+
+pass: All 338 files are correctly formatted (504ms, 12 threads)
+pass: Found no warnings, lint errors, or type errors in 261 files (812ms, 12 threads)
+
+
+## dead
+
+$ knip
+
+
+## unit
+
+$ pnpm test:unit
+$ vp test run tests/unit
+
+ RUN  v5.0.3 /Users/sumitsahoo/Developer/cloakpdf
+
+
+ Test Files  43 passed (43)
+      Tests  412 passed (412)
+   Start at  16:04:56
+   Duration  1.21s (import 44%, tests 33%, transform 21%, worker 2%)
+
+    Isolate  43 workers spawned · ~89ms startup each (spawn + environment, per file)
+             at least ~259ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+
+## build
+
+$ tsc && vp build && node scripts/check-deploy-assets.mjs
+transforming...
+✓ 3409 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/manifest.webmanifest                            0.97 kB
+dist/pdfjs-wasm/quickjs-eval.js                      6.23 kB
+dist/index.html                                      8.06 kB │ gzip:     2.68 kB
+dist/pdfjs-wasm/qcms_bg.wasm                        96.58 kB │ gzip:    36.09 kB
+dist/pdfjs-wasm/jbig2.wasm                         103.67 kB │ gzip:    41.64 kB
+dist/pdfjs-wasm/jbig2_nowasm_fallback.js           152.00 kB
+dist/pdfjs-wasm/openjpeg.wasm                      251.13 kB │ gzip:    82.95 kB
+dist/assets/crypto.worker-oBiLFzk4.js              285.13 kB
+dist/pdfjs-wasm/openjpeg_nowasm_fallback.js        445.78 kB
+dist/pdfjs-wasm/quickjs-eval.wasm                  469.10 kB │ gzip:   220.69 kB
+dist/assets/pdf.worker.min-CGwSHl62.js           1,178.00 kB
+dist/assets/liteparse_wasm_bg-C_TgrK-M.wasm      5,534.81 kB │ gzip: 2,642.50 kB
+dist/assets/index-BJ_ezxYb.css                     145.95 kB │ gzip:    25.47 kB
+dist/assets/pdfjs-config-B5pwv-IP.js                 0.03 kB │ gzip:     0.05 kB
+dist/assets/pdf.worker.min-ByhRvint.js               0.05 kB │ gzip:     0.07 kB
+dist/assets/liteparse_wasm_bg-Dqj0BIHi.js            0.06 kB │ gzip:     0.08 kB
+dist/assets/pdf.worker.min-Ru_NuOqn.js               0.07 kB │ gzip:     0.08 kB
+dist/assets/persistence-DVukQlLu.js                  0.08 kB │ gzip:     0.09 kB
+dist/assets/check-BRZAa9v3.js                        0.16 kB │ gzip:     0.16 kB
+dist/assets/chevron-left-CldM7bZg.js                 0.16 kB │ gzip:     0.16 kB
+dist/assets/arrow-down-P3kEzwJ4.js                   0.20 kB │ gzip:     0.18 kB
+dist/assets/eye-Cd5vlacM.js                          0.29 kB │ gzip:     0.22 kB
+dist/assets/triangle-alert-CWAWMi6p.js               0.32 kB │ gzip:     0.25 kB
+dist/assets/LoadingState-VV0KrMrL.js                 0.35 kB │ gzip:     0.26 kB
+dist/assets/eye-off-Ce_cA0cZ.js                      0.46 kB │ gzip:     0.29 kB
+dist/assets/AlertBox-CB47VTJU.js                     0.53 kB │ gzip:     0.35 kB
+dist/assets/useAsyncProcess-C6A-6Aa_.js              0.57 kB │ gzip:     0.36 kB
+dist/assets/FileInfoBar-9sN7-q0H.js                  0.57 kB │ gzip:     0.32 kB
+dist/assets/SegmentedControl-6MC9EEWj.js             0.58 kB │ gzip:     0.38 kB
+dist/assets/ProgressBar-BEj2T9Vz.js                  0.72 kB │ gzip:     0.40 kB
+dist/assets/usePdfFile-COmhSF_h.js                   1.21 kB │ gzip:     0.56 kB
+dist/assets/PagePreviewNav-DUmEN8jV.js               1.25 kB │ gzip:     0.67 kB
+dist/assets/rolldown-runtime-C0FnF6B9.js             1.29 kB │ gzip:     0.71 kB
+dist/assets/preload-helper-DjzSQ1t3.js               1.38 kB │ gzip:     0.75 kB
+dist/assets/pages-CnWc0kXi.js                        1.51 kB │ gzip:     0.71 kB
+dist/assets/pdf-BXJlsFtq.js                          1.69 kB │ gzip:     0.86 kB
+dist/assets/ActionButton-Cnf3-aig.js                 1.80 kB │ gzip:     0.84 kB
+dist/assets/zip-aWvN4PZo.js                          2.12 kB │ gzip:     0.80 kB
+dist/assets/pdf-renderer-B2ikJjzh.js                 2.32 kB │ gzip:     1.09 kB
+dist/assets/MergePdf-BP4FIMcC.js                     2.67 kB │ gzip:     1.29 kB
+dist/assets/ImagesToPdf-xDvEx67t.js                  2.76 kB │ gzip:     1.35 kB
+dist/assets/x-CgNMXXYu.js                            4.04 kB │ gzip:     1.51 kB
+dist/assets/workbox-window.prod.es5-Bd17z0YL.js      5.65 kB │ gzip:     2.20 kB
+dist/assets/pdf-security-DW9kNWB-.js                 7.62 kB │ gzip:     2.90 kB
+dist/assets/ExtractImages-jJ0suCZi.js                8.56 kB │ gzip:     3.53 kB
+dist/assets/ai-runtime-CXI3YOgS.js                   8.86 kB │ gzip:     3.84 kB
+dist/assets/PdfPassword-DWMapQE1.js                  9.23 kB │ gzip:     3.40 kB
+dist/assets/FileQueue-j7cfzhVY.js                    9.25 kB │ gzip:     3.47 kB
+dist/assets/tools-C_pwD368.js                       11.13 kB │ gzip:     4.05 kB
+dist/assets/ComparePdf-DV-F6bRe.js                  11.20 kB │ gzip:     4.15 kB
+dist/assets/FileDropZone-DMsvnU0R.js                15.76 kB │ gzip:     6.29 kB
+dist/assets/src-SuYvKHvm.js                         17.24 kB │ gzip:     7.31 kB
+dist/assets/liteparse_wasm-D_acwmzc.js              17.60 kB │ gzip:     5.30 kB
+dist/assets/pii-Rcd5POzM.js                         20.95 kB │ gzip:     8.52 kB
+dist/assets/motion-GfrT_rPm.js                      69.32 kB │ gzip:    24.32 kB
+dist/assets/index-1Le88bbW.js                      243.92 kB │ gzip:    76.48 kB
+dist/assets/DigitalSignature-CCt6K6Wu.js           304.07 kB │ gzip:    81.97 kB
+dist/assets/EditorView-tcgoGNRz.js                 307.60 kB │ gzip:    94.92 kB
+dist/assets/pdf-CvFqGNBB.js                        430.11 kB │ gzip:   129.25 kB
+dist/assets/dist-CgTZq2o6.js                       525.50 kB │ gzip:   223.82 kB
+dist/assets/transformers.web-CnQw8zBb.js           527.00 kB │ gzip:   147.17 kB
+dist/assets/persistence-CSUh-YYs.js                540.53 kB │ gzip:   141.29 kB
+dist/assets/AskPdf-D3iJx3kG.js                     589.97 kB │ gzip:   177.63 kB
+dist/assets/pdf-operations-BT2fobCb.js             750.40 kB │ gzip:   343.56 kB
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 794ms
+
+PWA v2.0.0
+mode      generateSW
+precache  77 entries (6645.01 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-c06bacfd.js
+Deployment asset check passed: 128 files, all <= 25 MiB.
+
+
+## focused
+
+Page numbers: six positions/custom format menu, sequence/precision validation and persistence, PDF output/text/catalog, Apply/Undo ownership, mobile failure/wait/retry/Cancel, 44 layout regions, 12 enlarged-text cases, forced colours and reduced motion passed.
+
+
+## stamp
+
+Stamp: token/caret ownership, numeric validation, vector PDF output/catalog/text, bounded stable raster, draft retirement/Undo, mobile failure/wait/retry/Cancel, metadata retry, 44 layout regions and 12 enlarged-text cases passed.
+
+
+## geometry
+
+{
+  "pages": 12,
+  "metrics": [
+    {
+      "operation": "annotations",
+      "pages": 12,
+      "referenceBounds": [
+        39,
+        44,
+        279,
+        231
+      ]
+    },
+    {
+      "operation": "signature",
+      "pages": 12,
+      "referenceBounds": [
+        60,
+        152,
+        179,
+        199
+      ]
+    },
+    {
+      "operation": "qr",
+      "pages": 12,
+      "referenceBounds": [
+        89,
+        99,
+        150,
+        160
+      ]
+    },
+    {
+      "operation": "barcode",
+      "pages": 12,
+      "referenceBounds": [
+        89,
+        90,
+        190,
+        166
+      ]
+    },
+    {
+      "operation": "watermark",
+      "pages": 12,
+      "referenceBounds": [
+        181,
+        134,
+        227,
+        172
+      ]
+    },
+    {
+      "operation": "seal",
+      "pages": 12,
+      "referenceBounds": [
+        159,
+        117,
+        240,
+        182
+      ]
+    },
+    {
+      "operation": "numbers",
+      "pages": 12,
+      "referenceBounds": [
+        371,
+        27,
+        374,
+        37
+      ]
+    },
+    {
+      "operation": "headers",
+      "pages": 12,
+      "referenceBounds": [
+        23,
+        26,
+        377,
+        280
+      ]
+    },
+    {
+      "operation": "bates",
+      "pages": 12,
+      "referenceBounds": [
+        22,
+        268,
+        70,
+        277
+      ]
+    },
+    {
+      "operation": "flat-form",
+      "pages": 12,
+      "referenceBounds": [
+        62,
+        126,
+        108,
+        135
+      ]
+    },
+    {
+      "operation": "crop and pending marks",
+      "pages": 12
+    },
+    {
+      "operation": "erase/redact then vector placement",
+      "pages": 12
+    }
+  ]
+}
+PASS 48 responsive rotated-page layouts; no page errors.
+
+
+## smoke
+
+$ node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.e2e.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.e2e.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts && node --experimental-strip-types tests/e2e/export-dialog.e2e.ts && node --experimental-strip-types tests/e2e/ai-modal-states.e2e.ts && node --experimental-strip-types tests/e2e/ask-pdf-chat.e2e.ts && node --experimental-strip-types tests/e2e/editor-navigation.e2e.ts && node --experimental-strip-types tests/e2e/editor-collections.e2e.ts && node --experimental-strip-types tests/e2e/editor-canvas.e2e.ts && node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts
+
+→ Merge PDFs
+  ✓ sorted removal/undo restores keyboard focus and original manual order
+  ✓ uploaded 4 PDFs; merged.pdf has 24 pages
+
+→ Images to PDF
+  ✓ uploaded 2 shipped PNG assets; images.pdf has 2 pages
+
+→ Extract Images
+  ✓ keyboard selection, full-resolution PNG, all 3 images and partial ZIPs preserve bytes/order; empty result and intake focus pass
+  ✓ ZIP failure/retry retains selection; cancelling a measured scan releases the worker/canvas and cannot replace newer results
+
+→ PDF Password
+  ✓ AES-256/permissions, visibility/mismatch recovery, wrong-password retry, source-stream fidelity and unlock-to-editor pass
+  ✓ Empty-password PDF unlock remains supported
+  ✓ Cancelling detection preserves the newer file and restores intake focus
+
+→ Compare PDFs
+  ✓ identical pixels/overlay; changed content and page geometry; missing page; keyboard navigation; source preservation; reset/replacement/unmount URL cleanup; encrypted/corrupt input; cancel and retry
+
+→ Digital Signature
+  ✓ generated signature verifies with OpenSSL CMS; source streams and reopened metadata survive; editing identity invalidates the old certificate
+  ✓ imported PKCS#12 chain, wrong-password retry, visibility and empty-password certificate produce independently verified output
+  ✓ malformed certificate recovery, import cancellation/replacement and real-worker cancellation/retry preserve input and focus
+
+✓ All 6 non-AI standalone tools passed their headless browser workflows.
+→ Loading http://127.0.0.1:8132
+  ✓ home drop zone → editor (focus page rendered)
+  ✓ merge → editor hand-off (focus page rendered)
+✓ Home routing smoke passed — editor-card preselect + constructor hand-off.
+  ✓ 320px search stays anchored, ranked, and overflow-free
+  ✓ 375px search stays anchored, ranked, and overflow-free
+  ✓ 414px search stays anchored, ranked, and overflow-free
+  ✓ 768px search stays anchored, ranked, and overflow-free
+  → checking shortcut and singular result copy
+✓ Landing search refinement passed.
+→ Loading http://127.0.0.1:8132
+  ✓ density control (single ↔ grid)
+  ✓ strip furniture detect + trim (crop) apply
+  ✓ redact deferred — repeated find, box-colour pickers wired (no burn)
+  ✓ annotate draw
+  ✓ annotate text box (draw → type → commit)
+  ✓ crop drag + apply
+  ✓ signature place + apply
+  ✓ find & act search + highlight apply
+  ✓ smart erase draw (deferred mark)
+  ✓ OCR panel mounts (engine not run)
+  ✓ organize delete + apply (33 → 32 pages)
+  ✓ whole-doc apply (n-up)
+  ✓ metadata + scrub panels load
+  ✓ merged organize (reverse/extract/blank quick actions)
+  ✓ stamp-family apply (page numbers)
+  ✓ fill-form reads fields (empty)
+  ✓ bookmarks add + apply
+  ✓ bookmarks contents page apply
+  ✓ attachments panel loads
+  ✓ export modal · contact sheet → multipage_contact-sheet.pdf
+  ✓ export modal · grayscale → multipage_grayscale.pdf
+  ✓ export modal · text → multipage.txt
+  ✓ export modal · markdown (liteparse native, 30719 chars) → multipage.md
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+→ Loading http://127.0.0.1:8132 (390×844 mobile)
+  ✓ mobile sheet entry (no desktop rail)
+  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)
+  ✓ annotate burn via global ✓
+  ✓ find & act burn via global ✓
+  ✓ page numbers via global ✓
+  ✓ metadata save via global ✓ (secondary action kept)
+  ✓ redact deferred — mark persists across ✓, no burn
+  ✓ render sweep — 12 tools mount in the sheet (✓/✗, 50:50)
+  ✓ organize delete + apply via global ✓ (33 → 32 pages)
+  ✓ OCR enabled on mobile (Extract visible, scrollable body)
+  ✓ export sheet · markdown (liteparse native, 26937 chars) → multipage.md
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+→ Testing 3 fixtures: multipage.pdf, sample-invoice.pdf, sample.pdf
+  ✓ multipage.pdf (33 pages)
+  ✓ sample-invoice.pdf (1 pages)
+  ✓ sample.pdf (4 pages)
+✓ editor-features passed on all 3 fixtures.
+  ✓ annotation Arrow keys nudge without panning; burst is one undo step
+  ✓ Delete removes the selected annotation from the focused canvas
+  ✓ unhandled Arrow pans; + zooms; 0 resets the viewport
+  ✓ pinch zoom is damped and follows simultaneous two-finger pan
+  ✓ middle-button drag pans without switching or firing the active tool
+  ✓ top-bar controls cannot be overwritten by a late wheel commit
+  ✓ a 12-event wheel burst measures layout once and stays compositor-driven
+  ✓ trackpad zoom stays anchored; overscroll remains reachable; background pinch recovers the view
+  ✓ date/time disclosure semantics and shorter-month focus clamp
+  ✓ custom colour exposes independent saturation and brightness controls
+  ✓ pinch and simultaneous pan remain natural in the mobile editor layout
+✓ editor keyboard interactions passed
+→ Loading http://127.0.0.1:8132
+  ✓ editor opened
+✓ commands: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ filtered: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ empty: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+  ✓ 192 layout/theme/text cases · query persistence · wrap navigation · IME · clear/no-results · forced colours
+  ✓ rail Search opens palette · Escape closes (screenshot → /tmp/command-palette.png)
+  ✓ ⌘K toggles palette open/closed
+  ✓ ⌘K search → Enter selects the Crop tool
+  ✓ name-first ranking: Page numbers tops the desc match (Strip furniture)
+  ✓ apply page numbers → Undo enabled
+  ✓ ⌘Z undo (Undo→disabled, Redo→enabled)
+  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)
+  ✓ palette Undo, Redo and Reset actions update real editor history
+  ✓ selecting a bottom tool auto-scrolls it into view
+✓ Command palette + keyboard shortcuts passed.
+  ✓ 320px palette/export bounds, focus, and single-stack ownership
+  ✓ 375px palette/export bounds, focus, and single-stack ownership
+  ✓ 414px palette/export bounds, focus, and single-stack ownership
+  ✓ 768px palette/export bounds, focus, and single-stack ownership
+  ✓ 1280px palette/export bounds, focus, and single-stack ownership
+  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates
+  ✓ AI details and consent dialogs share modal ownership
+→ Checking partial-cache return…
+  · Reloaded test page
+  · Partial-cache setup visible
+  ✓ Selected tier persists; a partial-cache return waits for explicit download
+  ✓ Landscape/portrait tool access retains controls without an orientation gate
+✓ Shared modal system passed.
+✓ export-pdf-options: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Native format/quality groups have one Tab stop, arrow keys and persistent choices; plain PDF bytes are exact
+✓ export-preparing: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Busy state retains focus and blocks editing/dismissal/duplicate work; split ZIP contains two valid single-page PDFs
+✓ export-images: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Images preserve 150 DPI dimensions; contact sheet, text and Markdown contain both pages in order
+✓ export-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Failure keeps options and focus, cleans up its download anchor, and retries successfully with metadata removed
+→ Export option Flatten
+→ Export option Grayscale
+→ Export option Repair
+→ Export option Compress / low
+→ Export option Compress / medium
+→ Export option Compress / high
+✓ Flatten, grayscale, repair, all three compression levels and combined options produce valid PDFs without changing source/history
+✓ All six formats burn pending redaction; PDF streams contain no original text, PNG pixels retain the redaction ink, OCR exports cannot recover the covered text
+✓ export-long-name: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Long filenames reflow at every viewport/theme/text size; reduced-motion reopen is immediate
+✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+✓ Pointer motion, exit ownership, immediate keyboard/reduced-motion and reopen
+✓ delete-confirmation: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Safe delete cancellation preserves storage and returns focus
+✓ cache failure remains actionable without false success
+✓ index failure remains actionable without false success
+✓ Retry removes real CacheStorage, committed IDB records and readiness flags
+✓ Cancelled cached loading stays idle and permits explicit reload
+✓ loading: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ download-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Download errors stay at actual ready count; Retry and Cancel recover
+✓ indexing: 64 size/theme/text cases
+✓ index-error: 64 size/theme/text cases
+✓ no-text: 64 size/theme/text cases
+✓ empty: 64 size/theme/text cases
+✓ answer-error: 64 size/theme/text cases
+✓ answer: 64 size/theme/text cases
+✓ long-content: 64 size/theme/text cases
+✓ Explicit indexing retry; IME, Shift+Enter and limits; guarded send; partial recovery; draft/focus retention; real source bytes; safe markdown; scroll ownership; obsolete-result isolation; source URL cleanup; reduced motion/forced colours
+PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+PASS: 68 canvas layouts; 36px brand; selection colours; composition/focus/multiline/touch editing.
+  ✓ desktop landing motion
+  ✓ tablet landscape landing motion
+  ✓ tablet portrait landing motion
+  ✓ mobile landing motion
+  ✓ small mobile landing motion
+  ✓ mobile landscape landing motion
+  ✓ desktop editor motion
+  ✓ tablet landscape editor motion
+  ✓ tablet portrait editor motion
+  ✓ mobile editor motion
+  ✓ small mobile editor motion
+  ✓ mobile landscape editor motion
+  ✓ reduced-motion profile
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+
+
+## extended
+
+$ node --experimental-strip-types tests/e2e/rotate.e2e.ts && node --experimental-strip-types tests/e2e/compress.e2e.ts && node --experimental-strip-types tests/e2e/signature-pen.e2e.ts && node --experimental-strip-types tests/e2e/annotate-fonts.e2e.ts && node --experimental-strip-types tests/e2e/stamp-preview.e2e.ts && node --experimental-strip-types tests/e2e/place-resize.e2e.ts && node --experimental-strip-types tests/e2e/place-resize-mobile.e2e.ts
+  ✓ export warns about unapplied page changes
+  ✓ rotate + apply bakes /Rotate = 90 into the export
+  ✓ second rotate + apply compounds to 180 (no stale double-apply)
+✓ Rotation smoke passed — bake, no stale compounding, export warns when pending.
+
+demo/single.pdf  (original 3.9 KB, 1507 chars)
+  low     →      3.3 KB  (14.8% smaller, text 100%)
+  medium  →      3.3 KB  (14.8% smaller, text 100%)
+  high    →      3.3 KB  (14.8% smaller, text 100%)
+
+demo/multipage.pdf  (original 12.3 KB, 6028 chars)
+  low     →     11.1 KB  (10.0% smaller, text 100%)
+  medium  →     11.1 KB  (10.0% smaller, text 100%)
+  high    →     11.1 KB  (10.0% smaller, text 100%)
+
+demo/text.pdf  (original 46.4 KB, 24310 chars)
+  low     →     42.5 KB  (8.3% smaller, text 100%)
+  medium  →     42.5 KB  (8.3% smaller, text 100%)
+  high    →     42.5 KB  (8.3% smaller, text 100%)
+
+demo/scanned.pdf  (original 6829.7 KB, 0 chars)
+  low     →   1141.3 KB  (83.3% smaller, text —%)
+  medium  →    345.1 KB  (94.9% smaller, text —%)
+  high    →    103.5 KB  (98.5% smaller, text —%)
+
+✓ Compress smoke passed — guard holds, text preserved, images crushed.
+→ Loading http://127.0.0.1:8122
+  ✓ editor → Signature → Realistic ink on
+  ✓ stylus (pen) draws with pressure-varying weight
+  ✓ mouse / touchpad draws (speed fallback)
+  ✓ touch (finger) draws
+  ✓ palm rejection: stray finger ignored while pen draws
+✓ Signature pen/mouse/touch input passed.
+→ Loading http://127.0.0.1:8122
+  ✓ editor → Annotate → Text
+  ✓ font picker lists 14 families incl. embedded ones
+  ✓ placed Roboto + underline text → /tmp/annotate-font.png
+   embedded BaseFonts: ["PFYGET+JetBrainsMono-Regular","PFYGET+AnthropicSansVariable-TextLight","PFYGET+AnthropicSerifVariable-TextLight","PFYGET+AnthropicSerifVariable-TextLightItalic","PFYGET+JetBrainsMono-Medium","Roboto-Regular-9742"]
+  ✓ export embeds a Roboto subset → multipage_edited.pdf
+✓ Annotate fonts + underline passed.
+  ✓ stamp watermark live preview paints (7318 px)
+  ✓ preview clears on tool switch (0 px)
+✓ Stamp preview smoke passed — paints live, clears on switch.
+  ✓ signature Size slider removed
+  ✓ signature placed (corner handles drawn)
+  ✓ signature corner-resize (still 1 signature)
+  ✓ signature background toggle + colour
+  ✓ signature apply (embedded, object dropped)
+  ✓ QR placed
+  ✓ QR corner-resize (still 1 code)
+  ✓ QR apply (vector burn, object dropped)
+✓ place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-n1e3xz
+  ✓ mobile signature place + corner-resize (no slider, 50:50 split)
+  ✓ mobile signature apply (global ✓)
+  ✓ mobile QR place + corner-resize
+✓ mobile place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-m-yAkUKj
+
+
+## design
+
+$ node scripts/check-air-design.mjs
+Air contract and 89 inventory records are valid. Runtime conformance is audited separately.
+
+
+## portability
+
+$ node scripts/check-air-portability.mjs
+{
+  "product": "cloakpdf",
+  "checks": [
+    "isolated bundle passes with no dependencies or sibling files",
+    "missing light lifecycle hash rejected",
+    "altered light lifecycle rejected",
+    "unsynchronized canonical source rejected when present",
+    "bundle paired with a different contract rejected",
+    "mismatched document version rejected",
+    "missing motion hash rejected",
+    "altered motion module rejected",
+    "missing overlay bundle hash rejected",
+    "altered overlay module rejected",
+    "missing reading/recovery behavior hash rejected",
+    "altered reading page rejected",
+    "missing file lifecycle behavior hash rejected",
+    "altered file study rejected",
+    "altered collection study rejected",
+    "missing manifest rejected",
+    "restored bundle passes"
+  ],
+  "files": 22,
+  "fixture": null
+}
+
+
+## sync-final
+
+Verified six portable Air specifications (201f7c381b5f).
+
+
+## root-check
+
+pass: All 115 files are correctly formatted (584ms, 12 threads)
+pass: Found no warnings or lint errors in 41 files (113ms, 12 threads)
+
+
+## root-build
+
+$ vp build
+transforming...
+✓ 1909 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               3.08 kB │ gzip:   0.98 kB
+dist/air-light.LICENSE.txt                   15.86 kB │ gzip:   4.72 kB
+dist/assets/index-CEDT5jNx.css               45.19 kB │ gzip:   8.72 kB
+dist/assets/index-BaTGC3uZ.js               240.18 kB │ gzip:  75.59 kB
+dist/assets/air-light-shader-VlzniAjj.js  1,261.69 kB │ gzip: 294.30 kB
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 363ms
+
+
+## root-design
+
+Air contract and 13 inventory records are valid. Runtime conformance is audited separately.
+
+
+## root-portability
+
+{
+  "product": "cloakyard",
+  "checks": [
+    "isolated bundle passes with no dependencies or sibling files",
+    "missing light lifecycle hash rejected",
+    "altered light lifecycle rejected",
+    "unsynchronized canonical source rejected when present",
+    "bundle paired with a different contract rejected",
+    "mismatched document version rejected",
+    "missing motion hash rejected",
+    "altered motion module rejected",
+    "missing overlay bundle hash rejected",
+    "altered overlay module rejected",
+    "missing reading/recovery behavior hash rejected",
+    "altered reading page rejected",
+    "missing file lifecycle behavior hash rejected",
+    "altered file study rejected",
+    "altered collection study rejected",
+    "missing manifest rejected",
+    "restored bundle passes"
+  ],
+  "files": 22,
+  "fixture": null
+}

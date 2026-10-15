@@ -1,3 +1,4 @@
+import * as PageNumbers from "./panels/PageNumbersTool.tsx";
 // registry.tsx — Binds editor tool ids to their implementation: an optional
 // Stage (canvas interaction, registers via useStageProps; focus tools only)
 // and a Panel (right-side options). This is the id → {Stage, Panel} map the
@@ -30,8 +31,6 @@ import {
   BatesStage,
   HeaderFooterPanel,
   HeaderFooterStage,
-  PageNumbersPanel,
-  PageNumbersStage,
 } from "./panels/StampTools.tsx";
 import { NupPanel } from "./panels/NupTool.tsx";
 
@@ -68,7 +67,7 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
   "pdf-scrub": { Panel: Scrub.Panel },
   // Content-additive stamp-family tools — each paints a live preview on the
   // focused page (Stage) before Apply burns the same text into the bytes.
-  "add-page-numbers": { Stage: PageNumbersStage, Panel: PageNumbersPanel },
+  "add-page-numbers": { Stage: PageNumbers.Stage, Panel: PageNumbers.Panel },
   "header-footer": { Stage: HeaderFooterStage, Panel: HeaderFooterPanel },
   "bates-numbering": { Stage: BatesStage, Panel: BatesPanel },
   // QR / barcode: place on the page (tap), drag to move, corner-drag to resize;

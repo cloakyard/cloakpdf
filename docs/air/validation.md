@@ -1521,3 +1521,46 @@ its checks log and desktop/mobile/enlarged-text images. The captured document sh
 an applied APPROVED stamp plus a pending CONFIDENTIAL stamp, deliberately distinct
 from an accidentally doubled preview. Next: Page numbers, Header & footer, Bates,
 then remaining panels and shell feedback. PDF/family migration is not complete.
+
+## 2026-10-15 — Page numbers and shared precision controls
+
+Page numbers has a dedicated Air panel: spatial 3×2 position picker, custom format
+menu, colour, precise numeric fields and sliders. First page and Start at expose
+existing writer capabilities with clear sequence semantics. Invalid raw values
+survive layout/tool changes; associated errors appear after blur and Apply stays
+unavailable. Preview/output share one formatter. Writer validation rejects invalid
+sequences/dimensions and identifies the exact mixed-size page where text cannot fit.
+
+Apply/mobile Done awaits output, preserves failed drafts, retains panel focus and
+retires the byte-scoped preview before Undo. Explicit Start another numbering
+re-arms settings; Cancel restores the checkpoint. PDF.js verifies skipped covers,
+custom initial labels, selectable text, metadata and attachments; unit/output
+checks cover rotation, CropBox, UserUnit, small pages and unchanged source bytes.
+
+Stamp and Page numbers now share PrecisionField. Inspection caught missing spacing
+between nested numeric rows; both groups now have explicit 16px separation. Bates
+uses the same revised position grid. Removed old PageNumbers UI/painter/default
+reader, duplicate formatting and Stamp-specific numeric styles. Remaining legacy
+controls still serve Header/footer and Bates; they are not dead code. No dependency
+added. Editor 307.60 kB raw / 94.92 kB gzip (+1.87); CSS 145.95 / 25.47 (-0.03 gzip).
+
+Validation passes: format/lint/types, dead code, **412 units in 43 files**, build/PWA
+and asset limits, design inventory, exact synchronization and standalone portability.
+**26 distinct browser suites** pass: sixteen production smoke, seven extended, plus
+focused Page numbers, Stamp and page geometry. Legacy smoke clicked an initially
+disabled Apply button and waited for a transient spinner; it now waits for an
+enabled control and confirmed completion. The complete smoke rerun passes.
+
+Inspected all 44 Page numbers regions (eleven sizes × light/dark × two regions),
+twelve enlarged-text captures, forced colours and reduced motion. Focused Stamp
+regressions pass and its desktop/light and phone/dark numeric layouts were rechecked.
+Native Safari passed menu/validation/Apply/focus/Undo. Native Firefox passed the
+production build at actual 200% zoom; zoom reset and temporary native tabs closed.
+The in-app production tab holds a synthetic PDF with Page 1 of N pending for review.
+
+Evidence: `docs/air/evidence/page-numbers-2026-10-15.json`, three proof images and
+`page-numbers-2026-10-15-checks.log`; full layout captures remain in
+`/tmp/cloakpdf-air-review/numbers-*.png`. Canonical product rules and the portable
+DESIGN are synchronized; family Air 1.0.1 is unchanged. Physical touch/software
+keyboards, real OS IME and assistive speech remain open. Full PDF/family migration
+is unfinished. Next: Header & footer, then Bates and remaining shell states.

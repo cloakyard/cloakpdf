@@ -45,32 +45,31 @@ export function PositionGrid<T extends string>({
   onChange: (p: T) => void;
 }) {
   return (
-    <Labeled label="Position">
-      <div className="editor-control-grid grid grid-cols-3 gap-1 rounded-md border border-slate-200 p-1 dark:border-dark-border">
-        {POSITIONS.map((pos) => {
-          const on = value === (pos as string);
-          return (
-            <button
-              key={pos}
-              type="button"
-              onClick={() => onChange(pos as T)}
-              aria-label={pos.replace("-", " ")}
-              aria-pressed={on}
-              className={`flex h-8 items-center justify-center rounded-sm pointer-coarse:min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                on
-                  ? "bg-primary-600"
-                  : "bg-white hover:bg-slate-100 active:bg-slate-200/70 dark:bg-dark-bg dark:hover:bg-dark-surface-alt"
-              }`}
-            >
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${on ? "bg-white" : "bg-slate-400 dark:bg-dark-text-muted"}`}
-                aria-hidden="true"
+    <div className="pdf-property-field">
+      <span className="air-label">Position</span>
+      <div className="pdf-position-grid" role="group" aria-label="Position">
+        {POSITIONS.map((pos) => (
+          <button
+            key={pos}
+            type="button"
+            className="air-icon-button"
+            onClick={() => onChange(pos as T)}
+            aria-label={pos.replace("-", " ")}
+            title={pos.replace("-", " ")}
+            aria-pressed={value === pos}
+          >
+            <svg width="22" height="28" viewBox="0 0 22 28" fill="none" aria-hidden="true">
+              <rect x="1" y="1" width="20" height="26" stroke="currentColor" opacity="0.45" />
+              <path
+                d={`M${pos.endsWith("left") ? 4 : pos.endsWith("right") ? 12 : 8} ${pos.startsWith("top") ? 6 : 22}h6`}
+                stroke="currentColor"
+                strokeWidth="2"
               />
-            </button>
-          );
-        })}
+            </svg>
+          </button>
+        ))}
       </div>
-    </Labeled>
+    </div>
   );
 }
 

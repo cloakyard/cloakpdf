@@ -3435,8 +3435,8 @@ body:has(.pdf-site) {
   }
 }
 
-/* Stamp composition follows the portable precision-control contract. */
-.pdf-stamp-settings {
+/* Overlay tool composition and the shared Air precision controls. */
+.pdf-overlay-settings {
   border: 0;
   padding: 0;
   margin: 0;
@@ -3453,30 +3453,33 @@ body:has(.pdf-site) {
 .pdf-stamp-tokens .air-button {
   padding-inline: 12px;
 }
-.pdf-stamp-numbers {
+.pdf-stamp-numbers,
+.pdf-numbering-values {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
-.pdf-stamp-number {
+.pdf-precision {
   min-inline-size: 0;
 }
-.pdf-stamp-number__heading {
+.pdf-precision__heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
 }
-.pdf-stamp-number__heading .air-label {
+.pdf-precision__heading .air-label {
   margin: 0;
 }
-.pdf-stamp-number__value {
+.pdf-precision__value {
   margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--air-ink-secondary);
 }
-.pdf-stamp-number__value .air-field {
+.pdf-precision__value .air-field {
   appearance: textfield;
   inline-size: 5rem;
   min-block-size: 32px;
@@ -3484,14 +3487,14 @@ body:has(.pdf-site) {
   text-align: end;
   font-variant-numeric: tabular-nums;
 }
-.pdf-stamp-number__value > span {
+.pdf-precision__value > span {
   min-inline-size: 20px;
 }
-.pdf-stamp-range-track {
+.pdf-precision-track {
   position: relative;
   margin-block-start: 4px;
 }
-.pdf-stamp-range {
+.pdf-precision-range {
   appearance: none;
   display: block;
   background: transparent;
@@ -3501,17 +3504,17 @@ body:has(.pdf-site) {
   accent-color: var(--air-accent);
   cursor: pointer;
 }
-.pdf-stamp-range::-webkit-slider-runnable-track {
+.pdf-precision-range::-webkit-slider-runnable-track {
   height: 3px;
   border-radius: 999px;
   background: var(--air-line-control);
 }
-.pdf-stamp-range::-moz-range-track {
+.pdf-precision-range::-moz-range-track {
   height: 3px;
   border-radius: 999px;
   background: var(--air-line-control);
 }
-.pdf-stamp-range::-webkit-slider-thumb {
+.pdf-precision-range::-webkit-slider-thumb {
   appearance: none;
   width: 14px;
   height: 14px;
@@ -3520,23 +3523,23 @@ body:has(.pdf-site) {
   background: var(--air-surface);
   border: 1.5px solid var(--air-accent);
 }
-.pdf-stamp-range::-moz-range-thumb {
+.pdf-precision-range::-moz-range-thumb {
   width: 11px;
   height: 11px;
   border-radius: 50%;
   background: var(--air-surface);
   border: 1.5px solid var(--air-accent);
 }
-.pdf-stamp-range:focus-visible {
+.pdf-precision-range:focus-visible {
   outline: 2px solid var(--air-accent);
   outline-offset: 3px;
   border-radius: var(--air-radius-control);
 }
-.pdf-stamp-range:disabled {
+.pdf-precision-range:disabled {
   opacity: 0.5;
   cursor: default;
 }
-.pdf-stamp-neutral {
+.pdf-precision-neutral {
   position: absolute;
   left: 50%;
   top: calc(50% - 4px);
@@ -3546,26 +3549,47 @@ body:has(.pdf-site) {
   pointer-events: none;
 }
 @media (pointer: coarse) {
-  .pdf-stamp-number__value .air-field,
-  .pdf-stamp-range {
+  .pdf-precision__value .air-field,
+  .pdf-precision-range {
     min-block-size: 44px;
   }
 }
 @media (forced-colors: active) {
-  .pdf-stamp-range {
+  .pdf-precision-range {
     appearance: auto;
   }
 }
 
 @media (forced-colors: active) {
-  .pdf-stamp-settings .pdf-segments [aria-pressed="true"] {
+  .pdf-overlay-settings .pdf-segments [aria-pressed="true"] {
     outline: 2px solid Highlight;
     outline-offset: -4px;
   }
 }
 
-.pdf-stamp-number__value input::-webkit-inner-spin-button,
-.pdf-stamp-number__value input::-webkit-outer-spin-button {
+.pdf-precision__value input::-webkit-inner-spin-button,
+.pdf-precision__value input::-webkit-outer-spin-button {
   appearance: none;
   margin: 0;
+}
+
+.pdf-position-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.pdf-position-grid .air-icon-button {
+  inline-size: 100%;
+  min-block-size: 44px;
+  color: var(--air-ink-secondary);
+}
+.pdf-position-grid [aria-pressed="true"] {
+  color: var(--air-accent);
+  background: var(--air-surface-soft);
+}
+@media (forced-colors: active) {
+  .pdf-position-grid [aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -4px;
+  }
 }

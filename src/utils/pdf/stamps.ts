@@ -1,3 +1,4 @@
+import { pageNumberText, validatePageNumbers } from "./page-numbering.ts";
 /**
  * Overlay operations that draw onto pages: watermarks, seal/rectangle stamps,
  * signature placement, page numbers, headers/footers, and Bates numbering.
@@ -227,33 +228,18 @@ export async function addPageNumbers(file: File, options: PageNumberOptions): Pr
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const pages = pdf.getPages();
   const totalPages = pages.length;
-  // Last visible page number = totalPages - firstPage + startNumber
-  const lastPageNum = totalPages - options.firstPage + options.startNumber;
-
-  for (let i = 0; i < totalPages; i++) {
-    if (i < options.firstPage - 1) continue;
-
-    const displayNum = i - (options.firstPage - 1) + options.startNumber;
-
-    let text: string;
-    switch (options.format) {
-      case "Page 1":
-        text = `Page ${displayNum}`;
-        break;
-      case "1 / N":
-        text = `${displayNum} / ${lastPageNum}`;
-        break;
-      case "Page 1 of N":
-        text = `Page ${displayNum} of ${lastPageNum}`;
-        break;
-      default:
-        text = `${displayNum}`;
-    }
+  validatePageNumbers(options, totalPages);
+  for (let i = options.firstPage - 1; i < totalPages; i++) {
+    const text = pageNumberText(options, i + 1, totalPages);
 
     const page = pages[i];
     await drawOnVisiblePage(page, ({ width, height }) => {
       const textWidth = font.widthOfTextAtSize(text, options.fontSize);
       const { margin } = options;
+      if (textWidth + margin * 2 > width || margin * 2 + options.fontSize > height)
+        throw new Error(
+          `Page numbers don't fit on page ${i + 1}. Reduce the size or margin, or choose a shorter format.`,
+        );
 
       const isLeft = options.position === "top-left" || options.position === "bottom-left";
       const isRight = options.position === "top-right" || options.position === "bottom-right";
