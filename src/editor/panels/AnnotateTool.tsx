@@ -4,7 +4,7 @@
 // optional shape fill, and — for text — font family + Bold/Italic, size, and an
 // optional opaque background.
 //
-// Interaction model (REDESIGN follow-up):
+// Interaction model:
 //   • A default **Select** mode hit-tests existing marks: tap to select, drag to
 //     reposition, Delete/Backspace to remove, double-click a label to edit it.
 //   • Drawing/text tools are **arm-once**: placing one mark auto-returns to
@@ -87,7 +87,7 @@ import {
   resizeBBox,
   resizeBBoxAspect,
 } from "../resize-handles.ts";
-import { Labeled, RangeField, Toggle } from "./controls.tsx";
+import { PrecisionField } from "./PrecisionField.tsx";
 
 const TOOL_ID = "annotate-pdf";
 const DEFAULT_HEX = "#1e293b";
@@ -581,8 +581,7 @@ interface Editing {
 
 export function Stage() {
   const { doc, selectedPage } = useEditorRead();
-  const { addObject, moveObject, updateObject, commit, removeObject, patchToolState } =
-    useEditorActions();
+  const { addObject, moveObject, updateObject, removeObject, patchToolState } = useEditorActions();
   const setInlineEditor = useInlineEditor();
   const slice = useToolSlice(TOOL_ID);
   const mode = (slice.mode as Mode) ?? "select";
@@ -887,17 +886,19 @@ export function Stage() {
     resizeStartRef.current = null;
     setHoverHandle(null);
     setEditing(null);
-    patchToolState(TOOL_ID, { selectedId: undefined });
-  }, [selectedPage, patchToolState]);
-
-  // Sync a newly-selected label's style into the panel slice so the controls
-  // reflect (and edit) it. Only on selection change — panel edits don't re-fire.
-  const prevSelRef = useRef<string | undefined>(undefined);
+  }, [selectedPage]);
   useEffect(() => {
-    if (selectedId === prevSelRef.current) return;
-    prevSelRef.current = selectedId;
-    if (!selectedId) return;
-    const obj = docRef.current?.objects.find((o) => o.id === selectedId);
+    if (
+      selectedId &&
+      !doc?.objects.some((o) => o.id === selectedId && o.pageIndex === selectedPage)
+    )
+      patchToolState(TOOL_ID, { selectedId: undefined });
+  }, [doc, selectedId, selectedPage, patchToolState]);
+
+  // Keep inline text editing aligned with the selected object, including Undo.
+  const selectedObject = doc?.objects.find((o) => o.id === selectedId);
+  useEffect(() => {
+    const obj = selectedObject;
     const ann = obj?.payload as Annotation | undefined;
     if (!obj || ann?.kind !== "text") return;
     const ph = docRef.current?.pages[obj.pageIndex]?.heightPt ?? 0;
@@ -917,7 +918,7 @@ export function Stage() {
           }
         : {}),
     });
-  }, [selectedId, patchToolState]);
+  }, [selectedObject, patchToolState]);
 
   // Keyboard on the selected mark: Delete/Backspace removes it; arrow keys nudge
   // it for precise placement (Shift = bigger step). PdfStage calls this only
@@ -925,12 +926,14 @@ export function Stage() {
   // before viewport panning. Arrow nudges coalesce into one undo step (a burst
   // commits once the keys go idle, and on selection/tool teardown).
   const nudgeTimerRef = useRef<number | null>(null);
+  const pendingNudge = useRef<(() => void) | null>(null);
   const flushNudge = useCallback(() => {
     if (nudgeTimerRef.current == null) return;
     clearTimeout(nudgeTimerRef.current);
     nudgeTimerRef.current = null;
-    commit("Move annotation");
-  }, [commit]);
+    pendingNudge.current?.();
+    pendingNudge.current = null;
+  }, []);
   useEffect(() => () => flushNudge(), [selectedId, flushNudge]);
 
   const onStageKeyDown = useCallback(
@@ -966,15 +969,14 @@ export function Stage() {
       );
       if (dx === 0 && dy === 0) return true;
       // Live, history-free move; the burst commits once via the debounce below.
-      updateObject(selectedId, { payload: translateAnnotation(ann, dx, dy) });
+      const payload = translateAnnotation(ann, dx, dy);
+      updateObject(selectedId, { payload });
+      pendingNudge.current = () => moveObject(selectedId, { payload }, "Move annotation", payload);
       if (nudgeTimerRef.current != null) clearTimeout(nudgeTimerRef.current);
-      nudgeTimerRef.current = window.setTimeout(() => {
-        nudgeTimerRef.current = null;
-        commit("Move annotation");
-      }, 350);
+      nudgeTimerRef.current = window.setTimeout(flushNudge, 350);
       return true;
     },
-    [selectedId, selectedPage, removeObject, updateObject, commit, patchToolState],
+    [selectedId, selectedPage, removeObject, updateObject, moveObject, flushNudge, patchToolState],
   );
 
   const paintOverlay = useCallback(
@@ -1475,461 +1477,459 @@ const MODES: { id: Mode; label: string; icon: typeof Pen }[] = [
   { id: "icon", label: "Icons", icon: SquareCheck },
 ];
 
-/** A square Bold / Italic toggle, matching the selected-look used across pickers. */
-function StyleToggle({
-  active,
-  onClick,
-  label,
-  icon: Icon,
-  disabled = false,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  icon: typeof Bold;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-pressed={active}
-      aria-label={label}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border pointer-coarse:min-h-11 pointer-coarse:min-w-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:opacity-40 disabled:pointer-events-none ${
-        active
-          ? "border-primary-600 bg-primary-600 text-white"
-          : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-      }`}
-    >
-      <Icon className="h-4 w-4" />
-    </button>
-  );
-}
-
-/** Family select + Bold/Italic toggles in one row, Word-style. */
-function FontControls({
-  family,
-  bold,
-  italic,
-  underline,
-  onChange,
-}: {
-  family: FontFamily;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  onChange: (patch: {
-    family?: FontFamily;
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-  }) => void;
-}) {
-  const italicAvailable = FAMILY_HAS_ITALIC[family];
-  return (
-    <Labeled label="Font">
-      <div className="flex items-center gap-1.5">
-        <div className="min-w-0 flex-1">
-          <Select
-            value={family}
-            // Switching to a family with no italic clears a stale italic flag, so
-            // it doesn't silently re-apply when switching back to one that has it.
-            onChange={(f) =>
-              onChange(FAMILY_HAS_ITALIC[f] ? { family: f } : { family: f, italic: false })
-            }
-            ariaLabel="Font family"
-            options={FAMILIES.map((f) => ({
-              value: f,
-              label: <span style={{ fontFamily: FAMILY_CSS[f] }}>{FAMILY_LABEL[f]}</span>,
-              searchText: FAMILY_LABEL[f],
-            }))}
-          />
-        </div>
-        <StyleToggle
-          active={bold}
-          onClick={() => onChange({ bold: !bold })}
-          label="Bold"
-          icon={Bold}
-        />
-        <StyleToggle
-          active={italic && italicAvailable}
-          onClick={() => onChange({ italic: !italic })}
-          label={italicAvailable ? "Italic" : "Italic (unavailable for this font)"}
-          icon={Italic}
-          disabled={!italicAvailable}
-        />
-        <StyleToggle
-          active={underline}
-          onClick={() => onChange({ underline: !underline })}
-          label="Underline"
-          icon={Underline}
-        />
-      </div>
-    </Labeled>
-  );
-}
+const TEXT_STYLES = [
+  { key: "bold", label: "Bold", icon: Bold },
+  { key: "italic", label: "Italic", icon: Italic },
+  { key: "underline", label: "Underline", icon: Underline },
+] as const;
+type NumberKey = "sizePt" | "bgOpacity" | "fillOpacity";
+type NumberDraft = { raw: string; value: number; touched?: boolean };
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { patchToolState, updateObject, commit, removeObject, applyTransform } = useEditorActions();
-  const setInlineEditor = useInlineEditor();
+  const { doc, selectedPage, busyLabel } = useEditorRead();
+  const {
+    patchToolState,
+    updateObject,
+    moveObject,
+    removeObject,
+    applyTransform,
+    setSelectedPage,
+  } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
   const mode = (slice.mode as Mode) ?? "select";
-  const colorHex = (slice.colorHex as string) ?? DEFAULT_HEX;
-  const fillEnabled = (slice.fillEnabled as boolean) ?? false;
-  const fillHex = (slice.fillHex as string) ?? DEFAULT_FILL_HEX;
-  const fillOpacity = (slice.fillOpacity as number) ?? 0.3;
   const selectedId = slice.selectedId as string | undefined;
-  const textFamily = (slice.textFamily as FontFamily) ?? "helvetica";
-  const textBold = (slice.textBold as boolean) ?? false;
-  const textItalic = (slice.textItalic as boolean) ?? false;
-  const textUnderline = (slice.textUnderline as boolean) ?? false;
-  const textSizePt = (slice.textSizePt as number) ?? DEFAULT_TEXT_PT;
-  const bgEnabled = (slice.bgEnabled as boolean) ?? false;
-  const bgHex = (slice.bgHex as string) ?? DEFAULT_BG_HEX;
-  const bgOpacity = (slice.bgOpacity as number) ?? 1;
-  const iconId = (slice.iconId as IconId) ?? "check";
-  const sizeHint = slice.sizeHint as string | undefined;
-
-  const objects = doc?.objects ?? [];
-  const count = objects.filter((o) => o.kind === "annotation").length;
-  const selObj = selectedId ? objects.find((o) => o.id === selectedId) : undefined;
-  const selAnn = selObj?.payload as Annotation | undefined;
-  const isTextSel = selAnn?.kind === "text";
-  const isIconMode = mode === "icon";
-  const selPageHeightPt = selObj ? (doc?.pages[selObj.pageIndex]?.heightPt ?? 0) : 0;
-
-  // Coalesce live object edits into one undo step (a slider drag = one entry).
-  const commitTimer = useRef<number | null>(null);
-  const scheduleCommit = useCallback(
-    (label: string) => {
-      if (commitTimer.current) clearTimeout(commitTimer.current);
-      commitTimer.current = window.setTimeout(() => {
-        commit(label);
-        commitTimer.current = null;
-      }, 400);
-    },
-    [commit],
-  );
-  useEffect(
-    () => () => {
-      if (commitTimer.current) {
-        clearTimeout(commitTimer.current);
-        commit("Edit annotation");
-      }
-    },
-    [commit],
-  );
-
-  // Apply current text-style slice values to the selected text object, live.
-  const applyTextToSelected = useCallback(
-    (next: {
-      family: FontFamily;
-      bold: boolean;
-      italic: boolean;
-      underline: boolean;
-      sizePt: number;
-      colorHex: string;
-      bgEnabled: boolean;
-      bgHex: string;
-      bgOpacity: number;
-    }) => {
-      if (!selObj || selAnn?.kind !== "text" || selPageHeightPt <= 0) return;
-      const payload: TextAnnotation = {
-        ...selAnn,
-        font: resolveFont(next.family, next.bold, next.italic),
-        underline: next.underline,
-        sizeFrac: next.sizePt / selPageHeightPt,
-        color: hexToRgb(next.colorHex),
-        bg: next.bgEnabled ? { color: hexToRgb(next.bgHex), opacity: next.bgOpacity } : undefined,
+  const objects = (doc?.objects ?? []).filter((o) => o.kind === "annotation");
+  const selected = objects.find((o) => o.id === selectedId && o.pageIndex === selectedPage);
+  const ann = selected?.payload as Annotation | undefined;
+  const text = ann?.kind === "text" ? ann : undefined;
+  const shape = ann?.kind === "rect" || ann?.kind === "ellipse" ? ann : undefined;
+  const font = text
+    ? decomposeFont(text.font ?? "helvetica")
+    : {
+        family: (slice.textFamily as FontFamily) ?? "helvetica",
+        bold: (slice.textBold as boolean) ?? false,
+        italic: (slice.textItalic as boolean) ?? false,
       };
-      updateObject(selObj.id, { payload });
-      scheduleCommit("Edit text style");
-    },
-    [selObj, selAnn, selPageHeightPt, updateObject, scheduleCommit],
+  const textStyle = {
+    ...font,
+    underline: text ? !!text.underline : ((slice.textUnderline as boolean) ?? false),
+    sizePt:
+      text && selected
+        ? Math.round(text.sizeFrac * (doc?.pages[selected.pageIndex]?.heightPt ?? 0))
+        : ((slice.textSizePt as number) ?? DEFAULT_TEXT_PT),
+    colorHex: ann
+      ? rgbToHex(ann.color.r, ann.color.g, ann.color.b)
+      : ((slice.colorHex as string) ?? DEFAULT_HEX),
+    bgEnabled: text ? !!text.bg : ((slice.bgEnabled as boolean) ?? false),
+    bgHex: text?.bg
+      ? rgbToHex(text.bg.color.r, text.bg.color.g, text.bg.color.b)
+      : ((slice.bgHex as string) ?? DEFAULT_BG_HEX),
+    bgOpacity: text?.bg ? (text.bg.opacity ?? 1) : ((slice.bgOpacity as number) ?? 1),
+  };
+  const fill = {
+    enabled: shape ? !!shape.fill : ((slice.fillEnabled as boolean) ?? false),
+    hex: shape?.fill
+      ? rgbToHex(shape.fill.color.r, shape.fill.color.g, shape.fill.color.b)
+      : ((slice.fillHex as string) ?? DEFAULT_FILL_HEX),
+    opacity: shape?.fill ? (shape.fill.opacity ?? 1) : ((slice.fillOpacity as number) ?? 0.3),
+  };
+  const busy = busyLabel !== null;
+  const showText = !!text || mode === "text";
+  const showFill = !!shape || isFillable(mode);
+  const showIcons = ann?.kind === "icon" || mode === "icon";
+  const selectRef = useRef<HTMLButtonElement>(null);
+  const timer = useRef<number | null>(null);
+  const pending = useRef<(() => void) | null>(null);
+  const flush = useCallback(() => {
+    if (timer.current !== null) clearTimeout(timer.current);
+    timer.current = null;
+    const edit = pending.current;
+    pending.current = null;
+    edit?.();
+  }, []);
+  useEffect(() => () => flush(), [selectedId, flush]);
+  const editSelected = (payload: Annotation, label: string) => {
+    if (!selected || busy) return;
+    updateObject(selected.id, { payload });
+    pending.current = () => moveObject(selected.id, { payload }, label, payload);
+    if (timer.current !== null) clearTimeout(timer.current);
+    timer.current = window.setTimeout(flush, 400);
+  };
+  const onTextChange = (patch: Partial<typeof textStyle>) => {
+    const next = { ...textStyle, ...patch };
+    patchToolState(TOOL_ID, {
+      textFamily: next.family,
+      textBold: next.bold,
+      textItalic: next.italic,
+      textUnderline: next.underline,
+      textSizePt: next.sizePt,
+      colorHex: next.colorHex,
+      bgEnabled: next.bgEnabled,
+      bgHex: next.bgHex,
+      bgOpacity: next.bgOpacity,
+      sizeHint: undefined,
+    });
+    const height = selected ? doc?.pages[selected.pageIndex]?.heightPt : 0;
+    if (text && height)
+      editSelected(
+        {
+          ...text,
+          font: resolveFont(next.family, next.bold, next.italic),
+          underline: next.underline,
+          sizeFrac: next.sizePt / height,
+          color: hexToRgb(next.colorHex),
+          bg: next.bgEnabled ? { color: hexToRgb(next.bgHex), opacity: next.bgOpacity } : undefined,
+        },
+        "Edit text style",
+      );
+  };
+  const onFillChange = (patch: Partial<typeof fill>) => {
+    const next = { ...fill, ...patch };
+    patchToolState(TOOL_ID, {
+      fillEnabled: next.enabled,
+      fillHex: next.hex,
+      fillOpacity: next.opacity,
+    });
+    if (shape)
+      editSelected(
+        {
+          ...shape,
+          fill: next.enabled ? { color: hexToRgb(next.hex), opacity: next.opacity } : undefined,
+        },
+        "Edit shape fill",
+      );
+  };
+  // Raw invalid entry survives panel/layout changes, but never replaces valid ink.
+  // A different selection or Undo uses that object's own committed value.
+  const owner = selected?.id ?? "new";
+  const numbers =
+    slice.numberOwner === owner
+      ? ((slice.numbers as Partial<Record<NumberKey, NumberDraft>>) ?? {})
+      : {};
+  const numeric = (
+    key: NumberKey,
+    label: string,
+    value: number,
+    min: number,
+    max: number,
+    unit: string,
+    change: (v: number) => void,
+  ) => {
+    const draft = numbers[key]?.value === value ? numbers[key] : undefined;
+    const raw = draft?.raw ?? String(value);
+    const valid =
+      raw.trim() !== "" &&
+      Number.isInteger(Number(raw)) &&
+      Number(raw) >= min &&
+      Number(raw) <= max;
+    return {
+      valid,
+      control: (
+        <PrecisionField
+          key={key}
+          id={`annotate-${key}`}
+          label={label}
+          unit={unit}
+          min={min}
+          max={max}
+          raw={raw}
+          value={value}
+          error={
+            !valid && draft?.touched ? `Enter a whole number from ${min} to ${max}.` : undefined
+          }
+          onChange={(raw) => {
+            const n = Number(raw);
+            const ok = raw.trim() !== "" && Number.isInteger(n) && n >= min && n <= max;
+            patchToolState(TOOL_ID, {
+              numberOwner: owner,
+              numbers: {
+                ...numbers,
+                [key]: { raw, value: ok ? n : value, touched: draft?.touched },
+              },
+            });
+            if (ok) change(n);
+          }}
+          onBlur={() =>
+            patchToolState(TOOL_ID, {
+              numberOwner: owner,
+              numbers: { ...numbers, [key]: { raw, value, touched: true } },
+            })
+          }
+        />
+      ),
+    };
+  };
+  const size = numeric("sizePt", "Text size", textStyle.sizePt, 5, 96, "pt", (v) =>
+    onTextChange({ sizePt: v }),
   );
-
-  // A text-style change: write the slice (placement default + mirror) and, when
-  // a text label is selected, the object too.
-  const onTextChange = useCallback(
-    (
-      patch: Partial<{
-        family: FontFamily;
-        bold: boolean;
-        italic: boolean;
-        underline: boolean;
-        sizePt: number;
-        colorHex: string;
-        bgEnabled: boolean;
-        bgHex: string;
-        bgOpacity: number;
-      }>,
-    ) => {
-      const merged = {
-        family: textFamily,
-        bold: textBold,
-        italic: textItalic,
-        underline: textUnderline,
-        sizePt: textSizePt,
-        colorHex,
-        bgEnabled,
-        bgHex,
-        bgOpacity,
-        ...patch,
-      };
-      patchToolState(TOOL_ID, {
-        textFamily: merged.family,
-        textBold: merged.bold,
-        textItalic: merged.italic,
-        textUnderline: merged.underline,
-        textSizePt: merged.sizePt,
-        colorHex: merged.colorHex,
-        bgEnabled: merged.bgEnabled,
-        bgHex: merged.bgHex,
-        bgOpacity: merged.bgOpacity,
-        sizeHint: undefined,
-      });
-      if (isTextSel) applyTextToSelected(merged);
-    },
-    [
-      textFamily,
-      textBold,
-      textItalic,
-      textUnderline,
-      textSizePt,
-      colorHex,
-      bgEnabled,
-      bgHex,
-      bgOpacity,
-      isTextSel,
-      applyTextToSelected,
-      patchToolState,
-    ],
+  const background = numeric(
+    "bgOpacity",
+    "Background opacity",
+    Math.round(textStyle.bgOpacity * 100),
+    0,
+    100,
+    "%",
+    (v) => onTextChange({ bgOpacity: v / 100 }),
   );
-
-  // Stroke colour of a selected non-text mark.
-  const onShapeColor = useCallback(
-    (hex: string) => {
-      patchToolState(TOOL_ID, { colorHex: hex });
-      if (selObj && selAnn && selAnn.kind !== "text") {
-        updateObject(selObj.id, { payload: { ...selAnn, color: hexToRgb(hex) } });
-        scheduleCommit("Edit colour");
-      }
-    },
-    [selObj, selAnn, updateObject, scheduleCommit, patchToolState],
+  const opacity = numeric(
+    "fillOpacity",
+    "Fill opacity",
+    Math.round(fill.opacity * 100),
+    0,
+    100,
+    "%",
+    (v) => onFillChange({ opacity: v / 100 }),
   );
-
-  const deleteSelected = useCallback(() => {
-    if (!selectedId) return;
-    removeObject(selectedId);
-    patchToolState(TOOL_ID, { selectedId: undefined });
-  }, [selectedId, removeObject, patchToolState]);
-
-  const apply = useCallback(() => {
-    // Tear down selection + any open editor BEFORE the burn drops all marks, so
-    // a stale id can't linger and an open editor can't re-add a mark afterward.
-    setInlineEditor(null);
-    patchToolState(TOOL_ID, { selectedId: undefined });
-    void applyTransform(async (d) => {
+  const invalid = showText
+    ? !size.valid || (textStyle.bgEnabled && !background.valid)
+    : showFill && fill.enabled && !opacity.valid;
+  const apply = async () => {
+    flush();
+    await applyTransform(async (d) => {
       const anns = d.objects
         .filter((o) => o.kind === "annotation" && o.payload)
         .map((o) => o.payload as Annotation);
-      const bytes = await annotatePdf(docToFile(d), anns);
       return {
-        bytes,
+        bytes: await annotatePdf(docToFile(d), anns),
         label: `Annotate ${anns.length}`,
         objects: d.objects.filter((o) => o.kind !== "annotation"),
       };
     });
-  }, [applyTransform, setInlineEditor, patchToolState]);
-
-  const showFill = isFillable(mode);
-  // Text controls show when placing text OR a text label is selected.
-  const showText = mode === "text" || isTextSel;
-  const showShapeColor = !showText;
-
+    patchToolState(TOOL_ID, { selectedId: undefined });
+  };
   return (
-    <div className="flex flex-col gap-4">
-      <Labeled label="Tool">
-        <div className="grid grid-cols-3 gap-1.5">
-          {MODES.map((m) => {
-            const Icon = m.icon;
-            const on = mode === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() =>
-                  patchToolState(TOOL_ID, {
-                    mode: m.id,
-                    ...(m.id === "select" ? {} : { selectedId: undefined }),
-                  })
-                }
-                aria-pressed={on}
-                className={`flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                  on
-                    ? "border-primary-600 bg-primary-600 text-white"
-                    : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {m.label}
-              </button>
-            );
-          })}
-        </div>
-      </Labeled>
-
-      {selObj && (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-primary-200 dark:border-primary-900/50 bg-primary-50/60 dark:bg-primary-900/20 px-3 py-2">
-          <span className="text-xs font-medium text-primary-800 dark:text-primary-200">
-            {isTextSel ? "Text label selected" : "Mark selected"}
-          </span>
-          <button
-            type="button"
-            onClick={deleteSelected}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 pointer-coarse:min-h-11 dark:text-red-400 dark:hover:bg-red-950/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-            Delete
-          </button>
-        </div>
-      )}
-
-      {showText ? (
-        <>
-          <FontControls
-            family={textFamily}
-            bold={textBold}
-            italic={textItalic}
-            underline={textUnderline}
-            onChange={(patch) => onTextChange(patch)}
-          />
-          <RangeField
-            label="Text size"
-            value={textSizePt}
-            min={8}
-            max={72}
-            suffix=" pt"
-            onChange={(v) => onTextChange({ sizePt: v })}
-          />
-          {sizeHint && !isTextSel && (
-            <p className="-mt-2 text-xs text-primary-600 dark:text-primary-400">{sizeHint}</p>
-          )}
-          <Labeled label="Text colour">
-            <ColorPicker value={colorHex} onChange={(hex) => onTextChange({ colorHex: hex })} />
-          </Labeled>
-          <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
-            <Toggle
-              label="Background"
-              checked={bgEnabled}
-              onChange={(v) => onTextChange({ bgEnabled: v })}
-            />
-            {bgEnabled && (
-              <>
-                <Labeled label="Background colour">
-                  <ColorPicker value={bgHex} onChange={(hex) => onTextChange({ bgHex: hex })} />
-                </Labeled>
-                <RangeField
-                  label="Background opacity"
-                  value={Math.round(bgOpacity * 100)}
-                  min={10}
-                  max={100}
-                  suffix="%"
-                  onChange={(v) => onTextChange({ bgOpacity: v / 100 })}
-                />
-              </>
-            )}
+    <div className="pdf-mark-panel pdf-annotate-panel">
+      <section aria-label="Annotation settings" tabIndex={-1} data-busy-focus-fallback>
+        <fieldset className="pdf-overlay-settings" disabled={busy}>
+          <legend className="sr-only">Annotation settings</legend>
+          <div className="pdf-property-field">
+            <span className="air-label">Tool</span>
+            <div className="pdf-annotate-tools" role="group" aria-label="Annotation tool">
+              {MODES.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className="air-button air-button--quiet"
+                  ref={id === "select" ? selectRef : undefined}
+                  aria-pressed={mode === id}
+                  onClick={() => {
+                    flush();
+                    patchToolState(TOOL_ID, {
+                      mode: id,
+                      ...(id === "select" ? {} : { selectedId: undefined }),
+                    });
+                  }}
+                >
+                  <Icon size={16} aria-hidden="true" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </>
-      ) : (
-        showShapeColor && (
-          <>
-            {isIconMode && (
-              <Labeled label="Icon">
-                <div className="grid grid-cols-4 gap-1.5">
-                  {ICON_CHOICES.map((c) => {
-                    const Ico = c.icon;
-                    // When an icon is selected, the palette reflects (and edits)
-                    // THAT glyph; otherwise it sets the next-placed glyph.
-                    const selIcon = selAnn?.kind === "icon" ? selAnn.icon : undefined;
-                    const on = (selIcon ?? iconId) === c.id;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          patchToolState(TOOL_ID, { iconId: c.id });
-                          if (selObj && selAnn?.kind === "icon") {
-                            updateObject(selObj.id, { payload: { ...selAnn, icon: c.id } });
-                            scheduleCommit("Change icon");
-                          }
-                        }}
-                        aria-pressed={on}
-                        aria-label={c.label}
-                        title={c.label}
-                        className={`flex h-10 items-center justify-center rounded-md border pointer-coarse:min-h-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                          on
-                            ? "border-primary-600 bg-primary-600 text-white"
-                            : "border-slate-200 dark:border-dark-border text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-                        }`}
-                      >
-                        <Ico className="h-5 w-5" />
-                      </button>
-                    );
-                  })}
-                </div>
-              </Labeled>
-            )}
-            <Labeled label={showFill ? "Stroke" : "Colour"}>
-              <ColorPicker value={colorHex} onChange={onShapeColor} />
-            </Labeled>
-            {showFill && !selObj && (
-              <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
-                <Toggle
-                  label="Fill shape"
-                  checked={fillEnabled}
-                  onChange={(v) => patchToolState(TOOL_ID, { fillEnabled: v })}
+          {objects.length > 0 && (
+            <div className="pdf-property-field">
+              <label className="air-label" htmlFor="annotation-selection">
+                Placed annotation
+              </label>
+              <Select
+                id="annotation-selection"
+                value={selected?.id ?? ""}
+                placeholder="Choose an annotation"
+                disabled={busy}
+                options={objects.map((o, i) => ({
+                  value: o.id,
+                  label: `${i + 1} · ${((o.payload as Annotation).kind === "text" ? "Text" : MODES.find((m) => m.id === (o.payload as Annotation).kind)?.label) ?? "Mark"} · Page ${o.pageIndex + 1}`,
+                }))}
+                onChange={(id) => {
+                  flush();
+                  const o = objects.find((o) => o.id === id);
+                  if (o) {
+                    setSelectedPage(o.pageIndex);
+                    patchToolState(TOOL_ID, { selectedId: id, mode: "select" });
+                  }
+                }}
+              />
+            </div>
+          )}
+          {showText ? (
+            <>
+              <div className="pdf-property-field">
+                <label className="air-label" htmlFor="annotation-font">
+                  Font
+                </label>
+                <Select
+                  id="annotation-font"
+                  ariaLabel="Font family"
+                  value={textStyle.family}
+                  disabled={busy}
+                  onChange={(family) =>
+                    onTextChange(FAMILY_HAS_ITALIC[family] ? { family } : { family, italic: false })
+                  }
+                  options={FAMILIES.map((f) => ({
+                    value: f,
+                    label: <span style={{ fontFamily: FAMILY_CSS[f] }}>{FAMILY_LABEL[f]}</span>,
+                    searchText: FAMILY_LABEL[f],
+                  }))}
                 />
-                {fillEnabled && (
-                  <>
-                    <Labeled label="Fill">
-                      <ColorPicker
-                        value={fillHex}
-                        onChange={(hex) => patchToolState(TOOL_ID, { fillHex: hex })}
-                      />
-                    </Labeled>
-                    <RangeField
-                      label="Fill opacity"
-                      value={Math.round(fillOpacity * 100)}
-                      min={10}
-                      max={100}
-                      suffix="%"
-                      onChange={(v) => patchToolState(TOOL_ID, { fillOpacity: v / 100 })}
-                    />
-                  </>
-                )}
+                <div className="pdf-annotate-styles" role="group" aria-label="Text style">
+                  {TEXT_STYLES.map(({ key, label, icon: Icon }) => (
+                    <button
+                      type="button"
+                      key={key}
+                      className="air-button air-button--quiet"
+                      aria-label={
+                        key === "italic" && !FAMILY_HAS_ITALIC[textStyle.family]
+                          ? "Italic (unavailable for this font)"
+                          : label
+                      }
+                      title={label}
+                      aria-pressed={
+                        textStyle[key] && (key !== "italic" || FAMILY_HAS_ITALIC[textStyle.family])
+                      }
+                      disabled={key === "italic" && !FAMILY_HAS_ITALIC[textStyle.family]}
+                      onClick={() => onTextChange({ [key]: !textStyle[key] })}
+                    >
+                      <Icon size={16} aria-hidden="true" />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
-          </>
-        )
-      )}
-
-      <span className="text-sm text-slate-600 dark:text-dark-text-muted">
-        {count} mark{count === 1 ? "" : "s"}
-      </span>
-
-      <PrimaryAction label="Apply annotations" onApply={apply} disabled={count === 0} />
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        {mode === "select"
-          ? "Tap a mark to select, drag to move (arrow keys nudge, Shift = bigger step), pull a handle to resize, Delete to remove. Double-click a text box to edit it."
-          : mode === "text"
-            ? "Drag a box on the page, then type inside it — text wraps to the box. Or tap for a default box. Drag or resize it any time."
-            : mode === "icon"
-              ? "Tap the page to stamp the chosen icon — great for ticking boxes or filling radios on a printed form. Tap an existing icon to select it, then drag to move or pull a corner to resize. Delete removes the selected one."
-              : "Draw on the page; the mark is selected so you can drag or resize it. Page text stays selectable."}
-      </p>
+              {size.control}
+              {typeof slice.sizeHint === "string" && !text && (
+                <p className="air-help">{slice.sizeHint}</p>
+              )}
+              <ColorPicker
+                label="Text colour"
+                value={textStyle.colorHex}
+                onChange={(colorHex) => onTextChange({ colorHex })}
+              />
+              <label className="air-switch-row">
+                <span>Background</span>
+                <input
+                  className="air-switch"
+                  type="checkbox"
+                  role="switch"
+                  checked={textStyle.bgEnabled}
+                  onChange={(e) => onTextChange({ bgEnabled: e.target.checked })}
+                />
+              </label>
+              {textStyle.bgEnabled && (
+                <>
+                  <ColorPicker
+                    label="Background colour"
+                    value={textStyle.bgHex}
+                    onChange={(bgHex) => onTextChange({ bgHex })}
+                  />
+                  {background.control}
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {showIcons && (
+                <div className="pdf-property-field">
+                  <span className="air-label">Icon</span>
+                  <div className="pdf-annotate-icons" role="group" aria-label="Annotation icon">
+                    {ICON_CHOICES.map(({ id, label, icon: Icon }) => (
+                      <button
+                        type="button"
+                        key={id}
+                        className="air-icon-button"
+                        aria-label={label}
+                        title={label}
+                        aria-pressed={
+                          (ann?.kind === "icon" ? ann.icon : (slice.iconId ?? "check")) === id
+                        }
+                        onClick={() => {
+                          patchToolState(TOOL_ID, { iconId: id });
+                          if (ann?.kind === "icon")
+                            editSelected({ ...ann, icon: id }, "Change icon");
+                        }}
+                      >
+                        <Icon size={20} aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(mode !== "select" || selected) && (
+                <ColorPicker
+                  label={showFill ? "Stroke colour" : "Mark colour"}
+                  value={textStyle.colorHex}
+                  onChange={(colorHex) => {
+                    patchToolState(TOOL_ID, { colorHex });
+                    if (ann) editSelected({ ...ann, color: hexToRgb(colorHex) }, "Edit colour");
+                  }}
+                />
+              )}
+              {showFill && (
+                <>
+                  <label className="air-switch-row">
+                    <span>Fill shape</span>
+                    <input
+                      className="air-switch"
+                      type="checkbox"
+                      role="switch"
+                      checked={fill.enabled}
+                      onChange={(e) => onFillChange({ enabled: e.target.checked })}
+                    />
+                  </label>
+                  {fill.enabled && (
+                    <>
+                      <ColorPicker
+                        label="Fill colour"
+                        value={fill.hex}
+                        onChange={(hex) => onFillChange({ hex })}
+                      />
+                      {opacity.control}
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
+          {selected && (
+            <button
+              type="button"
+              className="air-button air-button--quiet pdf-annotate-delete"
+              onClick={() => {
+                flush();
+                removeObject(selected.id);
+                patchToolState(TOOL_ID, { selectedId: undefined });
+                selectRef.current?.focus();
+              }}
+            >
+              <Trash2 size={16} aria-hidden="true" />
+              Delete annotation
+            </button>
+          )}
+        </fieldset>
+        <p className="air-help">
+          {mode === "select"
+            ? selected
+              ? "Drag to move. Arrow keys nudge; Shift moves further. Pull a handle to resize. Double-click text to edit it."
+              : "Choose a tool to add a mark, or select an annotation on the page to edit it."
+            : mode === "text"
+              ? "Drag a text box or tap the page, then type. Text wraps inside the box."
+              : mode === "icon"
+                ? "Tap the page to place this icon. Drag or resize it after placing."
+                : "Draw on the page. Each new mark is selected so you can adjust it."}
+        </p>
+      </section>
+      <section aria-label="Apply annotations">
+        <p role="status">
+          {objects.length} mark{objects.length === 1 ? "" : "s"}
+        </p>
+        <PrimaryAction
+          label="Apply annotations"
+          onApply={apply}
+          disabled={objects.length === 0 || invalid}
+        />
+        <p className="air-help">
+          Apply adds your marks to the PDF. Existing page text stays selectable.
+        </p>
+      </section>
     </div>
   );
 }

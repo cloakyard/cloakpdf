@@ -94,8 +94,14 @@ interface ActionsValue {
   updateObject: (id: string, patch: Partial<CanvasObject>) => void;
   /** Merge `patch` into one object AND push a single undoable history entry.
    *  Use for a finished move/edit; `updateObject` (no history) is for the
-   *  in-flight preview. */
-  moveObject: (id: string, patch: Partial<CanvasObject>, label: string) => void;
+   *  in-flight preview. expectedPayload guards deferred commits against
+   *  Undo, Cancel, removal or Apply replacing their source object. */
+  moveObject: (
+    id: string,
+    patch: Partial<CanvasObject>,
+    label: string,
+    expectedPayload?: unknown,
+  ) => void;
   removeObject: (id: string) => void;
   /** Remove many objects in a single undoable history entry (e.g. "Clear all"
    *  pending redaction / erase marks). */
@@ -601,22 +607,32 @@ export function EditorProvider({
   // Like updateObject, but pushes ONE history entry so a finished move/edit is a
   // single undoable step. (Mirrors removeObject's snapshot; the live preview the
   // caller paints between pointerdown and pointerup never touches the doc.)
-  const moveObject = useCallback((id: string, patch: Partial<CanvasObject>, label: string) => {
-    const cur = docRef.current;
-    if (!cur) return;
-    const next: CanvasDoc = {
-      ...cur,
-      objects: cur.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
-    };
-    setDoc(next);
-    historyRef.current.push({
-      label,
-      bytes: next.bytes,
-      pages: next.pages,
-      objects: next.objects,
-    });
-    setHistoryVersion((v) => v + 1);
-  }, []);
+  const moveObject = useCallback(
+    (id: string, patch: Partial<CanvasObject>, label: string, expectedPayload?: unknown) => {
+      const cur = docRef.current;
+      if (!cur) return;
+      // Deferred overlay edits may finish after Undo, Cancel, removal or Apply.
+      // Only snapshot the live payload that scheduled the edit; never revive it.
+      if (
+        expectedPayload !== undefined &&
+        cur.objects.find((o) => o.id === id)?.payload !== expectedPayload
+      )
+        return;
+      const next: CanvasDoc = {
+        ...cur,
+        objects: cur.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
+      };
+      setDoc(next);
+      historyRef.current.push({
+        label,
+        bytes: next.bytes,
+        pages: next.pages,
+        objects: next.objects,
+      });
+      setHistoryVersion((v) => v + 1);
+    },
+    [],
+  );
 
   const removeObject = useCallback((id: string) => {
     const cur = docRef.current;

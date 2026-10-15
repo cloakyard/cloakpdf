@@ -1190,9 +1190,10 @@
       "viewports": [],
       "evidence": [
         "docs/air/evidence/collections-2026-10-14.json",
-        "docs/air/evidence/editor-recovery-2026-10-15.json"
+        "docs/air/evidence/editor-recovery-2026-10-15.json",
+        "docs/air/evidence/annotate-2026-10-15.json"
       ],
-      "notes": "History page-count and explicit Cancel draft cleanup corrected and covered by real browser edits. This is a bounded review, not a complete context/UI migration. Loading/recovery checkpoint adds measured preview state, retained failed restores, load/draft request ownership and cleanup after exit/StrictMode replay. No claim of a complete provider audit."
+      "notes": "History page-count and explicit Cancel draft cleanup corrected and covered by real browser edits. This is a bounded review, not a complete context/UI migration. Loading/recovery checkpoint adds measured preview state, retained failed restores, load/draft request ownership and cleanup after exit/StrictMode replay. No claim of a complete provider audit. Annotation checkpoint adds optional live-payload ownership to deferred moveObject commits so Undo/Cancel/removal/Apply cannot receive a stale snapshot; existing immediate callers retain their behavior."
     },
     {
       "path": "src/editor/EditorShell.tsx",
@@ -1761,19 +1762,49 @@
     {
       "path": "src/editor/panels/AnnotateTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "states": [
+        "empty",
+        "text/font/style",
+        "stroke and shape fill",
+        "selected glyph",
+        "per-object colour",
+        "numeric error and recovery",
+        "busy Apply",
+        "failed Apply retry",
+        "Undo/Redo and Cancel",
+        "cross-page keyboard selection",
+        "deletion focus",
+        "light/dark",
+        "coarse/fine pointer",
+        "enlarged text",
+        "forced colours",
+        "reduced motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/evidence/annotate-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air annotation inspector: selected text, fill and glyph settings; raw numeric drafts, custom selection, guarded deferred history and awaited Apply/mobile Done. All drawing modes and icon repeat stamping preserved. 110 size/theme regions, 18 enlarged-text states and forced colours/reduced motion inspected. Native Safari and Firefox actual 200% pass. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
     {
       "path": "src/editor/panels/AttachmentsTool.tsx",
@@ -2581,9 +2612,10 @@
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json",
-        "docs/air/evidence/page-numbers-2026-10-15.json"
+        "docs/air/evidence/page-numbers-2026-10-15.json",
+        "docs/air/evidence/annotate-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers. Header/footer checkpoint removes unused useTokenInsert/TokenBar native-setter code; remaining shared controls have live Bates/annotation/form/code consumers. Bates checkpoint removes the unused ColorRow bridge; Rgb, PositionGrid and remaining fields retain verified consumers. StampTools.tsx is fully retired."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers. Header/footer checkpoint removes unused useTokenInsert/TokenBar native-setter code; remaining shared controls have live Bates/annotation/form/code consumers. Bates checkpoint removes the unused ColorRow bridge; Rgb, PositionGrid and remaining fields retain verified consumers. StampTools.tsx is fully retired. Annotation checkpoint retires the last RangeField consumer/export; Labeled/Toggle remain in FillForm, Labeled/TextField in AutoFill, PositionGrid in Bates/PageNumbers, Rgb in FindAct/Redact."
     },
     {
       "path": "src/editor/registry.tsx",

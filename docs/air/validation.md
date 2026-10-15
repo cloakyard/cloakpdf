@@ -1753,3 +1753,59 @@ two proofs: `docs/air/evidence/codes-2026-10-15*`; full captures in
 `/tmp/cloakpdf-air-review/codes-*`. Next: Annotate interiors, then form controls,
 remaining legacy adapters and final product audit. Full PDF/family work remains
 unfinished. Local commits only; no push/deployment.
+
+## 2026-10-15 — Annotate inspector and live edit ownership
+
+Air tool/style groups, full-width custom font selection, named colour controls,
+switches and shared numeric precision fields replace the legacy annotation skins.
+The placed-annotation selector works across pages; selected text, shapes and icons
+show their own values, including fill and glyph choices in Select mode. Text size
+covers the existing nearby-text suggestion range (5–96pt); opacity is 0–100%.
+Invalid drafts survive tool/layout changes and cannot write invalid values.
+
+Apply/mobile Done now returns and awaits the transform. Failure retains marks and
+selection; retry deduplicates, success retires overlays, Undo restores them and Redo
+reapplies. Style/nudge coalescers commit only when their original live payload still
+owns the object. Undo/Cancel/removal/Apply cannot receive a delayed stale snapshot;
+style edits no longer advance the tool's Cancel checkpoint. Drawing/text placement,
+repeat icon stamping, keyboard nudging, geometry and inline text remain intact.
+
+**Validation:** check/dead, 429 units in 45 files, build/asset limits, 24 distinct
+browser suites (focused annotation, 16 production smoke, seven extended), design,
+17 portability assertions and exact family sync pass. The initial mobile smoke
+expected an empty Select panel colour picker; it now selects Pen before testing
+that same popover. The interaction suite checks the selected Rectangle through
+its custom selector instead of the removed blue-card text. A rotation-suite race
+sent input during export-modal exit; it now waits for the dialog to close and uses
+the configured isolated profile. Both 90° and 180° output assertions remain intact;
+the entire extended rerun passes. No runtime assertion was relaxed.
+
+The focused suite exercises every drawing mode, per-object styles/fill/icon,
+unavailable italic controls, invalid draft retention, cross-page selection, deletion
+focus, Undo during coalescing, Cancel during coalescing, mobile failure/wait/retry,
+PDF vector operators, selectable annotation/original text, title and attachment
+preservation. The existing embedded-font suite verifies a real Roboto subset.
+110 responsive region captures across eleven sizes and both themes, 18 enlarged-
+text views and forced-colours/reduced-motion were inspected; no horizontal overflow
+or undersized coarse-pointer controls. No uncaught browser errors.
+
+Native Safari: chooser, Roboto menu typeahead, underlined inline text, invalid size/
+recovery, Apply/focus, Undo and restored font/size pass. Firefox at actual **200%**
+browser zoom: chooser, pointer icon placement, Down/Return custom selection, glyph
+change in Select mode, mobile Done/focus and Undo pass. Reset zoom and close review
+tabs. Physical touch/software keyboard, actual OS IME and assistive speech remain
+open; this does not complete the PDF or family refresh.
+
+Removed RangeField's final consumer/export, StyleToggle and FontControls legacy
+skins, duplicated labels and old selected-card styling. Remaining shared controls
+have live form/N-up/privacy/numbering consumers. No dependencies added. Editor
+315.12/96.56 kB raw/gzip (+0.19 gzip); CSS 142.03/24.78 (-0.43 gzip); 128 deployment
+assets, 77 PWA entries; inventory remains 92. Canonical PDF appendix and standalone
+DESIGN synced; contract remains Air 1.0.1 (`201f7c381b5f`). Evidence JSON/check log and
+two proofs: `docs/air/evidence/annotate-2026-10-15*`; full images/contacts and synthetic
+fixture in `/tmp/cloakpdf-air-review/annotate-*`. Local commit only.
+
+Next: FillFormTool — field types, custom selectors/switches, field-error and empty
+states, geometry, raw value persistence, fill/flatten output, awaited mobile Apply,
+failure/retry, Undo/Cancel and all responsive/theme states. Then AutoFillTool and
+NupTool; remove their remaining adapters only after verifying all consumers.

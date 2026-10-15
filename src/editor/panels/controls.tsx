@@ -59,45 +59,6 @@ export function PositionGrid<T extends string>({
   );
 }
 
-export function RangeField({
-  label,
-  value,
-  min,
-  max,
-  step = 1,
-  suffix = "",
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step?: number;
-  suffix?: string;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <label className="block">
-      <div className="editor-control-label mb-1 flex items-center justify-between font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted">
-        <span>{label}</span>
-        <span className="font-mono tabular-nums text-slate-700 dark:text-dark-text">
-          {value}
-          {suffix}
-        </span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="editor-control-range w-full accent-primary-600"
-      />
-    </label>
-  );
-}
-
 export function TextField({
   label,
   value,

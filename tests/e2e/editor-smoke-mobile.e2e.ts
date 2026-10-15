@@ -118,8 +118,7 @@ async function drawOnPage(
 }
 
 /** Wait until the global busy overlay (portaled, aria-busy) is gone — the mobile
- *  ✓ closes the tool immediately and applies under this overlay, so a follow-up
- *  tap must wait for it to clear or it hits the overlay instead. */
+ *  ✓ awaits Apply before closing the tool; follow-up taps wait for completion. */
 async function waitForNoBusy(page: Page, timeout = 60_000): Promise<void> {
   await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), { timeout });
 }
@@ -266,6 +265,7 @@ async function main() {
     await waitForText(page, /TOOL/i, 8_000);
     if (await hasExactText(page, "Apply annotations"))
       fail("'Apply annotations' must be hidden on mobile.");
+    if (!(await clickByText(page, "Pen"))) fail("Annotate Pen sub-tool not found.");
     // ColorPicker popover is portaled to <body> so the sheet's overflow can't
     // clip it — open it and assert it renders fully inside the viewport.
     await page.click('button[aria-label^="Custom color"]');
@@ -287,7 +287,6 @@ async function main() {
     });
     if (!swatchOnScreen) fail("ColorPicker popover is clipped / off-screen on mobile.");
     await page.click('button[aria-label^="Custom color"]'); // toggle the popover closed
-    if (!(await clickByText(page, "Pen"))) fail("Annotate Pen sub-tool not found.");
     await drawOnPage(page, { x: 0.3, y: 0.4 }, { x: 0.7, y: 0.55 });
     await waitForText(page, /\b1 mark\b/, 8_000);
     await tapDone(page); // ✓ burns the annotation

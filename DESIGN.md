@@ -1312,3 +1312,21 @@ journeys across all apps; it is not inferred from the pilot alone.
   Undo restores their snapshot and Redo reapplies the output. Cancel restores the tool
   checkpoint. Keep original text/catalog data and verify vector output. Remove the
   retired WholeDocPanel Segmented implementation; retain adapters with live consumers.
+
+- Annotate uses quiet Air tool/style groups, a full-width custom font selector,
+  shared colour controls, switches and precise size/opacity entry. Keep controls
+  labelled and reflow their groups at enlarged text sizes. Text size accepts whole
+  points from 5–96, matching nearby-text suggestions; opacity accepts 0–100%.
+  Retain invalid numeric drafts across tool/layout changes without writing invalid
+  ink; show associated errors and disable Apply until the visible draft is valid.
+- A custom placed-annotation selector exposes every page's marks to keyboard users.
+  Selecting a mark shows its actual font, styles, colour, fill/background and icon.
+  Keep shape fill and glyph choices available in Select mode; Undo must refresh
+  displayed values. Drawing/text remain arm-once and icons retain repeat stamping.
+  Preserve inline typing, wrapping, geometry, resize handles and keyboard nudges.
+- Coalesce live style/nudge edits without allowing deferred work to recreate history
+  after Undo, Cancel, removal or Apply. Await Apply/mobile Done; failed output retains
+  pending objects and selection, successful output removes only annotation overlays,
+  and Undo restores them. Preserve embedded fonts, vector marks, selectable original
+  text, metadata and attachments. Remove retired StyleToggle/FontControls skins and
+  RangeField; keep controls with remaining form/N-up consumers until their migration.

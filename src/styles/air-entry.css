@@ -3781,3 +3781,41 @@ body:has(.pdf-site) {
   height: auto;
   object-fit: fill;
 }
+
+/* Annotation tools share Air controls; the document owns its font and ink. */
+.pdf-annotate-tools,
+.pdf-annotate-styles,
+.pdf-annotate-icons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.pdf-annotate-tools .air-button,
+.pdf-annotate-styles .air-button {
+  min-inline-size: 0;
+  min-block-size: 44px;
+  padding: 8px 4px;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--air-text-meta);
+  overflow-wrap: anywhere;
+}
+.pdf-annotate-icons {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pdf-annotate-icons .air-icon-button {
+  inline-size: 100%;
+  min-block-size: 44px;
+}
+.pdf-annotate-panel .air-switch-row {
+  margin: 0;
+}
+.pdf-annotate-delete {
+  color: var(--air-danger);
+}
+@container (max-width: 13rem) {
+  .pdf-annotate-tools,
+  .pdf-annotate-styles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

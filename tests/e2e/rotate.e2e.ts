@@ -27,7 +27,8 @@ const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FIXTURE_PATH = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
-const USER_DATA_DIR = resolve(import.meta.dirname, "../.puppeteer-profile-editor");
+const USER_DATA_DIR =
+  process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile-editor");
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);
@@ -142,6 +143,9 @@ async function main() {
       await page.locator('input[aria-label="PDF"]').click();
       if (!(await clickByText(page, "Download"))) fail("Download button not found.");
       const dl = await waitForFile(dir, /\.pdf$/i);
+      // A download can reach disk before the modal's exit releases the editor.
+      // Do not send the next rotation into the still-inert canvas underneath.
+      await page.waitForSelector('[role="dialog"]', { hidden: true });
       const pdf = await PDFDocument.load(readFileSync(join(dir, dl)));
       return pdf.getPage(0).getRotation().angle;
     };

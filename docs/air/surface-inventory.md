@@ -60,7 +60,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/PropertiesPanel.tsx`           | app-surface | Done         | Done               | Pending    |
 | `src/editor/ToolControls.tsx`              | app-surface | Done         | Done               | Pending    |
 | `src/editor/ToolRail.tsx`                  | app-surface | Done         | Done               | Pending    |
-| `src/editor/panels/AnnotateTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/AnnotateTool.tsx`       | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/AttachmentsTool.tsx`    | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/AutoFillTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/BatesTool.tsx`          | app-surface | Done         | Done               | Pending    |

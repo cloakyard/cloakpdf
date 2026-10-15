@@ -250,7 +250,9 @@ async function main(): Promise<void> {
     );
     await drawRect(page, { x: 0.25, y: 0.3 }, { x: 0.55, y: 0.5 });
     await waitForText(page, /\b1 mark\b/i);
-    await waitForText(page, /Mark selected/i);
+    await page.waitForFunction(() =>
+      document.querySelector("#annotation-selection")?.textContent?.includes("Rectangle"),
+    );
 
     await page.focus(STAGE);
     const focused = await page.$eval(STAGE, (node) => document.activeElement === node);
