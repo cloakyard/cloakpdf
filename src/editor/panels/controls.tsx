@@ -4,7 +4,6 @@
 // one accent, no cramped rows.
 
 import type { LucideIcon } from "lucide-react";
-import { useId } from "react";
 
 export interface Rgb {
   r: number;
@@ -56,49 +55,6 @@ export function PositionGrid<T extends string>({
         ))}
       </div>
     </div>
-  );
-}
-
-export function TextField({
-  label,
-  value,
-  onChange,
-  placeholder,
-  icon: Icon,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  icon?: LucideIcon;
-}) {
-  const id = useId();
-  const fieldName = label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-");
-  return (
-    <label htmlFor={id} className="block">
-      <span className="editor-control-label mb-1.5 flex items-center gap-1.5 font-mono text-xs font-medium uppercase tracking-[0.1em] text-slate-400 dark:text-dark-text-muted">
-        {Icon && (
-          <Icon
-            className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400"
-            aria-hidden="true"
-          />
-        )}
-        {label}
-      </span>
-      <input
-        id={id}
-        name={fieldName}
-        type="text"
-        value={value}
-        placeholder={placeholder}
-        autoComplete="off"
-        onChange={(e) => onChange(e.target.value)}
-        className="editor-control-input w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-800 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-dark-border dark:bg-dark-bg dark:text-dark-text"
-      />
-    </label>
   );
 }
 

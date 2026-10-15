@@ -3816,3 +3816,43 @@ body:has(.pdf-site) {
   outline-offset: 2px;
   border-radius: var(--air-radius-chip);
 }
+
+/* Printed-form answers share the inspector's scrolling region. */
+.pdf-autofill-profile,
+.pdf-autofill-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.pdf-autofill-fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pdf-autofill-fields > li {
+  padding-block: 12px;
+  border-top: 1px solid var(--air-line);
+}
+.pdf-autofill-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pdf-autofill-heading .air-label {
+  flex: 1;
+  min-width: min(8rem, 100%);
+  overflow-wrap: anywhere;
+}
+.pdf-autofill-heading .air-button {
+  flex-shrink: 0;
+}
+.pdf-autofill-profile-toggle {
+  justify-content: space-between;
+  width: 100%;
+}
+.pdf-autofill-profile-toggle[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}

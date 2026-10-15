@@ -172,10 +172,46 @@ function dedupe(fields: FlatField[]): FlatField[] {
 
 // ── fill writer ────────────────────────────────────────────────────────────
 
-export interface FieldFill {
+interface FieldFill {
   pageIndex: number;
   rect: FracRect;
   text: string;
+}
+
+/** Shared top-left layout for the preview and writer; output uses exact font metrics. */
+export function flatFieldLayout(
+  value: string,
+  rect: FracRect,
+  width: number,
+  height: number,
+  measure: (text: string, size: number) => number,
+) {
+  const text = value.trim();
+  const boxH = rect.hPct * height;
+  const available = Math.max(1, rect.wPct * width - 2);
+  let size = Math.min(14, Math.max(8, boxH * 0.85));
+  let drawn = text;
+  try {
+    const measured = measure(drawn, size);
+    if (measured > available) {
+      size = Math.max(6, (size * available) / measured);
+      if (measure(drawn, size) > available) {
+        while (drawn.length > 1 && measure(`${drawn}…`, size) > available)
+          drawn = drawn.slice(0, -1);
+        drawn = `${drawn}…`;
+      }
+    }
+  } catch {
+    throw new Error(
+      "An answer contains characters Helvetica cannot print. Replace unsupported characters and try again.",
+    );
+  }
+  return {
+    text: drawn,
+    size,
+    x: rect.xPct * width + 1,
+    y: (rect.yPct + rect.hPct * 0.78) * height,
+  };
 }
 
 /**
@@ -199,29 +235,10 @@ export async function fillFlatFormFields(file: File, fills: FieldFill[]): Promis
     const page = pages[f.pageIndex];
     if (!page) continue;
     await drawOnVisiblePage(page, ({ width: W, height: H }) => {
-      const boxTop = f.rect.yPct * H;
-      const boxH = f.rect.hPct * H;
-      const x = f.rect.xPct * W + 1;
-      // Fit the value within the blank: start from a height-keyed size, shrink to a
-      // floor, then truncate with an ellipsis if it still overflows — so a long
-      // answer never runs across neighbouring text or off the page.
-      const avail = Math.max(1, f.rect.wPct * W - 2);
-      let size = Math.min(14, Math.max(8, boxH * 0.85));
-      let drawn = text;
-      if (font.widthOfTextAtSize(drawn, size) > avail) {
-        const floor = 6;
-        const shrunk = (size * avail) / font.widthOfTextAtSize(drawn, size);
-        size = Math.max(floor, shrunk);
-        if (font.widthOfTextAtSize(drawn, size) > avail) {
-          while (drawn.length > 1 && font.widthOfTextAtSize(`${drawn}…`, size) > avail) {
-            drawn = drawn.slice(0, -1);
-          }
-          drawn = `${drawn}…`;
-        }
-      }
-      // top-left box → pdf-lib bottom-left baseline, nudged up off the line.
-      const y = H - (boxTop + boxH) + boxH * 0.22;
-      page.drawText(drawn, { x, y, size, font, color: ink });
+      const run = flatFieldLayout(f.text, f.rect, W, H, (text, size) =>
+        font.widthOfTextAtSize(text, size),
+      );
+      page.drawText(run.text, { x: run.x, y: H - run.y, size: run.size, font, color: ink });
     });
   }
 

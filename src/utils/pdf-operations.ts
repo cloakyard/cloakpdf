@@ -16,7 +16,7 @@ export { mergePdfs, splitPdfIntoParts, assemblePdf } from "./pdf/pages.ts";
 
 export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
 
-export type { FlatField, ProfileKey, FieldFill } from "./pdf/form-detect.ts";
+export type { FlatField, ProfileKey } from "./pdf/form-detect.ts";
 export { detectFlatFields, fillFlatFormFields } from "./pdf/form-detect.ts";
 
 export type { NupLayout } from "./pdf/transform.ts";

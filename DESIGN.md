@@ -1361,3 +1361,20 @@ journeys across all apps; it is not inferred from the pilot alone.
   and Undo restores them. Preserve embedded fonts, vector marks, selectable original
   text, metadata and attachments. Remove retired StyleToggle/FontControls skins and
   RangeField; keep controls with remaining form/N-up consumers until their migration.
+
+- Auto-fill uses open Air detection/profile/answer groups, complete field labels and
+  named page-navigation actions. The saved profile is independent of PDF Apply/Cancel;
+  validate stored values, report failed local storage and retain the in-memory draft.
+  Filling from a profile changes only empty answers; detection preserves matching
+  manually entered answers when scanning the same bytes again. Keep profile-fill
+  focus stable when the last empty match is filled.
+- Detection belongs to exact source bytes and pending marks. Cancel or ignore stale
+  work after exit, replacement or document edits; failed/empty rescans retain valid
+  answers. Distinguish no selectable text from no detected blanks and offer OCR or
+  manual annotation guidance. Pending privacy marks must be resolved first.
+- Auto-fill preview and output share visible-page text sizing, baseline and inset.
+  Preserve the existing shrink/ellipsis behaviour for long answers and explain it
+  beside the fields. Unsupported output characters fail explicitly with the draft
+  intact. Preserve original vector text, rotated/cropped physical page geometry,
+  metadata and attachments. Await Apply/mobile Done, deduplicate, retire applied
+  drafts before Undo, and preserve failure/retry and explicit Cancel semantics.

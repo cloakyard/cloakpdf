@@ -1,301 +1,470 @@
-// AutoFillTool.tsx — Fill forms that have NO interactive fields. It reads the
-// page text layer, finds the blanks (underline runs + "Label:" + space), lists
-// them as editable inputs, and draws your answers back into the PDF. A saved
-// profile (name / email / phone / address / date / company) fills the matching
-// blanks in one tap. The companion Fill-form tool handles real AcroForm fields;
-// this is for printed / exported / (OCR'd) scanned forms. Detected fields +
-// values live in the tool slice so the Stage can outline them on the page.
-
-import { Loader2, ScanLine, UserCog } from "lucide-react";
-import { useCallback, useEffect, useId, useState } from "react";
+// Printed-form answers stay scoped to the exact bytes used for detection.
+import { AlertTriangle, ChevronDown, ScanLine } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { canvasAccent } from "../../config/theme.ts";
 import { extractTextGeometry } from "../../utils/layout-extract.ts";
 import {
   detectFlatFields,
   fillFlatFormFields,
-  type FieldFill,
   type FlatField,
   type ProfileKey,
 } from "../../utils/pdf-operations.ts";
-import { docToFile } from "../doc.ts";
+import { flatFieldLayout } from "../../utils/pdf/form-detect.ts";
+import { docToFile, hasPendingDestructive } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { useStageProps } from "../stage.tsx";
-import { Labeled, TextField } from "./controls.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const TOOL_ID = "auto-fill";
 const PROFILE_STORAGE = "cloakpdf-autofill-profile";
-
 type Profile = Partial<Record<ProfileKey, string>>;
-
-const PROFILE_FIELDS: { key: ProfileKey; label: string; placeholder: string }[] = [
-  { key: "name", label: "Full name", placeholder: "Avery Chen" },
-  { key: "email", label: "Email", placeholder: "avery@example.com" },
-  { key: "phone", label: "Phone", placeholder: "+1 555 0100" },
-  { key: "address", label: "Address", placeholder: "1 Main St, Anytown" },
-  { key: "date", label: "Date", placeholder: "2026-06-20" },
-  { key: "company", label: "Company", placeholder: "Northline Studio" },
-];
+const PROFILE_FIELDS = [
+  ["name", "Full name", "Avery Chen"],
+  ["email", "Email", "avery@example.com"],
+  ["phone", "Phone", "+1 555 0100"],
+  ["address", "Address", "1 Main St, Anytown"],
+  ["date", "Date", "15 October 2026"],
+  ["company", "Company", "Northline Studio"],
+] as const;
 
 function loadProfile(): Profile {
   try {
-    const raw = localStorage.getItem(PROFILE_STORAGE);
-    return raw ? (JSON.parse(raw) as Profile) : {};
+    const raw: unknown = JSON.parse(localStorage.getItem(PROFILE_STORAGE) ?? "{}");
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    return Object.fromEntries(
+      PROFILE_FIELDS.flatMap(([key]) => {
+        const value = (raw as Record<string, unknown>)[key];
+        return typeof value === "string" ? [[key, value]] : [];
+      }),
+    );
   } catch {
     return {};
   }
 }
 
-function saveProfile(p: Profile): void {
-  try {
-    localStorage.setItem(PROFILE_STORAGE, JSON.stringify(p));
-  } catch {
-    /* storage unavailable — ignore */
-  }
-}
-
-interface AutoFillSlice {
+interface Answers {
+  sourceBytes: Uint8Array;
   fields: FlatField[];
-  /** Field index → entered value. */
   values: Record<number, string>;
-  searched: boolean;
+  hadText: boolean;
 }
-
-function readSlice(slice: Record<string, unknown>): AutoFillSlice {
-  return {
-    fields: (slice.fields as FlatField[]) ?? [],
-    values: (slice.values as Record<number, string>) ?? {},
-    searched: (slice.searched as boolean) ?? false,
-  };
-}
+const fieldKey = (f: FlatField) =>
+  `${f.pageIndex}:${f.label}:${f.rect.xPct}:${f.rect.yPct}:${f.rect.wPct}:${f.rect.hPct}`;
 
 export function Stage() {
-  const { fields, values } = readSlice(useToolSlice(TOOL_ID));
+  const { doc } = useEditorRead();
+  const saved = useToolSlice(TOOL_ID).answers as Answers | undefined;
+  const answers = saved?.sourceBytes === doc?.bytes ? saved : undefined;
+  const blocked = hasPendingDestructive(doc);
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
+      const page = doc?.pages[pageIndex];
+      if (!answers || !page || blocked) return;
       ctx.save();
       const accent = canvasAccent(ctx);
-      for (let i = 0; i < fields.length; i++) {
-        const f = fields[i];
+      const scale = w / page.widthPt;
+      for (let i = 0; i < answers.fields.length; i++) {
+        const f = answers.fields[i];
         if (f.pageIndex !== pageIndex) continue;
-        const x = f.rect.xPct * w;
-        const y = f.rect.yPct * h;
-        const bw = f.rect.wPct * w;
-        const bh = f.rect.hPct * h;
-        // A tinted blank with a dashed outline so empty fields are visible.
+        const x = f.rect.xPct * w,
+          y = f.rect.yPct * h;
+        const bw = f.rect.wPct * w,
+          bh = f.rect.hPct * h;
         ctx.fillStyle = `color-mix(in srgb, ${accent} 10%, transparent)`;
         ctx.fillRect(x, y, bw, bh);
-        ctx.strokeStyle = `color-mix(in srgb, ${accent} 70%, transparent)`;
+        ctx.strokeStyle = accent;
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 2]);
         ctx.strokeRect(x, y, bw, bh);
         ctx.setLineDash([]);
-        const val = values[i];
-        if (val) {
-          ctx.fillStyle = "#0f172a";
-          const size = Math.max(9, Math.min(16, bh * 0.85));
+        const value = answers.values[i];
+        if (!value?.trim()) continue;
+        const run = flatFieldLayout(value, f.rect, page.widthPt, page.heightPt, (text, size) => {
           ctx.font = `${size}px Helvetica, Arial, sans-serif`;
-          ctx.textBaseline = "middle";
-          ctx.fillText(val, x + 2, y + bh / 2, bw - 4);
-        }
+          return ctx.measureText(text).width;
+        });
+        ctx.fillStyle = "rgb(15.3, 22.95, 40.8)";
+        ctx.font = `${run.size * scale}px Helvetica, Arial, sans-serif`;
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(run.text, run.x * scale, run.y * scale);
       }
       ctx.restore();
     },
-    [fields, values],
+    [answers, doc?.pages, blocked],
   );
   useStageProps({ cursor: "default", paintOverlay });
   return null;
 }
 
 export function Panel() {
-  const { doc } = useEditorRead();
+  const { doc, busyLabel } = useEditorRead();
   const { applyTransform, patchToolState, setSelectedPage, setViewMode } = useEditorActions();
-  const { fields, values, searched } = readSlice(useToolSlice(TOOL_ID));
-
+  const slice = useToolSlice(TOOL_ID);
+  const saved = slice.answers as Answers | undefined;
+  const answers = saved?.sourceBytes === doc?.bytes ? saved : undefined;
+  const [initialProfile] = useState(loadProfile);
+  const profile = (slice.profile as Profile | undefined) ?? initialProfile;
   const [detecting, setDetecting] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profilePanelId = useId();
-  const [profile, setProfile] = useState<Profile>({});
-  useEffect(() => setProfile(loadProfile()), []);
+  const [progress, setProgress] = useState("");
+  const [note, setNote] = useState<{ text: string; failed: boolean; sourceBytes?: Uint8Array }>({
+    text: "",
+    failed: false,
+  });
+  const request = useRef<AbortController | null>(null);
+  const applying = useRef(false);
+  const current = useRef(doc);
+  current.current = doc;
+  const scanButton = useRef<HTMLButtonElement>(null);
+  const busy = busyLabel !== null;
+  const blocked = hasPendingDestructive(doc);
 
-  const detect = useCallback(async () => {
-    if (!doc) return;
+  useEffect(() => {
+    setDetecting(false);
+    setProgress("");
+    return () => {
+      request.current?.abort();
+      request.current = null;
+    };
+  }, [doc?.bytes, doc?.objects]);
+
+  const detect = async () => {
+    if (!doc || busy || blocked || request.current || applying.current) return;
+    const controller = new AbortController();
+    request.current = controller;
+    const ownsRequest = () =>
+      !controller.signal.aborted &&
+      request.current === controller &&
+      current.current?.bytes === doc.bytes &&
+      current.current.objects === doc.objects;
     setDetecting(true);
+    setProgress("Reading pages…");
+    setNote({ text: "", failed: false });
     try {
-      const pages = await extractTextGeometry(docToFile(doc), { ocr: false });
-      const found = detectFlatFields(pages);
-      // Pre-fill any field whose label maps to a saved profile value.
-      const saved = loadProfile();
-      const seed: Record<number, string> = {};
-      found.forEach((f, i) => {
-        if (f.profileKey && saved[f.profileKey]) seed[i] = saved[f.profileKey] as string;
+      const pages = await extractTextGeometry(docToFile(doc), {
+        ocr: false,
+        signal: controller.signal,
+        onProgress: (done, total) => {
+          if (ownsRequest()) setProgress(`Reading pages… ${done} of ${total}`);
+        },
       });
-      patchToolState(TOOL_ID, { fields: found, values: seed, searched: true });
+      if (!ownsRequest()) return;
+      const fields = detectFlatFields(pages);
+      const previous = new Map(
+        answers?.fields.map((f, i) => [fieldKey(f), answers.values[i] ?? ""]),
+      );
+      const values = Object.fromEntries(
+        fields.map((f, i) => [
+          i,
+          previous.get(fieldKey(f)) ?? (f.profileKey ? (profile[f.profileKey] ?? "") : ""),
+        ]),
+      );
+      // Failed or empty rescans must not discard an existing answer draft.
+      if (fields.length || !answers?.fields.length) {
+        patchToolState(TOOL_ID, {
+          answers: {
+            sourceBytes: doc.bytes,
+            fields,
+            values,
+            hadText: pages.some((p) => p.items.length > 0),
+          } satisfies Answers,
+        });
+      } else
+        setNote({
+          text: "No new fields found. Your existing answers are unchanged.",
+          failed: false,
+        });
     } catch {
-      patchToolState(TOOL_ID, { fields: [], values: {}, searched: true });
+      if (ownsRequest())
+        setNote({
+          text: "Couldn't read the fields. Your document and answers are unchanged. Try detecting again.",
+          failed: true,
+        });
     } finally {
-      setDetecting(false);
+      if (ownsRequest()) {
+        request.current = null;
+        setDetecting(false);
+        setProgress("");
+      }
     }
-  }, [doc, patchToolState]);
-
-  const autofill = useCallback(() => {
-    const saved = loadProfile();
-    const next = { ...values };
-    fields.forEach((f, i) => {
-      if (f.profileKey && saved[f.profileKey]) next[i] = saved[f.profileKey] as string;
-    });
-    patchToolState(TOOL_ID, { values: next });
-  }, [fields, values, patchToolState]);
-
-  const setValue = (i: number, v: string) =>
-    patchToolState(TOOL_ID, { values: { ...values, [i]: v } });
-
-  const setProfileField = (key: ProfileKey, v: string) => {
-    const next = { ...profile, [key]: v };
-    setProfile(next);
-    saveProfile(next);
   };
 
-  const filledCount = fields.filter((_, i) => (values[i] ?? "").trim()).length;
-  // Read from the in-memory profile state (kept in sync on edit) rather than
-  // hitting localStorage on every render.
-  const hasProfileMatch = fields.some((f) => f.profileKey && profile[f.profileKey]);
-
-  const apply = () => {
-    const fills: FieldFill[] = fields
-      .map((f, i) => ({ pageIndex: f.pageIndex, rect: f.rect, text: values[i] ?? "" }))
-      .filter((f) => f.text.trim());
-    if (fills.length === 0) return;
-    void applyTransform(async (d) => ({
-      bytes: await fillFlatFormFields(docToFile(d), fills),
-      label: `Fill ${fills.length} field${fills.length === 1 ? "" : "s"}`,
-    })).then(() => patchToolState(TOOL_ID, { fields: [], values: {}, searched: false }));
+  const setValue = (i: number, value: string) => {
+    if (!answers || busy || detecting) return;
+    setNote({ text: "", failed: false });
+    patchToolState(TOOL_ID, { answers: { ...answers, values: { ...answers.values, [i]: value } } });
+  };
+  const setProfileField = (key: ProfileKey, value: string) => {
+    const next = { ...profile, [key]: value };
+    let profileSaved = true;
+    try {
+      localStorage.setItem(PROFILE_STORAGE, JSON.stringify(next));
+    } catch {
+      profileSaved = false;
+    }
+    patchToolState(TOOL_ID, { profile: next, profileSaved });
+  };
+  const filledCount = answers?.fields.filter((_, i) => answers.values[i]?.trim()).length ?? 0;
+  const hasProfileMatch = answers?.fields.some(
+    (f) => f.profileKey && profile[f.profileKey]?.trim(),
+  );
+  const profileMatches =
+    answers?.fields.filter(
+      (f, i) => !answers.values[i]?.trim() && f.profileKey && profile[f.profileKey]?.trim(),
+    ).length ?? 0;
+  const apply = async () => {
+    if (!answers || !filledCount || busy || blocked || request.current || applying.current) return;
+    applying.current = true;
+    setNote({ text: "", failed: false });
+    try {
+      let appliedBytes: Uint8Array | undefined;
+      await applyTransform(async (d) => {
+        if (d.bytes !== answers.sourceBytes)
+          throw new Error("The document changed. Detect its fields again before applying answers.");
+        const fills = answers.fields
+          .map((f, i) => ({ ...f, text: answers.values[i] ?? "" }))
+          .filter((f) => f.text.trim());
+        appliedBytes = await fillFlatFormFields(docToFile(d), fills);
+        return {
+          bytes: appliedBytes,
+          label: `Fill ${fills.length} field${fills.length === 1 ? "" : "s"}`,
+        };
+      });
+      patchToolState(TOOL_ID, { answers: undefined });
+      setNote({
+        text: "Answers added to the PDF. Undo restores the previous document.",
+        failed: false,
+        sourceBytes: appliedBytes,
+      });
+    } catch (error) {
+      setNote({
+        text: `Couldn't add the answers. Your draft is preserved. ${error instanceof Error ? error.message : "Try again."}`,
+        failed: true,
+      });
+      throw error;
+    } finally {
+      applying.current = false;
+    }
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Fill a printed form that has no interactive fields. Detect the blanks, type your answers (or
-        autofill from your profile), then apply. Scanned forms: run OCR first.
-      </p>
-
-      <button
-        type="button"
-        onClick={() => void detect()}
-        disabled={detecting || !doc}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-      >
-        {detecting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <ScanLine className="h-4 w-4" />
-        )}
-        {detecting ? "Scanning…" : searched ? "Detect fields again" : "Detect fields"}
-      </button>
-
-      {/* Saved profile editor */}
-      <div className="rounded-lg border border-slate-200 dark:border-dark-border">
+    <div className="pdf-mark-panel pdf-autofill-panel">
+      <section aria-label="Detect printed fields">
+        <p>
+          Find the blanks, review your answers, then add them to the PDF. For scanned pages, run OCR
+          first.
+        </p>
         <button
           type="button"
-          onClick={() => setProfileOpen((o) => !o)}
-          aria-expanded={profileOpen}
-          aria-controls={profilePanelId}
-          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          ref={scanButton}
+          data-busy-focus-fallback
+          className={`air-button ${answers?.fields.length ? "" : "air-button--primary"}`}
+          aria-disabled={!doc || busy || blocked || detecting}
+          aria-busy={detecting}
+          onClick={() => void detect()}
         >
-          <UserCog className="h-4 w-4 text-primary-600" />
-          Your profile
-          <span className="ml-auto text-xs text-slate-400">{profileOpen ? "Hide" : "Edit"}</span>
-        </button>
-        {profileOpen && (
-          <div
-            id={profilePanelId}
-            className="flex flex-col gap-2 border-t border-slate-200 dark:border-dark-border p-3"
-          >
-            {PROFILE_FIELDS.map((pf) => (
-              <TextField
-                key={pf.key}
-                label={pf.label}
-                value={profile[pf.key] ?? ""}
-                onChange={(v) => setProfileField(pf.key, v)}
-                placeholder={pf.placeholder}
-              />
+          <ScanLine size={18} aria-hidden="true" />
+          <span className="air-action-labels">
+            {["Detect fields", "Detect fields again", "Reading fields…"].map((label) => (
+              <span
+                key={label}
+                aria-hidden={
+                  label !==
+                  (detecting
+                    ? "Reading fields…"
+                    : answers
+                      ? "Detect fields again"
+                      : "Detect fields")
+                }
+                data-active={
+                  label ===
+                    (detecting
+                      ? "Reading fields…"
+                      : answers
+                        ? "Detect fields again"
+                        : "Detect fields") || undefined
+                }
+              >
+                {label}
+              </span>
             ))}
-            <p className="text-xs text-slate-400 dark:text-dark-text-muted">
-              Saved only on this device, for autofill. Never uploaded.
+          </span>
+        </button>
+        {detecting && (
+          <>
+            <p className="air-help" role="status">
+              {progress}
             </p>
+            <button
+              type="button"
+              className="air-button air-button--quiet"
+              onClick={() => {
+                request.current?.abort();
+                request.current = null;
+                setDetecting(false);
+                setProgress("");
+                setNote({
+                  text: "Detection cancelled. Your answers are unchanged.",
+                  failed: false,
+                });
+                scanButton.current?.focus();
+              }}
+            >
+              Cancel detection
+            </button>
+          </>
+        )}
+        {blocked && (
+          <p className="air-notice">
+            Apply or remove pending redaction and erase marks before detecting or filling fields.
+          </p>
+        )}
+        {saved && !answers && (
+          <p className="air-help">
+            The document changed. Detect fields again to use its current pages.
+          </p>
+        )}
+        {answers && !answers.fields.length && !detecting && (
+          <p className="air-notice" role="status">
+            {answers.hadText
+              ? "No blank fields found. Use Annotate to place text where you need it."
+              : "No selectable text found. Run OCR, then detect fields again."}
+          </p>
+        )}
+      </section>
+
+      <section aria-label="Saved profile">
+        <button
+          type="button"
+          className="air-button air-button--quiet pdf-autofill-profile-toggle"
+          aria-expanded={!!slice.profileOpen}
+          aria-controls="autofill-profile"
+          onClick={() => patchToolState(TOOL_ID, { profileOpen: !slice.profileOpen })}
+        >
+          Your profile <ChevronDown size={16} aria-hidden="true" />
+        </button>
+        {slice.profileOpen === true && (
+          <div id="autofill-profile" className="pdf-autofill-profile">
+            <p className="air-help">
+              Used for matching fields. Changes save on this device only, independently of the PDF.
+            </p>
+            {PROFILE_FIELDS.map(([key, label, placeholder]) => (
+              <div className="pdf-property-field" key={key}>
+                <label className="air-label" htmlFor={`autofill-profile-${key}`}>
+                  {label}
+                </label>
+                <input
+                  className="air-field"
+                  id={`autofill-profile-${key}`}
+                  name={`autofill-profile-${key}`}
+                  value={profile[key] ?? ""}
+                  placeholder={placeholder}
+                  autoComplete="off"
+                  disabled={busy || detecting}
+                  inputMode={key === "email" ? "email" : key === "phone" ? "tel" : "text"}
+                  onChange={(e) => setProfileField(key, e.target.value)}
+                />
+              </div>
+            ))}
+            {slice.profileSaved === false && (
+              <p className="air-notice air-notice--error" role="alert">
+                <AlertTriangle size={16} aria-hidden="true" />
+                <span>
+                  Couldn't save on this device. Your profile remains available while this tool draft
+                  is open. Try editing again to retry.
+                </span>
+              </p>
+            )}
           </div>
         )}
-      </div>
+      </section>
 
-      {searched && !detecting && (
-        <>
-          {fields.length === 0 ? (
-            <div
-              role="status"
-              className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-3 text-xs text-slate-500 dark:text-dark-text-muted"
+      {!!answers?.fields.length && (
+        <section aria-label="Detected answers">
+          <div className="pdf-autofill-heading">
+            <h3>Answers</h3>
+            <span className="air-help">
+              {filledCount} of {answers.fields.length} filled
+            </span>
+          </div>
+          {hasProfileMatch && (
+            <button
+              type="button"
+              className="air-button"
+              disabled={busy || detecting || blocked}
+              aria-disabled={profileMatches === 0 || busy || detecting || blocked}
+              onClick={() => {
+                if (!profileMatches || busy || detecting || blocked) return;
+                const values = { ...answers.values };
+                answers.fields.forEach((f, i) => {
+                  if (!values[i]?.trim() && f.profileKey && profile[f.profileKey]?.trim())
+                    values[i] = profile[f.profileKey]!;
+                });
+                patchToolState(TOOL_ID, { answers: { ...answers, values } });
+                setNote({
+                  text: "Matching empty answers filled from your profile. Review them before applying.",
+                  failed: false,
+                });
+              }}
             >
-              No blank fields detected on this document's text layer. If it's a scan, run OCR first.
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span
-                  aria-live="polite"
-                  className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted"
-                >
-                  {fields.length} field{fields.length === 1 ? "" : "s"} · {filledCount} filled
-                </span>
-                {hasProfileMatch && (
+              Fill empty answers from profile
+            </button>
+          )}
+          <ol className="pdf-autofill-fields">
+            {answers.fields.map((f, i) => (
+              <li key={fieldKey(f)} className="pdf-property-field">
+                <div className="pdf-autofill-heading">
+                  <label className="air-label" htmlFor={`autofill-answer-${i}`}>
+                    {f.label || "Field"}
+                  </label>
                   <button
                     type="button"
-                    onClick={autofill}
-                    className="text-xs font-medium text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
+                    className="air-button air-button--quiet"
+                    disabled={busy}
+                    aria-label={`Show ${f.label || "field"} on page ${f.pageIndex + 1}`}
+                    onClick={() => {
+                      setSelectedPage(f.pageIndex);
+                      setViewMode("focus");
+                    }}
                   >
-                    Autofill from profile
+                    Page {f.pageIndex + 1}
                   </button>
-                )}
-              </div>
-
-              {/* px-1 py-1: room for each input's focus ring inside the scroll
-                  box — overflow-y-auto also clips overflow-x, so a flush-left
-                  input had its focus ring cropped on the left edge. */}
-              <div className="thin-scrollbar flex max-h-72 flex-col gap-2 overflow-y-auto px-1 py-1">
-                {fields.map((f, i) => (
-                  <Labeled key={`${f.pageIndex}-${i}`} label={f.label || "Field"} normalCase>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        aria-label={f.label || "Field"}
-                        name={`autofill-field-${f.pageIndex}-${i}`}
-                        autoComplete="off"
-                        value={values[i] ?? ""}
-                        onChange={(e) => setValue(i, e.target.value)}
-                        className="min-w-0 flex-1 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-1.5 text-sm text-slate-800 dark:text-dark-text pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedPage(f.pageIndex);
-                          setViewMode("focus");
-                        }}
-                        className="shrink-0 rounded px-1.5 text-xs text-slate-400 hover:text-primary-600 pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                      >
-                        p{f.pageIndex + 1}
-                      </button>
-                    </div>
-                  </Labeled>
-                ))}
-              </div>
-
-              <PrimaryAction
-                label={`Fill ${filledCount} field${filledCount === 1 ? "" : "s"}`}
-                onApply={apply}
-                disabled={filledCount === 0}
-              />
-            </div>
-          )}
-        </>
+                </div>
+                <input
+                  className="air-field"
+                  id={`autofill-answer-${i}`}
+                  name={`autofill-field-${f.pageIndex}-${i}`}
+                  autoComplete="off"
+                  value={answers.values[i] ?? ""}
+                  disabled={busy || detecting || blocked}
+                  onChange={(e) => setValue(i, e.target.value)}
+                />
+              </li>
+            ))}
+          </ol>
+          <p className="air-help">
+            Review each page. Long answers shrink to fit and may be shortened with an ellipsis.
+            Original page text stays selectable.
+          </p>
+        </section>
       )}
+      <section aria-label="Apply answers">
+        {note.text && (!note.sourceBytes || note.sourceBytes === doc?.bytes) && (
+          <p
+            role={note.failed ? "alert" : "status"}
+            className={note.failed ? "air-notice air-notice--error" : "air-help"}
+          >
+            {note.failed && <AlertTriangle size={16} aria-hidden="true" />}
+            <span>{note.text}</span>
+          </p>
+        )}
+        {!!answers?.fields.length && (
+          <PrimaryAction
+            label={`Fill ${filledCount} field${filledCount === 1 ? "" : "s"}`}
+            onApply={apply}
+            disabled={!filledCount || detecting || blocked}
+          />
+        )}
+      </section>
     </div>
   );
 }

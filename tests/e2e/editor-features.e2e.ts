@@ -66,15 +66,6 @@ async function waitText(page: Page, re: RegExp, timeout = 30_000) {
     re.flags,
   );
 }
-async function clickByText(page: Page, label: string): Promise<boolean> {
-  return page.evaluate((text) => {
-    const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
-    if (!el) return false;
-    (el as HTMLElement).click();
-    return true;
-  }, label);
-}
 async function scribblePad(page: Page) {
   const pad = await page.$('canvas[aria-label^="Signature drawing area"]');
   if (!pad) fail("Signature pad not found.");
@@ -170,8 +161,8 @@ async function runFixture(page: Page, fixture: string, errors: string[]) {
   // 4. Auto-fill: detect (0 fields is fine on a scan with no text layer).
   await page.click('button[aria-label="Auto-fill"]');
   await waitText(page, /Detect fields/i, 10_000);
-  await clickByText(page, "Detect fields");
-  await waitText(page, /fields?\s+·|No blank fields/i, 60_000);
+  await page.locator(".pdf-autofill-panel [data-busy-focus-fallback]").click();
+  await waitText(page, /\d+ of \d+ filled|No blank fields|No selectable text/i, 60_000);
 
   if (errors.length > 0) {
     console.error(`✗ [${fixture}] console/page errors:`);

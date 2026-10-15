@@ -1844,3 +1844,61 @@ and portable DESIGN/bundle are synchronized; standalone drift checks include the
 colour module. This completes the shared PDF picker piece, not the whole product.
 Next: FillFormTool, then AutoFillTool/NupTool; IMG/Resume picker adoption is tracked
 upstream separately. Local commits only; no deployment.
+
+## 2026-10-15 — Auto-fill printed forms
+
+Replaced the legacy detection/profile/answer card with open Air groups, full-width
+labelled inputs and named page-navigation actions. Answers use the inspector's
+scroll region; profile controls reflow with enlarged text. Stored profiles are
+whitelisted and type-checked. Storage failure keeps an in-memory profile and shows
+an honest retry message; profile edits save independently of PDF Apply/Cancel.
+Filling from the profile changes only empty answers and retains keyboard focus
+when the last match is filled. Re-detection preserves matching manual answers,
+including deliberately emptied values.
+
+Detection reports page progress, supports cancellation and belongs to the exact
+source bytes/pending objects. Abandoned or superseded scans cannot replace newer
+work. Failed/empty rescans retain valid answers; no text and no blanks have distinct
+recovery instructions. Pending redaction/erase blocks detection and filling.
+Apply/mobile Done awaits output, deduplicates work and retains failed drafts.
+Successful output retires the answer preview; Undo/Redo restores exact bytes and
+Undo removes stale success feedback. Cancel restores the tool checkpoint.
+
+Preview and writer share physical text sizing, inset and baseline; the writer uses
+embedded Helvetica metrics. Existing long-answer shrink/ellipsis behavior is now
+explained. Unsupported characters fail explicitly without modifying the PDF. Actual
+selectable answers/original text, rotated/CropBox/UserUnit geometry, title and
+attachment preservation are verified in a synthetic two-page PDF.
+
+Focused validation passes 44 answer/profile regions across eleven sizes and both
+themes, six enlarged-text states and forced-colours/reduced-motion. Reviewed clean
+captures include desktop/laptop, tablet, short landscape and 320px phone; inputs
+remain reachable without horizontal page overflow. Native Safari detect/edit/
+re-scan/Apply/focus/Undo passes. Firefox at actual 200% browser zoom verifies profile
+disclosure/editing, profile fill, answer correction, Apply/focus and Undo. Native
+review found the stale success note and profile-fill focus loss; both fixes pass
+explicit focused regressions. Native review tabs were closed, zoom restored and
+the synthetic Firefox profile name cleared. Physical touch/software keyboard,
+actual OS IME and spoken assistive acceptance remain open.
+
+432 unit tests in 45 files, format/lint/types, dead-code, production build/asset
+limits, design and all 18 standalone portability checks pass. All 16 production smoke and seven extended development suites pass, alongside the
+focused suite (24 distinct suites). Extended compression imports source modules,
+so its production-server attempt stopped at module loading; the complete rerun
+uses the required development server. The legacy smoke selector was
+updated for reserved accessible action labels and distinct empty/no-text messages;
+its now-unused click helper was removed. No output assertions were relaxed.
+
+Removed the unused TextField adapter/useId, exported FieldFill bridge and retired
+Auto-fill skins. Labeled/Toggle still serve FillForm; PositionGrid and Rgb retain
+verified consumers. No dependency added. Editor 317.04/96.88 kB raw/gzip (+0.09 gzip
+from the wheel checkpoint); CSS 142.66/24.92 (-0.10 gzip). 128 deployment assets,
+77 PWA entries, inventory remains 92. PDF appendix and standalone DESIGN match
+Air 1.0.2 (`bb90f52e0b0a`). Evidence/proofs/check log: `docs/air/evidence/autofill-2026-10-15*`;
+full captures and synthetic source/output in `/tmp/cloakpdf-air-review/autofill-*`
+and `Air autofill*.pdf`. Final IAB review tab19 shows three entered answers; old
+tab12 draft is preserved. No push/deployment.
+
+Next: FillFormTool and NupTool. Their remaining controls/empty/error/output and
+mobile completion semantics still need migration. This completes the bounded
+Auto-fill implementation, not the whole PDF/family refresh.
