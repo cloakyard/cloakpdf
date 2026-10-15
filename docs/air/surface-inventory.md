@@ -63,7 +63,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/AnnotateTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/AttachmentsTool.tsx`    | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/AutoFillTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
-| `src/editor/panels/BookmarksTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/BookmarksTool.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/CodeStampTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/CropTool.tsx`           | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/FillFormTool.tsx`       | app-surface | Pending      | Pending            | Pending    |

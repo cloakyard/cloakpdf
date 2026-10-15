@@ -1254,3 +1254,64 @@ three compact PNGs. Full temporary render artifacts are in
 OS IME and assistive speech remain unverified (`validated: false`). Next: Bookmarks
 and Attach, including invalid page targets, detection ownership and attachment
 read/remove/retry semantics. This is not a completed PDF or family migration.
+
+## 2026-10-15 — Bookmarks and pending Apply recovery
+
+**Scope:** Bookmarks' complete panel, including manual/detected lists, shared Air
+nesting select, labelled title/page fields, keyboard reorder, remove/restore,
+contents-page choice, empty/error/pending/cancel/retry and mobile completion.
+Air 1.0.1 remains pinned. Attach is the next separate bounded piece; it is not
+claimed migrated by this checkpoint.
+
+Targets no longer silently clamp. Empty/fractional/out-of-range entries stay in
+the draft, receive nearby feedback and take focus on submission. Drafts survive
+tool/viewport changes, belong to exact source bytes, and retire after Apply or
+Cancel. Detection has a synchronous duplicate guard, AbortSignal and exact
+byte/object ownership; failure/no-match/cancellation preserves manual work and a
+successful replacement offers restoration. First-use download copy is explicit.
+
+Contents insertion no longer discards pending overlays. Unapplied annotation,
+signature and code objects block insertion with a clear recovery instruction;
+ordinary outline changes preserve them, while existing destructive-mark baking
+still precedes byte transforms. Printed-title shortening/glyph substitution and
+outline replacement are disclosed. Unicode outline titles remain complete.
+The byte utility validates targets, preserves metadata and removes two unused
+outline-node properties plus its obsolete target-clamping helper.
+
+The focused regression exposed a shared mobile bug: a validation rejection could
+consume the pending action without changing readiness; the next Done then closed
+without applying. Pending Apply now remains registered on failure. Concurrent
+flush callers await one promise, and a successful flush retires only its own
+registration. Tests retain the invalid input, retry a real file-read failure,
+double-activate Done and verify that one Undo removes exactly one applied outline.
+
+**Rendered acceptance:** all 11 required sizes in both themes (22 layouts), fine/
+coarse targets, three 17rem container-boundary neighbors per theme, 200% root text,
+forced colours/reduced motion, long titles, custom-menu containment/Escape/focus,
+and 12 empty/pending/failure states across phone/desktop and both themes. Native
+Safari checks invalid-field focus, nesting keyboard/Escape and contents Apply/Undo;
+Firefox checks actual browser 200% zoom, visible menu bounds, keyboard Add,
+remove/restore focus and Apply. Representative laptop/tablet/phone images were
+visually inspected. Remaining physical-device, OS IME and assistive-speech gates
+stay open; inventory `validated` remains false.
+
+**Output:** real nested outline destinations and parent relationships; clickable
+contents destinations after page insertion; 70-entry multi-page contents retains
+all original page references and metadata; invalid targets reject; Unicode title
+and existing leading-H2 cases pass. Existing PDF bytes/objects remain unchanged
+on failure. Cancelled, abandoned-tool and replaced-byte scans cannot publish late
+results. A uniform-text PDF returns no headings without replacing its manual draft.
+
+**Cleanup and cost:** the old tinted/mono/dashed skins, cycling heading control,
+spinner, Toggle import and global row counter are removed. Existing shared Toggle
+consumers remain in other tools. No dependency or extra abstraction is introduced.
+Editor JS is 291.21 kB raw / 88.29 kB gzip (+1.32 kB gzip); CSS is 144.23 / 25.24 kB
+(+0.03 kB gzip). Build retains 128 deployable files under 25 MiB and 77 PWA entries.
+Only compact JSON/log evidence and three synthetic proof images enter Git.
+
+Passing: format/lint/type, dead-code, 390 units in 39 files, production build, design/portability, 16 production smoke suites, seven extended suites and the focused Bookmarks/Metadata suites (25 browser suites in total). Commands and final outcomes are recorded in
+`evidence/bookmarks-checks-2026-10-15.log`. An initial broad run missed an existing
+AI-modal animation timing assertion; no assertion or production motion was changed.
+The final serial production suite passes all 16 suites. A metadata harness run reloaded while
+build/spec generation ran alongside it; its stable rerun passes all 28 layouts
+and output/retry checks. No blocked run is counted as a pass.

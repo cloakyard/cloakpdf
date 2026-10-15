@@ -1124,3 +1124,20 @@ journeys across all apps; it is not inferred from the pilot alone.
   return focus to the actual field. Scrolling/zoom must keep completion reachable.
 - True modals suspend the actual Air popover/menu/tooltip portals. Remove retired
   legacy skins and selectors together; stale class names cannot own focus behavior.
+
+- Bookmarks use open, named rows with persistent title, target-page and nesting
+  labels; the shared select owns keyboard selection. Reorder controls retain row
+  identity and focus; removal and heading replacement offer draft-list recovery.
+  Invalid targets remain editable with nearby feedback, never silently clamp.
+- Bookmark drafts belong to exact source bytes, survive ordinary tool/viewport
+  navigation and retire after Apply or Cancel. Heading scans cancel or ignore
+  abandoned results after tool exit, document changes or mark changes. Failed or
+  empty detection preserves manual input. Explain first-use resource downloads.
+- Applying an outline replaces the previous one and remains undoable. Contents
+  pages preserve original page references and adjust link targets; unapplied
+  overlays must be resolved in their owning tools before pages are inserted.
+  Explain printed-title shortening/unsupported-glyph limits without changing
+  complete Unicode outline titles. Do not silently discard pending objects.
+- Pending Apply remains registered when validation rejects before processing.
+  Concurrent flush callers wait for the same operation; failed mobile Done keeps
+  the tool and its draft available for correction and retry.

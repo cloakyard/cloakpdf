@@ -495,12 +495,18 @@ async function main() {
     await page.type('input[placeholder="Bookmark title"]', "Intro");
     if (!(await clickByText(page, "Add 1 bookmark"))) fail("Bookmarks Apply button not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add 1 bookmark/i, 60_000);
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
+        "",
+      { timeout: 60_000 },
+    );
     console.log("  ✓ bookmarks add + apply");
 
-    // 12b. Auto Contents: toggle "Add a contents page" and re-apply — inserts a
-    //      clickable in-document TOC page (embedFont + drawText + /Link annots).
+    // 12b. A successful apply retires its draft. Enter another outline and add
+    //      clickable contents pages (embedFont + drawText + /Link annots).
     //      Output correctness is unit-tested; this proves it runs in a browser.
+    await page.type('input[placeholder="Bookmark title"]', "Intro");
     await page.evaluate(() => {
       const lbl = Array.from(document.querySelectorAll("label")).find((l) =>
         /Add a contents page/i.test(l.textContent ?? ""),
@@ -510,7 +516,12 @@ async function main() {
     if (!(await clickByText(page, "Add 1 bookmark")))
       fail("Bookmarks contents re-apply not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add 1 bookmark/i, 60_000);
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
+        "",
+      { timeout: 60_000 },
+    );
     console.log("  ✓ bookmarks contents page apply");
 
     // 13. Attachments: list panel loads its async report on open.

@@ -284,6 +284,7 @@ export function EditorProvider({
     }
   }, [replacePreviews]);
   const pendingApplyRef = useRef<PendingApply | null>(null);
+  const flushingApply = useRef<Promise<void> | null>(null);
   const [pendingApplyVersion, setPendingApplyVersion] = useState(0);
   const toolCheckpointRef = useRef(0);
 
@@ -674,12 +675,25 @@ export function EditorProvider({
     if (changed) setPendingApplyVersion((v) => v + 1);
   }, []);
 
-  const flushPendingApply = useCallback(async () => {
+  const flushPendingApply = useCallback(() => {
+    if (flushingApply.current) return flushingApply.current;
     const action = pendingApplyRef.current;
-    if (!action || !action.ready) return; // nothing to apply, or not ready yet
-    pendingApplyRef.current = null;
-    setPendingApplyVersion((v) => v + 1);
-    await action.run();
+    if (!action?.ready) return Promise.resolve();
+    // Validation can reject before readiness changes. Keep that registration
+    // available for retry, and make concurrent callers await the same operation.
+    const work = Promise.resolve()
+      .then(() => action.run())
+      .then(() => {
+        if (pendingApplyRef.current === action) {
+          pendingApplyRef.current = null;
+          setPendingApplyVersion((v) => v + 1);
+        }
+      })
+      .finally(() => {
+        flushingApply.current = null;
+      });
+    flushingApply.current = work;
+    return work;
   }, []);
 
   const cancelCurrentTool = useCallback(async () => {

@@ -34,9 +34,6 @@ export interface BookmarkOptions {
 }
 
 interface OutlineNode {
-  title: string;
-  /** 0-based index into the *output* document (after any TOC insertion). */
-  targetIndex: number;
   level: number;
   children: OutlineNode[];
   ref: PDFRef;
@@ -126,9 +123,21 @@ export async function addPdfBookmarks(
   options: BookmarkOptions = {},
 ): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
+  const pdf = await PDFDocument.load(arrayBuffer, { updateMetadata: false });
 
   if (bookmarks.length === 0) return pdf.save();
+
+  for (const entry of bookmarks) {
+    if (
+      !Number.isInteger(entry.pageIndex) ||
+      entry.pageIndex < 0 ||
+      entry.pageIndex >= pdf.getPageCount()
+    ) {
+      throw new Error(
+        `Bookmark target must be a whole page number from 1 to ${pdf.getPageCount()}.`,
+      );
+    }
+  }
 
   // Sanitise levels up front (1–3) so both the outline tree and the TOC indent
   // read from the same normalised value.
@@ -171,7 +180,7 @@ export async function addPdfBookmarks(
 
       for (let n = 0; n < tocPlan[tp]; n++) {
         const entry = entries[entryIdx++];
-        const targetIndex = Math.max(0, Math.min(entry.pageIndex + shift, pagesAfter.length - 1));
+        const targetIndex = entry.pageIndex + shift;
         const baseline = topY - ENTRY_SIZE;
         const x = MARGIN + (entry.level - 1) * INDENT;
         const numLabel = String(targetIndex + 1);
@@ -209,8 +218,6 @@ export async function addPdfBookmarks(
 
   // ── Build the (possibly nested) outline ────────────────────────────────
   const pages = pdf.getPages();
-  const targetOf = (pageIndex: number) =>
-    Math.max(0, Math.min(pageIndex + shift, pages.length - 1));
 
   // Create + register one outline node (Title + Dest). PDFHexString.fromText
   // emits UTF-16BE (with BOM) so non-Latin-1 titles — routine from the heading
@@ -219,14 +226,14 @@ export async function addPdfBookmarks(
   const makeNode = (title: string, targetIndex: number, level: number): OutlineNode => {
     const dest = pdf.context.obj([pages[targetIndex].ref, PDFName.of("Fit")]) as PDFArray;
     const dict = pdf.context.obj({ Title: PDFHexString.fromText(title), Dest: dest }) as PDFDict;
-    return { title, targetIndex, level, children: [], ref: pdf.context.register(dict) };
+    return { level, children: [], ref: pdf.context.register(dict) };
   };
 
   // Assemble the forest from the real entries by nesting level.
   const roots: OutlineNode[] = [];
   const stack: OutlineNode[] = [];
   for (const e of entries) {
-    const node = makeNode(e.title, targetOf(e.pageIndex), e.level);
+    const node = makeNode(e.title, e.pageIndex + shift, e.level);
     while (stack.length > 0 && stack[stack.length - 1].level >= node.level) stack.pop();
     if (stack.length === 0) roots.push(node);
     else stack[stack.length - 1].children.push(node);

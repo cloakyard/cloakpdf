@@ -3254,3 +3254,40 @@ body:has(.pdf-site) {
     border-radius: var(--air-radius-menu) var(--air-radius-menu) 0 0;
   }
 }
+
+/* Outline entries stay open; labels and actions reflow instead of squeezing titles. */
+.pdf-bookmark-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 12px 0 24px;
+  border: 0;
+  border-bottom: 1px solid var(--air-line);
+}
+.pdf-bookmark-row legend {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  font-weight: 500;
+}
+.pdf-bookmark-actions {
+  margin-left: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pdf-bookmark-target {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+@container (max-width: 17rem) {
+  .pdf-bookmark-target {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
