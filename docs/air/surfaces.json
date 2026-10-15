@@ -1338,8 +1338,12 @@
         "844x500",
         "844x501"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
-      "notes": "Air full-name tool list with one labelled compound search; ranked matches, clear/empty states and immediate transitions. Expand/split preserves mounted document and tool state; Cancel/Done returns focus. Tool panel interiors remain a separate slice. Physical/assistive acceptance remains open."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/evidence/search-scrub-2026-10-15.json"
+      ],
+      "notes": "Air full-name tool list with one labelled compound search; ranked matches, clear/empty states and immediate transitions. Expand/split preserves mounted document and tool state; Cancel/Done returns focus. Tool panel interiors remain a separate slice. Physical/assistive acceptance remains open. 2026-10-15: promised apply completion keeps mobile tools open on failure and prevents repeat Done; desktop primary actions consume reported promise rejections. Search/Scrub failure and real output verified; other tools returning void retain their existing lifecycle until their interiors are audited."
     },
     {
       "path": "src/editor/OverviewGrid.tsx",
@@ -1796,17 +1800,27 @@
     {
       "path": "src/editor/panels/FindActTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+      "states": [
+        "empty/default, search/scanning, results, no matches, partial selection, disabled, failure/retry, cancellation/stale completion, apply/undo, keyboard focus, enlarged text, forced colours"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/search-scrub-2026-10-15.json"],
+      "notes": "Air panel migration; byte-owned search, retained query/results/selection, explicit Scrub failure/retry and selected-category readiness. Native Safari and Firefox (actual 200% zoom) reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open. Annotation colours are output data."
     },
     {
       "path": "src/editor/panels/MetadataTool.tsx",
@@ -2008,8 +2022,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/collections-2026-10-14.json"],
-      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/collections-2026-10-14.json",
+        "docs/air/evidence/search-scrub-2026-10-15.json"
+      ],
+      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open. 2026-10-15: promised apply completion keeps mobile tools open on failure and prevents repeat Done; desktop primary actions consume reported promise rejections. Search/Scrub failure and real output verified; other tools returning void retain their existing lifecycle until their interiors are audited."
     },
     {
       "path": "src/editor/panels/RedactTool.tsx",
@@ -2052,17 +2070,27 @@
     {
       "path": "src/editor/panels/ScrubTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+      "states": [
+        "empty/default, search/scanning, results, no matches, partial selection, disabled, failure/retry, cancellation/stale completion, apply/undo, keyboard focus, enlarged text, forced colours"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/search-scrub-2026-10-15.json"],
+      "notes": "Air panel migration; byte-owned search, retained query/results/selection, explicit Scrub failure/retry and selected-category readiness. Native Safari and Firefox (actual 200% zoom) reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open. Annotation colours are output data."
     },
     {
       "path": "src/editor/panels/SelectTextTool.tsx",

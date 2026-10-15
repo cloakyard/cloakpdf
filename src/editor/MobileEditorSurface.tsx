@@ -75,6 +75,7 @@ export function MobileEditorSurface() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
   const applyDisabled = pendingApply !== null && !pendingApply.ready;
@@ -168,9 +169,20 @@ export function MobileEditorSurface() {
                 type="button"
                 className="air-icon-button air-button--primary"
                 onClick={() => {
-                  close();
-                  void flushPendingApply();
-                  setActiveTool(null);
+                  if (finishing.current) return;
+                  finishing.current = true;
+                  void flushPendingApply()
+                    .then(() => {
+                      close();
+                      setActiveTool(null);
+                    })
+                    .catch(() => {
+                      // Keep the tool and its values available for retry. The
+                      // operation reports its failure in the editor/panel.
+                    })
+                    .finally(() => {
+                      finishing.current = false;
+                    });
                 }}
                 disabled={applyDisabled}
                 aria-label="Done"

@@ -96,48 +96,6 @@
   text-transform: uppercase;
 }
 
-.cloak-field-label {
-  color: var(--color-ink-3);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.cloak-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-xs);
-  border-width: var(--rule-thin);
-  border-style: solid;
-  border-radius: var(--radius-input);
-  padding: var(--space-sm);
-}
-
-.cloak-notice--warning {
-  border-color: color-mix(in oklab, var(--color-status-warning) 45%, var(--color-rule));
-  background: var(--color-status-warning-soft);
-  color: var(--color-ink-2);
-}
-
-.cloak-notice--danger {
-  border-color: color-mix(in oklab, var(--color-status-danger) 42%, var(--color-rule));
-  background: var(--color-status-danger-soft);
-  color: var(--color-ink-2);
-}
-
-.cloak-ledger {
-  overflow: hidden;
-  border: var(--rule-thin) solid var(--color-rule);
-  border-radius: var(--radius-input);
-  background: var(--color-surface);
-}
-
-.cloak-ledger > * + * {
-  border-top: var(--rule-thin) solid var(--color-rule);
-}
-
 .cloak-popover {
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: var(--radius-input);
@@ -191,55 +149,6 @@
 
 .cloak-switch-thumb {
   transition: transform var(--dur-normal) var(--ease-in-out);
-}
-
-.cloak-progress-fill {
-  transition: transform var(--dur-normal) linear;
-}
-
-.cloak-search-field {
-  display: flex;
-  min-height: 2.75rem;
-  align-items: center;
-  border: var(--rule-thin) solid var(--color-rule);
-  border-radius: var(--radius-input);
-  background: var(--color-surface);
-  color: var(--color-ink);
-}
-
-.cloak-search-field:focus-within {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 1px;
-}
-
-.cloak-search-field:hover:not(:focus-within) {
-  border-color: var(--color-rule-strong);
-}
-
-.cloak-search-field:has(input[aria-invalid="true"]) {
-  border-color: var(--color-danger);
-}
-
-.cloak-search-field:has(input[aria-invalid="true"]):focus-within {
-  outline-color: var(--color-danger);
-}
-
-.cloak-search-field:has(input:disabled) {
-  cursor: not-allowed;
-  background: var(--color-paper);
-  opacity: 0.6;
-}
-
-.cloak-search-field input {
-  min-width: 0;
-  flex: 1;
-  background: transparent;
-  color: var(--color-ink);
-  outline: none;
-}
-
-.cloak-search-field input:disabled {
-  cursor: not-allowed;
 }
 
 @custom-variant dark (@media (prefers-color-scheme: dark));
@@ -312,30 +221,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Remaining utility state entrances are interruptible transitions,
-   not keyframes. They animate paint/composite properties only and never editor
-   geometry. Touch keeps the same timing but never scales text. */
-.cloak-state-enter {
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity var(--dur-normal) var(--ease-out),
-    transform var(--dur-normal) var(--ease-out);
-}
-
-@starting-style {
-  .cloak-state-enter {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-}
-
-@media (pointer: coarse) {
-  .cloak-state-enter {
-    transition-duration: var(--dur-short);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   /* Tailwind's decorative pulse (streaming caret in Ask PDF, the "Detecting…"
      hint in PDF Password) carries no information — silence it. animate-spin is
@@ -345,13 +230,6 @@ body {
     animation: none;
   }
 
-  .cloak-state-enter,
-  .cloak-status-dot {
-    animation: none !important;
-    transform: none !important;
-  }
-
-  .cloak-state-enter,
   .cloak-popover-motion {
     transition: opacity var(--dur-instant) var(--ease-out) !important;
   }
@@ -366,12 +244,7 @@ body {
     transform: none;
   }
 
-  .cloak-progress-fill {
-    transition-duration: var(--dur-instant);
-  }
-
   @starting-style {
-    .cloak-state-enter,
     .cloak-popover-motion:not([data-motion="instant"]) {
       opacity: 0;
       transform: none;

@@ -1133,3 +1133,68 @@ Evidence: `evidence/privacy-panels-2026-10-15.json`, the dated checks log,
 Full source images were reviewed at phone, tablet, laptop and desktop sizes in both
 appearances. Physical touch/software keyboards, OS IME and assistive speech remain
 open; all migrated surfaces retain `validated: false` for those acceptance gaps.
+
+## 2026-10-15 — Find & Act and Scrub interiors
+
+Find & Act now uses Air search/choice/colour controls, removable terms and open
+match rows. Search owns one abortable byte revision, preserves query/results and
+individual inclusion after failure/cancellation, guards repeated dispatch and
+ignores stale tool/byte completions. IME Enter does not submit. Completed matches
+cannot paint or apply against a different revision; re-search preserves valid
+inclusions. Failed applies keep the selection and surface an actionable error.
+
+Scrub reports failure and retry instead of indefinite scanning. Its action counts
+only selected categories (annotations remain optional), states the rebuild loss
+of bookmarks/form registration, and avoids claiming a clean report proves safety.
+Kept annotations can retain identity/actions. Analysis follows bytes, not overlay
+object edits. Retry retains focus. Mobile Done now awaits a promised operation,
+blocks repeated activation and keeps the tool open on failure; desktop primary
+buttons consume already-reported promise rejections. Other tools still returning
+void retain their existing lifecycle pending their own interior audit.
+
+Validation passed:
+
+- `pnpm exec vp check --fix`, `pnpm check:dead`, `pnpm test`: 384 units / 39 files.
+- `pnpm run build`: 128 assets within 25 MiB; 77 PWA entries. Existing large-chunk
+  advisory remains informational; no dependency or runtime API was added.
+- `pnpm design:check`, `pnpm design:portability`: 86 surfaces; standalone and
+  adversarial bundle tests. Main-repo lint/types/build/design/portability and exact
+  six-document/five-bundle sync pass. Air 1.0.1 contract/tokens are unchanged.
+- Production `test:e2e:smoke`: all 16 suites pass with explicit synthetic demo
+  fixtures. Includes desktop/mobile apply, all export formats, deterministic AI
+  states/chat, modal ownership, navigation/collections/canvas and motion.
+- `test:e2e:extended`: all seven suites pass. Shared colour/redaction/erase
+  `privacy-panels.e2e.ts` also passes, including real destructive output.
+- New `search-scrub.e2e.ts`: real multi-term search, case/whole-word/no-match,
+  selection retention, failed search/apply, cancel, stale bytes/tool exit, IME Enter,
+  box/highlight apply, selectable source text, scrub category keep/remove output,
+  undo, mobile failure/retry and duplicate Done prevention. 44 layouts across all
+  11 required sizes × both themes × both panels; 16 busy/error/long-term states at
+  desktop/phone in both themes; 200% root text and forced-colour/reduced-motion.
+- Native Safari search/highlight/scrub and Firefox search/page navigation/highlight/
+  scrub/keyboard Apply pass. Firefox actual browser zoom at 200% was inspected;
+  it is separate from root-text enlargement. Native tabs closed and zoom reset.
+
+25 browser suites pass (16 smoke + seven extended + two focused). The last term
+spacing polish was followed by a complete focused responsive/output rerun plus
+format/types/unit/build. Initial validation caught a wrong field-shell classname;
+using the canonical `air-field` corrected tablet target geometry. Visual review
+also caught a shrinking warning icon and cramped multiline terms; both corrected.
+Real model inference was not rerun because its runtime is unchanged; the full
+smoke includes deterministic AI regressions. No failed required check is waived.
+
+Cleanup: removed 127 lines of unused legacy field-label, search-field, ledger,
+notice, progress/state-entry and status-dot CSS, including reduced-motion and
+starting-style references. Repository-wide searches confirm no consumers remain.
+Removed the panels' old ColorRow/Labeled/Segmented/spinner paths and source-only
+obsolete design commentary. Remaining legacy shared controls still have live
+consumers and are tracked for migration, not deleted indiscriminately. Knip passes;
+no dependency added. Runtime source grows only 24 net lines for the new behavior;
+regression tests and compact evidence are separate.
+
+Evidence: `evidence/search-scrub-2026-10-15.json`, adjacent check log and three
+synthetic-document PNGs. Other captures and output PDFs remain in the temporary
+validation directory. Physical touch/software keyboard, real OS IME and assistive
+speech remain open; inventories retain `validated: false`. Next: Metadata,
+Bookmarks and Attach interiors, then remaining shared adapters and shell states.
+No push or deployment. This is not a complete PDF or family migration.

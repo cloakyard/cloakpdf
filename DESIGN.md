@@ -1094,3 +1094,17 @@ journeys across all apps; it is not inferred from the pilot alone.
   permanent removal, loss of selectable text on marked pages and possible file
   growth. Pixelation can retain recognisable details; it is not a substitute for
   redaction of sensitive information.
+
+- Find & Act stages review matches against their exact byte revision. Keep the query,
+  previous valid results and individual selections when search fails or is cancelled;
+  never apply stale coordinates after another edit. Match-case/whole-word choices,
+  removable terms, per-match inclusion and page navigation use shared Air controls.
+  Appearance colours belong to document marks; result snippets use readable UI tokens.
+- Search and analysis have explicit pending, no-match, failed and retry states. IME
+  composition owns Enter. Scrub counts describe the supported categories, never a
+  blanket claim that a PDF is safe. Only selected removal categories enable Apply.
+  Explain loss of bookmarks/form registration and the limits of keeping annotations.
+- Mobile Done waits for a promised operation to finish before closing the tool.
+  Failures retain the tool, input and choices for retry; repeat activation must not
+  apply twice. Desktop primary actions consume reported failures without an unhandled
+  rejection. Undo remains the recovery path for successfully applied byte changes.

@@ -62,7 +62,7 @@ export function PrimaryAction({
   return (
     <button
       type="button"
-      onClick={onApply}
+      onClick={() => void Promise.resolve(onApply()).catch(() => {})}
       disabled={!ready}
       aria-busy={busy}
       className={`air-button ${danger ? "air-button--danger" : "air-button--primary"} ${className}`}
