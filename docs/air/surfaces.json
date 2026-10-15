@@ -1809,19 +1809,27 @@
     {
       "path": "src/editor/panels/CropTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "states": [
+        "keyboard/drag crop margins; scope; invalid draft; selected/unselected furniture",
+        "reading/cancel/no-text/too-few/failure/retry; source-owned drafts; promised mobile Done",
+        "actual crop/straighten output; rotated/CropBox/UserUnit geometry; catalog/forms/attachments; Undo"
+      ],
+      "viewports": [
+        "320/375/390/430 phones; 844x390 coarse landscape; 768/1024 tablets; 1280/1366 laptops; 1440/1920 desktops; light/dark",
+        "200% root text; forced colours; reduced motion; native Safari and Firefox including 200% zoom"
+      ],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/evidence/crop-furniture-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
     },
     {
       "path": "src/editor/panels/FillFormTool.tsx",
@@ -2248,19 +2256,27 @@
     {
       "path": "src/editor/panels/StripFurnitureTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "states": [
+        "keyboard/drag crop margins; scope; invalid draft; selected/unselected furniture",
+        "reading/cancel/no-text/too-few/failure/retry; source-owned drafts; promised mobile Done",
+        "actual crop/straighten output; rotated/CropBox/UserUnit geometry; catalog/forms/attachments; Undo"
+      ],
+      "viewports": [
+        "320/375/390/430 phones; 844x390 coarse landscape; 768/1024 tablets; 1280/1366 laptops; 1440/1920 desktops; light/dark",
+        "200% root text; forced colours; reduced motion; native Safari and Firefox including 200% zoom"
+      ],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/evidence/crop-furniture-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
     },
     {
       "path": "src/editor/panels/WholeDocPanel.tsx",

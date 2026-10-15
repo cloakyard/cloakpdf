@@ -1366,3 +1366,56 @@ open; inventory stays `validated: false`. Next: Crop and Strip furniture interio
 including shared whole-document controls and promised failure/retry handling, then
 remaining tools and shell loading/error/restored-draft banners. Full PDF/family
 migration remains unfinished. No push or deployment.
+
+## 2026-10-15 — Crop and Strip furniture interiors
+
+Crop now shares Air scope segments and four labelled percentage fields. Keyboard
+entry and pointer drawing feed the same geometry; invalid/empty drafts remain
+editable, opposite margins must leave a positive area, and the primary action is
+next to the crop fields. Drafts belong to exact source bytes. Trim to content is
+cancellable and cannot overwrite a changed page, scope, marks or manual draft.
+Blank/full-frame pages are distinguished from failed analysis. Both tools await
+Apply before mobile Done closes; failures keep their fields/selections for retry.
+Successful Apply retires drafts before Undo. Busy focus stays in the panel.
+
+Strip furniture uses open Air checkbox rows with full wrapping samples and page
+coverage. Reading, too few pages, no selectable text, no matches, cancellation and
+failure are distinct. Selections persist across tool/viewport changes. The Stage
+derives preview margins directly from the selected result, removing duplicated
+margin state and its synchronising effect. Both tools explain crop's data-retention
+limit: it hides content rather than deleting sensitive information.
+
+Straighten previously rebuilt the entire PDF and copied /Rotate after rendering an
+already rotated page. It now replaces affected page streams in place, preserves
+catalog/page references and maps pixels through the existing visible-page geometry.
+Tests cover all four rotations with UserUnit 1/2 and offset CropBoxes, corrected
+pixel rows, preserved title/author/attachments, untouched text/form fields and exact
+no-op bytes. Changed pages with native annotations/widgets fail explicitly before
+writing; pending editor marks block automatic adjustments. Text rasterisation,
+possible size growth and edge clipping are explained. This is not sanitisation.
+
+Passing gates: 404 units in 41 files; format/lint/types; dead-code audit; production
+build; design/inventory (86 records); isolated portability (17 assertions); all 16
+production smoke suites, seven extended suites and focused Crop/furniture plus
+visible-page geometry suites (25 browser suites). The updated smoke waits on actual
+scan/apply completion rather than rail labels or unchanged help text. The focused
+suite covers 44 size/theme layouts, 12 enlarged-text cases, forced colours/reduced
+motion, failed mobile Done/retry/concurrent flush, cancelled and superseded scans,
+retained selections, output geometry and Undo. Required layout images were inspected.
+Safari production keyboard/suggestion/crop/furniture/Undo and focus checks pass;
+Firefox invalid/valid crop, Apply/Undo and keyboard furniture selection pass at
+actual 200% zoom. Native review tabs are closed and Firefox zoom restored.
+
+Removed both legacy panel skins, tiny/truncated result controls, void apply chains,
+unused imports, duplicated preview state and an obsolete Crop reference in Signature.
+Live legacy WholeDocPanel/Segmented consumers remain for the next bounded migration.
+No dependencies added. Editor 294.35 kB raw / 89.70 gzip (+1.36 gzip); CSS 144.17 /
+25.23 (-0.06 gzip). 128 deployment assets remain below 25 MiB; 77 PWA precache entries.
+The existing large-chunk warning is nonfailing. Air 1.0.1 remains unchanged; canonical
+PDF appendix and portable DESIGN are synchronized.
+
+Evidence: `evidence/crop-furniture-2026-10-15.json`, dated checks log and three proof
+images. Physical touch/software keyboards, real OS IME and assistive speech remain
+open (`validated: false`). Next: Signature interior and its shared legacy controls,
+then Stamp/numbering interiors and shell loading/error/restored-draft banners.
+This does not complete PDF or the family refresh. No push or deployment.

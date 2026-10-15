@@ -3318,3 +3318,36 @@ body:has(.pdf-site) {
 .pdf-attachment-selection span {
   display: block;
 }
+
+/* Page geometry controls share Air fields and open, readable selection rows. */
+.pdf-crop-margins {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.pdf-furniture-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.pdf-furniture-list li + li {
+  border-top: 1px solid var(--air-line);
+}
+.pdf-furniture-list .air-check-label {
+  align-items: flex-start;
+  padding-block: 12px;
+}
+.pdf-furniture-list .air-check-label > span {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.pdf-furniture-list strong {
+  font-weight: 500;
+}
+@container (max-width: 14rem) {
+  .pdf-crop-margins {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

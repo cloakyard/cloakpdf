@@ -212,15 +212,17 @@ async function main() {
     const stripBtn = await page.$('button[aria-label="Strip furniture"]');
     if (!stripBtn) fail("Strip furniture rail tool not found.");
     await stripBtn.click(); // focus mode
-    await waitForText(page, /repeat across pages/i, 5_000); // panel mounted
-    await waitForText(
-      page,
-      /No repeating|Trims \d+%|Select at least one|Running header|Running footer|Page numbers/i,
-      60_000,
-    ); // scan resolved
-    const canTrim = await page.evaluate(() => /Trims \d+%/i.test(document.body.innerText));
+    await page.waitForSelector(".pdf-furniture-panel", { timeout: 5_000 });
+    await page.waitForFunction(
+      () =>
+        /No repeating|No selectable text|Needs at least|Trims [\d.]+%/.test(
+          document.querySelector(".pdf-furniture-panel")?.textContent ?? "",
+        ),
+      { timeout: 60_000 },
+    );
+    const canTrim = await page.evaluate(() => /Trims [\d.]+%/i.test(document.body.innerText));
     if (canTrim && (await clickByText(page, "Trim furniture"))) {
-      await waitForText(page, /Working/i, 10_000);
+      await waitForText(page, /Selected margins trimmed/i, 60_000);
       await page.waitForSelector('img[alt="Page 1"]', { timeout: 60_000 });
       console.log("  ✓ strip furniture detect + trim (crop) apply");
     } else {
@@ -340,7 +342,7 @@ async function main() {
     await waitForText(page, /Keeping/i, 5_000);
     if (!(await clickByText(page, "Crop pages"))) fail("Crop Apply button not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /area to keep/i, 60_000); // keep resets once applied
+    await waitForText(page, /Crop applied/i, 60_000); // wait for the byte operation, not static help
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
     console.log("  ✓ crop drag + apply");
 

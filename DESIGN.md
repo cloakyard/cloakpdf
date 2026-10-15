@@ -1157,3 +1157,25 @@ journeys across all apps; it is not inferred from the pilot alone.
 - After a blocking operation, restore the initiating control when it survives.
   A removed row supplies a surviving action as its focus destination. Closed
   dialogs fall back to Export; failed tool operations must not jump there.
+
+- Crop uses the shared Air scope segments and four persistent percentage fields.
+  Dragging and keyboard entry describe the same visible page frame. Preserve
+  incomplete/invalid drafts with nearby feedback; opposing margins must leave a
+  positive area. Keep the primary crop action near its fields. A successful crop
+  retires its draft; failure retains it. Scope drafts to exact source bytes.
+- Trim to content is a cancellable suggestion. A result must still belong to the
+  same bytes, page, scope, marks and draft before replacing margins. Blank and
+  full-frame pages are legitimate no-result cases; read failures require retry.
+- Straighten is an immediate undoable operation. Explain image-only text, possible
+  file growth and clipped edges. Require pending marks to be applied first; reject
+  changed pages with native annotations/widgets until flattened. Preserve the PDF
+  catalog, page references, metadata, attachments, untouched forms and original
+  rotated/CropBox/UserUnit geometry. A no-skew pass returns the original bytes.
+- Strip furniture presents full wrapping text samples and named Air check rows.
+  Distinguish too few pages, no selectable text, no matches, reading, cancellation
+  and failure. Selection belongs to exact bytes and survives tool/viewport changes
+  and failed Apply. Derive preview bands directly from the selected result; do not
+  maintain a second copy of crop margins. Retire applied selections before Undo.
+- Crop and Strip furniture await their byte operation before mobile Done closes.
+  Failures keep the tool and draft ready for retry. Cropping hides content without
+  deleting it; both tools must explain that it is not sensitive-data removal.

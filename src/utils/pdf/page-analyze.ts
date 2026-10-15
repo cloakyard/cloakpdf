@@ -13,8 +13,9 @@
  * browser. Everything runs client-side; no file leaves the browser.
  */
 
-import { PDFDocument, degrees } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFName } from "@pdfme/pdf-lib";
 import type { PDFPageProxy } from "pdfjs-dist";
+import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
 
@@ -131,7 +132,9 @@ export function detectSkewAngle(
 async function pageToGray(
   page: PDFPageProxy,
   maxDim: number,
-): Promise<{ gray: Uint8Array; w: number; h: number } | null> {
+  signal?: AbortSignal,
+): Promise<{ gray: Uint8Array; w: number; h: number }> {
+  signal?.throwIfAborted();
   const base = page.getViewport({ scale: 1 });
   const s = Math.min(1, maxDim / Math.max(base.width, base.height));
   const viewport = page.getViewport({ scale: s });
@@ -139,21 +142,28 @@ async function pageToGray(
   canvas.width = Math.max(1, Math.round(viewport.width));
   canvas.height = Math.max(1, Math.round(viewport.height));
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return null;
+  if (!ctx) throw new Error("Page rendering is unavailable. Try again.");
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const w = canvas.width;
-  const h = canvas.height;
-  const gray = new Uint8Array(w * h);
-  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-    // Rec. 601 luma.
-    gray[j] = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
+  const render = page.render({ canvasContext: ctx, viewport, canvas });
+  const cancel = () => render.cancel();
+  signal?.addEventListener("abort", cancel, { once: true });
+  try {
+    await render.promise;
+    signal?.throwIfAborted();
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const w = canvas.width;
+    const h = canvas.height;
+    const gray = new Uint8Array(w * h);
+    for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+      // Rec. 601 luma.
+      gray[j] = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
+    }
+    return { gray, w, h };
+  } finally {
+    signal?.removeEventListener("abort", cancel);
+    canvas.width = canvas.height = 0;
   }
-  // Release the scratch canvas's backing store promptly (it can be large).
-  canvas.width = canvas.height = 0;
-  return { gray, w, h };
 }
 
 /** Open the file, render one page to grayscale, and tear the document down.
@@ -163,16 +173,20 @@ async function renderPageGray(
   file: File,
   pageIndex: number,
   maxDim: number,
+  signal?: AbortSignal,
 ): Promise<{ gray: Uint8Array; w: number; h: number } | null> {
+  signal?.throwIfAborted();
   const pdfjs = await getPdfJs();
   const ab = await file.arrayBuffer();
+  signal?.throwIfAborted();
   const task = pdfjs.getDocument({ data: ab, wasmUrl: PDFJS_WASM_URL });
-  const doc = await task.promise;
   try {
+    const doc = await task.promise;
+    signal?.throwIfAborted();
     if (pageIndex < 0 || pageIndex >= doc.numPages) return null;
     const page = await doc.getPage(pageIndex + 1);
     try {
-      return await pageToGray(page, maxDim);
+      return await pageToGray(page, maxDim, signal);
     } finally {
       page.cleanup();
     }
@@ -189,8 +203,12 @@ async function renderPageGray(
  * @param file - The source PDF.
  * @param pageIndex - 0-based page to analyse.
  */
-export async function detectContentBox(file: File, pageIndex: number): Promise<ContentBox | null> {
-  const r = await renderPageGray(file, pageIndex, 1000);
+export async function detectContentBox(
+  file: File,
+  pageIndex: number,
+  signal?: AbortSignal,
+): Promise<ContentBox | null> {
+  const r = await renderPageGray(file, pageIndex, 1000, signal);
   if (!r) return null;
   const box = inkBoundingBox(r.gray, r.w, r.h, 235);
   if (!box) return null;
@@ -235,7 +253,7 @@ export async function deskewPdf(
 ): Promise<{ bytes: Uint8Array; deskewed: number }> {
   const minAngle = options.minAngle ?? 0.4;
   const ab = await file.arrayBuffer();
-  const src = await PDFDocument.load(ab);
+  const src = await PDFDocument.load(ab, { updateMetadata: false });
   const pageCount = src.getPageCount();
   const targets = new Set(options.pageIndices ?? src.getPages().map((_, i) => i));
 
@@ -244,13 +262,12 @@ export async function deskewPdf(
   // re-parse the whole PDF dozens of times.
   const pdfjs = await getPdfJs();
   const task = pdfjs.getDocument({ data: ab.slice(0), wasmUrl: PDFJS_WASM_URL });
-  const pdfjsDoc = await task.promise;
   const DPI = 150;
   const scale = DPI / 72;
-  const out = await PDFDocument.create();
   const total = pageCount;
   let done = 0;
   try {
+    const pdfjsDoc = await task.promise;
     // Detect skew per target page first (cheap, low-res), reusing pdfjsDoc.
     const angles = new Map<number, number>();
     for (const i of targets) {
@@ -258,30 +275,35 @@ export async function deskewPdf(
       const page = await pdfjsDoc.getPage(i + 1);
       try {
         const gray = await pageToGray(page, 900);
-        if (gray) {
-          const a = detectSkewAngle(gray.gray, gray.w, gray.h);
-          if (Math.abs(a) >= minAngle) angles.set(i, a);
-        }
+        const a = detectSkewAngle(gray.gray, gray.w, gray.h);
+        if (Math.abs(a) >= minAngle) angles.set(i, a);
       } finally {
         page.cleanup();
       }
     }
-    if (angles.size === 0) return { bytes: await src.save(), deskewed: 0 };
+    if (angles.size === 0) return { bytes: new Uint8Array(ab), deskewed: 0 };
+    // Keep page refs, the document catalog and all untouched pages intact.
+    // Native annotations cannot be safely rotated with their page pixels here.
+    for (const i of angles.keys()) {
+      if (src.getPage(i).node.Annots()?.size())
+        throw new Error(
+          `Page ${i + 1} has links, comments or form fields. Flatten them before straightening.`,
+        );
+    }
 
     for (let i = 0; i < pageCount; i++) {
       const angle = angles.get(i);
       if (angle === undefined) {
-        const [copied] = await out.copyPages(src, [i]);
-        out.addPage(copied);
         options.onProgress?.(++done, total);
         continue;
       }
       const page = await pdfjsDoc.getPage(i + 1);
+      const src2 = document.createElement("canvas");
+      const dst = document.createElement("canvas");
       try {
         const base = page.getViewport({ scale });
         const safeScale = clampScaleForCanvas(base.width, base.height, scale);
         const viewport = page.getViewport({ scale: safeScale });
-        const src2 = document.createElement("canvas");
         src2.width = Math.round(viewport.width);
         src2.height = Math.round(viewport.height);
         const sctx = src2.getContext("2d");
@@ -292,7 +314,6 @@ export async function deskewPdf(
 
         // Rotate the rendered page by -angle about its centre onto a same-size
         // white canvas (typical scan skew is a few degrees → corners don't clip).
-        const dst = document.createElement("canvas");
         dst.width = src2.width;
         dst.height = src2.height;
         const dctx = dst.getContext("2d");
@@ -305,23 +326,21 @@ export async function deskewPdf(
         dctx.setTransform(1, 0, 0, 1, 0, 0);
 
         const jpeg = await canvasToImageBytes(dst, "image/jpeg", 0.92);
-        const img = await out.embedJpg(jpeg);
-        const ptW = viewport.width / safeScale;
-        const ptH = viewport.height / safeScale;
-        const outPage = out.addPage([ptW, ptH]);
-        outPage.drawImage(img, { x: 0, y: 0, width: ptW, height: ptH });
-        // Preserve any page /Rotate so orientation is unchanged.
-        const srcRot = src.getPage(i).getRotation().angle;
-        if (srcRot) outPage.setRotation(degrees(srcRot));
-
+        const img = await src.embedJpg(jpeg);
+        const outPage = src.getPage(i);
+        outPage.node.delete(PDFName.of("Contents"));
+        outPage.node.set(PDFName.of("Resources"), src.context.obj({}));
+        await drawOnVisiblePage(outPage, ({ width, height }) => {
+          outPage.drawImage(img, { x: 0, y: 0, width, height });
+        });
+      } finally {
         src2.width = src2.height = 0;
         dst.width = dst.height = 0;
-      } finally {
         page.cleanup();
       }
       options.onProgress?.(++done, total);
     }
-    return { bytes: await out.save(), deskewed: angles.size };
+    return { bytes: await src.save(), deskewed: angles.size };
   } finally {
     void task.destroy();
   }

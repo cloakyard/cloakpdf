@@ -3,6 +3,42 @@ import { cropPagesIndividual } from "../utils/pdf/transform.ts";
 import { docToFile, type CanvasDoc } from "./doc.ts";
 import type { FractionRect } from "./types.ts";
 
+export type CropMargins = Record<"top" | "right" | "bottom" | "left", string>;
+
+/** Keep text drafts intact; only valid percentages may change the page geometry. */
+export function parseCropMargins(margins: CropMargins) {
+  const values = Object.values(margins);
+  if (
+    values.some(
+      (v) => !v.trim() || !Number.isFinite(Number(v)) || Number(v) < 0 || Number(v) >= 100,
+    )
+  )
+    return { keep: null, error: "Enter a percentage from 0 to less than 100 for each margin." };
+  const top = Number(margins.top) / 100,
+    right = Number(margins.right) / 100;
+  const bottom = Number(margins.bottom) / 100,
+    left = Number(margins.left) / 100;
+  if (top + bottom >= 1 || left + right >= 1)
+    return { keep: null, error: "Opposite margins must add up to less than 100%." };
+  return {
+    keep:
+      top || right || bottom || left
+        ? { xPct: left, yPct: top, wPct: 1 - left - right, hPct: 1 - top - bottom }
+        : null,
+    error: "",
+  };
+}
+
+export function cropMarginsFromRect(rect: FractionRect): CropMargins {
+  const percent = (v: number) => String(Number((Math.max(0, v) * 100).toFixed(4)));
+  return {
+    top: percent(rect.yPct),
+    right: percent(1 - rect.xPct - rect.wPct),
+    bottom: percent(1 - rect.yPct - rect.hPct),
+    left: percent(rect.xPct),
+  };
+}
+
 /** Crop the bytes and keep pending marks attached to their original content.
  * Out-of-bounds marks remain editable/undoable; the paper clips their display. */
 export async function cropDoc(doc: CanvasDoc, keeps: Map<number, FractionRect>) {

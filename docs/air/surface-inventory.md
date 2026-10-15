@@ -65,7 +65,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/AutoFillTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/BookmarksTool.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/CodeStampTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
-| `src/editor/panels/CropTool.tsx`           | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/CropTool.tsx`           | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/FillFormTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/FindActTool.tsx`        | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/MetadataTool.tsx`       | app-surface | Done         | Done               | Pending    |
@@ -80,7 +80,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/SignatureTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/SmartEraseTool.tsx`     | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/StampTools.tsx`         | app-surface | Pending      | Pending            | Pending    |
-| `src/editor/panels/StripFurnitureTool.tsx` | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/StripFurnitureTool.tsx` | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/WholeDocPanel.tsx`      | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/controls.tsx`           | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/registry.tsx`                  | app-surface | Done         | Pending            | Pending    |

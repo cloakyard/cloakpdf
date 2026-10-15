@@ -560,8 +560,6 @@ export function Panel() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Source toggle — a sliding-thumb tab control (same Segmented as Crop's
-          "All pages / This page"), not two separate buttons. */}
       <Segmented
         value={mode}
         onChange={(v) => patchToolState(TOOL_ID, { mode: v })}
