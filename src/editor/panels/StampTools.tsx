@@ -1,5 +1,6 @@
 // StampTools.tsx — Content-additive overlay tools that place repeating text on
-// every page: page numbers, header/footer, Bates numbering, and watermark. Each
+// every page: page numbers, header/footer and Bates numbering. Stamp has its
+// own WatermarkTool adapter. Each
 // is an option form + Apply (reusing WholeDocPanel for the busy-aware button)
 // with a visual position picker so the layout is obvious without freeform drag.
 // All are additive (page count/geometry unchanged) so overlay objects are
@@ -8,8 +9,7 @@
 // Each tool renders a LIVE preview on the focused page so the placement, size,
 // colour, and format read as WYSIWYG before you commit — Apply then burns the
 // same text into the bytes. The form state therefore lives in the shared tool
-// slice (not local useState) so a sibling Stage can read it, exactly as the
-// watermark tool does. The preview geometry below mirrors each writer in
+// slice (not local useState) so a sibling Stage can read it. The preview geometry below mirrors each writer in
 // utils/pdf/stamps.ts (margin / position / baseline) so preview == output.
 
 import { useCallback } from "react";
@@ -19,16 +19,11 @@ import type {
   PageNumberFormat,
   PageNumberOptions,
   PageNumberPosition,
-  StampFinish,
-  StampShape,
-  WatermarkOptions,
 } from "../../types.ts";
-import { paintStamp } from "../../utils/pdf/stamp-render.ts";
 import {
   addBatesNumbers,
   addHeaderFooter,
   addPageNumbers,
-  addWatermark,
   baseFileName,
   resolveStampTokens,
 } from "../../utils/pdf-operations.ts";
@@ -537,200 +532,6 @@ export function BatesPanel() {
       </Labeled>
       <PositionGrid value={o.position} onChange={(position) => set({ position })} />
       <ColorRow value={o.color} onChange={(color) => set({ color })} />
-    </WholeDocPanel>
-  );
-}
-
-// ── Watermark: live-previewed across the focused page ─────────────────────
-//
-// Watermark renders a real-time preview on the canvas so Size / Opacity / Angle /
-// colour read as WYSIWYG before you commit. Apply still burns it into the bytes
-// through addWatermark, so the preview geometry below mirrors that function's
-// centre + rotation math.
-const WATERMARK_TOOL_ID = "stamp-pdf";
-
-const WATERMARK_DEFAULTS: Required<WatermarkOptions> = {
-  text: "CONFIDENTIAL",
-  fontSize: 48,
-  color: GREY,
-  opacity: 0.3,
-  rotation: 45,
-  shape: "none",
-  finish: "digital",
-  inkTexture: 0.25,
-};
-
-function readWatermark(slice: Record<string, unknown>): Required<WatermarkOptions> {
-  return {
-    text: (slice.text as string) ?? WATERMARK_DEFAULTS.text,
-    fontSize: (slice.fontSize as number) ?? WATERMARK_DEFAULTS.fontSize,
-    color: (slice.color as WatermarkOptions["color"]) ?? WATERMARK_DEFAULTS.color,
-    opacity: (slice.opacity as number) ?? WATERMARK_DEFAULTS.opacity,
-    rotation: (slice.rotation as number) ?? WATERMARK_DEFAULTS.rotation,
-    shape: (slice.shape as StampShape) ?? WATERMARK_DEFAULTS.shape,
-    finish: (slice.finish as StampFinish) ?? WATERMARK_DEFAULTS.finish,
-    inkTexture: (slice.inkTexture as number) ?? WATERMARK_DEFAULTS.inkTexture,
-  };
-}
-
-/** Paint the watermark onto the overlay exactly as addWatermark will burn it:
- *  Helvetica-Bold text centred on the page, rotated about that centre. `w` is
- *  the overlay's (zoom-aware) width so fontSize-in-points maps to display px via
- *  the page's point width — the preview tracks zoom for free. `rotation` is the
- *  maths convention (counter-clockwise positive); canvas rotates clockwise for a
- *  positive angle, so we negate it here to match the burned PDF. */
-function drawWatermarkPreview(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  widthPt: number,
-  o: WatermarkOptions,
-): void {
-  const fontPx = o.fontSize * (w / widthPt);
-  if (fontPx < 1) return;
-  ctx.save();
-  ctx.globalAlpha = Math.max(0, Math.min(1, o.opacity));
-  ctx.fillStyle = `rgb(${o.color.r}, ${o.color.g}, ${o.color.b})`;
-  ctx.font = `bold ${fontPx}px Helvetica, Arial, sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.translate(w / 2, h / 2);
-  ctx.rotate((-o.rotation * Math.PI) / 180);
-  ctx.fillText(o.text, 0, 0);
-  ctx.restore();
-}
-
-export function WatermarkStage() {
-  const { doc, selectedPage } = useEditorRead();
-  const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
-  const page = doc?.pages[selectedPage] ?? null;
-  const widthPt = page?.widthPt ?? 0;
-  const { text, fontSize, opacity, rotation, shape, finish, inkTexture } = o;
-  const { r, g, b } = o.color;
-  // Resolve {page}/{date}/… for the focused page so the preview shows the real
-  // burned text, not the raw template. {title} isn't in the doc model → "".
-  const resolved = resolveStampTokens(text, {
-    page: selectedPage + 1,
-    total: doc?.pageCount ?? 1,
-    title: "",
-    filename: baseFileName(doc?.fileName ?? ""),
-    date: new Date(),
-  });
-  const paintOverlay = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-      if (!resolved.trim() || widthPt <= 0) return;
-      // Plain watermark → direct vector-style text (mirrors the pdf-lib burn).
-      // Any shape or the ink finish → the shared raster painter that also draws
-      // the burned PNG, so the box/seal/ink-bleed preview matches the output.
-      if (shape === "none" && finish === "digital") {
-        drawWatermarkPreview(ctx, w, h, widthPt, {
-          text: resolved,
-          fontSize,
-          color: { r, g, b },
-          opacity,
-          rotation,
-        });
-        return;
-      }
-      paintStamp(ctx, w / 2, h / 2, fontSize * (w / widthPt), rotation, opacity, {
-        text: resolved,
-        color: { r, g, b },
-        shape,
-        finish,
-        texture: inkTexture,
-      });
-    },
-    [resolved, fontSize, r, g, b, opacity, rotation, shape, finish, inkTexture, widthPt],
-  );
-  useStageProps({ paintOverlay });
-  return null;
-}
-
-export function WatermarkPanel() {
-  const { applyTransform, patchToolState } = useEditorActions();
-  const { containerProps, insert } = useTokenInsert();
-  const o = readWatermark(useToolSlice(WATERMARK_TOOL_ID));
-  const set = (p: Partial<WatermarkOptions>) => patchToolState(WATERMARK_TOOL_ID, p);
-  return (
-    <WholeDocPanel
-      blurb="Stamp text across every page — plain, in a box or seal, with a crisp digital or distressed ink-stamp finish."
-      applyLabel="Add stamp"
-      disabled={!o.text.trim()}
-      onApply={() =>
-        void applyTransform(async (d) => ({
-          bytes: await addWatermark(docToFile(d), o),
-          label: "Watermark",
-        }))
-      }
-    >
-      <div className="flex flex-col gap-4" {...containerProps}>
-        <TextField
-          label="Text"
-          value={o.text}
-          onChange={(text) => set({ text })}
-          placeholder="CONFIDENTIAL"
-        />
-        <TokenBar onInsert={insert} />
-      </div>
-      <Labeled label="Shape">
-        <Segmented<StampShape>
-          value={o.shape}
-          onChange={(shape) => set({ shape })}
-          options={[
-            { value: "none", label: "None" },
-            { value: "rect", label: "Box" },
-            { value: "circle", label: "Circle" },
-          ]}
-        />
-      </Labeled>
-      <Labeled label="Finish">
-        <Segmented<StampFinish>
-          value={o.finish}
-          onChange={(finish) => set({ finish })}
-          options={[
-            { value: "digital", label: "Digital" },
-            { value: "ink", label: "Ink stamp" },
-          ]}
-        />
-      </Labeled>
-      {o.finish === "ink" && (
-        <RangeField
-          label="Texture"
-          value={Math.round(o.inkTexture * 100)}
-          min={0}
-          max={50}
-          step={5}
-          suffix="%"
-          onChange={(v) => set({ inkTexture: v / 100 })}
-        />
-      )}
-      <ColorRow value={o.color} onChange={(color) => set({ color })} />
-      <RangeField
-        label="Size"
-        value={o.fontSize}
-        min={16}
-        max={120}
-        suffix="pt"
-        onChange={(fontSize) => set({ fontSize })}
-      />
-      <RangeField
-        label="Opacity"
-        value={Math.round(o.opacity * 100)}
-        min={5}
-        max={100}
-        step={5}
-        suffix="%"
-        onChange={(v) => set({ opacity: v / 100 })}
-      />
-      <RangeField
-        label="Angle"
-        value={o.rotation}
-        min={-90}
-        max={90}
-        step={5}
-        suffix="°"
-        onChange={(rotation) => set({ rotation })}
-      />
     </WholeDocPanel>
   );
 }

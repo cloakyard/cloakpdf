@@ -1199,3 +1199,23 @@ journeys across all apps; it is not inferred from the pilot alone.
   preserves unrelated marks and PDF content, and removes only successful signature
   drafts. Failed mobile Done keeps the tool and placements ready for retry. Undo
   restores the prior bytes/placements. Never silently omit an incomplete signature.
+
+- Stamp owns a byte-scoped preview and Air text, field-insertion, shape/finish,
+  colour and precision controls. Retain raw invalid numeric drafts through layout
+  and tool changes; preview the last valid value and prevent invalid Apply. Numeric
+  values stay at the trailing edge when enlarged text wraps. Keep native keyboard
+  stepping while suppressing duplicate platform spinner chrome. Selected segments
+  remain distinguishable in forced colours.
+- Read the actual document title for field expansion and capture one preview time
+  for both preview and saved date/time tokens. Field insertion replaces the current
+  selection, restores the caret and never steals focus from a subsequent action.
+  Failed/abandoned property reads preserve the PDF and cannot publish stale results.
+- Ink and shaped previews reuse the supersampled output buffer, so zoom does not
+  reshuffle texture. Bound cached canvases to 16 million pixels in total, twelve
+  entries and an 8192px maximum side; release evicted buffers and clear on tool exit.
+  Oversized stamps report a recoverable error. Plain digital text stays vector;
+  unsupported encoding offers a shape/ink correction without changing the PDF.
+- Stamp Apply awaits saving, retains a failed draft and retires a successful preview
+  before Undo. Start another stamp explicitly re-arms the settings. Keep busy focus
+  in the panel and mobile Done open until success. Preserve existing text, metadata,
+  attachments and visible-page geometry. A watermark is not redaction.

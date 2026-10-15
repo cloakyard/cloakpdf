@@ -1477,3 +1477,47 @@ Evidence: `evidence/signature-panel-2026-10-15.json`, companion checks log and t
 proof images. Next: Stamp/numbering interiors, then remaining controls/panels and
 shell loading/error/restored-draft banners. This does not complete PDF or the family
 refresh. Local commits only; no push or deployment.
+
+## 2026-10-15 — Stamp interior
+
+Stamp now has its own WatermarkTool adapter with Air text/token insertion, neutral
+shape/finish segments, colour and labelled numeric fields paired with sliders.
+Invalid numbers remain editable across layout changes and cannot apply; the preview
+retains the last valid value. Values remain aligned at enlarged text, native arrow
+stepping remains, and forced colours identify selected options. Title expansion
+reads the actual PDF metadata. A captured preview timestamp reaches saved tokens.
+Token insertion replaces the selection and cannot steal focus from a later field.
+
+Apply and mobile Done await the real writer, keep failed drafts for retry and retire
+successful previews before Undo. Start another stamp explicitly re-arms settings.
+Safari exposed a post-save focus jump; the stable Stamp text region now receives
+fallback focus, verified in both Safari and Firefox. Failed/abandoned metadata reads
+cannot publish stale data. Vector text reports unsupported characters with a shape/
+ink recovery path. Actual PDF.js text checks retain all three pages, original body
+text, metadata and attachments; geometry tests cover rotations, CropBox and UserUnit.
+
+Ink/shape previews reuse the exact supersampled output buffer, including at zoom.
+Fractional cache keys no longer alias. Raster storage has a 16-million-pixel total
+budget, twelve-entry cap and 8192px maximum side. Oversized input fails before large
+allocation; temporary/evicted buffers are released, and tool exit clears the cache.
+Removed the old Stamp panel/painter, void Apply, obsolete imports and unreachable
+null branch. Live numbering adapters remain until their consumers migrate. No new
+dependency. Editor 303.86 kB raw / 93.05 gzip (+1.92); CSS 146.05 / 25.50 (+0.36).
+
+405 units in 42 files, all 16 production smoke + seven extended suites, focused
+Stamp and page-geometry suites pass (25 distinct browser suites). The focused and
+production motion suites were rerun after final refinements. Inspected 44 region/
+size/theme captures, twelve enlarged-text cases and forced colours/reduced motion.
+The screenshot harness now scrolls the intended inspector only, avoiding artificial
+scrolling of the fixed outer editor. Native Safari validates tokens/ink/size/save
+and final focus; Firefox validates Circle/Ink, numeric and slider-key input, Apply
+and Undo at actual 200% zoom. Native test tabs closed and Firefox zoom reset.
+
+Format/lint/types, dead-code, build, inventory/design and isolated portability pass;
+128 deploy assets are below 25 MiB and 77 PWA entries remain. Air 1.0.1 tokens are
+unchanged. Physical touch/software keyboards, real OS IME and assistive speech
+remain open (`validated: false`). Evidence: `evidence/stamp-panel-2026-10-15.json`,
+its checks log and desktop/mobile/enlarged-text images. The captured document shows
+an applied APPROVED stamp plus a pending CONFIDENTIAL stamp, deliberately distinct
+from an accidentally doubled preview. Next: Page numbers, Header & footer, Bates,
+then remaining panels and shell feedback. PDF/family migration is not complete.

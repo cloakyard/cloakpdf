@@ -3434,3 +3434,138 @@ body:has(.pdf-site) {
     inline-size: min(100%, 240px);
   }
 }
+
+/* Stamp composition follows the portable precision-control contract. */
+.pdf-stamp-settings {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.pdf-stamp-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pdf-stamp-tokens .air-button {
+  padding-inline: 12px;
+}
+.pdf-stamp-numbers {
+  gap: 16px;
+}
+.pdf-stamp-number {
+  min-inline-size: 0;
+}
+.pdf-stamp-number__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pdf-stamp-number__heading .air-label {
+  margin: 0;
+}
+.pdf-stamp-number__value {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--air-ink-secondary);
+}
+.pdf-stamp-number__value .air-field {
+  appearance: textfield;
+  inline-size: 5rem;
+  min-block-size: 32px;
+  padding: 4px 8px;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-stamp-number__value > span {
+  min-inline-size: 20px;
+}
+.pdf-stamp-range-track {
+  position: relative;
+  margin-block-start: 4px;
+}
+.pdf-stamp-range {
+  appearance: none;
+  display: block;
+  background: transparent;
+  inline-size: 100%;
+  block-size: 32px;
+  margin: 0;
+  accent-color: var(--air-accent);
+  cursor: pointer;
+}
+.pdf-stamp-range::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--air-line-control);
+}
+.pdf-stamp-range::-moz-range-track {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--air-line-control);
+}
+.pdf-stamp-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--air-surface);
+  border: 1.5px solid var(--air-accent);
+}
+.pdf-stamp-range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--air-surface);
+  border: 1.5px solid var(--air-accent);
+}
+.pdf-stamp-range:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+  border-radius: var(--air-radius-control);
+}
+.pdf-stamp-range:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.pdf-stamp-neutral {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 4px);
+  width: 1px;
+  height: 9px;
+  background: var(--air-line-control);
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  .pdf-stamp-number__value .air-field,
+  .pdf-stamp-range {
+    min-block-size: 44px;
+  }
+}
+@media (forced-colors: active) {
+  .pdf-stamp-range {
+    appearance: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  .pdf-stamp-settings .pdf-segments [aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -4px;
+  }
+}
+
+.pdf-stamp-number__value input::-webkit-inner-spin-button,
+.pdf-stamp-number__value input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}

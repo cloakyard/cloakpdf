@@ -2307,7 +2307,7 @@
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/geometry-2026-10-14.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Stamp extracted to WatermarkTool.tsx and audited separately on 2026-10-15. Page numbers/header-footer/Bates remain pending; keep their live shared adapters."
     },
     {
       "path": "src/editor/panels/StripFurnitureTool.tsx",
@@ -2333,6 +2333,36 @@
         "docs/air/evidence/crop-furniture-2026-10-15.json"
       ],
       "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
+    },
+    {
+      "path": "src/editor/panels/WatermarkTool.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "focused",
+        "selected",
+        "disabled",
+        "reading",
+        "read-failure",
+        "apply-failure",
+        "retry",
+        "applied",
+        "undo",
+        "cancel",
+        "overflow"
+      ],
+      "viewports": ["phone", "landscape phone", "tablet", "laptop", "desktop"],
+      "evidence": [
+        "docs/air/evidence/stamp-panel-2026-10-15.json",
+        "tests/e2e/stamp-panel.e2e.ts",
+        "tests/e2e/page-geometry.e2e.ts"
+      ],
+      "notes": "Air text/tokens, shape/finish, colour, precision fields and sliders. Byte-owned preview, actual title/frozen time, promised mobile Done, retry and explicit re-arm. 44 size/theme region captures plus 12 enlarged-text cases; native Safari/Firefox including real 200% zoom. Physical touch/software keyboard/OS IME/assistive speech remain open."
     },
     {
       "path": "src/editor/panels/WholeDocPanel.tsx",

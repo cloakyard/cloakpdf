@@ -31,6 +31,8 @@ export interface WatermarkOptions {
   /** Ink-texture amount 0–1 (light → heavy grunge); only used when `finish` is
    *  `"ink"`. Defaults to a medium level. */
   inkTexture?: number;
+  /** Captured preview time; omit to use the time of application. */
+  timestamp?: number;
 }
 
 /** Standard PDF document metadata fields. */

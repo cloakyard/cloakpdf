@@ -58,7 +58,7 @@ export async function addWatermark(
     total: allPages.length,
     title: pdf.getTitle() ?? "",
     filename: baseFileName(file.name),
-    date: new Date(),
+    date: new Date(options.timestamp ?? Date.now()),
   };
   const targets = pageIndices
     ? pageIndices
@@ -126,7 +126,14 @@ export async function addWatermark(
   const font = await pdf.embedFont(StandardFonts.HelveticaBold);
   for (const { page, index } of targets) {
     const text = resolveStampTokens(options.text, { ...ctxBase, page: index + 1 });
-    if (!text) continue;
+    if (!text.trim()) continue;
+    try {
+      font.encodeText(text);
+    } catch {
+      throw new Error(
+        "Plain digital stamps cannot encode these characters. Choose a Box, Circle or Ink stamp to keep your text.",
+      );
+    }
     await drawOnVisiblePage(page, ({ width, height }) => {
       const textWidth = font.widthOfTextAtSize(text, options.fontSize);
       const textHeight = font.heightAtSize(options.fontSize);

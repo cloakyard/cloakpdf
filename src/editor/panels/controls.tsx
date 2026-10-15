@@ -1,5 +1,5 @@
 // controls.tsx — Small shared form controls for the option-bearing overlay
-// tools (page numbers, header/footer, bates, watermark). Designed to read well
+// tools (page numbers, header/footer and Bates). Designed to read well
 // in the narrow right panel AND the mobile bottom sheet: large tap targets,
 // one accent, no cramped rows.
 
@@ -194,8 +194,7 @@ export function Labeled({
 }
 
 /**
- * Tap-to-insert dynamic-field tokens for free-text stamp slots (header/footer,
- * watermark). `useTokenInsert` tracks the last-focused text field inside the
+ * Tap-to-insert dynamic-field tokens for header/footer text slots. `useTokenInsert` tracks the last-focused text field inside the
  * spread `containerProps` wrapper and `insert()` splices a token at its caret —
  * working for any controlled input/textarea without prop-drilling, by writing
  * through the native value setter and dispatching a real `input` event (so the
