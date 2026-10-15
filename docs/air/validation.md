@@ -1080,3 +1080,56 @@ harness stay in `/tmp/cloakpdf-air-preview/`. Physical touch/software keyboards,
 OS IME and assistive speech remain open. This does not approve unmigrated tool
 panels. Next: Redact and Smart Erase interiors, including their custom controls,
 selection states, destructive-output verification and removal of replaced skins.
+
+## 2026-10-15 — Redact, Smart Erase and shared colour controls
+
+Redact and Erase now use Air open groups, choices, actions, fields and one shared
+pending-mark list. Clear/remove retains Undo and transfers focus to a surviving
+control. Existing box colours and erase payloads remain output data. Pixelation
+copy distinguishes its visible result from actual redaction; both tools preserve
+the rasterisation, selectable-text and file-growth disclosure.
+
+Detect/Find share a byte-keyed geometry cache and one synchronous request guard.
+Cancellation, byte changes (which retain the document ID) and tool exit invalidate
+late extraction. Read/OCR errors retain the phrase and marks, offer retry, and do
+not mark valid input as invalid. Enter respects composition. The colour picker
+uses non-overlapping 40/44px targets, explicit selection, visible native keyboard
+axes, a single-contour hex field, draft validation and a measured Air popover.
+Pointer cancellation restores the colour before the drag. The popup stays inside
+the viewport when its anchor moves offscreen during resize or browser zoom.
+
+Validation and evidence:
+
+- `tests/e2e/privacy-panels.e2e.ts`: 44 panel/theme layouts at all 11 required
+  sizes, 22 colour popup layouts, short-screen open-popup resize, 200% root text,
+  forced colours and reduced motion. Actual PII detection/text search, repeated
+  dispatch, failed reads/retry, cancellation, stale byte/tool completions, removal
+  focus and undo pass. Independent PDF.js inspection verifies Fill, Blend and
+  Pixelate change pixels, remove touched-page text operators and retain untouched
+  text. This does not assert that pixelation makes visual details unrecoverable.
+- Geometry integration: 48 responsive cases and real redaction/erase placement
+  across CropBox, rotation and UserUnit, followed by vector placement, pass.
+- Native Safari: real PII detection, colour keyboard adjustment, Escape and focus
+  return. Native Firefox: real text search and colour hex entry; open-popup resize
+  at actual 200% zoom exposed an offscreen-position bug, now fixed and rechecked.
+- `vp check --fix`, `pnpm check:dead`, 384 units, build/PWA/128 deploy-asset limits
+  and inventory checks pass. Seven extended browser suites pass, including
+  signature colour/background and desktop/mobile placement. All 16 production
+  smoke suites pass, including six-format redaction privacy and shared colour/date
+  keyboard controls. Both focused integrations and isolated/adversarial portability
+  pass. Final label-spacing cleanup passes the full 44/22 focused matrix again.
+  No real-model inference rerun was needed; AI runtime is unchanged, with its
+  modal/chat lifecycle covered by the production smoke suite.
+
+Source review removed the old uppercase/tinted panel markup, duplicated mark-list
+markup and duplicate detection/search lifecycle. The shared colour picker replaces
+its overlapping hit areas, hidden axes and popover animation state. No dependency
+was added. Remaining legacy controls still used by other tools are deliberately
+tracked for their own migration; they are not dead code. The portable PDF appendix
+now records the adopted behaviour. Air 1.0.1 and family token hashes are unchanged.
+
+Evidence: `evidence/privacy-panels-2026-10-15.json`, the dated checks log,
+`redact-desktop-dark.png`, `erase-phone-light.png`, and `colour-phone-text-200.png`.
+Full source images were reviewed at phone, tablet, laptop and desktop sizes in both
+appearances. Physical touch/software keyboards, OS IME and assistive speech remain
+open; all migrated surfaces retain `validated: false` for those acceptance gaps.

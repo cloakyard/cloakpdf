@@ -1,14 +1,7 @@
-/**
- * Shared colour picker with preset swatches and a custom colour popover.
- *
- * Displays 4 preset colour circles followed by a "custom" button that opens
- * an inline popover containing a saturation/brightness gradient area, a hue
- * slider, and a hex input. The popover is dismissed by clicking outside or
- * pressing Escape.
- *
- * The component is fully controlled via `value` (hex string) and `onChange`.
- */
+/** Air colour controls. Presets and direct hex entry share a non-modal, anchored
+ * picker; the gradient and three labelled axes preserve author colours. */
 
+import { Check, Plus, X } from "lucide-react";
 import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { createPortal } from "react-dom";
 import { colorPresets } from "../config/theme.ts";
@@ -70,12 +63,12 @@ export function rgbToHex(r: number, g: number, b: number): string {
 
 interface ColorPickerProps {
   value: string;
+  label?: string;
   onChange: (hex: string) => void;
 }
 
-export function ColorPicker({ value, onChange }: ColorPickerProps) {
+export function ColorPicker({ value, onChange, label = "Color" }: ColorPickerProps) {
   const [open, setOpen] = useState(false);
-  const [animatePopover, setAnimatePopover] = useState(true);
   useCloseOnModalOpen(setOpen);
   const popoverId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -85,9 +78,12 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const saturationInputRef = useRef<HTMLInputElement>(null);
   // Portal the popover to <body> so the editor's overflow-clipped panels / mobile
   // sheet can't clip it; anchor it to the swatch row.
-  const { style: popoverStyle, above: popoverAbove } = useAnchoredPopover(open, rootRef, {
-    width: 256,
-    height: 280,
+  const { style: popoverStyle } = useAnchoredPopover(open, rootRef, {
+    width: 320,
+    height: 490,
+    gap: 8,
+    margin: 16,
+    contentRef: menuRef,
   });
 
   // Hex compared case-insensitively: presets are stored uppercase (theme.ts)
@@ -102,21 +98,17 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const [hexTouched, setHexTouched] = useState(false);
 
   // Sync internal state when popover opens
-  const toggleOpen = useCallback(
-    (animated: boolean) => {
-      setAnimatePopover(animated);
-      setOpen((prev) => {
-        if (!prev) {
-          const converted = hexToHsv(value);
-          setHsv(converted);
-          setHexInput(value);
-          setHexTouched(false);
-        }
-        return !prev;
-      });
-    },
-    [value],
-  );
+  const toggleOpen = useCallback(() => {
+    setOpen((prev) => {
+      if (!prev) {
+        const converted = hexToHsv(value);
+        setHsv(converted);
+        setHexInput(value);
+        setHexTouched(false);
+      }
+      return !prev;
+    });
+  }, [value]);
 
   // Close on click-outside or Escape
   useEffect(() => {
@@ -130,6 +122,7 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
     };
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        e.stopPropagation();
         setOpen(false);
         triggerRef.current?.focus();
       }
@@ -151,12 +144,16 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
 
   useEffect(() => {
     if (!open || !popoverStyle) return;
-    const frame = requestAnimationFrame(() => saturationInputRef.current?.focus());
+    const frame = requestAnimationFrame(() => {
+      if (matchMedia("(pointer: coarse)").matches) menuRef.current?.focus();
+      else saturationInputRef.current?.focus();
+    });
     return () => cancelAnimationFrame(frame);
-  }, [open, popoverStyle]);
+  }, [open, !!popoverStyle]);
 
   /* ---- Saturation/Brightness drag ---- */
   const draggingSV = useRef(false);
+  const dragStart = useRef(value);
 
   const updateSV = useCallback(
     (clientX: number, clientY: number) => {
@@ -176,11 +173,12 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const handleSVPointerDown = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
+      dragStart.current = value;
       draggingSV.current = true;
       e.currentTarget.setPointerCapture(e.pointerId);
       updateSV(e.clientX, e.clientY);
     },
-    [updateSV],
+    [updateSV, value],
   );
 
   const handleSVPointerMove = useCallback(
@@ -248,63 +246,50 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const showHexError = hexTouched && !hexValid;
 
   return (
-    <div className="relative" ref={rootRef}>
-      <div className="flex items-center gap-2.5">
-        <span className="text-xs text-slate-500 dark:text-dark-text-muted shrink-0">Color:</span>
-
-        {colorPresets.map((p) => (
+    <div className="pdf-color" ref={rootRef} role="group" aria-labelledby={`${popoverId}-label`}>
+      <p className="air-label" id={`${popoverId}-label`}>
+        {label}
+      </p>
+      <div className="pdf-color__swatches">
+        {colorPresets.map((preset) => (
           <button
-            key={p.hex}
+            key={preset.hex}
             type="button"
-            aria-label={`${p.label} color${eqHex(value, p.hex) ? " (selected)" : ""}`}
+            aria-label={`${preset.label} color${eqHex(value, preset.hex) ? " (selected)" : ""}`}
+            aria-pressed={eqHex(value, preset.hex)}
+            className="air-icon-button pdf-color__swatch"
             onClick={() => {
-              onChange(p.hex);
+              onChange(preset.hex);
               setOpen(false);
             }}
-            className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
           >
-            <span
-              className={`block w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 ${
-                eqHex(value, p.hex)
-                  ? "border-primary-500"
-                  : "border-slate-300 dark:border-dark-border"
-              }`}
-              style={{ backgroundColor: p.hex }}
-              aria-hidden="true"
-            />
+            <span style={{ background: preset.hex }} aria-hidden="true">
+              {eqHex(value, preset.hex) && <Check size={14} color="white" />}
+            </span>
           </button>
         ))}
-
-        {/* Custom colour trigger */}
         <button
           ref={triggerRef}
           type="button"
-          aria-label={`Custom color${!isPreset ? ` (${value})` : ""}${open ? " — picker open" : ""}`}
+          className="air-icon-button pdf-color__swatch"
+          aria-label={`Custom color${!isPreset ? ` (${value})` : ""}`}
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls={open ? popoverId : undefined}
-          onClick={(event) => toggleOpen(event.detail > 0)}
-          className="relative -m-2 flex min-h-11 min-w-11 items-center justify-center rounded-full touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          onClick={toggleOpen}
         >
           <span
-            className={`flex items-center justify-center w-6 h-6 sm:w-5 sm:h-5 rounded-full border-2 ${
-              open || !isPreset ? "border-primary-500" : "border-slate-300 dark:border-dark-border"
-            }`}
             style={{
               background: !isPreset
                 ? value
-                : "conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
+                : "conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
             }}
             aria-hidden="true"
           >
-            {isPreset && (
-              <span className="text-white text-xxs font-bold drop-shadow-sm leading-none">+</span>
-            )}
+            {isPreset ? <Plus size={14} color="white" /> : <Check size={14} color="white" />}
           </span>
         </button>
       </div>
-
-      {/* ---- Popover (portaled to <body>, fixed-anchored) ---- */}
       {open &&
         popoverStyle &&
         createPortal(
@@ -312,114 +297,121 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
             ref={menuRef}
             id={popoverId}
             role="dialog"
+            tabIndex={-1}
             aria-label="Custom color picker"
+            aria-describedby={`${popoverId}-title`}
             style={popoverStyle}
-            data-side={popoverAbove ? "above" : "below"}
-            data-motion={animatePopover ? "surface" : "instant"}
-            className="cloak-popover cloak-popover-motion thin-scrollbar z-[var(--z-popover)] max-h-[min(22rem,calc(100svh-1rem))] w-64 space-y-3 overflow-y-auto overscroll-contain p-3"
+            className="air-popover pdf-color__popover thin-scrollbar"
           >
-            {/* Saturation / Brightness area */}
+            <div className="pdf-color__heading">
+              <h3 id={`${popoverId}-title`}>{label}</h3>
+              <button
+                type="button"
+                className="air-icon-button"
+                aria-label="Close color picker"
+                onClick={() => {
+                  setOpen(false);
+                  triggerRef.current?.focus();
+                }}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
             <div
               ref={svAreaRef}
               role="group"
               aria-label="Saturation and brightness picker"
-              className="relative h-40 w-full cursor-crosshair touch-none select-none rounded-lg focus-within:outline-none focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-2 sm:h-36"
+              className="pdf-color__plane"
               style={{
                 background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueColor})`,
               }}
               onPointerDown={handleSVPointerDown}
               onPointerMove={handleSVPointerMove}
               onPointerUp={handleSVPointerUp}
-              onPointerCancel={handleSVPointerUp}
+              onPointerCancel={() => {
+                if (!draggingSV.current) return;
+                draggingSV.current = false;
+                setHsv(hexToHsv(dragStart.current));
+                setHexInput(dragStart.current);
+                onChange(dragStart.current);
+              }}
             >
+              <span
+                className="pdf-color__point"
+                style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%`, background: value }}
+                aria-hidden="true"
+              />
+            </div>
+            <label className="pdf-color__axis">
+              <span>
+                Saturation <output>{Math.round(hsv.s * 100)}%</output>
+              </span>
               <input
                 ref={saturationInputRef}
                 type="range"
                 min={0}
                 max={100}
                 step={1}
-                value={Math.round(hsv.s * 100)}
-                onChange={handleSaturationChange}
                 aria-label="Saturation"
                 aria-valuetext={`${Math.round(hsv.s * 100)}%`}
-                className="sr-only"
+                value={Math.round(hsv.s * 100)}
+                onChange={handleSaturationChange}
               />
+            </label>
+            <label className="pdf-color__axis">
+              <span>
+                Brightness <output>{Math.round(hsv.v * 100)}%</output>
+              </span>
               <input
                 type="range"
                 min={0}
                 max={100}
                 step={1}
-                value={Math.round(hsv.v * 100)}
-                onChange={handleBrightnessChange}
                 aria-label="Brightness"
                 aria-valuetext={`${Math.round(hsv.v * 100)}%`}
-                className="sr-only"
+                value={Math.round(hsv.v * 100)}
+                onChange={handleBrightnessChange}
               />
-              {/* Indicator */}
-              <div
-                className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                style={{
-                  left: `${hsv.s * 100}%`,
-                  top: `${(1 - hsv.v) * 100}%`,
-                  backgroundColor: value,
-                }}
-              />
-            </div>
-
-            {/* Hue slider */}
-            <input
-              type="range"
-              aria-label="Hue"
-              min={0}
-              max={360}
-              value={Math.round(hsv.h)}
-              onChange={handleHueChange}
-              className="w-full h-3 rounded-full appearance-none cursor-pointer touch-manipulation pointer-coarse:h-11 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-slate-300 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-slate-300 [&::-moz-range-thumb]:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-              style={{
-                background: "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "100% 0.75rem",
-              }}
-            />
-
-            {/* Hex input + preview */}
-            <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-md border border-slate-200 dark:border-dark-border shrink-0"
-                style={{ backgroundColor: value }}
-                aria-hidden="true"
-              />
+            </label>
+            <label className="pdf-color__axis">
+              <span>
+                Hue <output>{Math.round(hsv.h)}°</output>
+              </span>
               <input
-                type="text"
-                aria-label="Hex color value"
-                name="hex-color"
-                autoComplete="off"
-                value={hexInput}
-                onChange={handleHexInput}
-                onBlur={() => setHexTouched(true)}
-                maxLength={7}
-                spellCheck={false}
-                inputMode="text"
-                aria-invalid={showHexError}
-                aria-describedby={`${popoverId}-hex-help`}
-                className={`flex-1 min-w-0 px-2 py-1.5 text-sm sm:text-card-desc font-mono border dark:bg-dark-surface-alt dark:text-dark-text rounded-md focus-visible:outline-none focus-visible:ring-1 pointer-coarse:min-h-11 ${
-                  showHexError
-                    ? "border-red-500 focus-visible:ring-red-500 dark:border-red-400"
-                    : "border-slate-300 focus-visible:ring-primary-500 dark:border-dark-border"
-                }`}
+                type="range"
+                min={0}
+                max={360}
+                aria-label="Hue"
+                aria-valuetext={`${Math.round(hsv.h)} degrees`}
+                value={Math.round(hsv.h)}
+                onChange={handleHueChange}
               />
-            </div>
+            </label>
+            <label className="air-label" htmlFor={`${popoverId}-hex`}>
+              Hex color value
+            </label>
+            <input
+              id={`${popoverId}-hex`}
+              type="text"
+              name="hex-color"
+              autoComplete="off"
+              value={hexInput}
+              onChange={handleHexInput}
+              onBlur={() => setHexTouched(true)}
+              maxLength={7}
+              spellCheck={false}
+              aria-invalid={showHexError}
+              aria-describedby={`${popoverId}-hex-help`}
+              className="air-field"
+            />
             <p
               id={`${popoverId}-hex-help`}
-              className={`min-h-[1lh] text-xxs leading-tight ${
-                showHexError
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-slate-500 dark:text-dark-text-muted"
-              }`}
+              className={showHexError ? "air-help air-help--error" : "air-help"}
               aria-live="polite"
             >
-              {showHexError ? "Use 6 hexadecimal digits, such as #2563EB." : "6-digit hex value"}
+              {showHexError
+                ? "Use 6 hexadecimal digits, such as #2563EB."
+                : "Changes apply as you choose a colour."}
             </p>
           </div>,
           document.body,

@@ -1076,3 +1076,21 @@ journeys across all apps; it is not inferred from the pilot alone.
   is not a document edit. Discard late repairs after replacement or byte changes,
   release retired URLs/canvases, and bound preview memory independently of export
   resolution. A failed image export must fail explicitly, never emit blank output.
+
+- Redact and Smart Erase use open Air groups, labelled choices and one shared
+  pending-mark collection. Reviewing, removing and clearing marks preserves the
+  persistent Undo path and moves focus to a surviving control. Appearance settings
+  affect new marks; keep existing mark colours and erase methods intact.
+- Detection and text search own one cancellable request tied to the source byte
+  revision, not only the document ID. Ignore abandoned work after a transform,
+  replacement or tool exit; prevent duplicate dispatch and retain valid inputs on
+  failure. A processing error does not make the search phrase invalid.
+- Colour presets have separate 40/44px targets and explicit selected state. The
+  custom picker keeps the actual colour field, labelled saturation/brightness/hue
+  axes and direct hex entry inside the Air popover. Preserve invalid drafts and
+  the last valid output colour; Escape returns focus. Keep the popup reachable
+  after scrolling, resizing or zooming, even when its anchor moves offscreen.
+- Redaction/erase remain deferred until export or a byte operation. Explain the
+  permanent removal, loss of selectable text on marked pages and possible file
+  growth. Pixelation can retain recognisable details; it is not a substitute for
+  redaction of sensitive information.

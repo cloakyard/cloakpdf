@@ -384,7 +384,7 @@ async function main() {
     const eraseBtn = await page.$('button[aria-label="Erase"]');
     if (!eraseBtn) fail("Erase rail tool not found.");
     await eraseBtn.click(); // focus mode
-    await waitForText(page, /anything you want gone/i, 5_000);
+    await page.waitForSelector('[aria-label="Erase method"]', { timeout: 5_000 });
     await drawOnPage(page, { x: 0.3, y: 0.3 }, { x: 0.6, y: 0.45 });
     await waitForText(page, /\b1 area\b/i, 5_000); // region listed, not burned
     console.log("  ✓ smart erase draw (deferred mark)");

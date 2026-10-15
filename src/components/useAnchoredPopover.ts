@@ -25,12 +25,14 @@ interface Opts {
   gap?: number;
   /** Minimum margin from the viewport edges. */
   margin?: number;
+  /** Measure variable-height content after it mounts. */
+  contentRef?: RefObject<HTMLElement | null>;
 }
 
 export function useAnchoredPopover(
   open: boolean,
   anchorRef: RefObject<HTMLElement | null>,
-  { width, height, gap = 4, margin = 8 }: Opts,
+  { width, height, gap = 4, margin = 8, contentRef }: Opts,
 ): { style: CSSProperties | null; above: boolean } {
   const [style, setStyle] = useState<CSSProperties | null>(null);
   const [above, setAbove] = useState(false);
@@ -46,24 +48,34 @@ export function useAnchoredPopover(
     const vw = viewport?.width ?? document.documentElement.clientWidth;
     const viewportBottom = viewportTop + vh;
     const viewportRight = viewportLeft + vw;
+    const popupWidth = Math.min(width, vw - margin * 2);
+    const popupHeight = Math.min(
+      contentRef?.current?.getBoundingClientRect().height || height,
+      vh - margin * 2,
+    );
     const spaceBelow = viewportBottom - r.bottom - margin;
     const spaceAbove = r.top - viewportTop - margin;
-    const flip = spaceBelow < height && spaceAbove > spaceBelow;
-    const left = Math.max(viewportLeft + margin, Math.min(r.left, viewportRight - width - margin));
-    const top = flip
-      ? Math.max(viewportTop + margin, r.top - height - gap)
-      : Math.max(
-          viewportTop + margin,
-          Math.min(r.bottom + gap, viewportBottom - Math.min(height, vh - margin * 2) - margin),
-        );
+    const flip = spaceBelow < popupHeight && spaceAbove > spaceBelow;
+    const left = Math.max(
+      viewportLeft + margin,
+      Math.min(r.left, viewportRight - popupWidth - margin),
+    );
+    const top = Math.max(
+      viewportTop + margin,
+      Math.min(
+        flip ? r.top - popupHeight - gap : r.bottom + gap,
+        viewportBottom - popupHeight - margin,
+      ),
+    );
     setAbove(flip);
     setStyle({
       position: "fixed",
       left,
       top,
-      width,
+      width: popupWidth,
+      maxHeight: vh - margin * 2,
     });
-  }, [anchorRef, width, height, gap, margin]);
+  }, [anchorRef, contentRef, width, height, gap, margin]);
 
   // Position before paint when opening; keep anchored on scroll/resize. A
   // capture-phase scroll listener catches scrolls in any ancestor (the bottom
@@ -76,18 +88,22 @@ export function useAnchoredPopover(
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(place);
     };
+    const observer = new ResizeObserver(onMove);
+    if (anchorRef.current) observer.observe(anchorRef.current);
+    if (contentRef?.current) observer.observe(contentRef.current);
     window.addEventListener("scroll", onMove, { capture: true, passive: true });
     window.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("resize", onMove);
     window.visualViewport?.addEventListener("scroll", onMove);
     return () => {
       cancelAnimationFrame(raf);
+      observer.disconnect();
       window.removeEventListener("scroll", onMove, { capture: true });
       window.removeEventListener("resize", onMove);
       window.visualViewport?.removeEventListener("resize", onMove);
       window.visualViewport?.removeEventListener("scroll", onMove);
     };
-  }, [open, place]);
+  }, [open, place, anchorRef, contentRef, !!style]);
 
   return { style, above };
 }
