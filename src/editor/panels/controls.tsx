@@ -5,24 +5,11 @@
 
 import type { LucideIcon } from "lucide-react";
 import { useId } from "react";
-import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 
 export interface Rgb {
   r: number;
   g: number;
   b: number;
-}
-
-/** Colour control — the shared app ColorPicker (preset swatches Black · Grey ·
- *  Blue · Red, then a manual picker) bridged to the {r,g,b} the writers want.
- *  One colour UI across every tool, per the design system. */
-export function ColorRow({ value, onChange }: { value: Rgb; onChange: (c: Rgb) => void }) {
-  return (
-    <ColorPicker
-      value={rgbToHex(value.r, value.g, value.b)}
-      onChange={(hex) => onChange(hexToRgb(hex))}
-    />
-  );
 }
 
 // 3 columns × 2 rows — the cells map spatially to the page corners, so the

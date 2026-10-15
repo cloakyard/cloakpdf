@@ -1259,3 +1259,20 @@ journeys across all apps; it is not inferred from the pilot alone.
   successful previews before Undo and explicitly re-arm Start another header & footer.
   Cancel restores the checkpoint. Replaced TripleRow and native-value token insertion
   paths must not remain; retain only shared controls with live consumers.
+
+- Bates numbering uses full-width Air Prefix/Suffix fields, the shared minimum-digit
+  segments, spatial position grid and colour picker. Minimum digits adds leading
+  zeros; identifiers grow across digit boundaries without truncating or wrapping.
+  Use precise Start at entry (1–999999999), with enough width for all nine digits,
+  and the shared Size (8–24 pt) and Margin (12–72 pt) entry/slider controls.
+- Retain invalid numeric drafts through tool/layout changes, associate errors after
+  blur and preview the last valid numeric settings. Share one identifier formatter
+  and Courier layout between preview/output. Check every visible page with exact
+  embedded-font widths; report fit, multiline, unsupported-character and sequence
+  precision errors without changing the PDF. Keep identifiers selectable and retain
+  page geometry, text and catalog data.
+- Scope the pending Bates preview to exact source bytes. Await Apply/mobile Done,
+  keep failed settings ready for retry, retire successful previews before Undo and
+  explicitly re-arm Start another Bates numbering. Keep busy focus in settings;
+  Cancel restores the checkpoint. Remove replaced StampTools and unused adapters;
+  retain shared controls only where live consumers remain.

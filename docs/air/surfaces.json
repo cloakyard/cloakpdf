@@ -1806,6 +1806,35 @@
       "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending."
     },
     {
+      "path": "src/editor/panels/BatesTool.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "empty-affixes",
+        "focused",
+        "selected",
+        "disabled",
+        "invalid",
+        "apply-failure",
+        "retry",
+        "applied",
+        "undo",
+        "redo",
+        "cancel",
+        "overflow"
+      ],
+      "viewports": ["phone", "landscape phone", "tablet", "laptop", "desktop"],
+      "evidence": [
+        "docs/air/evidence/bates-2026-10-15.json",
+        "tests/e2e/bates-numbering.e2e.ts",
+        "tests/e2e/page-geometry.e2e.ts"
+      ],
+      "notes": "Air full-width affixes, minimum-digit segments, shared position/colour/precision controls. Shared formatter/Courier geometry, nine-digit start, fit/encoding and unique sequence validation; byte-owned previews and awaited Apply/mobile Done with retry, Undo/re-arm and Cancel. 44 layout regions and 12 enlarged-text captures reviewed; Firefox actual 200% workflow passed with an in-memory fixture. Safari stalled before this tool opened; Firefox native chooser unavailable. These native checks, physical touch/software keyboard, OS IME and assistive speech remain open."
+    },
+    {
       "path": "src/editor/panels/BookmarksTool.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -2364,22 +2393,6 @@
       "notes": "Air panel/colour/collection implementation. 44 panel and 22 picker layouts; native Safari and Firefox including 200% zoom. Actual detection/search, cancel/retry/stale bytes, mark undo and all erase-method output verified. Physical touch/software keyboard, OS IME and assistive speech remain open. Author colours/gradient/erase content are output data."
     },
     {
-      "path": "src/editor/panels/StampTools.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
-      "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
-      ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates. Stamp extracted to WatermarkTool.tsx and audited separately on 2026-10-15. Page numbers extracted to PageNumbersTool.tsx and audited separately on 2026-10-15. Header/footer extracted to HeaderFooterTool.tsx on 2026-10-15. Only Bates remains pending; retain its live shared adapters until migrated."
-    },
-    {
       "path": "src/editor/panels/StripFurnitureTool.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -2495,7 +2508,7 @@
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/page-numbers-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers. Header/footer checkpoint removes unused useTokenInsert/TokenBar native-setter code; remaining shared controls have live Bates/annotation/form/code consumers."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration. Page-number checkpoint migrates PositionGrid to the shared Air 3×2 picker with named 44px targets; remaining legacy fields still have live Header/footer and Bates consumers. Header/footer checkpoint removes unused useTokenInsert/TokenBar native-setter code; remaining shared controls have live Bates/annotation/form/code consumers. Bates checkpoint removes the unused ColorRow bridge; Rgb, PositionGrid and remaining fields retain verified consumers. StampTools.tsx is fully retired."
     },
     {
       "path": "src/editor/registry.tsx",

@@ -1,3 +1,4 @@
+import { batesNumberRun, validateBatesNumbers } from "./bates-numbering.ts";
 import { headerFooterRuns, validateHeaderFooter } from "./header-footer.ts";
 import { pageNumberText, validatePageNumbers } from "./page-numbering.ts";
 /**
@@ -337,31 +338,17 @@ export async function addBatesNumbers(
   const font = await pdf.embedFont(StandardFonts.Courier);
 
   const pages = pdf.getPages();
-  const totalPages = pages.length;
+  validateBatesNumbers(options, pages.length);
 
-  for (let i = 0; i < totalPages; i++) {
-    const num = options.startNumber + i;
-    const padded = String(num).padStart(options.digits, "0");
-    const text = `${options.prefix}${padded}${options.suffix}`;
-
+  for (let i = 0; i < pages.length; i++) {
     const page = pages[i];
     await drawOnVisiblePage(page, ({ width, height }) => {
-      const textWidth = font.widthOfTextAtSize(text, options.fontSize);
-      const { margin } = options;
-
-      const isLeft = options.position === "top-left" || options.position === "bottom-left";
-      const isRight = options.position === "top-right" || options.position === "bottom-right";
-      const isTop =
-        options.position === "top-left" ||
-        options.position === "top-center" ||
-        options.position === "top-right";
-
-      const x = isLeft ? margin : isRight ? width - textWidth - margin : (width - textWidth) / 2;
-      const y = isTop ? height - margin - options.fontSize : margin;
-
-      page.drawText(text, {
-        x,
-        y,
+      const run = batesNumberRun(options, i + 1, width, height, (text) =>
+        font.widthOfTextAtSize(text, options.fontSize),
+      );
+      page.drawText(run.text, {
+        x: run.x,
+        y: height - run.y,
         size: options.fontSize,
         font,
         color: rgb(options.color.r / 255, options.color.g / 255, options.color.b / 255),

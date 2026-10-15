@@ -3436,7 +3436,8 @@ body:has(.pdf-site) {
 }
 
 .pdf-stamp-panel .air-help,
-.pdf-header-footer-panel .air-help {
+.pdf-header-footer-panel .air-help,
+.pdf-bates-panel .air-help {
   overflow-wrap: anywhere;
 }
 
@@ -3461,7 +3462,8 @@ body:has(.pdf-site) {
 .pdf-stamp-numbers,
 .pdf-numbering-values,
 .pdf-header-footer-values,
-.pdf-header-footer-fields {
+.pdf-header-footer-fields,
+.pdf-bates-values {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -3599,4 +3601,10 @@ body:has(.pdf-site) {
     outline: 2px solid Highlight;
     outline-offset: -4px;
   }
+}
+
+/* Keep all nine sequence digits visible, including with enlarged text. */
+.pdf-bates-panel #bates-startNumber {
+  inline-size: 12ch;
+  max-inline-size: 100%;
 }

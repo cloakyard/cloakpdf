@@ -26,7 +26,7 @@ import * as Watermark from "./panels/WatermarkTool.tsx";
 import * as Signature from "./panels/SignatureTool.tsx";
 import * as SmartErase from "./panels/SmartEraseTool.tsx";
 import * as StripFurniture from "./panels/StripFurnitureTool.tsx";
-import { BatesPanel, BatesStage } from "./panels/StampTools.tsx";
+import { Panel as BatesPanel, Stage as BatesStage } from "./panels/BatesTool.tsx";
 import * as HeaderFooter from "./panels/HeaderFooterTool.tsx";
 import { NupPanel } from "./panels/NupTool.tsx";
 

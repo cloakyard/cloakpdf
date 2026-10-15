@@ -102,7 +102,7 @@ export interface Tool {
 }
 
 /** Position of page numbers on the page. */
-export type PageNumberPosition =
+type PageNumberPosition =
   | "top-left"
   | "top-center"
   | "top-right"
@@ -148,22 +148,13 @@ export interface CropMargins {
   left: number;
 }
 
-/** Position of Bates numbers on the page. */
-type BatesPosition =
-  | "top-left"
-  | "top-center"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-center"
-  | "bottom-right";
-
 /** Configuration options for the Bates Numbering tool. */
 export interface BatesNumberOptions {
   prefix: string;
   suffix: string;
   startNumber: number;
   digits: number;
-  position: BatesPosition;
+  position: PageNumberPosition;
   fontSize: number;
   color: { r: number; g: number; b: number };
   margin: number;

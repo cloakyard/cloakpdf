@@ -1609,3 +1609,47 @@ adjacent checks log. Full captures remain in `/tmp/cloakpdf-air-review/`. Portab
 DESIGN includes the canonical product rules; family Air 1.0.1 is unchanged. Physical
 touch/software keyboard, actual OS IME and assistive speech stay open. Next: Bates,
 then remaining editor/shell states. Full PDF and family migration are unfinished.
+
+## 2026-10-15 — Bates numbering
+
+Bates now uses full-width Air Prefix/Suffix fields, minimum-digit segments and the
+shared position, colour and precision controls. Start at supports nine digits;
+Size and Margin expose the existing layout options. Raw invalid numeric drafts
+survive tool and layout changes, while preview retains the last valid settings.
+One formatter and Courier geometry serve preview/output. Identifiers remain complete
+across digit boundaries; the writer checks safe sequence precision, every visible
+page's exact font fit, single-line affixes and supported encoding. Failures preserve
+bytes/settings. Selectable identifiers retain source text, metadata, attachments
+and rotation/CropBox/UserUnit. Awaited Apply/mobile Done, failed retry, busy focus,
+preview retirement, Undo/Redo, explicit restart and Cancel are covered.
+
+Removed the final StampTools panel/stage/default/paint paths, unused ColorRow bridge,
+duplicate position union and unused exported type. Remaining controls have live
+annotation/form/code/N-up consumers. No dependency added. Editor 314.55 kB raw /
+96.27 gzip (+0.33); CSS 146.06 / 25.50 (+0.03). 128 assets and 77 PWA entries.
+
+Required automated gates pass: format/lint/types, dead code, **429 units in 45 files**,
+build/deployment limits, design/17 portability assertions and canonical sync.
+**25 browser suites** pass: sixteen production smoke, seven extended, Bates and
+page geometry. Reviewed 44 regions across eleven sizes/both themes and twelve
+200% root-text cases, plus forced colours and reduced motion. The final screenshot
+fixture restores original bytes before its pending preview, avoiding an intentional
+second numbering over the already applied first sequence in the initial captures.
+
+Firefox passes actual 200% zoom, keyboard affixes/nine-digit entry, invalid-size
+feedback, slider correction, Apply/focus/Undo/re-arm using the real production app
+with a temporary in-memory synthetic File. Its native chooser stayed disabled for
+new and older PDFs; that check remains open. Safari stayed at Opening PDF before
+Bates opened, even after reload and a clean-origin in-memory fixture. Native Safari
+acceptance is **unavailable**, not passed; the cause is not established. Carry this
+into the shell-loading audit and rerun Bates. Per the rollout plan, unavailable
+browser/device checks remain open. Physical touch/software keyboard, OS IME and
+assistive speech acceptance also remain open; no full-product completion claim.
+
+Temporary harness/server (8133) removed/stopped; native tabs closed and Firefox zoom
+reset. The existing 8132 in-app preview holds synthetic Air Bates.pdf with CASE-
+prefix/-A suffix and default six digits/start 1/size 10/margin 36, pending on page 1.
+Compact evidence, two proof PNGs and checks log: `docs/air/evidence/bates-2026-10-15*`.
+Canonical product appendix/portable DESIGN updated; Air 1.0.1 unchanged. Next: diagnose
+native loading and finish shell loading/error/restored-draft states, then QR/barcode,
+annotation/form interiors and remaining surfaces. Local commits only; no push/deploy.
