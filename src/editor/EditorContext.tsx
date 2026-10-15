@@ -129,7 +129,7 @@ interface ActionsValue {
 interface ReadValue {
   previewRetry: { pending: boolean; failed: boolean };
   doc: CanvasDoc | null;
-  loading: boolean;
+  opening: { fileName: string; rendered: number; total: number } | null;
   busyLabel: string | null;
   error: string | null;
   /** The dropped PDF is password-protected; the shell shows the unlock notice. */
@@ -180,7 +180,10 @@ export function EditorProvider({
   const [doc, setDoc] = useState<CanvasDoc | null>(null);
   // Start in the loading state when the editor opens with a file (the only way
   // in, post-redesign) so the no-doc fallback never flashes before loadFile runs.
-  const [loading, setLoading] = useState(initialFile != null);
+  const [opening, setOpening] = useState<ReadValue["opening"]>(
+    initialFile ? { fileName: initialFile.name, rendered: 0, total: 0 } : null,
+  );
+  const loadRequest = useRef(0);
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
   // Synchronous in-flight flag for runBusy's re-entry lock (busyLabel is async
   // state and updates a frame late, too slow to block a fast second invocation).
@@ -388,12 +391,13 @@ export function EditorProvider({
 
   // After installing a freshly-loaded file, key the autosave to its original
   // bytes and offer back any saved edits for that same file.
-  const detectDraft = useCallback(async (next: CanvasDoc) => {
+  const detectDraft = useCallback(async (next: CanvasDoc, request: number) => {
     try {
       const key = await hashDocBytes(next.bytes);
+      if (request !== loadRequest.current) return;
       draftKeyRef.current = key;
       const existing = await loadDraft(key);
-      if (existing) setPendingDraft(existing);
+      if (request === loadRequest.current && existing) setPendingDraft(existing);
     } catch {
       // IndexedDB / SubtleCrypto unavailable — autosave silently disabled.
     }
@@ -401,39 +405,49 @@ export function EditorProvider({
 
   const loadFile = useCallback(
     async (file: File) => {
-      setLoading(true);
+      if (busyRef.current) return;
+      const request = ++loadRequest.current;
+      setOpening({ fileName: file.name, rendered: 0, total: 0 });
       setError(null);
       setEncryptedFile(null);
       setPendingDraft(null);
       draftKeyRef.current = null; // suspend autosave until re-keyed for this file
       try {
-        const next = await createDocFromFile(file);
+        const next = await createDocFromFile(file, (rendered, total) => {
+          if (request === loadRequest.current) setOpening({ fileName: file.name, rendered, total });
+        });
+        if (request !== loadRequest.current) {
+          revokeThumbnails(next.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+          return;
+        }
         installDoc(next);
-        void detectDraft(next);
+        void detectDraft(next, request);
       } catch (e) {
         // pdf-lib throws an "is encrypted" error for password-protected PDFs.
         // Re-check and route the user to the PDF Password tool instead of
         // surfacing the raw error (mirrors usePdfFile's gate for standalone
         // tools). `.catch` guards a genuinely corrupt file failing the recheck.
-        if (await isPdfEncrypted(file).catch(() => false)) {
+        if (request !== loadRequest.current) return;
+        const encrypted = await isPdfEncrypted(file).catch(() => false);
+        if (request !== loadRequest.current) return;
+        if (encrypted) {
           setEncryptedFile(file);
         } else {
           setError(e instanceof Error ? e.message : "Could not open this PDF.");
         }
       } finally {
-        setLoading(false);
+        if (request === loadRequest.current) setOpening(null);
       }
     },
     [installDoc, detectDraft],
   );
 
-  // Load the file the editor was opened with (if any), once.
-  const initialLoadedRef = useRef(false);
+  // A replaced file or departed editor cannot install late reads/previews/drafts.
   useEffect(() => {
-    if (initialLoadedRef.current) return;
-    if (!initialFile) return;
-    initialLoadedRef.current = true;
-    void loadFile(initialFile);
+    if (initialFile) void loadFile(initialFile);
+    return () => {
+      loadRequest.current += 1;
+    };
   }, [initialFile, loadFile]);
 
   /** Commit a new doc state to history and make it live. */
@@ -719,31 +733,34 @@ export function EditorProvider({
   const clearError = useCallback(() => setError(null), []);
 
   const exit = useCallback(() => {
+    loadRequest.current += 1;
     revokeAllThumbs();
     onExit();
   }, [onExit, revokeAllThumbs]);
 
   // ── Draft autosave: restore / discard ───────────────────────────────
-  const applyDraft = useCallback(
-    async (draft: EditorDraft) => {
-      setPendingDraft(null);
-      await runBusy("Restoring your edits…", async () => {
-        const restored = await createDocFromBytes(draft.bytes, draft.fileName);
-        restored.objects = draft.objects;
-        draftKeyRef.current = draft.key; // keep the same original-bytes key
-        installDoc(restored);
-      });
-    },
-    [runBusy, installDoc],
-  );
-
   const restoreDraft = useCallback(async () => {
     const draft = pendingDraftRef.current;
-    if (draft) await applyDraft(draft);
-  }, [applyDraft]);
+    if (!draft) return;
+    const request = loadRequest.current;
+    await runBusy("Restoring your edits…", async () => {
+      const restored = await createDocFromBytes(draft.bytes, draft.fileName);
+      if (request !== loadRequest.current) {
+        revokeThumbnails(restored.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+        return;
+      }
+      restored.objects = draft.objects;
+      draftKeyRef.current = draft.key; // keep the same original-bytes key
+      installDoc(restored);
+      // Failed reads keep the original and the recovery action available.
+      pendingDraftRef.current = null;
+      setPendingDraft(null);
+    });
+  }, [runBusy, installDoc]);
 
   const dismissDraft = useCallback(() => {
     const draft = pendingDraftRef.current;
+    pendingDraftRef.current = null;
     setPendingDraft(null);
     if (draft) void deleteDraft(draft.key);
   }, []);
@@ -837,7 +854,7 @@ export function EditorProvider({
   const readValue = useMemo<ReadValue>(
     () => ({
       doc,
-      loading,
+      opening,
       busyLabel,
       error,
       previewRetry,
@@ -860,7 +877,7 @@ export function EditorProvider({
     }),
     [
       doc,
-      loading,
+      opening,
       busyLabel,
       error,
       previewRetry,

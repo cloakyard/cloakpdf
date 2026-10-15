@@ -139,6 +139,8 @@ export async function createDocFromFile(
     };
   });
 
+  onProgress?.(0, pages.length);
+
   // Valid document bytes survive a preview failure. The editor names missing
   // previews and can rebuild them without reopening the file or losing edits.
   try {

@@ -1653,3 +1653,52 @@ Compact evidence, two proof PNGs and checks log: `docs/air/evidence/bates-2026-1
 Canonical product appendix/portable DESIGN updated; Air 1.0.1 unchanged. Next: diagnose
 native loading and finish shell loading/error/restored-draft states, then QR/barcode,
 annotation/form interiors and remaining surfaces. Local commits only; no push/deploy.
+
+## 2026-10-15 — Editor loading and saved-session recovery
+
+The shell now shares Air LoadingState/ProgressBar, neutral notices, sans labels and
+shared buttons. Unknown work has no invented percentage; preview preparation reports
+measured pages. The file-error intake uses plain recovery guidance, safe scrolling
+and the same frame; the selected tool survives a failed file/retry. Error and saved-
+session strips wrap and share a bounded scroll region, preserving canvas space.
+Processing status stays outside the inert/busy editor. Successful restore/discard
+returns focus to Export when the initiating action disappears; failure keeps Restore.
+
+Failed restoration preserves the original bytes and saved draft. Retry is awaited,
+duplicate work stays guarded and UI consumes the rejected promise after the notice
+owns feedback. Discard removes only the offered saved session. Newer-file ownership
+covers delayed reads, progress, encryption checks and draft hashing/lookup. Leaving
+while opening or restoring releases late previews; StrictMode replay completes.
+Removed the old Spinner, bespoke coloured banners, legacy intake skins and one-use
+applyDraft wrapper. No new dependencies. Editor 313.87/95.90 kB raw/gzip (-0.37 gzip),
+CSS 144.28/25.25 (-0.25); 128 deployment assets, 77 PWA entries.
+
+429 units in 45 files and 26 browser suites pass: 16 production smoke, 7 extended,
+focused shell recovery, preview recovery and Bates. Full smoke was repeated after
+the restore-exit guard; final intake/short-landscape polish reran focused recovery,
+production landing search and responsive motion. Final copy/spacing reran focused
+recovery and build. Reviewed 141 captures: 110 base layouts (five states × eleven
+sizes × both themes), 30 enlarged-text cases, plus measured progress. Coarse pointer
+emulation is explicitly asserted. Keyboard reaches notice actions in the scroll
+region at 320px/200% text; forced colours/reduced motion, no uncaught errors and
+zero unreleased thumbnail URLs pass. Check/dead/build/design/17 portability checks
+and canonical sync pass. Portable DESIGN and canonical PDF appendix updated;
+Air 1.0.1 unchanged.
+
+Safari native file selection/loading passed; the instrumented real editor passes
+saved-draft failure/retry/focus and Bates Apply. Intermittent stalls were observed:
+a stalled reload reports visibility hidden, 0 of 1 frames delivered, 2 of 2 reads
+complete and no PNG encoding. Visible runs deliver all frames and finish. This
+identifies hidden-page scheduling in that run, not a proven cause for every earlier
+stall; no speculative rendering or runBusy change was made. The final rebuilt
+production app passes Safari native opening, Bates Apply/focus, Undo and re-arm. Firefox native chooser
+and loading pass; real-editor saved-draft failure/retry/Return/focus/discard pass at
+actual 200% zoom. The former disabled chooser is no longer reproduced. Temporary
+harnesses removed; native review tabs closed and Firefox zoom reset. Physical touch/
+software keyboard, actual OS IME and assistive speech remain open.
+
+Evidence/log/two proofs: `docs/air/evidence/editor-recovery-2026-10-15*`; full captures
+in `/tmp/cloakpdf-air-review/shell-*.png`. Existing in-app synthetic Bates draft is
+preserved. Next: QR/barcode placement/payload/caption controls, then annotation/form
+interiors and final legacy cleanup. Full PDF/family migration remains unfinished.
+Local commits only; no push/deployment.

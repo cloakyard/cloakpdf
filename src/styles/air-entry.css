@@ -3608,3 +3608,149 @@ body:has(.pdf-site) {
   inline-size: 12ch;
   max-inline-size: 100%;
 }
+
+/* Editor-wide status surfaces share Air controls, spacing and honest progress. */
+.editor-notices {
+  flex: 0 1 auto;
+  min-block-size: 0;
+  max-block-size: 40%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--air-surface);
+}
+.editor-notices:focus-visible,
+.editor-intake-error:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: -2px;
+}
+.editor-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-block-end: 1px solid var(--air-line);
+  color: var(--air-ink-secondary);
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+}
+.editor-notice > svg {
+  flex: 0 0 auto;
+  margin-block-start: 3px;
+}
+.editor-notice > div[role] {
+  flex: 1;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.editor-notice strong {
+  color: var(--air-ink);
+  font-weight: 600;
+}
+.editor-notice p {
+  margin: 4px 0 0;
+}
+.editor-notice[data-tone="danger"] > svg,
+.editor-intake-error {
+  color: var(--air-danger);
+}
+.editor-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.editor-opening {
+  background: var(--air-page);
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+}
+.editor-opening__body {
+  inline-size: min(100%, 28rem);
+  margin: auto;
+  padding-block: 24px;
+  border-block: 1px solid var(--air-line);
+}
+.editor-opening h2 {
+  margin: 12px 0 8px;
+  color: var(--air-ink);
+  font: 500 1.5rem/1.2 var(--air-font);
+  letter-spacing: -0.02em;
+}
+.editor-opening__file {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--air-ink-secondary);
+}
+.editor-opening .pdf-loading-state,
+.editor-busy .pdf-loading-state {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 20px 0;
+  text-align: start;
+}
+.editor-opening .air-page-eyebrow,
+.editor-busy .air-page-eyebrow {
+  margin: 0;
+}
+.editor-opening .air-help {
+  margin-block: 16px;
+}
+.editor-intake-error {
+  margin-block: 16px;
+  max-block-size: 8rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  font: 400 var(--air-text-meta)/1.5 var(--air-font);
+}
+.editor-busy {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-system-overlay);
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+  background: var(--color-overlay);
+}
+.editor-busy__body {
+  inline-size: min(100%, 24rem);
+  min-inline-size: 0;
+  padding: 24px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+  box-shadow: var(--air-shadow-dialog);
+  overflow-wrap: anywhere;
+}
+.editor-busy .pdf-loading-state {
+  padding-block-end: 0;
+}
+@media (max-width: 640px) {
+  .editor-notice {
+    flex-wrap: wrap;
+  }
+  .editor-notice__actions {
+    flex-basis: 100%;
+    padding-inline-start: 30px;
+  }
+}
+
+.editor-opening .pdf-loading-mark,
+.editor-busy .pdf-loading-mark {
+  flex: 0 0 auto;
+  margin-block-start: calc(0.8em - 4px);
+}
+.editor-opening .pdf-loading-state p,
+.editor-busy .pdf-loading-state p {
+  min-inline-size: 0;
+}
+
+.editor-intake {
+  inline-size: min(100%, 42rem);
+}
+.editor-intake > .air-button {
+  margin-block-start: 16px;
+}

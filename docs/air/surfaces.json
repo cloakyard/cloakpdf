@@ -1188,14 +1188,17 @@
       "validated": false,
       "states": [],
       "viewports": [],
-      "evidence": ["docs/air/evidence/collections-2026-10-14.json"],
-      "notes": "History page-count and explicit Cancel draft cleanup corrected and covered by real browser edits. This is a bounded review, not a complete context/UI migration."
+      "evidence": [
+        "docs/air/evidence/collections-2026-10-14.json",
+        "docs/air/evidence/editor-recovery-2026-10-15.json"
+      ],
+      "notes": "History page-count and explicit Cancel draft cleanup corrected and covered by real browser edits. This is a bounded review, not a complete context/UI migration. Loading/recovery checkpoint adds measured preview state, retained failed restores, load/draft request ownership and cleanup after exit/StrictMode replay. No claim of a complete provider audit."
     },
     {
       "path": "src/editor/EditorShell.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
-      "airImplemented": false,
+      "airImplemented": true,
       "validated": false,
       "states": [
         "light",
@@ -1215,7 +1218,15 @@
         "preview retry failure",
         "stale retry",
         "200% root text",
-        "keyboard focus return"
+        "keyboard focus return",
+        "reading",
+        "measured preview progress",
+        "open failure",
+        "saved-session offer",
+        "restore failure/retry",
+        "restore success",
+        "discard",
+        "processing"
       ],
       "viewports": [
         "320x568",
@@ -1240,9 +1251,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/navigation-2026-10-14.json",
-        "docs/air/evidence/preview-recovery-2026-10-14.json"
+        "docs/air/evidence/preview-recovery-2026-10-14.json",
+        "docs/air/evidence/editor-recovery-2026-10-15.json"
       ],
-      "notes": "Navigation integration reviewed: width-led breakpoints, short sub-tablet working sheet, zero-min-height mounted preview wrapper, busy/modal shortcut guards. Complete shell loading/recovery, canvas and panel migration remain pending. Preview recovery checkpoint: 44 canvas/grid layouts, enlarged text, failed retry, retained drafts/OCR/history, stale results and native Safari/Firefox recovery reviewed. Physical and assistive acceptance remains open; pending tool interiors are not approved by this slice. Only preview recovery composition changed here. General loading/error/draft banners still require their own Air migration."
+      "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations."
     },
     {
       "path": "src/editor/EditorToolStage.tsx",

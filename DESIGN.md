@@ -1276,3 +1276,22 @@ journeys across all apps; it is not inferred from the pilot alone.
   explicitly re-arm Start another Bates numbering. Keep busy focus in settings;
   Cancel restores the checkpoint. Remove replaced StampTools and unused adapters;
   retain shared controls only where live consumers remain.
+
+- Editor loading uses the shared Air status and measured preview progress: unknown
+  parsing work has no invented percentage; once page count is known, show completed
+  previews out of that total. Name the local file with wrapping, retain an exit to
+  the toolkit and keep short/enlarged layouts scrollable. Late reads, progress and
+  saved-draft lookups cannot replace a newer file or a departed editor; release
+  thumbnails created by ignored results. React effect replay must still finish.
+- Error and saved-session notices use neutral Air surfaces, semantic icons, sans
+  labels and shared buttons. Wrap text/actions; cap their combined scrolling area
+  at 40% of the editor to retain canvas space. Keyboard must reach every action
+  even with enlarged text. Discard names the saved edits it removes; it preserves
+  the open original and other files' saved sessions.
+- Restoring saved edits keeps the original bytes and the offered draft until it
+  succeeds. Failed restoration keeps Restore available and exposes the error without
+  an unhandled rejection. Retry is awaited and duplicate work is guarded. Processing
+  status lives outside the inert/busy editor; keep a stable status surface with no
+  decorative spinner or invented progress. Return focus to the initiator or Export
+  when a successful restore/discard removes that initiator. Reuse LoadingState and
+  ProgressBar; remove replaced loading spinners and one-off coloured banners.
