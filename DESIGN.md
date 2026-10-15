@@ -1179,3 +1179,23 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Crop and Strip furniture await their byte operation before mobile Done closes.
   Failures keep the tool and draft ready for retry. Cropping hides content without
   deleting it; both tools must explain that it is not sensitive-data removal.
+
+- Signature uses Air source segments, labelled ink/background controls and a single
+  drawing-surface focus contour. White drawing paper and actual ink/alpha are output
+  data in both themes. Draw and Choose retain separate sources through tool and
+  viewport changes; completed strokes remain editable. Cancelling a pointer stroke
+  discards only that unfinished stroke. Clear returns focus to the drawing surface.
+- Image preparation exposes progress and recoverable decode/size errors. Choosing
+  the same file can retry; failure preserves the previous ready image. Cancel reads
+  on tool exit/document replacement and ignore superseded results. PNG/JPEG inputs
+  are limited to 20 MB and 16 million pixels; preserve existing alpha, including
+  white ink, and remove near-white paper only from opaque images.
+- Offer a keyboard placement action, named placed-object selector, move/resize and
+  remove controls alongside canvas gestures. Arrow/Delete keys act on a focused
+  page, never globally while using panel controls. Keep images fully on the visible
+  page and preserve their physical aspect when copying to mixed page sizes.
+- Copying to remaining pages stages placements from the first signed page; it is
+  distinct from Apply and leaves occupied pages unchanged. Apply awaits embedding,
+  preserves unrelated marks and PDF content, and removes only successful signature
+  drafts. Failed mobile Done keeps the tool and placements ready for retry. Undo
+  restores the prior bytes/placements. Never silently omit an incomplete signature.

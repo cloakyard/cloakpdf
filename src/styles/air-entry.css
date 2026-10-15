@@ -3351,3 +3351,86 @@ body:has(.pdf-site) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Signature ink and paper are output; their surrounding controls belong to Air. */
+.pdf-signature-panel .air-switch-row {
+  margin: 0;
+}
+.pdf-signature-pad {
+  inline-size: min(100%, 360px);
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pdf-signature-pad__paper {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--air-line-control);
+  border-radius: var(--air-radius-control);
+  background: white;
+}
+.pdf-signature-pad__paper:has(:focus-visible),
+.pdf-signature-pad__paper[data-drawing] {
+  border-color: transparent;
+  outline: 2px solid var(--air-accent);
+  outline-offset: 0;
+}
+.pdf-signature-pad__canvas {
+  display: block;
+  width: 100%;
+  touch-action: none;
+  cursor: crosshair;
+  outline: none;
+}
+.pdf-signature-pad__hint {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+.pdf-signature-pad__prompt {
+  color: var(--air-paper-accent);
+  font-size: 14px;
+}
+.pdf-signature-preview {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+}
+.pdf-signature-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 96px;
+  object-fit: contain;
+}
+.pdf-signature-filename {
+  overflow-wrap: anywhere;
+}
+.pdf-signature-adjust {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 4px;
+}
+@media (forced-colors: active) {
+  .pdf-signature-pad__paper {
+    forced-color-adjust: none;
+    border-color: CanvasText;
+  }
+  .pdf-signature-pad__paper:has(:focus-visible),
+  .pdf-signature-pad__paper[data-drawing] {
+    outline-color: Highlight;
+  }
+}
+
+@media (max-height: 500px) {
+  .pdf-signature-pad {
+    inline-size: min(100%, 240px);
+  }
+}

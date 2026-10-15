@@ -303,31 +303,6 @@ function SwitchTrack({ checked }: { checked: boolean }) {
   );
 }
 
-/** Accessible on/off pill switch — the editor's nicer alternative to a bare
- *  checkbox for a binary mode (matches the Export modal's switch). */
-export function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className="editor-control-switch relative flex h-6 w-11 shrink-0 items-center justify-center rounded-lg active:translate-y-px pointer-coarse:-m-2.5 pointer-coarse:h-11 pointer-coarse:w-16 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-    >
-      <SwitchTrack checked={checked} />
-    </button>
-  );
-}
-
 /** A checkerboard CSS background so a transparent image reads as "no background"
  *  in a preview swatch (instead of an opaque white card that misrepresents it). */
 export const TRANSPARENCY_CHECKER: React.CSSProperties = {

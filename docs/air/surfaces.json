@@ -978,13 +978,44 @@
     {
       "path": "src/components/SignaturePad.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "enlarged-text",
+        "empty",
+        "draw",
+        "upload",
+        "selected",
+        "busy",
+        "error",
+        "retry",
+        "cancel",
+        "undo",
+        "forced-colours",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "native Firefox 200% zoom",
+        "native Safari"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/signature-panel-2026-10-15.json"],
+      "notes": "Air Signature sources, persistent strokes, single focus contour, owned/error-aware image preparation, keyboard placement/selection/adjustment, mixed-page aspect and awaited Apply. Real PDF output, Undo and failure/retry are covered. Physical touch/software keyboard and assistive speech remain open; full product refresh is unfinished."
     },
     {
       "path": "src/components/SortByNameButton.tsx",
@@ -2185,19 +2216,44 @@
     {
       "path": "src/editor/panels/SignatureTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json",
-        "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "coarse-emulation",
+        "enlarged-text",
+        "empty",
+        "draw",
+        "upload",
+        "selected",
+        "busy",
+        "error",
+        "retry",
+        "cancel",
+        "undo",
+        "forced-colours",
+        "reduced-motion"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080",
+        "native Firefox 200% zoom",
+        "native Safari"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/signature-panel-2026-10-15.json"],
+      "notes": "Air Signature sources, persistent strokes, single focus contour, owned/error-aware image preparation, keyboard placement/selection/adjustment, mixed-page aspect and awaited Apply. Real PDF output, Undo and failure/retry are covered. Physical touch/software keyboard and assistive speech remain open; full product refresh is unfinished."
     },
     {
       "path": "src/editor/panels/SmartEraseTool.tsx",
@@ -2306,7 +2362,7 @@
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Signature checkpoint removes its now-unused Switch wrapper; remaining legacy controls still have live consumers and remain pending migration."
     },
     {
       "path": "src/editor/registry.tsx",

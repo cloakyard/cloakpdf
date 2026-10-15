@@ -1419,3 +1419,61 @@ images. Physical touch/software keyboards, real OS IME and assistive speech rema
 open (`validated: false`). Next: Signature interior and its shared legacy controls,
 then Stamp/numbering interiors and shell loading/error/restored-draft banners.
 This does not complete PDF or the family refresh. No push or deployment.
+
+## 2026-10-15 — Signature interior and drawing pad
+
+Signature now uses Air source segments, open labelled switch rows, the shared
+colour picker/select and named placement controls. The white drawing paper and
+actual ink/alpha remain document output in both themes; the old border-plus-glow
+focus treatment is replaced by one contour. The pad keeps its aspect ratio and
+caps its display width at 360px (240px on short screens). Four move controls remain
+on one row; size and removal occupy the next. Long filenames and previews contain
+within the panel; the mobile controls remain scrollable and expandable.
+
+Draw and Choose retain separate sources. Completed strokes survive mode/tool and
+responsive remounts, and can be recoloured/replayed; clear returns focus to the pad.
+Single taps and the final stroke segment now export correctly. Pointer cancellation
+abandons only the unfinished stroke and only its owning pointer; the extended pen
+regression caught and verified the stray-finger cancellation fix. Image preparation
+uses one decoder/compositor with released scratch canvases/object URLs, explicit
+size/decode failure, same-file retry, preserved previous source and abort-on-exit.
+PNG/JPEG limits are visible. Existing alpha/white logos stay intact; neutral paper
+is removed from opaque images without erasing saturated ink.
+
+Keyboard/tap placement, a page-labelled object selector, move/size/remove actions
+and page-focused Arrow/Delete handling supplement canvas dragging. Initial images
+stay inside the page, including extreme aspect ratios. Copy to remaining pages
+preserves the physical image aspect on mixed page sizes and leaves occupied pages
+unchanged. Copy stages objects; Apply awaits embedding and fails explicitly on
+incomplete objects. Mobile Done waits, remains open on failure and retries without
+losing placements. Successful Apply removes signature objects only; Undo restores
+prior bytes and placements. Background compositing is cached per source for the
+operation. Ink affects new placements; the panel explains the global background.
+
+Validation: 405 units in 42 files; all 16 production smoke and seven extended suites;
+focused Signature and visible-page geometry suites (25 distinct browser suites).
+44 mode/size/theme cases, twelve enlarged-text cases, a short-landscape expanded
+pad, forced colours and reduced motion were inspected. Tests cover actual PDF.js
+raster ink on all three mixed pages, retained selectable text, metadata and embedded
+attachments, precise Undo, corrupt upload/retry, PNG alpha, JPEG decoding, file-size
+rejection, abort, source remounts, movement/resize, copy/remove and failed/delayed
+mobile Done. The final display-only refinements were checked again with the focused
+suite and production responsive-motion suite. Native Safari passes drawing tap,
+realistic ink, place/copy/Apply and focus return; Firefox passes drawing, selection
+Escape, movement and Apply at actual 200% browser zoom. Temporary native tabs closed;
+Firefox zoom restored. Physical pen/touch/software keyboard and assistive speech
+remain open, so inventory entries retain `validated: false`.
+
+Removed legacy signature skins, the unused Switch wrapper and focusRing export,
+the ignored legacy payload property, global Delete listener, silent decode fallbacks
+and void Apply chain. Live WholeDocPanel/Segmented consumers remain for Stamp tools.
+No dependencies added. Editor: 297.54 kB raw / 91.13 gzip (+1.43 gzip); CSS: 143.80 /
+25.14 (-0.09 gzip). All 128 assets are below 25 MiB; 77 PWA precache entries. The
+existing large-chunk advisory is nonfailing. Format/lint/types, dead-code, build,
+design/inventory and isolated portability pass. Air 1.0.1 remains locked; the PDF
+appendix and standalone DESIGN are synchronized.
+
+Evidence: `evidence/signature-panel-2026-10-15.json`, companion checks log and three
+proof images. Next: Stamp/numbering interiors, then remaining controls/panels and
+shell loading/error/restored-draft banners. This does not complete PDF or the family
+refresh. Local commits only; no push or deployment.

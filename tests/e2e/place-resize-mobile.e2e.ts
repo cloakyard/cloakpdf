@@ -194,7 +194,7 @@ async function main() {
     )) as ElementHandle<HTMLInputElement> | null;
     if (!up) fail("Signature upload input not found.");
     await up.uploadFile(pngPath);
-    await waitText(page, /Tap the page to place/i);
+    await page.waitForSelector('img[alt="Signature preview"]');
 
     const f = await sheetFraction(page);
     if (f < 0.49 || f > 0.51)

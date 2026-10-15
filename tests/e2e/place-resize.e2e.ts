@@ -185,7 +185,7 @@ async function main() {
     )) as ElementHandle<HTMLInputElement> | null;
     if (!sigUpload) fail("Signature upload input not found.");
     await sigUpload.uploadFile(pngPath);
-    await waitText(page, /Tap the page to place/i);
+    await page.waitForSelector('img[alt="Signature preview"]');
 
     // Place centred at (0.45, 0.4). wPct = 0.28, aspect(img)=2 →
     // hPct = wPct * pageAspect / 2.
@@ -208,7 +208,7 @@ async function main() {
     console.log("  ✓ signature corner-resize (still 1 signature)");
 
     // Background switch (ink-only → with background) → recolour to blue.
-    await page.click('button[role="switch"][aria-label="Signature background"]');
+    await page.click('input[role="switch"][aria-label="Signature background"]');
     await page.waitForSelector('button[aria-label^="Blue color"]', { timeout: 5_000 });
     await page.click('button[aria-label^="Blue color"]');
     await page.screenshot({ path: join(SHOT_DIR, "sig-3-background.png") });

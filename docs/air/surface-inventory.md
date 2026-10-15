@@ -39,7 +39,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/components/ReloadPrompt.tsx`          | app-surface | Done         | Done               | Pending    |
 | `src/components/SegmentedControl.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/components/Select.tsx`                | app-surface | Done         | Done               | Pending    |
-| `src/components/SignaturePad.tsx`          | app-surface | Pending      | Pending            | Pending    |
+| `src/components/SignaturePad.tsx`          | app-surface | Done         | Done               | Pending    |
 | `src/components/SortByNameButton.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/components/TouchDragOverlay.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/components/motion.tsx`                | app-surface | Done         | Done               | Pending    |
@@ -77,7 +77,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/RedactTool.tsx`         | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/ScrubTool.tsx`          | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/SelectTextTool.tsx`     | app-surface | Pending      | Pending            | Pending    |
-| `src/editor/panels/SignatureTool.tsx`      | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/SignatureTool.tsx`      | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/SmartEraseTool.tsx`     | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/StampTools.tsx`         | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/StripFurnitureTool.tsx` | app-surface | Done         | Done               | Pending    |

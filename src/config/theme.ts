@@ -5,9 +5,6 @@
  * paint pixels or pass a colour through an inline canvas style.
  */
 
-/** Focus-ring shadow used on interactive canvas/input elements. */
-export const focusRing = "color-mix(in oklab, var(--color-focus) 24%, transparent)" as const;
-
 /** Preset colours shared by Signature & Watermark colour pickers. */
 export const colorPresets = [
   { label: "Black", hex: "#1E293B" },

@@ -25,11 +25,11 @@
 
 import { useRef, useEffect, useState, useCallback, useId } from "react";
 import { Trash2 } from "lucide-react";
-import { focusRing } from "../config/theme.ts";
 
 interface SignaturePadProps {
   /** Called with the PNG data-URL every time the user finishes a stroke. Empty string on clear. */
-  onSignature: (dataUrl: string) => void;
+  onSignature: (dataUrl: string, strokes: SignatureStroke[], aspect: number) => void;
+  initialStrokes?: SignatureStroke[];
   /** Hex colour string for the stroke ink (e.g. "#1e293b"). */
   color: string;
   /** Render with the realistic pen look (pressure/speed weight + ink bleed). */
@@ -46,6 +46,7 @@ interface SignaturePadProps {
 /** A captured sample. `p` is real stylus pressure (0–1) when the input is a pen,
  *  else undefined — a mouse/touchpad reports no meaningful pressure. */
 type Point = { x: number; y: number; p?: number };
+export type SignatureStroke = Point[];
 
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
@@ -157,14 +158,15 @@ export function SignaturePad({
   onSignature,
   color,
   inkBleed = false,
+  initialStrokes = [],
   width = 600,
   height = 360,
 }: SignaturePadProps) {
   const instructionsId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [hasContent, setHasContent] = useState(false);
-  const strokesRef = useRef<Point[][]>([]);
+  const [hasContent, setHasContent] = useState(initialStrokes.length > 0);
+  const strokesRef = useRef<Point[][]>(initialStrokes);
   const currentStrokeRef = useRef<Point[]>([]);
   // Tracks the last drawn midpoint so each frame only adds one smooth segment
   const lastMidRef = useRef<Point | null>(null);
@@ -251,9 +253,9 @@ export function SignaturePad({
    *  the whole canvas would wrap the ink in wide transparent margins, so when
    *  placed (aspect-locked) it lands undersized and offset. Cropping to the ink
    *  makes the placed image match what was drawn. */
-  const exportSignature = useCallback((): string => {
+  const exportSignature = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return "";
+    if (!canvas) return { dataUrl: "", aspect: 1 };
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -267,20 +269,27 @@ export function SignaturePad({
       }
     }
     // No points (shouldn't happen on an export path) → fall back to the canvas.
-    if (!Number.isFinite(minX)) return canvas.toDataURL("image/png");
+    if (!Number.isFinite(minX))
+      return { dataUrl: canvas.toDataURL("image/png"), aspect: canvas.width / canvas.height };
     const pad = MAX_W + BLEED_BLUR + 6;
     const bx = Math.max(0, Math.floor(minX - pad));
     const by = Math.max(0, Math.floor(minY - pad));
     const bw = Math.min(canvas.width, Math.ceil(maxX + pad)) - bx;
     const bh = Math.min(canvas.height, Math.ceil(maxY + pad)) - by;
-    if (bw <= 0 || bh <= 0) return canvas.toDataURL("image/png");
+    if (bw <= 0 || bh <= 0)
+      return { dataUrl: canvas.toDataURL("image/png"), aspect: canvas.width / canvas.height };
     const out = document.createElement("canvas");
     out.width = bw;
     out.height = bh;
     const octx = out.getContext("2d");
-    if (!octx) return canvas.toDataURL("image/png");
+    if (!octx)
+      return { dataUrl: canvas.toDataURL("image/png"), aspect: canvas.width / canvas.height };
     octx.drawImage(canvas, bx, by, bw, bh, 0, 0, bw, bh);
-    return out.toDataURL("image/png");
+    try {
+      return { dataUrl: out.toDataURL("image/png"), aspect: bw / bh };
+    } finally {
+      out.width = out.height = 0;
+    }
   }, []);
 
   useEffect(() => {
@@ -302,7 +311,8 @@ export function SignaturePad({
     if (!ctx) return;
     if (strokesRef.current.length > 0) {
       replayStrokes(color);
-      onSignature(exportSignature());
+      const { dataUrl, aspect } = exportSignature();
+      onSignature(dataUrl, strokesRef.current, aspect);
     } else {
       ctx.strokeStyle = color;
     }
@@ -402,6 +412,7 @@ export function SignaturePad({
       const active = activeRef.current;
       if (!active || active.id !== e.pointerId) return;
       setIsDrawing(false);
+      activeRef.current = null;
       const canvas = canvasRef.current;
       if (canvas) {
         try {
@@ -410,18 +421,38 @@ export function SignaturePad({
           /* already released */
         }
       }
-      activeRef.current = null;
       if (currentStrokeRef.current.length > 0) {
-        strokesRef.current.push([...currentStrokeRef.current]);
+        strokesRef.current = [...strokesRef.current, [...currentStrokeRef.current]];
         currentStrokeRef.current = [];
       }
       if (!canvas) return;
-      // Realistic mode: one final clean render of the committed strokes (drops
-      // the now-merged in-progress copy) before exporting.
-      if (inkBleedRef.current) renderInk(strokesRef.current, color);
-      onSignature(exportSignature());
+      // Replay the completed stroke, including its final segment or single dot,
+      // before exporting either ink style.
+      replayStrokes(color);
+      const { dataUrl, aspect } = exportSignature();
+      onSignature(dataUrl, strokesRef.current, aspect);
     },
-    [onSignature, color, renderInk, exportSignature],
+    [onSignature, color, replayStrokes, exportSignature],
+  );
+
+  const cancelDrawing = useCallback(
+    (event: React.PointerEvent<HTMLCanvasElement>) => {
+      if (activeRef.current?.id !== event.pointerId) return;
+      activeRef.current = null;
+      currentStrokeRef.current = [];
+      setIsDrawing(false);
+      setHasContent(strokesRef.current.length > 0);
+      replayStrokes(color);
+    },
+    [replayStrokes, color],
+  );
+
+  useEffect(
+    () => () => {
+      const off = offscreenRef.current;
+      if (off) off.width = off.height = 0;
+    },
+    [],
   );
 
   const clear = useCallback(() => {
@@ -433,23 +464,18 @@ export function SignaturePad({
     currentStrokeRef.current = [];
     activeRef.current = null;
     setHasContent(false);
-    onSignature("");
+    setIsDrawing(false);
+    canvas.focus();
+    onSignature("", [], 1);
   }, [onSignature]);
 
   return (
-    <div className="space-y-1.5">
+    <div className="pdf-signature-pad">
       <p id={instructionsId} className="sr-only">
         Draw with a pointer or stylus. If drawing is not accessible, choose the signature image
         option instead.
       </p>
-      <div
-        className={`relative overflow-hidden rounded-lg border bg-white transition-colors duration-200 ${
-          isDrawing
-            ? "border-primary-400 dark:border-primary-500"
-            : "border-slate-200 dark:border-dark-border hover:border-primary-300 dark:hover:border-primary-600"
-        }`}
-        style={isDrawing ? { boxShadow: `0 0 0 3px ${focusRing}` } : undefined}
-      >
+      <div className="pdf-signature-pad__paper" data-drawing={isDrawing || undefined}>
         <canvas
           ref={canvasRef}
           width={width}
@@ -457,20 +483,18 @@ export function SignaturePad({
           tabIndex={0}
           aria-label="Signature drawing area — draw with mouse, touch, or a stylus"
           aria-describedby={instructionsId}
-          className="block w-full cursor-crosshair touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500"
+          className="pdf-signature-pad__canvas"
           onPointerDown={startDrawing}
           onPointerMove={draw}
           onPointerUp={stopDrawing}
-          onPointerCancel={stopDrawing}
+          onPointerCancel={cancelDrawing}
+          onLostPointerCapture={cancelDrawing}
         />
 
         {/* Empty-state hint — hidden once drawing starts */}
         {!hasContent && (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-end pb-7 gap-2 select-none">
-            <p className="text-sm text-slate-300 dark:text-slate-600 font-medium tracking-wide">
-              Sign here
-            </p>
-            <div className="w-2/3 border-b border-dashed border-slate-200 dark:border-slate-700" />
+          <div className="pdf-signature-pad__hint">
+            <p className="pdf-signature-pad__prompt">Sign here</p>
           </div>
         )}
       </div>
@@ -481,7 +505,7 @@ export function SignaturePad({
             type="button"
             onClick={clear}
             aria-label="Clear signature"
-            className="cloak-focus flex min-h-8 items-center gap-1.5 rounded px-1.5 py-0.5 text-xs text-slate-500 transition-colors duration-150 hover:text-red-500 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-red-400"
+            className="air-button air-button--quiet"
           >
             <Trash2 className="w-3 h-3" aria-hidden="true" />
             Clear
