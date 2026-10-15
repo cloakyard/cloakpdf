@@ -1864,19 +1864,46 @@
     {
       "path": "src/editor/panels/CodeStampTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "states": [
+        "empty",
+        "populated QR/barcode",
+        "invalid and over-capacity content",
+        "selected and disabled",
+        "keyboard placement/movement/resize/removal",
+        "busy and failed Apply retry",
+        "Undo/Redo and Cancel",
+        "light/dark",
+        "enlarged-text",
+        "coarse/fine input",
+        "forced-colors",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/geometry-2026-10-14.json"
+        "docs/air/evidence/geometry-2026-10-14.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/codes-2026-10-15.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Canvas-only checkpoint: on-paper selection accent follows Air; shared resize targets reviewed. Full panel interior migration remains pending. Visible-page coordinate checkpoint: rotation/CropBox/UserUnit placement and crop remapping pass PDF.js output comparison; 48 rotated-page layouts pass. This does not approve pending panel interiors or device/assistive gates."
+      "notes": "Air code controls and shared signature/code placement actions. Real vector output and quiet-zone pixels on mixed pages, input validation/persistence, awaited mobile Apply/failure/retry, Undo/Redo and Cancel checked. 88 viewport/theme captures, 12 enlarged-text views and forced colours/reduced motion. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
     {
       "path": "src/editor/panels/CropTool.tsx",
@@ -2184,6 +2211,42 @@
       "notes": "Air panel/colour/collection implementation. 44 panel and 22 picker layouts; native Safari and Firefox including 200% zoom. Actual detection/search, cancel/retry/stale bytes, mark undo and all erase-method output verified. Physical touch/software keyboard, OS IME and assistive speech remain open. Author colours/gradient/erase content are output data."
     },
     {
+      "path": "src/editor/panels/PlacementActions.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "empty",
+        "populated QR/barcode",
+        "invalid and over-capacity content",
+        "selected and disabled",
+        "keyboard placement/movement/resize/removal",
+        "busy and failed Apply retry",
+        "Undo/Redo and Cancel",
+        "light/dark",
+        "enlarged-text",
+        "coarse/fine input",
+        "forced-colors",
+        "reduced-motion"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/codes-2026-10-15.json"],
+      "notes": "Air code controls and shared signature/code placement actions. Real vector output and quiet-zone pixels on mixed pages, input validation/persistence, awaited mobile Apply/failure/retry, Undo/Redo and Cancel checked. 88 viewport/theme captures, 12 enlarged-text views and forced colours/reduced motion. Physical touch/software keyboard, OS IME and assistive speech remain open."
+    },
+    {
       "path": "src/editor/panels/PrecisionField.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -2364,7 +2427,7 @@
         "native Safari"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/signature-panel-2026-10-15.json"],
-      "notes": "Air Signature sources, persistent strokes, single focus contour, owned/error-aware image preparation, keyboard placement/selection/adjustment, mixed-page aspect and awaited Apply. Real PDF output, Undo and failure/retry are covered. Physical touch/software keyboard and assistive speech remain open; full product refresh is unfinished."
+      "notes": "Air Signature sources, persistent strokes, single focus contour, owned/error-aware image preparation, keyboard placement/selection/adjustment, mixed-page aspect and awaited Apply. Real PDF output, Undo and failure/retry are covered. Physical touch/software keyboard and assistive speech remain open; full product refresh is unfinished. Code checkpoint: keyboard placement actions now share PlacementActions; the former duplicated button markup and CSS selector are removed."
     },
     {
       "path": "src/editor/panels/SmartEraseTool.tsx",
@@ -2504,7 +2567,7 @@
         "docs/air/editor-panel-audit.json",
         "docs/air/editor-mobile-audit.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration. Code checkpoint removes the now-unused Segmented implementation and its measurement/animation code. WholeDocPanel remains live in N-up."
     },
     {
       "path": "src/editor/panels/controls.tsx",

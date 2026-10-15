@@ -3413,7 +3413,7 @@ body:has(.pdf-site) {
 .pdf-signature-filename {
   overflow-wrap: anywhere;
 }
-.pdf-signature-adjust {
+.pdf-placement-actions {
   display: grid;
   grid-template-columns: repeat(4, max-content);
   gap: 4px;
@@ -3753,4 +3753,31 @@ body:has(.pdf-site) {
 }
 .editor-intake > .air-button {
   margin-block-start: 16px;
+}
+
+/* Codes are document artwork: their white quiet zones survive either UI theme. */
+.pdf-code-preview {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 136px;
+  padding: 12px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+  background: var(--air-surface-soft);
+}
+.pdf-code-preview img {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  forced-color-adjust: none;
+}
+.pdf-code-preview__qr {
+  width: 112px;
+  height: 112px;
+}
+.pdf-code-preview__barcode {
+  width: 100%;
+  height: auto;
+  object-fit: fill;
 }

@@ -11,23 +11,14 @@
 // they now live in the bytes. The editor retains separate drawing/upload sources
 // for further placements; Cancel discards the tool transaction.
 
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  ArrowUp,
-  Copy,
-  Minus,
-  Plus,
-  Trash2,
-  Upload,
-} from "lucide-react";
+import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../../components/ColorPicker.tsx";
 import { SignaturePad, type SignatureStroke } from "../../components/SignaturePad.tsx";
 import { addSignature } from "../../utils/pdf-operations.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
+import { PlacementActions } from "./PlacementActions.tsx";
 import { useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
 import {
@@ -722,64 +713,16 @@ export function Panel() {
               />
             </div>
             {selected && (
-              <div
-                className="pdf-signature-adjust"
-                role="group"
-                aria-label="Adjust selected signature"
-              >
-                {[
-                  { label: "Move left", Icon: ArrowLeft, dx: -0.01, dy: 0 },
-                  { label: "Move up", Icon: ArrowUp, dx: 0, dy: -0.01 },
-                  { label: "Move down", Icon: ArrowDown, dx: 0, dy: 0.01 },
-                  { label: "Move right", Icon: ArrowRight, dx: 0.01, dy: 0 },
-                ].map(({ label, Icon, dx, dy }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    className="air-button air-icon-button air-button--quiet"
-                    aria-label={label}
-                    title={label}
-                    disabled={busy}
-                    onClick={() => adjust(dx, dy)}
-                  >
-                    <Icon className="size-4" aria-hidden="true" />
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="air-button air-icon-button air-button--quiet"
-                  aria-label="Smaller signature"
-                  title="Smaller signature"
-                  disabled={busy}
-                  onClick={() => adjust(0, 0, 0.9)}
-                >
-                  <Minus className="size-4" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className="air-button air-icon-button air-button--quiet"
-                  aria-label="Larger signature"
-                  title="Larger signature"
-                  disabled={busy}
-                  onClick={() => adjust(0, 0, 1.1)}
-                >
-                  <Plus className="size-4" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className="air-button air-icon-button air-button--quiet"
-                  aria-label="Remove selected signature"
-                  title="Remove selected signature"
-                  disabled={busy}
-                  onClick={() => {
-                    removeObject(selected.id);
-                    patchToolState(TOOL_ID, { selectedId: undefined });
-                    placeRef.current?.focus();
-                  }}
-                >
-                  <Trash2 className="size-4" aria-hidden="true" />
-                </button>
-              </div>
+              <PlacementActions
+                noun="signature"
+                disabled={busy}
+                onAdjust={adjust}
+                onRemove={() => {
+                  removeObject(selected.id);
+                  patchToolState(TOOL_ID, { selectedId: undefined });
+                  placeRef.current?.focus();
+                }}
+              />
             )}
             {pageCount > 1 && (
               <>

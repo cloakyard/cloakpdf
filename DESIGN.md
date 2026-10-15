@@ -1295,3 +1295,20 @@ journeys across all apps; it is not inferred from the pilot alone.
   decorative spinner or invented progress. Return focus to the initiator or Export
   when a successful restore/discard removes that initiator. Reuse LoadingState and
   ProgressBar; remove replaced loading spinners and one-off coloured banners.
+
+- QR / barcode uses shared Air type segments, a persistently labelled content field,
+  colour controls and caption switch. Associate encoding errors with Content; retain
+  invalid values through tool/viewport changes. Preview on a quiet neutral surround;
+  the artwork keeps its white backing in both themes and forced colours. Cap raster
+  preview memory for long barcodes; output remains vector. Changes affect new codes.
+- Provide keyboard-accessible Place, custom placed-code selection, movement, resizing
+  and removal alongside canvas tap/drag/corner handles. Keep complete quiet zones on
+  the page at placement and preserve physical proportions when copying between mixed
+  page sizes. Copy from the first stamped page only to pages without codes. Restore
+  sensible focus after removal; use the shared on-paper selection accent.
+- Preserve four-module QR and ten-module barcode quiet zones and caption geometry
+  between preview/output. Await Apply/mobile Done, retain placed objects after failed
+  output, and prevent duplicate writes. Successful Apply removes pending objects;
+  Undo restores their snapshot and Redo reapplies the output. Cancel restores the tool
+  checkpoint. Keep original text/catalog data and verify vector output. Remove the
+  retired WholeDocPanel Segmented implementation; retain adapters with live consumers.

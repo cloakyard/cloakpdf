@@ -1702,3 +1702,54 @@ in `/tmp/cloakpdf-air-review/shell-*.png`. Existing in-app synthetic Bates draft
 preserved. Next: QR/barcode placement/payload/caption controls, then annotation/form
 interiors and final legacy cleanup. Full PDF/family migration remains unfinished.
 Local commits only; no push/deployment.
+
+## 2026-10-15 — QR / barcode controls and placement
+
+Air type segments, labelled payload/encoding feedback, colour picker and caption
+switch replace the legacy controls. Preview artwork retains a white backing in
+both themes/forced colours; its surround is neutral. Long barcode preview width
+is bounded to 4096 pixels, while its natural aspect and vector output are retained.
+Barcode caption baseline and raster rounding now match the vector writer. Settings
+apply to new placements; existing codes keep their captured payload/appearance.
+
+Place, custom code selection, movement, resize and removal are keyboard-accessible.
+Signature/code adjustment buttons share PlacementActions rather than duplicate
+markup. Taps near a page edge preserve the whole code/quiet zone; all-pages copy
+preserves physical proportions on mixed sizes and skips already occupied pages.
+Selection survives choosing a code on another page. Apply returns its actual promise
+so mobile Done waits, failures keep the draft and retry is deduplicated. Successful
+Apply removes pending objects; Undo restores them and Redo reapplies. Cancel restores
+its checkpoint. Removed obsolete WholeDocPanel Segmented, measurement/observer/thumb
+animation, old QR skins/imports and duplicated signature buttons/CSS. WholeDocPanel
+remains live in N-up; other shared adapters remain for their actual consumers.
+
+429 units / 45 files and 24 browser suites pass: focused codes, all 16 production
+smoke suites and 7 extended suites. The first smoke run sampled no active animation
+in the AI modal entrance timing assertion; that unchanged suite passed in isolation,
+then the full clean smoke run passed. No timing assertion was relaxed or modal
+runtime changed. Focused coverage verifies invalid/over-capacity/Unicode/long content,
+settings persistence, every QR module plus four-module quiet zone on three real
+mixed-page exports, no raster image operators, original text/metadata/attachments,
+selectable barcode caption, placement/removal/copy, Undo/Redo, failed mobile Apply,
+held/deduplicated retry and Cancel. Preview/export encoders also retain existing
+unit coverage; real-device final-size scanning remains an acceptance gate.
+
+101 focused captures: 88 regions/states across eleven viewport sizes and light/dark,
+12 enlarged-text views and one forced-colours/reduced-motion view. Coarse/fine input
+is actually emulated and asserted; no horizontal overflow or undersized controls.
+Contact sheets and selected full-size captures inspected, including error alignment,
+320px enlarged text, short landscape, tablet and desktop. No uncaught page errors.
+Native Safari passes invalid barcode recovery, placement/resize/all-pages/Apply/focus/
+Undo. Firefox passes QR placement/resize/all-pages/custom selection via Down/Return
+and mobile Done at actual 200% browser zoom. Both native choosers load the fixture;
+review tabs closed and Firefox zoom reset. Physical touch/software keyboard, OS IME
+and assistive speech remain open.
+
+Required check/dead/build/design/17 portability assertions and exact canonical sync
+pass. Air remains 1.0.1; canonical product appendix and portable DESIGN are updated.
+No dependencies added. Editor 315.07/96.37 kB raw/gzip (+0.47 gzip), CSS 144.17/25.21
+(-0.04); 128 deployment assets and 77 PWA entries. Compact results, checks log and
+two proofs: `docs/air/evidence/codes-2026-10-15*`; full captures in
+`/tmp/cloakpdf-air-review/codes-*`. Next: Annotate interiors, then form controls,
+remaining legacy adapters and final product audit. Full PDF/family work remains
+unfinished. Local commits only; no push/deployment.
