@@ -23,7 +23,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/components/ChatModelPicker.tsx`       | app-surface | Done         | Done               | Pending    |
 | `src/components/ChatModelPickerModal.tsx`  | app-surface | Done         | Done               | Pending    |
 | `src/components/ColorPicker.tsx`           | app-surface | Done         | Done               | Pending    |
-| `src/components/DateTimeInput.tsx`         | app-surface | Pending      | Pending            | Pending    |
+| `src/components/DateTimeInput.tsx`         | app-surface | Done         | Done               | Pending    |
 | `src/components/EncryptedPdfNotice.tsx`    | app-surface | Done         | Done               | Pending    |
 | `src/components/ErrorBoundary.tsx`         | app-surface | Done         | Done               | Pending    |
 | `src/components/FileDropZone.tsx`          | app-surface | Done         | Done               | Pending    |
@@ -68,7 +68,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/CropTool.tsx`           | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/FillFormTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
 | `src/editor/panels/FindActTool.tsx`        | app-surface | Done         | Done               | Pending    |
-| `src/editor/panels/MetadataTool.tsx`       | app-surface | Pending      | Pending            | Pending    |
+| `src/editor/panels/MetadataTool.tsx`       | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/NupTool.tsx`            | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/OcrTool.tsx`            | app-surface | Done         | Done               | Pending    |
 | `src/editor/panels/OrganizeTool.tsx`       | app-surface | Done         | Done               | Pending    |

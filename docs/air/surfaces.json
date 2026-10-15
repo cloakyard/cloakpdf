@@ -390,13 +390,43 @@
     {
       "path": "src/components/DateTimeInput.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "empty",
+        "populated",
+        "long-content",
+        "pending",
+        "read-error-retry",
+        "save-error-retry",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text",
+        "undo",
+        "cancel",
+        "stale-read",
+        "nested-menu"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/metadata-calendar-2026-10-15.json"],
+      "notes": "Air implementation: open report/fields and complete date/time picker. 28 panel/calendar layouts (22 required plus six narrow-breakpoint neighbors), four pending/error/theme/width pairs, 200% root text, native Safari and Firefox actual 200% zoom. Real metadata, clear/XMP preservation, save/undo, Cancel, stale reads and mobile retry/duplicate Done verified. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
     {
       "path": "src/components/EncryptedPdfNotice.tsx",
@@ -1825,17 +1855,43 @@
     {
       "path": "src/editor/panels/MetadataTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+      "states": [
+        "light",
+        "dark",
+        "empty",
+        "populated",
+        "long-content",
+        "pending",
+        "read-error-retry",
+        "save-error-retry",
+        "keyboard",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "enlarged-text",
+        "undo",
+        "cancel",
+        "stale-read",
+        "nested-menu"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/metadata-calendar-2026-10-15.json"],
+      "notes": "Air implementation: open report/fields and complete date/time picker. 28 panel/calendar layouts (22 required plus six narrow-breakpoint neighbors), four pending/error/theme/width pairs, 200% root text, native Safari and Firefox actual 200% zoom. Real metadata, clear/XMP preservation, save/undo, Cancel, stale reads and mobile retry/duplicate Done verified. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
     {
       "path": "src/editor/panels/NupTool.tsx",

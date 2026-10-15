@@ -1198,3 +1198,59 @@ validation directory. Physical touch/software keyboard, real OS IME and assistiv
 speech remain open; inventories retain `validated: false`. Next: Metadata,
 Bookmarks and Attach interiors, then remaining shared adapters and shell states.
 No push or deployment. This is not a complete PDF or family migration.
+
+## 2026-10-15 — Metadata and complete date/time picker
+
+Metadata now uses an open document report, labelled Air fields and a complete Air
+calendar/year/time picker. Read failures expose retry rather than blank editable
+properties; drafts survive tool changes and failed reads/saves. Reads and drafts
+belong to exact bytes. Successful Save retires its draft so Undo restores actual
+properties. Cancel discards pending values. Mobile Done awaits completion, retains
+failure for retry and cannot apply twice. Clear describes its standard-field scope:
+XMP remains, with Scrub offered for hidden-data review.
+
+Calendar targets remain at least 44px across all seven columns. The smallest phone
+uses the contract's full-width surface and 4px grid inset. Hour/minute use the existing
+Air Select; AM/PM uses the shared segments. Created/Modified have distinct names,
+nested Escape dismisses the menu first, and calendar focus is assigned before paint
+so rapid arrow navigation cannot race a delayed animation frame. The lower-year
+boundary can traverse the remaining months of that year. All controls and completion
+remain reachable while scrolling or zooming.
+
+Passed:
+
+- `pnpm exec vp check --fix`, `pnpm check:dead`, 384 units across 39 files,
+  `pnpm run build` (128 assets within limit; existing non-failing large-chunk advisory),
+  `pnpm design:check`, `pnpm design:portability`.
+- All 16 production smoke suites with explicit synthetic/demo fixtures and all seven
+  extended suites. The production interaction suite was rerun against the final
+  build after the immediate-focus fix, including shorter-month focus clamping.
+- `metadata-calendar.e2e.ts`: real output/readback, clear retaining XMP/pages,
+  save failure/retry, undo, draft retention across tools, Cancel, stale revision
+  reads, mobile failed Done/retry and duplicate activation. 22 required viewport/theme
+  panel/calendar cases plus six checks at 359/360/361px, four width/theme error/loading pairs, long filenames and
+  field values, focus contours, year/day/time/AM-PM controls, nested Escape, 200%
+  root text, forced colours and reduced motion. No uncaught page errors.
+- Native Safari: date/hour keyboard selection, nested Escape/focus return, Save/Undo.
+  Native Firefox: real 200% zoom verified in browser chrome, keyboard selection,
+  nested dismissal and Tab reaching visible Done. Rendered screenshots reviewed for
+  desktop/laptop/tablet/phone in both themes, plus error/loading/enlarged states.
+
+Earlier failing checks were resolved: an applied draft reappeared after Undo;
+calendar initial focus waited a frame; old smoke assertions used retired wording
+and a generic picker name before loading completed. Test-harness corrections now
+navigate the actual `add-bookmarks` tool and wait for responsive reflow before typing.
+No assertion was removed to accept a broken feature.
+
+Cleanup removed the old report/date skins, icon wrappers, duplicate AM/PM markup,
+date popover motion state/RAF and unused `.cloak-popover` CSS. Modal portal suspension
+now recognises actual Air surfaces; its regression probe was updated with it.
+The calendar is 76 lines shorter; source changes add no dependency. Other legacy
+classes still have live consumers and remain in their tracked migration slices.
+
+Evidence: `evidence/metadata-calendar-2026-10-15.json`, the matching check log and
+three compact PNGs. Full temporary render artifacts are in
+`/tmp/cloakpdf-air-review/metadata-*.png`. Physical touch/software keyboards, actual
+OS IME and assistive speech remain unverified (`validated: false`). Next: Bookmarks
+and Attach, including invalid page targets, detection ownership and attachment
+read/remove/retry semantics. This is not a completed PDF or family migration.

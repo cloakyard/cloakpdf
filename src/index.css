@@ -96,14 +96,6 @@
   text-transform: uppercase;
 }
 
-.cloak-popover {
-  border: var(--rule-thin) solid var(--color-rule-strong);
-  border-radius: var(--radius-input);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  box-shadow: var(--shadow-popover);
-}
-
 /* Portaled dropdowns, calendars, and color pickers share one anchored entry.
    Pointer-opened surfaces get a 4px settle; keyboard-opened surfaces opt out
    through data-motion="instant" so keyboard workflows remain immediate. */

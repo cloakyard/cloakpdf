@@ -154,7 +154,7 @@ async function main() {
     await page.evaluate(() => {
       const popover = document.createElement("div");
       popover.id = "modal-system-popover-probe";
-      popover.className = "cloak-popover";
+      popover.className = "air-popover";
       popover.textContent = "Popover probe";
       document.body.append(popover);
       document.addEventListener(

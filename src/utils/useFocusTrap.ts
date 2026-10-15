@@ -106,7 +106,8 @@ function syncModalStackPresentation(): void {
 
 function suspendExistingBodyPortals(): void {
   for (const child of document.body.children) {
-    if (!(child instanceof HTMLElement) || !child.matches(".cloak-popover")) continue;
+    if (!(child instanceof HTMLElement) || !child.matches(".air-popover, .air-menu, .air-tooltip"))
+      continue;
     if (!suspendedBodyPortals.has(child)) {
       suspendedBodyPortals.set(child, {
         element: child,

@@ -660,18 +660,19 @@ async function main(): Promise<void> {
     // trigger→popover relationship and a single roving calendar tab stop even
     // when day 31 is carried into a shorter month.
     await page.click('button[aria-label="Metadata"]');
-    await waitForText(page, /Edit the document properties/i);
+    await waitForText(page, /Review this document and edit its standard properties/i);
     const dateTrigger = 'aside button[aria-haspopup="dialog"]';
-    const controlledId = await page.$eval(dateTrigger, (button) =>
-      button.getAttribute("aria-controls"),
-    );
-    if (!controlledId) fail("Date/time trigger does not expose aria-controls.");
+    await page.waitForSelector(dateTrigger);
     // A fresh production profile may show the cache notice over this lower
     // field. Dismiss it as a user would before interacting with the picker.
     const cacheNotice = await page.$('button[aria-label="Dismiss cache status"]');
     if (cacheNotice) await cacheNotice.click();
     await page.click(dateTrigger);
-    const dateDialog = 'div[role="dialog"][aria-label="Date and time picker"]';
+    const controlledId = await page.$eval(dateTrigger, (button) =>
+      button.getAttribute("aria-controls"),
+    );
+    if (!controlledId) fail("Date/time trigger does not expose aria-controls.");
+    const dateDialog = 'div[role="dialog"][aria-label="Created date and time"]';
     await page.waitForSelector(dateDialog);
     const openedId = await page.$eval(dateDialog, (dialog) => dialog.id);
     if (openedId !== controlledId)

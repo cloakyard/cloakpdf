@@ -1,0 +1,363 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "left": 0,
+      "right": 320,
+      "top": 0,
+      "bottom": 568,
+      "overflow": false,
+      "minimumCalendarTarget": [44.28125, 44]
+    },
+    {
+      "width": 359,
+      "height": 812,
+      "theme": "light",
+      "left": 0,
+      "right": 359,
+      "top": 0,
+      "bottom": 638.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [49.84375, 44]
+    },
+    {
+      "width": 360,
+      "height": 812,
+      "theme": "light",
+      "left": 0,
+      "right": 360,
+      "top": 0,
+      "bottom": 638.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [50, 44]
+    },
+    {
+      "width": 361,
+      "height": 812,
+      "theme": "light",
+      "left": 16,
+      "right": 345,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [45.5625, 44]
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "left": 16,
+      "right": 359,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [47.5625, 44]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "left": 16,
+      "right": 374,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [49.703125, 44]
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "left": 16,
+      "right": 384,
+      "top": 55.125,
+      "bottom": 693.3125,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "left": 16,
+      "right": 384,
+      "top": 16,
+      "bottom": 374,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "left": 384,
+      "right": 752,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "left": 640,
+      "right": 1008,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "left": 896,
+      "right": 1264,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "left": 982,
+      "right": 1350,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "left": 1056,
+      "right": 1424,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "left": 1536,
+      "right": 1904,
+      "top": 98.9375,
+      "bottom": 713.3125,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "left": 0,
+      "right": 320,
+      "top": 0,
+      "bottom": 568,
+      "overflow": false,
+      "minimumCalendarTarget": [44.28125, 44]
+    },
+    {
+      "width": 359,
+      "height": 812,
+      "theme": "dark",
+      "left": 0,
+      "right": 359,
+      "top": 0,
+      "bottom": 638.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [49.84375, 44]
+    },
+    {
+      "width": 360,
+      "height": 812,
+      "theme": "dark",
+      "left": 0,
+      "right": 360,
+      "top": 0,
+      "bottom": 638.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [50, 44]
+    },
+    {
+      "width": 361,
+      "height": 812,
+      "theme": "dark",
+      "left": 16,
+      "right": 345,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [45.5625, 44]
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "left": 16,
+      "right": 359,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [47.5625, 44]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "left": 16,
+      "right": 374,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [49.703125, 44]
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "left": 16,
+      "right": 384,
+      "top": 55.125,
+      "bottom": 693.3125,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "left": 16,
+      "right": 384,
+      "top": 16,
+      "bottom": 374,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "left": 384,
+      "right": 752,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "left": 640,
+      "right": 1008,
+      "top": 16,
+      "bottom": 654.1875,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "left": 896,
+      "right": 1264,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "left": 982,
+      "right": 1350,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "left": 1056,
+      "right": 1424,
+      "top": 16,
+      "bottom": 630.375,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "left": 1536,
+      "right": 1904,
+      "top": 98.9375,
+      "bottom": 713.3125,
+      "overflow": false,
+      "minimumCalendarTarget": [51.140625, 44]
+    }
+  ],
+  "edgeStates": [
+    {
+      "width": 390,
+      "theme": "light",
+      "readFailure": true,
+      "retainedDraft": true,
+      "retryFocus": true,
+      "pending": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "readFailure": true,
+      "retainedDraft": true,
+      "retryFocus": true,
+      "pending": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "readFailure": true,
+      "retainedDraft": true,
+      "retryFocus": true,
+      "pending": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "readFailure": true,
+      "retainedDraft": true,
+      "retryFocus": true,
+      "pending": true
+    }
+  ],
+  "cancelDiscardsDraft": true,
+  "readFailureRetry": true,
+  "draftPreserved": true,
+  "saveFailureRetry": true,
+  "realOutput": true,
+  "clearRetainsXmp": true,
+  "staleReadDiscarded": true,
+  "mobileDoneOnce": true,
+  "keyboardNestedMenus": true,
+  "text200": true,
+  "forcedColours": true,
+  "errors": [],
+  "native": {
+    "safari": "date/hour keyboard selection, nested Escape, save and undo; rendered review",
+    "firefox": "actual 200% browser zoom, date/hour keyboard selection, nested Escape, tab to visible Done; rendered review"
+  },
+  "remaining": ["physical touch and software keyboards", "OS IME", "assistive speech/navigation"]
+}

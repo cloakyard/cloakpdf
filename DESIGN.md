@@ -1108,3 +1108,19 @@ journeys across all apps; it is not inferred from the pilot alone.
   Failures retain the tool, input and choices for retry; repeat activation must not
   apply twice. Desktop primary actions consume reported failures without an unhandled
   rejection. Undo remains the recovery path for successfully applied byte changes.
+
+- Metadata uses an open document report, persistent field labels and the family
+  date/time picker. Read errors must never become blank editable properties;
+  expose retry and disable Apply until the current revision has been read.
+  Preserve drafts through tool/viewport changes and failures, scope them to exact
+  bytes, discard them on Cancel and retire them after a successful save so Undo
+  cannot resurrect an applied draft. Clearing the standard fields does not remove
+  XMP; explain that limit without claiming the PDF has been sanitised.
+- Calendar days have seven 44px columns even on the smallest phone. The 320px
+  composition uses a full-width surface and 4px grid inset; other controls keep
+  their normal gutter. Date restrictions, local time, year selection, hour/minute
+  menus, AM/PM, Clear and Now remain available. Give Created and Modified distinct
+  accessible names, focus the day before paint, dismiss nested menus first and
+  return focus to the actual field. Scrolling/zoom must keep completion reachable.
+- True modals suspend the actual Air popover/menu/tooltip portals. Remove retired
+  legacy skins and selectors together; stale class names cannot own focus behavior.
