@@ -2409,3 +2409,9 @@ keyboard return; desktop/laptop/phone captures were visually inspected.
 The correction is live through PR #204/main `d9ba375`, Cloudflare `4a482d95`
 at 100%. All 132 production files match and 24 live layout/text cases pass;
 see the linked audit's production evidence.
+
+## 2026-10-19 — approved angled hyperlinks and neutral navigation
+
+Air 1.0.5 restores the approved angled hyperlink cue and neutral header/footer
+treatment. See [scope and evidence](hyperlinks-2026-10-19.md). Twenty-four local
+responsive/theme/text cases pass; desktop/laptop/phone captures were inspected.

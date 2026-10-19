@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Check, Copy, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Check, Copy, RefreshCw } from "lucide-react";
 import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
 declare const __APP_VERSION__: string;
@@ -105,7 +105,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </button>
           <nav className="air-page-nav" aria-label="Primary navigation">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              Source <ArrowRight size={14} aria-hidden="true" />
+              Source <ArrowUpRight size={14} aria-hidden="true" />
             </a>
           </nav>
         </header>

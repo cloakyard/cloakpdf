@@ -1,5 +1,8 @@
 # Consistent landing navigation arrows — 2026-10-19
 
+Superseded by [the user-confirmed angled hyperlink treatment](hyperlinks-2026-10-19.md).
+This is historical evidence; the straight-link rule is no longer authoritative.
+
 The user identified diagonal link arrows in Cloakyard and CloakPDF. Air 1.0.4
 (`0f6ea38f83a9`) now requires a straight right arrow for forward landing links,
 including outbound header/content/footer links. Back, download and disclosure

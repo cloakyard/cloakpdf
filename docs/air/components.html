@@ -1665,7 +1665,7 @@
           background: var(--air-surface-soft);
         }
         .product-entry:hover small svg {
-          transform: translateX(2px);
+          transform: translate(2px, -2px);
         }
         .tool:hover {
           background: var(--air-surface-soft);
@@ -1812,7 +1812,8 @@
         .canvas-zoom {
           display: none;
           position: absolute;
-          right: 12px;
+          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
+        right: 12px;
           bottom: 12px;
           box-shadow: none;
         }
@@ -1981,7 +1982,8 @@
         .family-menu summary {
           position: absolute;
           top: 10px;
-          right: 16px;
+          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
+        right: 16px;
           min-height: 44px;
         }
         .family-menu[open] .family-menu-links {
@@ -2029,7 +2031,8 @@
         .product-entry + .product-entry:before {
           display: block;
           left: 8px;
-          right: 8px;
+          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
+        right: 8px;
           top: 0;
           bottom: auto;
           height: 1px;
@@ -2354,7 +2357,7 @@
             <div class="family-links">
               <a href="#workspace">The tools</a><a href="#components">Our approach</a
               ><a href="https://github.com/cloakyard"
-                >Source <span data-icon="right" style="margin-left: 6px; width: 14px"></span
+                >Source <span data-icon="arrow" style="margin-left: 6px; width: 14px"></span
               ></a>
             </div>
             <details class="family-menu">
@@ -2434,29 +2437,29 @@
             <button class="product-entry" data-app="pdf" aria-pressed="true">
               <div class="product-entry-head"><span data-icon="file"></span>CloakPDF</div>
               <p>A clear space for every page.</p>
-              <small>Open the workspace <span data-icon="right"></span></small>
+              <small>Open the workspace <span data-icon="arrow"></span></small>
             </button>
             <button class="product-entry" data-app="img" aria-pressed="false">
               <div class="product-entry-head"><span data-icon="image"></span>CloakIMG</div>
               <p>Make a little more of your images.</p>
-              <small>Open the workspace <span data-icon="right"></span></small>
+              <small>Open the workspace <span data-icon="arrow"></span></small>
             </button>
             <button class="product-entry" data-app="resume" aria-pressed="false">
               <div class="product-entry-head">
                 <span data-icon="resume"></span><span>Cloak<wbr />Resume</span>
               </div>
               <p>Your experience, beautifully told.</p>
-              <small>Open the workspace <span data-icon="right"></span></small>
+              <small>Open the workspace <span data-icon="arrow"></span></small>
             </button>
             <a class="product-entry" href="https://drop.cloakyard.com"
               ><div class="product-entry-head"><span data-icon="download"></span>CloakDrop</div>
               <p>Downloads that feel at home on Mac.</p>
-              <small>Explore for macOS <span data-icon="right"></span></small
+              <small>Explore for macOS <span data-icon="arrow"></span></small
             ></a>
           </div>
           <div class="experiment-link">
             <span>A little room for curiosity, too.</span
-            ><a href="https://kerr.cloakyard.com">Explore KERR <span data-icon="right"></span></a>
+            ><a href="https://kerr.cloakyard.com">Explore KERR <span data-icon="arrow"></span></a>
           </div>
         </div>
         <div class="light-study-controls" aria-label="Air light study controls">
@@ -3162,6 +3165,7 @@
     <script type="module">
       import { createDialogMotion, createCompletionMotion } from "./motion.mjs";
       const paths = {
+        arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
         right: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
         lock: '<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
         file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5"/>',

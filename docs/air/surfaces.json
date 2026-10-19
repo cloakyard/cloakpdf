@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.4",
+  "contractVersion": "1.0.5",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -560,7 +560,8 @@
       "evidence": [
         "docs/air/evidence/recovery-utility-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/link-arrows-2026-10-19.md"
+        "docs/air/link-arrows-2026-10-19.md",
+        "docs/air/hyperlinks-2026-10-19.md"
       ],
       "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
@@ -710,7 +711,8 @@
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/link-arrows-2026-10-19.md"
+        "docs/air/link-arrows-2026-10-19.md",
+        "docs/air/hyperlinks-2026-10-19.md"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
@@ -2935,7 +2937,8 @@
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",
-        "docs/air/evidence/landing-horizon-2026-10-19/results.json"
+        "docs/air/evidence/landing-horizon-2026-10-19/results.json",
+        "docs/air/hyperlinks-2026-10-19.md"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Registry/lifecycle checkpoint: the standalone roster is direct and readonly; device filtering still applies. Editor search metadata remains independent of the heavy editor component graph."
     },
