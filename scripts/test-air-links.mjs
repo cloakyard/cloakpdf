@@ -2,12 +2,15 @@
  * AIR_EVIDENCE_DIR, CHROME_PATH and external PUPPETEER_MODULE as needed.
  * Inspects every visible link, including nested text, without following downloads. */
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 const { default: puppeteer } = await import(process.env.PUPPETEER_MODULE || "puppeteer-core");
 const base = process.env.SITE_URL || "http://127.0.0.1:8180";
 const routes = (process.env.AIR_ROUTES || "/").split(",");
-const out = resolve(process.env.AIR_EVIDENCE_DIR || "/tmp/air-links");
+const out = process.env.AIR_EVIDENCE_DIR
+  ? resolve(process.env.AIR_EVIDENCE_DIR)
+  : await mkdtemp(join(tmpdir(), "air-links-"));
 await mkdir(out, { recursive: true });
 const browser = await puppeteer.launch({
   executablePath:

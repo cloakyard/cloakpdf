@@ -32,3 +32,5 @@ complete. No native code, release
 tags, installer assets, document/image output or link destinations changed.
 
 Local all-link checks pass: 116 layout/state cases and 34 keyboard focus checks. Desktop/laptop/phone light/dark captures were visually inspected, including page content and policy text.
+
+Checker hardening: use an OS-created unique temporary directory when no evidence directory is supplied. The default-directory browser run passes 60 layout/state and 18 keyboard checks; canonical formatting/lint and portable synchronization pass. This resolves the CodeQL temporary-file finding without changing shipped website assets.
