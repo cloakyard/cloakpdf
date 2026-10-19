@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-19",
+  "surface": "Select text",
+  "airVersion": "1.0.2",
+  "contract": "bb90f52e0b0a",
+  "baselineCommit": "7c8723d",
+  "scope": "Air inspector and text-selection lifecycle/geometry; existing mark writers retained",
+  "implementation": [
+    "Shared Air actions and labelled read-only excerpt; no private button skin",
+    "Exact byte/page ownership; cached geometry and retained tool/layout selection; abandoned reads ignored",
+    "Distinct reading/error/retry/no-text/OCR states",
+    "Pointer selection/cancel and focus-scoped keyboard range; page selection and manual copy",
+    "Explicit clipboard errors and retained selection after failed writes; local apply guard",
+    "Paper-accent overlay; font ascent/descent with edge allowance, four transformed corners and page reading rotation",
+    "Fully cropped-out runs omitted; visible marks clipped to visible page",
+    "Pending redaction/erase gates text copying; export and immediate-apply semantics preserved"
+  ],
+  "validation": {
+    "units": 453,
+    "unitFiles": 46,
+    "focusedSuite": "tests/e2e/select-text.e2e.ts",
+    "assertions": [
+      "keyboard/pointer/cancel",
+      "copy success/refusal/unavailable",
+      "page/byte ownership and stale reads",
+      "read retry/empty/OCR",
+      "failed write preserves selection",
+      "highlight/box real output",
+      "Undo/Redo/Cancel",
+      "redaction output/privacy gate",
+      "responsive retention and targets"
+    ],
+    "layoutRegions": 52,
+    "sizes": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1024x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "767x1024",
+      "769x1024"
+    ],
+    "themes": ["light", "dark"],
+    "enlargedTextCases": 6,
+    "coarseMinimumTarget": 44,
+    "pageErrors": [],
+    "native": [
+      "Safari production: selection, apply, focus, Undo and stale-feedback removal",
+      "Firefox production: retained selection at actual 200% browser zoom; zoom restored"
+    ],
+    "additional": [
+      "forced colours and reduced motion",
+      "independent Poppler renders: rotated highlighted/boxed page and redacted text with descenders",
+      "PDF.js cannot extract covered text; untouched second page retains original text",
+      "CropBox/Rotate/UserUnit and title preserved; exact Undo/Redo bytes"
+    ],
+    "regression": "PASS: 16 production smoke + seven extended + Select text + Auto-fill + search/scrub = 26 distinct suites. Final complete serial smoke command exited 0.",
+    "requiredChecks": "PASS: format/lint/type, units, dead-code, build/asset budget, design, 18 portability fixtures, root checks/types, six-document bundle sync."
+  },
+  "cleanup": [
+    "Removed private ActionButton and LucideIcon adapter type",
+    "Removed HILITE literal, legacy palette/monospace/underline/ring classes",
+    "Removed readSlice and duplicate selected text/rectangle payload; derive from one range",
+    "Removed unowned copy timer and silent extraction/clipboard catches",
+    "Removed unused reading-row tolerance parameter; verified all consumers",
+    "Regenerated stale surface inventory entries for previously completed forms/controls",
+    "No dependency added; knip clean"
+  ],
+  "bundleKB": {
+    "editorRaw": 327.17,
+    "editorGzip": 99.5,
+    "cssRaw": 138.2,
+    "cssGzip": 24.02,
+    "previousEditorGzip": 98.39,
+    "previousCssGzip": 24.64,
+    "deployAssets": 128,
+    "pwaEntries": 77
+  },
+  "correctionsDuringValidation": [
+    "Initial Cancel test assumed applied marks were pending; corrected it to the existing explicit-apply checkpoint and separately verified two Undo operations restore original bytes. No runtime history change.",
+    "Initial parallel smoke missed the 240ms AI modal entrance; unchanged isolated assertion passed. Final serial run recorded separately.",
+    "Independent PDF renders exposed baseline-only bounds; replaced with font/transform selection bounds and added descender/rotation/shear regression coverage."
+  ],
+  "openAcceptance": [
+    "Physical touch and software keyboards",
+    "Actual OS IME",
+    "Spoken assistive technology",
+    "Arbitrary complex multi-column logical reading order remains a spatial text-run heuristic"
+  ],
+  "evidence": [
+    "select-text-desktop-light-2026-10-19.png",
+    "select-text-phone-dark-2026-10-19.png",
+    "select-text-checks-2026-10-19.log"
+  ],
+  "fullTemporaryEvidence": "/tmp/cloakpdf-air-review/select-text-* and Air text *.pdf",
+  "next": [
+    "EditorContext",
+    "EditorToolStage",
+    "EditorView",
+    "OverviewMode",
+    "WholeDocPanel",
+    "stage",
+    "Remaining legacy-style consumers and disabled-Undo focus ownership"
+  ],
+  "completion": "Bounded component only; full PDF/family migration and physical/assistive gates remain open."
+}

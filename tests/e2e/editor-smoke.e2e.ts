@@ -43,7 +43,9 @@ if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -57,7 +59,7 @@ async function clickByPrefix(page: Page, prefix: string): Promise<boolean> {
   return page.evaluate((p) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
     const el = els.find((e) =>
-      (e.textContent ?? "").trim().toLowerCase().startsWith(p.toLowerCase()),
+      (e as HTMLElement).innerText.trim().toLowerCase().startsWith(p.toLowerCase()),
     );
     if (!el) return false;
     (el as HTMLElement).click();
@@ -155,6 +157,7 @@ async function main() {
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(30_000);
     page.on("console", (m) => {
@@ -209,15 +212,17 @@ async function main() {
     const stripBtn = await page.$('button[aria-label="Strip furniture"]');
     if (!stripBtn) fail("Strip furniture rail tool not found.");
     await stripBtn.click(); // focus mode
-    await waitForText(page, /repeat across pages/i, 5_000); // panel mounted
-    await waitForText(
-      page,
-      /No repeating|Trims \d+%|Select at least one|Running header|Running footer|Page numbers/i,
-      60_000,
-    ); // scan resolved
-    const canTrim = await page.evaluate(() => /Trims \d+%/i.test(document.body.innerText));
+    await page.waitForSelector(".pdf-furniture-panel", { timeout: 5_000 });
+    await page.waitForFunction(
+      () =>
+        /No repeating|No selectable text|Needs at least|Trims [\d.]+%/.test(
+          document.querySelector(".pdf-furniture-panel")?.textContent ?? "",
+        ),
+      { timeout: 60_000 },
+    );
+    const canTrim = await page.evaluate(() => /Trims [\d.]+%/i.test(document.body.innerText));
     if (canTrim && (await clickByText(page, "Trim furniture"))) {
-      await waitForText(page, /Working/i, 10_000);
+      await waitForText(page, /Selected margins trimmed/i, 60_000);
       await page.waitForSelector('img[alt="Page 1"]', { timeout: 60_000 });
       console.log("  ✓ strip furniture detect + trim (crop) apply");
     } else {
@@ -290,7 +295,7 @@ async function main() {
             ta: !!document.querySelector('textarea[aria-label="Text annotation"]'),
             marks: (document.body.innerText.match(/\d+\s+marks?/i) ?? [])[0] ?? "?",
             pressed: [...document.querySelectorAll('button[aria-pressed="true"]')].map((e) =>
-              (e.textContent ?? "").trim(),
+              (e as HTMLElement).innerText.trim(),
             ),
           }));
           fail(
@@ -306,7 +311,7 @@ async function main() {
     await pollEval(
       () =>
         [...document.querySelectorAll('button[aria-pressed="true"]')].some(
-          (e) => (e.textContent ?? "").trim() === "Text",
+          (e) => (e as HTMLElement).innerText.trim() === "Text",
         ),
       "text-mode",
     );
@@ -337,7 +342,7 @@ async function main() {
     await waitForText(page, /Keeping/i, 5_000);
     if (!(await clickByText(page, "Crop pages"))) fail("Crop Apply button not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /area to keep/i, 60_000); // keep resets once applied
+    await waitForText(page, /Crop applied/i, 60_000); // wait for the byte operation, not static help
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
     console.log("  ✓ crop drag + apply");
 
@@ -381,7 +386,7 @@ async function main() {
     const eraseBtn = await page.$('button[aria-label="Erase"]');
     if (!eraseBtn) fail("Erase rail tool not found.");
     await eraseBtn.click(); // focus mode
-    await waitForText(page, /anything you want gone/i, 5_000);
+    await page.waitForSelector('[aria-label="Erase method"]', { timeout: 5_000 });
     await drawOnPage(page, { x: 0.3, y: 0.3 }, { x: 0.6, y: 0.45 });
     await waitForText(page, /\b1 area\b/i, 5_000); // region listed, not burned
     console.log("  ✓ smart erase draw (deferred mark)");
@@ -407,7 +412,15 @@ async function main() {
     await page.click('button[aria-label="Delete page 1"]');
     if (!(await clickByText(page, "Apply changes"))) fail("Organize Apply button not found.");
     const pagesAfterOrganize = pagesBeforeOrganize - 1;
-    await waitForText(page, new RegExp(`\\b${pagesAfterOrganize} pages\\b`), 60_000);
+    await page.waitForFunction(
+      (count) =>
+        document.querySelectorAll(
+          'button[aria-label^="Delete page "], button[aria-label^="Restore page "]',
+        ).length === count &&
+        !document.querySelector('main[aria-label="PDF editor"][aria-busy="true"]'),
+      { timeout: 60_000 },
+      pagesAfterOrganize,
+    );
     console.log(
       `  ✓ organize delete + apply (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
     );
@@ -458,9 +471,11 @@ async function main() {
     if (!pnBtn) fail("Page numbers rail tool not found.");
     await pnBtn.click();
     await waitForText(page, /Add page numbers/i, 5_000);
+    await page.waitForSelector(".pdf-numbering-panel .air-button--primary:not(:disabled)", {
+      timeout: 10_000,
+    });
     if (!(await clickByText(page, "Add page numbers"))) fail("Page numbers Apply not found.");
-    await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add page numbers/i, 60_000);
+    await waitForText(page, /No pending numbers/i, 60_000);
     console.log("  ✓ stamp-family apply (page numbers)");
 
     // 11. Fill form: the fixture has no AcroForm, so the reader reports it.
@@ -473,7 +488,9 @@ async function main() {
       .then(() => true)
       .catch(() => false);
     if (!ffSwitched) await page.click('button[aria-label="Fill form"]');
-    await waitForText(page, /no fillable form fields/i, 15_000);
+    await page.waitForSelector('.pdf-fillform-panel [aria-label="No form fields"]', {
+      timeout: 15_000,
+    });
     console.log("  ✓ fill-form reads fields (empty)");
 
     // 12. Bookmarks: add one row + apply, page count unchanged.
@@ -484,12 +501,18 @@ async function main() {
     await page.type('input[placeholder="Bookmark title"]', "Intro");
     if (!(await clickByText(page, "Add 1 bookmark"))) fail("Bookmarks Apply button not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add 1 bookmark/i, 60_000);
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
+        "",
+      { timeout: 60_000 },
+    );
     console.log("  ✓ bookmarks add + apply");
 
-    // 12b. Auto Contents: toggle "Add a contents page" and re-apply — inserts a
-    //      clickable in-document TOC page (embedFont + drawText + /Link annots).
+    // 12b. A successful apply retires its draft. Enter another outline and add
+    //      clickable contents pages (embedFont + drawText + /Link annots).
     //      Output correctness is unit-tested; this proves it runs in a browser.
+    await page.type('input[placeholder="Bookmark title"]', "Intro");
     await page.evaluate(() => {
       const lbl = Array.from(document.querySelectorAll("label")).find((l) =>
         /Add a contents page/i.test(l.textContent ?? ""),
@@ -499,7 +522,12 @@ async function main() {
     if (!(await clickByText(page, "Add 1 bookmark")))
       fail("Bookmarks contents re-apply not found.");
     await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add 1 bookmark/i, 60_000);
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
+        "",
+      { timeout: 60_000 },
+    );
     console.log("  ✓ bookmarks contents page apply");
 
     // 13. Attachments: list panel loads its async report on open.
@@ -510,20 +538,20 @@ async function main() {
     console.log("  ✓ attachments panel loads");
 
     // 13b. Export modal: pick a format / toggle a convert option, then hit the
-    //      single Download button. Contact sheet (runTask → nupPages) and a PDF
+    //      single Download button. Contact sheet (nupPages) and a PDF
     //      Grayscale convert (rasterise) both land PDFs in the download dir.
     if (!(await clickByText(page, "Export"))) fail("Export button not found.");
-    await page.waitForSelector('button[aria-label="Contact sheet"]', { timeout: 5_000 }); // modal open
-    await page.click('button[aria-label="Contact sheet"]'); // select format
+    await page.waitForSelector('input[aria-label="Contact sheet"]', { timeout: 5_000 }); // modal open
+    await page.locator('input[aria-label="Contact sheet"]').click(); // select format
     if (!(await clickByText(page, "Download"))) fail("Download button not found.");
     const dl = await waitForFile(downloadDir, /_contact-sheet\.pdf$/i, 60_000);
     console.log(`  ✓ export modal · contact sheet → ${dl}`);
 
     if (!(await clickByText(page, "Export"))) fail("Export button not found (2nd open).");
-    await page.waitForSelector('button[aria-label="PDF"]', { timeout: 5_000 });
-    await page.click('button[aria-label="PDF"]'); // back to PDF so options show
-    await page.waitForSelector('button[aria-label="Grayscale"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Grayscale"]'); // toggle the switch on
+    await page.waitForSelector('input[aria-label="PDF"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="PDF"]').click(); // back to PDF so options show
+    await page.waitForSelector('input[aria-label="Grayscale"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Grayscale"]').click(); // toggle the switch on
     if (!(await clickByText(page, "Download"))) fail("Download button not found (2nd).");
     const dl2 = await waitForFile(downloadDir, /_grayscale\.pdf$/i, 60_000);
     console.log(`  ✓ export modal · grayscale → ${dl2}`);
@@ -533,15 +561,15 @@ async function main() {
     //      Text uses the reading-order reflow; Markdown uses liteparse's native
     //      renderer (real ATX headings / lists), so we assert the .md carries it.
     if (!(await clickByText(page, "Export"))) fail("Export button not found (text).");
-    await page.waitForSelector('button[aria-label="Text (.txt)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Text (.txt)"]');
+    await page.waitForSelector('input[aria-label="Text (.txt)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Text (.txt)"]').click();
     if (!(await clickByText(page, "Download"))) fail("Download button not found (text).");
     const dlTxt = await waitForFile(downloadDir, /\.txt$/i, 60_000);
     console.log(`  ✓ export modal · text → ${dlTxt}`);
 
     if (!(await clickByText(page, "Export"))) fail("Export button not found (markdown).");
-    await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Markdown (.md)"]');
+    await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Markdown (.md)"]').click();
     if (!(await clickByText(page, "Download"))) fail("Download button not found (markdown).");
     const dlMd = await waitForFile(downloadDir, /\.md$/i, 60_000);
     const mdText = readFileSync(join(downloadDir, dlMd), "utf8");

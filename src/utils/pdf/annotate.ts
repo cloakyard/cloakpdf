@@ -2,6 +2,7 @@
  * Annotate — vector overlay (pen / highlighter / shapes / text).
  */
 
+import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFDocument, rgb, LineCapStyle, StandardFonts } from "@pdfme/pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 
@@ -518,204 +519,208 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
   for (const a of annotations) {
     const page = pages[a.pageIndex];
     if (!page) continue;
-    const { width: W, height: H } = page.getSize();
-    const color = rgb(a.color.r / 255, a.color.g / 255, a.color.b / 255);
+    await drawOnVisiblePage(page, async ({ width: W, height: H }) => {
+      const color = rgb(a.color.r / 255, a.color.g / 255, a.color.b / 255);
 
-    if (a.kind === "stroke") {
-      if (a.points.length < 2) continue;
-      const thickness = Math.max(0.5, a.thicknessFrac * W);
-      for (let i = 1; i < a.points.length; i++) {
-        const p0 = a.points[i - 1];
-        const p1 = a.points[i];
-        page.drawLine({
-          start: { x: p0.x * W, y: (1 - p0.y) * H },
-          end: { x: p1.x * W, y: (1 - p1.y) * H },
-          thickness,
-          color,
-          opacity: a.opacity,
-          lineCap: LineCapStyle.Round,
-        });
-      }
-    } else if (a.kind === "rect") {
-      const fill = a.fill
-        ? rgb(a.fill.color.r / 255, a.fill.color.g / 255, a.fill.color.b / 255)
-        : undefined;
-      page.drawRectangle({
-        x: a.x * W,
-        y: (1 - a.y - a.h) * H,
-        width: a.w * W,
-        height: a.h * H,
-        borderColor: color,
-        borderWidth: Math.max(0.5, a.thicknessFrac * W),
-        color: fill,
-        opacity: a.fill ? (a.fill.opacity ?? 1) : 0,
-        borderOpacity: 1,
-      });
-    } else if (a.kind === "ellipse") {
-      const fill = a.fill
-        ? rgb(a.fill.color.r / 255, a.fill.color.g / 255, a.fill.color.b / 255)
-        : undefined;
-      page.drawEllipse({
-        x: (a.x + a.w / 2) * W,
-        y: (1 - (a.y + a.h / 2)) * H,
-        xScale: (a.w / 2) * W,
-        yScale: (a.h / 2) * H,
-        borderColor: color,
-        borderWidth: Math.max(0.5, a.thicknessFrac * W),
-        color: fill,
-        opacity: a.fill ? (a.fill.opacity ?? 1) : 0,
-        borderOpacity: 1,
-      });
-    } else if (a.kind === "line" || a.kind === "arrow") {
-      const thickness = Math.max(0.5, a.thicknessFrac * W);
-      const start = { x: a.x1 * W, y: (1 - a.y1) * H };
-      const end = { x: a.x2 * W, y: (1 - a.y2) * H };
-      page.drawLine({ start, end, thickness, color, lineCap: LineCapStyle.Round });
-      if (a.kind === "arrow") {
-        // Two short segments off the end point form the arrowhead.
-        const angle = Math.atan2(end.y - start.y, end.x - start.x);
-        const headLen = Math.max(6, thickness * 3.5);
-        for (const spread of [Math.PI - 0.45, Math.PI + 0.45]) {
+      if (a.kind === "stroke") {
+        if (a.points.length < 2) return;
+        const thickness = Math.max(0.5, a.thicknessFrac * W);
+        for (let i = 1; i < a.points.length; i++) {
+          const p0 = a.points[i - 1];
+          const p1 = a.points[i];
           page.drawLine({
-            start: end,
-            end: {
-              x: end.x + headLen * Math.cos(angle + spread),
-              y: end.y + headLen * Math.sin(angle + spread),
-            },
+            start: { x: p0.x * W, y: (1 - p0.y) * H },
+            end: { x: p1.x * W, y: (1 - p1.y) * H },
             thickness,
             color,
+            opacity: a.opacity,
             lineCap: LineCapStyle.Round,
           });
         }
-      }
-    } else if (a.kind === "text") {
-      if (!a.text) continue;
-      // The standard-14 fonts only encode WinAnsi (Latin-1). A label containing
-      // glyphs they can't represent (emoji, CJK, …) throws inside pdf-lib's
-      // encoder; catch it per-label so one bad mark can't abort the whole batch
-      // (the on-canvas preview happily renders those glyphs, so this is the one
-      // place the two paths can diverge). The label is simply skipped.
-      try {
-        const font = await getFont(a.font ?? "helvetica");
-        const size = a.sizeFrac * H;
-        const top = (1 - a.y) * H; // top edge of the text in pdf (bottom-left) space
-        if (a.w != null && a.h != null) {
-          // Box text: wrap to the box width, draw lines from the top down. The
-          // background (when present) fills the whole box; padded sideways so
-          // glyphs don't touch the edge.
-          const padX = size * TEXT_BG_PAD_EM;
-          const boxW = a.w * W;
-          const boxH = a.h * H;
-          if (a.bg) {
-            page.drawRectangle({
-              x: a.x * W,
-              y: top - boxH,
-              width: boxW,
-              height: boxH,
-              color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
-              opacity: a.bg.opacity ?? 1,
+      } else if (a.kind === "rect") {
+        const fill = a.fill
+          ? rgb(a.fill.color.r / 255, a.fill.color.g / 255, a.fill.color.b / 255)
+          : undefined;
+        page.drawRectangle({
+          x: a.x * W,
+          y: (1 - a.y - a.h) * H,
+          width: a.w * W,
+          height: a.h * H,
+          borderColor: color,
+          borderWidth: Math.max(0.5, a.thicknessFrac * W),
+          color: fill,
+          opacity: a.fill ? (a.fill.opacity ?? 1) : 0,
+          borderOpacity: 1,
+        });
+      } else if (a.kind === "ellipse") {
+        const fill = a.fill
+          ? rgb(a.fill.color.r / 255, a.fill.color.g / 255, a.fill.color.b / 255)
+          : undefined;
+        page.drawEllipse({
+          x: (a.x + a.w / 2) * W,
+          y: (1 - (a.y + a.h / 2)) * H,
+          xScale: (a.w / 2) * W,
+          yScale: (a.h / 2) * H,
+          borderColor: color,
+          borderWidth: Math.max(0.5, a.thicknessFrac * W),
+          color: fill,
+          opacity: a.fill ? (a.fill.opacity ?? 1) : 0,
+          borderOpacity: 1,
+        });
+      } else if (a.kind === "line" || a.kind === "arrow") {
+        const thickness = Math.max(0.5, a.thicknessFrac * W);
+        const start = { x: a.x1 * W, y: (1 - a.y1) * H };
+        const end = { x: a.x2 * W, y: (1 - a.y2) * H };
+        page.drawLine({ start, end, thickness, color, lineCap: LineCapStyle.Round });
+        if (a.kind === "arrow") {
+          // Two short segments off the end point form the arrowhead.
+          const angle = Math.atan2(end.y - start.y, end.x - start.x);
+          const headLen = Math.max(6, thickness * 3.5);
+          for (const spread of [Math.PI - 0.45, Math.PI + 0.45]) {
+            page.drawLine({
+              start: end,
+              end: {
+                x: end.x + headLen * Math.cos(angle + spread),
+                y: end.y + headLen * Math.sin(angle + spread),
+              },
+              thickness,
+              color,
+              lineCap: LineCapStyle.Round,
             });
           }
-          const lines = wrapTextToWidth(a.text, Math.max(1, boxW - padX * 2), (s) =>
-            font.widthOfTextAtSize(s, size),
-          );
-          const lineH = size * TEXT_LINE_EM;
-          lines.forEach((ln, i) => {
-            if (!ln) return;
-            const lx = a.x * W + padX;
-            const ly = top - size - i * lineH;
-            page.drawText(ln, { x: lx, y: ly, size, font, color });
+        }
+      } else if (a.kind === "text") {
+        if (!a.text) return;
+        // The standard-14 fonts only encode WinAnsi (Latin-1). A label containing
+        // glyphs they can't represent (emoji, CJK, …) throws inside pdf-lib's
+        // encoder; catch it per-label so one bad mark can't abort the whole batch
+        // (the on-canvas preview happily renders those glyphs, so this is the one
+        // place the two paths can diverge). The label is simply skipped.
+        try {
+          const font = await getFont(a.font ?? "helvetica");
+          const size = a.sizeFrac * H;
+          const top = (1 - a.y) * H; // top edge of the text in pdf (bottom-left) space
+          if (a.w != null && a.h != null) {
+            // Box text: wrap to the box width, draw lines from the top down. The
+            // background (when present) fills the whole box; padded sideways so
+            // glyphs don't touch the edge.
+            const padX = size * TEXT_BG_PAD_EM;
+            const boxW = a.w * W;
+            const boxH = a.h * H;
+            if (a.bg) {
+              page.drawRectangle({
+                x: a.x * W,
+                y: top - boxH,
+                width: boxW,
+                height: boxH,
+                color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
+                opacity: a.bg.opacity ?? 1,
+              });
+            }
+            const lines = wrapTextToWidth(a.text, Math.max(1, boxW - padX * 2), (s) =>
+              font.widthOfTextAtSize(s, size),
+            );
+            const lineH = size * TEXT_LINE_EM;
+            lines.forEach((ln, i) => {
+              if (!ln) return;
+              const lx = a.x * W + padX;
+              const ly = top - size - i * lineH;
+              page.drawText(ln, { x: lx, y: ly, size, font, color });
+              if (a.underline) {
+                page.drawLine({
+                  start: { x: lx, y: ly - size * UNDERLINE_DROP_EM },
+                  end: {
+                    x: lx + font.widthOfTextAtSize(ln, size),
+                    y: ly - size * UNDERLINE_DROP_EM,
+                  },
+                  thickness: Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
+                  color,
+                });
+              }
+            });
+          } else {
+            // Legacy point-anchored single line: baseline one size below the anchor.
+            const baseline = top - size;
+            if (a.bg) {
+              // Opaque backing so the label masks whatever sits under it. Spans from
+              // the anchor down past the descenders; padded sideways off the glyphs.
+              const padX = size * TEXT_BG_PAD_EM;
+              const bgH = size * TEXT_BG_HEIGHT_EM;
+              page.drawRectangle({
+                x: a.x * W - padX,
+                y: top - bgH,
+                width: font.widthOfTextAtSize(a.text, size) + padX * 2,
+                height: bgH,
+                color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
+                opacity: a.bg.opacity ?? 1,
+              });
+            }
+            page.drawText(a.text, { x: a.x * W, y: baseline, size, font, color });
             if (a.underline) {
               page.drawLine({
-                start: { x: lx, y: ly - size * UNDERLINE_DROP_EM },
-                end: { x: lx + font.widthOfTextAtSize(ln, size), y: ly - size * UNDERLINE_DROP_EM },
+                start: { x: a.x * W, y: baseline - size * UNDERLINE_DROP_EM },
+                end: {
+                  x: a.x * W + font.widthOfTextAtSize(a.text, size),
+                  y: baseline - size * UNDERLINE_DROP_EM,
+                },
                 thickness: Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
                 color,
               });
             }
-          });
-        } else {
-          // Legacy point-anchored single line: baseline one size below the anchor.
-          const baseline = top - size;
-          if (a.bg) {
-            // Opaque backing so the label masks whatever sits under it. Spans from
-            // the anchor down past the descenders; padded sideways off the glyphs.
-            const padX = size * TEXT_BG_PAD_EM;
-            const bgH = size * TEXT_BG_HEIGHT_EM;
-            page.drawRectangle({
-              x: a.x * W - padX,
-              y: top - bgH,
-              width: font.widthOfTextAtSize(a.text, size) + padX * 2,
-              height: bgH,
-              color: rgb(a.bg.color.r / 255, a.bg.color.g / 255, a.bg.color.b / 255),
-              opacity: a.bg.opacity ?? 1,
-            });
           }
-          page.drawText(a.text, { x: a.x * W, y: baseline, size, font, color });
-          if (a.underline) {
+        } catch {
+          // Un-encodable label — skip it rather than failing every other mark.
+        }
+      } else if (a.kind === "icon") {
+        // Stamp the glyph into the largest centred square of the box, mapping the
+        // unit-square geometry (y-DOWN) into pdf space (y-UP). Same geometry the
+        // canvas preview paints, so placement and output match exactly.
+        const boxX = a.x * W;
+        const topY = (1 - a.y) * H; // top edge of the box in pdf (y-up) space
+        const boxW = a.w * W;
+        const boxH = a.h * H;
+        const s = Math.min(boxW, boxH);
+        const ox = boxX + (boxW - s) / 2; // square's left
+        const oyTop = topY - (boxH - s) / 2; // square's top edge (y-up)
+        const ux = (u: number) => ox + u * s;
+        const uy = (v: number) => oyTop - v * s; // v=0 → top, v=1 → bottom
+        const g = iconGeometry(a.icon);
+        const thickness = Math.max(0.75, g.weight * s);
+        for (const stroke of g.strokes) {
+          for (let i = 1; i < stroke.length; i++) {
             page.drawLine({
-              start: { x: a.x * W, y: baseline - size * UNDERLINE_DROP_EM },
-              end: {
-                x: a.x * W + font.widthOfTextAtSize(a.text, size),
-                y: baseline - size * UNDERLINE_DROP_EM,
-              },
-              thickness: Math.max(0.5, size * UNDERLINE_WEIGHT_EM),
+              start: { x: ux(stroke[i - 1].x), y: uy(stroke[i - 1].y) },
+              end: { x: ux(stroke[i].x), y: uy(stroke[i].y) },
+              thickness,
               color,
+              lineCap: LineCapStyle.Round,
             });
           }
         }
-      } catch {
-        // Un-encodable label — skip it rather than failing every other mark.
-      }
-    } else if (a.kind === "icon") {
-      // Stamp the glyph into the largest centred square of the box, mapping the
-      // unit-square geometry (y-DOWN) into pdf space (y-UP). Same geometry the
-      // canvas preview paints, so placement and output match exactly.
-      const boxX = a.x * W;
-      const topY = (1 - a.y) * H; // top edge of the box in pdf (y-up) space
-      const boxW = a.w * W;
-      const boxH = a.h * H;
-      const s = Math.min(boxW, boxH);
-      const ox = boxX + (boxW - s) / 2; // square's left
-      const oyTop = topY - (boxH - s) / 2; // square's top edge (y-up)
-      const ux = (u: number) => ox + u * s;
-      const uy = (v: number) => oyTop - v * s; // v=0 → top, v=1 → bottom
-      const g = iconGeometry(a.icon);
-      const thickness = Math.max(0.75, g.weight * s);
-      for (const stroke of g.strokes) {
-        for (let i = 1; i < stroke.length; i++) {
-          page.drawLine({
-            start: { x: ux(stroke[i - 1].x), y: uy(stroke[i - 1].y) },
-            end: { x: ux(stroke[i].x), y: uy(stroke[i].y) },
-            thickness,
+        if (g.disc) {
+          page.drawEllipse({
+            x: ux(g.disc.cx),
+            y: uy(g.disc.cy),
+            xScale: g.disc.r * s,
+            yScale: g.disc.r * s,
             color,
-            lineCap: LineCapStyle.Round,
+            borderWidth: 0,
+          });
+        }
+        if (g.ring) {
+          page.drawEllipse({
+            x: ux(g.ring.cx),
+            y: uy(g.ring.cy),
+            xScale: g.ring.r * s,
+            yScale: g.ring.r * s,
+            borderColor: color,
+            borderWidth: Math.max(0.75, g.weight * s),
+            opacity: 0,
+            borderOpacity: 1,
           });
         }
       }
-      if (g.disc) {
-        page.drawEllipse({
-          x: ux(g.disc.cx),
-          y: uy(g.disc.cy),
-          xScale: g.disc.r * s,
-          yScale: g.disc.r * s,
-          color,
-          borderWidth: 0,
-        });
-      }
-      if (g.ring) {
-        page.drawEllipse({
-          x: ux(g.ring.cx),
-          y: uy(g.ring.cy),
-          xScale: g.ring.r * s,
-          yScale: g.ring.r * s,
-          borderColor: color,
-          borderWidth: Math.max(0.75, g.weight * s),
-          opacity: 0,
-          borderOpacity: 1,
-        });
-      }
-    }
+    });
   }
 
   return pdf.save();

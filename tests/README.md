@@ -29,3 +29,14 @@ git-ignored. They are runtime artifacts, not test source.
 
 The browser commands require `vp dev` and Chrome. See
 [`fixtures/README.md`](fixtures/README.md) for fixture requirements.
+
+### Ask PDF recovery and layout
+
+`node tests/e2e/ask-pdf-chat.e2e.ts` starts an isolated Vite server on port 8142
+and tests the real UI against a controlled RAG boundary. It covers indexing and
+answer errors, retry, draft/focus retention, IME-aware submission, source links,
+scroll ownership, replacement/navigation and the Air viewport/theme/text matrix.
+The fixture lives only in `tests/e2e/`; no test switch ships in the application.
+Set `CHAT_TEST_URL` to reuse an already running fixture server. Real models,
+retrieval, caching, tier switching and memory release remain covered by
+`tests/e2e/ai-tools.e2e.ts` against the normal production or development server.

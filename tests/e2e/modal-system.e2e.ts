@@ -154,7 +154,7 @@ async function main() {
     await page.evaluate(() => {
       const popover = document.createElement("div");
       popover.id = "modal-system-popover-probe";
-      popover.className = "cloak-popover";
+      popover.className = "air-popover";
       popover.textContent = "Popover probe";
       document.body.append(popover);
       document.addEventListener(
@@ -176,9 +176,10 @@ async function main() {
         document.body.dataset.modalOpenEventReceived === "true"
       );
     });
-    const initialPaletteFocus = await page.evaluate(() =>
-      document.activeElement?.getAttribute("aria-label"),
-    );
+    const initialPaletteFocus = await page.evaluate(() => {
+      const focused = document.activeElement;
+      return focused instanceof HTMLInputElement ? focused.labels?.[0]?.textContent : null;
+    });
     if (initialPaletteFocus !== "Search tools and actions") {
       fail(`Palette initial focus was ${initialPaletteFocus ?? "missing"}.`);
     }
@@ -212,16 +213,15 @@ async function main() {
     // deliberately test-only so registration order, layering, and ref counts run.
     await page.click('button[aria-label="Export"]');
     await page.waitForSelector('[data-testid="export-dialog"]');
-    await page.focus('[data-testid="export-dialog"] button[role="switch"][aria-label="Compress"]');
+    await page.focus('[data-testid="export-dialog"] input[role="switch"][aria-label="Compress"]');
     await page.$eval(
-      '[data-testid="export-dialog"] [role="radio"][aria-label^="Markdown"]',
-      (radio) => (radio as HTMLButtonElement).click(),
+      '[data-testid="export-dialog"] input[type="radio"][aria-label^="Markdown"]',
+      (radio) => (radio as HTMLInputElement).click(),
     );
     await page.waitForFunction(() => {
       const focused = document.activeElement;
       return (
-        focused?.getAttribute("role") === "radio" &&
-        focused.getAttribute("aria-checked") === "true" &&
+        focused?.matches('input[type="radio"]:checked') &&
         focused.getAttribute("aria-label")?.startsWith("Markdown")
       );
     });
@@ -318,19 +318,17 @@ async function main() {
       await new Promise((resolve) => setTimeout(resolve, 300));
       await assertInViewport(page, '[data-testid="export-dialog"]', `${width}px export`);
       const exportFocus = await page.evaluate(() => ({
-        role: document.activeElement?.getAttribute("role"),
-        checked: document.activeElement?.getAttribute("aria-checked"),
+        radio: document.activeElement?.matches('input[type="radio"]:checked'),
       }));
-      if (exportFocus.role !== "radio" || exportFocus.checked !== "true") {
+      if (!exportFocus.radio) {
         fail(`${width}px export did not focus its selected format.`);
       }
 
       await page.keyboard.press("Home");
-      await page.waitForFunction(
-        () =>
-          document
-            .querySelector('[data-testid="export-dialog"] [role="radio"]')
-            ?.getAttribute("aria-checked") === "true",
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[data-testid="export-dialog"] input[type="radio"]')
+          ?.matches(":checked"),
       );
       if (width === 1280) await page.screenshot({ path: "/tmp/export-modal-refined.png" });
 
@@ -345,8 +343,8 @@ async function main() {
 
       await page.keyboard.press("End");
       const selectedFormat = await page.$eval(
-        '[data-testid="export-dialog"] [role="radio"][aria-checked="true"]',
-        (radio) => radio.textContent,
+        '[data-testid="export-dialog"] input[type="radio"]:checked',
+        (radio) => radio.getAttribute("aria-label"),
       );
       if (!selectedFormat?.includes("Markdown"))
         fail("Export End key did not select the last format.");
@@ -399,7 +397,34 @@ async function main() {
       return true;
     });
     if (!askOpened) fail("Could not open Ask PDF for the AI modal audit.");
-    await page.waitForFunction(() => /download ai models?/i.test(document.body.innerText));
+    await page.waitForSelector(".pdf-ai-setup");
+
+    const radios = '.pdf-ai-tiers input[type="radio"]';
+    await page.focus(`${radios}:checked`);
+    for (const [key, expected] of [
+      ["End", "lfm2-2.6b"],
+      ["ArrowRight", "lfm2.5-1.2b"],
+      ["ArrowLeft", "lfm2-2.6b"],
+      ["Home", "lfm2.5-1.2b"],
+    ] as const) {
+      await page.keyboard.press(key);
+      const selected = await page.$eval(`${radios}:checked`, (input) => ({
+        value: (input as HTMLInputElement).value,
+        focused: document.activeElement === input,
+      }));
+      if (selected.value !== expected || !selected.focused)
+        fail(`Tier ${key} failed: ${JSON.stringify(selected)}`);
+    }
+    const compactSize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
+    await page.keyboard.press("End");
+    const qualitySize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
+    if (compactSize === qualitySize) fail("Bundle estimates did not follow the selected tier.");
+    await page.keyboard.press("Tab");
+    if ((await page.evaluate(() => document.activeElement?.textContent?.trim())) !== "View details")
+      fail("Tier group did not use one Tab stop.");
+    console.log(
+      "  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates",
+    );
 
     await clickButtonWithText(page, "View details");
     await page.waitForSelector('[data-testid="ai-model-details-dialog"]');
@@ -417,7 +442,7 @@ async function main() {
     );
     if (!detailsRestored) fail("AI model details did not restore its trigger focus.");
 
-    await clickButtonWithText(page, "Download model");
+    await clickButtonWithText(page, "Download models");
     await page.waitForSelector('[data-testid="ai-consent-dialog"]');
     await assertInViewport(page, '[data-testid="ai-consent-dialog"]', "AI consent");
     const consentState = await page.evaluate(() => ({
@@ -442,9 +467,46 @@ async function main() {
     await assertModalReleased(page, homeOverflow, "AI consent close");
     console.log("  ✓ AI details and consent dialogs share modal ownership");
 
-    // OrientationLock is a non-dismissible system modal. Emulate a coarse
-    // landscape phone, enter a standalone tool, then rotate to portrait and
-    // prove focus/inert/scroll ownership is released automatically.
+    console.log("→ Checking partial-cache return…");
+    let unrequestedModelFetches = 0;
+    const trackModelRequest = (request: { url(): string }) => {
+      if (/huggingface\.co|hf\.co/.test(request.url())) unrequestedModelFetches++;
+    };
+    page.on("request", trackModelRequest);
+    await page.evaluate(() => {
+      localStorage.setItem("cloakpdf:chat-variant", "lfm2-2.6b");
+      localStorage.setItem("cloakpdf:ai-model-ready:chat:lfm2-2.6b", "1");
+    });
+    await page.reload({ waitUntil: "networkidle2" });
+    console.log("  · Reloaded test page");
+    await page.evaluate(() => {
+      Array.from(document.querySelectorAll("h3"))
+        .find((node) => node.textContent === "Ask your PDF")
+        ?.closest("button")
+        ?.click();
+    });
+    await page.waitForSelector(".pdf-ai-setup");
+    console.log("  · Partial-cache setup visible");
+    // Observe a settled partial-cache gate without waiting for unrelated
+    // service-worker/preload traffic. Model requests are counted separately.
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const partialState = await page.evaluate(() => ({
+      status: (document.querySelector("[data-rag-status]") as HTMLElement)?.dataset.ragStatus,
+      selected: (document.querySelector(".pdf-ai-tiers input:checked") as HTMLInputElement)?.value,
+    }));
+    if (
+      partialState.status !== "idle" ||
+      partialState.selected !== "lfm2-2.6b" ||
+      unrequestedModelFetches
+    )
+      fail(
+        `Partial cache loaded without consent or lost preference: ${JSON.stringify(partialState)}, requests=${unrequestedModelFetches}`,
+      );
+    page.off("request", trackModelRequest);
+    console.log("  ✓ Selected tier persists; a partial-cache return waits for explicit download");
+
+    // Rotation must preserve the tool and controls; the retired orientation gate
+    // must never reappear. AI remains intentionally unavailable on actual phones.
     await page.setViewport({
       width: 844,
       height: 390,
@@ -453,36 +515,16 @@ async function main() {
       hasTouch: true,
     });
     await page.goto(DEV_URL, { waitUntil: "networkidle2" });
-    const coarse = await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches);
-    if (!coarse) fail("Phone emulation did not expose a coarse pointer.");
-    const mergeOpened = await page.evaluate(() => {
-      const heading = Array.from(document.querySelectorAll("h3")).find((candidate) =>
-        candidate.textContent?.includes("Merge PDFs"),
+    await page.evaluate(() => {
+      const heading = Array.from(document.querySelectorAll("h3")).find(
+        (node) => node.textContent === "Merge PDFs",
       );
-      const button = heading?.closest("button");
-      if (!(button instanceof HTMLButtonElement)) return false;
-      button.click();
-      return true;
+      heading?.closest("button")?.click();
     });
-    if (!mergeOpened) fail("Could not open Merge PDFs for OrientationLock audit.");
-    await page.waitForSelector('[aria-labelledby="orientation-lock-title"]');
-    const orientationState = await page.evaluate(() => {
-      const dialog = document.querySelector<HTMLElement>(
-        '[aria-labelledby="orientation-lock-title"]',
-      );
-      return {
-        focused: document.activeElement === dialog,
-        inert: (document.getElementById("app") as HTMLElement | null)?.inert,
-        overflow: document.body.style.overflow,
-      };
-    });
-    if (
-      !orientationState.focused ||
-      !orientationState.inert ||
-      orientationState.overflow !== "hidden"
-    ) {
-      fail(`OrientationLock did not own system-modal state: ${JSON.stringify(orientationState)}.`);
-    }
+    await page.waitForSelector('input[type="file"]');
+    if (await page.$('[aria-labelledby="orientation-lock-title"]'))
+      fail("Retired orientation gate returned.");
+    await assertModalReleased(page, homeOverflow, "Landscape tool entry");
     await page.setViewport({
       width: 390,
       height: 844,
@@ -490,11 +532,8 @@ async function main() {
       isMobile: true,
       hasTouch: true,
     });
-    await page.waitForFunction(
-      () => !document.querySelector('[aria-labelledby="orientation-lock-title"]'),
-    );
-    await assertModalReleased(page, homeOverflow, "OrientationLock portrait release");
-    console.log("  ✓ OrientationLock owns landscape focus and releases in portrait");
+    await assertModalReleased(page, homeOverflow, "Portrait tool return");
+    console.log("  ✓ Landscape/portrait tool access retains controls without an orientation gate");
 
     if (errors.length) fail(`Console errors:\n${errors.join("\n")}`);
     console.log("✓ Shared modal system passed.");
@@ -504,6 +543,6 @@ async function main() {
 }
 
 void main().catch((error) => {
-  console.error(`✗ ${error instanceof Error ? error.message : String(error)}`);
+  console.error(error);
   process.exitCode = 1;
 });

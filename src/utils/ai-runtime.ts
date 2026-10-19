@@ -412,11 +412,9 @@ export async function evictModelCacheBytes(): Promise<ModelCacheEvictResult> {
       if (ok) deleted += 1;
     } catch (e) {
       failed += 1;
-      // Best-effort — a failure on one entry shouldn't abort the
-      // rest. We don't surface this to the user because there's
-      // nothing actionable; the failure mode is "the bytes are still
-      // there and will be re-evicted next time the user clicks
-      // delete". The console log is for triage.
+      // Continue through the remaining caches. The returned failure count keeps
+      // explicit deletion retryable and prevents startup from marking an upgrade
+      // complete; retain the original error here for diagnosis.
       console.warn(`[ai-runtime] failed to delete CacheStorage "${name}"`, e);
     }
   }
@@ -584,6 +582,9 @@ export async function loadPipeline(
   handle.promise = (async () => {
     const t = await getTransformers();
     const useWebGpu = await detectWebGpu();
+    // Cancel can happen during module/GPU preparation. A superseded loader
+    // must not start downloads or abort the controller of a newer retry.
+    if (_pipelineCache.get(modelId) !== handle.promise) throw new Error("load-cancelled");
     // Register this download so the wrapped `env.fetch` can attach an
     // abort signal to its network requests. Must come *after*
     // `getTransformers()` (which installs the wrapper) and *before*

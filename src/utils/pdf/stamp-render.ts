@@ -2,7 +2,7 @@
 //
 // One painter feeds two consumers so the live preview and the burned output are
 // the same pixels (the "preview == output" invariant the Stamp tool relies on):
-//   • the editor overlay (StampTools) calls `paintStamp` to composite the stamp
+//   • the editor overlay (WatermarkTool) calls `paintStamp` to composite the stamp
 //     onto the page canvas as you tune it;
 //   • the burn (`addWatermark`, ink/shape path) calls `buildStampImage` to get an
 //     unrotated PNG it embeds with pdf-lib, applying rotation/opacity there.
@@ -272,7 +272,9 @@ function applyInkTexture(
   // 1. Hard-thresholded erosion field (1:1, no scaling → crisp grainy edges).
   ctx.imageSmoothingEnabled = false;
   ctx.globalAlpha = 1;
-  ctx.drawImage(buildErosionMask(w, h, fontPx, rng, threshold, edgeBias), 0, 0);
+  const mask = buildErosionMask(w, h, fontPx, rng, threshold, edgeBias);
+  ctx.drawImage(mask, 0, 0);
+  mask.width = mask.height = 0;
 
   // 2. Crisp pinhole grit — small and fully opaque so they read as sharp specks.
   const grit = Math.round(((w * h) / (fontPx * fontPx)) * GRIT_DENSITY_MAX * t);
@@ -313,21 +315,33 @@ type StampImage = { canvas: HTMLCanvasElement; width: number; height: number };
 // buffer-affecting inputs keeps the preview smooth; only text/shape/finish/
 // colour/size changes rebuild. Capacity comfortably covers preview + burn.
 const CACHE_CAP = 12;
+const PIXEL_BUDGET = 16_000_000;
+const MAX_DIMENSION = 8192;
 const imageCache = new Map<string, StampImage>();
 
-function buildStampImageUncached(fontPx: number, opts: StampImageOpts): StampImage | null {
+/** Release cached document text/pixels when the Stamp stage leaves the editor. */
+export function clearStampCache(): void {
+  for (const image of imageCache.values()) image.canvas.width = image.canvas.height = 0;
+  imageCache.clear();
+}
+
+function buildStampImageUncached(fontPx: number, opts: StampImageOpts): StampImage {
   const measureCanvas = document.createElement("canvas");
   const mctx = measureCanvas.getContext("2d");
-  if (!mctx) return null;
+  if (!mctx) throw new Error("Couldn’t prepare the stamp canvas. Try again.");
   const geom = measureStamp(mctx, fontPx, opts);
   const w = Math.ceil(geom.width);
   const h = Math.ceil(geom.height);
+  measureCanvas.width = measureCanvas.height = 0;
+  if (!Number.isFinite(w * h) || w > MAX_DIMENSION || h > MAX_DIMENSION || w * h > PIXEL_BUDGET) {
+    throw new Error("This stamp is too large to render. Reduce the text length or size.");
+  }
 
   const ink = document.createElement("canvas");
   ink.width = w;
   ink.height = h;
   const ictx = ink.getContext("2d");
-  if (!ictx) return null;
+  if (!ictx) throw new Error("Couldn’t prepare the stamp canvas. Try again.");
   drawGlyph(ictx, w / 2, h / 2, fontPx, geom, opts);
 
   if (opts.finish === "ink") {
@@ -347,8 +361,8 @@ function buildStampImageUncached(fontPx: number, opts: StampImageOpts): StampIma
  */
 function buildStampImage(fontPx: number, opts: StampImageOpts): StampImage | null {
   if (!opts.text.trim() || fontPx < 1) return null;
-  const tex = opts.finish === "ink" ? (opts.texture ?? DEFAULT_TEXTURE).toFixed(2) : "-";
-  const key = `${Math.round(fontPx)}|${opts.shape}|${opts.finish}|${tex}|${opts.color.r},${opts.color.g},${opts.color.b}|${opts.text}`;
+  const tex = opts.finish === "ink" ? String(opts.texture ?? DEFAULT_TEXTURE) : "-";
+  const key = `${fontPx}|${opts.shape}|${opts.finish}|${tex}|${opts.color.r},${opts.color.g},${opts.color.b}|${opts.text}`;
   const hit = imageCache.get(key);
   if (hit) {
     imageCache.delete(key); // re-insert → most-recently-used
@@ -356,34 +370,44 @@ function buildStampImage(fontPx: number, opts: StampImageOpts): StampImage | nul
     return hit;
   }
   const built = buildStampImageUncached(fontPx, opts);
-  if (!built) return null;
   imageCache.set(key, built);
-  if (imageCache.size > CACHE_CAP) imageCache.delete(imageCache.keys().next().value as string);
+  let pixels = [...imageCache.values()].reduce((sum, image) => sum + image.width * image.height, 0);
+  while (imageCache.size > CACHE_CAP || pixels > PIXEL_BUDGET) {
+    const key = imageCache.keys().next().value!;
+    const image = imageCache.get(key)!;
+    pixels -= image.width * image.height;
+    image.canvas.width = image.canvas.height = 0;
+    imageCache.delete(key);
+  }
   return built;
 }
 
 /**
  * Composite a stamp onto an existing canvas context, centred at (cx, cy),
  * rotated and faded per the options. Used by the editor overlay for the live
- * preview. `fontPx` is the font size in display pixels; `rotationDeg` follows
+ * preview. Reuse the exact supersampled output buffer at the display scale,
+ * so zoom never changes the ink texture. `rotationDeg` follows
  * the maths convention (counter-clockwise positive) — negated for the canvas.
  */
 export function paintStamp(
   ctx: CanvasRenderingContext2D,
   cx: number,
   cy: number,
-  fontPx: number,
+  fontSizePt: number,
+  scale: number,
   rotationDeg: number,
   opacity: number,
   opts: StampImageOpts,
 ): void {
-  const img = buildStampImage(fontPx, opts);
+  const img = buildStampImage(fontSizePt * BURN_SUPERSAMPLE, opts);
   if (!img) return;
   ctx.save();
   ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
   ctx.translate(cx, cy);
   ctx.rotate((-rotationDeg * Math.PI) / 180);
-  ctx.drawImage(img.canvas, -img.width / 2, -img.height / 2);
+  const width = (img.width / BURN_SUPERSAMPLE) * scale;
+  const height = (img.height / BURN_SUPERSAMPLE) * scale;
+  ctx.drawImage(img.canvas, -width / 2, -height / 2, width, height);
   ctx.restore();
 }
 

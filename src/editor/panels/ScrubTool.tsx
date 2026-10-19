@@ -1,10 +1,6 @@
-// ScrubTool.tsx — Find and permanently remove hidden data (metadata, XMP,
-// JavaScript, embedded files, annotations). Analyses the document when the tool
-// opens, shows a per-category findings report, and strips it via scrubPdf.
-// Panel-only — identical on desktop + mobile.
-
-import { ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+// Inspect the supported hidden-data categories before a reversible byte transform.
+import { AlertTriangle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import {
   analyzePdfHiddenData,
   type ScrubAnalysis,
@@ -12,105 +8,160 @@ import {
   scrubPdf,
 } from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
-import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
+import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const LABELS: Record<ScrubCategory, string> = {
   metadata: "Document metadata",
   xmp: "XMP metadata packet",
-  javascript: "JavaScript & auto-actions",
+  javascript: "Scripts & auto-actions",
   attachments: "Embedded files",
   annotations: "Annotations & markup",
 };
+const TOOL_ID = "pdf-scrub";
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { applyTransform } = useEditorActions();
-  const [analysis, setAnalysis] = useState<ScrubAnalysis | null>(null);
-  const [removeAnnotations, setRemoveAnnotations] = useState(false);
+  const { doc, busyLabel } = useEditorRead();
+  const { applyTransform, patchToolState } = useEditorActions();
+  const removeAnnotations = (useToolSlice(TOOL_ID).removeAnnotations as boolean) ?? false;
+  const [report, setReport] = useState<{
+    bytes: Uint8Array;
+    analysis?: ScrubAnalysis;
+    error?: boolean;
+  } | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [applyError, setApplyError] = useState(false);
+  const applying = useRef(false);
+  const bytes = doc?.bytes;
+  const fileName = doc?.fileName;
 
-  // (Re)analyse whenever the document changes. `live` ignores stale results;
-  // no ref guard (it would bail on StrictMode's second mount and never run).
   useEffect(() => {
-    if (!doc) return;
-    setAnalysis(null);
+    if (!bytes) return;
     let live = true;
-    void analyzePdfHiddenData(docToFile(doc)).then(
-      (a) => {
-        if (live) setAnalysis(a);
+    setReport(null);
+    const file = new File([bytes as Uint8Array<ArrayBuffer>], fileName ?? "document.pdf", {
+      type: "application/pdf",
+    });
+    void analyzePdfHiddenData(file).then(
+      (analysis) => {
+        if (live) setReport({ bytes, analysis });
       },
       () => {
-        if (live) setAnalysis(null);
+        if (live) setReport({ bytes, error: true });
       },
     );
     return () => {
       live = false;
     };
-  }, [doc]);
+  }, [bytes, fileName, attempt]);
 
-  const counts = analysis?.counts;
+  const current = report?.bytes === bytes ? report : null;
+  const counts = current?.analysis?.counts;
   const total = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : 0;
-
-  const apply = () =>
-    void applyTransform(async (d) => ({
-      bytes: await scrubPdf(docToFile(d), removeAnnotations),
-      label: "Scrub hidden data",
-    }));
+  const selectedCount = total - (removeAnnotations ? 0 : (counts?.annotations ?? 0));
+  const busy = busyLabel !== null;
+  const apply = async () => {
+    if (!counts || !selectedCount || busy || applying.current) return;
+    applying.current = true;
+    setApplyError(false);
+    try {
+      await applyTransform(async (d) => ({
+        bytes: await scrubPdf(docToFile(d), removeAnnotations),
+        label: "Scrub hidden data",
+      }));
+    } catch (error) {
+      setApplyError(true);
+      throw error;
+    } finally {
+      applying.current = false;
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Permanently remove hidden data that can leak who made the file and how.
-      </p>
-
-      {!counts ? (
-        <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-          Scanning for hidden data…
+    <div className="pdf-mark-panel pdf-scrub-panel">
+      <p>Review metadata, scripts and embedded files before removing them from this PDF.</p>
+      <section aria-label="Hidden data report">
+        <p
+          role={current?.error ? "alert" : "status"}
+          className={current?.error ? "air-notice air-notice--error" : "air-help"}
+        >
+          {current?.error && <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />}
+          <span>
+            {current?.error
+              ? "Couldn't inspect this PDF. Your document is unchanged. Try scanning again."
+              : !counts
+                ? "Scanning for hidden data…"
+                : total === 0
+                  ? "No data found in the categories below."
+                  : `${selectedCount} ${selectedCount === 1 ? "item" : "items"} selected for removal.`}
+          </span>
         </p>
-      ) : total === 0 ? (
-        <div className="flex items-center gap-2 rounded-lg border border-primary-200 dark:border-primary-900/40 bg-primary-50 dark:bg-primary-900/20 p-3 text-sm text-primary-700 dark:text-primary-300">
-          {/* One-accent rule: info/success surfaces collapse to primary tints —
-              green survives only on the literal check glyph (see DESIGN.md). */}
-          <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
-          No hidden data found — this document is already clean.
-        </div>
-      ) : (
-        <ul className="divide-y divide-slate-100 dark:divide-dark-border rounded-lg border border-slate-200 dark:border-dark-border bg-white/70 dark:bg-dark-surface">
-          {(Object.keys(LABELS) as ScrubCategory[]).map((cat) => {
-            const n = counts[cat];
-            return (
-              <li key={cat} className="flex items-center justify-between px-3 py-2 text-sm">
-                <span
-                  className={
-                    n > 0
-                      ? "text-slate-700 dark:text-dark-text"
-                      : "text-slate-500 dark:text-dark-text-muted"
-                  }
-                >
-                  {LABELS[cat]}
-                </span>
-                <span
-                  className={`tabular-nums ${n > 0 ? "font-medium text-slate-800 dark:text-dark-text" : "text-slate-500 dark:text-dark-text-muted"}`}
-                >
-                  {n}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-dark-text-muted">
-        <input
-          type="checkbox"
-          checked={removeAnnotations}
-          onChange={(e) => setRemoveAnnotations(e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-primary-600 focus-visible:ring-primary-500"
+        {(current?.error || attempt > 0) && (
+          <button
+            type="button"
+            className="air-button"
+            aria-disabled={busy || !current}
+            onClick={() => {
+              if (current && !busy) setAttempt((n) => n + 1);
+            }}
+          >
+            Scan again
+          </button>
+        )}
+        {counts && (
+          <dl className="pdf-scrub-report">
+            {(Object.keys(LABELS) as ScrubCategory[]).map((category) => (
+              <div key={category}>
+                <dt>{LABELS[category]}</dt>
+                <dd>{counts[category]}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+      <section aria-label="Removal options">
+        <label className="air-check-label">
+          <input
+            type="checkbox"
+            className="air-check"
+            checked={removeAnnotations}
+            disabled={busy}
+            onChange={(e) => patchToolState(TOOL_ID, { removeAnnotations: e.target.checked })}
+          />
+          Also remove annotations & markup
+        </label>
+        <p className="air-help">
+          This also removes page links and form widgets. Kept annotations may contain author details
+          or actions.
+        </p>
+      </section>
+      <p className="air-notice air-notice--warning">
+        <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />
+        <span>
+          Scrub rebuilds the PDF. Bookmarks and interactive form registration are lost. Page content
+          is kept; visible sensitive text needs Redact.
+        </span>
+      </p>
+      <section aria-label="Apply scrub">
+        {applyError && (
+          <p role="alert" className="air-notice air-notice--error">
+            <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />
+            <span>
+              Couldn't scrub this PDF. Your document and choices are unchanged. Try again.
+            </span>
+          </p>
+        )}
+        <PrimaryAction
+          label="Scrub hidden data"
+          onApply={apply}
+          disabled={!counts || selectedCount === 0}
+          danger
         />
-        Also remove annotations & markup
-      </label>
-
-      <PrimaryAction label="Scrub hidden data" onApply={apply} disabled={total === 0} danger />
+        <p className="air-help">
+          Undo restores the previous document while you work. Export saves the scrubbed version;
+          your original file is unchanged.
+        </p>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,556 @@
+{
+  "layouts": [
+    {
+      "id": "crop-pages",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "crop-pages",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "crop-pages",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40
+    }
+  ],
+  "edges": [
+    {
+      "id": "crop-pages",
+      "width": 320,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "crop-pages",
+      "width": 768,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "crop-pages",
+      "width": 1440,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "crop-pages",
+      "width": 320,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "crop-pages",
+      "width": 768,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "crop-pages",
+      "width": 1440,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 320,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 768,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1440,
+      "theme": "light",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 320,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 768,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    },
+    {
+      "id": "strip-furniture",
+      "width": 1440,
+      "theme": "dark",
+      "text200": true,
+      "overflow": false
+    }
+  ],
+  "deskew": {
+    "deskewed": 8,
+    "frames": [
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      },
+      {
+        "width": 400,
+        "height": 300,
+        "left": 101,
+        "right": 101,
+        "text": 0
+      }
+    ],
+    "text": "UNCHANGED_TEXT",
+    "cancelled": true
+  },
+  "guards": true,
+  "errors": [],
+  "native": {
+    "Safari": "Production Crop keyboard entry, suggestion, Apply/focus, furniture selection/Apply and Undo passed. Background rendering resumed when the review window was raised.",
+    "Firefox": "Production invalid/valid crop, Apply/focus and Undo passed at actual 200% zoom; furniture samples wrap and keyboard Space toggles selection. Zoom restored and review tabs closed."
+  },
+  "openGates": ["physical touch/software keyboard", "real OS IME", "assistive speech"]
+}

@@ -1,49 +1,26 @@
 /**
- * End-to-end smoke test for the AI tools.
+ * Real-model browser integration for Ask PDF. Requires a running dev server
+ * (E2E_URL), Chrome (CHROME_PATH) and the original local PDF fixtures documented
+ * in tests/fixtures/README.md. Never substitute a fixture to bypass ground truth.
  *
- * This is the only test that can answer "does the model actually
- * work?" — everything else runs in Node, with the LLM mocked. Here
- * we drive a real browser, let it download the active chat tier's
- * weights (LFM2.5-1.2B-Instruct by default — see
- * {@link getDefaultChatVariant}), and assert the chat tool produces
- * a non-degenerate reply.
+ * CHAT_VARIANT selects Compact (lfm2.5-1.2b) or Quality (lfm2-2.6b). The test
+ * starts with Quality unless explicitly overridden; the product defaults to
+ * Compact. Every run covers initial/warm loading, fixture-specific grounded
+ * answers, a keyboard-driven swap to the other tier, and memory release/reload.
+ * Non-empty, on-topic and repetition checks complement exact extraction and
+ * document-specific retrieval assertions; they do not prove universal accuracy.
  *
- * ## Requirements
- *
- *   - Chrome or Chromium installed locally (puppeteer-core is in
- *     devDependencies; the full puppeteer package is NOT, so we don't
- *     bundle our own browser).
- *   - The dev server reachable at http://localhost:5173. Start it with
- *     `vp dev` in another terminal before running this script.
- *   - A PDF dropped at `tests/fixtures/sample.pdf` (see the README in
- *     that folder).
- *
- * ## Run it
- *
- *   pnpm test:e2e
- *
- * The first run downloads ~1.55 GB of model weights into the browser's
- * CacheStorage (chat ~1.2 GB + embed ~309 MB + rerank ~23 MB) and
- * may take several minutes. Subsequent runs reuse the cache and
- * complete in a few seconds.
- *
- * ## Caveats
- *
- *   - This is a *smoke* test — it asserts the model loaded and
- *     produced *some* output, not that the output is correct. Output
- *     quality is a human-judgement call and lives outside automated
- *     testing.
- *   - The tool ships a 2-tier chat picker (Compact / Quality), but
- *     this test exercises only the default tier — the
- *     picker is a click-through in the gate, and clicking "Download
- *     model" without first picking another tier loads whatever is
- *     stored in localStorage (or the static default on a fresh
- *     profile). Override with `cloakpdf:chat-variant` in localStorage
- *     when you want to e2e a specific tier.
+ * FIXTURE=sample uses the four-page résumé; FIXTURE=multipage uses the 33-page
+ * skills guide. Model weights persist in the ignored test profile. A full bundle
+ * is approximately 1.13 GiB (Compact) or 1.89 GiB (Quality), including the shared
+ * embedder and reranker. E2E_FRESH=1 clears that profile only when a fresh download
+ * is intentionally required. Cached runs do not establish cold-download progress.
  */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { launch } from "puppeteer-core";
+import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 
 /**
  * Fixture selector. `FIXTURE=sample` (default) drives the short
@@ -70,8 +47,7 @@ const MODEL_LOAD_TIMEOUT_MS = Number(process.env.E2E_MODEL_LOAD_TIMEOUT_MS ?? 10
  *   CHAT_VARIANT=lfm2-2.6b pnpm test:e2e
  *
  * Valid values are the `ChatVariantId` slugs in
- * `src/utils/ai-models.ts`. Unset → use whatever's already in
- * localStorage, or the static default for a fresh profile.
+ * `src/utils/ai-models.ts`. Unset → seed Quality for a deterministic baseline.
  */
 const VALID_CHAT_VARIANTS = ["lfm2.5-1.2b", "lfm2-2.6b"] as const;
 type ValidChatVariant = (typeof VALID_CHAT_VARIANTS)[number];
@@ -89,8 +65,7 @@ const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
 function bail(message: string): never {
-  console.error(`✗ ${message}`);
-  process.exit(1);
+  throw new Error(message);
 }
 
 /**
@@ -160,7 +135,7 @@ async function main() {
     // inside a single `evaluate()` call (it busy-polls for the
     // composer to enable). Puppeteer's default CDP `protocolTimeout`
     // is well under that, so cold-cache runs with three models to
-    // download (chat ~1.2 GB + embed ~309 MB + rerank ~23 MB)
+    // download (chat ~1.55 GiB + embed ~320 MiB + rerank ~23 MiB)
     // would `Runtime.callFunctionOn` time out before the page-side
     // loop even gets a chance. 15 min is comfortable headroom.
     protocolTimeout: Math.max(15 * 60_000, MODEL_LOAD_TIMEOUT_MS + 2 * 60_000),
@@ -168,6 +143,8 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+    // Exercise the served candidate while retaining the real model/index caches.
+    await page.setBypassServiceWorker(true);
     page.setDefaultTimeout(60_000);
 
     // Seed the chat-tier preference + any RAG feature flags *before*
@@ -187,11 +164,7 @@ async function main() {
     // Always reset the chat-variant pref to a deterministic baseline
     // (Quality / lfm2-2.6b) so a previous run's model-swap test
     // doesn't leak into this run's warm-cache extraction checks.
-    // Without this, the swap step persists Compact and the next
-    // invocation hits Compact's weaker extraction (e.g. it
-    // hallucinates "Mumbai" for the address question that ground-
-    // truths "Pune"). Quality is the tier the extraction assertions
-    // are tuned against.
+    // Both tiers run the same fixture assertions in the acceptance matrix.
     //
     // Explicit CHAT_VARIANT env override still wins so cross-tier
     // comparison runs work the same way they always did.
@@ -244,6 +217,39 @@ async function main() {
     });
 
     await page.goto(DEV_URL, { waitUntil: "networkidle2" });
+    const environment = {
+      browser: await browser.version(),
+      ...(await page.evaluate(async () => {
+        const gpu = (
+          navigator as Navigator & {
+            gpu?: {
+              requestAdapter(): Promise<{
+                info?: {
+                  vendor: string;
+                  architecture: string;
+                  device: string;
+                  description: string;
+                };
+              } | null>;
+            };
+          }
+        ).gpu;
+        const adapter = await gpu?.requestAdapter();
+        return {
+          userAgent: navigator.userAgent,
+          webGpuAdapterAvailable: Boolean(adapter),
+          adapter: adapter?.info
+            ? {
+                vendor: adapter.info.vendor,
+                architecture: adapter.info.architecture,
+                device: adapter.info.device,
+                description: adapter.info.description,
+              }
+            : null,
+        };
+      })),
+    };
+    console.log(`E2E_ENVIRONMENT ${JSON.stringify(environment)}`);
 
     console.log("→ Opening Ask PDF…");
     await page.goto(`${DEV_URL}/#/tools/ask-pdf`, { waitUntil: "networkidle2" }).catch(() => {
@@ -324,7 +330,7 @@ async function main() {
     }
     const gateClicked = gateState.clicked;
 
-    // The consent dialog has its own "Download model" button. On first
+    // The consent dialog has its own "Download models" button. On first
     // use it pops up after the gate click; on returning profiles it's
     // skipped automatically. Wait briefly and click if present.
     await page
@@ -333,7 +339,7 @@ async function main() {
           const dialog = document.querySelector('[role="dialog"]');
           if (!dialog) return false;
           const buttons = Array.from(dialog.querySelectorAll("button"));
-          return buttons.some((b) => (b.textContent ?? "").trim() === "Download model");
+          return buttons.some((b) => (b.textContent ?? "").trim() === "Download models");
         },
         { timeout: 8_000 },
       )
@@ -342,7 +348,7 @@ async function main() {
       const dialog = document.querySelector('[role="dialog"]');
       if (!dialog) return false;
       const buttons = Array.from(dialog.querySelectorAll("button"));
-      const dl = buttons.find((b) => (b.textContent ?? "").trim() === "Download model");
+      const dl = buttons.find((b) => (b.textContent ?? "").trim() === "Download models");
       if (dl instanceof HTMLButtonElement) {
         dl.click();
         return true;
@@ -354,7 +360,7 @@ async function main() {
     // Phase 1 — wait for models to finish loading. Signal: the file
     // drop zone (= `<input type="file">`) appears, which only mounts
     // once `rag.status === "ready"` per the gate's children-render
-    // gate. On a cold first run this is the long pole (~1.55 GB
+    // gate. On a cold first run this is the long pole (up to ~1.89 GiB
     // download); on a warm-cache return visit it's seconds.
     //
     // While we poll, also record every distinct value of the
@@ -593,19 +599,16 @@ async function main() {
     // selector timeout to 90 s so we don't false-fail on slower
     // disks.
     console.log("→ Waiting for warm-cache auto-load + file drop zone (no clicks)…");
-    // CRITICAL: confirm we're on the Ask PDF TOOL (its models-ready drop hint)
-    // before grabbing any file input. After a reload the home grid is the first
-    // thing painted and the card-click navigation is async, so a bare
-    // `input[type=file]` selector can match the HOME drop zone (still in the DOM
-    // during the view transition). Uploading there opens the EDITOR, not Ask
-    // PDF — and the composer never appears, which used to read as a false
-    // "stuck at Preparing" regression. The hint is tool-only (it isn't the
-    // home card's "runs entirely on-device" description), so it pins us to the
-    // tool with models ready.
+    // Pin the upload to the ready Ask PDF workspace: a bare file-input match
+    // can still belong to the home view during its navigation transition.
+    // Use semantic readiness rather than presentation copy.
     await page
-      .waitForFunction(() => /drop a PDF to start chatting/i.test(document.body.innerText), {
-        timeout: 90_000,
-      })
+      .waitForFunction(
+        () => !!document.querySelector('[data-rag-status="ready"] input[type="file"]'),
+        {
+          timeout: 90_000,
+        },
+      )
       .catch(() =>
         bail(
           "Warm-cache: Ask PDF tool (models-ready) never rendered after reload — auto-load stalled before rag.status reached 'ready'.",
@@ -995,38 +998,59 @@ async function main() {
 
       const pickerInitial = await page.evaluate(() => ({
         dialogs: document.querySelectorAll('[role="dialog"][aria-modal="true"]').length,
-        group: Boolean(document.querySelector('[role="radiogroup"][aria-label="Chat model tier"]')),
-        focusedRole: document.activeElement?.getAttribute("role"),
-        focusedChecked: document.activeElement?.getAttribute("aria-checked"),
+        group: Boolean(document.querySelector(".pdf-ai-tiers")),
+        focusedType: (document.activeElement as HTMLInputElement)?.type,
+        focusedChecked: (document.activeElement as HTMLInputElement)?.checked,
         appInert: (document.getElementById("app") as HTMLElement | null)?.inert,
         overflow: document.body.style.overflow,
-        selectedText: document
-          .querySelector('[role="radio"][aria-checked="true"]')
-          ?.textContent?.trim(),
+        selectedText: (document.querySelector(".pdf-ai-tiers input:checked") as HTMLInputElement)
+          ?.value,
       }));
       if (
         pickerInitial.dialogs !== 1 ||
         !pickerInitial.group ||
-        pickerInitial.focusedRole !== "radio" ||
-        pickerInitial.focusedChecked !== "true" ||
+        pickerInitial.focusedType !== "radio" ||
+        pickerInitial.focusedChecked !== true ||
         !pickerInitial.appInert ||
         pickerInitial.overflow !== "hidden"
       ) {
         bail(`Model picker did not own modal/radio state: ${JSON.stringify(pickerInitial)}.`);
       }
 
+      await auditAirDialog(
+        page,
+        "model-picker",
+        createEvidenceDirectory("cloakpdf-air-modal-states"),
+      );
+      await page.focus(".pdf-ai-tiers input:checked");
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("Tab");
+      if ((await page.evaluate(() => document.activeElement?.textContent?.trim())) !== "Cancel")
+        bail("Model picker radio group introduced an extra Tab stop.");
+      await page.keyboard.press("Escape");
+      await page.waitForSelector('[data-testid="chat-model-picker-dialog"]', { hidden: true });
+      await page.click('button[aria-label="Change model"]');
+      await page.waitForSelector('[data-testid="chat-model-picker-dialog"]');
+      if (
+        (await page.$eval(
+          ".pdf-ai-tiers input:checked",
+          (node) => (node as HTMLInputElement).value,
+        )) !== pickerInitial.selectedText
+      )
+        bail("Cancelled pending tier was persisted.");
+
       // Pick the other tier through the radiogroup's keyboard contract. This
-      // exercises roving focus and `aria-checked`, not just pointer activation.
+      // exercises native radio selection and focus, not just pointer activation.
       await page.keyboard.press("ArrowRight");
       const swapTarget = await page.evaluate(() => {
         const titleEl = document.getElementById("chat-model-picker-title");
         const dialog = titleEl?.closest('[role="dialog"]');
         if (!dialog) return null;
-        const selected = dialog.querySelector('[role="radio"][aria-checked="true"]');
-        if (!(selected instanceof HTMLButtonElement) || document.activeElement !== selected) {
+        const selected = dialog.querySelector(".pdf-ai-tiers input:checked");
+        if (!(selected instanceof HTMLInputElement) || document.activeElement !== selected) {
           return null;
         }
-        return (selected.textContent ?? "").trim().slice(0, 80);
+        return selected.value;
       });
       if (!swapTarget || swapTarget === pickerInitial.selectedText?.slice(0, 80)) {
         bail("ArrowRight did not move the model-picker radio selection to the other tier.");
@@ -1184,6 +1208,33 @@ async function main() {
       }
     }
 
+    // Releasing RAM must not be undone by the returning-visitor auto-loader.
+    await page.click('button[aria-label="Free memory"]');
+    await page.waitForFunction(
+      () => document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status") === "idle",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const released = await page.evaluate(() => ({
+      status: document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status"),
+      focused: document.activeElement?.hasAttribute("data-ai-load-models"),
+      label: document.querySelector("[data-ai-load-models]")?.textContent?.trim(),
+    }));
+    if (released.status !== "idle" || !released.focused || released.label !== "Load models")
+      bail(`Free memory did not stay idle with a reachable reload: ${JSON.stringify(released)}`);
+    await page.click("[data-ai-load-models]");
+    await page.waitForFunction(
+      () =>
+        document.querySelector("[data-rag-status]")?.getAttribute("data-rag-status") === "ready",
+      { timeout: MODEL_LOAD_TIMEOUT_MS },
+    );
+    await page.waitForFunction(
+      () => !document.querySelector<HTMLTextAreaElement>("textarea")?.disabled,
+      { timeout: 90_000 },
+    );
+    console.log(
+      "  ✓ Free memory stays idle; explicit reload restores the existing document session",
+    );
+
     console.log("✓ AI chat smoke test passed.");
 
     // Structured summary on a single line so a wrapper script can
@@ -1203,7 +1254,8 @@ async function main() {
     const summary = {
       kind: "e2e-summary" as const,
       fixture: FIXTURE_NAME,
-      variant: CHAT_VARIANT_OVERRIDE ?? "(default)",
+      variant: CHAT_VARIANT_OVERRIDE ?? "lfm2-2.6b",
+      environment,
       timings,
       replies: {
         coldOverview: reply.slice(0, 600),

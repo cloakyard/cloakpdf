@@ -1,0 +1,448 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-320x568-dark.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-320x568-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-375x812-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-375x812-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-390x844-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-390x844-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-430x932-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-430x932-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-844x390-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-844x390-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-768x1024-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-768x1024-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1024x768-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1024x768-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1280x720-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1280x720-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1366x768-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1366x768-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1440x900-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1440x900-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-text-1920x1080-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "numbers",
+      "overflow": false,
+      "bad": [],
+      "file": "stamp-numbers-1920x1080-dark.png"
+    }
+  ],
+  "outputContent": {
+    "text": [
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 1  Page 1  Stamp acceptance 1/3 15:05",
+      "Body content on page 2  Page 2  Stamp acceptance 2/3 15:05",
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 3  Page 3  Stamp acceptance 3/3 15:05"
+    ],
+    "metadata": {
+      "PDFFormatVersion": "1.7",
+      "Language": null,
+      "EncryptFilterName": null,
+      "IsLinearized": false,
+      "IsAcroFormPresent": false,
+      "IsXFAPresent": false,
+      "IsCollectionPresent": false,
+      "IsSignaturesPresent": false,
+      "Producer": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "ModDate": "D:20261015093559Z",
+      "Creator": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "CreationDate": "D:20261015093555Z",
+      "Title": "Stamp acceptance",
+      "Author": "Synthetic author"
+    },
+    "attachments": ["reference.txt"]
+  },
+  "raster": {
+    "same": true,
+    "distinct": true,
+    "bounded": true,
+    "repeat": true
+  },
+  "errors": [],
+  "native": {
+    "Safari": "Production token insertion, Box/Ink, precise size and Apply; final-source recheck confirms focus stays in Stamp text after saving. Temporary tabs closed.",
+    "Firefox": "Final source: actual 200% zoom, Circle/Ink, precise size + native slider arrow, Apply focus remains in Stamp text, Undo retires draft; zoom reset and test tab closed."
+  },
+  "checks": {
+    "units": "405 in 42 files",
+    "browserSuites": "16 production smoke, 7 extended, focused Stamp and page geometry (25 distinct); focused and production motion rerun after final refinements",
+    "build": "128 deploy assets, 77 PWA entries",
+    "editorGzipKB": 93.05,
+    "cssGzipKB": 25.5
+  },
+  "limitations": [
+    "Physical touch/pen and software keyboards",
+    "Real OS IME",
+    "Assistive speech",
+    "Full PDF/family migration remains unfinished"
+  ]
+}

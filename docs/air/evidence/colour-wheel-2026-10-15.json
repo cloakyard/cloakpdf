@@ -1,0 +1,329 @@
+{
+  "consumers": [
+    {
+      "id": "signature",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "stamp-pdf",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "add-page-numbers",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "header-footer",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "bates-numbering",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "qr-stamp",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "redact-pdf",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "redact-pdf",
+      "index": 1,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "find-act",
+      "index": 0,
+      "chosen": "#773c3c"
+    },
+    {
+      "id": "annotate-pdf",
+      "index": 0,
+      "chosen": "#773c3c"
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "x": 16,
+      "y": 16,
+      "w": 288,
+      "h": 536,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "x": 16,
+      "y": 16,
+      "w": 288,
+      "h": 536,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-320x568-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "x": 16,
+      "y": 16,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "x": 16,
+      "y": 16,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-375x812-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "x": 16,
+      "y": 44.890625,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "x": 16,
+      "y": 44.890625,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-390x844-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "x": 16,
+      "y": 168.890625,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "x": 16,
+      "y": 168.890625,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-430x932-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "x": 16,
+      "y": 16,
+      "w": 320,
+      "h": 358,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "x": 16,
+      "y": 16,
+      "w": 320,
+      "h": 358,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-844x390-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "x": 432,
+      "y": 444.3125,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "x": 432,
+      "y": 444.3125,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-768x1024-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "x": 688,
+      "y": 16,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "x": 688,
+      "y": 16,
+      "w": 320,
+      "h": 563.6875,
+      "overflow": false,
+      "coarse": true,
+      "file": "colour-wheel-1024x768-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "x": 944,
+      "y": 16,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "x": 944,
+      "y": 16,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1280x720-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "x": 1030,
+      "y": 16,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "x": 1030,
+      "y": 16,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1366x768-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "x": 1104,
+      "y": 328.3125,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "x": 1104,
+      "y": 328.3125,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1440x900-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "x": 1584,
+      "y": 472.765625,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "x": 1584,
+      "y": 472.765625,
+      "w": 320,
+      "h": 555.6875,
+      "overflow": false,
+      "coarse": false,
+      "file": "colour-wheel-1920x1080-dark.png"
+    }
+  ],
+  "errors": [],
+  "date": "2026-10-15",
+  "contractVersion": "1.0.2",
+  "native": {
+    "Safari": "Pointer wheel, black-to-colour, brightness arrow key, reopen and Escape focus pass.",
+    "Firefox": "Actual 200% zoom; brightness, hex error recovery, Return disclosure, Tab/arrow hue and saturation, Escape focus pass."
+  },
+  "openGates": ["Physical touch/software keyboard", "Spoken assistive acceptance"],
+  "coverage": "Shared PDF picker; ten visible instances across nine tools. Other apps receive the contract/reference bundle only."
+}

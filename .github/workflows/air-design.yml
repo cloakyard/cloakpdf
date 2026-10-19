@@ -1,0 +1,17 @@
+name: Air design contract
+on:
+  pull_request:
+  push:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node scripts/check-air-design.mjs
+      - run: node scripts/air-inventory.mjs
+      - run: git diff --exit-code -- docs/air/surfaces.json docs/air/surface-inventory.md

@@ -40,9 +40,8 @@ export interface CreateSessionOptions {
   /**
    * Metadata for the active chat variant. Carries per-tier generation
    * defaults (sampler, repetition penalty, n-gram ban) — passed
-   * straight through to {@link TransformersJsChatModel} so SmolLM2
-   * keeps its top_p + n-gram crutches while LFM2 gets its min_p
-   * sampler.
+   * straight through to {@link TransformersJsChatModel} so every
+   * session uses the selected tier’s registry settings.
    */
   chatInfo: AiModelInfo;
   /** Resolved Transformers.js `feature-extraction` pipeline. */
@@ -306,7 +305,7 @@ export async function createRagSession(options: CreateSessionOptions): Promise<R
    * can apply both checks without re-embedding the query.
    *
    * Used by the graph's retrieve node as a cheap deterministic
-   * safety net: small LLMs (SmolLM2-1.7B in our case) can't reliably
+   * safety net: small LLMs can't reliably
    * refuse to answer general-knowledge questions just from a "stay
    * grounded" system prompt — they happily emit the right answer
    * from training data and even fabricate a citation. A threshold

@@ -5,6 +5,7 @@ export type SortMode = "off" | "asc" | "desc";
 interface SortByNameButtonProps {
   mode: SortMode;
   onChange: (mode: SortMode) => void;
+  disabled?: boolean;
 }
 
 const OPTIONS: readonly SegmentedOption<SortMode>[] = [
@@ -13,14 +14,12 @@ const OPTIONS: readonly SegmentedOption<SortMode>[] = [
   { value: "desc", label: "Z → A" },
 ];
 
-export function SortByNameButton({ mode, onChange }: SortByNameButtonProps) {
+export function SortByNameButton({ mode, onChange, disabled }: SortByNameButtonProps) {
   return (
-    <div className="inline-flex items-center gap-2">
-      <span className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-dark-text-muted">
-        Sort
-      </span>
+    <div className="pdf-queue-sort">
+      <span className="air-label">Sort</span>
       <SegmentedControl
-        size="sm"
+        disabled={disabled}
         ariaLabel="Sort by file name"
         value={mode}
         onChange={onChange}

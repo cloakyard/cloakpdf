@@ -49,6 +49,15 @@ describe("hitHandle", () => {
     expect(hitHandle(box, c.e.x, c.e.y, W, H, CORNER_IDS)).toBeNull();
     expect(hitHandle(box, c.ne.x, c.ne.y, W, H, CORNER_IDS)).toBe("ne");
   });
+
+  it("chooses the nearest handle when touch targets overlap on a small mark", () => {
+    const tiny = { x: 0.2, y: 0.3, w: 0.02, h: 0.02 };
+    const c = handleCenters(tiny, W, H);
+    expect(hitHandle(tiny, c.se.x - 5, c.se.y - 5, W, H, CORNER_IDS, 22)).toBe("se");
+    expect(hitHandle(tiny, c.nw.x - 22, c.nw.y, W, H, CORNER_IDS, 22)).toBe("nw");
+    expect(hitHandle(tiny, c.nw.x - 23, c.nw.y, W, H, CORNER_IDS, 22)).toBeNull();
+    expect(hitHandle(tiny, c.nw.x - 22, c.nw.y, W, H, CORNER_IDS)).toBeNull();
+  });
 });
 
 describe("resizeBBox (free)", () => {

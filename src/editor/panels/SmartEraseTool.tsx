@@ -12,7 +12,6 @@
 // only the in-progress drag box. Method + coarseness live in the tool slice and
 // are captured onto each region when it's drawn.
 
-import { Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { EraseMode } from "../../utils/pdf-operations.ts";
 import { type ErasePayload } from "../doc.ts";
@@ -20,20 +19,14 @@ import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.
 import { drawEraseMark } from "../overlay-paint.ts";
 import { type StagePoint, useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
-import { Labeled } from "./controls.tsx";
-import { Segmented } from "./WholeDocPanel.tsx";
+import { SegmentedControl } from "../../components/SegmentedControl.tsx";
+import { PendingMarkList } from "./PendingMarkList.tsx";
 
 const TOOL_ID = "smart-erase";
 
 type Coarseness = "subtle" | "medium" | "strong";
 
 const BLOCK_FRAC: Record<Coarseness, number> = { subtle: 0.06, medium: 0.12, strong: 0.22 };
-const MODE_LABEL: Record<EraseMode, string> = {
-  fill: "Fill",
-  pixelate: "Pixelate",
-  inpaint: "Blend",
-};
-
 interface EraseSettings {
   mode: EraseMode;
   coarseness: Coarseness;
@@ -146,107 +139,53 @@ export function Stage() {
 }
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { patchToolState, removeObject, removeObjects, setSelectedPage, setViewMode } =
-    useEditorActions();
+  const { patchToolState } = useEditorActions();
   const { mode, coarseness } = readSettings(useToolSlice(TOOL_ID));
-
-  const regions = (doc?.objects ?? []).filter((o) => o.kind === "erase");
-
-  const clearAll = () => {
-    const ids = regions.map((o) => o.id);
-    if (ids.length > 0) removeObjects(ids, "Clear erase areas");
-  };
-
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Drag a box over anything you want gone — a stain, a logo, a face. It stays editable until
-        you export, when it's burned into the page for good.
-      </p>
-
-      <Labeled label="Method">
-        <Segmented
+    <div className="pdf-mark-panel">
+      <p>Draw a box over an area to erase. Choose how the next area will look.</p>
+      <fieldset className="air-choice-group">
+        <legend>Method</legend>
+        <SegmentedControl
           value={mode}
-          onChange={(m: EraseMode) => patchToolState(TOOL_ID, { mode: m })}
+          ariaLabel="Erase method"
+          fullWidth
+          onChange={(value: EraseMode) => patchToolState(TOOL_ID, { mode: value })}
           options={[
-            { value: "fill", label: "Fill", sub: "solid bg" },
-            { value: "inpaint", label: "Blend", sub: "gradient" },
-            { value: "pixelate", label: "Pixelate", sub: "faces" },
+            { value: "fill", label: "Fill" },
+            { value: "inpaint", label: "Blend" },
+            { value: "pixelate", label: "Pixelate" },
           ]}
         />
-      </Labeled>
-
+        <p className="air-help">
+          {mode === "fill"
+            ? "Match a solid surrounding colour."
+            : mode === "inpaint"
+              ? "Reconstruct a gradient or soft background."
+              : "Break the area into blocks. Pixelation may leave details recognisable; use Redact for sensitive information."}
+        </p>
+      </fieldset>
       {mode === "pixelate" && (
-        <Labeled label="Coarseness">
-          <Segmented
+        <fieldset className="air-choice-group">
+          <legend>Coarseness</legend>
+          <SegmentedControl
             value={coarseness}
-            onChange={(c: Coarseness) => patchToolState(TOOL_ID, { coarseness: c })}
+            ariaLabel="Pixelation coarseness"
+            fullWidth
+            onChange={(value: Coarseness) => patchToolState(TOOL_ID, { coarseness: value })}
             options={[
               { value: "subtle", label: "Subtle" },
               { value: "medium", label: "Medium" },
               { value: "strong", label: "Strong" },
             ]}
           />
-        </Labeled>
+        </fieldset>
       )}
-
-      {regions.length === 0 ? (
-        <div className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
-          Drag on the page to mark an area to erase. Method &amp; coarseness apply to the next area
-          you draw.
-        </div>
-      ) : (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
-              {regions.length} area{regions.length === 1 ? "" : "s"}
-            </span>
-            <button
-              type="button"
-              onClick={clearAll}
-              className="inline-flex items-center rounded px-1 text-xs text-primary-600 hover:underline pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-            >
-              Clear all
-            </button>
-          </div>
-          <ul className="thin-scrollbar max-h-40 overflow-y-auto rounded-lg border border-slate-200 dark:border-dark-border divide-y divide-slate-100 dark:divide-dark-border">
-            {regions.map((r, i) => {
-              const m = (r.payload as Partial<ErasePayload> | undefined)?.mode ?? "fill";
-              return (
-                <li
-                  key={r.id}
-                  className="flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs"
-                >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedPage(r.pageIndex);
-                      setViewMode("focus");
-                    }}
-                    className="min-w-0 flex-1 truncate rounded text-left text-slate-600 dark:text-dark-text-muted hover:text-primary-600 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    Area {i + 1} · page {r.pageIndex + 1} · {MODE_LABEL[m]}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeObject(r.id)}
-                    aria-label={`Remove area ${i + 1}`}
-                    className="inline-flex items-center justify-center rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-red-600 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        Fill matches a solid surrounding colour; Blend reconstructs a gradient or soft background;
-        for faces or busy texture, use Pixelate. Erased pages are flattened to images on export, so
-        the covered content is permanently removed.
+      <PendingMarkList kind="erase" />
+      <p className="air-help">
+        Method and coarseness apply to new areas. Existing marks stay editable until export or
+        another operation changes the PDF. Marked pages then become images, losing selectable text;
+        the file may grow.
       </p>
     </div>
   );

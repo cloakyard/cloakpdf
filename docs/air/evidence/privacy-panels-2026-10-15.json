@@ -1,0 +1,427 @@
+{
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 375,
+      "height": 812,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 375,
+      "height": 812,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 430,
+      "height": 932,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 430,
+      "height": 932,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 844,
+      "height": 390,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 844,
+      "height": 390,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1366,
+      "height": 768,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1366,
+      "height": 768,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "light",
+      "width": 1920,
+      "height": 1080,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 375,
+      "height": 812,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 375,
+      "height": 812,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 430,
+      "height": 932,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 430,
+      "height": 932,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 844,
+      "height": 390,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 844,
+      "height": 390,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1366,
+      "height": 768,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1366,
+      "height": 768,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "id": "redact-pdf",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    },
+    {
+      "theme": "dark",
+      "width": 1920,
+      "height": 1080,
+      "id": "smart-erase",
+      "overflow": false,
+      "panelOverflow": false,
+      "bad": []
+    }
+  ],
+  "eraseOutput": [
+    {
+      "mode": "fill",
+      "changedPixels": 71970,
+      "touchedPageHasNoTextOperators": true,
+      "untouchedTextPreserved": true
+    },
+    {
+      "mode": "inpaint",
+      "changedPixels": 71976,
+      "touchedPageHasNoTextOperators": true,
+      "untouchedTextPreserved": true
+    },
+    {
+      "mode": "pixelate",
+      "changedPixels": 14973,
+      "touchedPageHasNoTextOperators": true,
+      "untouchedTextPreserved": true
+    }
+  ],
+  "asyncOwnership": true,
+  "searchAndDetection": true,
+  "removeUndo": true,
+  "colourKeyboardAndInvalid": true,
+  "colourLayouts": 22,
+  "text200": true,
+  "errors": []
+}

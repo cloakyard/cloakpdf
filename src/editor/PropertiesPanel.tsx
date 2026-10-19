@@ -1,9 +1,9 @@
 // PropertiesPanel.tsx — The right options panel. Header (active tool name +
 // group caption + Cancel when the tool has rollback-able work) over a
 // per-tool body. When no tool is selected, the panel shows a short document
-// summary + hint.
+// guidance and a direct path to page organization.
 
-import { X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { ToolControls } from "./ToolControls.tsx";
@@ -11,8 +11,8 @@ import { findEditorTool } from "./tools.ts";
 
 export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) {
   const activeTool = useActiveTool();
-  const { doc, canCancelCurrentTool } = useEditorRead();
-  const { cancelCurrentTool } = useEditorActions();
+  const { canCancelCurrentTool } = useEditorRead();
+  const { cancelCurrentTool, setActiveTool, setViewMode } = useEditorActions();
   const tool = findEditorTool(activeTool);
   const headingId = useId();
 
@@ -23,42 +23,39 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
   // preventScroll so the canvas never jumps. Guarded on `activeTool` so
   // deactivating a tool doesn't yank focus to the "Document" heading.
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousTool = useRef(activeTool);
   useEffect(() => {
-    if (activeTool) headingRef.current?.focus({ preventScroll: true });
+    // Preserve focus on surviving chrome when a responsive panel mounts.
+    if (
+      activeTool &&
+      (previousTool.current !== activeTool || document.activeElement === document.body)
+    )
+      headingRef.current?.focus({ preventScroll: true });
+    previousTool.current = activeTool;
   }, [activeTool]);
 
   return (
     <aside
       aria-labelledby={headingId}
-      className={`editor-properties flex shrink-0 flex-col border-l border-[var(--color-rule)] bg-[var(--color-surface)] ${
-        collapsed ? "w-72" : "w-82"
-      }`}
+      className="editor-properties"
+      data-compact={collapsed || undefined}
     >
-      <div className="editor-properties__header flex items-start justify-between gap-2 border-b border-[var(--color-rule)] px-4 py-3">
+      <div className="editor-properties__header">
         <div className="min-w-0">
-          <h2
-            id={headingId}
-            ref={headingRef}
-            tabIndex={-1}
-            className="truncate text-sm font-semibold text-slate-800 dark:text-dark-text focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
+          <h2 id={headingId} ref={headingRef} tabIndex={-1} className="editor-properties__title">
             {tool ? tool.name : "Document"}
           </h2>
-          {tool ? (
-            <p className="mt-0.5 text-xs leading-snug text-slate-500 dark:text-dark-text-muted">
-              {tool.description}
-            </p>
-          ) : (
-            <p className="font-mono text-tag font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
-              {doc ? `${doc.pageCount} pages` : ""}
-            </p>
-          )}
+          {tool && <p className="editor-properties__description">{tool.description}</p>}
         </div>
         {tool && canCancelCurrentTool && (
           <button
             type="button"
-            onClick={() => void cancelCurrentTool()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-white hover:text-slate-700 active:bg-slate-200/70 pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:hover:bg-dark-surface-alt"
+            onClick={() => {
+              void cancelCurrentTool().then(() => {
+                document.querySelector<HTMLButtonElement>('[aria-label="Search tools"]')?.focus();
+              });
+            }}
+            className="air-icon-button air-button--quiet"
             aria-label="Cancel current tool"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -66,17 +63,24 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
         )}
       </div>
 
-      <div className="editor-properties__body thin-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
-        <div key={tool?.id ?? "document"} className="cloak-panel-enter">
+      <div className="editor-properties__body thin-scrollbar">
+        <div key={tool?.id ?? "document"}>
           {tool ? (
             <ToolControls />
           ) : (
-            <div className="text-sm text-slate-500 dark:text-dark-text-muted">
-              <p>Pick a tool from the left to edit this PDF.</p>
-              <p className="mt-2 text-xs text-slate-500 dark:text-dark-text-muted">
-                Pick <span className="font-medium">Organize</span> to browse and rearrange pages in
-                a grid.
-              </p>
+            <div className="editor-properties__empty">
+              <p>Room to work.</p>
+              <p>Choose a tool from the rail to edit this PDF. Your document stays in view.</p>
+              <button
+                type="button"
+                className="air-button"
+                onClick={() => {
+                  setActiveTool("organize-pages");
+                  setViewMode("overview");
+                }}
+              >
+                Organize pages <ArrowRight size={16} aria-hidden="true" />
+              </button>
             </div>
           )}
         </div>

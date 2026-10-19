@@ -8,6 +8,7 @@ import { describe, expect, it } from "vite-plus/test";
 import type { LayoutItem, LayoutPage } from "../../src/utils/layout-extract.ts";
 import {
   detectFlatFields,
+  flatFieldLayout,
   fillFlatFormFields,
   profileKeyForLabel,
 } from "../../src/utils/pdf/form-detect.ts";
@@ -123,5 +124,38 @@ describe("fillFlatFormFields", () => {
     ]);
     expect((await PDFDocument.load(out)).getPageCount()).toBe(1);
     expect(out.byteLength).toBeGreaterThan(0);
+  });
+});
+
+describe("flatFieldLayout", () => {
+  it("keeps the visible baseline and inset independent of preview scale", () => {
+    const rect = { xPct: 0.2, yPct: 0.3, wPct: 0.5, hPct: 0.02 };
+    const run = flatFieldLayout(
+      "  Avery  ",
+      rect,
+      600,
+      800,
+      (text, size) => (text.length * size) / 2,
+    );
+    expect(run).toEqual({ text: "Avery", size: 13.6, x: 121, y: (0.3 + 0.02 * 0.78) * 800 });
+  });
+  it("uses the writer's measurement for shrinking and explicit shortening", () => {
+    const run = flatFieldLayout(
+      "A long answer",
+      { xPct: 0.1, yPct: 0.2, wPct: 0.08, hPct: 0.02 },
+      200,
+      300,
+      (text, size) => (text.length * size) / 2,
+    );
+    expect(run.size).toBe(6);
+    expect(run.text.endsWith("…")).toBe(true);
+    expect((run.text.length * run.size) / 2).toBeLessThanOrEqual(14);
+  });
+  it("reports unsupported text instead of silently dropping it", () => {
+    expect(() =>
+      flatFieldLayout("漢字", { xPct: 0, yPct: 0, wPct: 1, hPct: 0.1 }, 200, 300, () => {
+        throw new Error("Encoding");
+      }),
+    ).toThrow("characters Helvetica cannot print");
   });
 });

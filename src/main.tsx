@@ -12,6 +12,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import { MotionProvider } from "./components/motion.tsx";
 import { synchronizeModelCache } from "./utils/ai-runtime.ts";
 import "./index.css";
+import "./styles/air.css";
+import "./styles/air-entry.css";
 
 // Model upgrades invalidate their CacheStorage bytes and every PDF
 // embedding index derived from them. Finish that small, local cleanup

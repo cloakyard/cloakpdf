@@ -1,80 +1,20 @@
-// MetadataTool.tsx — The document's properties panel. Two parts:
-//   1. A read-only "Document" report (version, page count, size, encryption,
-//      page size) — folded in from the former standalone PDF Inspector tool.
-//   2. Editable standard metadata (title/author/…/dates) written back via
-//      setPdfMetadata, or cleared all for privacy.
-// Panel-only — no canvas interaction, so it's identical on desktop + mobile.
-
-import {
-  BookOpen,
-  Building2,
-  Calendar,
-  CalendarClock,
-  FileCode2,
-  FileText,
-  HardDrive,
-  Hash,
-  Lock,
-  LockOpen,
-  type LucideIcon,
-  Ruler,
-  Tag,
-  Type,
-  User,
-  Wrench,
-} from "lucide-react";
-import { type ReactNode, useEffect, useState } from "react";
+// Standard PDF properties; drafts belong to the exact source byte revision.
+import { AlertTriangle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { DateTimeInput } from "../../components/DateTimeInput.tsx";
 import type { PdfMetadata } from "../../types.ts";
 import { formatFileSize } from "../../utils/file-helpers.ts";
-import { getPdfInfo, getPdfMetadata, setPdfMetadata } from "../../utils/pdf-operations.ts";
-import type { PdfInfo } from "../../utils/pdf-operations.ts";
+import {
+  getPdfInfo,
+  getPdfMetadata,
+  setPdfMetadata,
+  type PdfInfo,
+} from "../../utils/pdf-operations.ts";
 import { docToFile } from "../doc.ts";
-import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
+import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
-import { Labeled, TextField } from "./controls.tsx";
 
-function DateField({
-  label,
-  value,
-  onChange,
-  icon,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  icon?: LucideIcon;
-}) {
-  return (
-    <Labeled label={label} icon={icon}>
-      <DateTimeInput value={value} onChange={onChange} />
-    </Labeled>
-  );
-}
-
-/** A read-only fact row in the Document report (icon + label + value). */
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 px-3 py-2">
-      <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-dark-text-muted">
-        <Icon className="h-3.5 w-3.5 shrink-0 text-primary-500 dark:text-primary-400" />
-        {label}
-      </span>
-      <span className="min-w-0 truncate text-right text-sm text-slate-700 dark:text-dark-text">
-        {value}
-      </span>
-    </div>
-  );
-}
-
+const TOOL_ID = "metadata";
 const EMPTY: PdfMetadata = {
   title: "",
   author: "",
@@ -85,153 +25,215 @@ const EMPTY: PdfMetadata = {
   creationDate: "",
   modificationDate: "",
 };
+const TEXT_FIELDS = [
+  ["title", "Title"],
+  ["author", "Author"],
+  ["subject", "Subject"],
+  ["keywords", "Keywords"],
+  ["creator", "Creator"],
+  ["producer", "Producer"],
+] as const;
 
-const TEXT_FIELDS: { key: keyof PdfMetadata; label: string; icon: LucideIcon }[] = [
-  { key: "title", label: "Title", icon: Type },
-  { key: "author", label: "Author", icon: User },
-  { key: "subject", label: "Subject", icon: Tag },
-  { key: "keywords", label: "Keywords", icon: Hash },
-  { key: "creator", label: "Creator", icon: Wrench },
-  { key: "producer", label: "Producer", icon: Building2 },
-];
-
-/** Format the page-size fact: the first page's dimensions, noting if pages vary. */
-function pageSizeLabel(pages: PdfInfo["pages"]): string | null {
-  if (pages.length === 0) return null;
+function pageSizeLabel(pages: PdfInfo["pages"]): string {
+  if (!pages.length) return "Unavailable";
   const round = (p: { width: number; height: number }) =>
     `${Math.round(p.width)} × ${Math.round(p.height)}`;
   const first = round(pages[0]);
-  const uniform = pages.every((p) => round(p) === first);
-  return uniform ? `${first} pt` : `${first} pt · varies`;
+  return `${first} pt${pages.every((p) => round(p) === first) ? "" : " · varies"}`;
 }
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { applyTransform } = useEditorActions();
-  const [fields, setFields] = useState<PdfMetadata | null>(null);
-  const [info, setInfo] = useState<PdfInfo | null>(null);
-
-  // (Re)load the current metadata + technical report whenever the document
-  // changes. The `live` flag ignores a stale result — and is StrictMode-safe
-  // (a ref guard here would bail on the second mount and never load).
+  const { doc, busyLabel } = useEditorRead();
+  const { applyTransform, patchToolState } = useEditorActions();
+  const draft = useToolSlice(TOOL_ID);
+  const [report, setReport] = useState<{
+    bytes: Uint8Array;
+    fields?: PdfMetadata;
+    info?: PdfInfo;
+    failed?: boolean;
+  } | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [saveState, setSaveState] = useState<"idle" | "failed" | "saved">("idle");
+  const applying = useRef(false);
+  const savedFields = useRef<PdfMetadata | null>(null);
+  const bytes = doc?.bytes;
+  const fileName = doc?.fileName;
   useEffect(() => {
-    if (!doc) return;
+    if (!bytes) return;
     let live = true;
-    const file = docToFile(doc);
-    void getPdfMetadata(file).then(
-      (m) => {
-        if (live) setFields(m);
+    setReport(null);
+    const file = new File([bytes as Uint8Array<ArrayBuffer>], fileName ?? "document.pdf", {
+      type: "application/pdf",
+    });
+    void Promise.all([getPdfMetadata(file), getPdfInfo(file)]).then(
+      ([fields, info]) => {
+        if (live) setReport({ bytes, fields, info });
       },
       () => {
-        if (live) setFields({ ...EMPTY });
-      },
-    );
-    void getPdfInfo(file).then(
-      (i) => {
-        if (live) setInfo(i);
-      },
-      () => {
-        if (live) setInfo(null);
+        if (live) setReport({ bytes, failed: true });
       },
     );
     return () => {
       live = false;
     };
-  }, [doc]);
+  }, [bytes, fileName, attempt]);
 
-  if (!fields) {
-    return <p className="text-sm text-slate-500 dark:text-dark-text-muted">Reading metadata…</p>;
-  }
-
-  const set = (key: keyof PdfMetadata, value: string) => setFields({ ...fields, [key]: value });
-  const pageSize = info ? pageSizeLabel(info.pages) : null;
-
-  const apply = () =>
-    void applyTransform(async (d) => ({
-      bytes: await setPdfMetadata(docToFile(d), fields),
-      label: "Edit metadata",
-    }));
+  const current = report?.bytes === bytes ? report : null;
+  const fields = draft.sourceBytes === bytes ? (draft.fields as PdfMetadata) : current?.fields;
+  const busy = busyLabel !== null;
+  const setFields = (next: PdfMetadata) => {
+    setSaveState("idle");
+    patchToolState(TOOL_ID, { sourceBytes: bytes, fields: next });
+  };
+  const apply = async () => {
+    if (!fields || !current?.info || busy || applying.current) return;
+    applying.current = true;
+    setSaveState("idle");
+    try {
+      await applyTransform(async (d) => {
+        const bytes = await setPdfMetadata(docToFile(d), fields);
+        return { bytes, label: "Edit metadata" };
+      });
+      patchToolState(TOOL_ID, { sourceBytes: undefined, fields: undefined });
+      savedFields.current = fields;
+      setSaveState("saved");
+    } catch (error) {
+      setSaveState("failed");
+      throw error;
+    } finally {
+      applying.current = false;
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Read-only document report (folded in from the old PDF Inspector). */}
-      {info && (
-        <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface divide-y divide-slate-100 dark:divide-dark-border">
-          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-dark-surface-alt px-3 py-2">
-            <FileText className="h-3.5 w-3.5 text-primary-500 dark:text-primary-400" />
-            <p className="font-mono text-xxs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-dark-text-muted">
-              Document
-            </p>
-          </div>
-          {doc && <InfoRow icon={FileText} label="File name" value={doc.fileName} />}
-          <InfoRow
-            icon={HardDrive}
-            label="File size"
-            value={<span className="tabular-nums">{formatFileSize(info.fileSize)}</span>}
-          />
-          <InfoRow
-            icon={FileCode2}
-            label="PDF version"
-            value={<span className="tabular-nums">{info.version}</span>}
-          />
-          <InfoRow
-            icon={BookOpen}
-            label="Pages"
-            value={<span className="tabular-nums">{info.pageCount}</span>}
-          />
-          {pageSize && (
-            <InfoRow
-              icon={Ruler}
-              label="Page size"
-              value={<span className="tabular-nums">{pageSize}</span>}
-            />
-          )}
-          <InfoRow
-            icon={info.isEncrypted ? Lock : LockOpen}
-            label="Encrypted"
-            value={info.isEncrypted ? "Yes" : "No"}
-          />
-        </div>
-      )}
-
-      {/* Editable standard metadata. */}
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Edit the document properties, or clear them all to strip identifying metadata.
-      </p>
-      {TEXT_FIELDS.map((f) => (
-        <TextField
-          key={f.key}
-          label={f.label}
-          icon={f.icon}
-          value={fields[f.key]}
-          onChange={(v) => set(f.key, v)}
-        />
-      ))}
-      <div className="grid grid-cols-2 gap-2">
-        <DateField
-          label="Created"
-          icon={Calendar}
-          value={fields.creationDate}
-          onChange={(v) => set("creationDate", v)}
-        />
-        <DateField
-          label="Modified"
-          icon={CalendarClock}
-          value={fields.modificationDate}
-          onChange={(v) => set("modificationDate", v)}
-        />
-      </div>
-
-      <div className="mt-1 flex flex-col gap-2">
-        <PrimaryAction label="Save metadata" onApply={apply} />
-        <button
-          type="button"
-          onClick={() => setFields({ ...EMPTY })}
-          className="self-start rounded px-1 py-0.5 text-xs text-slate-500 hover:text-red-600 pointer-coarse:min-h-11 dark:text-dark-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+    <div className="pdf-mark-panel pdf-metadata-panel">
+      <section aria-label="Document properties">
+        <p>Review this document and edit its standard properties.</p>
+        {current?.info && (
+          <dl className="pdf-document-facts">
+            {[
+              ["File name", fileName],
+              ["File size", formatFileSize(current.info.fileSize)],
+              ["PDF version", current.info.version],
+              ["Pages", current.info.pageCount],
+              ["Page size", pageSizeLabel(current.info.pages)],
+              ["Encrypted", current.info.isEncrypted ? "Yes" : "No"],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <p
+          id="metadata-read-status"
+          role={current?.failed ? "alert" : "status"}
+          className={current?.failed ? "air-notice air-notice--error" : "air-help"}
         >
-          Clear all fields
-        </button>
-      </div>
+          {current?.failed && <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />}
+          <span>
+            {current?.failed
+              ? "Couldn't read the document properties. Your PDF and any draft are unchanged. Try again."
+              : !current
+                ? "Reading document properties…"
+                : ""}
+          </span>
+        </p>
+        {(current?.failed || attempt > 0) && (
+          <button
+            type="button"
+            className="air-button"
+            aria-disabled={!current || busy}
+            onClick={() => {
+              if (current && !busy) setAttempt((n) => n + 1);
+            }}
+          >
+            Read properties again
+          </button>
+        )}
+      </section>
+      {fields && (
+        <>
+          <section aria-label="Editable metadata">
+            {TEXT_FIELDS.map(([key, label]) => (
+              <div className="pdf-property-field" key={key}>
+                <label className="air-label" htmlFor={`metadata-${key}`}>
+                  {label}
+                </label>
+                <input
+                  className="air-field"
+                  id={`metadata-${key}`}
+                  name={`metadata-${key}`}
+                  autoComplete="off"
+                  value={fields[key]}
+                  disabled={busy}
+                  onChange={(e) => setFields({ ...fields, [key]: e.target.value })}
+                />
+              </div>
+            ))}
+            {(
+              [
+                ["creationDate", "Created"],
+                ["modificationDate", "Modified"],
+              ] as const
+            ).map(([key, label]) => (
+              <div className="pdf-property-field" key={key}>
+                <label className="air-label" htmlFor={`metadata-${key}`}>
+                  {label}
+                </label>
+                <DateTimeInput
+                  id={`metadata-${key}`}
+                  label={label}
+                  value={fields[key]}
+                  disabled={busy}
+                  onChange={(v) => setFields({ ...fields, [key]: v })}
+                />
+              </div>
+            ))}
+            <p className="air-help">
+              Dates use your local time. Changes are saved when you apply this tool.
+            </p>
+          </section>
+          <section aria-label="Save metadata">
+            <button
+              type="button"
+              className="air-button air-button--quiet"
+              disabled={busy}
+              onClick={() => setFields({ ...EMPTY })}
+            >
+              Clear all fields
+            </button>
+            <p className="air-help">
+              Clearing these fields does not remove XMP or other hidden data. Use Scrub to review
+              those categories.
+            </p>
+          </section>
+        </>
+      )}
+      <section aria-label="Apply metadata">
+        <p
+          id="metadata-save-status"
+          role={saveState === "failed" ? "alert" : "status"}
+          className={saveState === "failed" ? "air-notice air-notice--error" : "air-help"}
+        >
+          {saveState === "failed" && (
+            <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />
+          )}
+          <span>
+            {saveState === "failed"
+              ? "Couldn't save metadata. Your document and draft are unchanged. Try saving again."
+              : saveState === "saved" &&
+                  current?.fields &&
+                  (Object.keys(EMPTY) as (keyof PdfMetadata)[]).every(
+                    (key) => current.fields?.[key] === savedFields.current?.[key],
+                  )
+                ? "Metadata saved. Undo restores the previous properties."
+                : ""}
+          </span>
+        </p>
+        <PrimaryAction label="Save metadata" disabled={!fields || !current?.info} onApply={apply} />
+      </section>
     </div>
   );
 }

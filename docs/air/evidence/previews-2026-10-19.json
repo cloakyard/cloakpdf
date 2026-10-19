@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-19",
+  "surface": "Air install/README previews, social artwork and manifest metadata",
+  "baselineCommit": "00bdee0",
+  "airVersion": "1.0.2",
+  "contract": "bb90f52e0b0a",
+  "implementation": [
+    "Four real Annotate editor captures use a generated synthetic three-page PDF, isolated contexts and both themes. Wide 1440x900 pixels; narrow 780x1688 pixels at 390x844 CSS / DPR 2.",
+    "README picture selects light/dark. Removed device-named iPhone/iPad legacy assets and active references.",
+    "OG artwork composes the real editor image, original mark and canonical Air CSS at 1200x630. Landing promise, OG/Twitter title and descriptive alternatives agree.",
+    "Manifest theme/background use #fafbfc, matching the light document theme; live HTML retains light/dark theme metadata.",
+    "Build checks the actual manifest image paths/types/dimensions/labels and social dimensions. Added negative missing-image/dimension tests.",
+    "Inventory now includes root/static/artwork HTML, exposing the still-legacy 404 as pending instead of claiming all visible sources migrated."
+  ],
+  "validation": {
+    "required": "PASS: format/lint/types, knip, 458 units / 47 files, production build, asset metadata/size checks, design and 18 portability checks.",
+    "browserSuites": [
+      "standalone-tools (six real output workflows; generated demo PDFs and both shipped bitmap inputs)",
+      "home-routing",
+      "landing-search",
+      "editor-navigation (176 tool selections, 176 layouts, page/history persistence, Apply/Undo, search, expanded controls, reduced motion and forced colours)"
+    ],
+    "visualReview": "All four published screenshots, full OG card, laptop 1280x720 and tablet 768x1024 in both themes inspected. Navigation covers all required viewport classes and enlarged root text.",
+    "metadata": "PASS: built manifest, 9 served PNG byte matches, OG/Twitter metadata and no Chromium installability errors.",
+    "runtime": "Application source and output algorithms unchanged. Original product logos and annotation fonts unchanged. No dependency added.",
+    "assets": 128,
+    "pwaEntries": 77
+  },
+  "validationHistory": [
+    "Phone generator initially targeted a hidden rail, then its picker click was covered by first-install cache feedback. Scoped the visible mobile list, dismissed the real notice before selection and reran all four captures successfully.",
+    "The stricter build checker exposed missing manifest data in two old unit fixtures. Updated fixtures to represent shipped assets and added negative cases; all 458 tests pass."
+  ],
+  "evidence": [
+    "public/screenshots/editor-wide-light.png",
+    "public/screenshots/editor-wide-dark.png",
+    "public/screenshots/editor-narrow-light.png",
+    "public/screenshots/editor-narrow-dark.png",
+    "public/icons/og-image.png",
+    "docs/air/evidence/previews-laptop-light-2026-10-19.png",
+    "docs/air/evidence/previews-laptop-dark-2026-10-19.png",
+    "docs/air/evidence/previews-checks-2026-10-19.log"
+  ],
+  "builtMetadata": {
+    "manifest": {
+      "name": "CloakPDF",
+      "short_name": "CloakPDF",
+      "description": "Edit, organise and sign PDFs on your device. Open-source tools for redaction, OCR, comparison and on-device AI.",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#fafbfc",
+      "theme_color": "#fafbfc",
+      "lang": "en",
+      "scope": "/",
+      "orientation": "any",
+      "icons": [
+        {
+          "src": "icons/pwa-64x64.png",
+          "sizes": "64x64",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "icons/pwa-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "icons/pwa-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        {
+          "src": "icons/maskable-icon-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "maskable"
+        }
+      ],
+      "screenshots": [
+        {
+          "src": "screenshots/editor-narrow-light.png",
+          "sizes": "780x1688",
+          "type": "image/png",
+          "form_factor": "narrow",
+          "label": "Annotating a sample PDF in the light phone editor"
+        },
+        {
+          "src": "screenshots/editor-narrow-dark.png",
+          "sizes": "780x1688",
+          "type": "image/png",
+          "form_factor": "narrow",
+          "label": "Annotating a sample PDF in the dark phone editor"
+        },
+        {
+          "src": "screenshots/editor-wide-light.png",
+          "sizes": "1440x900",
+          "type": "image/png",
+          "form_factor": "wide",
+          "label": "Annotating a sample PDF in the light desktop editor"
+        },
+        {
+          "src": "screenshots/editor-wide-dark.png",
+          "sizes": "1440x900",
+          "type": "image/png",
+          "form_factor": "wide",
+          "label": "Annotating a sample PDF in the dark desktop editor"
+        }
+      ]
+    },
+    "metadata": {
+      "theme-color(prefers-color-scheme: light)": "#fafbfc",
+      "theme-color(prefers-color-scheme: dark)": "#101216",
+      "og:type": "website",
+      "og:url": "https://pdf.cloakyard.com/",
+      "og:title": "CloakPDF \u2014 Your PDF. Your space.",
+      "og:description": "An open-source PDF web app with advanced editing, redaction, OCR, signature, comparison, and on-device AI tools. Your documents stay in your browser.",
+      "og:image": "https://pdf.cloakyard.com/icons/og-image.png",
+      "og:image:type": "image/png",
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:image:alt": "CloakPDF: Your PDF. Your space. The Air editor with a sample document and annotation tools.",
+      "og:site_name": "CloakPDF",
+      "twitter:card": "summary_large_image",
+      "twitter:title": "CloakPDF \u2014 Your PDF. Your space.",
+      "twitter:description": "Advanced PDF editing, redaction, OCR, signatures, comparison, and on-device AI in a privacy-focused open-source web app.",
+      "twitter:image": "https://pdf.cloakyard.com/icons/og-image.png",
+      "twitter:image:alt": "CloakPDF: Your PDF. Your space. The Air editor with a sample document and annotation tools."
+    },
+    "assets": [
+      {
+        "src": "icons/pwa-64x64.png",
+        "sizes": "64x64",
+        "type": "image/png",
+        "purpose": "any",
+        "bytes": 996,
+        "sha256": "af349d02381052f7bc7ba52484288697ae29171b953a0753c2ee83e0b995b8b1"
+      },
+      {
+        "src": "icons/pwa-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any",
+        "bytes": 4634,
+        "sha256": "0847e408e3305683e17e4013d8457b0465181e2078fc4281f033a9228e4b1e89"
+      },
+      {
+        "src": "icons/pwa-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any",
+        "bytes": 25440,
+        "sha256": "b8aa8602ca484bc6f62118c4c1727a277b0c5db4aa64dccc32d5c4f62d07e85f"
+      },
+      {
+        "src": "icons/maskable-icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable",
+        "bytes": 25440,
+        "sha256": "b8aa8602ca484bc6f62118c4c1727a277b0c5db4aa64dccc32d5c4f62d07e85f"
+      },
+      {
+        "src": "screenshots/editor-narrow-light.png",
+        "sizes": "780x1688",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Annotating a sample PDF in the light phone editor",
+        "bytes": 97603,
+        "sha256": "c6710ad38962b7e606d5e80b8202ef5e1effa0837f41c200791451255a022efe"
+      },
+      {
+        "src": "screenshots/editor-narrow-dark.png",
+        "sizes": "780x1688",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Annotating a sample PDF in the dark phone editor",
+        "bytes": 100063,
+        "sha256": "e3512e7c91f9c393c4ebf41f628d3201947155f16a5f592852fef5eb6bb2d280"
+      },
+      {
+        "src": "screenshots/editor-wide-light.png",
+        "sizes": "1440x900",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "Annotating a sample PDF in the light desktop editor",
+        "bytes": 105747,
+        "sha256": "af1ccd84c680be8821717be8513adee233ebd42d35bc72c684b90b7e21c73866"
+      },
+      {
+        "src": "screenshots/editor-wide-dark.png",
+        "sizes": "1440x900",
+        "type": "image/png",
+        "form_factor": "wide",
+        "label": "Annotating a sample PDF in the dark desktop editor",
+        "bytes": 105913,
+        "sha256": "65cdabf60dfb8bd73ce3f4f8f85af8b37f6db0b43d36e6499ecc970c747b26b9"
+      },
+      {
+        "src": "icons/og-image.png",
+        "bytes": 80285,
+        "sha256": "300b97475634d7014c9b283419c09495efac76d6b9183af7407613738b43a514"
+      }
+    ],
+    "install": {
+      "installabilityErrors": []
+    }
+  },
+  "temporaryEvidence": "/tmp/cloakpdf-air-review/previews",
+  "openAcceptance": [
+    "Static 404 migration and remaining PDF closure reconciliation",
+    "Physical touch/software keyboards, actual OS IME, spoken assistive technology and final-size QR scan",
+    "Real-device shader GPU/battery/thermal checks",
+    "Full IMG, Resume and Drop website migrations"
+  ],
+  "scope": "This completes the bounded public-preview piece, not PDF or family acceptance. No push or deployment."
+}

@@ -67,7 +67,9 @@ async function waitForFile(dir: string, re: RegExp, timeout = 30_000): Promise<s
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -78,7 +80,9 @@ async function clickByText(page: Page, label: string): Promise<boolean> {
 async function hasExactText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    return els.some((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    return els.some(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
   }, label);
 }
 
@@ -114,8 +118,7 @@ async function drawOnPage(
 }
 
 /** Wait until the global busy overlay (portaled, aria-busy) is gone — the mobile
- *  ✓ closes the tool immediately and applies under this overlay, so a follow-up
- *  tap must wait for it to clear or it hits the overlay instead. */
+ *  ✓ awaits Apply before closing the tool; follow-up taps wait for completion. */
 async function waitForNoBusy(page: Page, timeout = 60_000): Promise<void> {
   await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), { timeout });
 }
@@ -188,11 +191,12 @@ async function main() {
     executablePath: CHROME_PATH,
     userDataDir: USER_DATA_DIR,
     headless: true,
-    // iPhone-ish portrait: shortEdge 390 < 760 → mobile sheet layout.
+    // iPhone-ish portrait: width 390 < 768 → mobile sheet layout.
     defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(30_000);
     page.on("console", (m) => {
@@ -261,14 +265,15 @@ async function main() {
     await waitForText(page, /TOOL/i, 8_000);
     if (await hasExactText(page, "Apply annotations"))
       fail("'Apply annotations' must be hidden on mobile.");
+    if (!(await clickByText(page, "Pen"))) fail("Annotate Pen sub-tool not found.");
     // ColorPicker popover is portaled to <body> so the sheet's overflow can't
     // clip it — open it and assert it renders fully inside the viewport.
     await page.click('button[aria-label^="Custom color"]');
-    await page.waitForSelector('[aria-label="Saturation and brightness picker"]', {
+    await page.waitForSelector('[aria-label="Colour wheel"]', {
       timeout: 5_000,
     });
     const swatchOnScreen = await page.evaluate(() => {
-      const el = document.querySelector('[aria-label="Saturation and brightness picker"]');
+      const el = document.querySelector('[aria-label="Colour wheel"]');
       if (!el) return false;
       const r = el.getBoundingClientRect();
       return (
@@ -282,7 +287,6 @@ async function main() {
     });
     if (!swatchOnScreen) fail("ColorPicker popover is clipped / off-screen on mobile.");
     await page.click('button[aria-label^="Custom color"]'); // toggle the popover closed
-    if (!(await clickByText(page, "Pen"))) fail("Annotate Pen sub-tool not found.");
     await drawOnPage(page, { x: 0.3, y: 0.4 }, { x: 0.7, y: 0.55 });
     await waitForText(page, /\b1 mark\b/, 8_000);
     await tapDone(page); // ✓ burns the annotation
@@ -328,8 +332,10 @@ async function main() {
     await waitForText(page, /\d+ redactions?/i, 8_000);
     await page.click('button[aria-label="Done"]'); // ✓ — no burn, just close
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
-    if (!(await page.$('[data-testid="mobile-pending-marks"]')))
-      fail("Redact: pending-mark count is not visible in the collapsed mobile tool strip.");
+    if (!(await page.$('[data-testid="pending-marks"]')))
+      fail("Redact: pending-mark count is not visible in the persistent editor header.");
+    if ((await page.$eval(".editor-topbar", (n) => n.getBoundingClientRect().height)) !== 64)
+      fail("Pending marks must not add another toolbar row.");
     await pickTool(page, "Redact"); // reopen
     await waitForText(page, /\d+ redactions?/i, 8_000); // mark persisted across ✓
     if (!(await clickByText(page, "Clear all"))) fail("Redact 'Clear all' not found.");
@@ -415,8 +421,8 @@ async function main() {
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
     await page.click('button[aria-haspopup="dialog"]'); // Export (icon-only on mobile)
-    await page.waitForSelector('button[aria-label="Markdown (.md)"]', { timeout: 5_000 });
-    await page.click('button[aria-label="Markdown (.md)"]');
+    await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
+    await page.locator('input[aria-label="Markdown (.md)"]').click();
     if (await hasExactText(page, "Infer headings"))
       fail("Stale 'Infer headings' switch still rendered (should be removed).");
     if (!(await clickByText(page, "Download")))

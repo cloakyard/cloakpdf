@@ -4,11 +4,10 @@
  * Supports both the HTML5 drag API (desktop) and touch events (mobile).
  *
  * Components must:
- *  1. Spread `getItemProps(slot)` onto every draggable item — this wires up
+ *  1. Spread `getItemProps(slot)` onto every draggable handle — this wires up
  *     both the HTML5 drag API and touch handlers in one call.
  *  2. Add `data-drop-slot={slot}` to every drop-zone div so touch tracking
  *     can identify the target slot via `document.elementFromPoint`.
- *     (If using `SortableGrid`, drop-zones are handled automatically.)
  *
  * Touch behaviour:
  *  - Drag activates after an 8 px movement threshold so short taps still
@@ -125,8 +124,8 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
   useEffect(() => {
     // Coalesce per-touchmove work into one animation frame: a raw touch stream
     // fires ~120Hz, and each event did a synchronous layout-reading
-    // elementFromPoint hit-test PLUS two state setters (→ two SortableGrid
-    // re-renders). Buffer the latest finger position and flush at most once per
+    // elementFromPoint hit-test plus two state setters. Buffer the latest
+    // finger position and flush at most once per
     // frame. preventDefault stays synchronous in handleTouchMove so page scroll
     // is still suppressed mid-drag.
     let latestTouch: { x: number; y: number } | null = null;
@@ -233,6 +232,7 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
     dragOverSlot,
     touchPos,
     liveMessage,
+    setLiveMessage,
     setDragIndex,
     setDragOverSlot,
     getItemProps,
@@ -240,6 +240,3 @@ export function useSortableDrag(onMove: (fromIndex: number, toSlot: number) => v
     getTouchHandlers,
   };
 }
-
-/** Convenience type for passing the full drag bag to SortableGrid. */
-export type SortableDrag = ReturnType<typeof useSortableDrag>;

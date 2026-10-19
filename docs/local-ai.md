@@ -4,7 +4,8 @@ CloakPDF's **Ask your PDF** tool answers natural-language questions
 about any uploaded document **entirely in the user's browser**. No
 API key, no inference server, no usage quota. The model weights are
 downloaded once from Hugging Face's CDN, cached in `CacheStorage`,
-and re-used offline forever after.
+and reused offline while the required model and runtime files remain cached.
+Browser storage limits, eviction and explicit cache deletion can require downloads again.
 
 This document is the implementation reference: what runs, in what
 order, where the bytes live, and why the design choices are what
@@ -25,12 +26,12 @@ Three pipelines load together on first use:
 | Retrieval        | [EmbeddingGemma-300M](https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX) | ~320 MB  | ~500 MB  | Gemma Terms       |
 | Reranking        | [MS MARCO MiniLM-L-6-v2](https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2)        | ~23 MB   | ~90 MB   | Apache 2.0        |
 
-A fresh visitor on the **Compact** tier downloads **~1.15 GB** total
-(810 MB chat + 320 MB embed + 23 MB rerank); switching to **Quality**
-adds ~750 MB on top for the 2.6B chat weights, landing the bundle
-at **~1.9 GB**. The chat tier is user-selectable in the consent modal;
-both LFM tiers share the embedder and reranker, so swapping tiers
-only re-downloads the chat slot.
+Registry estimates use binary units: Compact totals **~1.13 GiB** (810 MiB chat,
+320 MiB embedder and 23 MiB reranker); Quality totals **~1.89 GiB** (1.55 GiB chat
+plus the same shared models). Runtime assets are additional. Switching to an
+uncached tier downloads that tier's complete chat weights, not just the size
+difference. Both chat files may remain cached until removed or evicted. The
+active tier is user-selectable; a fresh visitor starts with Compact.
 
 The registry of these models lives in
 [`src/utils/ai-models.ts`](../src/utils/ai-models.ts) — every entry
@@ -65,11 +66,10 @@ flowchart LR
     Store -.cached chunks + vectors.-> Retrievers
 ```
 
-Per-question latency is dominated by the chat model's streaming
-phase. Retrieval + reranking together fit in under ~300 ms on a
-mid-range desktop; the chat model streams at ~25–40 tok/s on
-WebGPU. Re-opening a PDF that's already been ingested skips the
-embed step entirely — the vectors come straight out of IndexedDB.
+Latency depends on the tier, device, document and whether a deterministic fast
+path handles the question. The [2026-10-19 acceptance matrix](air/acceptance.md)
+records exact host coverage and measured question timings. Reopening an indexed
+PDF can reuse its vectors from IndexedDB.
 
 ---
 
@@ -232,7 +232,7 @@ caches:
 ```mermaid
 flowchart LR
     subgraph Cold["Cold visit"]
-        CDN[Hugging Face CDN] --> Cache[CacheStorage<br/><i>~1.15 GB Compact / ~1.9 GB Quality</i>]
+        CDN[Hugging Face CDN] --> Cache[CacheStorage<br/><i>~1.13 GiB Compact / ~1.89 GiB Quality</i>]
         PDF1([upload PDF]) --> Embed1[chunk + embed] --> IDB1[(IndexedDB)]
     end
 
@@ -261,16 +261,16 @@ place so the next app start retries.
 
 ---
 
-## 10. Runtime: WebGPU + WASM, and why each one is pinned
+## 10. Runtime: WebGPU and the pinned WASM embedder
 
 [`src/utils/ai-runtime.ts`](../src/utils/ai-runtime.ts) decides
 which backend each pipeline runs on:
 
-| Pipeline                  | Backend                              | Why                                                                                                                                                                                        |
-| ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Chat (LFM2.5 / LFM2)      | WebGPU when available, WASM fallback | The chat model is the slowest pipeline; WebGPU gives ~3–4× tok/s vs WASM. The fallback exists because Safari + older Chromium don't expose `navigator.gpu`.                                |
-| Embedder (EmbeddingGemma) | **Pinned to WASM**                   | A known WebGPU LayerNorm fp16 shader compile bug breaks the embedder in Chromium under WebGPU. WASM at `q8` is fast enough for the volume (one batch of chunks per PDF) and doesn't crash. |
-| Reranker (MiniLM)         | WASM                                 | int8 quant, small batched forward — WebGPU overhead isn't worth it.                                                                                                                        |
+| Pipeline                  | Backend                                          | Why                                                                                                                                                                                        |
+| ------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Chat (LFM2.5 / LFM2)      | WebGPU when available; library default otherwise | The runtime probes an adapter before loading. Real inference on other device/backend combinations is not established by the current acceptance matrix.                                     |
+| Embedder (EmbeddingGemma) | **Pinned to WASM**                               | A known WebGPU LayerNorm fp16 shader compile bug breaks the embedder in Chromium under WebGPU. WASM at `q8` is fast enough for the volume (one batch of chunks per PDF) and doesn't crash. |
+| Reranker (MiniLM)         | WebGPU when available; library default otherwise | Registry pins int8 but does not override the runtime device choice.                                                                                                                        |
 
 Pipelines are constructed **lazily** — the bytes don't leave the
 browser, ever. The runtime keeps one `Promise` per model in

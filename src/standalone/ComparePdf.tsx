@@ -1,15 +1,5 @@
-/**
- * Compare PDFs tool.
- *
- * Accepts two PDF files and renders a side-by-side visual comparison.
- * For each pair of corresponding pages, a pixel-level difference is
- * computed and displayed as an overlay with a percentage change score.
- * Extra pages (when page counts differ) are shown with a notice.
- */
-
-import { ArrowLeftRight, Eye, EyeOff, Layers } from "lucide-react";
-import type { PDFDocumentProxy } from "pdfjs-dist";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+/** Local visual comparison with cancellable rendering and owned preview URLs. */
+import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "../components/ActionButton.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
@@ -18,655 +8,381 @@ import { PagePreviewNav } from "../components/PagePreviewNav.tsx";
 import { ProgressBar } from "../components/ProgressBar.tsx";
 import { SegmentedControl } from "../components/SegmentedControl.tsx";
 import { canvas as canvasColors } from "../config/theme.ts";
-import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
 import { formatFileSize } from "../utils/file-helpers.ts";
-import { pdfjsLib } from "../utils/pdf-renderer.ts";
-import { PDFJS_WASM_URL } from "../utils/pdfjs-config.ts";
 import { isPdfEncrypted } from "../utils/pdf-security.ts";
+import { type PageComparison, comparePdfFiles, releaseComparisons } from "../utils/pdf-compare.ts";
 
-// The UI reports one decimal place. Independent PDF.js renders of the same
-// page can differ at a handful of antialiased edge pixels, so changes below
-// half that visible precision are raster noise, not a meaningful document diff.
-const MIN_VISIBLE_DIFF_PERCENT = 0.05;
-
-/**
- * Convert a canvas to a Blob URL (more memory-efficient than data-URLs).
- * The caller is responsible for revoking the URL via `URL.revokeObjectURL`.
- */
-async function canvasToBlobUrl(canvas: HTMLCanvasElement): Promise<string> {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(URL.createObjectURL(blob));
-      else reject(new Error("Canvas toBlob returned null"));
-    }, "image/png");
-  });
-}
-
-/** Rendered data for a single page pair. */
-interface PageComparison {
-  /** 1-based page number. */
-  page: number;
-  /** Blob URL of the rendered page from the first PDF (or null if beyond its page count). */
-  thumbA: string | null;
-  /** Blob URL of the rendered page from the second PDF (or null if beyond its page count). */
-  thumbB: string | null;
-  /** Blob URL of the pixel-diff overlay (red highlight on transparent). */
-  diffThumb: string | null;
-  /** Percentage of pixels that differ (0–100). */
-  diffPercent: number;
-}
-
-/**
- * Render a single page of a PDF at the given scale and return the canvas.
- * The caller owns the canvas and must release its memory.
- */
-async function renderPageToCanvas(
-  pdf: PDFDocumentProxy,
-  pageNum: number,
-  scale: number,
-): Promise<HTMLCanvasElement> {
-  const page = await pdf.getPage(pageNum);
-  const viewport = page.getViewport({ scale });
-  const canvas = document.createElement("canvas");
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error(`Failed to acquire 2D context for page ${pageNum}`);
-  await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-  // Release this page's decoded fonts / operator list / images now, so a
-  // full-document compare doesn't pile every page's cache onto the proxy (both
-  // docs) until the final destroy() — peak-memory spike on large PDFs. Matches
-  // pdf-renderer.ts. The caller only uses the returned canvas, never re-reads
-  // the page proxy, so cleaning here is safe.
-  page.cleanup();
-  return canvas;
-}
-
-/**
- * Compare two canvases pixel-by-pixel. Returns a transparent diff canvas
- * (changed pixels painted in the diffHighlight red, unchanged pixels left
- * fully transparent so it can be layered over a page image) and the
- * percentage of pixels that differ beyond the colour threshold.
- */
-function diffCanvases(
-  canvasA: HTMLCanvasElement,
-  canvasB: HTMLCanvasElement,
-  threshold = 30,
-): { diffCanvas: HTMLCanvasElement; diffPercent: number } {
-  // Use the larger dimensions to handle mismatched sizes
-  const w = Math.max(canvasA.width, canvasB.width);
-  const h = Math.max(canvasA.height, canvasB.height);
-
-  const diffCanvas = document.createElement("canvas");
-  diffCanvas.width = w;
-  diffCanvas.height = h;
-  const diffCtx = diffCanvas.getContext("2d");
-  if (!diffCtx) throw new Error("Failed to acquire 2D context for diff canvas");
-
-  // Get pixel data from both canvases (resized to common dimensions)
-  const tmpA = document.createElement("canvas");
-  tmpA.width = w;
-  tmpA.height = h;
-  const ctxA = tmpA.getContext("2d");
-  if (!ctxA) throw new Error("Failed to acquire 2D context");
-  ctxA.drawImage(canvasA, 0, 0, w, h);
-  const dataA = ctxA.getImageData(0, 0, w, h).data;
-
-  const tmpB = document.createElement("canvas");
-  tmpB.width = w;
-  tmpB.height = h;
-  const ctxB = tmpB.getContext("2d");
-  if (!ctxB) throw new Error("Failed to acquire 2D context");
-  ctxB.drawImage(canvasB, 0, 0, w, h);
-  const dataB = ctxB.getImageData(0, 0, w, h).data;
-
-  // Build the diff overlay
-  const diffImgData = diffCtx.createImageData(w, h);
-  const out = diffImgData.data;
-  let changedPixels = 0;
-  const totalPixels = w * h;
-
-  for (let i = 0; i < dataA.length; i += 4) {
-    const dr = Math.abs(dataA[i] - dataB[i]);
-    const dg = Math.abs(dataA[i + 1] - dataB[i + 1]);
-    const db = Math.abs(dataA[i + 2] - dataB[i + 2]);
-
-    if (dr > threshold || dg > threshold || db > threshold) {
-      // Mark changed pixel with diff highlight colour
-      out[i] = canvasColors.diffHighlight.r;
-      out[i + 1] = canvasColors.diffHighlight.g;
-      out[i + 2] = canvasColors.diffHighlight.b;
-      out[i + 3] = canvasColors.diffHighlight.a;
-      changedPixels++;
-    } else {
-      // Unchanged — transparent
-      out[i + 3] = 0;
-    }
-  }
-
-  diffCtx.putImageData(diffImgData, 0, 0);
-
-  // Release temp canvases
-  tmpA.width = 0;
-  tmpA.height = 0;
-  tmpB.width = 0;
-  tmpB.height = 0;
-
-  const rawDiffPercent = totalPixels > 0 ? (changedPixels / totalPixels) * 100 : 0;
-  if (rawDiffPercent < MIN_VISIBLE_DIFF_PERCENT) {
-    // Keep the overlay and summary consistent with the displayed "Identical"
-    // result instead of retaining imperceptible antialiasing speckles.
-    diffCtx.clearRect(0, 0, w, h);
-    return { diffCanvas, diffPercent: 0 };
-  }
-  return { diffCanvas, diffPercent: rawDiffPercent };
-}
-
-/**
- * Compare all pages of two PDFs and return per-page comparison data.
- */
-async function comparePdfs(
-  pdfA: PDFDocumentProxy,
-  pdfB: PDFDocumentProxy,
-  scale: number,
-  onProgress?: (done: number, total: number) => void,
-): Promise<PageComparison[]> {
-  const maxPages = Math.max(pdfA.numPages, pdfB.numPages);
-  const results: PageComparison[] = [];
-
-  try {
-    for (let p = 1; p <= maxPages; p++) {
-      let canvasA: HTMLCanvasElement | null = null;
-      let canvasB: HTMLCanvasElement | null = null;
-
-      if (p <= pdfA.numPages) canvasA = await renderPageToCanvas(pdfA, p, scale);
-      if (p <= pdfB.numPages) canvasB = await renderPageToCanvas(pdfB, p, scale);
-
-      let thumbA: string | null = null;
-      let thumbB: string | null = null;
-      let diffThumb: string | null = null;
-      let diffPercent = 0;
-
-      if (canvasA) thumbA = await canvasToBlobUrl(canvasA);
-      if (canvasB) thumbB = await canvasToBlobUrl(canvasB);
-
-      if (canvasA && canvasB) {
-        const { diffCanvas, diffPercent: pct } = diffCanvases(canvasA, canvasB);
-        diffThumb = await canvasToBlobUrl(diffCanvas);
-        diffPercent = pct;
-        diffCanvas.width = 0;
-        diffCanvas.height = 0;
-      } else {
-        // One side is missing — 100% different
-        diffPercent = 100;
-      }
-
-      // Release canvas memory
-      if (canvasA) {
-        canvasA.width = 0;
-        canvasA.height = 0;
-      }
-      if (canvasB) {
-        canvasB.width = 0;
-        canvasB.height = 0;
-      }
-
-      results.push({ page: p, thumbA, thumbB, diffThumb, diffPercent });
-      onProgress?.(p, maxPages);
-    }
-  } catch (err) {
-    // A later page failed — the partial results never reach state, so revoke
-    // the blob URLs we've already created before they leak.
-    for (const c of results) {
-      if (c.thumbA) URL.revokeObjectURL(c.thumbA);
-      if (c.thumbB) URL.revokeObjectURL(c.thumbB);
-      if (c.diffThumb) URL.revokeObjectURL(c.diffThumb);
-    }
-    throw err;
-  }
-
-  return results;
-}
-
-/** Badge colour based on diff percentage. */
-function diffBadgeClass(pct: number): string {
-  if (pct === 0) return "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300";
-  if (pct < 5) return "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300";
-  return "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300";
-}
-
+type FileSlot = { file: File; state: "checking" | "ready" | "encrypted" | "error" } | null;
+type Side = 0 | 1;
 type ViewMode = "side-by-side" | "diff-overlay";
+const names = ["Original", "Modified"] as const;
+function pageStatus(page: PageComparison) {
+  if (!page.thumbA) return "Only in modified PDF";
+  if (!page.thumbB) return "Only in original PDF";
+  return page.diffPercent === 0 ? "Identical" : `${page.diffPercent.toFixed(1)}% changed`;
+}
 
 export default function ComparePdf() {
-  const [fileA, setFileA] = useState<File | null>(null);
-  const [fileB, setFileB] = useState<File | null>(null);
-  const [encryptedA, setEncryptedA] = useState<File | null>(null);
-  const [encryptedB, setEncryptedB] = useState<File | null>(null);
+  const [files, setFiles] = useState<[FileSlot, FileSlot]>([null, null]);
   const [comparisons, setComparisons] = useState<PageComparison[]>([]);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("side-by-side");
   const [currentPage, setCurrentPage] = useState(0);
-  const [showDiffOverlay, setShowDiffOverlay] = useState(true);
+  const [showDiff, setShowDiff] = useState(true);
+  const root = useRef<HTMLDivElement>(null);
+  const alive = useRef(true);
+  const generation = useRef([0, 0]);
+  const operation = useRef<AbortController | null>(null);
+  const ownedResults = useRef<PageComparison[]>([]);
+  const focusRequest = useRef<string | null>(null);
 
-  // The compare workflow aliases the shared hook's "processing" as "loading"
-  // to match this tool's pre-existing vocabulary (there's no separate upload
-  // step — comparison runs in one shot).
-  const task = useAsyncProcess();
-  const loading = task.processing;
-  const error = task.error;
-  const setError = task.setError;
-
-  // Revoke any live page/diff blob URLs when the tool unmounts (e.g. the user
-  // navigates home or to another tool). A ref keeps the latest comparisons so
-  // the empty-dep cleanup doesn't capture a stale array. The handleCompare/reset
-  // revocations still cover the in-tool re-run and "New comparison" paths.
-  const comparisonsRef = useRef(comparisons);
-  comparisonsRef.current = comparisons;
-  useEffect(
-    () => () => {
-      for (const c of comparisonsRef.current) {
-        if (c.thumbA) URL.revokeObjectURL(c.thumbA);
-        if (c.thumbB) URL.revokeObjectURL(c.thumbB);
-        if (c.diffThumb) URL.revokeObjectURL(c.diffThumb);
-      }
-    },
-    [],
-  );
-
-  const handleFileA = useCallback(
-    async (files: File[]) => {
-      const pdf = files[0];
-      if (!pdf) return;
-      if (await isPdfEncrypted(pdf)) {
-        setEncryptedA(pdf);
-        return;
-      }
-      setEncryptedA(null);
-      setFileA(pdf);
-      setComparisons([]);
-      setError(null);
-    },
-    [setError],
-  );
-
-  const handleFileB = useCallback(
-    async (files: File[]) => {
-      const pdf = files[0];
-      if (!pdf) return;
-      if (await isPdfEncrypted(pdf)) {
-        setEncryptedB(pdf);
-        return;
-      }
-      setEncryptedB(null);
-      setFileB(pdf);
-      setComparisons([]);
-      setError(null);
-    },
-    [setError],
-  );
-
-  const clearEncryptedA = useCallback(() => setEncryptedA(null), []);
-  const clearEncryptedB = useCallback(() => setEncryptedB(null), []);
-
-  const handleCompare = useCallback(async () => {
-    if (!fileA || !fileB) return;
-    // Revoke any existing blob URLs before starting a new comparison
-    for (const c of comparisons) {
-      if (c.thumbA) URL.revokeObjectURL(c.thumbA);
-      if (c.thumbB) URL.revokeObjectURL(c.thumbB);
-      if (c.diffThumb) URL.revokeObjectURL(c.diffThumb);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      generation.current[0]++;
+      generation.current[1]++;
+      operation.current?.abort();
+      operation.current = null;
+      releaseComparisons(ownedResults.current);
+      ownedResults.current = [];
+    };
+  }, []);
+  useEffect(() => {
+    if (!focusRequest.current) return;
+    const target = root.current?.querySelector<HTMLElement>(focusRequest.current);
+    if (target) {
+      target.focus();
+      focusRequest.current = null;
     }
-    setProgress(null);
+  });
+
+  useEffect(() => {
+    const strip = root.current?.querySelector<HTMLElement>(".pdf-compare-pages");
+    if (!strip) return;
+    // Keep the current thumbnail visible without moving the document vertically.
+    const revealCurrent = () => {
+      const selected = strip.querySelector<HTMLElement>('[aria-pressed="true"]');
+      if (!selected) return;
+      const area = strip.getBoundingClientRect();
+      const item = selected.getBoundingClientRect();
+      const inset = parseFloat(getComputedStyle(strip).paddingInlineStart);
+      if (item.left < area.left + inset) strip.scrollLeft += item.left - area.left - inset;
+      else if (item.right > area.right - inset) strip.scrollLeft += item.right - area.right + inset;
+    };
+    revealCurrent();
+    const observer = new ResizeObserver(revealCurrent);
+    observer.observe(strip);
+    return () => observer.disconnect();
+  }, [currentPage, comparisons.length]);
+
+  const clearResults = () => {
+    releaseComparisons(ownedResults.current);
+    ownedResults.current = [];
     setComparisons([]);
     setCurrentPage(0);
-
-    const ok = await task.run(async () => {
-      const [bufA, bufB] = await Promise.all([fileA.arrayBuffer(), fileB.arrayBuffer()]);
-      const taskA = pdfjsLib.getDocument({ data: bufA, wasmUrl: PDFJS_WASM_URL });
-      const taskB = pdfjsLib.getDocument({ data: bufB, wasmUrl: PDFJS_WASM_URL });
-      const [pdfA, pdfB] = await Promise.all([taskA.promise, taskB.promise]);
-
-      // Tear both documents down in a finally: comparePdfs renders every page of
-      // both at 1.5×, which is exactly when a decode/OOM throw is most likely —
-      // and a throw here used to skip the destroy() calls, leaking two
-      // PDFDocumentProxy (each pinning its worker transport + the full file
-      // ArrayBuffer) for the rest of the session. Mirrors ExtractImages.
-      let results: PageComparison[];
-      try {
-        results = await comparePdfs(pdfA, pdfB, 1.5, (done, total) => setProgress({ done, total }));
-      } finally {
-        void taskA.destroy();
-        void taskB.destroy();
-      }
-
-      setComparisons(results);
-    }, "Failed to compare PDFs. One of the files may be corrupted or password-protected.");
-    void ok;
-    setProgress(null);
-  }, [fileA, fileB, comparisons, task]);
-
-  const reset = useCallback(() => {
-    // Revoke blob URLs to free memory
-    for (const c of comparisons) {
-      if (c.thumbA) URL.revokeObjectURL(c.thumbA);
-      if (c.thumbB) URL.revokeObjectURL(c.thumbB);
-      if (c.diffThumb) URL.revokeObjectURL(c.diffThumb);
-    }
-    setFileA(null);
-    setFileB(null);
-    setComparisons([]);
     setError(null);
-    setCurrentPage(0);
-  }, [comparisons, setError]);
+    setNotice("");
+  };
+  const putFile = (side: Side, value: FileSlot) =>
+    setFiles((previous) => {
+      const next: [FileSlot, FileSlot] = [...previous];
+      next[side] = value;
+      return next;
+    });
+  const changeFile = (side: Side) => {
+    if (operation.current) return;
+    generation.current[side]++;
+    clearResults();
+    putFile(side, null);
+    focusRequest.current = `[data-compare-side="${side}"] input[type="file"]`;
+  };
+  const selectFile = async (side: Side, incoming: File[]) => {
+    const file = incoming[0];
+    if (!file || operation.current) return;
+    const request = ++generation.current[side];
+    clearResults();
+    putFile(side, { file, state: "checking" });
+    focusRequest.current = `[data-compare-side="${side}"] button`;
+    try {
+      const encrypted = await isPdfEncrypted(file);
+      if (!alive.current || request !== generation.current[side]) return;
+      putFile(side, { file, state: encrypted ? "encrypted" : "ready" });
+      if (encrypted) focusRequest.current = `[data-compare-side="${side}"] button`;
+    } catch {
+      if (!alive.current || request !== generation.current[side]) return;
+      putFile(side, { file, state: "error" });
+      focusRequest.current = `[data-compare-side="${side}"] .pdf-compare-read-error`;
+    }
+  };
+  const handleCompare = async () => {
+    if (operation.current || files[0]?.state !== "ready" || files[1]?.state !== "ready") return;
+    const controller = new AbortController();
+    operation.current = controller;
+    clearResults();
+    setBusy(true);
+    setProgress(null);
+    const current = () => alive.current && operation.current === controller;
+    try {
+      const results = await comparePdfFiles(
+        [files[0].file, files[1].file],
+        controller.signal,
+        (done, total) => {
+          if (current()) setProgress({ done, total });
+        },
+      );
+      if (!current()) {
+        releaseComparisons(results);
+        return;
+      }
+      ownedResults.current = results;
+      setComparisons(results);
+      focusRequest.current = "#comparison-heading";
+    } catch {
+      if (current() && !controller.signal.aborted) {
+        setError(
+          "Could not compare these PDFs. Your files are still here. Try again, or choose a different file.",
+        );
+        focusRequest.current = "#comparison-error";
+      }
+    } finally {
+      if (current()) {
+        operation.current = null;
+        setBusy(false);
+        setProgress(null);
+      }
+    }
+  };
+  const cancel = () => {
+    operation.current?.abort();
+    operation.current = null;
+    setBusy(false);
+    setProgress(null);
+    setNotice("Comparison cancelled. Your files are ready to try again.");
+    focusRequest.current = ".pdf-operation-actions button";
+  };
+  const reset = () => {
+    cancel();
+    generation.current[0]++;
+    generation.current[1]++;
+    clearResults();
+    setFiles([null, null]);
+    setViewMode("side-by-side");
+    setShowDiff(true);
+    focusRequest.current = '[data-compare-side="0"] input[type="file"]';
+  };
+  const identical = comparisons.filter((page) => page.diffPercent === 0).length;
+  const current = comparisons[currentPage];
+  const base = current?.thumbA ?? current?.thumbB;
+  const ready = files.every((file) => file?.state === "ready");
 
-  const summary = useMemo(() => {
-    if (comparisons.length === 0) return null;
-    const identical = comparisons.filter((c) => c.diffPercent === 0).length;
-    const changed = comparisons.length - identical;
-    const avgDiff = comparisons.reduce((sum, c) => sum + c.diffPercent, 0) / comparisons.length;
-    return { identical, changed, avgDiff, total: comparisons.length };
-  }, [comparisons]);
-
-  const current = comparisons[currentPage] as PageComparison | undefined;
-
-  // ── Upload screen (no files, or files loaded but not yet compared / still comparing) ──
-  if (!fileA || !fileB || comparisons.length === 0 || loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* File A */}
-          <div className="space-y-2">
-            <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
-              A / Original PDF
-            </h2>
-            {fileA ? (
-              <FileInfoBar
-                fileName={fileA.name}
-                details={formatFileSize(fileA.size)}
-                onChangeFile={() => {
-                  setFileA(null);
-                  setComparisons([]);
-                }}
-              />
-            ) : (
-              <FileDropZone
-                accept=".pdf,application/pdf"
-                onFiles={handleFileA}
-                encryptedFile={encryptedA}
-                onClearEncrypted={clearEncryptedA}
-                label="Drop the original PDF"
-                hint="First document to compare"
-              />
-            )}
-          </div>
-
-          {/* File B */}
-          <div className="space-y-2">
-            <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
-              B / Modified PDF
-            </h2>
-            {fileB ? (
-              <FileInfoBar
-                fileName={fileB.name}
-                details={formatFileSize(fileB.size)}
-                onChangeFile={() => {
-                  setFileB(null);
-                  setComparisons([]);
-                }}
-              />
-            ) : (
-              <FileDropZone
-                accept=".pdf,application/pdf"
-                onFiles={handleFileB}
-                encryptedFile={encryptedB}
-                onClearEncrypted={clearEncryptedB}
-                label="Drop the modified PDF"
-                hint="Second document to compare"
-              />
-            )}
-          </div>
-        </div>
-
-        {fileA && fileB && (
-          <>
-            <ActionButton
-              onClick={handleCompare}
-              processing={loading}
-              label="Compare PDFs"
-              processingLabel="Comparing…"
-            />
-
-            {loading && progress && (
-              <ProgressBar
-                current={progress.done}
-                total={progress.total}
-                label="Comparing pages…"
-              />
-            )}
-          </>
-        )}
-
-        {error && <AlertBox message={error} />}
-      </div>
-    );
-  }
-
-  // ── Comparison results ───────────────────────────────────────
   return (
-    <div className="space-y-6">
-      {/* Summary banner */}
-      {summary && (
-        <div className="border-y border-[var(--color-rule)] py-3">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="font-mono text-[11px] text-[var(--color-ink-3)]">
-                <span className="font-semibold tabular-nums text-[var(--color-ink)]">
-                  {summary.total}
-                </span>{" "}
-                page{summary.total !== 1 && "s"} compared
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-sm bg-green-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums text-green-700 dark:bg-green-900/40 dark:text-green-300">
-                  {summary.identical} identical
-                </span>
-                {summary.changed > 0 && (
-                  <span className="inline-flex items-center rounded-sm bg-red-100 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums text-red-700 dark:bg-red-900/40 dark:text-red-300">
-                    {summary.changed} changed
-                  </span>
-                )}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={reset}
-              className="-mx-2 inline-flex min-h-11 items-center rounded-sm px-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-primary-600 transition-colors hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+    <div ref={root} className="pdf-compare">
+      <div className="pdf-compare-pair">
+        {([0, 1] as const).map((side) => {
+          const slot = files[side];
+          return (
+            <section
+              key={side}
+              data-compare-side={side}
+              className="pdf-compare-file"
+              aria-labelledby={`compare-file-${side}`}
             >
+              <h2 id={`compare-file-${side}`}>{names[side]} PDF</h2>
+              {slot && slot.state !== "encrypted" ? (
+                <>
+                  <FileInfoBar
+                    fileName={slot.file.name}
+                    details={formatFileSize(slot.file.size)}
+                    status={slot.state === "checking" ? "Checking PDF…" : undefined}
+                    disabled={busy}
+                    onChangeFile={() => changeFile(side)}
+                    changeLabel={slot.state === "checking" ? "Cancel check" : "Change file"}
+                  />
+                  {slot.state === "error" && (
+                    <div className="pdf-compare-read-error" tabIndex={-1}>
+                      <AlertBox message="Could not read this PDF. Choose a valid, unprotected PDF and try again." />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <FileDropZone
+                  accept=".pdf,application/pdf"
+                  onFiles={(incoming) => void selectFile(side, incoming)}
+                  disabled={busy}
+                  encryptedFile={slot?.state === "encrypted" ? slot.file : null}
+                  onClearEncrypted={() => changeFile(side)}
+                  label={`Drop the ${names[side].toLowerCase()} PDF`}
+                  hint={
+                    side === 0 ? "The version you started with" : "The version you want to check"
+                  }
+                />
+              )}
+            </section>
+          );
+        })}
+      </div>
+      {!current && (
+        <>
+          <p className="air-help">
+            Compare visible page content locally. Text, images and page sizes are checked; hidden
+            metadata is not compared.
+          </p>
+          {ready && (
+            <div className="pdf-compare-actions">
+              <ActionButton
+                onClick={() => void handleCompare()}
+                processing={busy}
+                label="Compare PDFs"
+                processingLabel="Comparing…"
+              />
+              {busy && (
+                <button type="button" className="air-button" onClick={cancel}>
+                  Cancel comparison
+                </button>
+              )}
+            </div>
+          )}
+          {busy && (
+            <ProgressBar
+              current={progress?.done ?? 0}
+              total={progress?.total ?? 0}
+              label="Comparing pages…"
+            />
+          )}
+          {error && (
+            <div id="comparison-error" tabIndex={-1}>
+              <AlertBox message={error} />
+            </div>
+          )}
+          <p className="air-help" role="status">
+            {notice}
+          </p>
+        </>
+      )}
+      {current && (
+        <section className="pdf-compare-results" aria-labelledby="comparison-heading">
+          <div className="air-collection-heading">
+            <div>
+              <h2 id="comparison-heading" tabIndex={-1}>
+                {comparisons.length} {comparisons.length === 1 ? "page" : "pages"} compared
+              </h2>
+              <p className="air-help">
+                {identical} identical · {comparisons.length - identical} changed
+              </p>
+            </div>
+            <button type="button" className="air-button" onClick={reset}>
               New comparison
             </button>
           </div>
-        </div>
-      )}
-
-      {/* View mode toggle & page nav */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <SegmentedControl
-          ariaLabel="View mode"
-          value={viewMode}
-          onChange={setViewMode}
-          options={[
-            { value: "side-by-side", label: "Side by Side", icon: ArrowLeftRight },
-            { value: "diff-overlay", label: "Diff Overlay", icon: Layers },
-          ]}
-        />
-
-        {/* Page navigation — shared stepper, prominent bordered pager */}
-        <PagePreviewNav
-          page={currentPage}
-          total={comparisons.length}
-          onChange={setCurrentPage}
-          variant="bordered"
-        />
-      </div>
-
-      {/* Current page comparison */}
-      {current && (
-        <div className="space-y-3">
-          {/* Diff badge */}
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-flex items-center rounded-sm px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.05em] tabular-nums ${diffBadgeClass(current.diffPercent)}`}
-            >
-              {current.diffPercent === 0
-                ? "Identical"
-                : `${current.diffPercent.toFixed(1)}% changed`}
-            </span>
-            {!current.thumbA && (
-              <span className="text-xs text-slate-500 dark:text-dark-text-muted">
-                Page only in modified PDF
-              </span>
-            )}
-            {!current.thumbB && (
-              <span className="text-xs text-slate-500 dark:text-dark-text-muted">
-                Page only in original PDF
-              </span>
+          <div className="pdf-compare-toolbar">
+            <SegmentedControl
+              value={viewMode}
+              onChange={setViewMode}
+              ariaLabel="Comparison view"
+              options={[
+                { value: "side-by-side", label: "Side by side" },
+                { value: "diff-overlay", label: "Difference overlay" },
+              ]}
+            />
+            <PagePreviewNav
+              page={currentPage}
+              total={comparisons.length}
+              onChange={setCurrentPage}
+            />
+          </div>
+          <div className="pdf-compare-page-status">
+            <p role="status">
+              <span>Page {current.page}</span>
+              <span>{pageStatus(current)}</span>
+            </p>
+            {viewMode === "diff-overlay" && current.diffThumb && (
+              <label className="air-check-label">
+                <input
+                  type="checkbox"
+                  className="air-check"
+                  checked={showDiff}
+                  onChange={(event) => setShowDiff(event.target.checked)}
+                />
+                Show differences
+              </label>
             )}
           </div>
-
           {viewMode === "side-by-side" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* File A */}
-              <div className="space-y-1.5">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                  A / Original
-                </p>
-                <div className="rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)]">
-                  {current.thumbA ? (
-                    <img
-                      src={current.thumbA}
-                      alt={`Original — page ${current.page}`}
-                      className="w-full h-auto"
-                    />
+            <div className="pdf-compare-pair">
+              {([current.thumbA, current.thumbB] as const).map((url, side) => (
+                <figure key={side} className="pdf-compare-preview">
+                  <figcaption>
+                    {names[side]} · Page {current.page}
+                  </figcaption>
+                  {url ? (
+                    <img src={url} alt={`${names[side]} — page ${current.page}`} />
                   ) : (
-                    <div className="aspect-3/4 flex items-center justify-center text-slate-500 dark:text-dark-text-muted text-sm">
-                      No page
+                    <div className="pdf-compare-missing">
+                      No page {current.page} in the {names[side].toLowerCase()} PDF
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* File B */}
-              <div className="space-y-1.5">
-                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-                  B / Modified
-                </p>
-                <div className="rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)]">
-                  {current.thumbB ? (
-                    <img
-                      src={current.thumbB}
-                      alt={`Modified — page ${current.page}`}
-                      className="w-full h-auto"
-                    />
-                  ) : (
-                    <div className="aspect-3/4 flex items-center justify-center text-slate-500 dark:text-dark-text-muted text-sm">
-                      No page
-                    </div>
-                  )}
-                </div>
-              </div>
+                </figure>
+              ))}
             </div>
           ) : (
-            /* Diff overlay view */
-            <div className="space-y-2">
-              <div className="flex items-center justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowDiffOverlay((v) => !v)}
-                  className="flex items-center gap-1.5 min-h-11 px-2 -mx-2 rounded text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:text-slate-700 dark:hover:text-dark-text active:text-slate-800 dark:active:text-dark-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                >
-                  {showDiffOverlay ? (
-                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                  ) : (
-                    <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-                  )}
-                  {showDiffOverlay ? "Diff on" : "Diff off"}
-                </button>
-              </div>
-              <div className="relative rounded-lg overflow-hidden border border-[var(--color-rule)] bg-[var(--color-surface)] max-w-4xl mx-auto">
-                {current.thumbA ? (
+            <figure className="pdf-compare-overlay">
+              <figcaption>
+                {current.thumbA ? "Original" : "Modified"} · Page {current.page}
+                {showDiff && current.diffThumb ? " · Differences in red" : ""}
+              </figcaption>
+              <div
+                className="pdf-compare-plane"
+                style={{
+                  aspectRatio: `${current.width} / ${current.height}`,
+                  background: canvasColors.background,
+                }}
+              >
+                {base && (
                   <img
-                    src={current.thumbA}
-                    alt={`Original — page ${current.page}`}
-                    className="w-full h-auto"
-                  />
-                ) : current.thumbB ? (
-                  <img
-                    src={current.thumbB}
-                    alt={`Modified — page ${current.page}`}
-                    className="w-full h-auto"
-                  />
-                ) : null}
-                {showDiffOverlay && current.diffThumb && (
-                  <img
-                    src={current.diffThumb}
-                    alt="Difference overlay"
-                    className="absolute inset-0 w-full h-full"
+                    src={base}
+                    alt={`${current.thumbA ? "Original" : "Modified"} — page ${current.page}`}
+                    style={{
+                      width: `${((current.thumbA ? current.widthA : current.widthB) / current.width) * 100}%`,
+                      height: `${((current.thumbA ? current.heightA : current.heightB) / current.height) * 100}%`,
+                    }}
                   />
                 )}
+                {showDiff && current.diffThumb && (
+                  <img src={current.diffThumb} alt={`Differences — page ${current.page}`} />
+                )}
               </div>
+            </figure>
+          )}
+          {comparisons.length > 1 && (
+            <div
+              className="air-segments pdf-compare-pages"
+              role="group"
+              aria-label="Compared pages"
+            >
+              {comparisons.map((page, index) => (
+                <button
+                  type="button"
+                  key={page.page}
+                  aria-pressed={index === currentPage}
+                  aria-label={`Page ${page.page}: ${pageStatus(page)}`}
+                  onClick={() => setCurrentPage(index)}
+                >
+                  <span className="pdf-compare-thumbnail">
+                    <img src={(page.thumbA ?? page.thumbB)!} alt="" />
+                  </span>
+                  <span>Page {page.page}</span>
+                  <span className="air-help">{pageStatus(page)}</span>
+                </button>
+              ))}
             </div>
           )}
-        </div>
+          <p className="air-help">Visual comparison only. Your original PDFs are unchanged.</p>
+        </section>
       )}
-
-      {/* Page strip — mini thumbnails for quick navigation */}
-      <div className="border-y border-[var(--color-rule)] py-3">
-        <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-          All Pages
-        </p>
-        <div className="flex gap-2 overflow-x-auto thin-scrollbar pb-1">
-          {comparisons.map((comp) => (
-            <button
-              type="button"
-              key={comp.page}
-              onClick={() => setCurrentPage(comp.page - 1)}
-              className={`cloak-focus relative shrink-0 w-14 xl:w-16 rounded-md overflow-hidden border-2 transition-colors ${
-                comp.page - 1 === currentPage
-                  ? "border-primary-500 ring-2 ring-primary-200 dark:ring-primary-800"
-                  : "border-slate-200 dark:border-dark-border hover:border-primary-300"
-              }`}
-              aria-current={comp.page - 1 === currentPage}
-              aria-label={`Page ${comp.page}`}
-            >
-              <div className="aspect-3/4 bg-slate-50 dark:bg-dark-bg flex items-center justify-center">
-                {comp.thumbA ? (
-                  <img
-                    src={comp.thumbA}
-                    alt={`Page ${comp.page}`}
-                    className="w-full h-full object-contain"
-                  />
-                ) : comp.thumbB ? (
-                  <img
-                    src={comp.thumbB}
-                    alt={`Page ${comp.page}`}
-                    className="w-full h-full object-contain"
-                  />
-                ) : null}
-              </div>
-              <div
-                className={`absolute bottom-0 left-0 right-0 h-1 ${
-                  comp.diffPercent === 0
-                    ? "bg-green-400"
-                    : comp.diffPercent < 5
-                      ? "bg-amber-400"
-                      : "bg-red-400"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {error && <AlertBox message={error} />}
     </div>
   );
 }

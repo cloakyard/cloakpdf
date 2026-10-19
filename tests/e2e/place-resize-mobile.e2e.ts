@@ -145,6 +145,7 @@ async function main() {
     defaultViewport: { width: 390, height: 844, isMobile: true, hasTouch: true },
   });
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(25_000);
     page.on("console", (m) => {
@@ -169,12 +170,14 @@ async function main() {
     );
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    const toast = await page.$('[aria-label="Dismiss cache status"]');
+    if (toast) await toast.click();
     const bb = await pageBox(page);
     const pageAspect = bb.width / bb.height;
 
     // ── Signature ──────────────────────────────────────────────────────────
     await pickTool(page, "Signature");
-    await waitText(page, /Draw or upload a signature/i);
+    await page.waitForSelector('[data-testid="mobile-tool-sheet"] canvas');
     const sliders = await page.$$eval('input[type="range"]', (els) => els.length);
     if (sliders !== 0) fail(`Mobile signature panel still has a slider (${sliders}).`);
 
@@ -191,7 +194,7 @@ async function main() {
     )) as ElementHandle<HTMLInputElement> | null;
     if (!up) fail("Signature upload input not found.");
     await up.uploadFile(pngPath);
-    await waitText(page, /Tap the page to place/i);
+    await page.waitForSelector('img[alt="Signature preview"]');
 
     const f = await sheetFraction(page);
     if (f < 0.49 || f > 0.51)
@@ -248,7 +251,7 @@ async function main() {
     }
     console.log(`✓ mobile place-resize verification passed — screenshots in ${SHOT_DIR}`);
   } catch (e) {
-    console.error(`✗ Failed: ${e instanceof Error ? e.message : String(e)}`);
+    console.error(`✗ Failed: ${e instanceof Error ? e.stack : String(e)}`);
     if (errors.length) for (const x of errors) console.error(`   ${x}`);
     try {
       await page.screenshot({ path: join(SHOT_DIR, "m-place-resize-fail.png") });

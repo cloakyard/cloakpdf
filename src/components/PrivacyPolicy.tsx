@@ -4,8 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
 const REPO_URL = "https://github.com/cloakyard/cloakpdf";
-const POLICY_LINK_CLASS =
-  "font-semibold text-[var(--color-accent)] underline decoration-[var(--color-rule-strong)] underline-offset-4 transition-colors hover:text-[var(--color-accent-hover)] active:text-[var(--color-accent-hover)] focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-paper)]";
+const POLICY_LINK_CLASS = "pdf-policy-link";
 
 interface PolicySectionProps {
   marker: string;
@@ -15,57 +14,43 @@ interface PolicySectionProps {
 
 function PolicySection({ marker, title, children }: PolicySectionProps) {
   return (
-    <section className="border-b border-[var(--color-rule)] py-10 sm:py-12">
-      <p className="m-0 font-mono text-[10px] font-semibold tracking-[0.1em] text-[var(--color-accent)] uppercase">
-        {marker}
-      </p>
-      <h2 className="mt-3 text-[clamp(1.55rem,3vw,2.15rem)] leading-tight font-[720] tracking-[-0.035em] text-[var(--color-ink)] text-balance">
-        {title}
-      </h2>
-      <div className="mt-5 space-y-4 text-base leading-[1.7] text-[var(--color-ink-2)]">
-        {children}
-      </div>
+    <section className="pdf-policy-section">
+      <p className="air-page-eyebrow">{marker}</p>
+      <h2>{title}</h2>
+      <div className="pdf-policy-body">{children}</div>
     </section>
   );
 }
 
 export function PrivacyPolicy() {
   return (
-    <article
-      aria-labelledby="privacy-title"
-      className="mx-auto w-full max-w-[48rem] py-14 sm:py-20"
-    >
-      <header className="border-b border-[var(--color-rule-strong)] pb-12 sm:pb-16">
-        <p className="m-0 flex items-center gap-2 font-mono text-[10px] font-semibold tracking-[0.1em] text-[var(--color-accent)] uppercase">
+    <article aria-labelledby="privacy-title" className="air-page pdf-policy">
+      <header className="pdf-policy-header">
+        <p className="pdf-policy-eyebrow air-page-eyebrow">
           <ShieldCheck className="size-4" aria-hidden="true" />
           CloakPDF / Privacy document
         </p>
-        <h1
-          id="privacy-title"
-          className="mt-6 min-w-0 text-[clamp(3.25rem,10vw,6.5rem)] leading-[0.91] font-[760] tracking-[-0.065em] text-[var(--color-ink)] text-balance wrap-anywhere"
-        >
-          Privacy policy.
-        </h1>
-        <p className="mt-8 max-w-[40rem] text-[clamp(1.1rem,2vw,1.3rem)] leading-relaxed text-[var(--color-ink-2)]">
+        <h1 id="privacy-title">Privacy policy.</h1>
+        <p className="air-page-lede">
           CloakPDF is a free, open-source PDF workbench. Document processing happens inside your
           browser; the application has no upload service, user account, advertising, or analytics
           pipeline.
         </p>
 
-        <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-[var(--color-rule)] pt-6 font-mono text-[10px] tracking-[0.06em] uppercase sm:grid-cols-3">
+        <dl className="air-reading-facts">
           <div>
-            <dt className="text-[var(--color-ink-3)]">Last updated</dt>
-            <dd className="mt-1 text-[var(--color-ink)]">
+            <dt>Last updated</dt>
+            <dd>
               <time dateTime="2026-07-18">July 18, 2026</time>
             </dd>
           </div>
           <div>
-            <dt className="text-[var(--color-ink-3)]">Document uploads</dt>
-            <dd className="mt-1 text-[var(--color-ink)]">None</dd>
+            <dt>Document uploads</dt>
+            <dd>None</dd>
           </div>
-          <div className="col-span-2 sm:col-span-1">
-            <dt className="text-[var(--color-ink-3)]">Product analytics</dt>
-            <dd className="mt-1 text-[var(--color-ink)]">None</dd>
+          <div>
+            <dt>Product analytics</dt>
+            <dd>None</dd>
           </div>
         </dl>
       </header>
@@ -90,7 +75,7 @@ export function PrivacyPolicy() {
           cookies, or install third-party analytics and advertising scripts. The application does
           not intentionally collect or retain personal information about how you use the tools.
         </p>
-        <ul className="list-disc space-y-2 pl-5 marker:text-[var(--color-rule-strong)]">
+        <ul className="pdf-policy-list">
           <li>No CloakPDF account or account identifier</li>
           <li>No document-content or document-metadata collection</li>
           <li>No behavioural analytics, advertising profile, or cross-site tracking</li>

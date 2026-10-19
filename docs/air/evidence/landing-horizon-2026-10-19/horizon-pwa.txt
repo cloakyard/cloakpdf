@@ -1,0 +1,4 @@
+$ node --experimental-strip-types tests/e2e/pwa-update.e2e.ts ⊘ cache disabled
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-pwa-update-P3J0AH
+PASS: 44 deferred-update layouts; real waiting-worker, editor, export, two-tab, standalone and race checks.
+

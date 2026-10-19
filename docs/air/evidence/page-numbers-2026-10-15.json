@@ -1,0 +1,485 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-320x568-light.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-320x568-dark.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-320x568-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-375x812-light.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-375x812-dark.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-375x812-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-390x844-light.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-390x844-dark.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-390x844-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-430x932-light.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-430x932-dark.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-430x932-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-844x390-light.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-844x390-dark.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-844x390-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-768x1024-light.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-768x1024-dark.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-768x1024-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1024x768-light.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1024x768-dark.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1024x768-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1280x720-light.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1280x720-dark.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1280x720-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1366x768-light.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1366x768-dark.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1366x768-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1440x900-light.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1440x900-dark.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1440x900-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1920x1080-light.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "position",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-position-1920x1080-dark.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "values",
+      "overflow": false,
+      "bad": [],
+      "file": "numbers-values-1920x1080-dark.png"
+    }
+  ],
+  "outputContent": {
+    "text": [
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 1",
+      "Body content on page 2  Page 7 of 8",
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 3  Page 8 of 8"
+    ],
+    "metadata": {
+      "PDFFormatVersion": "1.7",
+      "Language": null,
+      "EncryptFilterName": null,
+      "IsLinearized": false,
+      "IsAcroFormPresent": false,
+      "IsXFAPresent": false,
+      "IsCollectionPresent": false,
+      "IsSignaturesPresent": false,
+      "Producer": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "ModDate": "D:20261015103705Z",
+      "Creator": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "CreationDate": "D:20261015103658Z",
+      "Title": "Numbering acceptance",
+      "Author": "Synthetic author"
+    },
+    "attachments": ["reference.txt"]
+  },
+  "errors": [],
+  "date": "2026-10-15",
+  "scope": "CloakPDF Page numbers; shared PrecisionField and PositionGrid integration",
+  "visualReview": {
+    "requiredRegions": 44,
+    "enlargedTextRegions": 12,
+    "forcedColours": true,
+    "reducedMotion": true,
+    "sourceDirectory": "/tmp/cloakpdf-air-review",
+    "proofImages": [
+      "page-numbers-2026-10-15-position-1440x900-light.png",
+      "page-numbers-2026-10-15-position-768x1024-dark.png",
+      "page-numbers-2026-10-15-values-390x844-dark.png"
+    ],
+    "stampRegression": "Focused Stamp suite passed after shared-control extraction and spacing correction; desktop/light and phone/dark numeric regions visually rechecked."
+  },
+  "native": {
+    "Safari": "Dev build: keyboard format selection, cover skipping, invalid size correction, Apply, retained focus in Page number settings and Undo without preview resurrection pass. Temporary tab closed.",
+    "Firefox": "Final production build: actual 200% browser zoom, custom format menu, sequence entry, invalid margin correction, Apply/focus/Undo/re-arm pass. Zoom reset to 100%; temporary tab closed.",
+    "inApp": "Production tab 12 at 8132: synthetic Air numbers.pdf, Page 1 of N preview pending; default split, no viewport override."
+  },
+  "checks": {
+    "formatLintTypes": "pass",
+    "deadCode": "pass",
+    "unitTests": 412,
+    "unitFiles": 43,
+    "productionSmokeSuites": 16,
+    "extendedSuites": 7,
+    "focusedSuites": ["Page numbers", "Stamp", "page geometry"],
+    "productionBuild": "pass",
+    "designInventory": "89 records pass",
+    "portability": "pass",
+    "exactSync": "pass"
+  },
+  "cleanup": [
+    "Removed old PageNumbers panel/stage/default reader and duplicated formatter from StampTools",
+    "Extracted one real shared PrecisionField adapter and removed Stamp-specific numeric skins",
+    "Replaced PositionGrid legacy utilities with shared Air 3×2 page glyphs",
+    "Retained live Header/footer and Bates controls; no dependency added"
+  ],
+  "bundle": {
+    "editorRawKB": 307.6,
+    "editorGzipKB": 94.92,
+    "editorGzipDeltaKB": 1.87,
+    "cssRawKB": 145.95,
+    "cssGzipKB": 25.47,
+    "cssGzipDeltaKB": -0.03,
+    "deployAssets": 128,
+    "pwaEntries": 77
+  },
+  "correctedFindings": [
+    "Numeric row gaps did not apply to nested sections; shared numeric groups now use explicit flex layout and 16px separation.",
+    "Legacy smoke helper clicked the initially disabled Apply button and waited for a transient spinner. It now waits for readiness and confirmed completion. Full smoke rerun passes."
+  ],
+  "pending": [
+    "Physical touch and software keyboard",
+    "Actual OS IME",
+    "Assistive speech",
+    "Header/footer and Bates interiors",
+    "Remaining PDF/family migration"
+  ]
+}

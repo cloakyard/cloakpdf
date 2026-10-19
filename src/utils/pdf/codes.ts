@@ -13,6 +13,7 @@
  * documents. Everything runs client-side; no file leaves the browser.
  */
 
+import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFDocument, rgb, StandardFonts } from "@pdfme/pdf-lib";
 import { encodeQr } from "./qr.ts";
 
@@ -199,7 +200,7 @@ const BARCODE_CAPTION_RATIO = 0.16 * 1.5;
  *
  * @param file - The source PDF.
  * @param options - Symbology, payload, colour, caption.
- * @param placements - Per-page target boxes in PDF points.
+ * @param placements - Per-page target boxes in visible, rotated points, with a bottom-left origin.
  */
 export async function addCodeStampAt(
   file: File,
@@ -231,63 +232,65 @@ export async function addCodeStampAt(
     const page = allPages[pl.pageIndex];
     if (!page) continue;
 
-    if (options.type === "qr") {
-      // QR is square: use the box's smaller side, top-left anchored within it.
-      const side = Math.max(1, Math.min(pl.width, pl.height));
-      const ox = pl.x;
-      const oy = pl.y + (pl.height - side); // box top
-      page.drawRectangle({ x: ox, y: oy, width: side, height: side, color: white });
-      const quiet = 4;
-      const ms = side / (qrCount + quiet * 2);
-      for (let row = 0; row < qrCount; row++) {
-        for (let col = 0; col < qrCount; col++) {
-          if (!qrIsDark(row, col)) continue;
-          page.drawRectangle({
-            x: ox + (quiet + col) * ms,
-            y: oy + side - (quiet + row + 1) * ms,
-            width: ms,
-            height: ms,
+    await drawOnVisiblePage(page, () => {
+      if (options.type === "qr") {
+        // QR is square: use the box's smaller side, top-left anchored within it.
+        const side = Math.max(1, Math.min(pl.width, pl.height));
+        const ox = pl.x;
+        const oy = pl.y + (pl.height - side); // box top
+        page.drawRectangle({ x: ox, y: oy, width: side, height: side, color: white });
+        const quiet = 4;
+        const ms = side / (qrCount + quiet * 2);
+        for (let row = 0; row < qrCount; row++) {
+          for (let col = 0; col < qrCount; col++) {
+            if (!qrIsDark(row, col)) continue;
+            page.drawRectangle({
+              x: ox + (quiet + col) * ms,
+              y: oy + side - (quiet + row + 1) * ms,
+              width: ms,
+              height: ms,
+              color: fg,
+            });
+          }
+        }
+      } else {
+        const boxW = Math.max(1, pl.width);
+        const boxH = Math.max(1, pl.height);
+        // Split the box height into the bar band + (optional) caption block, with
+        // the same proportions addCodeStamp uses so a placed code looks the same.
+        const barH = options.caption ? boxH / (1 + BARCODE_CAPTION_RATIO) : boxH;
+        const captionFontSize = options.caption ? barH * 0.16 : 0;
+        const captionBlock = boxH - barH;
+        const moduleW = boxW / barTotalModules;
+        page.drawRectangle({ x: pl.x, y: pl.y, width: boxW, height: boxH, color: white });
+        const barBottom = pl.y + captionBlock;
+        let cursor = pl.x + 10 * moduleW; // left quiet zone
+        let isBar = true;
+        for (const ch of barPattern) {
+          const runW = Number(ch) * moduleW;
+          if (isBar) {
+            page.drawRectangle({ x: cursor, y: barBottom, width: runW, height: barH, color: fg });
+          }
+          cursor += runW;
+          isBar = !isBar;
+        }
+        if (font && captionFontSize > 0) {
+          let capSize = captionFontSize;
+          let tw = font.widthOfTextAtSize(content, capSize);
+          if (tw > boxW && tw > 0) {
+            capSize = Math.max(4, (capSize * boxW) / tw);
+            tw = font.widthOfTextAtSize(content, capSize);
+          }
+          page.drawText(content, {
+            x: pl.x + (boxW - tw) / 2,
+            y: pl.y + capSize * 0.25,
+            size: capSize,
+            font,
             color: fg,
           });
         }
       }
-    } else {
-      const boxW = Math.max(1, pl.width);
-      const boxH = Math.max(1, pl.height);
-      // Split the box height into the bar band + (optional) caption block, with
-      // the same proportions addCodeStamp uses so a placed code looks the same.
-      const barH = options.caption ? boxH / (1 + BARCODE_CAPTION_RATIO) : boxH;
-      const captionFontSize = options.caption ? barH * 0.16 : 0;
-      const captionBlock = boxH - barH;
-      const moduleW = boxW / barTotalModules;
-      page.drawRectangle({ x: pl.x, y: pl.y, width: boxW, height: boxH, color: white });
-      const barBottom = pl.y + captionBlock;
-      let cursor = pl.x + 10 * moduleW; // left quiet zone
-      let isBar = true;
-      for (const ch of barPattern) {
-        const runW = Number(ch) * moduleW;
-        if (isBar) {
-          page.drawRectangle({ x: cursor, y: barBottom, width: runW, height: barH, color: fg });
-        }
-        cursor += runW;
-        isBar = !isBar;
-      }
-      if (font && captionFontSize > 0) {
-        let capSize = captionFontSize;
-        let tw = font.widthOfTextAtSize(content, capSize);
-        if (tw > boxW && tw > 0) {
-          capSize = Math.max(4, (capSize * boxW) / tw);
-          tw = font.widthOfTextAtSize(content, capSize);
-        }
-        page.drawText(content, {
-          x: pl.x + (boxW - tw) / 2,
-          y: pl.y + capSize * 0.25,
-          size: capSize,
-          font,
-          color: fg,
-        });
-      }
-    }
+    });
   }
 
   return pdf.save();

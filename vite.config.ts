@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 import { defaultClientConditions, defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -11,6 +12,7 @@ declare const process: { env: Record<string, string | undefined> };
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8")) as {
   version: string;
 };
+const appBasePath = process.env.VITE_APP_BASE_PATH || "/";
 
 // pdfjs-dist v6 fetches WASM image decoders (jbig2 / openjpeg / qcms, plus JS
 // fallbacks and the quickjs scripting runtime) on demand to decode CCITT-fax,
@@ -61,7 +63,15 @@ export default defineConfig({
     // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
     clearMocks: false,
   },
-  base: process.env.VITE_APP_BASE_PATH || "/",
+  base: appBasePath,
+  build: {
+    rolldownOptions: {
+      input: {
+        app: fileURLToPath(new URL("./index.html", import.meta.url)),
+        notFound: fileURLToPath(new URL("./404.html", import.meta.url)),
+      },
+    },
+  },
   resolve: {
     // Transformers.js already loads version-matched ORT WASM from its CDN.
     // Select ORT's supported external-WASM entry so Vite does not also emit
@@ -77,6 +87,25 @@ export default defineConfig({
   },
   plugins: [
     pdfjsWasmAssets(),
+    {
+      name: "air-landing-assets",
+      generateBundle(_options, bundle) {
+        const shader = Object.values(bundle).find(
+          (asset) => asset.type === "chunk" && asset.fileName.includes("air-light-shader"),
+        );
+        if (!shader || shader.type !== "chunk") this.error("Expected a separate lazy Air shader");
+        if (gzipSync(shader.code).byteLength > 350_000)
+          this.error("Lazy Air shader exceeds 350 kB gzip");
+        this.emitFile({
+          type: "asset",
+          fileName: "air-light.LICENSE.txt",
+          source: readFileSync(
+            new URL("./docs/air/assets/THIRD_PARTY_LICENSES.txt", import.meta.url),
+            "utf8",
+          ),
+        });
+      },
+    },
     react(),
     tailwindcss(),
     VitePWA({
@@ -86,16 +115,16 @@ export default defineConfig({
         name: "CloakPDF",
         short_name: "CloakPDF",
         description:
-          "Open-source, privacy-focused PDF workbench with advanced editing, OCR, redaction, signatures, comparison, and on-device AI.",
-        theme_color: "#2563EB",
-        background_color: "#F0F4FA",
+          "Edit, organise and sign PDFs on your device. Open-source tools for redaction, OCR, comparison and on-device AI.",
+        theme_color: "#fafbfc",
+        background_color: "#fafbfc",
         display: "standalone",
         // Every top-level surface now has an intentional landscape layout.
         // Individual workflows can still show their own narrow-screen guidance,
         // but the installed app must not globally lock landing/privacy/editor.
         orientation: "any",
-        scope: process.env.VITE_APP_BASE_PATH || "/",
-        start_url: process.env.VITE_APP_BASE_PATH || "/",
+        scope: appBasePath,
+        start_url: appBasePath,
         icons: [
           {
             src: "icons/pwa-64x64.png",
@@ -123,31 +152,51 @@ export default defineConfig({
           },
         ],
         screenshots: [
-          // Screenshots taken from Chrome Dev Tools. Actual resolution may vary.
-          // iPhone 14 Pro Max (Portrait)
           {
-            src: "screenshots/iPhone.png",
-            sizes: "1290x2796",
+            src: "screenshots/editor-narrow-light.png",
+            sizes: "780x1688",
             type: "image/png",
             form_factor: "narrow",
-            label: "CloakPDF App on iPhone 14 Pro Max",
+            label: "Annotating a sample PDF in the light phone editor",
           },
-          // iPad Pro (Landscape)
           {
-            src: "screenshots/iPad.png",
-            sizes: "2732x2048",
+            src: "screenshots/editor-narrow-dark.png",
+            sizes: "780x1688",
+            type: "image/png",
+            form_factor: "narrow",
+            label: "Annotating a sample PDF in the dark phone editor",
+          },
+          {
+            src: "screenshots/editor-wide-light.png",
+            sizes: "1440x900",
             type: "image/png",
             form_factor: "wide",
-            label: "CloakPDF App on iPad Pro Landscape",
+            label: "Annotating a sample PDF in the light desktop editor",
+          },
+          {
+            src: "screenshots/editor-wide-dark.png",
+            sizes: "1440x900",
+            type: "image/png",
+            form_factor: "wide",
+            label: "Annotating a sample PDF in the dark desktop editor",
           },
         ],
       },
       workbox: {
+        // App views use in-memory state. Unknown URLs must reach the host's 404,
+        // even after installation, instead of being rewritten to the home screen.
+        navigateFallbackAllowlist: [
+          new RegExp(
+            `^${appBasePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:index\\.html)?(?:\\?.*)?$`,
+          ),
+        ],
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
         // The pdfjs WASM decoders + JS fallbacks are large and only needed for
         // scanned CCITT/JBIG2/JPEG2000 images; cache them on demand via
         // runtimeCaching below rather than bloating every install's precache.
-        globIgnores: ["**/pdfjs-wasm/**"],
+        // The landing artwork has an SVG fallback; its optional GPU code is not
+        // part of the offline document workspace or a reduced-motion visit.
+        globIgnores: ["**/pdfjs-wasm/**", "**/air-light-shader-*.js"],
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         navigationPreload: true,
@@ -266,7 +315,7 @@ export default defineConfig({
   // source. Keep the project's format gate focused on files we own instead of
   // rewriting that third-party instruction corpus.
   fmt: {
-    ignorePatterns: [".agents/**"],
+    ignorePatterns: [".agents/**", "docs/air/assets/**"],
   },
-  lint: { options: { typeAware: true, typeCheck: true } },
+  lint: { ignorePatterns: ["docs/air/assets/**"], options: { typeAware: true, typeCheck: true } },
 });

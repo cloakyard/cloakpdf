@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-14",
+  "scope": "CloakPDF Export dialog interior and export trigger",
+  "baseCommit": "747aa44",
+  "contractVersion": "1.0.0",
+  "changes": [
+    "Native Air format radios and compression segments, unboxed labelled switches, neutral actions and full filenames",
+    "Export-local phase/error/retry with synchronous duplicate guard; controls and dismissal protected during non-cancellable preparation",
+    "Single-page Images accurately described as PNG; multiple pages ZIP; permanent redaction and unapplied page-change disclosures retained",
+    "Download helper releases temporary anchor and URL on failure as well as success",
+    "Compact export trigger avoids tablet label squeezing; shared dialog frame and processing routines retained",
+    "Shared modal keyboard boundary prevents global editor undo/delete from changing background work; palette toggle shortcut retained"
+  ],
+  "matrix": {
+    "cases": 320,
+    "states": {
+      "export-pdf-options": 64,
+      "export-preparing": 64,
+      "export-images": 64,
+      "export-error": 64,
+      "export-long-name": 64
+    },
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1023x768",
+      "1024x768",
+      "1025x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "639x800",
+      "640x800",
+      "641x800"
+    ],
+    "result": "All contained; no page/dialog overflow or undersized action/choice targets"
+  },
+  "features": [
+    "All six formats; exact unchanged bytes for plain PDF; 150 DPI PNG geometry; single PNG and multi ZIP; split page count/order; contact sheet; text and Markdown reading order",
+    "Each modifier and combined pipeline; three compression levels; flattened forms; grayscale pixel channels; removed metadata; source bytes/history unchanged",
+    "Held lazy ZIP request proves live phase, duplicate protection, disabled choices and Escape protection; failed download preserves choices/focus and retries",
+    "All six formats burn pending redaction: PDF content streams contain no original text operators, PNG matches selected ink, OCR text/Markdown cannot recover covered content",
+    "Real desktop and mobile editor smoke, rotation warning/apply, annotated font embedding, modal stack/focus and responsive motion",
+    "Pending redaction remains intact after Cmd/Ctrl-Z and Delete with the Download button focused"
+  ],
+  "checks": {
+    "formatLintTypes": "pass, no warnings",
+    "deadCode": "pass",
+    "unitTests": 366,
+    "unitFiles": 36,
+    "productionBuild": "pass, 127 deployable assets within 25 MiB limit",
+    "designInventory": 84,
+    "portabilityAssertions": 17,
+    "browserSuites": [
+      "export-dialog",
+      "modal-system",
+      "editor-smoke",
+      "editor-smoke-mobile",
+      "rotate",
+      "annotate-fonts",
+      "responsive-motion",
+      "command-palette",
+      "ai-modal-states"
+    ],
+    "additionalAiStateLayouts": 192
+  },
+  "manualReview": [
+    "Desktop/laptop/tablet/mobile light and dark screenshots, long names, short landscape and enlarged text",
+    "Native Safari and Firefox: arrows, Home, one radio Tab stop, switch Space, quality selection, Escape and trigger focus return",
+    "Actual 200% browser zoom in Safari and Firefox: native tab traversal to final action with focus-visible scrolling",
+    "Forced-colour native choices and reduced-motion immediate reopen"
+  ],
+  "cleanup": {
+    "removed": [
+      "Export numbered format cards and manual arrow-key implementation",
+      "Legacy format-grid CSS and per-option accent strips",
+      "Unused ModalSectionLabel and its CSS",
+      "Export imports of old Switch/Segmented adapters; those adapters retain legitimate other editor consumers",
+      "Stale export architecture comments"
+    ],
+    "productionLinesNet": -20,
+    "dependenciesAdded": 0
+  },
+  "bundleKb": {
+    "editorBefore": {
+      "raw": 305.35,
+      "gzip": 86.61
+    },
+    "editorAfter": {
+      "raw": 303.46,
+      "gzip": 86.6
+    },
+    "cssBefore": {
+      "raw": 142.1,
+      "gzip": 24.47
+    },
+    "cssAfter": {
+      "raw": 142.88,
+      "gzip": 24.63
+    }
+  },
+  "evidence": [
+    "docs/air/evidence/export-checks-2026-10-14.log",
+    "docs/air/evidence/export-desktop-1440-light.png",
+    "docs/air/evidence/export-images-390-dark.png"
+  ],
+  "localReviewDirectory": "/tmp/cloakpdf-air-export",
+  "limitations": [
+    "Physical touch/software keyboard and assistive speech acceptance remain open",
+    "Preparation routines do not support cancellation; dismissal is temporarily disabled with explicit status until work settles",
+    "Command palette, chat/indexing/citations and the rest of the editor are separate pending migrations"
+  ],
+  "harnessRepairs": [
+    "Bypass stale service-worker builds in affected persistent browser suites",
+    "Use stable Puppeteer locators for format choices during sheet entry",
+    "Wait for the rendered identity pose before measuring motion-scaled targets",
+    "Observe completed download modification times so repeated same-filename exports count; ignore transient .crdownload files",
+    "Synthetic headings placed in the body rather than the native Markdown extractor\u2019s recurring-header area; assertions retained",
+    "Redaction pixels compared to the actual chosen ink (30,41,59), not assumed pure black",
+    "Command palette verifies identity transform and zero running animations rather than requiring the literal CSS string none; bypasses stale SW builds",
+    "One concurrent AI timing observation missed its short entrance; isolated rerun passes the full motion and storage-state suite"
+  ]
+}

@@ -18,20 +18,6 @@
  * state (selections, draggable items, options); the hook's `onReset`
  * gives them one callback to clear everything in lockstep with the file.
  *
- * @example
- *   const pdf = usePdfFile<string[]>({
- *     load: renderAllThumbnails,
- *     onReset: revokeThumbnails,
- *   });
- *
- *   return !pdf.file ? (
- *     <FileDropZone onFiles={pdf.onFiles} ... />
- *   ) : (
- *     <>
- *       <FileInfoBar fileName={pdf.file.name} onChangeFile={pdf.reset} ... />
- *       {pdf.loading ? <LoadingSpinner /> : (pdf.data ?? []).map(...)}
- *     </>
- *   );
  */
 
 import { useCallback, useRef, useState } from "react";

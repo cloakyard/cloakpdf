@@ -1,0 +1,537 @@
+{
+  "date": "2026-10-14",
+  "contractVersion": "1.0.1",
+  "scope": "PDF visible-page coordinates, overlay output and crop/history preservation",
+  "baseline": "Five new crop tests failed before the fix: all four rotations plus invalid/expanding requests.",
+  "outputTests": {
+    "pages": 12,
+    "metrics": [
+      {
+        "operation": "annotations",
+        "pages": 12,
+        "referenceBounds": [39, 44, 279, 231]
+      },
+      {
+        "operation": "signature",
+        "pages": 12,
+        "referenceBounds": [60, 152, 179, 199]
+      },
+      {
+        "operation": "qr",
+        "pages": 12,
+        "referenceBounds": [89, 99, 150, 160]
+      },
+      {
+        "operation": "barcode",
+        "pages": 12,
+        "referenceBounds": [89, 90, 190, 166]
+      },
+      {
+        "operation": "watermark",
+        "pages": 12,
+        "referenceBounds": [181, 134, 227, 172]
+      },
+      {
+        "operation": "seal",
+        "pages": 12,
+        "referenceBounds": [159, 117, 240, 182]
+      },
+      {
+        "operation": "numbers",
+        "pages": 12,
+        "referenceBounds": [371, 27, 374, 37]
+      },
+      {
+        "operation": "headers",
+        "pages": 12,
+        "referenceBounds": [23, 26, 377, 280]
+      },
+      {
+        "operation": "bates",
+        "pages": 12,
+        "referenceBounds": [22, 268, 70, 277]
+      },
+      {
+        "operation": "flat-form",
+        "pages": 12,
+        "referenceBounds": [62, 126, 108, 135]
+      },
+      {
+        "operation": "crop and pending marks",
+        "pages": 12
+      },
+      {
+        "operation": "erase/redact then vector placement",
+        "pages": 12
+      }
+    ]
+  },
+  "layouts": [
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 320,
+      "height": 568,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 768,
+      "height": 1024,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1024,
+      "height": 768,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "light",
+      "width": 1280,
+      "height": 720,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "light",
+      "width": 1440,
+      "height": 900,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 320,
+      "height": 568,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3308550185873607
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 768,
+      "height": 1024,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1024,
+      "height": 768,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "dark",
+      "width": 1280,
+      "height": 720,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3327702702702702
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "page": 1,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "page": 2,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "page": 3,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    },
+    {
+      "theme": "dark",
+      "width": 1440,
+      "height": 900,
+      "page": 4,
+      "overflow": false,
+      "fits": true,
+      "ratio": 1.3333333333333333
+    }
+  ],
+  "checks": {
+    "formatLintTypes": "pass",
+    "knip": "pass",
+    "unitTests": 376,
+    "unitFiles": 37,
+    "productionBuild": "pass",
+    "deploymentAssets": 128,
+    "smokeSuites": 16,
+    "extendedSuites": 7,
+    "geometryIntegration": "pass (development module integration)",
+    "finalProductionRecheck": [
+      "canvas: 68 layouts",
+      "collections: 88 layouts",
+      "rotate/apply/export/undo"
+    ],
+    "nativeFormMetadata": "4 saved rotation cases preserve widget bounds, value and page boxes"
+  },
+  "manualReview": [
+    "Desktop/laptop/tablet/phone in light and dark; no stretched or clipped paper.",
+    "90-degree source text boxed with a pending annotation, cropped through UI; annotation remains attached. Undo restores page and mark.",
+    "Development hot reload invalidated a context identity during editing; clean reload recovered. Fresh-load and production suites pass."
+  ],
+  "cleanup": [
+    "Removed raw rotation metadata and thumbnail double-rotation adjustment.",
+    "Removed rotation-based crop and font-suggestion skip paths and stale UI copy.",
+    "Shared Crop/Strip-furniture conversion preserves pending marks; unused crop barrel export removed.",
+    "No dependencies added."
+  ],
+  "open": [
+    "N-up/booklet and searchable OCR output geometry need their own matrix.",
+    "Preview failure recovery and remaining tool/popup interiors are not migrated by this slice.",
+    "Physical touch/software keyboard, real OS IME and assistive speech remain open.",
+    "Native form visual/assistive acceptance remains part of the form-panel audit."
+  ]
+}

@@ -25,7 +25,9 @@ describe("ReloadNotice", () => {
     expect(html).toContain('aria-busy="true"');
     expect(html).toContain("Applying update…");
     expect(html).toContain("Updating…");
-    expect(html.match(/disabled=""/g)).toHaveLength(2);
+    expect(html.match(/disabled=""/g)).toHaveLength(1);
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain('class="air-action-labels"');
   });
 
   it("keeps the offline-ready notice compact and dismissible", () => {
@@ -36,5 +38,16 @@ describe("ReloadNotice", () => {
     expect(html).toContain('aria-label="Dismiss cache status"');
     expect(html).not.toContain("Update now");
     expect(html).not.toContain("Later");
+  });
+
+  it("explains how to finish work before updating and keeps deferral available", () => {
+    const html = renderToStaticMarkup(
+      <ReloadNotice variant="update" deferred onClose={vi.fn()} onUpdate={vi.fn()} />,
+    );
+    expect(html).toContain("Save or download your work, then return home to update.");
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain("aria-describedby=");
+    expect(html).toContain("Later");
+    expect(html).not.toContain('disabled=""');
   });
 });

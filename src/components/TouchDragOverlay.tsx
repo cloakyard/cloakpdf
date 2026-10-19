@@ -30,7 +30,7 @@ export function TouchDragOverlay({ touchPos, children }: TouchDragOverlayProps) 
         transform: `translate3d(${touchPos.x}px, ${touchPos.y}px, 0) translate(-50%, -60%)`,
         pointerEvents: "none",
       }}
-      className="z-[var(--z-system-overlay)] opacity-80 scale-90 shadow-xl rounded-lg"
+      className="pdf-touch-drag-overlay"
     >
       {children}
     </div>,

@@ -10,7 +10,8 @@
  * Run: node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts
  */
 
-import { existsSync } from "node:fs";
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
+import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { CDPSession, KeyInput, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
@@ -250,7 +251,9 @@ async function main(): Promise<void> {
     );
     await drawRect(page, { x: 0.25, y: 0.3 }, { x: 0.55, y: 0.5 });
     await waitForText(page, /\b1 mark\b/i);
-    await waitForText(page, /Mark selected/i);
+    await page.waitForFunction(() =>
+      document.querySelector("#annotation-selection")?.textContent?.includes("Rectangle"),
+    );
 
     await page.focus(STAGE);
     const focused = await page.$eval(STAGE, (node) => document.activeElement === node);
@@ -660,14 +663,19 @@ async function main(): Promise<void> {
     // trigger→popover relationship and a single roving calendar tab stop even
     // when day 31 is carried into a shorter month.
     await page.click('button[aria-label="Metadata"]');
-    await waitForText(page, /Edit the document properties/i);
+    await waitForText(page, /Review this document and edit its standard properties/i);
     const dateTrigger = 'aside button[aria-haspopup="dialog"]';
+    await page.waitForSelector(dateTrigger);
+    // A fresh production profile may show the cache notice over this lower
+    // field. Dismiss it as a user would before interacting with the picker.
+    const cacheNotice = await page.$('button[aria-label="Dismiss cache status"]');
+    if (cacheNotice) await cacheNotice.click();
+    await page.click(dateTrigger);
     const controlledId = await page.$eval(dateTrigger, (button) =>
       button.getAttribute("aria-controls"),
     );
     if (!controlledId) fail("Date/time trigger does not expose aria-controls.");
-    await page.click(dateTrigger);
-    const dateDialog = 'div[role="dialog"][aria-label="Date and time picker"]';
+    const dateDialog = 'div[role="dialog"][aria-label="Created date and time"]';
     await page.waitForSelector(dateDialog);
     const openedId = await page.$eval(dateDialog, (dialog) => dialog.id);
     if (openedId !== controlledId)
@@ -738,7 +746,15 @@ async function main(): Promise<void> {
     if (!axes.includes("Saturation") || !axes.includes("Brightness")) {
       fail(`Custom colour field does not expose both axes: ${JSON.stringify(axes)}.`);
     }
+    const brightness = `${colorDialog} input[aria-label="Brightness"]`;
     const saturation = `${colorDialog} input[aria-label="Saturation"]`;
+    // Let the dialog's scheduled opening focus settle before testing Tab order.
+    await page.waitForFunction(
+      (selector) => document.activeElement === document.querySelector(selector),
+      {},
+      brightness,
+    );
+    await page.click(`${colorDialog} summary`);
     await page.focus(saturation);
     const saturationBefore = await page.$eval(saturation, (input) =>
       Number((input as HTMLInputElement).value),
@@ -749,11 +765,13 @@ async function main(): Promise<void> {
     );
     if (saturationAfter <= saturationBefore)
       fail("Saturation slider did not respond to ArrowRight.");
+    await page.keyboard.down("Shift");
     await page.keyboard.press("Tab");
+    await page.keyboard.up("Shift");
     const focusedAxis = await page.evaluate(() =>
       document.activeElement?.getAttribute("aria-label"),
     );
-    if (focusedAxis !== "Brightness") fail(`Tab moved to ${focusedAxis}, not Brightness.`);
+    if (focusedAxis !== "Hue") fail(`Shift+Tab moved to ${focusedAxis}, not Hue.`);
     await page.keyboard.press("Escape");
     await page.waitForSelector(colorDialog, { hidden: true });
     const colorFocusRestored = await page.$eval(
@@ -805,6 +823,30 @@ async function main(): Promise<void> {
 
     if (errors.length > 0) fail(`Console/page errors:\n${errors.join("\n")}`);
     console.log("✓ editor keyboard interactions passed");
+  } catch (error) {
+    const evidence = createEvidenceDirectory("cloakpdf-editor-interactions");
+    await page.screenshot({ path: resolve(evidence, "failure.png"), fullPage: true });
+    writeFileSync(
+      resolve(evidence, "failure.json"),
+      JSON.stringify(
+        await page.evaluate(() => ({
+          text: document.body.innerText,
+          focus: document.activeElement?.outerHTML,
+          disclosures: Array.from(document.querySelectorAll('[aria-haspopup="dialog"]')).map(
+            (element) => ({
+              html: element.outerHTML,
+              rect: element.getBoundingClientRect().toJSON(),
+            }),
+          ),
+          dialogs: Array.from(document.querySelectorAll('[role="dialog"]')).map(
+            (element) => element.outerHTML,
+          ),
+        })),
+        null,
+        2,
+      ),
+    );
+    throw error;
   } finally {
     await browser.close();
   }

@@ -1,356 +1,124 @@
-/**
- * Images to PDF tool.
- *
- * Accepts multiple image files (JPEG, PNG, WebP) via drag-and-drop, shows
- * previews with drag-to-reorder controls, and converts them into a single PDF.
- * Supports three page-size options: A4, Letter, and Fit-to-Image.
- * Object URLs for image previews are revoked on removal to avoid memory leaks.
- */
-
-import { GripVertical, X } from "lucide-react";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Check } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "../components/ActionButton.tsx";
 import { AlertBox } from "../components/AlertBox.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
+import { FileQueue } from "../components/FileQueue.tsx";
 import { ProgressBar } from "../components/ProgressBar.tsx";
 import { SegmentedControl } from "../components/SegmentedControl.tsx";
-import { type SortMode, SortByNameButton } from "../components/SortByNameButton.tsx";
-import { TouchDragOverlay } from "../components/TouchDragOverlay.tsx";
 import { useAsyncProcess } from "../hooks/useAsyncProcess.ts";
-import { type SortableDrag, useSortableDrag } from "../hooks/useSortableDrag.ts";
-import { downloadPdf, formatFileSize, naturalCompare } from "../utils/file-helpers.ts";
+import { useFileQueue } from "../hooks/useFileQueue.ts";
+import { downloadPdf } from "../utils/file-helpers.ts";
 import { openEditorWithFile } from "../utils/nav.ts";
 import { imagesToPdf } from "../utils/pdf-operations.ts";
 
-/** Internal representation of a queued image with its preview URL. */
-interface ImageItem {
-  file: File;
-  id: string;
-  /** Object URL for the image preview thumbnail. */
-  preview: string;
-}
-
-interface ImageRowProps {
-  item: ImageItem;
-  slot: number;
-  total: number;
-  isSortActive: boolean;
-  isSource: boolean;
-  getItemProps: SortableDrag["getItemProps"];
-  getKeyboardProps: SortableDrag["getKeyboardProps"];
-  onRemove: (id: string) => void;
-}
-
-const ImageRow = memo(function ImageRow({
-  item,
-  slot,
-  total,
-  isSortActive,
-  isSource,
-  getItemProps,
-  getKeyboardProps,
-  onRemove,
-}: ImageRowProps) {
-  return (
-    <div
-      {...(isSortActive ? {} : getItemProps(slot))}
-      className={`flex items-center gap-3 border-b border-[var(--color-rule)] px-1 py-3 select-none transition-[transform,opacity,color,background-color,border-color] duration-200 ${
-        isSortActive ? "cursor-default" : "cursor-grab active:cursor-grabbing"
-      } ${isSource ? "scale-95 opacity-30" : "scale-100 opacity-100"}`}
-    >
-      {isSortActive ? (
-        <GripVertical
-          className="h-4 w-4 shrink-0 text-[var(--color-rule-strong)] opacity-50"
-          aria-hidden="true"
-        />
-      ) : (
-        // Keyboard-accessible reorder handle (drag alone has no keyboard path).
-        // The grip is its own button so the row's nested Remove button isn't
-        // wrapped in a second interactive element.
-        <button
-          type="button"
-          {...getKeyboardProps(slot, total, item.file.name)}
-          className="-m-1 inline-flex shrink-0 cursor-grab items-center justify-center rounded p-1 text-slate-300 active:cursor-grabbing pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:text-dark-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        >
-          <GripVertical className="w-4 h-4" aria-hidden="true" />
-        </button>
-      )}
-      <span className="w-7 shrink-0 text-center font-mono text-[11px] font-semibold tabular-nums text-primary-600">
-        {String(slot + 1).padStart(2, "0")}
-      </span>
-      <img
-        src={item.preview}
-        alt={item.file.name}
-        width={48}
-        height={48}
-        loading="lazy"
-        decoding="async"
-        className="w-12 h-12 object-cover rounded border border-slate-200 dark:border-dark-border"
-        draggable={false}
-      />
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-sm font-medium text-[var(--color-ink)]">{item.file.name}</p>
-        <p className="font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
-          {formatFileSize(item.file.size)}
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(item.id);
-        }}
-        onPointerDown={(e) => e.stopPropagation()}
-        className="p-2.5 min-w-11 min-h-11 flex items-center justify-center rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-        aria-label={`Remove ${item.file.name}`}
-      >
-        <X className="h-4 w-4 text-[var(--color-ink-3)] hover:text-red-500" aria-hidden="true" />
-      </button>
-    </div>
-  );
-});
-
 export default function ImagesToPdf() {
-  const [images, setImages] = useState<ImageItem[]>([]);
-  const [pageSize, setPageSize] = useState<"a4" | "letter" | "fit">("a4");
-  const [sortMode, setSortMode] = useState<SortMode>("off");
-  const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const queue = useFileQueue();
   const task = useAsyncProcess();
-
-  const displayedImages = useMemo(() => {
-    if (sortMode === "off") return images;
-    const sorted = [...images].sort((a, b) => naturalCompare(a.file.name, b.file.name));
-    return sortMode === "desc" ? sorted.reverse() : sorted;
-  }, [images, sortMode]);
-
-  const isSortActive = sortMode !== "off";
-
-  // Revoke all preview object URLs when the component unmounts (incl. after a
-  // successful convert, which navigates to the editor). A ref holds the latest
-  // images so this empty-dep cleanup doesn't capture the first-render (empty)
-  // array; per-item revocation still happens in removeImage.
-  const imagesRef = useRef(images);
-  imagesRef.current = images;
-  useEffect(
-    () => () => {
-      for (const item of imagesRef.current) URL.revokeObjectURL(item.preview);
-    },
-    [],
-  );
-
-  const handleFiles = useCallback((files: File[]) => {
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
-    const items: ImageItem[] = imageFiles.map((f) => ({
-      file: f,
-      id: crypto.randomUUID(),
-      preview: URL.createObjectURL(f),
-    }));
-    setImages((prev) => [...prev, ...items]);
+  const [pageSize, setPageSize] = useState<"a4" | "letter" | "fit">("a4");
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [completed, setCompleted] = useState<{
+    input: typeof queue.displayed;
+    pageSize: string;
+  } | null>(null);
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
   }, []);
-
-  /** Remove an image from the queue and revoke its object URL to free memory. */
-  const removeImage = useCallback((id: string) => {
-    setImages((prev) => {
-      const item = prev.find((i) => i.id === id);
-      if (item) URL.revokeObjectURL(item.preview);
-      return prev.filter((i) => i.id !== id);
-    });
-  }, []);
-
-  const handleMove = useCallback((fromIndex: number, toSlot: number) => {
-    setImages((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIndex, 1);
-      const adjustedSlot = fromIndex < toSlot ? toSlot - 1 : toSlot;
-      next.splice(adjustedSlot, 0, moved);
-      return next;
-    });
-  }, []);
-
-  const drag = useSortableDrag(handleMove);
-
-  /** Build the PDF, then hand the bytes to the chosen delivery (download
-   *  for the primary CTA, the unified editor for the secondary "& edit"). */
-  const runConvert = useCallback(
-    async (deliver: (bytes: Uint8Array) => void) => {
-      if (displayedImages.length === 0) return;
-      setProgress({ done: 0, total: displayedImages.length });
-      await task.run(async () => {
-        const result = await imagesToPdf(
-          displayedImages.map((i) => i.file),
-          pageSize,
-          (done, total) => setProgress({ done, total }),
-        );
-        deliver(result);
-      }, "Failed to create PDF from images. Please try again.");
-    },
-    [displayedImages, pageSize, task],
-  );
-
-  const handleConvert = useCallback(
-    () => runConvert((b) => downloadPdf(b, "images.pdf")),
-    [runConvert],
-  );
-
-  const handleConvertAndEdit = useCallback(
-    () =>
-      runConvert((b) =>
-        openEditorWithFile(new File([b.slice()], "images.pdf", { type: "application/pdf" })),
-      ),
-    [runConvert],
-  );
-
-  const isDragging = drag.dragIndex !== null;
-  const dragged = drag.dragIndex !== null ? displayedImages[drag.dragIndex] : null;
-
-  const rows: React.ReactNode[] = [];
-  for (let slot = 0; slot <= displayedImages.length; slot++) {
-    const isAdjacentToDrag =
-      drag.dragIndex !== null && (slot === drag.dragIndex || slot === drag.dragIndex + 1);
-    const isActiveDrop = drag.dragOverSlot === slot;
-
-    rows.push(
-      // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- HTML5 drop target
-      <div
-        key={`drop-${slot}`}
-        data-drop-slot={slot}
-        onDragOver={(e) => {
-          if (isAdjacentToDrag || isSortActive) return;
-          e.preventDefault();
-          drag.setDragOverSlot(slot);
-        }}
-        onDragLeave={(e) => {
-          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-            if (drag.dragOverSlot === slot) drag.setDragOverSlot(null);
-          }
-        }}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (drag.dragIndex === null || isAdjacentToDrag || isSortActive) return;
-          handleMove(drag.dragIndex, slot);
-          drag.setDragIndex(null);
-          drag.setDragOverSlot(null);
-        }}
-        className={`flex items-center px-1 transition-[transform,opacity,color,background-color,border-color] duration-200 ${
-          isDragging && !isAdjacentToDrag ? (isActiveDrop ? "h-10" : "h-2") : "h-0"
-        }`}
-      >
-        {isDragging && !isAdjacentToDrag && (
-          <div
-            className={`w-full rounded-full transition-[transform,opacity,color,background-color,border-color] duration-200 ${
-              isActiveDrop ? "h-1 bg-primary-500" : "h-0.5 bg-primary-200 dark:bg-primary-800"
-            }`}
-          />
-        )}
-      </div>,
-    );
-
-    if (slot < displayedImages.length) {
-      const item = displayedImages[slot];
-      rows.push(
-        <ImageRow
-          key={item.id}
-          item={item}
-          slot={slot}
-          total={displayedImages.length}
-          isSortActive={isSortActive}
-          isSource={drag.dragIndex === slot}
-          getItemProps={drag.getItemProps}
-          getKeyboardProps={drag.getKeyboardProps}
-          onRemove={removeImage}
-        />,
-      );
+  const handleFiles = (files: File[]) => {
+    if (task.processing) return;
+    if (
+      files.some(
+        (file) =>
+          !["image/jpeg", "image/png", "image/webp"].includes(file.type) &&
+          !/\.(jpe?g|png|webp)$/i.test(file.name),
+      )
+    ) {
+      task.setError("Choose JPEG, PNG or WebP images. Your existing image order has been kept.");
+      return;
     }
-  }
-
+    task.setError(null);
+    queue.append(files);
+  };
+  const runConvert = async (edit: boolean) => {
+    if (!queue.displayed.length) return;
+    setCompleted(null);
+    const input = queue.displayed;
+    setProgress({ done: 0, total: input.length });
+    await task.run(async () => {
+      const bytes = await imagesToPdf(
+        input.map((item) => item.file),
+        pageSize,
+        (done, total) => {
+          if (alive.current) setProgress({ done, total });
+        },
+      );
+      if (!alive.current) return;
+      if (edit)
+        openEditorWithFile(new File([bytes.slice()], "images.pdf", { type: "application/pdf" }));
+      else {
+        downloadPdf(bytes, "images.pdf");
+        setCompleted({ input, pageSize });
+      }
+    }, "Failed to create PDF from images. Please try again.");
+  };
   return (
-    <div className="space-y-6">
+    <div className="pdf-constructor">
       <FileDropZone
         accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
         multiple
+        disabled={task.processing}
         onFiles={handleFiles}
         label="Drop images here"
         hint="Supports JPEG, PNG, and WebP images"
       />
-
-      {images.length > 0 && (
-        <>
-          <div>
-            <p className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-3)]">
-              Page Size
-            </p>
-            <SegmentedControl
-              fullWidth
-              ariaLabel="Page size"
-              value={pageSize}
-              onChange={setPageSize}
-              options={[
-                { value: "a4", label: "A4" },
-                { value: "letter", label: "Letter" },
-                { value: "fit", label: "Fit" },
-              ]}
-            />
-          </div>
-
-          {images.length > 1 && (
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.05em] text-[var(--color-ink-2)]">
-                {isSortActive
-                  ? "Sorted by file name"
-                  : isDragging
-                    ? "Drop the image at its new position"
-                    : "Drag images to rearrange them"}
-              </p>
-              <SortByNameButton mode={sortMode} onChange={setSortMode} />
-            </div>
-          )}
-
-          <div className="overflow-hidden border-t border-[var(--color-rule)]">{rows}</div>
-
-          <div aria-live="polite" className="sr-only">
-            {drag.liveMessage}
-          </div>
-
-          {dragged && drag.dragIndex !== null && drag.touchPos !== null && (
-            <TouchDragOverlay touchPos={drag.touchPos}>
-              <div className="flex min-w-65 max-w-80 items-center gap-3 rounded-lg border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-4 py-3">
-                <span className="w-7 shrink-0 text-center font-mono text-[11px] font-semibold text-primary-600">
-                  {String(drag.dragIndex + 1).padStart(2, "0")}
-                </span>
-                <img
-                  src={dragged.preview}
-                  alt=""
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 object-cover rounded border border-slate-200 dark:border-dark-border"
-                  draggable={false}
-                />
-                <p className="truncate text-sm font-medium text-[var(--color-ink)]">
-                  {dragged.file.name}
-                </p>
-              </div>
-            </TouchDragOverlay>
-          )}
-
-          {task.processing && progress.total > 1 && (
-            <ProgressBar current={progress.done} total={progress.total} label="Creating PDF…" />
-          )}
-
-          <ActionButton
-            onClick={handleConvert}
-            processing={task.processing}
-            label={
-              images.length === 1
-                ? "Create PDF & Download"
-                : `Combine ${images.length} images & Download`
-            }
-            secondaryLabel={images.length === 1 ? "Create & edit" : "Combine & edit"}
-            onSecondaryClick={handleConvertAndEdit}
-            processingLabel="Creating PDF…"
+      {queue.items.length > 0 && (
+        <div className="pdf-page-size">
+          <p className="air-label">Page size</p>
+          <SegmentedControl
+            fullWidth
+            ariaLabel="Page size"
+            value={pageSize}
+            onChange={setPageSize}
+            disabled={task.processing}
+            options={[
+              { value: "a4", label: "A4" },
+              { value: "letter", label: "Letter" },
+              { value: "fit", label: "Fit" },
+            ]}
           />
-        </>
+        </div>
       )}
-
+      <FileQueue queue={queue} disabled={task.processing} previews />
+      {task.processing && (
+        <ProgressBar current={progress.done} total={progress.total} label="Creating PDF…" />
+      )}
+      {queue.items.length > 0 && (
+        <ActionButton
+          onClick={() => runConvert(false)}
+          processing={task.processing}
+          label={
+            queue.items.length === 1
+              ? "Create PDF & Download"
+              : `Combine ${queue.items.length} images & Download`
+          }
+          secondaryLabel={queue.items.length === 1 ? "Create & edit" : "Combine & edit"}
+          onSecondaryClick={() => runConvert(true)}
+          processingLabel="Creating PDF…"
+        />
+      )}
+      {completed?.input === queue.displayed && completed.pageSize === pageSize && (
+        <div className="air-notice air-notice--success pdf-result" role="status">
+          <Check size={18} strokeWidth={1.6} aria-hidden="true" />
+          <p>
+            images.pdf is ready. Download requested. Your images remain here to combine again or
+            open in the editor.
+          </p>
+        </div>
+      )}
       {task.error && <AlertBox message={task.error} />}
     </div>
   );

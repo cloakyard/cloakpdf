@@ -13,7 +13,6 @@ import {
   type ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useState,
 } from "react";
@@ -150,7 +149,10 @@ export function useStageProps(props: PdfStageProps): void {
   useLayoutEffect(() => {
     set(props);
   });
-  useEffect(() => {
+  // Clear the previous tool in the layout phase, before the next tool registers.
+  // A passive cleanup can run after the new layout registration and erase its
+  // pointer handlers, turning a crop gesture into a canvas pan.
+  useLayoutEffect(() => {
     return () => set(EMPTY);
   }, [set]);
 }

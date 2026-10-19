@@ -31,7 +31,7 @@ interface ViewportCase {
 
 const VIEWPORTS: ViewportCase[] = [
   { name: "desktop", width: 1440, height: 900, touch: false, layout: "desktop" },
-  { name: "tablet landscape", width: 1024, height: 768, touch: true, layout: "tablet" },
+  { name: "tablet landscape", width: 1024, height: 768, touch: true, layout: "desktop" },
   { name: "tablet portrait", width: 768, height: 1024, touch: true, layout: "tablet" },
   { name: "mobile", width: 390, height: 844, touch: true, layout: "mobile" },
   { name: "small mobile", width: 320, height: 568, touch: true, layout: "mobile" },
@@ -110,15 +110,17 @@ async function setViewport(page: Page, viewport: ViewportCase) {
 
 async function openHome(page: Page) {
   await page.goto(DEV_URL, { waitUntil: "networkidle2" });
-  await page.waitForSelector(".cloak-tool-card", { timeout: 15_000 });
+  await page.waitForSelector(".pdf-tool-entry", { timeout: 15_000 });
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 500));
 }
 
 async function auditHome(page: Page, viewport: ViewportCase) {
   await openHome(page);
   const state = await page.evaluate(() => {
-    const status = getComputedStyle(document.querySelector(".cloak-status-dot") as Element);
-    const card = getComputedStyle(document.querySelector(".cloak-tool-card") as Element);
+    const status = getComputedStyle(
+      document.querySelector('.pdf-entry-note [role="status"]') as Element,
+    );
+    const card = getComputedStyle(document.querySelector(".pdf-tool-entry") as Element);
     return {
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       hover: window.matchMedia("(hover: hover)").matches,
@@ -126,7 +128,7 @@ async function auditHome(page: Page, viewport: ViewportCase) {
       cardTransform: card.transform,
       statusAnimation: status.animationName,
       statusIterations: status.animationIterationCount,
-      hero: Array.from(document.querySelectorAll(".cloak-hero > *")).map((element) => {
+      hero: Array.from(document.querySelectorAll(".pdf-hero > *")).map((element) => {
         const style = getComputedStyle(element);
         return { opacity: style.opacity, transform: style.transform };
       }),
@@ -140,8 +142,8 @@ async function auditHome(page: Page, viewport: ViewportCase) {
   if (state.cardTransform !== "none") {
     fail(`${viewport.name}: a resting tool card retained ${state.cardTransform}.`);
   }
-  if (state.statusAnimation !== "cloak-status-arrive" || state.statusIterations !== "1") {
-    fail(`${viewport.name}: connection status must animate once, never loop.`);
+  if (state.statusAnimation !== "none") {
+    fail(`${viewport.name}: connection status must remain still.`);
   }
   if (
     state.hero.some(({ opacity, transform }) => opacity !== "1" || !isIdentityTransform(transform))
@@ -150,19 +152,19 @@ async function auditHome(page: Page, viewport: ViewportCase) {
   }
 
   if (!viewport.touch) {
-    await page.$eval(".cloak-tool-card", (element) =>
+    await page.$eval(".pdf-tool-entry", (element) =>
       element.scrollIntoView({ block: "center", behavior: "auto" }),
     );
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 50));
-    const before = await page.$eval(".cloak-tool-card", (element) =>
+    const before = await page.$eval(".pdf-tool-entry", (element) =>
       element.getBoundingClientRect().toJSON(),
     );
-    await page.hover(".cloak-tool-card");
+    await page.hover(".pdf-tool-entry");
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 220));
-    const hovered = await page.$eval(".cloak-tool-card", (element) => {
+    const hovered = await page.$eval(".pdf-tool-entry", (element) => {
       const card = getComputedStyle(element);
-      const icon = getComputedStyle(element.querySelector(".cloak-tool-card__icon") as Element);
-      const arrow = getComputedStyle(element.querySelector(".cloak-tool-card__arrow") as Element);
+      const icon = getComputedStyle(element.querySelector("svg:first-child") as Element);
+      const arrow = getComputedStyle(element.querySelector("svg:last-child") as Element);
       return {
         rect: element.getBoundingClientRect().toJSON(),
         card: card.transform,
@@ -170,12 +172,22 @@ async function auditHome(page: Page, viewport: ViewportCase) {
         arrow: arrow.transform,
       };
     });
-    if (!closeTo(hovered.rect.top, before.top - 2)) {
-      fail(`${viewport.name}: tool-card hover lift was not the intended 2px.`);
+    if (!closeTo(hovered.rect.top, before.top)) {
+      fail(`${viewport.name}: tool entry moved on hover; Air navigation rows must stay anchored.`);
     }
-    if (hovered.card === "none" || hovered.icon === "none" || hovered.arrow === "none") {
-      fail(`${viewport.name}: fine-pointer card feedback did not fully engage.`);
+    if (hovered.card !== "none" || hovered.icon !== "none" || hovered.arrow !== "none") {
+      fail(`${viewport.name}: tool entry retained obsolete decorative motion.`);
     }
+  }
+  if (!viewport.touch) {
+    await page.hover(".pdf-file-drop");
+    await new Promise((done) => setTimeout(done, 200));
+    const icon = await page.$eval(
+      ".pdf-file-icon",
+      (element) => getComputedStyle(element).transform,
+    );
+    if (icon === "none" || isIdentityTransform(icon))
+      fail(`${viewport.name}: file target feedback did not engage.`);
   }
 }
 
@@ -200,7 +212,9 @@ async function openEditor(page: Page) {
 
 async function panelState(page: Page) {
   return page.evaluate(() => {
-    const panel = document.querySelector(".cloak-panel-enter") as HTMLElement | null;
+    const panel = document.querySelector(
+      ".editor-mobile-sheet__body, .editor-properties__body",
+    ) as HTMLElement | null;
     const sheet = document.querySelector('[data-testid="mobile-tool-sheet"]') as HTMLElement | null;
     const column = sheet?.parentElement as HTMLElement | null;
     const properties = document.querySelector(".editor-properties") as HTMLElement | null;
@@ -253,31 +267,17 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
     fail(`${viewport.name}: tool-panel motion caused horizontal overflow.`);
   }
 
-  if (viewport.touch) {
-    if (
-      opening.animation !== "none" ||
-      !hasOnlyTransitionDuration(opening.transitionDuration, "0.16s")
-    ) {
-      fail(
-        `${viewport.name}: coarse-pointer panel did not use the compact motion profile: ${JSON.stringify(opening)}.`,
-      );
-    }
-    if (!closeTo(matrixScale(opening.transform), 1, 0.001)) {
-      fail(`${viewport.name}: touch panel scaled text during its entrance.`);
-    }
-  } else if (
+  if (
     opening.animation !== "none" ||
-    !hasOnlyTransitionDuration(opening.transitionDuration, "0.2s")
+    !hasOnlyTransitionDuration(opening.transitionDuration, "0s")
   ) {
-    fail(
-      `${viewport.name}: desktop panel did not use the full motion profile: ${JSON.stringify(opening)}.`,
-    );
+    fail(`${viewport.name}: frequent tool changes should be immediate.`);
   }
 
   // `none` and an identity matrix are both stable resting states.
   const settledScale = matrixScale(settled.transform);
   if (settled.opacity !== "1" || !closeTo(settledScale, 1, 0.001)) {
-    fail(`${viewport.name}: tool panel did not settle cleanly.`);
+    fail(`${viewport.name}: tool panel did not settle cleanly: ${JSON.stringify(settled)}.`);
   }
 
   if (shouldUseSheet) {
@@ -285,8 +285,8 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
       ["opening", opening.sheetFraction],
       ["settled", settled.sheetFraction],
     ] as const) {
-      if (fraction === null || fraction < 0.49 || fraction > 0.51) {
-        fail(`${viewport.name}: ${label} sheet was not an exact 50:50 split.`);
+      if (fraction === null || fraction < 0.49 || fraction > 0.85) {
+        fail(`${viewport.name}: ${label} sheet did not preserve a usable preview/control split.`);
       }
     }
   } else if (
@@ -332,8 +332,10 @@ async function auditReducedMotion(page: Page) {
   await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   await openHome(page);
   const home = await page.evaluate(() => {
-    const status = getComputedStyle(document.querySelector(".cloak-status-dot") as Element);
-    const icon = getComputedStyle(document.querySelector(".cloak-tool-card__icon") as Element);
+    const status = getComputedStyle(
+      document.querySelector('.pdf-entry-note [role="status"]') as Element,
+    );
+    const icon = getComputedStyle(document.querySelector(".pdf-file-icon") as Element);
     return {
       reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       statusAnimation: status.animationName,
@@ -361,11 +363,11 @@ async function auditReducedMotion(page: Page) {
   const panel = await panelState(page);
   if (
     panel.animation !== "none" ||
-    !hasOnlyTransitionDuration(panel.transitionDuration, "0.1s") ||
+    !hasOnlyTransitionDuration(panel.transitionDuration, "0s") ||
     panel.transform !== "none" ||
     panel.opacity !== "1"
   ) {
-    fail("Reduced-motion editor did not collapse movement to a brief opacity cue.");
+    fail("Reduced-motion mobile controls should remain immediate.");
   }
 }
 

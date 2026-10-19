@@ -5,15 +5,10 @@
 // eight-handle resize UX across desktop (mouse) and mobile (touch).
 //
 // All boxes are top-left fraction rects (0–1 of the page). Hit-testing and
-// painting take the overlay canvas's device-px size so handle slop is constant
+// painting take the overlay canvas's CSS-px size so handle slop is constant
 // on screen regardless of zoom. See AnnotateTool / SignatureTool / CodeStampTool.
 
-import { canvas as canvasTheme } from "../config/theme.ts";
-
-/** The single Ocean-Blue accent (primary-600) every overlay tool paints its
- *  selection chrome + handle affordances in. One source of truth so the canvas
- *  layer can't drift from the design token. */
-export const ACCENT = canvasTheme.accent;
+import { canvasAccent } from "../config/theme.ts";
 
 /** The eight resize handles, by compass id. */
 export type HandleId = "nw" | "n" | "ne" | "e" | "se" | "s" | "sw" | "w";
@@ -34,12 +29,12 @@ export const HANDLE_CURSOR: Record<HandleId, string> = {
   w: "ew-resize",
 };
 
-/** Hit slop (device px) around a resize handle — generous so a finger can grab
+/** Hit slop (CSS px) around a resize handle — generous so a finger can grab
  *  it on a phone, where the fit-to-screen page renders small. */
 const HANDLE_TOL_PX = 14;
-/** Painted half-size (device px) of a resize-handle square. */
+/** Painted half-size (CSS px) of a resize-handle square. */
 const HANDLE_HALF_PX = 5;
-/** Padding (device px) between a mark's bbox and its selection chrome. */
+/** Padding (CSS px) between a mark's bbox and its selection chrome. */
 const SELECT_PAD = 3;
 /** Smallest box size (fractions) a resize can shrink a mark to. */
 export const MIN_BOX_FRAC = 0.015;
@@ -76,7 +71,7 @@ export function handleCenters(
   };
 }
 
-/** Which handle (if any) the device-px point lands on. `ids` restricts the set
+/** Which handle (if any) the CSS-px point lands on. `ids` restricts the set
  *  tested (e.g. corners only for aspect-locked tools). */
 export function hitHandle(
   b: Box,
@@ -85,13 +80,22 @@ export function hitHandle(
   w: number,
   h: number,
   ids: HandleId[] = HANDLE_IDS,
+  tolerance = HANDLE_TOL_PX,
 ): HandleId | null {
   const centers = handleCenters(b, w, h);
+  let nearest: HandleId | null = null;
+  let distance = Infinity;
   for (const id of ids) {
     const c = centers[id];
-    if (Math.abs(px - c.x) <= HANDLE_TOL_PX && Math.abs(py - c.y) <= HANDLE_TOL_PX) return id;
+    const dx = Math.abs(px - c.x),
+      dy = Math.abs(py - c.y);
+    const d = dx * dx + dy * dy;
+    if (dx <= tolerance && dy <= tolerance && d < distance) {
+      nearest = id;
+      distance = d;
+    }
   }
-  return null;
+  return nearest;
 }
 
 /** Resize a fraction bbox by dragging `handle` by a fraction delta, keeping the
@@ -183,9 +187,9 @@ export function drawSelectionChrome(
   b: Box,
   w: number,
   h: number,
-  opts: { handles?: HandleId[]; accent?: string } = {},
+  opts: { handles?: HandleId[] } = {},
 ): void {
-  const accent = opts.accent ?? ACCENT;
+  const accent = canvasAccent(ctx);
   const handles = opts.handles ?? HANDLE_IDS;
   const x = b.x * w - SELECT_PAD;
   const y = b.y * h - SELECT_PAD;

@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, truncateSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, truncateSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,10 +10,34 @@ const script = fileURLToPath(new URL("../../scripts/check-deploy-assets.mjs", im
 const directories: string[] = [];
 const limit = 25 * 1024 * 1024;
 
-function fixture(): string {
+function fixture(screenshotSizes = "1440x900"): string {
   const directory = mkdtempSync(join(tmpdir(), "cloakpdf-asset-limit-"));
   directories.push(directory);
   mkdirSync(join(directory, "assets"));
+  mkdirSync(join(directory, "icons"));
+  mkdirSync(join(directory, "screenshots"));
+  for (const path of [
+    "icons/pwa-64x64.png",
+    "icons/og-image.png",
+    "screenshots/editor-wide-light.png",
+  ]) {
+    copyFileSync(new URL(`../../public/${path}`, import.meta.url), join(directory, path));
+  }
+  writeFileSync(
+    join(directory, "manifest.webmanifest"),
+    JSON.stringify({
+      icons: [{ src: "icons/pwa-64x64.png", sizes: "64x64", type: "image/png" }],
+      screenshots: [
+        {
+          src: "screenshots/editor-wide-light.png",
+          sizes: screenshotSizes,
+          type: "image/png",
+          form_factor: "wide",
+          label: "Sample editor",
+        },
+      ],
+    }),
+  );
   return directory;
 }
 
@@ -39,7 +63,7 @@ describe("Cloudflare deployment asset budget", () => {
   it("allows an asset exactly at the 25 MiB limit", () => {
     const directory = fixture();
     sparseFile(join(directory, "assets", "boundary.wasm"), limit);
-    expect(run(directory)).toContain("1 files, all <= 25 MiB");
+    expect(run(directory)).toContain("5 files, all <= 25 MiB");
   });
 
   it("rejects oversized nested assets and names the offending file", () => {
@@ -50,5 +74,17 @@ describe("Cloudflare deployment asset budget", () => {
 
   it("fails when the build output is missing", () => {
     expect(() => run(join(fixture(), "missing-dist"))).toThrow("ENOENT");
+  });
+
+  it("rejects screenshot dimensions that disagree with shipped pixels", () => {
+    expect(() => run(fixture("2732x2048"))).toThrow(
+      "Manifest dimensions: screenshots/editor-wide-light.png",
+    );
+  });
+
+  it("rejects a missing manifest image", () => {
+    const directory = fixture();
+    rmSync(join(directory, "icons/pwa-64x64.png"));
+    expect(() => run(directory)).toThrow("pwa-64x64.png");
   });
 });
