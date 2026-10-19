@@ -1,0 +1,6 @@
+  ✓ 320px search stays anchored, ranked, and overflow-free
+  ✓ 375px search stays anchored, ranked, and overflow-free
+  ✓ 414px search stays anchored, ranked, and overflow-free
+  ✓ 768px search stays anchored, ranked, and overflow-free
+  → checking shortcut and singular result copy
+✓ Landing search refinement passed.

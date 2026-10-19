@@ -1,0 +1,47 @@
+{
+  "app": "cloakpdf",
+  "label": "CloakPDF",
+  "url": "https://pdf.cloakyard.com",
+  "source": "b67e32dd6eb1a9d5ed947912758903e4d72b891b",
+  "main": "72f888388490a0b9df1649957829cb9f4e7204f3",
+  "pr": 203,
+  "version": "afe96c45",
+  "build": "3da20ef8-c237-4d1e-b1e7-1b3b218c9583",
+  "prUrl": "https://github.com/cloakyard/cloakpdf/pull/203",
+  "mergedAt": "2026-10-19T13:39:48Z",
+  "trafficPercent": 100,
+  "verifiedAt": "2026-10-19T13:43:53.608Z",
+  "checks": [
+    {
+      "name": "Workers Builds: cloakpdf",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://dash.cloudflare.com/73a3338267f567d02c3b79c9bcedc6a6/workers/services/view/cloakpdf/production/builds/3da20ef8-c237-4d1e-b1e7-1b3b218c9583"
+    },
+    {
+      "name": "Analyze (javascript-typescript)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/cloakyard/cloakpdf/actions/runs/39262063651/job/118092005035"
+    },
+    {
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/cloakyard/cloakpdf/actions/runs/39262063579/job/118092003634"
+    },
+    {
+      "name": "Scorecard Analysis",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/cloakyard/cloakpdf/actions/runs/39262063545/job/118092003341"
+    },
+    {
+      "name": "Dependency Audit",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/cloakyard/cloakpdf/actions/runs/39262063565/job/118092003177"
+    }
+  ],
+  "scope": "Released websites only; Resume and IMG remain local. Published release tags/assets unchanged."
+}

@@ -1,14 +1,14 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "abcaee334ca7f5e7806fbab230349bb0522020c9670a9c19504e707d4c9f1424"
+    "contractSha256": "0f6ea38f83a91dd0121b15bc803ec21aa9493e612fe5031852058da4f1848453"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
-    "components.html": "139964d2f7cb9a73601f6398e34687b437ff482f2ecbc790724f1968e0121245",
+    "components.html": "2d7dbae121de666acfaf95f84a70a3857c40e995c8a067bcffc2c614e8d34290",
     "reading.html": "7bb2ffe8c9efb75a3cb24a52799e8879d0dfc6faf3dfe2929192e3cea85b4de0",
     "recovery.html": "db1b8518eb648a348d1e6321266ae704ec99b476980297fc0de3627cac97242e",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",

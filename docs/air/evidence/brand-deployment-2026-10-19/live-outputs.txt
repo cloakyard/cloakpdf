@@ -1,0 +1,26 @@
+
+→ Merge PDFs
+  ✓ sorted removal/undo restores keyboard focus and original manual order
+  ✓ uploaded 4 PDFs; merged.pdf has 24 pages
+
+→ Images to PDF
+  ✓ uploaded 2 shipped PNG assets; images.pdf has 2 pages
+
+→ Extract Images
+  ✓ keyboard selection, full-resolution PNG, all 3 images and partial ZIPs preserve bytes/order; empty result and intake focus pass
+  ✓ ZIP failure/retry retains selection; cancelling a measured scan releases the worker/canvas and cannot replace newer results
+
+→ PDF Password
+  ✓ AES-256/permissions, visibility/mismatch recovery, wrong-password retry, source-stream fidelity and unlock-to-editor pass
+  ✓ Empty-password PDF unlock remains supported
+  ✓ Cancelling detection preserves the newer file and restores intake focus
+
+→ Compare PDFs
+  ✓ identical pixels/overlay; changed content and page geometry; missing page; keyboard navigation; source preservation; reset/replacement/unmount URL cleanup; encrypted/corrupt input; cancel and retry
+
+→ Digital Signature
+  ✓ generated signature verifies with OpenSSL CMS; source streams and reopened metadata survive; editing identity invalidates the old certificate
+  ✓ imported PKCS#12 chain, wrong-password retry, visibility and empty-password certificate produce independently verified output
+  ✓ malformed certificate recovery, import cancellation/replacement and real-worker cancellation/retry preserve input and focus
+
+✓ All 6 non-AI standalone tools passed their headless browser workflows.
