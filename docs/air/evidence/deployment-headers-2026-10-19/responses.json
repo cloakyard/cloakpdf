@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "cache": "no-transform, public, max-age=0, must-revalidate"
+  },
+  {
+    "path": "/index.html",
+    "status": 200,
+    "cache": "no-transform, public, max-age=0, must-revalidate"
+  },
+  {
+    "path": "/sw.js",
+    "status": 200,
+    "cache": "no-transform, public, max-age=0, must-revalidate"
+  },
+  {
+    "path": "/manifest.webmanifest",
+    "status": 200,
+    "cache": "no-transform, public, max-age=0, must-revalidate"
+  },
+  {
+    "path": "/assets/app-DoJlZeKB.js",
+    "status": 200,
+    "cache": "no-transform, public, max-age=31536000, immutable"
+  },
+  {
+    "path": "/air-unknown-header-check",
+    "status": 404,
+    "cache": "no-transform"
+  }
+]
