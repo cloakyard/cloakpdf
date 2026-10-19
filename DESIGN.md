@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.5
+version: 1.0.6
 status: approved
 date: 2026-10-19
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 94c5e537752f7efaf3f16c706c32be45e532875b313ad38c49f00a17aa2c5acc
+family-contract-sha256: e7c8a4bcfbc5af9d852a9ec15a38649c9bdaa052e3392db3ff9fd52cd91193af
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.5 — restored hyperlink treatment** · Direction: **Air** · Updated: **2026-10-19**
+Version: **1.0.6 — neutral hyperlinks** · Direction: **Air** · Updated: **2026-10-19**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -123,7 +123,7 @@ quiet blue indicator. It does not depend on a framework's default component skin
 - Selected rails use a neutral tile plus a 2×16px blue marker. It sits on the
   leading edge of a vertical rail and the bottom edge of a horizontal tool dock.
   Selected segments use the same neutral surface and a small blue marker.
-- Focus, meaningful links and selection use shared blue. Logo colours may remain;
+- Focus outlines and selection use shared blue; hyperlinks use neutral ink. Logo colours may remain;
   they never tint the whole app or create a rainbow of tool categories.
 - The landing signature is a low-contrast light horizon: two offset, softly lit
   planes echo the family mark's overlapping geometry. It occupies the space below
@@ -185,7 +185,7 @@ family tokens. System appearance is the default in every app.
 | `line-control`  | `#858e9b` | `#778395` | Required control boundary             |
 | `action`        | `#222831` | `#e9eef7` | Primary button                        |
 | `on-action`     | `#ffffff` | `#18212e` | Primary button content                |
-| `accent`        | `#285ad7` | `#9ebcff` | Focus, links, active indicators       |
+| `accent`        | `#285ad7` | `#9ebcff` | Focus, selection, active indicators   |
 | `accent-soft`   | `#edf2ff` | `#202f4e` | Selected accent surface               |
 | `danger`        | `#b42335` | `#ff9ea8` | Destructive/error content             |
 | `danger-soft`   | `#fff0f1` | `#382229` | Error surface                         |
@@ -698,10 +698,26 @@ no screenshot, simulation, orbital illustration, animated preview, or embedded a
   Preserve destinations, new-tab behavior and decorative icon hiding. Existing
   fine-pointer hover motion follows the arrow (2px right/up for angled links);
   keyboard focus and reduced motion stay still.
-- Header/footer navigation and footer credits retain their approved neutral ink; Source uses
-  `ink-secondary`. A generic body-link class must not override that colour. Meaningful
-  body/prose links retain shared blue; focus and active indicators keep their
-  existing Air treatment. Validate the cascade in both themes and compact menus.
+- Hyperlink text uses neutral ink throughout public pages: header/footer, product
+  destinations, source/privacy invitations, installation guidance and reading prose.
+  Standalone text links use `ink`; supporting navigation and Source use
+  `ink-secondary`; inline links inherit the surrounding neutral prose. Preserve
+  these colours in default, visited, hover, focus and active states. Never use
+  `accent`, a product colour or browser-default blue/purple for hyperlink text.
+- Inline prose links are always underlined, with a 1px current-colour line and
+  3px offset. Standalone links keep their angled cue and gain an underline on
+  fine-pointer hover. Neutral navigation may strengthen to `ink` on hover.
+  Do not add arrow icons to every inline citation or remove existing link cues.
+- Keyboard focus remains an immediate 2px shared-blue outline, with sufficient
+  offset; active navigation may keep its blue marker/underline. These indicators
+  do not recolour the link text. Forced colours respect system LinkText/VisitedText
+  and focus colours. Button-styled links retain their neutral button hierarchy.
+- Check every link in page content as well as navigation, including nested text,
+  inline help, compact menus and all light/dark responsive states. Verify hover,
+  keyboard focus and enlarged text. Run the portable `test:air-links` command
+  against the built preview before committing public-page CSS. Do not infer
+  conformance from Source alone. Document/image output links retain author colours; editor selection and semantic
+  state colours remain separate from this public-page link treatment.
 
 - Keep every destination available at every width. A compact header uses a native,
   in-flow disclosure; its links expand below the brand row without covering the

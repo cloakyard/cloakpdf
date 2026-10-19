@@ -29,7 +29,8 @@
     "design:check": "node scripts/check-air-design.mjs",
     "design:inventory": "node scripts/air-inventory.mjs",
     "design:portability": "node scripts/check-air-portability.mjs",
-    "test:e2e:horizon": "node --experimental-strip-types tests/e2e/landing-horizon.e2e.ts"
+    "test:e2e:horizon": "node --experimental-strip-types tests/e2e/landing-horizon.e2e.ts",
+    "test:air-links": "node scripts/test-air-links.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",

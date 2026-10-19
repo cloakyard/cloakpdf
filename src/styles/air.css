@@ -1472,7 +1472,8 @@ textarea.air-field {
   text-wrap: balance;
 }
 .air-prose a:not(.air-button) {
-  color: var(--air-accent);
+  color: inherit;
+  text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
