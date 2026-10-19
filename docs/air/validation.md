@@ -2336,3 +2336,33 @@ model still follows `replaceAll` despite the adversarial browser checks passing;
 the same complete escaping now uses global regular expressions recognized by the
 analyzer. All 25 reference logic tests and six browser cases pass again. The
 application runtime and HTML bytes produced for ordinary values are unchanged.
+
+## 2026-10-19 — finite landing horizon
+
+Investigation confirmed that HomeScreen never mounted the family horizon. It now
+renders the canonical two-plane SVG and locally pinned finite light runtime under
+the existing hero. The renderer loads only for capable, visible, motion-enabled
+visits, stops at rest, and releases on scrolling away or entering an editor or
+standalone workspace. No new dependency, shader fork or document-output change.
+The lazy shader is 294.30 kB gzip (350 kB build ceiling), carries its license and
+is excluded from service-worker precache. Entry JavaScript is 78.90 kB gzip.
+
+All 68 layouts (17 sizes × light/dark × normal/enlarged text) pass, including short
+landscape and breakpoint neighbors. Desktop 1440, laptop 1280 and phone 390 in both
+appearances were visually inspected. Real WebGPU arrival, pointer response, zero
+idle frames, offscreen release/reactivation, theme/reduced-motion changes and
+editor/standalone teardown pass. Reduced-motion/install, unsupported, constrained,
+Save-Data and forced-colour visits request no shader. GPU/battery/thermal and
+physical-device acceptance remain open; desktop browser emulation does not close them.
+Evidence: `evidence/landing-horizon-2026-10-19/` (68-case JSON and seven PNGs).
+
+CodeQL's final rescan passed after the equivalent global-regex escape correction;
+all 79 high findings are cleared. The dependency, contract and deployment-preview
+checks also pass. No security rule or branch protection was bypassed.
+
+Final release regression: `vp check --fix`, dead-code, all 461 units in 48 files,
+production build/133 assets, all 16 browser smoke suites and the 44-layout real
+waiting-worker/PWA integration pass. Air 95-source inventory, 18 portability checks
+and exact family sync pass. The unchanged extended document/AI acceptance remains
+mapped in `acceptance.md`; no unrun test is counted as a new pass. Compact regression
+logs are retained beside the horizon captures as `.txt` files.

@@ -1467,3 +1467,9 @@ journeys across all apps; it is not inferred from the pilot alone.
   reload this tab's work. Recheck the current route before the delayed reload so a
   new editor handoff remains safe. First-install cache feedback must not suppress
   later update notices. Validate with real waiting-worker/two-tab tests and output.
+
+- The landing mounts the canonical finite Air horizon with static SVG first paint.
+  Keep the shader lazy, below 350 kB gzip, licensed and outside service-worker
+  precache. Reduced motion, forced colours, Save-Data, constrained or unsupported
+  devices retain static content. Stop at rest and release GPU resources offscreen,
+  hidden, and on every editor/standalone/privacy departure. No editor decoration.

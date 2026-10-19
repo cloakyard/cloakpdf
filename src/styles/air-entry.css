@@ -123,9 +123,9 @@ textarea.editor-inline-text {
 .pdf-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--air-space-64);
+  gap: var(--air-space-24) var(--air-space-64);
   align-items: center;
-  padding-block: var(--air-space-64) var(--air-space-96);
+  padding-block: var(--air-space-64) var(--air-space-32);
 }
 .pdf-home .pdf-hero h1 {
   font-size: var(--air-text-hero);
@@ -140,6 +140,30 @@ textarea.editor-inline-text {
 }
 .pdf-hero .air-page-lede {
   max-inline-size: 38ch;
+}
+.pdf-horizon {
+  grid-column: 1 / -1;
+  position: relative;
+  inline-size: 100%;
+  block-size: 160px;
+  color: var(--air-accent);
+  background-color: var(--air-page);
+  outline-color: var(--air-surface-soft);
+  pointer-events: none;
+  overflow: clip;
+}
+.pdf-horizon svg,
+.pdf-horizon canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.pdf-horizon canvas {
+  visibility: hidden;
+}
+.pdf-horizon[data-light-ready="true"] canvas {
+  visibility: visible;
 }
 .pdf-entry {
   min-inline-size: 0;
@@ -490,7 +514,10 @@ textarea.editor-inline-text {
     grid-template-columns: minmax(0, 1fr);
   }
   .pdf-hero {
-    padding-block: var(--air-space-32) var(--air-space-64);
+    padding-block: var(--air-space-32) var(--air-space-16);
+  }
+  .pdf-horizon {
+    block-size: 104px;
   }
   .pdf-file-drop--hero {
     min-block-size: 18rem;
@@ -512,6 +539,14 @@ textarea.editor-inline-text {
     padding-block: var(--air-space-32);
   }
 }
+@media (max-height: 480px) and (orientation: landscape) {
+  .pdf-hero {
+    padding-block-start: var(--air-space-24);
+  }
+  .pdf-horizon {
+    block-size: 64px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .pdf-file-icon {
     transition: none;
@@ -519,6 +554,9 @@ textarea.editor-inline-text {
   }
 }
 @media (forced-colors: active) {
+  .pdf-horizon {
+    display: none;
+  }
   .pdf-file-drop:has(input:focus-visible) {
     outline-color: Highlight;
   }

@@ -1,0 +1,4 @@
+pass: Formatting completed for checked files (2.2s)
+pass: Found no warnings, lint errors, or type errors in 289 files (943ms, 12 threads)
+$ knip ⊘ cache disabled
+

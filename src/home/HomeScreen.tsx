@@ -1,6 +1,7 @@
 import { ArrowRight, FileArchive, FileImage, Scissors, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileDropZone } from "../components/FileDropZone.tsx";
+import { AirHorizon } from "./AirHorizon.tsx";
 import { ToolEntry } from "./ToolEntry.tsx";
 import { categories, HOME_CARD_TOOLS, type ToolId } from "../config/tool-registry.ts";
 import { EDITOR_TOOLS } from "../editor/tools.ts";
@@ -226,6 +227,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
             <ConnectionStatus /> <span>No account needed.</span>
           </p>
         </div>
+        <AirHorizon />
       </section>
 
       <section

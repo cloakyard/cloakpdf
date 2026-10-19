@@ -1,0 +1,13 @@
+note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use `vpr test` instead.
+
+ RUN  v5.0.3 /Users/sumitsahoo/Developer/cloakpdf
+
+
+ Test Files  48 passed (48)
+      Tests  461 passed (461)
+   Start at  16:41:38
+   Duration  1.68s (import 43%, tests 36%, transform 20%, worker 1%)
+
+    Isolate  48 workers spawned · ~110ms startup each (spawn + environment, per file)
+             at least ~371ms faster with isolate: false — reuses workers across files instead of one per file
+
