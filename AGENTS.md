@@ -35,14 +35,13 @@ There is no router library. [src/App.tsx](src/App.tsx) is a state machine over f
 
 There are two places a tool can live:
 
-- **Standalone home cards** — [src/config/tool-registry.ts](src/config/tool-registry.ts) exports `tools`, `categories`, `findTool`, `findToolComponent`, and `HOME_CARD_TOOLS`; the card components live in [src/standalone/](src/standalone/). Only tools that **can't** be a single-PDF "edit then export" flow stay as cards (`standaloneOnly: true`): the multi-input constructors (merge, images→PDF), the dual-input compare, terminal-output extract-images, the security flows (password, digital signature), the read-only inspector, and on-device AI chat.
+- **Standalone home cards** — [src/config/tool-registry.ts](src/config/tool-registry.ts) exports `HOME_CARD_TOOLS`, `categories`, `findTool`, and `findToolComponent`; the card components live in [src/standalone/](src/standalone/). Only tools that **can't** be a single-PDF "edit then export" flow stay in this standalone roster: the multi-input constructors (merge, images→PDF), the dual-input compare, terminal-output extract-images, the security flows (password, digital signature), and on-device AI chat.
 - **Editor panels** — every other single-PDF tool lives inside the editor. Its rail metadata is in [src/editor/tools.ts](src/editor/tools.ts) (`EDITOR_TOOLS`) and its `{ Stage?, Panel }` implementation is bound by id in [src/editor/registry.tsx](src/editor/registry.tsx), with the panels under [src/editor/panels/](src/editor/panels/).
 
-The app-wide `ToolId` union is **derived from both rosters** in tool-registry.ts (`(typeof tools)[number]["id"] | EditorToolId`) — it is not hand-maintained, so it can't drift. Adding a tool means adding it to exactly one roster.
+The app-wide `ToolId` union is **derived from both rosters** in tool-registry.ts (`StandaloneToolId | EditorToolId`) — it is not hand-maintained, so it can't drift. Adding a tool means adding it to exactly one roster.
 
 Tool metadata flags worth knowing:
 
-- `standaloneOnly` — keep the tool as a home card rather than an editor flow (see above).
 - `desktopOnly` — hides the card on mobile and shows a "desktop only" placeholder if a phone hits the URL directly. Used for on-device AI tools (RAM/WebGPU constraints).
 - `beta` — renders a beta chip next to the title.
 - `requirements` — free-form note (e.g. "Requires ≥ 4 GB free RAM") shown on the card and inside the tool.

@@ -15,7 +15,12 @@ import { LoadingState } from "./components/LoadingState.tsx";
 import { PrivacyPolicy } from "./components/PrivacyPolicy.tsx";
 import { ReloadPrompt } from "./components/ReloadPrompt.tsx";
 import { HomeScreen } from "./home/HomeScreen.tsx";
-import { findTool, findToolComponent, type ToolId } from "./config/tool-registry.ts";
+import {
+  findTool,
+  findToolComponent,
+  type StandaloneToolId,
+  type ToolId,
+} from "./config/tool-registry.ts";
 // Plain metadata (no editor component graph) — safe on the home critical path.
 import { EDITOR_TOOL_IDS } from "./editor/tools.ts";
 import type { Tool } from "./types.ts";
@@ -176,7 +181,7 @@ export function App() {
   // `usePdfFile` to deep-link into the PDF Password tool.
   useEffect(() => {
     function onNavigate(event: Event) {
-      const id = (event as CustomEvent<ToolId>).detail;
+      const id = (event as CustomEvent<StandaloneToolId>).detail;
       if (findTool(id)) navigate({ kind: "tool", toolId: id });
     }
     // A tool's secondary "& edit" action finished and handed its output PDF

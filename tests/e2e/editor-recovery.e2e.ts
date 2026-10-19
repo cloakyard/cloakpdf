@@ -137,6 +137,7 @@ async function matrix(state: string) {
     document.documentElement.style.fontSize = "";
   });
   await page.setViewport({ width: 1440, height: 900 });
+  console.log(`✓ ${state} responsive/theme/text matrix`);
 }
 try {
   await page.setViewport({ width: 1440, height: 900 });
@@ -148,9 +149,13 @@ try {
       const { createRoot } = (await load("/node_modules/.vite/deps/react-dom_client.js")).default;
       const source = await (await fetch("/src/editor/EditorShell.tsx")).text();
       const context = source.match(/from ["']([^"']*EditorContext\.tsx[^"']*)["']/)![1];
-      const { EditorProvider, useEditorRead, useEditorActions } = await load(context);
+      const { EditorProvider, useEditorRead, useEditorActions, useActiveTool } =
+        await load(context);
       const { EditorShell } = await load("/src/editor/EditorShell.tsx");
-      const { StageProvider } = await load("/src/editor/stage.tsx");
+      const { StageProvider, useActiveStageProps } = await load("/src/editor/stage.tsx");
+      const { toolImpl } = await load("/src/editor/registry.tsx");
+      for (const id of [null, "", "missing", "constructor", "toString", "__proto__"])
+        if (toolImpl(id) !== null) throw new Error(`Unknown tool implementation: ${id}`);
       const { MotionProvider } = await load("/src/components/motion.tsx");
       const store = await load("/src/editor/draft-store.ts");
       const w = window as any;
@@ -210,6 +215,8 @@ try {
       function Probe() {
         w.airRead = useEditorRead();
         w.airActions = useEditorActions();
+        w.airActiveTool = useActiveTool();
+        w.airStage = useActiveStageProps();
         return React.createElement(EditorShell);
       }
       w.mount = (strict = false, file = null) => {
@@ -301,8 +308,20 @@ try {
     "Crop",
     "file retry preserves selected tool",
   );
+  assert.equal(
+    await page.evaluate(() => typeof (window as any).airStage.onPointerDown),
+    "function",
+  );
   await page.evaluate(() => (window as any).airActions.setActiveTool(null));
   await settle();
+  assert.deepEqual(
+    await page.evaluate(() => Object.keys((window as any).airStage)),
+    [],
+    "departed tool leaves no canvas handlers or overlay",
+  );
+  await page.evaluate(() => (window as any).airActions.setActiveTool("constructor"));
+  await settle();
+  assert.equal(await page.evaluate(() => (window as any).airActiveTool), null);
   // Failed restore retains source bytes, draft/action and keyboard focus, without an unhandled rejection.
   await page.evaluate(() => {
     (window as any).failRead = true;
@@ -485,6 +504,79 @@ try {
     await w.leaving;
   });
   assert.equal(await page.$('main[aria-label="PDF editor"]'), null);
+  // Departing before the busy surface paints must not start queued document work.
+  await page.evaluate(() => {
+    const w = window as any;
+    w.mount(true, new File([new Uint8Array(w.original)], "Queued.pdf"));
+  });
+  await page.waitForFunction(() => (window as any).airRead.doc?.fileName === "Queued.pdf");
+  assert.equal(
+    await page.evaluate(async () => {
+      const w = window as any;
+      let ran = false;
+      const task = w.airActions.runTask("Queued", () => {
+        ran = true;
+      });
+      w.root.unmount();
+      await task;
+      return ran;
+    }),
+    false,
+    "abandoned queued tasks never start",
+  );
+  console.log("✓ Departed queued task never starts");
+  // An in-flight transform cannot build previews or install output after departure.
+  await page.evaluate(() => {
+    const w = window as any;
+    w.mount(true, new File([new Uint8Array(w.original)], "Transform.pdf"));
+  });
+  await page.waitForFunction(() => (window as any).airRead.doc?.fileName === "Transform.pdf");
+  await page.evaluate(() => {
+    const w = window as any;
+    w.releaseTransform = null;
+    w.transform = w.airActions.applyTransform(async () => {
+      await new Promise<void>((resolve) => {
+        w.releaseTransform = resolve;
+      });
+      return { bytes: new Uint8Array(w.saved), label: "Late output" };
+    });
+  });
+  await page.waitForFunction(() => typeof (window as any).releaseTransform === "function");
+  assert.equal(
+    await page.evaluate(async () => {
+      const w = window as any;
+      const count = w.urls.made.length;
+      w.root.unmount();
+      w.releaseTransform();
+      await w.transform;
+      return w.urls.made.length - count;
+    }),
+    0,
+    "abandoned transform output never starts preview generation",
+  );
+  console.log("✓ Departed transform does not generate previews");
+  // If preview generation already started, every late result must still be released.
+  await page.evaluate(() => {
+    const w = window as any;
+    w.mount(true, new File([new Uint8Array(w.original)], "Previewing.pdf"));
+  });
+  await page.waitForFunction(() => (window as any).airRead.doc?.fileName === "Previewing.pdf");
+  await page.evaluate(() => {
+    const w = window as any;
+    w.holdPreview = true;
+    w.releasePreview = null;
+    w.transform = w.airActions.applyTransform(async () => ({
+      bytes: new Uint8Array(w.saved),
+      label: "Late previews",
+    }));
+  });
+  await page.waitForFunction(() => typeof (window as any).releasePreview === "function");
+  await page.evaluate(async () => {
+    const w = window as any;
+    w.root.unmount();
+    w.releasePreview();
+    await w.transform;
+  });
   const leaked = await page.evaluate(() => {
     const w = window as any;
     return w.urls.made.filter((url: string) => !w.urls.retired.includes(url));
@@ -497,7 +589,7 @@ try {
       {
         captures,
         features:
-          "file failure/retry, measured previews, retained failed draft, retry/dedup/focus, discard isolation, newer-file ownership, stale hashing, StrictMode and exit cleanup",
+          "file failure/retry, measured previews, retained failed draft, retry/dedup/focus, discard isolation, newer-file ownership, stale hashing, StrictMode, queued-task cancellation and late transform/preview cleanup",
         errors,
       },
       null,

@@ -88,7 +88,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/panels/TextTokens.tsx`         | app-surface         | Done         | Done               | Pending    |
 | `src/editor/panels/WatermarkTool.tsx`      | app-surface         | Done         | Done               | Pending    |
 | `src/editor/panels/controls.tsx`           | app-surface         | Done         | Done               | Pending    |
-| `src/editor/registry.tsx`                  | app-surface         | Done         | Pending            | Pending    |
+| `src/editor/registry.tsx`                  | app-surface         | Done         | Done               | Pending    |
 | `src/editor/stage.tsx`                     | app-surface         | Done         | Done               | Pending    |
 | `src/fonts.css`                            | output-preservation | Done         | Done               | Pending    |
 | `src/home/HomeScreen.tsx`                  | app-surface         | Done         | Done               | Pending    |

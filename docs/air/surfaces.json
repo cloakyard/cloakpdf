@@ -35,9 +35,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/recovery-utility-2026-10-13.json",
-        "docs/air/evidence/constructors-2026-10-13.json"
+        "docs/air/evidence/constructors-2026-10-13.json",
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Registry/lifecycle checkpoint: standalone navigation has a derived standalone-only identity; editor search/preselection and constructor file handoff remain separate live routes. All seven standalone components remain lazy; no redundant standaloneOnly filter remains."
     },
     {
       "path": "src/components/ActionButton.tsx",
@@ -1208,9 +1209,11 @@
         "docs/air/evidence/collections-2026-10-14.json",
         "docs/air/evidence/editor-recovery-2026-10-15.json",
         "docs/air/evidence/annotate-2026-10-15.json",
-        "docs/air/evidence/editor-wrappers-2026-10-19.json"
+        "docs/air/evidence/editor-wrappers-2026-10-19.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
       ],
-      "notes": "History page-count and explicit Cancel draft cleanup corrected and covered by real browser edits. This is a bounded review, not a complete context/UI migration. Loading/recovery checkpoint adds measured preview state, retained failed restores, load/draft request ownership and cleanup after exit/StrictMode replay. No claim of a complete provider audit. Annotation checkpoint adds optional live-payload ownership to deferred moveObject commits so Undo/Cancel/removal/Apply cannot receive a stale snapshot; existing immediate callers retain their behavior. 2026-10-19 provider audit: removed unused commit/jumpTo and history base/size/jumpTo/labels APIs; busy history calls reject synchronously. Existing byte/checkpoint/preview ownership remains. Continued lifecycle review and physical/assistive acceptance remain open."
+      "notes": "Provider source audit covers history/checkpoint ownership, destructive marks, measured loading, failed restore/retry, stale file/draft reads and cleanup after exit/StrictMode replay. Deferred moveObject commits reject stale payloads; busy history calls reject synchronously. Unused commit/jumpTo and related history APIs were removed. Active-tool requests reject unknown IDs. Session ownership prevents queued tasks starting after departure and discards late transform results; late preview URLs are released. Physical/assistive acceptance remains open."
     },
     {
       "path": "src/editor/EditorShell.tsx",
@@ -1862,7 +1865,7 @@
         "pending privacy marks / forced colours / reduced motion / enlarged text"
       ],
       "viewports": [
-        "320–1920px: all 11 required viewport classes, light/dark",
+        "320\u20131920px: all 11 required viewport classes, light/dark",
         "200% root text at 320/390/1440px",
         "Native Safari and Firefox with actual Firefox 200% zoom"
       ],
@@ -1957,7 +1960,7 @@
         "empty/default; populated; nested; reordered; removed/restored; invalid title/page; detecting; no-match; failed/retry; cancelled/stale; contents/pending-overlay protection; applied/undo; mobile Done/Cancel"
       ],
       "viewports": [
-        "all 11 required sizes × light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
+        "all 11 required sizes \u00d7 light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/bookmarks-2026-10-15.json"],
       "notes": "Air rows/shared select, explicit target validation, byte-scoped drafts, cancellable detection, overlay protection and promised mobile apply. Applied drafts retire; failed validation keeps pending Apply for retry. Physical touch/software keyboard, OS IME and assistive speech remain unverified."
@@ -2523,7 +2526,7 @@
         "rotated/cropped/scaled pages, font descenders, transformed corners, long excerpt"
       ],
       "viewports": [
-        "13 sizes (11 required plus 767/769 breakpoint neighbors) × light/dark × selection/action regions",
+        "13 sizes (11 required plus 767/769 breakpoint neighbors) \u00d7 light/dark \u00d7 selection/action regions",
         "320/768/1440 at 200% root text, both themes",
         "coarse targets >=44px, forced colours/reduced motion",
         "Safari native application/Undo; Firefox actual 200% zoom"
@@ -2705,7 +2708,7 @@
       "airImplemented": true,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -2720,16 +2723,25 @@
       "path": "src/editor/registry.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
-      "airImplemented": false,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
+      "states": [
+        "default",
+        "unknown tool",
+        "keyboard search",
+        "focus transfer",
+        "source/history preservation",
+        "tool departure"
+      ],
+      "viewports": ["1440x900", "1280x720", "768x1024", "390x844", "light", "dark"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+        "docs/air/editor-mobile-audit.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "notes": "All 22 editor registrations have live panel/stage consumers and remain reachable through the command surface. Unknown/inherited IDs return null. The dispatch seam renders no skin and remains the single implementation map. All-tool routing, heading focus, source/page/history preservation and stage departure pass across desktop/laptop/tablet/phone in both themes. Physical/assistive acceptance remains open."
     },
     {
       "path": "src/editor/stage.tsx",
@@ -2745,8 +2757,12 @@
         "176 navigation states across 18 sizes, light/dark and 100/200% root text",
         "70 N-up layouts; coarse targets, forced colours and reduced motion"
       ],
-      "evidence": ["docs/air/evidence/editor-wrappers-2026-10-19.json"],
-      "notes": "Reviewed live stage registration, slot ownership and cleanup across active-tool changes. Retained the shared dispatcher; no duplicate UI skin. Feature and layout regression covers the consumers. Physical/assistive acceptance remains open."
+      "evidence": [
+        "docs/air/evidence/editor-wrappers-2026-10-19.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
+      ],
+      "notes": "Reviewed live stage registration, slot ownership and cleanup across active-tool changes. Retained the shared dispatcher; no duplicate UI skin. Feature and layout regression covers the consumers. Physical/assistive acceptance remains open. Registry/lifecycle checkpoint: verified layout-phase stage cleanup and all live registrations; no stale pointer handler or overlay after leaving Crop. Inline editor ownership, observers, wheel timers and document/event cleanup remain live and are retained."
     },
     {
       "path": "src/fonts.css",
@@ -2809,8 +2825,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
+      ],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Registry/lifecycle checkpoint: the standalone roster is direct and readonly; device filtering still applies. Editor search metadata remains independent of the heavy editor component graph."
     },
     {
       "path": "src/home/ToolEntry.tsx",
@@ -3287,7 +3307,7 @@
         "1025x768"
       ],
       "evidence": [
-        "docs/air/validation.md — refinement 02 candidate",
+        "docs/air/validation.md \u2014 refinement 02 candidate",
         "docs/air/components.html",
         "docs/air/evidence/editor-wrappers-2026-10-19.json"
       ],

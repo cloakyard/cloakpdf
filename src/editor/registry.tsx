@@ -1,4 +1,3 @@
-import * as PageNumbers from "./panels/PageNumbersTool.tsx";
 // registry.tsx — Binds editor tool ids to their implementation: an optional
 // Stage (canvas interaction, registers via useStageProps; focus tools only)
 // and a Panel (right-side options). This is the id → {Stage, Panel} map the
@@ -19,6 +18,7 @@ import * as FindAct from "./panels/FindActTool.tsx";
 import * as Metadata from "./panels/MetadataTool.tsx";
 import * as Ocr from "./panels/OcrTool.tsx";
 import * as Organize from "./panels/OrganizeTool.tsx";
+import * as PageNumbers from "./panels/PageNumbersTool.tsx";
 import * as Redact from "./panels/RedactTool.tsx";
 import * as Scrub from "./panels/ScrubTool.tsx";
 import * as SelectText from "./panels/SelectTextTool.tsx";
@@ -83,5 +83,5 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
 };
 
 export function toolImpl(id: string | null): ToolImpl | null {
-  return id ? (TOOL_IMPL[id as EditorToolId] ?? null) : null;
+  return id && Object.hasOwn(TOOL_IMPL, id) ? TOOL_IMPL[id as EditorToolId] : null;
 }

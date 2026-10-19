@@ -1438,3 +1438,13 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Annotation font faces are output data. Keep fonts.css, the embedded-family roster
   and bundled TTFs in exact agreement; preview and export use the same bytes. Removing
   UI fonts must not remove document fonts or change their output metrics.
+
+- Keep standalone and editor tool rosters disjoint, with derived identities and
+  complete implementation maps. Unknown IDs cannot select inherited object properties
+  or replace a valid active tool. Standalone navigation and document handoff retain
+  their specific boundaries; metadata must not load the editor implementation graph.
+- Queued editor work belongs to the session that created it. Do not start it after
+  departure or install a late transform into discarded history. Check ownership
+  before generating previews and release any previews that finish after departure.
+  Tool changes clear old canvas handlers/overlays while preserving document pages;
+  keep these lifecycle seams even when their components render no visible content.

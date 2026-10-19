@@ -345,13 +345,18 @@ export function EditorProvider({
           return;
         }
         busyRef.current = true;
+        const request = loadRequest.current;
         setError(null); // clear any stale error from a prior operation
         setBusyLabel(label);
         requestAnimationFrame(() => {
           requestAnimationFrame(async () => {
             try {
-              // Hand the task setBusyLabel so it can refine the overlay text mid-run.
-              await fn(setBusyLabel);
+              // The editor may close before either paint. Abandoned work must
+              // not start or update the departed session's status.
+              if (request === loadRequest.current)
+                await fn((next) => {
+                  if (request === loadRequest.current) setBusyLabel(next);
+                });
               resolve();
             } catch (e) {
               // Surface the failure in the editor's error banner. Every byte
@@ -361,11 +366,14 @@ export function EditorProvider({
               // spinner vanish with no diagnosis. Still reject so success-only
               // `.then` chains (e.g. OCR "make searchable" clearing its preview)
               // correctly skip on failure.
-              setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+              if (request === loadRequest.current)
+                setError(
+                  e instanceof Error ? e.message : "Something went wrong. Please try again.",
+                );
               reject(e);
             } finally {
               busyRef.current = false;
-              setBusyLabel(null);
+              if (request === loadRequest.current) setBusyLabel(null);
             }
           });
         });
@@ -516,6 +524,7 @@ export function EditorProvider({
   }, []);
 
   const setActiveTool = useCallback((id: string | null) => {
+    if (id !== null && !findEditorTool(id)) return;
     setActiveToolState(id);
     toolCheckpointRef.current = historyRef.current.index();
   }, []);
@@ -650,6 +659,7 @@ export function EditorProvider({
     async (t: DocTransform) => {
       const cur = docRef.current;
       if (!cur) return;
+      const request = loadRequest.current;
       await runBusy("Applying…", async () => {
         // Burn any pending destructive marks (redaction / erase) FIRST, so they
         // land on the geometry they were drawn on before this transform changes
@@ -662,11 +672,17 @@ export function EditorProvider({
           const burned = await flattenDestructiveObjects(cur);
           base = { ...cur, bytes: burned, objects: withoutDestructive(cur.objects) };
         }
+        if (request !== loadRequest.current) return;
         const { bytes, label, objects } = await t(base);
+        if (request !== loadRequest.current) return;
         // Re-derive page geometry + thumbnails from the new bytes. Keep the
         // objects the transform returned (used to drop just-burned marks), or
         // preserve the current ones (still valid in fraction space).
         const rebuilt = await createDocFromBytes(bytes, base.fileName);
+        if (request !== loadRequest.current) {
+          revokeThumbnails(rebuilt.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+          return;
+        }
         // Do NOT revoke cur's thumbnails here: the prior history entry (the undo
         // target) still references them. They're freed when that entry is
         // evicted from the stack — see history.setOnEvict above.

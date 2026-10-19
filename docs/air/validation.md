@@ -2103,3 +2103,50 @@ remain in `/tmp/cloakpdf-air-review/foundation-*`.
 Next: non-visible registry/lifecycle consumers and remaining full-PDF acceptance,
 then IMG/Resume colour wheel adoption and family rollout. Local commits only;
 this bounded cleanup does not complete the PDF or family migration.
+
+## 2026-10-19 — Tool registries and session lifecycle
+
+The two disjoint rosters derive route identities and require complete implementation
+maps. All seven standalone components remain lazy. Removed all-true standaloneOnly
+flags/filter, seven redundant lazy aliases and obsolete contributor references.
+Standalone event navigation now states the routes it actually handles; editor
+search/preselection and constructor handoff remain intact. Unknown/inherited ids
+are rejected. Live stage/provider/entry and cleanup seams remain; no dependency added.
+
+Reproduced queued work running after editor departure. The existing session revision
+now guards queued busy tasks, status updates and transform output. Work abandoned
+before paint never starts; late transform output does not build previews; previews
+already being generated are retired. Already-running computation can finish, but
+its result cannot install in a departed editor.
+
+456 units/47 files, 176 editor-tool selections (22 tools × four device classes ×
+two themes), 176 navigation layouts, 141 recovery captures and 70 N-up layouts with
+23 real output sheets pass. Complete 16 production smoke and seven extended suites
+pass; with focused recovery/N-up, 25 distinct suites. Stage handlers clear on tool
+departure; document/page/history and heading focus persist. StrictMode, load/draft
+failure/retry, stale ownership and thumbnail release pass without console errors.
+
+Responsive evidence spans all eleven required sizes, both themes, enlarged text,
+forced colours and reduced motion. Desktop/laptop/tablet/phone captures inspected.
+Production IAB review confirms Stamp overlay cleanup, Metadata Save/Undo and retained
+Page 2 with a synthetic PDF. Previous foundation Safari/Firefox evidence remains;
+those browsers were not rerun in this slice. Physical touch/software keyboard, OS
+IME and spoken assistive acceptance remain open. All 91 inventory sources are now
+source-reviewed/implemented; final validation flags remain false.
+
+The baseline failure is recorded. Early harness context/heading errors were corrected;
+a route run passed all selections then clicked during responsive layout, now guarded
+by a visible-control wait. A concurrent recovery run was stopped; the final fresh
+serial run passes all captures and lifecycle assertions. No output assertion weakened.
+
+Required code/dead/unit/build/assets/design/18 portability and root checks/six-document
+sync pass. Editor 327.18/98.80 kB raw/gzip (gzip -0.53); CSS 132.38/22.81 unchanged;
+126 deployment assets/75 PWA entries. Air 1.0.2 / bb90f52e0b0a stays unchanged.
+The canonical PDF appendix and standalone DESIGN carry the registry/ownership rules.
+Evidence: `evidence/registry-lifecycle-2026-10-19.json`, desktop/phone PNGs and
+`evidence/registry-lifecycle-checks-2026-10-19.log`; full captures/logs remain under
+`/tmp/cloakpdf-air-review/registry-*`.
+
+Next: replace legacy PWA install/README screenshots and audit associated metadata,
+then remaining full-PDF acceptance and family rollout. Local commits only; this
+does not complete the full PDF/family migration.

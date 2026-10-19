@@ -4,6 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { PDFDocument, StandardFonts } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
+import { EDITOR_TOOLS } from "../../src/editor/tools.ts";
 
 const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-navigation";
 await mkdir(output, { recursive: true });
@@ -384,6 +385,72 @@ try {
     "solid",
   );
   await cdp.send("Emulation.setEmulatedMedia", { features: [] });
+  // Every registered tool must remain reachable from the shared command surface
+  // on desktop, laptop, tablet and phone. Switching tools preserves source pages.
+  const registryRows: unknown[] = [];
+  const sourcePreview = await page.$eval('img[alt="Page 3"]', (n) => n.getAttribute("src"));
+  for (const [width, height] of [
+    [1440, 900],
+    [1280, 720],
+    [768, 1024],
+    [390, 844],
+  ]) {
+    await page.setViewport({ width, height });
+    for (const theme of ["light", "dark"] as const) {
+      await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: theme }]);
+      for (const tool of EDITOR_TOOLS) {
+        await page.keyboard.down("Control");
+        await page.keyboard.press("k");
+        await page.keyboard.up("Control");
+        await page.waitForSelector("#command-palette-query");
+        await page.type("#command-palette-query", tool.name);
+        assert.equal(
+          await page.evaluate((name) => {
+            const label = [...document.querySelectorAll(".pdf-command-option__label")].find(
+              (node) => node.textContent === name,
+            );
+            const option = label?.closest<HTMLElement>("[role=option]");
+            option?.click();
+            return !!option;
+          }, tool.name),
+          true,
+          `${tool.id} is searchable`,
+        );
+        await page.waitForFunction(
+          (name) =>
+            document.activeElement?.tagName === "H2" && document.activeElement.textContent === name,
+          {},
+          tool.name,
+        );
+        await page.waitForSelector("#command-palette-query", { hidden: true });
+        assert.equal(
+          await page.$eval('img[alt="Page 3"]', (n) => n.getAttribute("src")),
+          sourcePreview,
+        );
+        const overflow = await page.$eval(
+          'main[aria-label="PDF editor"]',
+          (n) => n.scrollWidth > n.clientWidth + 1,
+        );
+        assert.equal(overflow, false, `${tool.id} ${width} ${theme} fits`);
+        assert.equal(
+          await page.$eval('[aria-label="Undo"]', (n) => n.getAttribute("aria-disabled")),
+          "true",
+          "tool selection does not mutate the document",
+        );
+        registryRows.push({ tool: tool.id, width, height, theme });
+      }
+      await page.screenshot({ path: resolve(output, `registry-${width}-${theme}.png`) });
+    }
+  }
+  await writeFile(
+    resolve(output, "registry-routes.json"),
+    JSON.stringify(registryRows, null, 2) + "\n",
+  );
+  console.log(
+    `PASS: ${registryRows.length} registered tool selections preserve pages, focus and history.`,
+  );
+  await page.setViewport({ width: 1440, height: 900 });
+  await page.waitForSelector('[aria-label="Back to home"]', { visible: true });
   await page.click('[aria-label="Back to home"]');
   const longName =
     "Air workspace study with a very long filename for a multilingual annual report and supporting documents 2026.pdf";

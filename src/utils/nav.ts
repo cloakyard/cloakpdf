@@ -1,5 +1,5 @@
 /**
- * Cross-component tool navigation.
+ * Cross-component navigation to standalone tools.
  *
  * App.tsx owns the active-view state and routes purely via React state
  * (no URL hash). Tools deep inside the tree can't `setView` directly,
@@ -11,12 +11,12 @@
  * deep-links into the PDF Password tool so users can unlock the file
  * and come back.
  */
-import type { ToolId } from "../config/tool-registry.ts";
+import type { StandaloneToolId } from "../config/tool-registry.ts";
 
 export const NAVIGATE_TOOL_EVENT = "cloakpdf:navigate-tool";
 
-export function navigateToTool(toolId: ToolId): void {
-  window.dispatchEvent(new CustomEvent<ToolId>(NAVIGATE_TOOL_EVENT, { detail: toolId }));
+export function navigateToTool(toolId: StandaloneToolId): void {
+  window.dispatchEvent(new CustomEvent<StandaloneToolId>(NAVIGATE_TOOL_EVENT, { detail: toolId }));
 }
 
 export const OPEN_EDITOR_EVENT = "cloakpdf:open-editor";

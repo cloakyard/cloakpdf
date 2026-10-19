@@ -147,7 +147,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
    * (currently Ask PDF) stay out of a phone's resting grid and search index. */
   const visibleHomeTools = useMemo(() => {
     const mobile = isMobileDevice();
-    return mobile ? HOME_CARD_TOOLS.filter((tool) => !tool.desktopOnly) : HOME_CARD_TOOLS;
+    return mobile ? HOME_CARD_TOOLS.filter((tool: Tool) => !tool.desktopOnly) : HOME_CARD_TOOLS;
   }, []);
 
   /**
