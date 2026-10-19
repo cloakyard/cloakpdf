@@ -469,7 +469,7 @@ textarea.editor-inline-text {
   padding-inline-start: var(--air-space-24);
 }
 .pdf-policy .pdf-policy-link {
-  color: var(--air-accent);
+  color: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
