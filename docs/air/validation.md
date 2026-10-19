@@ -2150,3 +2150,49 @@ Evidence: `evidence/registry-lifecycle-2026-10-19.json`, desktop/phone PNGs and
 Next: replace legacy PWA install/README screenshots and audit associated metadata,
 then remaining full-PDF acceptance and family rollout. Local commits only; this
 does not complete the full PDF/family migration.
+
+## 2026-10-19 — Install/README previews and social artwork
+
+Replace retired device-named Workbench screenshots with four actual Air Annotate
+editor captures: desktop light/dark (1440×900) and phone light/dark (780×1688 pixels,
+390×844 CSS at 2× density). The capture script generates a three-page synthetic
+Studio notes PDF, uses isolated browser contexts, selects the actual tool and
+waits for page/font decoding. Published images and laptop/tablet live captures in
+both themes were visually inspected. Phone emulation is not physical acceptance.
+
+README now selects the matching light/dark image with descriptive alternative text.
+The manifest labels layout/theme truthfully and uses Air #fafbfc for its default
+page/splash surface; HTML retains separate light/dark theme colours. A composed
+1200×630 OG card uses the real editor capture, original mark and canonical local
+Air CSS. The title matches “Your PDF. Your space.”; OG/Twitter alternatives describe
+the image. The simplified generator needs no temporary server or remote resources.
+No application behavior, exported output, logo or document font changed.
+
+The build checks actual shipped manifest image paths, media types, dimensions and
+labels, plus the social card dimensions. Two negative tests cover missing images
+and incorrect sizes. Existing asset-budget tests now include a valid manifest.
+Removed the old assets and active device-name/Workbench preview references; no
+new dependency. The inventory now includes static/root/artwork HTML: 94 surfaces,
+including a newly visible **pending** public/404.html with retired styles/font links.
+This finding belongs to the next bounded PDF closure piece.
+
+Passing: check/format/lint/types, knip, **458 units / 47 files**, production build,
+128-asset/77-precache checks, design integrity and 18 portability checks. Production
+browser suites: standalone-tools (six real workflows, synthetic PDFs and shipped
+PNG inputs), home-routing, landing-search and editor-navigation (**176 registered
+tool selections + 176 layouts**, Apply/Undo, page/history retention, expanded
+controls, enlarged text, keyboard, reduced motion and forced colours). Built
+manifest, all nine PNG responses/byte matches, OG/Twitter metadata and Chromium
+installability pass. Physical install UI and native engines were not rerun here.
+
+Generator attempts initially targeted the hidden mobile rail, then encountered
+first-install cache feedback over the tool picker. The final capture waits for the
+visible mobile list and dismisses the real notice before selection; all four pass.
+An initial unit run exposed absent manifest data in two old fixtures; corrected
+fixtures and the new negative cases pass without weakening the size assertions.
+
+Evidence: `evidence/previews-2026-10-19.json`, `previews-checks-2026-10-19.log`,
+two laptop PNGs and the five published preview PNGs. Larger captures/logs live in
+`/tmp/cloakpdf-air-review/previews/`. Full PDF/family conformance, physical touch/
+software keyboard, OS IME, spoken assistive use and real-device shader gates remain
+open. Next: static 404 and checklist/evidence reconciliation, then IMG rollout.

@@ -12,19 +12,24 @@ const scanRoot = await readdir(resolve(root, "src")).then(
   () => resolve(root, "src"),
   () => resolve(root, "apps/site/src"),
 );
-async function scan(directory) {
+async function scan(directory, extensions = /\.(tsx|astro|css)$/) {
   const entries = await readdir(directory, { withFileTypes: true });
   const nested = await Promise.all(
     entries.map(async (entry) => {
       const path = resolve(directory, entry.name);
-      if (entry.isDirectory()) return scan(path);
-      if (!/\.(tsx|astro|css)$/.test(entry.name) || /\.(test|spec)\./.test(entry.name)) return [];
+      if (entry.isDirectory()) return scan(path, extensions);
+      if (!extensions.test(entry.name) || /\.(test|spec)\./.test(entry.name)) return [];
       return [relative(root, path)];
     }),
   );
   return nested.flat();
 }
-const paths = (await scan(scanRoot)).sort();
+const paths = [
+  ...(await scan(scanRoot)),
+  ...(await scan(resolve(root, "public"), /\.html$/)),
+  ...(await scan(resolve(root, "artwork"), /\.html$/)),
+  "index.html",
+].sort();
 const surfaces = paths.map(
   (path) =>
     saved.get(path) ?? {

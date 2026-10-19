@@ -4,6 +4,39 @@
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
+      "path": "artwork/og.html",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": true,
+      "states": ["static"],
+      "viewports": ["social 1200x630"],
+      "evidence": ["docs/air/evidence/previews-2026-10-19.json"],
+      "notes": "Static metadata/social artwork; no interactive or device states. Real application captures inspected in both appearances."
+    },
+    {
+      "path": "index.html",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": true,
+      "states": ["static"],
+      "viewports": ["metadata only; rendered entry covered separately"],
+      "evidence": ["docs/air/evidence/previews-2026-10-19.json"],
+      "notes": "Static metadata/social artwork; no interactive or device states. Real application captures inspected in both appearances."
+    },
+    {
+      "path": "public/404.html",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": false,
+      "validated": false,
+      "states": [],
+      "viewports": [],
+      "evidence": [],
+      "notes": "Discovered outside the previous src-only inventory. Still uses retired Workbench styling and requests removed UI fonts; next bounded PDF closure piece."
+    },
+    {
       "path": "src/App.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,

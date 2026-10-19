@@ -86,9 +86,9 @@ export default defineConfig({
         name: "CloakPDF",
         short_name: "CloakPDF",
         description:
-          "Open-source, privacy-focused PDF workbench with advanced editing, OCR, redaction, signatures, comparison, and on-device AI.",
-        theme_color: "#2563EB",
-        background_color: "#F0F4FA",
+          "Edit, organise and sign PDFs on your device. Open-source tools for redaction, OCR, comparison and on-device AI.",
+        theme_color: "#fafbfc",
+        background_color: "#fafbfc",
         display: "standalone",
         // Every top-level surface now has an intentional landscape layout.
         // Individual workflows can still show their own narrow-screen guidance,
@@ -123,22 +123,33 @@ export default defineConfig({
           },
         ],
         screenshots: [
-          // Screenshots taken from Chrome Dev Tools. Actual resolution may vary.
-          // iPhone 14 Pro Max (Portrait)
           {
-            src: "screenshots/iPhone.png",
-            sizes: "1290x2796",
+            src: "screenshots/editor-narrow-light.png",
+            sizes: "780x1688",
             type: "image/png",
             form_factor: "narrow",
-            label: "CloakPDF App on iPhone 14 Pro Max",
+            label: "Annotating a sample PDF in the light phone editor",
           },
-          // iPad Pro (Landscape)
           {
-            src: "screenshots/iPad.png",
-            sizes: "2732x2048",
+            src: "screenshots/editor-narrow-dark.png",
+            sizes: "780x1688",
+            type: "image/png",
+            form_factor: "narrow",
+            label: "Annotating a sample PDF in the dark phone editor",
+          },
+          {
+            src: "screenshots/editor-wide-light.png",
+            sizes: "1440x900",
             type: "image/png",
             form_factor: "wide",
-            label: "CloakPDF App on iPad Pro Landscape",
+            label: "Annotating a sample PDF in the light desktop editor",
+          },
+          {
+            src: "screenshots/editor-wide-dark.png",
+            sizes: "1440x900",
+            type: "image/png",
+            form_factor: "wide",
+            label: "Annotating a sample PDF in the dark desktop editor",
           },
         ],
       },

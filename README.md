@@ -14,7 +14,10 @@
 </div>
 
 <p align="center">
-  <img src="public/screenshots/iPad.png" alt="CloakPDF editor" width="800">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/screenshots/editor-wide-dark.png">
+    <img src="public/screenshots/editor-wide-light.png" alt="CloakPDF Air editor with a synthetic Studio notes PDF and annotation tools" width="800" height="500">
+  </picture>
 </p>
 
 ---
@@ -42,7 +45,7 @@ A few **standalone tools** cover the jobs the single-PDF editor can't — these 
 
 ## 🛡️ Privacy first
 
-Everything runs client-side — there is no server to upload to. No accounts, no analytics, no tracking. It's an installable PWA that keeps working offline once loaded, and the on-device AI needs no API key or inference server.
+Everything runs client-side — there is no server to upload to. No accounts, no analytics, no tracking. It's an installable PWA. Cached tools work offline; OCR languages and optional AI models need an initial download. On-device AI needs no API key or inference server.
 
 ---
 
@@ -70,15 +73,16 @@ vp install   # needs Node ≥ 24 and `npm i -g vite-plus`
 vp dev       # http://localhost:5173
 ```
 
-| Command               | Description                                                  |
-| --------------------- | ------------------------------------------------------------ |
-| `vp dev`              | Dev server with hot reload                                   |
-| `vp build`            | Type-check + production build                                |
-| `vp check`            | Format, lint, type-check                                     |
-| `pnpm check:dead`     | Audit unused code and dependencies                           |
-| `vp test`             | Run unit tests                                               |
-| `pnpm generate-icons` | Rebuild PWA, touch, and legacy icons from the app-icon SVG   |
-| `pnpm generate-og`    | Capture the current landing page as the 1200×630 social card |
+| Command                     | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `vp dev`                    | Dev server with hot reload                                           |
+| `vp build`                  | Type-check + production build                                        |
+| `vp check`                  | Format, lint, type-check                                             |
+| `pnpm check:dead`           | Audit unused code and dependencies                                   |
+| `vp test`                   | Run unit tests                                                       |
+| `pnpm generate-icons`       | Rebuild PWA, touch, and legacy icons from the app-icon SVG           |
+| `pnpm generate-screenshots` | Capture light/dark editor previews from a running production preview |
+| `pnpm generate-og`          | Render the Air social card from local artwork and the editor capture |
 
 ---
 
@@ -89,9 +93,11 @@ CloakPDF follows the shared Cloakyard mark and installed-app icon contract in
 `public/cloakpdf-mark.svg`; installable PWA assets are generated from the
 separate, full-bleed `public/icons/cloakpdf-app-icon.svg`.
 
-After changing either source, run `pnpm generate-icons` and then
-`pnpm generate-og`. The latter captures the real landing page so the social
-preview stays aligned with the current logo and UI.
+After changing the logo source, run `pnpm generate-icons`. Refresh application
+captures with `pnpm generate-screenshots`, then run `pnpm generate-og` to render
+the social composition. See [preview regeneration](docs/og-image.md) for the
+local production server, dimensions and synthetic content. The README selects
+the matching light/dark editor image; install previews also include phone layouts.
 
 ---
 
