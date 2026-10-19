@@ -3723,11 +3723,11 @@
       ];
       function escapeValue(value) {
         return value
-          .replaceAll("&", "&amp;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;");
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
       }
       function setApp(id) {
         currentApp = id;

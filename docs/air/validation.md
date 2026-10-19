@@ -2330,3 +2330,9 @@ Evidence: `evidence/release-security-2026-10-19.json`; full logs in
 
 The user's next refinement adds the missing shared horizon to PDF's landing only,
 then reviews CloakDrop's page, before resuming CloakResume. IMG remains last.
+
+CodeQL rescan confirmed all 77 temporary-file findings are gone. Its DOM-flow
+model still follows `replaceAll` despite the adversarial browser checks passing;
+the same complete escaping now uses global regular expressions recognized by the
+analyzer. All 25 reference logic tests and six browser cases pass again. The
+application runtime and HTML bytes produced for ordinary values are unchanged.
