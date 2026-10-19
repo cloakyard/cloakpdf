@@ -39,4 +39,15 @@ describe("ReloadNotice", () => {
     expect(html).not.toContain("Update now");
     expect(html).not.toContain("Later");
   });
+
+  it("explains how to finish work before updating and keeps deferral available", () => {
+    const html = renderToStaticMarkup(
+      <ReloadNotice variant="update" deferred onClose={vi.fn()} onUpdate={vi.fn()} />,
+    );
+    expect(html).toContain("Save or download your work, then return home to update.");
+    expect(html).toContain('aria-disabled="true"');
+    expect(html).toContain("aria-describedby=");
+    expect(html).toContain("Later");
+    expect(html).not.toContain('disabled=""');
+  });
 });

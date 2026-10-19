@@ -23,20 +23,17 @@ open for the human/device gates below.
 | N-up, OCR and cross-tool geometry                                   | `nup-2026-10-14.json`, `ocr-2026-10-14.json`, `geometry-2026-10-14.json`; physical page geometry and actual exported sheets/text/pixels                                             |
 | Recovery, history, provider and dispatch lifecycle                  | `preview-recovery-2026-10-14.json`, `editor-recovery-2026-10-15.json`, `editor-wrappers-2026-10-19.json`, `registry-lifecycle-2026-10-19.json`                                      |
 | Install/README/social previews and metadata                         | `previews-2026-10-19.json`; real synthetic captures, shipped PNG dimensions/paths, OG/Twitter metadata and Chromium installability                                                  |
+| Active-work PWA updates                                             | `pwa-update-2026-10-19.json`; real waiting workers, two tabs, pending drafts, standalone queue, export and handoff-race protection; 44 layouts                                      |
 | Static missing-page recovery                                        | `recovery-page-2026-10-19.json`; built shared CSS, actual HTTP 404, installed/offline routing, no-JS recovery and 66 responsive/theme/text cases                                    |
 
 ## Remaining software acceptance
 
-- Reproduce and protect PWA **Update now** during an active editor or standalone
-  task. Source review found no route/unsaved-work guard in `ReloadPrompt`; entry
-  notice geometry and busy-button tests do not establish editor integration safety.
-  Test a real waiting service worker with pending work, cancellation/defer, export
-  and return-to-home update. Do not label this gap passed from the 404 route suite.
 - Before final PDF sign-off, record the exact supported AI tier/device matrix and
   final real-model run. Prior real initial/warm/tier-swap/reload tests are preserved,
   but not generalized to untested combinations. Keep synthetic response/state tests
   distinct from actual inference. Do not silently replace missing ground-truth PDFs.
-- Recheck any findings uncovered by the PWA integration and final source/state audit.
+- PWA integration is now covered by real waiting-worker tests. Recheck any new
+  findings from the final source/state audit.
   Full 2026-10-19 regression coverage does not make physical acceptance automatic.
 
 ## Human/device acceptance

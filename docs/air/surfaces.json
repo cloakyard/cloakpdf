@@ -61,7 +61,10 @@
         "coarse-emulation",
         "loading",
         "error",
-        "recovery"
+        "recovery",
+        "active-work update deferral",
+        "other-tab worker activation",
+        "home update after deferral"
       ],
       "viewports": [
         "320x568",
@@ -80,9 +83,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/recovery-utility-2026-10-13.json",
         "docs/air/evidence/constructors-2026-10-13.json",
-        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json",
+        "docs/air/evidence/pwa-update-2026-10-19.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Registry/lifecycle checkpoint: standalone navigation has a derived standalone-only identity; editor search/preselection and constructor file handoff remain separate live routes. All seven standalone components remain lazy; no redundant standaloneOnly filter remains."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Registry/lifecycle checkpoint: standalone navigation has a derived standalone-only identity; editor search/preselection and constructor file handoff remain separate live routes. All seven standalone components remain lazy; no redundant standaloneOnly filter remains. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open."
     },
     {
       "path": "src/components/ActionButton.tsx",
@@ -932,7 +936,10 @@
         "coarse-emulation",
         "reduced-motion",
         "forced-colors",
-        "enlarged-text"
+        "enlarged-text",
+        "active-work update deferral",
+        "other-tab worker activation",
+        "home update after deferral"
       ],
       "viewports": [
         "320x568",
@@ -947,8 +954,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/evidence/pwa-update-2026-10-19.json"
+      ],
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open."
     },
     {
       "path": "src/components/SegmentedControl.tsx",

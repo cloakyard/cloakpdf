@@ -2231,3 +2231,50 @@ family acceptance. Next: PWA integration, remaining PDF acceptance, then IMG.
 
 Evidence: `evidence/recovery-page-2026-10-19.json`, companion checks log and two PNGs;
 full captures/logs in `/tmp/cloakpdf-air-review/recovery-page/`. Local commits only.
+
+## 2026-10-19 — Active-work PWA update safety
+
+A real waiting-worker baseline reproduced loss of a pending metadata draft: Update
+now reloaded the editor to home. Updates now defer in editor and standalone views,
+explain saving/downloading and returning home, and keep a keyboard-reachable Later
+action. Later retains update availability for the next home visit. First-install
+cache feedback cannot suppress a future update notice. Shared Air styling is reused.
+
+The registered SW callback reads the committed route and only reloads after a local
+explicit update request. An update in another tab leaves this tab's work intact.
+The fallback timer checks the route too, protecting an editor handoff that races
+an accepted update. Timer cleanup remains owned by the component. No dependency,
+new stylesheet or document-processing/output code was added.
+
+The isolated production integration serves built assets on an ephemeral loopback
+port and changes only SW revision comments. It passes real installation, cache
+notice auto-dismiss, waiting-worker pointer/keyboard deferral, Later, metadata Save
+and actual PDF download, two-tab activation, standalone file-queue retention, route
+handoff race and explicit home update. All 44 coarse-input layout/theme/text cases
+pass across eleven required sizes and 16/32px text. Desktop/laptop/tablet/phone in
+both themes, 320px enlarged text and forced colours/reduced motion were inspected.
+This tests a real worker lifecycle, not an actual deployment's old-asset retention.
+
+Required code/dead/build/assets/design/portability checks and 459 units/47 files
+pass. Build remains 131 assets/80 PWA entries; editor bytes remain 327.18/98.80 kB
+raw/gzip. Root checks/types/build/design/portability and exact sync pass. Air remains
+1.0.2 / bb90f52e0b0a. Native engines, physical touch/keyboards, OS IME and spoken
+assistive use were not rerun for this integration and remain separate gates.
+
+Early harness runs corrected a dependency name, text-selector button targeting,
+field replacement, touch emulation changes that cause Puppeteer reloads, and a
+nonexistent generic queue selector. Every run now uses a fresh download directory.
+The completed run passes all assertions; the baseline defect is fixed, not waived.
+
+Evidence: `evidence/pwa-update-2026-10-19.json`, two PNGs and companion checks log;
+full synthetic inputs/downloads/captures at `/tmp/cloakpdf-air-review/pwa-update/`.
+The acceptance map now records this integration as implemented. Next: final PDF
+AI tier/device coverage and real-model acceptance, then IMG in the saved rollout.
+No push or deployment. Full PDF/family and human/device acceptance remain open.
+
+Final regression result: all sixteen production smoke suites pass, including the
+six standalone workflows, actual export output, routing/search, desktop/mobile
+editor, interactions, overlays, AI interface states, 176 tool selections + 176
+navigation layouts, 88 collection layouts, 68 canvas layouts and motion. The seven
+extended suites passed for the preceding 404/build piece; they were not repeated
+for this routing/notice-only change. Real-model final acceptance remains distinct.

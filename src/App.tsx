@@ -207,7 +207,7 @@ export function App() {
         <Suspense fallback={<EditorLoadingFallback />}>
           <EditorView initialFile={view.file} initialTool={view.tool ?? null} onExit={goHome} />
         </Suspense>
-        <ReloadPrompt />
+        <ReloadPrompt deferUpdate />
       </>
     );
   }
@@ -223,7 +223,7 @@ export function App() {
           <ViewContent view={view} onSelectTool={handleSelectTool} onOpenEditor={openEditor} />
         </div>
       </Layout>
-      <ReloadPrompt />
+      <ReloadPrompt deferUpdate={view.kind === "tool"} />
     </>
   );
 }

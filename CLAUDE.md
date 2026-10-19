@@ -108,3 +108,8 @@ retain the host 404 response after installation; only the app base and index ent
 use the service-worker navigation fallback. Validate with a local Workers asset
 server (`wrangler dev --local --port 8134`) and `pnpm test:e2e:recovery-page`.
 Vite preview alone does not reproduce the Workers 404 response policy.
+
+`pnpm test:e2e:pwa-update` runs after a build. It serves `dist/` on an ephemeral
+loopback port, changes only served SW revision comments and uses a disposable
+Chrome profile to verify active-work deferral, cross-tab activation and real output.
+It does not change existing preview servers, deployed assets or user browser data.

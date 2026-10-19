@@ -7,7 +7,7 @@
 // cache-status toast on first install.
 
 import { RefreshCw, ShieldCheck, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 const UPDATE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
@@ -18,17 +18,27 @@ type ReloadNoticeVariant = "update" | "offline";
 interface ReloadNoticeProps {
   variant: ReloadNoticeVariant;
   updating?: boolean;
+  deferred?: boolean;
   onClose: () => void;
   onUpdate: () => void;
 }
 
-export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: ReloadNoticeProps) {
+export function ReloadNotice({
+  variant,
+  updating = false,
+  deferred = false,
+  onClose,
+  onUpdate,
+}: ReloadNoticeProps) {
+  const descriptionId = useId();
   const isUpdate = variant === "update";
   const Icon = isUpdate ? RefreshCw : ShieldCheck;
   const eyebrow = isUpdate ? "System update" : "Offline support";
   const title = isUpdate ? "Update CloakPDF" : "Core app cached";
   const body = isUpdate
-    ? "A newer build is ready. Update now to apply the latest fixes."
+    ? deferred
+      ? "A newer build is ready. Save or download your work, then return home to update."
+      : "A newer build is ready. Update now to apply the latest fixes."
     : "The core interface is cached. AI models and OCR data may still require a connection.";
   const announcement = updating ? "Updating CloakPDF…" : `${title}. ${body}`;
 
@@ -45,7 +55,9 @@ export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: R
               {eyebrow}
             </p>
             <p className="pdf-toast-title">{updating ? "Applying update…" : title}</p>
-            <p className="pdf-toast-description">{body}</p>
+            <p id={descriptionId} className="pdf-toast-description">
+              {body}
+            </p>
           </div>
           {!isUpdate && (
             <button
@@ -66,9 +78,10 @@ export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: R
             <button
               type="button"
               onClick={() => {
-                if (!updating) onUpdate();
+                if (!updating && !deferred) onUpdate();
               }}
-              aria-disabled={updating || undefined}
+              aria-disabled={updating || deferred || undefined}
+              aria-describedby={descriptionId}
               aria-busy={updating}
               className="air-button air-button--primary"
             >
@@ -89,7 +102,7 @@ export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: R
   );
 }
 
-export function ReloadPrompt() {
+export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean }) {
   // Stash the SW update interval + the live registration so the unmount
   // cleanup can clear the timer and so the focus/visibility listeners below —
   // which fire outside `useRegisterSW`'s onRegisteredSW lifecycle — can reach
@@ -99,7 +112,30 @@ export function ReloadPrompt() {
   const swUrlRef = useRef<string>("");
   const lastCheckRef = useRef<number>(0);
   const updatingRef = useRef(false);
+  const deferUpdateRef = useRef(deferUpdate);
+  const reloadTimerRef = useRef<number | undefined>(undefined);
   const [updating, setUpdating] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  // SW callbacks are registered once. Read the committed route when they fire,
+  // including when another tab activates the waiting worker.
+  useLayoutEffect(() => {
+    deferUpdateRef.current = deferUpdate;
+  }, [deferUpdate]);
+  useEffect(() => {
+    if (!deferUpdate) setDismissed(false);
+  }, [deferUpdate]);
+
+  const finishUpdate = useCallback(() => {
+    window.clearTimeout(reloadTimerRef.current);
+    if (!updatingRef.current) return;
+    if (deferUpdateRef.current) {
+      updatingRef.current = false;
+      setUpdating(false);
+      return;
+    }
+    window.location.reload();
+  }, []);
 
   // Poll sw.js for a freshly-deployed build. Throttled to once a minute so the
   // interval and the focus/visibility listeners can all call it without
@@ -125,6 +161,12 @@ export function ReloadPrompt() {
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = useRegisterSW({
+    onNeedReload() {
+      // An update in another tab must never discard this tab's work. Only a
+      // local explicit Update now can reload, and only while outside a task.
+      setNeedRefresh(true);
+      finishUpdate();
+    },
     onRegisteredSW(swUrl, registration) {
       if (!registration) return;
       registrationRef.current = registration;
@@ -149,6 +191,7 @@ export function ReloadPrompt() {
     return () => {
       document.removeEventListener("visibilitychange", onForeground);
       window.removeEventListener("focus", onForeground);
+      window.clearTimeout(reloadTimerRef.current);
       if (updateIntervalRef.current !== null) {
         window.clearInterval(updateIntervalRef.current);
         updateIntervalRef.current = null;
@@ -160,17 +203,17 @@ export function ReloadPrompt() {
   // controlling event. Fall back to an explicit reload so the Update
   // button is never a no-op.
   const handleUpdate = useCallback(() => {
-    if (updatingRef.current) return;
+    if (updatingRef.current || deferUpdate) return;
     updatingRef.current = true;
     setUpdating(true);
     void updateServiceWorker(true);
-    setTimeout(() => window.location.reload(), RELOAD_FALLBACK_MS);
-  }, [updateServiceWorker]);
+    reloadTimerRef.current = window.setTimeout(finishUpdate, RELOAD_FALLBACK_MS);
+  }, [deferUpdate, finishUpdate, updateServiceWorker]);
 
   const close = useCallback(() => {
     setOfflineReady(false);
-    setNeedRefresh(false);
-  }, [setOfflineReady, setNeedRefresh]);
+    setDismissed(needRefresh);
+  }, [needRefresh, setOfflineReady]);
 
   useEffect(() => {
     if (!offlineReady || needRefresh) return;
@@ -178,12 +221,13 @@ export function ReloadPrompt() {
     return () => clearTimeout(id);
   }, [offlineReady, needRefresh, close]);
 
-  const show = offlineReady || needRefresh;
+  const show = offlineReady || (needRefresh && !dismissed);
   return show ? (
     <div className="pdf-toast-host">
       <ReloadNotice
         variant={needRefresh ? "update" : "offline"}
         updating={updating}
+        deferred={deferUpdate}
         onClose={close}
         onUpdate={handleUpdate}
       />
