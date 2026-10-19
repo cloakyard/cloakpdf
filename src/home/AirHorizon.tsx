@@ -29,17 +29,12 @@ export function AirHorizon() {
         </defs>
         <g mask="url(#home-horizon-mask)">
           <path d="M0 100Q600 84 1200 145V240H0Z" fill="url(#home-plane)" />
-          <path
-            d="M0 100Q600 84 1200 145"
-            fill="none"
-            stroke="var(--air-accent)"
-            strokeOpacity="0.22"
-          />
+          <path d="M0 100Q600 84 1200 145" fill="none" stroke="currentColor" strokeOpacity="0.22" />
           <path d="M0 182Q600 132 1200 139V240H0Z" fill="url(#home-plane)" />
           <path
             d="M0 182Q600 132 1200 139"
             fill="none"
-            stroke="var(--air-accent)"
+            stroke="currentColor"
             strokeOpacity="0.28"
           />
         </g>

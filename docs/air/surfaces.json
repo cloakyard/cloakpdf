@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.2",
+  "contractVersion": "1.0.3",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -2889,8 +2889,11 @@
         "forced colours"
       ],
       "viewports": ["17 sizes \u00d7 light/dark \u00d7 16px/32px text; 68 layouts"],
-      "evidence": ["docs/air/evidence/landing-horizon-2026-10-19/results.json"],
-      "notes": "Canonical locally bundled horizon, lazy GPU enhancement excluded from PWA precache. Real WebGPU lifecycle and static fallbacks pass. Physical GPU/battery/thermal acceptance remains open."
+      "evidence": [
+        "docs/air/evidence/landing-horizon-2026-10-19/results.json",
+        "docs/air/evidence/brand-horizons-2026-10-19/checks.json"
+      ],
+      "notes": "Canonical locally bundled horizon, lazy GPU enhancement excluded from PWA precache. Real WebGPU lifecycle and static fallbacks pass. Physical GPU/battery/thermal acceptance remains open. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open."
     },
     {
       "path": "src/home/HomeScreen.tsx",
@@ -3364,9 +3367,10 @@
         "docs/air/evidence/page-numbers-2026-10-15.json",
         "docs/air/evidence/fill-form-2026-10-19.json",
         "docs/air/evidence/foundation-2026-10-19.json",
-        "docs/air/evidence/landing-horizon-2026-10-19/results.json"
+        "docs/air/evidence/landing-horizon-2026-10-19/results.json",
+        "docs/air/evidence/brand-horizons-2026-10-19/checks.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open."
     },
     {
       "path": "src/styles/air.css",

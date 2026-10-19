@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.2
+version: 1.0.3
 status: approved
-date: 2026-10-15
+date: 2026-10-19
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: bb90f52e0b0a08a0367d31aad74fb8aa319610c1ae55501e966a9199b87e27c9
+family-contract-sha256: abcaee334ca7f5e7806fbab230349bb0522020c9670a9c19504e707d4c9f1424
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.2 — colour-wheel refinement** · Direction: **Air** · Updated: **2026-10-15**
+Version: **1.0.3 — app-coloured landing light** · Direction: **Air** · Updated: **2026-10-19**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -127,8 +127,24 @@ quiet blue indicator. It does not depend on a framework's default component skin
   they never tint the whole app or create a rainbow of tool categories.
 - The landing signature is a low-contrast light horizon: two offset, softly lit
   planes echo the family mark's overlapping geometry. It occupies the space below
-  hero copy and above product entries. Text remains on a solid, quiet background.
+  hero copy and above product entries. Its light follows the app mark, using the
+  primary gradient stop in light mode and the highlight stop in dark mode. Text
+  remains on a solid, quiet background.
   No generic purple glow, animated blob, cosmic backdrop or GPU effect in editors.
+
+The landing artwork uses the following original logo colours. Set the horizon's
+CSS `color` to its canonical `--air-light-{app}` token (lowercase app name); the
+shader reads that computed colour and static
+SVG edges use `currentColor`. Keep the page and planes neutral. This artwork-only
+palette never overrides `--air-accent`, focus, controls, or document/image output.
+
+| Landing     | Light artwork | Dark artwork |
+| ----------- | ------------- | ------------ |
+| Cloakyard   | `#3975F6`     | `#6FC3FF`    |
+| CloakPDF    | `#2563EB`     | `#74C7FF`    |
+| CloakDrop   | `#338DAB`     | `#5FCDD6`    |
+| CloakResume | `#10B981`     | `#6EE7B7`    |
+| CloakIMG    | `#F4512C`     | `#FF9A76`    |
 
 ### Two equally designed appearances
 
@@ -663,7 +679,7 @@ inapplicable states with a reason in the inventory; do not silently skip them.
 
 Shared sequence: quiet header → short centred promise → direct primary action →
 real product entry/preview where useful → concise capability groups → factual
-privacy explanation → compact family footer. A subtle blue light field may sit
+privacy explanation → compact family footer. A subtle app-coloured light field may sit
 below the hero copy. Avoid fake product capabilities, excessive feature counts,
 industrial grids, oversized decorative icons, or compulsory dark sections.
 
@@ -903,7 +919,7 @@ Motion is part of Air's design acceptance, not a later decorative pass. Before
 locking the system, the reference must demonstrate a working, locally bundled
 light treatment using [Shaders](https://shaders.com/) and its
 [open-source library](https://github.com/shader-effects-inc/shaders). Compose it
-around Air's two offset planes and quiet blue light rather than adopting a preset
+around Air's two offset planes and quiet app-coloured light rather than adopting a preset
 unchanged. Review the short arrival and deliberate pointer response in both
 themes, alongside touch, reduced-motion, static and no-WebGPU alternatives.
 The reference now demonstrates this custom Shaders composition. Its working
