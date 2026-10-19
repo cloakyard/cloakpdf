@@ -1,0 +1,37 @@
+[
+  {
+    "link": "https://dash.cloudflare.com/73a3338267f567d02c3b79c9bcedc6a6/workers/services/view/cloakpdf/production/builds/7590eb17-06cd-4ba9-b2c5-da826beb39a4",
+    "name": "Workers Builds: cloakpdf",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/runs/118147780748",
+    "name": "CodeQL",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/actions/runs/39278072273/job/118147107245",
+    "name": "Dependency Audit",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/actions/runs/39278072235/job/118147107080",
+    "name": "contract",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/actions/runs/39278072216/job/118147106916",
+    "name": "Analyze (javascript-typescript)",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/actions/runs/39278059086/job/118147072569",
+    "name": "contract",
+    "state": "SUCCESS"
+  },
+  {
+    "link": "https://github.com/cloakyard/cloakpdf/actions/runs/39278059229/job/118147073536",
+    "name": "Analyze (javascript-typescript)",
+    "state": "SUCCESS"
+  }
+]

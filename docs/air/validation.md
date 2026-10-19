@@ -2423,3 +2423,5 @@ at 100%. All 132 asset hashes and 24 live link/layout cases pass.
 
 Air 1.0.6 removes blue hyperlink text, including hover, and specifies neutral
 inline/directional treatments. See [scope and evidence](neutral-links-2026-10-19.md).
+
+Neutral hyperlink release verified: main `f863471`, Cloudflare `eb28ae8d` at 100%; 132 matching production files and 116 live link-state / 34 keyboard checks pass. See the neutral-link audit and production evidence.
