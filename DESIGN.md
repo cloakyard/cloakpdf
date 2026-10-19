@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.4
+version: 1.0.5
 status: approved
 date: 2026-10-19
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 0f6ea38f83a91dd0121b15bc803ec21aa9493e612fe5031852058da4f1848453
+family-contract-sha256: 94c5e537752f7efaf3f16c706c32be45e532875b313ad38c49f00a17aa2c5acc
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.4 — consistent navigation arrows** · Direction: **Air** · Updated: **2026-10-19**
+Version: **1.0.5 — restored hyperlink treatment** · Direction: **Air** · Updated: **2026-10-19**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -689,15 +689,19 @@ no screenshot, simulation, orbital illustration, animated preview, or embedded a
 
 ### Landing navigation and text resilience
 
-- Forward links and calls to action use a straight right arrow, including outbound
-  source/product links in the header, content and footer. Use the existing Lucide
-  ArrowRight shape (or its matching static SVG), not a 45-degree arrow. Keep
-  decorative arrows hidden from assistive technology and preserve each link’s
-  destination and new-tab behavior. Plain text links do not need an added icon.
-- Back, download and disclosure controls retain their meaningful directional icons.
-  Arrow artwork inside an editor remains document data, outside this navigation
-  rule. Existing fine-pointer hover movement follows the horizontal direction
-  only; keyboard focus and reduced motion stay still.
+- Hyperlinks with a directional cue use the angled Lucide ArrowUpRight shape
+  (or its matching static SVG): Source, product/family destinations and reading
+  links. Preserve the approved angled cue; consistency work must not substitute
+  a different direction. Plain text links do not need an added icon.
+- Forward app actions and same-page jumps retain ArrowRight. Back, download and
+  disclosure controls keep their meaningful icons; editor artwork remains data.
+  Preserve destinations, new-tab behavior and decorative icon hiding. Existing
+  fine-pointer hover motion follows the arrow (2px right/up for angled links);
+  keyboard focus and reduced motion stay still.
+- Header/footer navigation and footer credits retain their approved neutral ink; Source uses
+  `ink-secondary`. A generic body-link class must not override that colour. Meaningful
+  body/prose links retain shared blue; focus and active indicators keep their
+  existing Air treatment. Validate the cascade in both themes and compact menus.
 
 - Keep every destination available at every width. A compact header uses a native,
   in-flow disclosure; its links expand below the brand row without covering the

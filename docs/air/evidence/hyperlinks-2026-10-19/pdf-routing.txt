@@ -1,0 +1,4 @@
+→ Loading http://127.0.0.1:8181
+  ✓ home drop zone → editor (focus page rendered)
+  ✓ merge → editor hand-off (focus page rendered)
+✓ Home routing smoke passed — editor-card preselect + constructor hand-off.

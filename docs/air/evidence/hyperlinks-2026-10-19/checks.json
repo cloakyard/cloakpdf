@@ -1,0 +1,945 @@
+{
+  "app": "cloakpdf",
+  "url": "http://127.0.0.1:8181",
+  "rows": [
+    {
+      "w": 320,
+      "h": 568,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 320,
+      "h": 568,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 375,
+      "h": 812,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 375,
+      "h": 812,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 390,
+      "h": 844,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 390,
+      "h": 844,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 430,
+      "h": 932,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 430,
+      "h": 932,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 844,
+      "h": 390,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 844,
+      "h": 390,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 768,
+      "h": 1024,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 768,
+      "h": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1024,
+      "h": 768,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1024,
+      "h": 768,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1280,
+      "h": 720,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1280,
+      "h": 720,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1366,
+      "h": 768,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1366,
+      "h": 768,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1440,
+      "h": 900,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1920,
+      "h": 1080,
+      "theme": "light",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 1920,
+      "h": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 320,
+      "h": 568,
+      "theme": "light",
+      "textSize": 32,
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(82, 91, 104)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    },
+    {
+      "w": 320,
+      "h": 568,
+      "theme": "dark",
+      "textSize": 32,
+      "overflow": false,
+      "links": [
+        {
+          "label": "Source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the tools",
+          "href": "#toolkit",
+          "target": "",
+          "angle": "straight",
+          "hidden": "true",
+          "stroke": "2px"
+        },
+        {
+          "label": "Explore the source",
+          "href": "https://github.com/cloakyard/cloakpdf",
+          "target": "_blank",
+          "angle": "diagonal",
+          "hidden": "true",
+          "stroke": "2px"
+        }
+      ],
+      "source": [
+        {
+          "color": "rgb(182, 190, 203)",
+          "visible": true,
+          "paths": ["M7 7h10v10", "M7 17 17 7"]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
