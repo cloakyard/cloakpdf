@@ -1,0 +1,935 @@
+{
+  "app": "cloakpdf",
+  "url": "https://pdf.cloakyard.com",
+  "verifiedAt": "2026-10-19T14:56:37.565Z",
+  "files": [
+    {
+      "path": "404.html",
+      "bytes": 2812,
+      "sha256": "e47802f05965780d6bcf654b5b0f425b4bff7f59fc947c2b3a9d8a4e3fd520a8",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "air-light.LICENSE.txt",
+      "bytes": 15864,
+      "sha256": "c0624d0848ea3de0ef47c127a134566f1dfd23fd95580f2c39eb8fb123d78d8a",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "assets/ActionButton-B6ydSS9c.js",
+      "bytes": 1801,
+      "sha256": "2bc623be770ef56562487c1d9e67150416be2362eceac535a6fe000447a22f00",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/ai-runtime-CXI3YOgS.js",
+      "bytes": 8868,
+      "sha256": "cd6221be61f4184000339b24f2e94daa30ed735c7027d437885537fc861fd38c",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/air-Ci4GUmAA.css",
+      "bytes": 38340,
+      "sha256": "1073d747c1ea2d30d7b3fa950864a2971a3828e4081d79996ea4494d8e1ef16e",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/air-CRyKi5w5.js",
+      "bytes": 670,
+      "sha256": "418c206484b89b68ef5f067277831e583fc9193a62aadf4de269acaaeb12a85f",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/air-light-shader-VlzniAjj.js",
+      "bytes": 1261690,
+      "sha256": "9668d31445247dca1bf3087d091c4910a2041c25f95895180310bcbc602444e7",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/AlertBox-CB47VTJU.js",
+      "bytes": 537,
+      "sha256": "64bbca3d4a9a4e262ee169d09ff88c0fc66fe7f0b38a17ceff10bcf275709f13",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/app-6q2gvA5O.js",
+      "bytes": 250295,
+      "sha256": "c684d44c9112046e2cf5efd17773c63c0849888a0d2a19457db8d4ff21cbd737",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/app-l0gI6Fk9.css",
+      "bytes": 95086,
+      "sha256": "dc53b8e27e58cf3a58af349221c97fcb9f1c65f634c14dadcbe4e5d20a335e1b",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/arrow-down-P3kEzwJ4.js",
+      "bytes": 201,
+      "sha256": "e48d134239163580ec18a46d79a255f0fb92303b0693bd554ffd74ef4d596060",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/AskPdf-CYDF8XMs.js",
+      "bytes": 589979,
+      "sha256": "c585579ecfd4b8ff911688a41fbfc3060bb74e1874b7d8cb02f0fca388be1936",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/check-BRZAa9v3.js",
+      "bytes": 160,
+      "sha256": "8612d63c50be825b639d266455c8ffc2042bf177b207a53fa47e2b80d01d8a3c",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/chevron-left-CldM7bZg.js",
+      "bytes": 166,
+      "sha256": "7e50a6b3748c23b868ea24233f0e4dfb263216221fd58b8f817cb00fd8f3b92e",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/ComparePdf-DKZ7dNmk.js",
+      "bytes": 11209,
+      "sha256": "09559d92b01ff93fee5ce46b111bbee4fcab2143ce6e339c4adfc73f5f3e1345",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/crypto.worker-oBiLFzk4.js",
+      "bytes": 285137,
+      "sha256": "44d5cd097fb798d54d9fe128baed9c8ef8e87d3d8e29232fe2c7e5fdad34552f",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/DigitalSignature-CH0iNZxk.js",
+      "bytes": 304079,
+      "sha256": "b0f32e56facbd6ec03ddc2bdf9f0a13708443ab346eec6306e15e729c2a0e510",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/dist-CpblRSoU.js",
+      "bytes": 525509,
+      "sha256": "ebcb806ab0e1a9f8376c6464f0c80a8778b9c47efef00f133614ad2067e6c5ed",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/EditorView-BBGCwyKF.js",
+      "bytes": 327180,
+      "sha256": "8e1bb94209ad856c76e287b815daec5eb50057336936deb8e22d512367ec97a5",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/ExtractImages-Blb8Otkp.js",
+      "bytes": 8560,
+      "sha256": "6442e752d3f7f0fec8afec5442e0f857778632cf5ffbf173b36bfabcd4859052",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/eye-Cd5vlacM.js",
+      "bytes": 292,
+      "sha256": "b4829aa725b88441f3533d89f0050c79e21fba5f1690213784fe0f5612fb4e18",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/eye-off-Ce_cA0cZ.js",
+      "bytes": 466,
+      "sha256": "b0d31357025cfc62757ba69dd4d47bc6aa7b0d5520642da6eb76c82799edaafc",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/FileDropZone-DMsvnU0R.js",
+      "bytes": 15769,
+      "sha256": "5068eb3cf2433d3e3a5a3108e35b7a09480cb7b4935d65d0eb9bf79040509ed6",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/FileInfoBar-9sN7-q0H.js",
+      "bytes": 577,
+      "sha256": "8a7432560744cff4e53327ab4b7b2847768a54243568109bd53ecfb39c8b72c6",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/FileQueue-C-VTSqau.js",
+      "bytes": 9251,
+      "sha256": "01e42038863982f8e5f191e08eadd28d4d33b5aaf0049073b3c62a71e3e48609",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/ImagesToPdf-BeLQ61ko.js",
+      "bytes": 2761,
+      "sha256": "5a2853ef927f882f25f413c0d48ddefc48c4b0f4ff8430913d4082de45cf8ec9",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/liteparse_wasm_bg-C_TgrK-M.wasm",
+      "bytes": 5534810,
+      "sha256": "2f4466fb5cb6ceb476626c8aab8d01c839b831af300c3a6397be6234337cd50a",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/liteparse_wasm_bg-Dqj0BIHi.js",
+      "bytes": 69,
+      "sha256": "2d862277a2448c61f716743956326acd0dc2a8b84ef3500b1f0e4891aeafdbde",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/liteparse_wasm-D_acwmzc.js",
+      "bytes": 17605,
+      "sha256": "29e4bfba54b84ee206e01a63051fa3deed59eb528cb241edb5991c9f6f0e20e7",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/LoadingState-VV0KrMrL.js",
+      "bytes": 355,
+      "sha256": "b17238b2f53f22cf54e329b97891ad5afff4db2c5b2a5a5ae951703704f694f3",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/MergePdf-Clk_Uh43.js",
+      "bytes": 2673,
+      "sha256": "92b69f6ae29379dd59413d9d90283033457b9b994320b14595885bdb51f9eef2",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/motion-GfrT_rPm.js",
+      "bytes": 69325,
+      "sha256": "2945cd7bed1a87c96fef296d1fa2768994c5acb440554a825ee380853953f290",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/notFound-DeVVkpDR.js",
+      "bytes": 167,
+      "sha256": "e2331f10b25f428b9cc90fd06c8e638a3b0fb89b1ef10b86366698059d53e8d1",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/PagePreviewNav-DUmEN8jV.js",
+      "bytes": 1254,
+      "sha256": "bde4d73a87f994390fa7825090965f7786d122b7dbe24ee2794e12b54a283d71",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pages-DS4SeO2o.js",
+      "bytes": 1516,
+      "sha256": "4180a60be9a1143cb8945b526f7197868a80fa9ac9288aee4c2a98a71e6aeedf",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf-BXJlsFtq.js",
+      "bytes": 1695,
+      "sha256": "7d2fe7e89e5f27f52e0e08334c447e07d5c80ceb742986b72d7a9ba5009bf971",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf-CvFqGNBB.js",
+      "bytes": 430111,
+      "sha256": "c5dcbd4d8799c6ec18aab074242445d88b1b7039c97e78984278b7caeef481fc",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf-operations-CJ7US2RY.js",
+      "bytes": 750411,
+      "sha256": "a4b8284a6ee37bd3babfae4fa300154d8a459b31cd09639ee2cc3575746a1d7a",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf-renderer-B2ikJjzh.js",
+      "bytes": 2320,
+      "sha256": "538a483fc5461935a2b8f2b2598c05fe9a8af8f05e42ccb4027ea5af4d636dbf",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf-security-Clon6qPd.js",
+      "bytes": 7628,
+      "sha256": "eea22496ae05e133283cdd1a2638e0187c871244d28e9f85e45d840e97e7a407",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf.worker.min-ByhRvint.js",
+      "bytes": 58,
+      "sha256": "d9107a5543c64ebc3c7f8f0d7645a8e6d8f7600cc5303d4b646f4943dac48a49",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf.worker.min-CGwSHl62.js",
+      "bytes": 1178002,
+      "sha256": "f19330843affcf721c7180496266abd218d0a52199557c8da8eb72aed3826587",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdf.worker.min-Ru_NuOqn.js",
+      "bytes": 70,
+      "sha256": "c8fa9e63beb4e72efa7ed32ece862a85ec26792b7d35b264f5ae2f3e7b6da202",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pdfjs-config-B5pwv-IP.js",
+      "bytes": 36,
+      "sha256": "cb8dc3fb1bf6eb4bb32a307957047a4014377049b23900060c535a5ba2bb8ab2",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/PdfPassword-DRS3HAYq.js",
+      "bytes": 9239,
+      "sha256": "49feb7a6707e9ce50a4467e4ac4dd6bc9de6242282ca81cb1c88a012d449dca8",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/persistence-CSUh-YYs.js",
+      "bytes": 540534,
+      "sha256": "1d1affc679d58e11544c43990f3eeceb7176355ef5cd0684a804d339e789d36a",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/persistence-DVukQlLu.js",
+      "bytes": 81,
+      "sha256": "eed623665c85e57d20d40b66af4c6e6384def01f752cff29108f6dd82f58f923",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/pii-4npTg4j3.js",
+      "bytes": 20954,
+      "sha256": "933f5c770425111d6e010fbd3211b2212a876bf6f8c569b36dbc59096ca3310a",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/preload-helper-DjzSQ1t3.js",
+      "bytes": 1383,
+      "sha256": "66c990b6727d220a346b45d00ee48d433c8d59ef03fbf8b91c6cdadeeadfdf3f",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/ProgressBar-BEj2T9Vz.js",
+      "bytes": 723,
+      "sha256": "4f6a62e7e8217b3a4919160ddc3b0030c6215e913575f2a5e8cdf48920781581",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/rolldown-runtime-C0FnF6B9.js",
+      "bytes": 1291,
+      "sha256": "e0a79ad36c6ca1ffbc796c80aa5661803a9d1bc684e29d1587f48b4ba9a82714",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/SegmentedControl-6MC9EEWj.js",
+      "bytes": 583,
+      "sha256": "509499c7f0364e292aca753bd788c276b1316cb750ed13261a7fb96c72003b96",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/src-SuYvKHvm.js",
+      "bytes": 17244,
+      "sha256": "16966625e6c2b09901e095c370e72aef9b87edc95c67502c7e0e1135d5646a2c",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/tools-C_pwD368.js",
+      "bytes": 11132,
+      "sha256": "e4e7c01f62f4f77ca85cb730fdfb27a4f140a801d37ceb6dc5716063d46f750d",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/transformers.web-CnQw8zBb.js",
+      "bytes": 527007,
+      "sha256": "fd38d9f6ae1f575b2becd1f6f4d0a4bf0ea55752dc5846ccfc5c01a065191914",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/triangle-alert-CWAWMi6p.js",
+      "bytes": 328,
+      "sha256": "16bb5530e25721a5a8e600ee1a487c70f2a01ad7440c715c47df4222e880f23c",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/useAsyncProcess-C6A-6Aa_.js",
+      "bytes": 573,
+      "sha256": "74c7bc968f44bb73db2800469e69b1599be350be59d3443030469ce435c20779",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/usePdfFile-DVYbr8Jr.js",
+      "bytes": 1214,
+      "sha256": "d87a9046de3884499160de09084e7ca249aefcbb2d809818ce17984c3593bbf6",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/workbox-window.prod.es5-Bd17z0YL.js",
+      "bytes": 5653,
+      "sha256": "17bcc17d60dc78f927834b880c39649b03af46fd1f5cdbb8c42c5ae2b515dce9",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/x-CgNMXXYu.js",
+      "bytes": 4047,
+      "sha256": "e77f1bc5901ba7e43b4c7204a28d8c500e085b4d2097bfb420b55585eb6e8867",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "assets/zip-aWvN4PZo.js",
+      "bytes": 2122,
+      "sha256": "e40c026611d47b3ee843b226eddc84bde2892b7fab27a5772e27c45e43b24460",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=31536000, immutable"
+    },
+    {
+      "path": "cloakpdf-mark.svg",
+      "bytes": 1423,
+      "sha256": "d1fa98f8ab9245757b4c7b1d1fcf6d8dcf584abb7ca65bc01b3a1ab7363f58aa",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lato/400-italic.ttf",
+      "bytes": 29116,
+      "sha256": "82e08cf0834d2b4bd6dc2bbd3c519a6986a16e8a5aa9886de71b3c3a4f511602",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lato/400-normal.ttf",
+      "bytes": 28240,
+      "sha256": "e79e1d2371fd277467f7151eb10b5b2a9f58a2cb0a843df42d27f518af78f213",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lato/700-italic.ttf",
+      "bytes": 29264,
+      "sha256": "6dc96cd53ef0884b9de6897ef01eae3283a18a7b6c17702dd143d064cb3a8f62",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lato/700-normal.ttf",
+      "bytes": 28464,
+      "sha256": "5edf0ec54294d64bafcfc1b9d04bb892a6108747cbdee5efce83239b77c697b2",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/LICENSE.txt",
+      "bytes": 4130,
+      "sha256": "96024e36f130019e65f5093fdee1acfd0de6633e64de4a4e6fa9acdb69d74687",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lora/400-italic.ttf",
+      "bytes": 48852,
+      "sha256": "66fbdb8692f7dd618275c18ea0d29485bfe7317f25b5e0d7c34267d573293d9e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lora/400-normal.ttf",
+      "bytes": 47444,
+      "sha256": "784dc32dcfadafdcb84debb17585fa714d743da9ed32dac71a51c2c97332691c",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lora/700-italic.ttf",
+      "bytes": 49444,
+      "sha256": "7f39242a9ef52f48df76ab6b8e986308a457ef2d8e9eac88721f8e7afd34c225",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/lora/700-normal.ttf",
+      "bytes": 47208,
+      "sha256": "438aecbcae427887eedf785e932fb96c5daf6f20a08ebe4ef8623fef8699fa3d",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/merriweather/400-italic.ttf",
+      "bytes": 133108,
+      "sha256": "37d54a3e4446ec93d78cd74b1634a76451ed4461b95c17dfc3c2cbe924685e6c",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/merriweather/400-normal.ttf",
+      "bytes": 130452,
+      "sha256": "9b2878cea0448ffb80d5f2b4741191f58adb2feb8dbf38539f1bce7ad4783355",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/merriweather/700-italic.ttf",
+      "bytes": 133180,
+      "sha256": "c0bcea90f335b132c68d4caf656e41dde560841d92f98acd39cbc087d6016fc6",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/merriweather/700-normal.ttf",
+      "bytes": 130464,
+      "sha256": "788fb4eafc31961a6245ec5a3f2c77b44d8eae06b9d91f0cfb3c2711d77c0afa",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/montserrat/400-italic.ttf",
+      "bytes": 44712,
+      "sha256": "cb2ed1c533ee5a2a4ff99e40e25fa351802f1db365190745eee30d8b85e0484f",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/montserrat/400-normal.ttf",
+      "bytes": 44272,
+      "sha256": "b32dfec470f47ec29ca06deae23ed152c14595be7eed6ec77d240bc9c2671a48",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/montserrat/700-italic.ttf",
+      "bytes": 44596,
+      "sha256": "c6eccb2b69d97d2cb4acb7917168869f6b27261b687f6082244750bbb7058ceb",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/montserrat/700-normal.ttf",
+      "bytes": 44168,
+      "sha256": "5281906b240d4414c949eab4b225b2f26cf3fa33096675384889e0c45cef7e26",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/opensans/400-italic.ttf",
+      "bytes": 26744,
+      "sha256": "9c912a7a087721195871bd9b9635d980f6165617f07845b498fdf43a44171fbc",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/opensans/400-normal.ttf",
+      "bytes": 25800,
+      "sha256": "322708862587c702b8cc5ed4d6a1f9d168b8f4d1c4fcd82e33c4cb093d86833a",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/opensans/700-italic.ttf",
+      "bytes": 26724,
+      "sha256": "4b23e1351c6ad2391b912aed560e48232537f9ab9d732ea98a63393a2ac7d9f4",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/opensans/700-normal.ttf",
+      "bytes": 25748,
+      "sha256": "63495f8966955f9d58036ff5e25b45fe8a71c15acbe89bfa0b51e24173176ad9",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/oswald/400-normal.ttf",
+      "bytes": 27120,
+      "sha256": "6cc0635d20ac6246823071af53f70a207a3360cd0311352c8a883b8532db3a1e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/oswald/700-normal.ttf",
+      "bytes": 27144,
+      "sha256": "0a56bb4131388fdb1d980b79e5b6aec381ca6a715f4e34621dc56db22c98ca7d",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/playfairdisplay/400-italic.ttf",
+      "bytes": 50312,
+      "sha256": "bf8108f692de64ae69e8bd77af211519690aaeb68a984f4357986dfb7c0bc939",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/playfairdisplay/400-normal.ttf",
+      "bytes": 54456,
+      "sha256": "e7b0ec52708b735081d8f2bd9073524c740924cfba4f1a43232c1c8af39d5073",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/playfairdisplay/700-italic.ttf",
+      "bytes": 50460,
+      "sha256": "5e05ebacb87aa90c21f754e9b98b3c98f9087e45d066bae38d7243a9d150c227",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/playfairdisplay/700-normal.ttf",
+      "bytes": 54588,
+      "sha256": "7fc6ece5d5bce30c84f1666e28316f5c7218bd2015694737b958fff473734306",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/poppins/400-italic.ttf",
+      "bytes": 17340,
+      "sha256": "2dc0ecdbf0021dcfb680c1873f0247238e419a62e4a63bc0ebb23670d568f185",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/poppins/400-normal.ttf",
+      "bytes": 16148,
+      "sha256": "c816ed684af7ed071214d948735c8c6a66ce4cb65e22cad24c71d29ae37efc48",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/poppins/700-italic.ttf",
+      "bytes": 17104,
+      "sha256": "30a7ee673b0d29a315d9b58ccb7cd89a31f25312603e8318dc7411f7a1e59571",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/poppins/700-normal.ttf",
+      "bytes": 15816,
+      "sha256": "360548eacbb0d4cb27c4763ad4b2e44d21bfb873f536d1bbb88e3006a2c2d184",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/README.md",
+      "bytes": 1351,
+      "sha256": "2745ac9154f0babb8d41530bfe7606e0267154db0a1b3d906168687f97831bea",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/roboto/400-italic.ttf",
+      "bytes": 35464,
+      "sha256": "e4571ac267ced25ba6f323d863f5b991d795abb2ee3adec69003c2ed122b2dab",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/roboto/400-normal.ttf",
+      "bytes": 33896,
+      "sha256": "73b5cc943fc011cb22e62fbbf51edfbda0515651fc9ba675d3df5e1499418c0c",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/roboto/700-italic.ttf",
+      "bytes": 35568,
+      "sha256": "06e3d86108cb739332f7d36bb2770a5852d7e873d56038bc4fa838e5ea7605f3",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/roboto/700-normal.ttf",
+      "bytes": 33900,
+      "sha256": "7fc147166bf81d7d3f74b29ca5753dfe66347564477763c047d7a6b6d352434b",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/robotomono/400-italic.ttf",
+      "bytes": 24652,
+      "sha256": "a762419ac9443f3dd0caa6df15af42f8267ba5f088ef1bba38e1a879effb1f84",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/robotomono/400-normal.ttf",
+      "bytes": 22780,
+      "sha256": "45e65c7ed7cf7d3521a70bb3935f239422063b759c62ce7f96701ad6bdd80cea",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/robotomono/700-italic.ttf",
+      "bytes": 24740,
+      "sha256": "d29fe50a5134115dbedaac8b481c3aab55a80a4cd247bfaedc993e0d892395be",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/robotomono/700-normal.ttf",
+      "bytes": 22728,
+      "sha256": "b0dca72dd80d480ee578d15038406acce2c250ed0e51b8a06a4a4cdff778ed4e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/sourcecodepro/400-italic.ttf",
+      "bytes": 24124,
+      "sha256": "89cd1e60c61f75788ac1a23a7bb396dfc585855730b26f49ee2ef2fcc533ec76",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/sourcecodepro/400-normal.ttf",
+      "bytes": 24352,
+      "sha256": "531249a04d31457f28968394cbefb5a0f40bef3dbaa4516ab35948f20a5948da",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/sourcecodepro/700-italic.ttf",
+      "bytes": 24072,
+      "sha256": "4232e9f62ce8e9e72a67abecca08569a44050f992601dac7df01f818a721a2c9",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "fonts/sourcecodepro/700-normal.ttf",
+      "bytes": 24196,
+      "sha256": "6777fb79e8522a6bf66204fa875e8c730945a7dffa643787a8cce31fd8711981",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/apple-touch-icon.png",
+      "bytes": 4134,
+      "sha256": "b472e52bbe048e50c3cc2ddd65a44ac182af178ef6dde903006984ad0c35e5b4",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/cloakpdf-app-icon.svg",
+      "bytes": 1387,
+      "sha256": "32fb79af7a9137a874585795f02921347391dcb8ae76648c9fc6fcbe73eb3aa4",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/favicon.ico",
+      "bytes": 1011,
+      "sha256": "959a1ec0f0231cbedb6d116d26279be46163313f2d8747b6b6d3ebdcaad3b6b2",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/favicon.svg",
+      "bytes": 1461,
+      "sha256": "d8278c0e3e68a3d712324f3b844a3b74d1e1cadfaa703e8cfcfbb08cff435dc8",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/maskable-icon-512x512.png",
+      "bytes": 25440,
+      "sha256": "b8aa8602ca484bc6f62118c4c1727a277b0c5db4aa64dccc32d5c4f62d07e85f",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/og-image.png",
+      "bytes": 80285,
+      "sha256": "300b97475634d7014c9b283419c09495efac76d6b9183af7407613738b43a514",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/pwa-192x192.png",
+      "bytes": 4634,
+      "sha256": "0847e408e3305683e17e4013d8457b0465181e2078fc4281f033a9228e4b1e89",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/pwa-512x512.png",
+      "bytes": 25440,
+      "sha256": "b8aa8602ca484bc6f62118c4c1727a277b0c5db4aa64dccc32d5c4f62d07e85f",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "icons/pwa-64x64.png",
+      "bytes": 996,
+      "sha256": "af349d02381052f7bc7ba52484288697ae29171b953a0753c2ee83e0b995b8b1",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "index.html",
+      "bytes": 8189,
+      "sha256": "f751a2cfbe6482420ddae490bf7a883f6f81742408d6566a739d531b44fa189f",
+      "status": 200,
+      "cacheControl": "public, max-age=0, must-revalidate, no-transform"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 1345,
+      "sha256": "f7e8af3fd02ede0fe24be639950f8e288d4bcbcff8c0a8fac9df98fab6536043",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=0, must-revalidate"
+    },
+    {
+      "path": "pdfjs-wasm/jbig2_nowasm_fallback.js",
+      "bytes": 152009,
+      "sha256": "68686ced624a48c42f84cdaa482ec44b72b0de4dc84a0df903af1fb7b45b5d9a",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/jbig2.wasm",
+      "bytes": 103671,
+      "sha256": "466f45c2a61a698152fb5400c27e56ff2ceb73dcb71fde3fc366a502308eaab0",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/openjpeg_nowasm_fallback.js",
+      "bytes": 445781,
+      "sha256": "9047b34b6bc142d85e4b0aa1b08b0b9baad4c6f8b7ac87641b9e8f90eb6fd23e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/openjpeg.wasm",
+      "bytes": 251131,
+      "sha256": "95e5002597af0824004aa57b1900fe019715db389e37640b1e58395e42f00cc5",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/qcms_bg.wasm",
+      "bytes": 96589,
+      "sha256": "663d86126d5f5fcb1c61490f94353e2a8375660b8c5498ab3ebab5a34b08800e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/quickjs-eval.js",
+      "bytes": 6232,
+      "sha256": "fe7930418e869791ce892567dbd0bc4698152b7e550b5cefa553992c56ddc325",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "pdfjs-wasm/quickjs-eval.wasm",
+      "bytes": 469105,
+      "sha256": "7bcacc9f22cacf7e9b23866d2a6d1639693d40c7f144e41b7c69ed37ba9cbe8f",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "robots.txt",
+      "bytes": 71,
+      "sha256": "7d8fcf826690be5aa22801fc9604421153b50f8c9136612d11f445ff6f3b18d6",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "screenshots/editor-narrow-dark.png",
+      "bytes": 100063,
+      "sha256": "e3512e7c91f9c393c4ebf41f628d3201947155f16a5f592852fef5eb6bb2d280",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "screenshots/editor-narrow-light.png",
+      "bytes": 97603,
+      "sha256": "c6710ad38962b7e606d5e80b8202ef5e1effa0837f41c200791451255a022efe",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "screenshots/editor-wide-dark.png",
+      "bytes": 105913,
+      "sha256": "65cdabf60dfb8bd73ce3f4f8f85af8b37f6db0b43d36e6499ecc970c747b26b9",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "screenshots/editor-wide-light.png",
+      "bytes": 105747,
+      "sha256": "af1ccd84c680be8821717be8513adee233ebd42d35bc72c684b90b7e21c73866",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "sitemap.xml",
+      "bytes": 269,
+      "sha256": "ef260e6278857fe36011d0b55929ffd318f34cb5da4fe83e5380275ac3c0807e",
+      "status": 200,
+      "cacheControl": "no-transform"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 7292,
+      "sha256": "2babdc48db8c2235f3b9b864ca11a6fd1438f907b8740d93838c72ef27d99ea7",
+      "status": 200,
+      "cacheControl": "no-transform, public, max-age=0, must-revalidate"
+    },
+    {
+      "path": "workbox-c06bacfd.js",
+      "bytes": 23820,
+      "sha256": "68ce0d4dc9fee93abd4ea61809620be1284e3f32714f5c995985d8c3df2e9a0d",
+      "status": 200,
+      "cacheControl": "no-transform"
+    }
+  ],
+  "missing": {
+    "status": 404,
+    "sha256": "e47802f05965780d6bcf654b5b0f425b4bff7f59fc947c2b3a9d8a4e3fd520a8"
+  }
+}

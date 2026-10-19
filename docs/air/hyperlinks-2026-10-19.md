@@ -16,5 +16,17 @@ navigation captures were visually inspected. This bounded correction does not
 complete the unfinished Resume/IMG migrations or physical/assistive acceptance.
 
 Evidence: `evidence/hyperlinks-2026-10-19/`; full captures and command logs remain
-in `/tmp/air-hyperlinks-2026-10-19/`. Root/PDF/Drop publication follows validation;
+in `/tmp/air-hyperlinks-2026-10-19/`. Root/PDF/Drop are deployed and production-verified;
 Resume/IMG remain local.
+
+## Production verification
+
+[PR #205](https://github.com/cloakyard/cloakpdf/pull/205) merged candidate `350efbb`
+to main `8f801c3`. Cloudflare build `f9470d64-5084-4d3f-bd7f-047e0b0d716e`
+deployed version `5f3bbb89` at 100% traffic. All remote checks pass.
+All 132 production files match the tested SHA-256 bytes; no-transform and
+missing-route behavior pass. All 24 live viewport/theme/text cases pass, including
+angled hyperlinks, neutral Source/credits and responsive navigation. Live desktop/laptop/
+phone light/dark captures were inspected. Evidence is in
+`evidence/hyperlinks-2026-10-19/production/`. Release tags, native apps and published
+installer assets are unchanged.
