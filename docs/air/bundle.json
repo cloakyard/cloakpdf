@@ -8,12 +8,12 @@
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
-    "components.html": "7d48e99ac7fe0a2ecfbef6220ca4700297baa173a4664c037fa8f946bee2b8c3",
-    "reading.html": "a7d72eea53cc52a23aae8b4290ba84f0eb51284d2da88b12efae831c358421e8",
-    "recovery.html": "b25be6e2a4962ab56992a0960e16aa00e951230780e19c1f2630761d26afea49",
+    "components.html": "77ba57752e38510ecedeadab38e9c2656fe17d4f03248de3681f3d0657b4cb47",
+    "reading.html": "9a4f7e937008d34e741de4a629c0503df97575648db86a0bd4450fbd26be371d",
+    "recovery.html": "290ac92632a8f2a84ac5fb63ba8c408973d72175e42ebcd34c8faf999e57974c",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",
-    "files.html": "e1923c778d5b640e36939aef6277925112e66fb53b104585e0e6ebf0da99e0c2",
-    "collections.html": "6bd75c4dd2f8dd74c743cb20f81a5c381c98d7c3de3d05453c0c969fe87c1683",
+    "files.html": "17055bcf6e46cf779c67e8b0452bc1ee54c6082b61ae7bddd076a61ccfaa50d9",
+    "collections.html": "e1efa15da6f6c70f3ea0508532fc587a4bc004477ebac59fd08f60453c8443ca",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "9ed84c388b39cff2f3ebed3f04c4e99d5951023838b659498d51ce0952a179b0",
     "colour.mjs": "4116d6738bddaeeb4992f00bdcd53851fea29e50da7d607be798e2224ff54751",
@@ -28,6 +28,6 @@
     "assets/air-collections.js": "0bbea11f0a1843404398d261dc01f53c63dd63836919de49bf19f70ce6aa6cc5",
     "assets/OVERLAY_LICENSES.txt": "e58320bc919098b8d78f84c1d7f808e2cfd9efa6b8ab322365ecb4c0fd08fd23"
   },
-  "sha256": "b2b01cee2dad34525543deb587fc057e7022d7ee5d838131bf7ea4f2c530f259",
+  "sha256": "a3f253a17c2b4a6b7ec7a1d35b02eacccaba8be68fabd08ab7128c828ad03839",
   "note": "Pinned family bundle. Runtime migration is tracked separately in surfaces.json."
 }

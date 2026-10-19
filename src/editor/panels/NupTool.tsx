@@ -4,7 +4,7 @@ import { bookletOrder } from "../../utils/pdf/transform.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PageThumb } from "../PageThumb.tsx";
-import { WholeDocPanel } from "./WholeDocPanel.tsx";
+import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const NUP_OPTIONS: { value: NupLayout; label: string }[] = [
   { value: "2x1", label: "2-up · side by side" },
@@ -92,22 +92,16 @@ export function NupPanel() {
   // be applied through their owning tool (which also owns options such as backing).
   const pending = doc?.objects.filter((o) => o.kind !== "erase" && o.kind !== "redaction") ?? [];
   return (
-    <WholeDocPanel
-      blurb="Arrange pages for compact printing or a folded booklet."
-      applyLabel={isBooklet ? "Make booklet" : "Apply N-up layout"}
-      disabled={!doc || pending.length > 0}
-      onApply={() =>
-        applyTransform(async (d) => {
-          if (d.objects.length) throw new Error("Apply pending marks before arranging pages.");
-          return {
-            bytes: await nupPages(docToFile(d), layout, { cropMarks }),
-            label: isBooklet ? "Booklet" : `N-up ${layout}`,
-            objects: [],
-          };
-        })
-      }
-      note="Creates a print layout. Form fields become fixed; document links and bookmarks are not retained."
+    <div
+      className="flex flex-col gap-4"
+      role="group"
+      aria-label="N-up settings"
+      tabIndex={-1}
+      data-busy-focus-fallback
     >
+      <p className="text-sm text-[var(--air-ink-secondary)]">
+        Arrange pages for compact printing or a folded booklet.
+      </p>
       <div>
         <label htmlFor="nup-layout" className="air-label">
           Layout
@@ -150,6 +144,24 @@ export function NupPanel() {
           ))}
         </div>
       )}
-    </WholeDocPanel>
+      <PrimaryAction
+        label={isBooklet ? "Make booklet" : "Apply N-up layout"}
+        disabled={!doc || pending.length > 0}
+        onApply={() =>
+          applyTransform(async (d) => {
+            if (d.objects.length) throw new Error("Apply pending marks before arranging pages.");
+            return {
+              bytes: await nupPages(docToFile(d), layout, { cropMarks }),
+              label: isBooklet ? "Booklet" : `N-up ${layout}`,
+              objects: [],
+            };
+          })
+        }
+      />
+      <p className="air-help">
+        Creates a print layout. Form fields become fixed; document links and bookmarks are not
+        retained.
+      </p>
+    </div>
   );
 }

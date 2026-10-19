@@ -56,7 +56,10 @@ async function waitForText(page: Page, re: RegExp, timeout = 15_000): Promise<vo
 
 /** Read whether a top-bar icon button (by aria-label) is currently disabled. */
 async function btnDisabled(page: Page, label: string): Promise<boolean> {
-  return page.$eval(`button[aria-label="${label}"]`, (b) => (b as HTMLButtonElement).disabled);
+  return page.$eval(
+    `button[aria-label="${label}"]`,
+    (b) => b.getAttribute("aria-disabled") === "true",
+  );
 }
 
 /** Fire ⌘K (Meta on macOS — the handler also accepts Ctrl). */
@@ -367,7 +370,9 @@ async function main() {
     if (!(await clickByText(page, "Add page numbers"))) fail("Page numbers Apply not found.");
     await waitForText(page, /No pending numbers/i, 60_000); // restored after apply
     await page.waitForFunction(
-      () => !(document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled,
+      () =>
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+        "false",
       { timeout: 10_000 },
     );
     console.log("  ✓ apply page numbers → Undo enabled");
@@ -376,8 +381,10 @@ async function main() {
     await pressMeta(page, "z");
     await page.waitForFunction(
       () =>
-        (document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled &&
-        !(document.querySelector('button[aria-label="Redo"]') as HTMLButtonElement)?.disabled,
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+          "true" &&
+        document.querySelector('button[aria-label="Redo"]')?.getAttribute("aria-disabled") ===
+          "false",
       { timeout: 10_000 },
     );
     console.log("  ✓ ⌘Z undo (Undo→disabled, Redo→enabled)");
@@ -386,8 +393,10 @@ async function main() {
     await pressMeta(page, "z", true);
     await page.waitForFunction(
       () =>
-        !(document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled &&
-        (document.querySelector('button[aria-label="Redo"]') as HTMLButtonElement)?.disabled,
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+          "false" &&
+        document.querySelector('button[aria-label="Redo"]')?.getAttribute("aria-disabled") ===
+          "true",
       { timeout: 10_000 },
     );
     console.log("  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)");
@@ -406,7 +415,10 @@ async function main() {
         (undoOff, redoOff) => {
           const undo = document.querySelector<HTMLButtonElement>('button[aria-label="Undo"]')!;
           const redo = document.querySelector<HTMLButtonElement>('button[aria-label="Redo"]')!;
-          return undo.disabled === undoOff && redo.disabled === redoOff;
+          return (
+            (undo.getAttribute("aria-disabled") === "true") === undoOff &&
+            (redo.getAttribute("aria-disabled") === "true") === redoOff
+          );
         },
         {},
         undoDisabled,

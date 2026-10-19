@@ -102,16 +102,8 @@ export class EditorHistory {
     return this.stack[this.cursor] ?? null;
   }
 
-  base(): HistoryEntry | null {
-    return this.stack[0] ?? null;
-  }
-
   index(): number {
     return this.cursor;
-  }
-
-  size(): number {
-    return this.stack.length;
   }
 
   canUndo(): boolean {
@@ -146,16 +138,5 @@ export class EditorHistory {
     this.cursor = 0;
     this.emitEvict(dropped);
     return base;
-  }
-
-  /** Move the cursor to an absolute index (clamped) and return that entry. */
-  jumpTo(index: number): HistoryEntry | null {
-    if (this.stack.length === 0) return null;
-    this.cursor = Math.max(0, Math.min(index, this.stack.length - 1));
-    return this.current();
-  }
-
-  labels(): string[] {
-    return this.stack.map((e) => e.label);
   }
 }

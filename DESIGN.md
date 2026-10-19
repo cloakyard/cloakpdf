@@ -1415,3 +1415,14 @@ journeys across all apps; it is not inferred from the pilot alone.
   stays document content. Redaction marks remain removable until export or another
   transform applies them; explain this beside the action. Pause text selection while
   privacy marks are pending so covered text cannot be copied from the source layer.
+
+- Undo/Redo/Reset retain keyboard and pointer focus when reaching a history boundary.
+  Use guarded aria-disabled actions with the shared icon-button disabled treatment;
+  unavailable actions neither mutate history nor animate on hover/press. The provider
+  rejects history changes during a blocking task, including immediate repeated calls.
+  Responsive panel remounts preserve focus on surviving toolbar controls; explicit
+  tool selection still moves focus to its heading.
+- Keep editor entry, tool dispatch and stage registration as small ownership seams.
+  Remove provider actions/helpers without runtime consumers. A single-use composition
+  belongs with its tool; N-up uses PrimaryAction directly and retains a settings focus
+  destination after processing. Do not reintroduce the retired WholeDocPanel wrapper.

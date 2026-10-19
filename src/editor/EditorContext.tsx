@@ -7,7 +7,7 @@
 //
 // State is split across focused contexts so a slider drag in one tool doesn't
 // re-render the rail / top bar / every other panel:
-//   • ActionsCtx    — stable callbacks; identity never changes after mount.
+//   • ActionsCtx    — callbacks independent of per-frame view changes.
 //   • ToolStateCtx  — the namespaced per-tool option slices (high-frequency).
 //   • ActiveToolCtx — just the active tool id (flips only on tool switch).
 //   • ViewCtx       — zoom/pan/page-grid view state (changes EVERY pan/zoom
@@ -106,10 +106,8 @@ interface ActionsValue {
   /** Remove many objects in a single undoable history entry (e.g. "Clear all"
    *  pending redaction / erase marks). */
   removeObjects: (ids: string[], label?: string) => void;
-  commit: (label: string) => void;
   undo: () => void;
   redo: () => void;
-  jumpTo: (index: number) => void;
   reset: () => void;
   registerPendingApply: (action: PendingApply | null) => void;
   flushPendingApply: () => Promise<void>;
@@ -473,15 +471,6 @@ export function EditorProvider({
     setHistoryVersion((v) => v + 1);
   }, []);
 
-  const commit = useCallback(
-    (label: string) => {
-      const cur = docRef.current;
-      if (!cur) return;
-      commitDoc(cur, label);
-    },
-    [commitDoc],
-  );
-
   const restoreEntry = useCallback(() => {
     const entry = historyRef.current.current();
     const cur = docRef.current;
@@ -498,27 +487,19 @@ export function EditorProvider({
   }, []);
 
   const undo = useCallback(() => {
-    if (!historyRef.current.undo()) return;
+    if (busyRef.current || !historyRef.current.undo()) return;
     restoreEntry();
   }, [restoreEntry]);
 
   const redo = useCallback(() => {
-    if (!historyRef.current.redo()) return;
+    if (busyRef.current || !historyRef.current.redo()) return;
     restoreEntry();
   }, [restoreEntry]);
 
-  const jumpTo = useCallback(
-    (index: number) => {
-      historyRef.current.jumpTo(index);
-      restoreEntry();
-    },
-    [restoreEntry],
-  );
-
   // Hard reset: discard ALL edits and wipe the timeline, so undo/redo have
-  // nothing left to restore. (jumpTo(0) used to keep the redo tail, letting the
-  // user step right back into the edits they just cleared.)
+  // nothing left to restore.
   const reset = useCallback(() => {
+    if (busyRef.current || historyRef.current.index() <= 0) return;
     const base = historyRef.current.resetToBase();
     const cur = docRef.current;
     if (!base || !cur) return;
@@ -821,10 +802,8 @@ export function EditorProvider({
       moveObject,
       removeObject,
       removeObjects,
-      commit,
       undo,
       redo,
-      jumpTo,
       reset,
       registerPendingApply,
       flushPendingApply,
@@ -851,10 +830,8 @@ export function EditorProvider({
       moveObject,
       removeObject,
       removeObjects,
-      commit,
       undo,
       redo,
-      jumpTo,
       reset,
       registerPendingApply,
       flushPendingApply,

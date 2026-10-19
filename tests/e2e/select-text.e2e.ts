@@ -261,6 +261,37 @@ try {
       pdf.getPage(i).node.get(PDFName.of("UserUnit"))?.toString(),
     );
   }
+  // Provider history guards also cover direct calls in the same frame as a task,
+  // before React paints the inert workspace, and while async work is pending.
+  const beforeTask = await page.evaluate(() => (window as any).airRead.historyVersion);
+  await page.evaluate(() => {
+    const w = window as any;
+    w.historyTask = w.airActions.runTask(
+      "Checking history ownership…",
+      () =>
+        new Promise<void>((resolve) => {
+          w.releaseHistoryTask = resolve;
+        }),
+    );
+    w.airActions.undo();
+    w.airActions.reset();
+    w.airActions.redo();
+  });
+  await page.waitForFunction(() => !!(window as any).releaseHistoryTask);
+  await page.evaluate(() => {
+    const w = window as any;
+    w.airActions.undo();
+    w.airActions.reset();
+    w.airActions.redo();
+  });
+  await settle();
+  assert.deepEqual(await docBytes(), highlighted);
+  assert.equal(await page.evaluate(() => (window as any).airRead.historyVersion), beforeTask);
+  await page.evaluate(async () => {
+    const w = window as any;
+    w.releaseHistoryTask();
+    await w.historyTask;
+  });
   await page.evaluate(() => (window as any).airActions.undo());
   await ready();
   assert.deepEqual(await docBytes(), bytes);

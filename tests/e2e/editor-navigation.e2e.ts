@@ -261,7 +261,7 @@ try {
   assert.ok(apply, "Page numbers apply action");
   await apply.click();
   await page.waitForFunction(
-    () => !(document.querySelector('[aria-label="Undo"]') as HTMLButtonElement).disabled,
+    () => document.querySelector('[aria-label="Undo"]')?.getAttribute("aria-disabled") === "false",
   );
   await page.click('[aria-label="Export"]');
   await page.waitForSelector('[role="dialog"]');
@@ -270,7 +270,7 @@ try {
   await page.keyboard.press("z");
   await page.keyboard.up("Control");
   assert.equal(
-    await page.$eval('[aria-label="Undo"]', (n) => (n as HTMLButtonElement).disabled),
+    await page.$eval('[aria-label="Undo"]', (n) => n.getAttribute("aria-disabled") === "true"),
     false,
   );
   await page.keyboard.press("Escape");
@@ -279,7 +279,94 @@ try {
   await page.keyboard.press("z");
   await page.keyboard.up("Control");
   await page.waitForFunction(
-    () => !(document.querySelector('[aria-label="Redo"]') as HTMLButtonElement).disabled,
+    () => document.querySelector('[aria-label="Redo"]')?.getAttribute("aria-disabled") === "false",
+  );
+  // History boundaries retain the initiating control on desktop/tablet/phone.
+  // Semantic disabling must guard pointer and keyboard activation, not just look dim.
+  for (const width of [1440, 768, 390]) {
+    await page.focus('[aria-label="Undo"]');
+    await page.setViewport({ width, height: 900 });
+    await page.waitForFunction(
+      (layout) => document.querySelector(".editor-topbar")?.getAttribute("data-layout") === layout,
+      {},
+      width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop",
+    );
+    await page.evaluate(async () => {
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+    });
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+      "Undo",
+    );
+    for (const [label, opposite] of [
+      ["Redo", "Undo"],
+      ["Undo", "Redo"],
+    ]) {
+      const selector = `button[aria-label="${label}"]`;
+      await page.focus(selector);
+      await page.keyboard.press("Enter");
+      await page.waitForFunction(
+        (sel) => document.querySelector(sel)?.getAttribute("aria-disabled") === "true",
+        {},
+        selector,
+      );
+      assert.equal(
+        await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+        label,
+      );
+      const before = await page.$eval('img[alt="Page 3"]', (n) => n.getAttribute("src"));
+      await page.keyboard.press("Space");
+      await page.click(selector);
+      assert.equal(await page.$eval('img[alt="Page 3"]', (n) => n.getAttribute("src")), before);
+      assert.equal(
+        await page.$eval(`[aria-label="${opposite}"]`, (n) => n.getAttribute("aria-disabled")),
+        "false",
+      );
+      assert.equal(
+        await page.$eval(
+          selector,
+          (n) => getComputedStyle(n).opacity === (n.matches(":focus-visible") ? "1" : "0.5"),
+        ),
+        true,
+      );
+      assert.equal(
+        await page.$eval(selector, (n) => getComputedStyle(n).backgroundColor),
+        "rgba(0, 0, 0, 0)",
+      );
+      await page.mouse.down();
+      assert.equal(await page.$eval(selector, (n) => getComputedStyle(n).transform), "none");
+      await page.mouse.up();
+    }
+  }
+  await page.setViewport({ width: 1440, height: 900 });
+  await page.click('[aria-label="Redo"]');
+  await page.focus('[aria-label="Reset to original"]');
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(
+    () => document.querySelector('[aria-label="Undo"]')?.getAttribute("aria-disabled") === "true",
+  );
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+    "Reset to original",
+  );
+  for (const key of ["Enter", "Space"] as const) await page.keyboard.press(key);
+  assert.equal(
+    await page.$eval('[aria-label="Redo"]', (n) => n.getAttribute("aria-disabled")),
+    "true",
+  );
+  await page.focus('[aria-label="Undo"]');
+  await page.keyboard.press("Tab");
+  await page.keyboard.down("Shift");
+  await page.keyboard.press("Tab");
+  await page.keyboard.up("Shift");
+  assert.deepEqual(
+    await page.$eval('[aria-label="Undo"]', (n) => ({
+      visible: n.matches(":focus-visible"),
+      opacity: getComputedStyle(n).opacity,
+      outline: getComputedStyle(n).outlineStyle,
+    })),
+    { visible: true, opacity: "1", outline: "solid" },
   );
   // Reduced motion and high contrast still expose active selection and focus.
   await cdp.send("Emulation.setEmulatedMedia", {

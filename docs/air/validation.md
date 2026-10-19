@@ -2013,3 +2013,50 @@ production review tab shows the selected synthetic study on 8132. Local commits
 only. Next: EditorContext, EditorToolStage, EditorView, OverviewMode, WholeDocPanel
 and stage ownership/legacy-consumer audits, including focus when Undo disables its
 button. Full PDF/family refresh remains open.
+
+## 2026-10-19 — Editor wrappers and history
+
+Undo, Redo and Reset now retain keyboard focus when they reach a history boundary.
+Unavailable actions reject pointer/Enter/Space activation; the provider also guards
+history calls synchronously during processing. Responsive inspector mounts preserve
+focus on surviving toolbar controls, while selecting a tool still focuses its heading.
+N-up now composes PrimaryAction directly and provides a settings focus fallback for
+Safari pointer activation. Shared Air aria-disabled icon styling keeps hover/press
+inert and the keyboard focus contour at full contrast. The canonical correction is
+synchronized to all five standalone bundles; Air remains 1.0.2 / bb90f52e0b0a.
+
+Removed unused provider commit/jumpTo, history base/size/jumpTo/labels and the
+single-consumer WholeDocPanel/danger API. Tests inspect actual history entries.
+Reviewed EditorContext, EditorToolStage, EditorView, OverviewMode and stage consumers;
+live dispatch and lifecycle seams remain. No dependency added. The inventory has
+91 surfaces and keeps physical/assistive acceptance open.
+
+453 unit tests in 46 files pass. Navigation covers 176 states across all eleven
+required sizes, breakpoint neighbors, both themes and enlarged text. N-up covers
+70 layouts and 23 real output sheets, including crop/rotation/UserUnit, blank slots,
+mixed dimensions, form appearance and searchable vectors. Select text's provider
+harness verifies exact bytes/history during same-frame and already-busy history
+calls. Safari verifies apply/fallback and all history boundaries; Firefox actual
+200% retains focus and scroll access. Final screenshots inspect desktop/laptop/
+tablet/phone, light/dark, forced colours and reduced motion. Physical touch/software
+keyboard, actual OS IME and spoken assistive acceptance remain open.
+
+Validation found and fixed responsive focus stealing, Safari pointer focus and a
+dimmed disabled focus ring. A recurring AI entrance test miss came from sampling
+after the 240ms animation had ended. The test now records real native animation
+creation before clicking and forwards execution unchanged; the same duration
+assertion remains. An intermediate regression was stopped for the final CSS rebuild.
+The final complete 16-suite production smoke and seven extended suites pass; with
+focused N-up and Select text this is 25 distinct suites. The extended command ran
+unchanged on a fresh dev8133 after the long-lived dev8122 failed once with a destroyed
+compression context and once before the rotation fixture opened. These failed
+attempts are recorded separately; no runtime/assertion change was used for the retry.
+
+Editor bundle 327.04/99.39 kB raw/gzip (gzip -0.11), CSS 138.43/24.05 (+0.03);
+128 deployment assets and 77 PWA entries. Required format/lint/types, dead-code,
+build/assets, design, 18 portability checks and exact family bundle sync pass.
+Evidence: `evidence/editor-wrappers-2026-10-19.json`, desktop/phone PNGs and
+`evidence/editor-wrappers-checks-2026-10-19.log`. Full temporary captures and native
+proofs are in `/tmp/cloakpdf-air-review/wrappers-*`. Next: legacy CSS/output font
+exceptions and registry/lifecycle consumers, followed by full PDF closure.
+Local commits only; full PDF/family migration is unfinished.

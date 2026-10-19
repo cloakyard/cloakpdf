@@ -235,8 +235,11 @@ export function EditorTopBar() {
         <div className="editor-topbar__group" role="group" aria-label="Document history">
           <button
             type="button"
-            onClick={undo}
-            disabled={!canUndo}
+            onClick={(event) => {
+              event.currentTarget.focus();
+              if (canUndo) undo();
+            }}
+            aria-disabled={!canUndo}
             className={ICON}
             aria-label="Undo"
             title="Undo (⌘Z / Ctrl+Z)"
@@ -245,8 +248,11 @@ export function EditorTopBar() {
           </button>
           <button
             type="button"
-            onClick={redo}
-            disabled={!canRedo}
+            onClick={(event) => {
+              event.currentTarget.focus();
+              if (canRedo) redo();
+            }}
+            aria-disabled={!canRedo}
             className={ICON}
             aria-label="Redo"
             title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
@@ -256,8 +262,11 @@ export function EditorTopBar() {
           {!isMobile && (
             <button
               type="button"
-              onClick={reset}
-              disabled={!canReset}
+              onClick={(event) => {
+                event.currentTarget.focus();
+                if (canReset) reset();
+              }}
+              aria-disabled={!canReset}
               className={ICON}
               aria-label="Reset to original"
               title="Reset to original"

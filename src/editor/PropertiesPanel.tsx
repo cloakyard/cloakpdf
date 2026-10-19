@@ -23,8 +23,15 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
   // preventScroll so the canvas never jumps. Guarded on `activeTool` so
   // deactivating a tool doesn't yank focus to the "Document" heading.
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousTool = useRef(activeTool);
   useEffect(() => {
-    if (activeTool) headingRef.current?.focus({ preventScroll: true });
+    // Preserve focus on surviving chrome when a responsive panel mounts.
+    if (
+      activeTool &&
+      (previousTool.current !== activeTool || document.activeElement === document.body)
+    )
+      headingRef.current?.focus({ preventScroll: true });
+    previousTool.current = activeTool;
   }, [activeTool]);
 
   return (

@@ -81,18 +81,31 @@ try {
   await page.goto(url, { waitUntil: "networkidle2" });
   await seedStorage(page);
   await openAsk();
+  // Record real animation creation before the pointer action. Sampling only
+  // after a browser round trip can miss the entire 240ms entrance under load.
+  await page.evaluate(() => {
+    const w = window as any;
+    w.modalEntryDurations = [];
+    // Preserve the native receiver when forwarding below.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const animate = Element.prototype.animate;
+    w.restoreAnimationProbe = () => {
+      Element.prototype.animate = animate;
+    };
+    Element.prototype.animate = function (frames, options) {
+      const animation = animate.call(this, frames, options);
+      if (this.closest(".pdf-modal-root"))
+        w.modalEntryDurations.push(animation.effect?.getTiming().duration);
+      return animation;
+    };
+  });
   await button("View details");
   await page.waitForSelector(dialog);
-  const entryMotion = await page.evaluate(() =>
-    document
-      .getAnimations()
-      .filter(
-        (animation) =>
-          animation.effect instanceof KeyframeEffect &&
-          (animation.effect.target as Element)?.closest(".pdf-modal-root"),
-      )
-      .map((animation) => animation.effect?.getTiming().duration),
-  );
+  const entryMotion = await page.evaluate(() => {
+    const w = window as any;
+    w.restoreAnimationProbe();
+    return w.modalEntryDurations as number[];
+  });
   assert.ok(
     entryMotion.includes(240),
     `Pointer entrance did not use Air timing: ${JSON.stringify(entryMotion)}`,

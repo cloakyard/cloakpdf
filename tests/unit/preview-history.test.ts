@@ -19,10 +19,12 @@ it("repairs previews across undo/redo without changing content, plans or cursor"
   expect(history.current()?.objects).toBe(objects);
   expect(history.current()?.pages).toBe(pages);
   expect(history.index()).toBe(1);
-  expect(history.labels()).toEqual(["Open", "Redact", "Rotate"]);
-  expect(history.undo()?.pages[0].thumbUrl).toBe("blob:recovered");
-  expect(history.redo()?.pages[0].thumbUrl).toBe("blob:recovered");
-  expect(history.redo()?.pages[0].thumbUrl).toBe("blob:rotated");
+  expect(history.undo()).toMatchObject({ label: "Open", pages: [{ thumbUrl: "blob:recovered" }] });
+  expect(history.redo()).toMatchObject({
+    label: "Redact",
+    pages: [{ thumbUrl: "blob:recovered" }],
+  });
+  expect(history.redo()).toMatchObject({ label: "Rotate", pages: [{ thumbUrl: "blob:rotated" }] });
 });
 
 it("never revokes a URL retained by another byte revision", () => {

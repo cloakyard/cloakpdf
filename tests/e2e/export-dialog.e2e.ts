@@ -307,7 +307,10 @@ try {
     "PDF modifiers mutated the working source",
   );
   assert.equal(
-    await page.$eval('button[aria-label="Undo"]', (node) => node.disabled),
+    await page.$eval(
+      'button[aria-label="Undo"]',
+      (node) => node.getAttribute("aria-disabled") === "true",
+    ),
     true,
     "Exports added history entries",
   );
@@ -382,7 +385,13 @@ try {
       );
     }
   }
-  assert.equal(await page.$eval('button[aria-label="Undo"]', (node) => node.disabled), false);
+  assert.equal(
+    await page.$eval(
+      'button[aria-label="Undo"]',
+      (node) => node.getAttribute("aria-disabled") === "true",
+    ),
+    false,
+  );
   console.log(
     "✓ All six formats burn pending redaction; PDF streams contain no original text, PNG pixels retain the redaction ink, OCR exports cannot recover the covered text",
   );

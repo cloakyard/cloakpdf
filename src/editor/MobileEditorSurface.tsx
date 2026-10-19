@@ -89,7 +89,13 @@ export function MobileEditorSurface() {
   const bodyRef = useRef<HTMLDivElement>(null);
   const previousTool = useRef(activeTool);
   useEffect(() => {
-    if (activeTool) headingRef.current?.focus({ preventScroll: true });
+    // Reflow may mount this panel while the persistent toolbar owns focus.
+    // Move only for a tool change or when the old panel lost its focused node.
+    if (
+      activeTool &&
+      (previousTool.current !== activeTool || document.activeElement === document.body)
+    )
+      headingRef.current?.focus({ preventScroll: true });
     else if (previousTool.current) toggleRef.current?.focus({ preventScroll: true });
     previousTool.current = activeTool;
   }, [activeTool]);

@@ -155,13 +155,19 @@
 .air-action-labels > [data-active] {
   visibility: visible;
 }
-.air-button[aria-disabled="true"]:not([aria-busy="true"]) {
+.air-button[aria-disabled="true"]:not([aria-busy="true"]),
+.air-icon-button[aria-disabled="true"]:not([aria-busy="true"]) {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* Focus keeps its full-strength contour even on an unavailable icon action. */
+.air-icon-button[aria-disabled="true"]:focus-visible {
+  opacity: 1;
+  color: var(--air-ink-muted);
+}
 /* Pointer press is deliberate; release, keyboard feedback and colours are immediate. */
 .air-button:active:not(:disabled):not([aria-disabled="true"]):not(:focus-visible),
-.air-icon-button:active:not(:disabled):not(:focus-visible) {
+.air-icon-button:active:not(:disabled):not([aria-disabled="true"]):not(:focus-visible) {
   transform: scale(0.98);
   transition: transform var(--air-motion-press) var(--air-ease-out);
 }
@@ -1103,7 +1109,7 @@ textarea.air-field {
     background: var(--air-surface-hover);
   }
   .air-button:hover:not(:disabled):not([aria-disabled="true"]),
-  .air-icon-button:hover:not(:disabled) {
+  .air-icon-button:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--air-surface-hover);
   }
   .air-button--primary:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -1176,7 +1182,7 @@ textarea.air-field {
     transition: none;
   }
   .air-button:active:not(:disabled):not(:focus-visible),
-  .air-icon-button:active:not(:disabled):not(:focus-visible) {
+  .air-icon-button:active:not(:disabled):not([aria-disabled="true"]):not(:focus-visible) {
     transform: none;
     transition: none;
   }
