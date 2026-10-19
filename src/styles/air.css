@@ -16,6 +16,12 @@
   --air-on-action: light-dark(#ffffff, #18212e);
   --air-accent: light-dark(#285ad7, #9ebcff);
   --air-paper-accent: #285ad7;
+  /* Decorative landing light only; original logo stops, never control colours. */
+  --air-light-cloakyard: light-dark(#3975f6, #6fc3ff);
+  --air-light-cloakpdf: light-dark(#2563eb, #74c7ff);
+  --air-light-cloakdrop: light-dark(#338dab, #5fcdd6);
+  --air-light-cloakresume: light-dark(#10b981, #6ee7b7);
+  --air-light-cloakimg: light-dark(#f4512c, #ff9a76);
   --air-accent-soft: light-dark(#edf2ff, #202f4e);
   --air-danger: light-dark(#b42335, #ff9ea8);
   --air-danger-soft: light-dark(#fff0f1, #382229);

@@ -146,7 +146,7 @@ textarea.editor-inline-text {
   position: relative;
   inline-size: 100%;
   block-size: 160px;
-  color: var(--air-accent);
+  color: var(--air-light-cloakpdf);
   background-color: var(--air-page);
   outline-color: var(--air-surface-soft);
   pointer-events: none;
