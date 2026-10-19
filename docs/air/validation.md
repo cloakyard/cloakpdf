@@ -2366,3 +2366,25 @@ waiting-worker/PWA integration pass. Air 95-source inventory, 18 portability che
 and exact family sync pass. The unchanged extended document/AI acceptance remains
 mapped in `acceptance.md`; no unrun test is counted as a new pass. Compact regression
 logs are retained beside the horizon captures as `.txt` files.
+
+## 2026-10-19 — production payload integrity
+
+PR #201 merged as `41273ae`; the live entry, CSS, social card, manifest and worker
+match local bytes, with true Air 404 responses. The first live standalone test
+passed its actual merge output but failed the strict console gate: Cloudflare
+injected its analytics beacon and inline challenge bootstrap, both blocked by the
+app's existing CSP. The v2.0.0 tag is held until live acceptance passes.
+
+The static headers now request `no-transform`, with explicit root revalidation.
+Actual Wrangler responses retain one-year immutable hashed assets and immediate
+root/index/worker/manifest revalidation; missing paths remain HTTP 404. CSP stays
+unchanged. Cloudflare documents that this prevents analytics and JavaScript
+Detection injection; the latter was already blocked by CSP. No WAF rule changed.
+References: [analytics](https://developers.cloudflare.com/web-analytics/faq/),
+[JavaScript Detections](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/javascript-detections/#if-your-origin-sends-a-no-transform-header).
+
+Code/dead checks, 461 units, build/133 assets, six actual standalone output flows
+against Wrangler and the 44-layout real PWA integration pass. App entry and output
+bytes remain unchanged. Evidence: `evidence/deployment-headers-2026-10-19/`.
+Live checks repeat after this bounded deployment follow-up; the prior live failure
+is not counted as a pass.

@@ -1,6 +1,11 @@
 # Cloudflare Workers Static Assets reads this file (same syntax as Pages) to
 # set response headers per path. Deployed via wrangler.jsonc -> assets.dist.
 
+# Serve the audited app bytes without injected analytics or inline scripts that
+# conflict with its CSP. Keep cache lifetimes separate: matching values combine.
+/*
+  Cache-Control: no-transform
+
 # Content-hashed build output: the filename changes whenever the bytes do, so
 # these are safe to cache forever. Without this, Cloudflare's default of
 # `max-age=0, must-revalidate` makes the browser revalidate every immutable
@@ -11,6 +16,8 @@
 # Service worker + app shell must ALWAYS revalidate so a freshly deployed build
 # is detected and the in-app "Update available" prompt fires. This matches
 # Cloudflare's current default but is pinned here so it can't silently regress.
+/
+  Cache-Control: public, max-age=0, must-revalidate
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate
 /index.html
