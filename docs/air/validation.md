@@ -2405,3 +2405,7 @@ Air 1.0.4 uses straight forward-navigation arrows. See
 [scope, validation and evidence](link-arrows-2026-10-19.md). Twenty-two responsive
 light/dark cases and two enlarged-text cases pass, including compact-menu
 keyboard return; desktop/laptop/phone captures were visually inspected.
+
+The correction is live through PR #204/main `d9ba375`, Cloudflare `4a482d95`
+at 100%. All 132 production files match and 24 live layout/text cases pass;
+see the linked audit's production evidence.

@@ -1,0 +1,43 @@
+{
+  "app": "cloakpdf",
+  "url": "https://pdf.cloakyard.com",
+  "source": "bf8d1a4dddd31bb85b2fd33a8151e7ded6050652",
+  "main": "d9ba3758deb22ec0fbc792a16b842617f1d3ecef",
+  "pr": "https://github.com/cloakyard/cloakpdf/pull/204",
+  "version": "4a482d95",
+  "build": "7fb3d0a2-151d-4e29-86da-9bc771ac9f5a",
+  "trafficPercent": 100,
+  "verifiedAt": "2026-10-19T14:24:19.888602+00:00",
+  "checks": [
+    {
+      "name": "Workers Builds: cloakpdf",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://dash.cloudflare.com/73a3338267f567d02c3b79c9bcedc6a6/workers/services/view/cloakpdf/production/builds/7fb3d0a2-151d-4e29-86da-9bc771ac9f5a"
+    },
+    {
+      "name": "Analyze (javascript-typescript)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/cloakyard/cloakpdf/actions/runs/39267967471/job/118112430498"
+    },
+    {
+      "name": "contract",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/cloakyard/cloakpdf/actions/runs/39267967792/job/118112430385"
+    },
+    {
+      "name": "Dependency Audit",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/cloakyard/cloakpdf/actions/runs/39267967600/job/118112429573"
+    },
+    {
+      "name": "Scorecard Analysis",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/cloakyard/cloakpdf/actions/runs/39267967727/job/118112429565"
+    }
+  ]
+}
