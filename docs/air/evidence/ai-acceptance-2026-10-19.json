@@ -1,0 +1,3122 @@
+{
+  "date": "2026-10-19",
+  "baseline": "c3d3264",
+  "scope": "PDF final AI software matrix and active-reference cleanup",
+  "contract": "Air 1.0.2 / bb90f52e0b0a",
+  "host": {
+    "chip": "Apple M2 Max",
+    "memoryBytes": 34359738368,
+    "os": "macOS 27.0.1"
+  },
+  "fixtures": [
+    {
+      "fixture": "sample",
+      "pages": 4,
+      "bytes": 973488,
+      "sha256": "3f5a978da4109c430dcea470030d3e5b5588923ed6c90f038febd9da78c2494b",
+      "characters": 13708,
+      "matches": [
+        {
+          "term": "contact ground truth",
+          "present": true
+        },
+        {
+          "term": "contact ground truth",
+          "present": true
+        },
+        {
+          "term": "contact ground truth",
+          "present": true
+        },
+        {
+          "term": "contact ground truth",
+          "present": true
+        },
+        {
+          "term": "contact ground truth",
+          "present": true
+        }
+      ]
+    },
+    {
+      "fixture": "multipage",
+      "pages": 33,
+      "bytes": 561652,
+      "sha256": "66cbcc06df9271e0bb59986582646f0c4c7c94697554f893f937a5a55cef736d",
+      "characters": 38167,
+      "matches": [
+        {
+          "term": "SKILL.md",
+          "present": true
+        },
+        {
+          "term": "kebab-case",
+          "present": true
+        },
+        {
+          "term": "XML angle brackets",
+          "present": true
+        },
+        {
+          "term": "Code execution",
+          "present": true
+        },
+        {
+          "term": "claude",
+          "present": true
+        },
+        {
+          "term": "anthropic",
+          "present": true
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "tier": "compact",
+      "variant": "lfm2.5-1.2b",
+      "fixture": "sample",
+      "command": "E2E_URL=http://127.0.0.1:8122 CHAT_VARIANT=lfm2.5-1.2b FIXTURE=sample AIR_EVIDENCE_DIR=/tmp/cloakpdf-air-review/ai-acceptance/compact-sample pnpm test:e2e",
+      "result": "pass",
+      "environment": {
+        "browser": "Chrome/155.0.8059.85",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+        "webGpuAdapterAvailable": true,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "timings": [
+        {
+          "label": "question-cold-overview",
+          "ms": 942
+        },
+        {
+          "label": "question-warm-overview",
+          "ms": 781
+        },
+        {
+          "label": "question-phone-extraction",
+          "ms": 328
+        },
+        {
+          "label": "question-email-extraction",
+          "ms": 256
+        },
+        {
+          "label": "question-address-extraction",
+          "ms": 488
+        },
+        {
+          "label": "question-after-swap",
+          "ms": 5455
+        }
+      ],
+      "pickerLayouts": [
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        }
+      ],
+      "rawLogSha256": "161811a4c61f077644cb68800daa6a8121501a4b545be2caf9b9e03b131e9313"
+    },
+    {
+      "tier": "compact",
+      "variant": "lfm2.5-1.2b",
+      "fixture": "multipage",
+      "command": "E2E_URL=http://127.0.0.1:8122 CHAT_VARIANT=lfm2.5-1.2b FIXTURE=multipage AIR_EVIDENCE_DIR=/tmp/cloakpdf-air-review/ai-acceptance/compact-multipage pnpm test:e2e",
+      "result": "pass",
+      "environment": {
+        "browser": "Chrome/155.0.8059.85",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+        "webGpuAdapterAvailable": true,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "timings": [
+        {
+          "label": "question-cold-overview",
+          "ms": 2568
+        },
+        {
+          "label": "question-warm-overview",
+          "ms": 2404
+        },
+        {
+          "label": "question-multipage-topic",
+          "ms": 1701
+        },
+        {
+          "label": "question-multipage-file-structure",
+          "ms": 2773
+        },
+        {
+          "label": "question-multipage-yaml-security",
+          "ms": 2580
+        },
+        {
+          "label": "question-after-swap",
+          "ms": 4035
+        }
+      ],
+      "pickerLayouts": [
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        }
+      ],
+      "rawLogSha256": "4a2c287020401097eaacfc01fc40dcf27527c7747c964928211119e1efedc858"
+    },
+    {
+      "tier": "quality",
+      "variant": "lfm2-2.6b",
+      "fixture": "sample",
+      "command": "E2E_URL=http://127.0.0.1:8122 CHAT_VARIANT=lfm2-2.6b FIXTURE=sample AIR_EVIDENCE_DIR=/tmp/cloakpdf-air-review/ai-acceptance/quality-sample pnpm test:e2e",
+      "result": "pass",
+      "environment": {
+        "browser": "Chrome/155.0.8059.85",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+        "webGpuAdapterAvailable": true,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "timings": [
+        {
+          "label": "question-cold-overview",
+          "ms": 1095
+        },
+        {
+          "label": "question-warm-overview",
+          "ms": 1027
+        },
+        {
+          "label": "question-phone-extraction",
+          "ms": 310
+        },
+        {
+          "label": "question-email-extraction",
+          "ms": 257
+        },
+        {
+          "label": "question-address-extraction",
+          "ms": 659
+        },
+        {
+          "label": "question-after-swap",
+          "ms": 3542
+        }
+      ],
+      "pickerLayouts": [
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        }
+      ],
+      "rawLogSha256": "2b721398bec73edc9abe01f878b176369cbb3c67c8d2309d800a32669d578228"
+    },
+    {
+      "tier": "quality",
+      "variant": "lfm2-2.6b",
+      "fixture": "multipage",
+      "command": "E2E_URL=http://127.0.0.1:8122 CHAT_VARIANT=lfm2-2.6b FIXTURE=multipage AIR_EVIDENCE_DIR=/tmp/cloakpdf-air-review/ai-acceptance/quality-multipage pnpm test:e2e",
+      "result": "pass",
+      "environment": {
+        "browser": "Chrome/155.0.8059.85",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+        "webGpuAdapterAvailable": true,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "timings": [
+        {
+          "label": "question-cold-overview",
+          "ms": 3704
+        },
+        {
+          "label": "question-warm-overview",
+          "ms": 3946
+        },
+        {
+          "label": "question-multipage-topic",
+          "ms": 2702
+        },
+        {
+          "label": "question-multipage-file-structure",
+          "ms": 4602
+        },
+        {
+          "label": "question-multipage-yaml-security",
+          "ms": 3598
+        },
+        {
+          "label": "question-after-swap",
+          "ms": 2487
+        }
+      ],
+      "pickerLayouts": [
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "light",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 320,
+          "height": 568,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 375,
+          "height": 812,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 390,
+          "height": 844,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 430,
+          "height": 932,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 844,
+          "height": 390,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 768,
+          "height": 1024,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1023,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1024,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1025,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1280,
+          "height": 720,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1366,
+          "height": 768,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1440,
+          "height": 900,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 1920,
+          "height": 1080,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 639,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 640,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 16,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        },
+        {
+          "state": "model-picker",
+          "theme": "dark",
+          "width": 641,
+          "height": 800,
+          "root": 32,
+          "pageOverflow": false,
+          "dialogOverflow": false,
+          "contained": true,
+          "undersized": []
+        }
+      ],
+      "rawLogSha256": "21226dd146afd62a06d8b765706ab598dcb58fbc23be77855b967e3a32f1949e"
+    }
+  ],
+  "assertions": [
+    "Required fixture facts verified with PDF.js before testing; no substitute PDFs",
+    "Both tiers \u00d7 both fixtures, initial and warm return/index reuse",
+    "Exact r\u00e9sum\u00e9 contact facts; document identification uses deterministic fast paths",
+    "Long-document topic, exact SKILL.md filename/kebab-case and three YAML security prohibitions",
+    "Real generated summary after keyboard tier swap",
+    "Picker Cancel retains selection; native radio keyboard order",
+    "Free memory remains idle; explicit reload restores the document session"
+  ],
+  "limits": [
+    "Caches intentionally preserved; not a fresh full-byte download test",
+    "Phone-sized captures resize a desktop session; desktop-only eligibility unchanged",
+    "Native Safari/Firefox inference and other GPU/memory combinations unverified",
+    "Generated guide titles were imprecise; Compact security reply had a contradictory preface before the correct three facts",
+    "Physical touch/software keyboard, OS IME, spoken assistive, final-size QR scan and physical shader performance gates remain open"
+  ],
+  "attemptHistory": [
+    "First Quality/multipage attempt navigated during indexing and failed. Held-steady rerun passed; no definite cause or product fix claimed. Original failed log retained under the local evidence directory."
+  ],
+  "changes": [
+    "Stale singular consent selector now matches Download models",
+    "Test failures throw through browser cleanup rather than abandoning the browser profile",
+    "Harness records browser and available GPU adapter; no runtime backend/settings changed",
+    "Current model, sampler, cache-size/download and backend references corrected; historical rejected-model rationale retained"
+  ],
+  "validation": {
+    "unitTests": 459,
+    "unitFiles": 47,
+    "requiredChecks": "format/lint/type, knip, units, production build, 131 deploy assets, design integrity, 18 portability checks",
+    "realPickerLayouts": 256,
+    "syntheticModalLayouts": 192,
+    "syntheticModalChecks": "actual pointer/keyboard/reduced-motion lifecycle, safe deletion, CacheStorage/IDB failure and retry, cancelled loading, truthful failed counts, retry and cancel",
+    "reviewedImages": [
+      "quality-multipage/model-picker-1440-light.png",
+      "quality-multipage/model-picker-390-dark.png"
+    ],
+    "runtimeBundle": "AskPdf 589.97 kB raw / 177.61 kB gzip; no production behavior, styling or dependencies changed"
+  },
+  "localEvidence": "/tmp/cloakpdf-air-review/ai-acceptance",
+  "privacy": "Raw r\u00e9sum\u00e9 replies and screenshots remain local. Durable evidence contains fixture hashes, timings and geometry without contact data.",
+  "next": "Finish PDF evidence checkpoint; then CloakDrop website \u2192 CloakResume \u2192 CloakIMG, per user correction."
+}

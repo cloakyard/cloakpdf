@@ -1,0 +1,238 @@
+CloakPDF Air constructor checkpoint — 2026-10-13
+Final passing outputs; historical failures and fixture limitations are documented in validation.md.
+
+=== check-final ===
+pass: All 273 files are correctly formatted (492ms, 12 threads)
+pass: Found no warnings, lint errors, or type errors in 221 files (759ms, 12 threads)
+
+=== dead-final ===
+$ knip
+
+=== units-final ===
+$ pnpm test:unit
+$ vp test run tests/unit
+
+ RUN  v5.0.3 /Users/sumitsahoo/Developer/cloakpdf
+
+
+ Test Files  34 passed (34)
+      Tests  355 passed (355)
+   Start at  22:29:27
+   Duration  1.15s (import 41%, transform 38%, tests 19%, worker 2%)
+
+  Transform  transforming modules took 2.94s · 38% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+
+=== build-final ===
+$ tsc ⊘ cache disabled
+
+$ vp build ⊘ cache disabled
+transforming...
+✓ 3400 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/manifest.webmanifest                            0.97 kB
+dist/pdfjs-wasm/quickjs-eval.js                      6.23 kB
+dist/index.html                                      8.54 kB │ gzip:     2.78 kB
+dist/pdfjs-wasm/qcms_bg.wasm                        96.58 kB │ gzip:    36.09 kB
+dist/pdfjs-wasm/jbig2.wasm                         103.67 kB │ gzip:    41.64 kB
+dist/pdfjs-wasm/jbig2_nowasm_fallback.js           152.00 kB
+dist/pdfjs-wasm/openjpeg.wasm                      251.13 kB │ gzip:    82.95 kB
+dist/assets/crypto.worker-BaPU_W5M.js              285.09 kB
+dist/pdfjs-wasm/openjpeg_nowasm_fallback.js        445.78 kB
+dist/pdfjs-wasm/quickjs-eval.wasm                  469.10 kB │ gzip:   220.69 kB
+dist/assets/pdf.worker.min-CGwSHl62.js           1,178.00 kB
+dist/assets/liteparse_wasm_bg-C_TgrK-M.wasm      5,534.81 kB │ gzip: 2,642.50 kB
+dist/assets/index-mlc8lVm8.css                     141.94 kB │ gzip:    24.57 kB
+dist/assets/pdfjs-config-B5pwv-IP.js                 0.03 kB │ gzip:     0.05 kB
+dist/assets/pdf.worker.min-ByhRvint.js               0.05 kB │ gzip:     0.07 kB
+dist/assets/liteparse_wasm_bg-Dqj0BIHi.js            0.06 kB │ gzip:     0.08 kB
+dist/assets/pdf.worker.min-Ru_NuOqn.js               0.07 kB │ gzip:     0.08 kB
+dist/assets/persistence-BWQto-34.js                  0.08 kB │ gzip:     0.09 kB
+dist/assets/chevron-left-CTg634qj.js                 0.16 kB │ gzip:     0.16 kB
+dist/assets/chevron-right-Cd8ZdPVI.js                0.16 kB │ gzip:     0.16 kB
+dist/assets/x-9FvIVkq_.js                            0.19 kB │ gzip:     0.17 kB
+dist/assets/arrow-down-_1gA2-Pd.js                   0.20 kB │ gzip:     0.18 kB
+dist/assets/loader-circle-D5D5wpDi.js                0.20 kB │ gzip:     0.18 kB
+dist/assets/circle-check-CHK3kg7k.js                 0.24 kB │ gzip:     0.21 kB
+dist/assets/lock-open-BLBVqb_q.js                    0.26 kB │ gzip:     0.23 kB
+dist/assets/message-square-DEBjasF0.js               0.26 kB │ gzip:     0.22 kB
+dist/assets/arrow-left-right-1Wctjbr-.js             0.28 kB │ gzip:     0.22 kB
+dist/assets/eye-BTTP2Fe4.js                          0.29 kB │ gzip:     0.23 kB
+dist/assets/triangle-alert-Kq4lTVy4.js               0.32 kB │ gzip:     0.25 kB
+dist/assets/hash-D-7TRaZ7.js                         0.33 kB │ gzip:     0.21 kB
+dist/assets/shield-check-BppxFMaa.js                 0.35 kB │ gzip:     0.27 kB
+dist/assets/image-down-DqSRv3Y5.js                   0.37 kB │ gzip:     0.27 kB
+dist/assets/file-key-D43TRJRP.js                     0.44 kB │ gzip:     0.30 kB
+dist/assets/eye-off-DXps4yDf.js                      0.46 kB │ gzip:     0.30 kB
+dist/assets/SegmentedControl-BbeuEoi8.js             0.58 kB │ gzip:     0.38 kB
+dist/assets/copy-C4py2Cje.js                         0.65 kB │ gzip:     0.36 kB
+dist/assets/ProgressBar-B3s1Kt7j.js                  0.72 kB │ gzip:     0.40 kB
+dist/assets/FileInfoBar-CHhuCw7C.js                  0.84 kB │ gzip:     0.49 kB
+dist/assets/user-BQPqbpz2.js                         0.85 kB │ gzip:     0.44 kB
+dist/assets/useAsyncProcess-Cv114xLV.js              1.06 kB │ gzip:     0.62 kB
+dist/assets/InfoCallout-DDf1NcZH.js                  1.15 kB │ gzip:     0.51 kB
+dist/assets/usePdfFile-BfJK7Dp7.js                   1.21 kB │ gzip:     0.56 kB
+dist/assets/rolldown-runtime-C0FnF6B9.js             1.29 kB │ gzip:     0.71 kB
+dist/assets/preload-helper-DjzSQ1t3.js               1.38 kB │ gzip:     0.75 kB
+dist/assets/pages-DMy28p_s.js                        1.51 kB │ gzip:     0.71 kB
+dist/assets/pdf-BXJlsFtq.js                          1.69 kB │ gzip:     0.86 kB
+dist/assets/ActionButton-BrluygoN.js                 1.80 kB │ gzip:     0.84 kB
+dist/assets/pdf-renderer-D-FIJfWd.js                 2.00 kB │ gzip:     1.02 kB
+dist/assets/zip-aWvN4PZo.js                          2.12 kB │ gzip:     0.80 kB
+dist/assets/MergePdf-CSLc2UnE.js                     2.63 kB │ gzip:     1.28 kB
+dist/assets/PagePreviewNav-BWDWQB_m.js               2.69 kB │ gzip:     1.26 kB
+dist/assets/ImagesToPdf-C2o8lfxj.js                  2.72 kB │ gzip:     1.33 kB
+dist/assets/check-DymnitPx.js                        4.01 kB │ gzip:     1.50 kB
+dist/assets/workbox-window.prod.es5-Bd17z0YL.js      5.65 kB │ gzip:     2.20 kB
+dist/assets/pdf-security-10hCGIBl.js                 7.62 kB │ gzip:     2.90 kB
+dist/assets/ExtractImages-CSiRBK2b.js                8.80 kB │ gzip:     3.45 kB
+dist/assets/FileQueue-Do5CYbfX.js                    9.40 kB │ gzip:     3.53 kB
+dist/assets/tools-BZLkVtkz.js                       10.12 kB │ gzip:     3.77 kB
+dist/assets/PdfPassword-D6fEGyQp.js                 10.20 kB │ gzip:     3.65 kB
+dist/assets/ComparePdf-Cy3mL5fa.js                  12.34 kB │ gzip:     3.68 kB
+dist/assets/ai-runtime-BnRNSLVu.js                  13.52 kB │ gzip:     5.61 kB
+dist/assets/FileDropZone-Cfek1JyU.js                15.77 kB │ gzip:     6.29 kB
+dist/assets/src-SuYvKHvm.js                         17.24 kB │ gzip:     7.31 kB
+dist/assets/liteparse_wasm-D_acwmzc.js              17.60 kB │ gzip:     5.30 kB
+dist/assets/pii-BLiLglZ9.js                         20.71 kB │ gzip:     8.44 kB
+dist/assets/motion-C4wt8jpW.js                      69.90 kB │ gzip:    24.33 kB
+dist/assets/index-bFrXsFnZ.js                      239.87 kB │ gzip:    74.94 kB
+dist/assets/EditorView-CuHlWo4B.js                 304.26 kB │ gzip:    86.40 kB
+dist/assets/DigitalSignature-BDLuX7NU.js           314.63 kB │ gzip:    83.01 kB
+dist/assets/pdf-CvFqGNBB.js                        430.11 kB │ gzip:   129.25 kB
+dist/assets/dist-C3rZ3Sh4.js                       525.46 kB │ gzip:   223.78 kB
+dist/assets/transformers.web-CnQw8zBb.js           527.00 kB │ gzip:   147.17 kB
+dist/assets/persistence-Cx6Lxkyl.js                540.32 kB │ gzip:   141.21 kB
+dist/assets/AskPdf-BSEfvgPo.js                     613.66 kB │ gzip:   182.17 kB
+dist/assets/pdf-operations-Bw_9PONL.js             747.71 kB │ gzip:   342.34 kB
+
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 751ms
+
+PWA v2.0.0
+mode      generateSW
+precache  88 entries (6677.58 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-c06bacfd.js
+
+$ node scripts/check-deploy-assets.mjs ⊘ cache disabled
+Deployment asset check passed: 139 files, all <= 25 MiB.
+
+---
+vp run: 0/3 cache hit (0%). (Run `vp run --last-details` for full details)
+
+=== standalone-final ===
+
+→ Merge PDFs
+  ✓ sorted removal/undo restores keyboard focus and original manual order
+  ✓ uploaded 4 PDFs; merged.pdf has 24 pages
+
+→ Images to PDF
+  ✓ uploaded 2 shipped PNG assets; images.pdf has 2 pages
+
+→ Extract Images
+  ✓ found, selected, and downloaded 3 images as a validated ZIP
+
+→ PDF Password
+  ✓ AES-256 encrypted 1-page output downloaded
+
+→ Compare PDFs
+  ✓ compared sample.pdf page 1 with itself; both sides rendered as Identical
+
+→ Digital Signature
+  ✓ generated a self-signed certificate and downloaded a signed 1-page PDF
+
+✓ All 6 non-AI standalone tools passed their headless browser workflows.
+
+=== routing ===
+→ Loading http://127.0.0.1:8132
+  ✓ home drop zone → editor (focus page rendered)
+  ✓ merge → editor hand-off (focus page rendered)
+✓ Home routing smoke passed — editor-card preselect + constructor hand-off.
+
+=== responsive ===
+  ✓ desktop landing motion
+  ✓ tablet landscape landing motion
+  ✓ tablet portrait landing motion
+  ✓ mobile landing motion
+  ✓ small mobile landing motion
+  ✓ mobile landscape landing motion
+  ✓ desktop editor motion
+  ✓ tablet landscape editor motion
+  ✓ tablet portrait editor motion
+  ✓ mobile editor motion
+  ✓ small mobile editor motion
+  ✓ mobile landscape editor motion
+  ✓ reduced-motion profile
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+
+=== editor-fresh ===
+→ Loading http://127.0.0.1:8132
+  ✓ density control (single ↔ grid)
+  ✓ strip furniture detect + render (no trimmable furniture in fixture)
+  ✓ redact deferred — repeated find, box-colour pickers wired (no burn)
+  ✓ annotate draw
+  ✓ annotate text box (draw → type → commit)
+  ✓ crop drag + apply
+  ✓ signature place + apply
+  ✓ find & act search + highlight apply
+  ✓ smart erase draw (deferred mark)
+  ✓ OCR panel mounts (engine not run)
+  ✓ organize delete + apply (33 → 32 pages)
+  ✓ whole-doc apply (n-up)
+  ✓ metadata + scrub panels load
+  ✓ merged organize (reverse/extract/blank quick actions)
+  ✓ stamp-family apply (page numbers)
+  ✓ fill-form reads fields (empty)
+  ✓ bookmarks add + apply
+  ✓ bookmarks contents page apply
+  ✓ attachments panel loads
+  ✓ export modal · contact sheet → multipage_contact-sheet.pdf
+  ✓ export modal · grayscale → multipage_grayscale.pdf
+  ✓ export modal · text → multipage.txt
+  ✓ export modal · markdown (liteparse native, 31817 chars) → multipage.md
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+
+=== mobile ===
+→ Loading http://127.0.0.1:8132 (390×844 mobile)
+  ✓ mobile sheet entry (no desktop rail)
+  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)
+  ✓ annotate burn via global ✓
+  ✓ find & act burn via global ✓
+  ✓ page numbers via global ✓
+  ✓ metadata save via global ✓ (secondary action kept)
+  ✓ redact deferred — mark persists across ✓, no burn
+  ✓ render sweep — 12 tools mount in the sheet (✓/✗, 50:50)
+  ✓ organize delete + apply via global ✓ (33 → 32 pages)
+  ✓ OCR enabled on mobile (Extract visible, scrollable body)
+  ✓ export sheet · markdown (liteparse native, 26910 chars) → multipage.md
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+
+=== interactions-final ===
+  ✓ annotation Arrow keys nudge without panning; burst is one undo step
+  ✓ Delete removes the selected annotation from the focused canvas
+  ✓ unhandled Arrow pans; + zooms; 0 resets the viewport
+  ✓ pinch zoom is damped and follows simultaneous two-finger pan
+  ✓ middle-button drag pans without switching or firing the active tool
+  ✓ top-bar controls cannot be overwritten by a late wheel commit
+  ✓ a 12-event wheel burst measures layout once and stays compositor-driven
+  ✓ trackpad zoom stays anchored; overscroll remains reachable; background pinch recovers the view
+  ✓ date/time disclosure semantics and shorter-month focus clamp
+  ✓ custom colour exposes independent saturation and brightness controls
+  ✓ pinch and simultaneous pan remain natural in the mobile editor layout
+✓ editor keyboard interactions passed
+
+=== features-final ===
+→ Testing 3 fixtures: multipage.pdf, sample-invoice.pdf, sample.pdf
+  ✓ multipage.pdf (33 pages)
+  ✓ sample-invoice.pdf (1 pages)
+  ✓ sample.pdf (4 pages)
+✓ editor-features passed on all 3 fixtures.

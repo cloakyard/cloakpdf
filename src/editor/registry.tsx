@@ -18,23 +18,17 @@ import * as FindAct from "./panels/FindActTool.tsx";
 import * as Metadata from "./panels/MetadataTool.tsx";
 import * as Ocr from "./panels/OcrTool.tsx";
 import * as Organize from "./panels/OrganizeTool.tsx";
+import * as PageNumbers from "./panels/PageNumbersTool.tsx";
 import * as Redact from "./panels/RedactTool.tsx";
 import * as Scrub from "./panels/ScrubTool.tsx";
 import * as SelectText from "./panels/SelectTextTool.tsx";
+import * as Watermark from "./panels/WatermarkTool.tsx";
 import * as Signature from "./panels/SignatureTool.tsx";
 import * as SmartErase from "./panels/SmartEraseTool.tsx";
 import * as StripFurniture from "./panels/StripFurnitureTool.tsx";
-import {
-  BatesPanel,
-  BatesStage,
-  HeaderFooterPanel,
-  HeaderFooterStage,
-  PageNumbersPanel,
-  PageNumbersStage,
-  WatermarkPanel,
-  WatermarkStage,
-} from "./panels/StampTools.tsx";
-import { NupPanel } from "./panels/SimpleTools.tsx";
+import { Panel as BatesPanel, Stage as BatesStage } from "./panels/BatesTool.tsx";
+import * as HeaderFooter from "./panels/HeaderFooterTool.tsx";
+import { NupPanel } from "./panels/NupTool.tsx";
 
 export interface ToolImpl {
   /** Registers canvas interaction for focus tools; absent for overview/options tools. */
@@ -69,15 +63,15 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
   "pdf-scrub": { Panel: Scrub.Panel },
   // Content-additive stamp-family tools — each paints a live preview on the
   // focused page (Stage) before Apply burns the same text into the bytes.
-  "add-page-numbers": { Stage: PageNumbersStage, Panel: PageNumbersPanel },
-  "header-footer": { Stage: HeaderFooterStage, Panel: HeaderFooterPanel },
+  "add-page-numbers": { Stage: PageNumbers.Stage, Panel: PageNumbers.Panel },
+  "header-footer": { Stage: HeaderFooter.Stage, Panel: HeaderFooter.Panel },
   "bates-numbering": { Stage: BatesStage, Panel: BatesPanel },
   // QR / barcode: place on the page (tap), drag to move, corner-drag to resize;
   // a vector code burns in at Apply.
   "qr-stamp": { Stage: CodeStamp.Stage, Panel: CodeStamp.Panel },
   // Watermark: a live-preview Stage (paints the diagonal text as you tune it) +
   // the options Panel; Apply still burns it into the bytes.
-  "stamp-pdf": { Stage: WatermarkStage, Panel: WatermarkPanel },
+  "stamp-pdf": { Stage: Watermark.Stage, Panel: Watermark.Panel },
   // Document tools: panel-only field/list editors.
   "fill-pdf-form": { Panel: FillForm.Panel },
   // Auto-fill: detect + fill flat (non-AcroForm) form blanks, with a saved profile.
@@ -89,5 +83,5 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
 };
 
 export function toolImpl(id: string | null): ToolImpl | null {
-  return id ? (TOOL_IMPL[id as EditorToolId] ?? null) : null;
+  return id && Object.hasOwn(TOOL_IMPL, id) ? TOOL_IMPL[id as EditorToolId] : null;
 }

@@ -22,6 +22,15 @@ import {
 import forge from "node-forge";
 import { SELF_SIGNED_ORG, buildSelfSignedCert } from "./self-signed-cert.ts";
 
+/** Forge keeps decoded ASN.1 UTF8String values as binary strings. */
+function certificateField(name: forge.pki.Certificate["subject"], key: string): string {
+  const field = name.getField(key);
+  if (!field) return "";
+  return field.valueTagClass === forge.asn1.Type.UTF8
+    ? forge.util.decodeUtf8(field.value)
+    : field.value;
+}
+
 /** Options passed to the signing function. */
 export interface SigningOptions {
   /** Reason for signing (appears in signature details). */
@@ -91,6 +100,21 @@ function readStringValue(dict: PDFDict, key: string): string {
   return val.toString();
 }
 
+/** PDF Contents reserves space after the DER object with zero bytes. */
+function parseSignatureContents(bytes: string): forge.pkcs7.PkcsSignedData {
+  const buffer = forge.util.createBuffer(bytes);
+  // node-forge supports this options object; its installed types expose only strict.
+  const fromDer = forge.asn1.fromDer as unknown as (
+    input: forge.util.ByteBuffer,
+    options: { strict: boolean; parseAllBytes: boolean },
+  ) => forge.asn1.Asn1;
+  const asn1 = fromDer(buffer, { strict: true, parseAllBytes: false });
+  for (const byte of buffer.bytes()) {
+    if (byte.charCodeAt(0) !== 0) throw new Error("Invalid signature padding.");
+  }
+  return forge.pkcs7.messageFromAsn1(asn1) as forge.pkcs7.PkcsSignedData;
+}
+
 /**
  * Parse a PDF date string like "D:20260416120000+05'30'" into a readable format.
  */
@@ -144,18 +168,18 @@ function extractCertDetails(cert: forge.pki.Certificate): ExistingSignature["cer
   const subject = cert.subject;
   const issuer = cert.issuer;
 
-  const subjectCN = subject.getField("CN")?.value ?? "Unknown";
-  const issuerCN = issuer.getField("CN")?.value ?? "Unknown";
+  const subjectCN = certificateField(subject, "CN") || "Unknown";
+  const issuerCN = certificateField(issuer, "CN") || "Unknown";
 
   return {
     commonName: subjectCN,
-    organisation: subject.getField("O")?.value ?? "",
-    email: subject.getField("E")?.value ?? subject.getField("emailAddress")?.value ?? "",
-    country: subject.getField("C")?.value ?? "",
-    state: subject.getField("ST")?.value ?? "",
-    locality: subject.getField("L")?.value ?? "",
+    organisation: certificateField(subject, "O"),
+    email: certificateField(subject, "E") || certificateField(subject, "emailAddress"),
+    country: certificateField(subject, "C"),
+    state: certificateField(subject, "ST"),
+    locality: certificateField(subject, "L"),
     issuer: issuerCN,
-    issuerOrganisation: issuer.getField("O")?.value ?? "",
+    issuerOrganisation: certificateField(issuer, "O"),
     serialNumber:
       cert.serialNumber
         ?.match(/.{1,2}/g)
@@ -165,7 +189,7 @@ function extractCertDetails(cert: forge.pki.Certificate): ExistingSignature["cer
     validTo: cert.validity.notAfter.toLocaleDateString(),
     signatureAlgorithm: getSignatureAlgorithmName(cert),
     isSelfSigned:
-      subjectCN === issuerCN && subject.getField("O")?.value === issuer.getField("O")?.value,
+      subjectCN === issuerCN && certificateField(subject, "O") === certificateField(issuer, "O"),
   };
 }
 
@@ -218,13 +242,12 @@ export async function detectSignatures(file: File): Promise<ExistingSignature[]>
       try {
         const hexStr = contentsVal.toString().replace(/[<>]/g, "");
         const derBytes = forge.util.hexToBytes(hexStr);
-        const asn1 = forge.asn1.fromDer(derBytes);
-        const p7 = forge.pkcs7.messageFromAsn1(asn1);
+        const p7 = parseSignatureContents(derBytes);
 
         const certs = (p7 as forge.pkcs7.PkcsSignedData).certificates;
         if (certs && certs.length > 0) {
           const cert = certs[0];
-          sig.signerName = sig.signerName || cert.subject.getField("CN")?.value || "";
+          sig.signerName = sig.signerName || certificateField(cert.subject, "CN");
           sig.certDetails = extractCertDetails(cert);
         }
       } catch {
@@ -249,16 +272,14 @@ export async function detectSignatures(file: File): Promise<ExistingSignature[]>
           if (hexStart < pdfBytes.length && hexEnd < pdfBytes.length) {
             const rawHex = new TextDecoder()
               .decode(pdfBytes.slice(hexStart + 1, hexEnd))
-              .replace(/\s/g, "")
-              .replace(/0+$/, "");
+              .replace(/\s/g, "");
             if (rawHex.length > 0) {
               const derBytes = forge.util.hexToBytes(rawHex);
-              const asn1 = forge.asn1.fromDer(derBytes);
-              const p7 = forge.pkcs7.messageFromAsn1(asn1);
+              const p7 = parseSignatureContents(derBytes);
               const certs = (p7 as forge.pkcs7.PkcsSignedData).certificates;
               if (certs && certs.length > 0) {
                 const cert = certs[0];
-                sig.signerName = sig.signerName || cert.subject.getField("CN")?.value || "";
+                sig.signerName = sig.signerName || certificateField(cert.subject, "CN");
                 sig.certDetails = extractCertDetails(cert);
               }
             }
@@ -321,11 +342,11 @@ export function parsePkcs12(
     cert,
     chain,
     info: {
-      commonName: subject.getField("CN")?.value ?? "Unknown",
-      organisation: subject.getField("O")?.value ?? "",
+      commonName: certificateField(subject, "CN") || "Unknown",
+      organisation: certificateField(subject, "O"),
       validFrom: cert.validity.notBefore,
       validTo: cert.validity.notAfter,
-      issuer: issuer.getField("CN")?.value ?? "Unknown",
+      issuer: certificateField(issuer, "CN") || "Unknown",
     },
   };
 }
@@ -361,8 +382,15 @@ function generateSelfSignedCert(commonName: string): {
  * thread, returning the result as PEM strings. Rejects (so the caller can fall
  * back) if the worker can't be created or errors out.
  */
-function runCryptoWorker(commonName: string): Promise<{ keyPem: string; certPem: string }> {
+function runCryptoWorker(
+  commonName: string,
+  signal?: AbortSignal,
+): Promise<{ keyPem: string; certPem: string }> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Certificate generation cancelled.", "AbortError"));
+      return;
+    }
     let worker: Worker;
     try {
       worker = new Worker(new URL("../workers/crypto.worker.ts", import.meta.url), {
@@ -374,20 +402,29 @@ function runCryptoWorker(commonName: string): Promise<{ keyPem: string; certPem:
     }
 
     const timeout = setTimeout(() => {
-      worker.terminate();
+      cleanup();
       reject(new Error("Certificate generation timed out."));
     }, 30000);
 
-    worker.onmessage = (e: MessageEvent) => {
+    const cancel = () => {
+      cleanup();
+      reject(new DOMException("Certificate generation cancelled.", "AbortError"));
+    };
+    const cleanup = () => {
       clearTimeout(timeout);
+      signal?.removeEventListener("abort", cancel);
       worker.terminate();
+    };
+    signal?.addEventListener("abort", cancel, { once: true });
+
+    worker.onmessage = (e: MessageEvent) => {
+      cleanup();
       const data = e.data;
       if (data?.type === "cert") resolve({ keyPem: data.keyPem, certPem: data.certPem });
       else reject(new Error(data?.message ?? "Certificate generation failed."));
     };
     worker.onerror = (err: ErrorEvent) => {
-      clearTimeout(timeout);
-      worker.terminate();
+      cleanup();
       reject(new Error(err.message || "Worker error during certificate generation."));
     };
 
@@ -406,7 +443,10 @@ function runCryptoWorker(commonName: string): Promise<{ keyPem: string; certPem:
  * synchronous {@link generateSelfSignedCert} so cert generation still works —
  * it just briefly freezes the UI in that rare case.
  */
-export async function generateSelfSignedCertAsync(commonName: string): Promise<{
+export async function generateSelfSignedCertAsync(
+  commonName: string,
+  signal?: AbortSignal,
+): Promise<{
   key: forge.pki.PrivateKey;
   cert: forge.pki.Certificate;
   info: CertificateInfo;
@@ -414,8 +454,9 @@ export async function generateSelfSignedCertAsync(commonName: string): Promise<{
   let keyPem: string;
   let certPem: string;
   try {
-    ({ keyPem, certPem } = await runCryptoWorker(commonName));
-  } catch {
+    ({ keyPem, certPem } = await runCryptoWorker(commonName, signal));
+  } catch (error) {
+    if (signal?.aborted) throw error;
     return generateSelfSignedCert(commonName);
   }
 
@@ -425,11 +466,11 @@ export async function generateSelfSignedCertAsync(commonName: string): Promise<{
     key,
     cert,
     info: {
-      commonName: cert.subject.getField("CN")?.value ?? commonName,
-      organisation: cert.subject.getField("O")?.value ?? SELF_SIGNED_ORG,
+      commonName: certificateField(cert.subject, "CN") || commonName,
+      organisation: certificateField(cert.subject, "O") || SELF_SIGNED_ORG,
       validFrom: cert.validity.notBefore,
       validTo: cert.validity.notAfter,
-      issuer: cert.issuer.getField("CN")?.value ?? commonName,
+      issuer: certificateField(cert.issuer, "CN") || commonName,
     },
   };
 }
@@ -464,10 +505,24 @@ function createPkcs7Signature(
   p7.addCertificate(cert);
   for (const c of chain) p7.addCertificate(c);
 
+  // Read the encoded issuer consistently for both generated and imported certs.
+  // Forge's SignerInfo writer expects text, while its certificate parser returns
+  // UTF8String bytes. Decode once so the signer identifier matches the certificate.
+  const issuer = forge.pki
+    .certificateFromAsn1(forge.pki.certificateToAsn1(cert))
+    .issuer.attributes.map((attribute) => ({
+      ...attribute,
+      value:
+        Number(attribute.valueTagClass) === forge.asn1.Type.UTF8 &&
+        typeof attribute.value === "string"
+          ? forge.util.decodeUtf8(attribute.value)
+          : attribute.value,
+    }));
+
   p7.addSigner({
-    // @types/node-forge declares key as string but forge accepts PrivateKey at runtime
-    key: key as unknown as string,
-    certificate: cert,
+    // PKCS#7 RSA signing uses the RSA member of Forge's broader key union.
+    key: key as forge.pki.rsa.PrivateKey,
+    certificate: { ...cert, issuer: { ...cert.issuer, attributes: issuer } },
     digestAlgorithm: forge.pki.oids.sha256,
     authenticatedAttributes: [
       { type: forge.pki.oids.contentType, value: forge.pki.oids.data },

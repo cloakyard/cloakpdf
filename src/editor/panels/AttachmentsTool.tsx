@@ -1,11 +1,5 @@
-// AttachmentsTool.tsx — Manage files embedded in the PDF (the /EmbeddedFiles
-// name tree). Lists current attachments on open, lets the user attach more
-// files or remove existing ones; each action runs through applyTransform so it
-// lands in history and re-reads the refreshed list. Panel-only (no canvas
-// interaction); identical on desktop + mobile. Reuses the attach/list/remove
-// pipeline the standalone File Attachment tool proved.
-
-import { Paperclip, Plus, Trash2 } from "lucide-react";
+// Immediate, undoable attachment actions; failed selections belong to exact bytes.
+import { AlertTriangle, Paperclip, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { formatFileSize } from "../../utils/file-helpers.ts";
 import {
@@ -13,115 +7,210 @@ import {
   listPdfAttachments,
   type PdfAttachment,
   removeAttachmentsFromPdf,
-} from "../../utils/pdf-operations.ts";
-import { docToFile } from "../doc.ts";
-import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
+} from "../../utils/pdf/attachments.ts";
+import { docToFile, hasPendingDestructive } from "../doc.ts";
+import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 
+const TOOL = "file-attachment";
 export function Panel() {
   const { doc, busyLabel } = useEditorRead();
-  const { applyTransform } = useEditorActions();
-  const [items, setItems] = useState<PdfAttachment[] | null>(null);
+  const { applyTransform, patchToolState } = useEditorActions();
+  const draft = useToolSlice(TOOL);
+  const [report, setReport] = useState<{
+    bytes: Uint8Array;
+    items?: PdfAttachment[];
+    failed?: boolean;
+  } | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  // (Re)list attachments whenever the doc changes. `live` guards a stale result
-  // and is StrictMode-safe (a ref guard would bail on the second mount).
+  const addRef = useRef<HTMLButtonElement>(null);
+  const applying = useRef(false);
+  const bytes = doc?.bytes;
+  const fileName = doc?.fileName;
   useEffect(() => {
-    if (!doc) return;
+    if (!bytes) return;
     let live = true;
-    void listPdfAttachments(docToFile(doc)).then(
-      (list) => {
-        if (live) setItems(list);
+    setReport(null);
+    void listPdfAttachments(
+      new File([bytes as Uint8Array<ArrayBuffer>], fileName ?? "document.pdf"),
+    ).then(
+      (items) => {
+        if (live) setReport({ bytes, items });
       },
       () => {
-        if (live) setItems([]);
+        if (live) setReport({ bytes, failed: true });
       },
     );
     return () => {
       live = false;
     };
-  }, [doc]);
-
+  }, [bytes, fileName, attempt]);
+  const current = report?.bytes === bytes ? report : null;
+  const files = draft.sourceBytes === bytes ? (draft.files as File[] | undefined) : undefined;
+  const failed = draft.sourceBytes === bytes ? (draft.failed as string | undefined) : undefined;
   const busy = busyLabel !== null;
-
-  const addFiles = (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const list = [...files];
-    void applyTransform(async (d) => ({
-      bytes: await attachFilesToPdf(docToFile(d), list),
-      label: `Attach ${list.length} file${list.length === 1 ? "" : "s"}`,
-    }));
+  const privacyMarks = !!doc && hasPendingDestructive(doc);
+  const unavailable = busy || !current?.items || privacyMarks;
+  const clear = () =>
+    patchToolState(TOOL, { sourceBytes: undefined, files: undefined, failed: undefined });
+  const run = async (selection?: File[], item?: PdfAttachment) => {
+    if (unavailable || applying.current) return;
+    if (selection) addRef.current?.focus();
+    applying.current = true;
+    patchToolState(TOOL, { sourceBytes: bytes, files: selection, failed: undefined });
+    try {
+      await applyTransform(async (d) => ({
+        bytes: selection
+          ? await attachFilesToPdf(docToFile(d), selection)
+          : await removeAttachmentsFromPdf(docToFile(d), new Set([item!.id])),
+        label: selection
+          ? `Attach ${selection.length} file${selection.length === 1 ? "" : "s"}`
+          : "Remove attachment",
+      }));
+      clear();
+      addRef.current?.focus();
+    } catch {
+      // applyTransform reports the shared error; keep the local action recoverable.
+      patchToolState(TOOL, {
+        sourceBytes: bytes,
+        files: selection,
+        failed: selection
+          ? "Couldn't attach these files. Your selection is kept for retry."
+          : `Couldn't remove ${item!.name}. Your PDF is unchanged. Try its remove button again.`,
+      });
+    } finally {
+      applying.current = false;
+    }
   };
-
-  const removeOne = (name: string) =>
-    void applyTransform(async (d) => ({
-      bytes: await removeAttachmentsFromPdf(docToFile(d), new Set([name])),
-      label: "Remove attachment",
-    }));
-
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Embed files inside the PDF, or remove ones already attached.
-      </p>
-
-      {items === null ? (
-        <p role="status" className="text-sm text-slate-500 dark:text-dark-text-muted">
-          Reading attachments…
-        </p>
-      ) : items.length === 0 ? (
+    <div className="pdf-mark-panel pdf-attachments-panel">
+      <section aria-label="Attached files">
+        <p>Keep supporting files inside your PDF. Each change can be undone.</p>
         <p
-          role="status"
-          className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-3 text-center text-xs text-slate-500 dark:text-dark-text-muted"
+          role={current?.failed ? "alert" : "status"}
+          className={current?.failed ? "air-notice air-notice--error" : "air-help"}
         >
-          No files attached yet.
+          {current?.failed && <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />}
+          <span>
+            {current?.failed
+              ? "Couldn't read attachments. Your PDF is unchanged. Try again."
+              : !current
+                ? "Reading attachments…"
+                : current.items?.length === 0
+                  ? "No files attached yet."
+                  : ""}
+          </span>
         </p>
-      ) : (
-        <ul className="flex flex-col gap-1.5">
-          {items.map((a) => (
-            <li
-              key={a.name}
-              className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-2.5 py-2"
-            >
-              <Paperclip className="h-4 w-4 shrink-0 text-slate-400" />
-              <span className="min-w-0 flex-1 truncate text-sm text-slate-700 dark:text-dark-text">
-                {a.name}
-              </span>
-              <span className="shrink-0 text-xs tabular-nums text-slate-500 dark:text-dark-text-muted">
-                {formatFileSize(a.size)}
-              </span>
-              <button
-                type="button"
-                onClick={() => removeOne(a.name)}
-                disabled={busy}
-                aria-label={`Remove ${a.name}`}
-                className="inline-flex shrink-0 items-center justify-center rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-red-600 pointer-coarse:min-h-11 pointer-coarse:min-w-11 disabled:opacity-40 dark:hover:bg-dark-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <input
-        ref={fileRef}
-        type="file"
-        multiple
-        className="hidden"
-        onChange={(e) => {
-          addFiles(e.target.files);
-          e.target.value = "";
-        }}
-      />
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        disabled={busy}
-        className="inline-flex items-center justify-center gap-1.5 rounded-md border border-dashed border-slate-300 dark:border-dark-border px-3 py-3 font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-40 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-      >
-        <Plus className="h-4 w-4" />
-        {busy ? "Working…" : "Attach files"}
-      </button>
+        {(current?.failed || attempt > 0) && (
+          <button
+            type="button"
+            className="air-button"
+            aria-disabled={!current || busy}
+            onClick={() => {
+              if (current && !busy) setAttempt((n) => n + 1);
+            }}
+          >
+            Read attachments again
+          </button>
+        )}
+        {!!current?.items?.length && (
+          <ul className="pdf-attachment-list">
+            {current.items.map((item, index) => (
+              <li key={item.id}>
+                <Paperclip size={16} aria-hidden="true" />
+                <div>
+                  <p>{item.name}</p>
+                  <span className="air-help">
+                    {formatFileSize(item.size)} · File {index + 1}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="air-button air-icon-button air-button--quiet"
+                  aria-disabled={unavailable || !!files}
+                  aria-label={`Remove file ${index + 1}: ${item.name}`}
+                  onClick={(event) => {
+                    event.currentTarget.focus();
+                    if (!files) void run(undefined, item);
+                  }}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section aria-label="Attach files">
+        {privacyMarks && (
+          <p className="air-notice air-notice--warning">
+            Apply or clear pending redaction and erase marks before managing attachments.
+          </p>
+        )}
+        {failed && (
+          <p role="alert" className="air-notice air-notice--error">
+            <AlertTriangle size={16} className="shrink-0" aria-hidden="true" />
+            <span>{failed}</span>
+          </p>
+        )}
+        {files && (
+          <>
+            <p className="air-label">Ready to retry</p>
+            <ul className="pdf-attachment-selection">
+              {files.map((file, index) => (
+                <li key={index}>
+                  {file.name}
+                  <span className="air-help">{formatFileSize(file.size)}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            const selection = Array.from(e.target.files ?? []);
+            e.target.value = "";
+            if (selection.length) void run(selection);
+          }}
+        />
+        <button
+          ref={addRef}
+          data-busy-focus-fallback
+          type="button"
+          className="air-button air-button--primary"
+          aria-disabled={unavailable}
+          onClick={(event) => {
+            event.currentTarget.focus();
+            if (!unavailable) {
+              if (files) void run(files);
+              else fileRef.current?.click();
+            }
+          }}
+        >
+          <Plus size={16} aria-hidden="true" />
+          {files ? "Retry attaching files" : "Attach files"}
+        </button>
+        {files && (
+          <button
+            type="button"
+            className="air-button air-button--quiet"
+            aria-disabled={busy}
+            onClick={() => {
+              if (!busy) {
+                clear();
+                addRef.current?.focus();
+              }
+            }}
+          >
+            Discard selection
+          </button>
+        )}
+        <p className="air-help">Files stay on this device. Attaching adds their size to the PDF.</p>
+      </section>
     </div>
   );
 }

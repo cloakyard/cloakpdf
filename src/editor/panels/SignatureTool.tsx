@@ -8,21 +8,20 @@
 //
 // On Apply, `addSignature` embeds each placed signature as a real image (the
 // page text underneath is untouched), then the signature objects are dropped —
-// they now live in the bytes. Reuses the proven SignaturePad + addSignature
-// pipeline from the standalone Add Signature tool. See CLAUDE.md (canvas
-// placement, sibling of the overlay tools).
+// they now live in the bytes. The editor retains separate drawing/upload sources
+// for further placements; Cancel discards the tool transaction.
 
 import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../../components/ColorPicker.tsx";
-import { SignaturePad } from "../../components/SignaturePad.tsx";
+import { SignaturePad, type SignatureStroke } from "../../components/SignaturePad.tsx";
 import { addSignature } from "../../utils/pdf-operations.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
+import { PlacementActions } from "./PlacementActions.tsx";
 import { useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
 import {
-  ACCENT,
   type Box,
   CORNER_IDS,
   drawSelectionChrome,
@@ -31,12 +30,13 @@ import {
   hitHandle,
   resizeBBoxAspect,
 } from "../resize-handles.ts";
-import { Switch, TRANSPARENCY_CHECKER } from "./controls.tsx";
-import { Segmented } from "./WholeDocPanel.tsx";
+import { TRANSPARENCY_CHECKER } from "./controls.tsx";
+import { SegmentedControl } from "../../components/SegmentedControl.tsx";
+import { Select } from "../../components/Select.tsx";
+import { canvasAccent } from "../../config/theme.ts";
+import { prepareSignature, signatureRect, type SignatureImage } from "../signature.ts";
 
 const TOOL_ID = "signature";
-const DEFAULT_WIDTH_PCT = 0.28;
-const FALLBACK_ASPECT = 2.5; // typical signature is wider than tall
 const DEFAULT_INK = "#1e293b";
 const DEFAULT_BG = "#ffffff";
 /** Pointer travel (device px) before a press counts as a drag, not a tap. */
@@ -44,112 +44,22 @@ const MOVE_THRESHOLD_PX = 4;
 
 interface SigPayload {
   dataUrl: string;
-  /** Legacy: older placed signatures may carry a baked-in bgHex. The background
-   *  is now a single global panel setting (bgEnabled/bgHex in the slice) applied
-   *  to every signature, so this field is ignored on paint/apply. Kept optional
-   *  only so docs persisted before the change still deserialise. */
-  bgHex?: string;
 }
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 const rectToBox = (r: FractionRect): Box => ({ x: r.xPct, y: r.yPct, w: r.wPct, h: r.hPct });
 const boxToRect = (b: Box): FractionRect => ({ xPct: b.x, yPct: b.y, wPct: b.w, hPct: b.h });
 
-/** Normalise an UPLOADED image so it behaves like a drawn signature: transparent
- *  everywhere except the ink/logo. A drawn pad signature is already a transparent
- *  PNG, but uploads vary — and we must handle every combination:
- *
- *   • Transparent PNG (already a cutout, incl. a WHITE logo on transparency) →
- *     respect it untouched. Knocking out white here would erase a white logo.
- *   • Opaque scan / JPEG / logo on white paper → knock the near-white paper out
- *     so the "Ink only — transparent" switch actually shows ink only.
- *
- *  The gate: if the image ALREADY carries meaningful transparency, trust it and
- *  return as-is. Only when it is effectively fully opaque do we remove white.
- *
- *  White removal gates on the MIN channel so saturated colours and dark ink stay
- *  fully opaque (red 255,0,0 → min 0 → kept) while only neutral white/grey paper
- *  ramps out (255,255,255 → min 255 → removed). Returns the original on a
- *  tainted-canvas read or a decode failure. */
-function whiteToAlpha(dataUrl: string): Promise<string> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const w = img.naturalWidth || 1;
-      const h = img.naturalHeight || 1;
-      const c = document.createElement("canvas");
-      c.width = w;
-      c.height = h;
-      const ctx = c.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return resolve(dataUrl);
-      ctx.drawImage(img, 0, 0);
-      let data: ImageData;
-      try {
-        data = ctx.getImageData(0, 0, w, h);
-      } catch {
-        return resolve(dataUrl); // cross-origin taint — keep the original
-      }
-      const px = data.data;
-      const total = px.length / 4;
-
-      // Pass 1 — does the upload already carry its own transparency? Count pixels
-      // that aren't fully opaque; a genuine cutout has a large transparent region
-      // while a flat scan/JPEG has ~none. If it's already a cutout, respect it
-      // (this preserves a white logo sitting on transparency).
-      let translucent = 0;
-      for (let i = 3; i < px.length; i += 4) {
-        if (px[i] < 250) translucent++;
-      }
-      if (translucent / total > 0.005) return resolve(dataUrl);
-
-      // Pass 2 — fully opaque upload: knock the near-white paper out to alpha.
-      const HI = 245; // min channel ≥ this (near-white) → fully transparent
-      const LO = 210; // min channel ≤ this → fully opaque (ink/logo kept)
-      for (let i = 0; i < px.length; i += 4) {
-        const m = Math.min(px[i], px[i + 1], px[i + 2]);
-        if (m >= HI) {
-          px[i + 3] = 0;
-        } else if (m > LO) {
-          // Soft edge: ramp the existing alpha down across the neutral band.
-          const t = (m - LO) / (HI - LO);
-          px[i + 3] = Math.round(px[i + 3] * (1 - t));
-        }
-      }
-      ctx.putImageData(data, 0, 0);
-      resolve(c.toDataURL("image/png"));
-    };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
-  });
-}
-
-/** Composite the (transparent) signature onto an opaque background of `bgHex`,
- *  returning a new PNG data-URL. Used at Apply so the embedded image already
- *  carries the chosen backing — preview and output stay identical. */
-function withBackground(dataUrl: string, bgHex: string): Promise<string> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas");
-      c.width = img.naturalWidth || 1;
-      c.height = img.naturalHeight || 1;
-      const ctx = c.getContext("2d");
-      if (!ctx) return resolve(dataUrl);
-      ctx.fillStyle = bgHex;
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.drawImage(img, 0, 0);
-      resolve(c.toDataURL("image/png"));
-    };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
-  });
-}
+type DrawnSignature = SignatureImage & { strokes: SignatureStroke[] };
+const sourceOf = (slice: Record<string, unknown>) =>
+  (slice.mode === "upload" ? slice.uploaded : slice.drawn) as SignatureImage | undefined;
 
 export function Stage() {
   const { doc, selectedPage } = useEditorRead();
   const { addObject, moveObject, removeObject, patchToolState } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
-  const dataUrl = (slice.dataUrl as string) ?? "";
+  const source = sourceOf(slice);
+  const dataUrl = source?.dataUrl ?? "";
   const selectedId = slice.selectedId as string | undefined;
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG;
@@ -176,7 +86,13 @@ export function Stage() {
   }, []);
 
   // Drop every decoded image on unmount so nothing lingers past the tool's life.
-  useEffect(() => () => imgCache.current.clear(), []);
+  useEffect(
+    () => () => {
+      for (const img of imgCache.current.values()) img.onload = null;
+      imgCache.current.clear();
+    },
+    [],
+  );
 
   // Pre-decode every placed signature's image on (re)mount. The cache is cleared
   // on unmount, so without this a signature placed earlier, left unapplied, and
@@ -203,7 +119,10 @@ export function Stage() {
     }
     if (dataUrl) live.add(dataUrl);
     for (const key of imgCache.current.keys()) {
-      if (!live.has(key)) imgCache.current.delete(key);
+      if (!live.has(key)) {
+        imgCache.current.get(key)!.onload = null;
+        imgCache.current.delete(key);
+      }
     }
   }, [doc, dataUrl]);
 
@@ -229,7 +148,9 @@ export function Stage() {
     resizeRef.current = null;
     setLive(null);
     setHoverHandle(null);
-    patchToolState(TOOL_ID, { selectedId: undefined });
+    if (!docRef.current?.objects.some((o) => o.id === selectedId && o.pageIndex === selectedPage)) {
+      patchToolState(TOOL_ID, { selectedId: undefined });
+    }
   }, [selectedPage, patchToolState]);
 
   const sigsOnPage = useCallback(
@@ -269,12 +190,13 @@ export function Stage() {
         const img = getImg(payload?.dataUrl ?? "");
         if (img) ctx.drawImage(img, x, y, bw, bh);
         if (o.id === selectedId) {
-          drawSelectionChrome(ctx, rectToBox(r), w, h, { handles: CORNER_IDS, accent: ACCENT });
+          drawSelectionChrome(ctx, rectToBox(r), w, h, { handles: CORNER_IDS });
         } else {
           // Unselected: a faint dashed outline so every placed signature stays
           // discoverable (and visibly present before it's applied).
           ctx.save();
-          ctx.strokeStyle = "rgba(100, 116, 139, 0.7)";
+          ctx.strokeStyle = canvasAccent(ctx);
+          ctx.globalAlpha = 0.65;
           ctx.setLineDash([5, 4]);
           ctx.lineWidth = 1.25;
           ctx.strokeRect(x, y, bw, bh);
@@ -300,16 +222,57 @@ export function Stage() {
   );
 
   useStageProps({
+    keyboardHelp:
+      "Select a signature in the panel. Arrow keys move it; Shift moves faster. Delete removes it.",
+    keyboardShortcuts: "ArrowLeft ArrowRight ArrowUp ArrowDown Delete Backspace",
+    onKeyDown: (e) => {
+      const selected = sigsOnPage(selectedPage).find((o) => o.id === selectedId);
+      if (!selected?.rect || e.metaKey || e.ctrlKey || e.altKey) return false;
+      if (e.key === "Delete" || e.key === "Backspace") {
+        removeObject(selected.id);
+        patchToolState(TOOL_ID, { selectedId: undefined });
+        return true;
+      }
+      const direction = {
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+      }[e.key];
+      if (!direction) return false;
+      const step = e.shiftKey ? 0.05 : 0.01;
+      const r = selected.rect;
+      moveObject(
+        selected.id,
+        {
+          rect: {
+            ...r,
+            xPct: Math.max(0, Math.min(1 - r.wPct, r.xPct + direction[0] * step)),
+            yPct: Math.max(0, Math.min(1 - r.hPct, r.yPct + direction[1] * step)),
+          },
+        },
+        "Move signature",
+      );
+      return true;
+    },
     cursor: hoverHandle ? HANDLE_CURSOR[hoverHandle] : dataUrl ? "copy" : "default",
     paintOverlay,
-    onPointerDown: (p) => {
+    onPointerDown: (p, e) => {
       const { w, h } = paintWHRef.current;
       // A corner handle of the selected signature wins → start an aspect-locked
       // resize.
       const sel = sigsOnPage(selectedPage).find((o) => o.id === selectedId);
       if (sel?.rect) {
         const r = rectOf(sel.id, sel.rect);
-        const handle = hitHandle(rectToBox(r), p.xPct * w, p.yPct * h, w, h, CORNER_IDS);
+        const handle = hitHandle(
+          rectToBox(r),
+          p.xPct * w,
+          p.yPct * h,
+          w,
+          h,
+          CORNER_IDS,
+          e.pointerType === "touch" ? 22 : undefined,
+        );
         if (handle) {
           resizeRef.current = {
             id: sel.id,
@@ -336,24 +299,8 @@ export function Stage() {
         return;
       }
       const page = doc?.pages[selectedPage];
-      const img = imgCache.current.get(dataUrl);
-      // Guard naturalHeight too: a 0-height (corrupt) image would make aspect
-      // Infinity → a zero-height signature placed and embedded.
-      const aspect =
-        img?.naturalWidth && img.naturalHeight
-          ? img.naturalWidth / img.naturalHeight
-          : FALLBACK_ASPECT;
-      const wPct = DEFAULT_WIDTH_PCT;
-      const hPct =
-        page && page.heightPt > 0
-          ? (wPct * (page.widthPt / page.heightPt)) / aspect
-          : wPct / aspect;
-      const rect: FractionRect = {
-        xPct: clamp01(p.xPct - wPct / 2),
-        yPct: clamp01(p.yPct - hPct / 2),
-        wPct,
-        hPct,
-      };
+      if (!page || !source) return;
+      const rect = signatureRect(source.aspect, page, p.xPct, p.yPct);
       const id = addObject({
         kind: "signature",
         pageIndex: selectedPage,
@@ -433,243 +380,376 @@ export function Stage() {
     },
   });
 
-  // Delete / Backspace removes the selected signature (never while typing).
-  useEffect(() => {
-    if (!selectedId) return;
-    const onKey = (e: KeyboardEvent) => {
-      const el = document.activeElement as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable))
-        return;
-      if (e.key !== "Delete" && e.key !== "Backspace") return;
-      const obj = docRef.current?.objects.find((o) => o.id === selectedId);
-      if (!obj || obj.pageIndex !== selectedPage) return;
-      e.preventDefault();
-      removeObject(selectedId);
-      patchToolState(TOOL_ID, { selectedId: undefined });
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedId, selectedPage, removeObject, patchToolState]);
-
   return null;
 }
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { patchToolState, applyTransform, addObjects } = useEditorActions();
+  const { doc, selectedPage, busyLabel } = useEditorRead();
+  const {
+    patchToolState,
+    applyTransform,
+    addObject,
+    addObjects,
+    moveObject,
+    removeObject,
+    setSelectedPage,
+  } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
-  const dataUrl = (slice.dataUrl as string) ?? "";
+  const source = sourceOf(slice);
+  const drawn = slice.drawn as DrawnSignature | undefined;
   const inkHex = (slice.inkHex as string) ?? DEFAULT_INK;
   const inkBleed = (slice.inkBleed as boolean) ?? false;
   const mode = (slice.mode as "draw" | "upload") ?? "draw";
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG;
   const uploadRef = useRef<HTMLInputElement>(null);
-
-  const count = (doc?.objects ?? []).filter((o) => o.kind === "signature").length;
+  const placeRef = useRef<HTMLButtonElement>(null);
+  const readRef = useRef<AbortController | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const busy = busyLabel !== null;
+  const sigs = (doc?.objects ?? []).filter((o) => o.kind === "signature");
+  const count = sigs.length;
+  const selected = sigs.find((o) => o.id === slice.selectedId && o.pageIndex === selectedPage);
   const pageCount = doc?.pageCount ?? 0;
+  const unsignedPages = pageCount - new Set(sigs.map((o) => o.pageIndex)).size;
 
-  // Replicate the signature(s) placed on the first signed page onto every other
-  // page, at the same fractional position (so it lands consistently even on
-  // mixed page sizes). One history entry. Useful for signing every page of a
-  // multi-page contract from a single placement.
-  const applyToAllPages = useCallback(() => {
-    const d = doc;
-    if (!d) return;
-    const sigs = d.objects.filter((o) => o.kind === "signature" && o.rect && o.payload);
-    if (sigs.length === 0) return;
-    const firstSignedPage = Math.min(...sigs.map((o) => o.pageIndex));
-    const template = sigs.filter((o) => o.pageIndex === firstSignedPage);
+  useEffect(() => {
+    setUploading(false);
+    setUploadError("");
+    return () => {
+      readRef.current?.abort();
+    };
+  }, [doc?.id]);
+
+  const onPadSignature = useCallback(
+    (dataUrl: string, strokes: SignatureStroke[], aspect: number) =>
+      patchToolState(TOOL_ID, { drawn: { dataUrl, strokes, aspect } }),
+    [patchToolState],
+  );
+  const onUpload = async (file: File | undefined) => {
+    if (!file) return;
+    readRef.current?.abort();
+    const controller = new AbortController();
+    readRef.current = controller;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const image = await prepareSignature(file, { signal: controller.signal });
+      if (!controller.signal.aborted)
+        patchToolState(TOOL_ID, { uploaded: image, uploadName: file.name });
+    } catch (error) {
+      if (!controller.signal.aborted)
+        setUploadError(
+          error instanceof Error ? error.message : "This image could not be opened. Try again.",
+        );
+    } finally {
+      if (!controller.signal.aborted) setUploading(false);
+    }
+  };
+
+  const place = () => {
+    const page = doc?.pages[selectedPage];
+    if (!source?.dataUrl || !page || busy || uploading) return;
+    const id = addObject({
+      kind: "signature",
+      pageIndex: selectedPage,
+      rect: signatureRect(source.aspect, page),
+      payload: { dataUrl: source.dataUrl },
+    });
+    if (id) patchToolState(TOOL_ID, { selectedId: id });
+  };
+  const adjust = (dx: number, dy: number, scale = 1) => {
+    if (!selected?.rect || busy) return;
+    const r = selected.rect;
+    const factor = Math.min(scale, 1 / r.wPct, 1 / r.hPct);
+    const wPct = r.wPct * factor;
+    const hPct = r.hPct * factor;
+    if (Math.min(wPct, hPct) < 0.005) return;
+    moveObject(
+      selected.id,
+      {
+        rect: {
+          wPct,
+          hPct,
+          xPct: Math.max(0, Math.min(1 - wPct, r.xPct + dx + (r.wPct - wPct) / 2)),
+          yPct: Math.max(0, Math.min(1 - hPct, r.yPct + dy + (r.hPct - hPct) / 2)),
+        },
+      },
+      scale === 1 ? "Move signature" : "Resize signature",
+    );
+  };
+  const copyToRemainingPages = () => {
+    if (!doc || !count || busy) return;
+    const firstPage = Math.min(...sigs.map((o) => o.pageIndex));
+    const template = sigs.filter((o) => o.pageIndex === firstPage && o.rect && o.payload);
     const occupied = new Set(sigs.map((o) => o.pageIndex));
     const additions = [];
-    for (let p = 0; p < d.pageCount; p++) {
+    for (let p = 0; p < pageCount; p++) {
       if (occupied.has(p)) continue;
       for (const t of template) {
+        const r = t.rect!;
+        // Preserve the image's physical aspect on mixed portrait/landscape pages.
+        const from = doc.pages[firstPage];
+        const to = doc.pages[p];
+        const aspect = (r.wPct * from.widthPt) / (r.hPct * from.heightPt);
+        const h = (r.wPct * to.widthPt) / (aspect * to.heightPt);
+        const scale = Math.min(1, 1 / h);
+        const wPct = r.wPct * scale;
+        const hPct = h * scale;
         additions.push({
           kind: "signature" as const,
           pageIndex: p,
-          rect: { ...t.rect! },
+          rect: { xPct: Math.min(r.xPct, 1 - wPct), yPct: Math.min(r.yPct, 1 - hPct), wPct, hPct },
           payload: { ...(t.payload as SigPayload) },
         });
       }
     }
-    if (additions.length > 0) addObjects(additions, "Signature on all pages");
-  }, [doc, addObjects]);
-
-  const onPadSignature = useCallback(
-    (url: string) => patchToolState(TOOL_ID, { dataUrl: url }),
-    [patchToolState],
-  );
-
-  const onUpload = useCallback(
-    (file: File | undefined) => {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const raw = typeof reader.result === "string" ? reader.result : "";
-        // Knock out the white paper background so an uploaded signature/logo is
-        // transparent ink, matching the drawn-pad path. The Background switch
-        // then composites a solid colour behind it just like a drawn signature.
-        const url = raw ? await whiteToAlpha(raw) : "";
-        patchToolState(TOOL_ID, { dataUrl: url });
-      };
-      reader.readAsDataURL(file);
-    },
-    [patchToolState],
-  );
-
-  const apply = useCallback(() => {
-    void applyTransform(async (d) => {
+    if (additions.length) addObjects(additions, "Signature on remaining pages");
+  };
+  const apply = useCallback(async () => {
+    await applyTransform(async (d) => {
       let bytes = d.bytes;
-      const sigs = d.objects.filter((o) => o.kind === "signature" && o.rect && o.payload);
-      for (const o of sigs) {
+      const signatures = d.objects.filter((o) => o.kind === "signature");
+      const backgrounds = new Map<string, string>();
+      for (const o of signatures) {
         const page = d.pages[o.pageIndex];
-        if (!page) continue;
-        const r = o.rect!;
-        const payload = o.payload as SigPayload;
-        // Bake the global opaque backing into the image when the switch is on, so
-        // the embedded signature matches the on-canvas preview exactly.
-        const url = bgEnabled ? await withBackground(payload.dataUrl, bgHex) : payload.dataUrl;
-        const widthPt = r.wPct * page.widthPt;
-        const heightPt = r.hPct * page.heightPt;
-        const x = r.xPct * page.widthPt;
-        // PDF user space is bottom-left origin; our yPct is from the top.
-        const y = (1 - r.yPct) * page.heightPt - heightPt;
-        const file = new File([bytes.slice(0)], d.fileName, { type: "application/pdf" });
-        bytes = await addSignature(file, url, [o.pageIndex], {
-          x,
-          y,
-          width: widthPt,
-          height: heightPt,
-        });
+        const r = o.rect;
+        const payload = o.payload as SigPayload | undefined;
+        if (!page || !r || !payload?.dataUrl)
+          throw new Error("A signature is incomplete. Remove it and place it again.");
+        let url = payload.dataUrl;
+        if (bgEnabled) {
+          let prepared = backgrounds.get(url);
+          if (!prepared) {
+            prepared = (await prepareSignature(url, { background: bgHex })).dataUrl;
+            backgrounds.set(url, prepared);
+          }
+          url = prepared;
+        }
+        bytes = await addSignature(
+          new File([bytes.slice(0)], d.fileName, { type: "application/pdf" }),
+          url,
+          [o.pageIndex],
+          {
+            x: r.xPct * page.widthPt,
+            y: (1 - r.yPct - r.hPct) * page.heightPt,
+            width: r.wPct * page.widthPt,
+            height: r.hPct * page.heightPt,
+          },
+        );
       }
       return {
         bytes,
-        label: `Signature ${sigs.length}`,
+        label: `Signature ${signatures.length}`,
         objects: d.objects.filter((o) => o.kind !== "signature"),
       };
     });
   }, [applyTransform, bgEnabled, bgHex]);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Source toggle — a sliding-thumb tab control (same Segmented as Crop's
-          "All pages / This page"), not two separate buttons. */}
-      <Segmented
-        value={mode}
-        onChange={(v) => patchToolState(TOOL_ID, { mode: v })}
-        options={[
-          { value: "draw", label: "Draw" },
-          { value: "upload", label: "Choose" },
-        ]}
-      />
-
-      {mode === "draw" ? (
-        <div className="space-y-2">
-          <SignaturePad onSignature={onPadSignature} color={inkHex} inkBleed={inkBleed} />
-          <ColorPicker
-            value={inkHex}
-            onChange={(hex) => patchToolState(TOOL_ID, { inkHex: hex })}
-          />
-          {/* Realistic ink: speed-varied stroke weight + a soft bleed halo, so a
-              drawn signature reads like real pen on paper rather than a clean
-              vector line. Off by default to keep the crisp look as the baseline. */}
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-dark-border px-3 py-2">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-700 dark:text-dark-text">
-                Realistic ink
-              </p>
-              <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-                Pen-like weight and ink bleed
-              </p>
-            </div>
-            <Switch
-              checked={inkBleed}
-              onChange={(v) => patchToolState(TOOL_ID, { inkBleed: v })}
-              label="Realistic ink"
+    <div className="pdf-mark-panel pdf-signature-panel">
+      <section aria-label="Signature source">
+        <SegmentedControl
+          value={mode}
+          onChange={(value) => patchToolState(TOOL_ID, { mode: value })}
+          ariaLabel="Signature source"
+          fullWidth
+          disabled={busy}
+          options={[
+            { value: "draw", label: "Draw" },
+            { value: "upload", label: "Choose" },
+          ]}
+        />
+        {mode === "draw" ? (
+          <>
+            <SignaturePad
+              key={doc?.id}
+              initialStrokes={drawn?.strokes}
+              onSignature={onPadSignature}
+              color={inkHex}
+              inkBleed={inkBleed}
             />
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={() => uploadRef.current?.click()}
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-slate-300 dark:border-dark-border px-3 py-4 font-mono text-xs font-medium text-slate-500 dark:text-dark-text-muted hover:border-primary-400 hover:text-primary-600 active:translate-y-px pointer-coarse:min-h-11 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
-            <Upload className="h-4 w-4" aria-hidden="true" />
-            Choose signature image
-          </button>
-          <input
-            ref={uploadRef}
-            type="file"
-            accept="image/png,image/jpeg"
-            className="hidden"
-            onChange={(e) => onUpload(e.target.files?.[0])}
-          />
-          {dataUrl && (
-            <div
-              className="mx-auto flex max-h-24 w-fit items-center justify-center rounded-md border border-slate-200 p-1 dark:border-dark-border"
-              // The preview mirrors the choice: a transparency checker when the
-              // signature is ink-only (so it never misreads as a white box), or
-              // the chosen colour when a background is on.
-              style={bgEnabled ? { backgroundColor: bgHex } : TRANSPARENCY_CHECKER}
+            <ColorPicker
+              label="Ink colour"
+              value={inkHex}
+              onChange={(hex) => patchToolState(TOOL_ID, { inkHex: hex })}
+            />
+            <label className="air-switch-row">
+              <span>
+                Realistic ink<small>Pen-like weight and ink bleed</small>
+              </span>
+              <input
+                className="air-switch"
+                type="checkbox"
+                role="switch"
+                aria-label="Realistic ink"
+                checked={inkBleed}
+                disabled={busy}
+                onChange={(e) => patchToolState(TOOL_ID, { inkBleed: e.target.checked })}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <button
+              className="air-button"
+              type="button"
+              data-busy-focus-fallback
+              onClick={() => uploadRef.current?.click()}
+              disabled={busy}
             >
-              <img src={dataUrl} alt="Signature preview" className="max-h-20" />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Background: ink-only (transparent) by default, or an opaque colour
-          behind the ink — a switch, not a checkbox, so the binary mode reads
-          clearly. */}
-      <div className="flex flex-col gap-3 border-y border-[var(--color-rule)] py-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-slate-700 dark:text-dark-text">Background</p>
-            <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-              {bgEnabled ? "Solid colour behind the ink" : "Ink only — transparent"}
+              <Upload className="size-4" aria-hidden="true" />
+              Choose signature image
+            </button>
+            <input
+              ref={uploadRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              hidden
+              aria-label="Signature image"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                void onUpload(file);
+              }}
+            />
+            <p className="air-help">
+              PNG or JPEG, up to 20 MB and 16 million pixels. White paper becomes transparent;
+              existing transparency stays intact.
             </p>
-          </div>
-          <Switch
-            checked={bgEnabled}
-            onChange={(v) => patchToolState(TOOL_ID, { bgEnabled: v })}
-            label="Signature background"
-          />
-        </div>
-        {bgEnabled && (
-          <ColorPicker value={bgHex} onChange={(hex) => patchToolState(TOOL_ID, { bgHex: hex })} />
+            {uploading && (
+              <p className="air-help" role="status">
+                Preparing image…
+              </p>
+            )}
+            {uploadError && (
+              <p className="air-help air-help--error" role="alert">
+                {uploadError} {source?.dataUrl && "Your previous image is still ready."}
+              </p>
+            )}
+            {source?.dataUrl && (
+              <p className="pdf-signature-filename">
+                {(slice.uploadName as string) ?? "Signature image"}
+              </p>
+            )}
+          </>
         )}
-      </div>
-
-      <p className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
-        {dataUrl
-          ? "Tap the page to place it, drag to reposition, then pull a corner to resize. Delete removes the selected one."
-          : "Draw or choose a signature to begin."}
-      </p>
-
-      <span className="text-sm text-slate-600 dark:text-dark-text-muted">
-        {count} signature{count === 1 ? "" : "s"} placed
-      </span>
-
-      {count > 0 && pageCount > 1 && (
+      </section>
+      <section aria-label="Signature appearance">
+        <label className="air-switch-row">
+          <span>
+            Background
+            <small>{bgEnabled ? "Solid colour behind the ink" : "Ink only — transparent"}</small>
+          </span>
+          <input
+            className="air-switch"
+            type="checkbox"
+            role="switch"
+            aria-label="Signature background"
+            checked={bgEnabled}
+            disabled={busy}
+            onChange={(e) => patchToolState(TOOL_ID, { bgEnabled: e.target.checked })}
+          />
+        </label>
+        {bgEnabled && (
+          <ColorPicker
+            label="Background colour"
+            value={bgHex}
+            onChange={(hex) => patchToolState(TOOL_ID, { bgHex: hex })}
+          />
+        )}
+        {source?.dataUrl && (
+          <div
+            className="pdf-signature-preview"
+            style={bgEnabled ? { backgroundColor: bgHex } : TRANSPARENCY_CHECKER}
+          >
+            <img src={source.dataUrl} alt="Signature preview" />
+          </div>
+        )}
+        <p className="air-help">
+          Ink changes affect new placements. Background applies to every placed signature.
+        </p>
+      </section>
+      <section aria-label="Signature placement">
         <button
           type="button"
-          onClick={applyToAllPages}
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 dark:border-dark-border px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:bg-slate-50 active:translate-y-px pointer-coarse:min-h-11 dark:hover:bg-dark-surface-alt transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          className="air-button"
+          data-busy-focus-fallback
+          disabled={!source?.dataUrl || uploading || busy}
+          ref={placeRef}
+          onClick={place}
         >
-          <Copy className="h-4 w-4" />
-          Apply to all {pageCount} pages
+          Place on this page
         </button>
-      )}
-
+        <p className="air-help">
+          Or tap the page to place it. Drag to move; pull a corner to resize.
+        </p>
+        <p role="status">
+          {count} signature{count === 1 ? "" : "s"} placed
+        </p>
+        {count > 0 && (
+          <>
+            <div className="pdf-property-field">
+              <label className="air-label" htmlFor="signature-selection">
+                Placed signature
+              </label>
+              <Select
+                id="signature-selection"
+                value={selected?.id ?? ""}
+                placeholder="Choose a placed signature"
+                disabled={busy}
+                options={sigs.map((o, i) => ({
+                  value: o.id,
+                  label: `Signature ${i + 1} · Page ${o.pageIndex + 1}`,
+                }))}
+                onChange={(id) => {
+                  const o = sigs.find((s) => s.id === id);
+                  if (o) {
+                    setSelectedPage(o.pageIndex);
+                    patchToolState(TOOL_ID, { selectedId: id });
+                  }
+                }}
+              />
+            </div>
+            {selected && (
+              <PlacementActions
+                noun="signature"
+                disabled={busy}
+                onAdjust={adjust}
+                onRemove={() => {
+                  removeObject(selected.id);
+                  patchToolState(TOOL_ID, { selectedId: undefined });
+                  placeRef.current?.focus();
+                }}
+              />
+            )}
+            {pageCount > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="air-button"
+                  disabled={!unsignedPages || busy}
+                  onClick={copyToRemainingPages}
+                >
+                  <Copy className="size-4" aria-hidden="true" />
+                  Copy to remaining pages
+                </button>
+                <p className="air-help">
+                  Copies placements from the first signed page. Pages with a signature stay
+                  unchanged.
+                </p>
+              </>
+            )}
+          </>
+        )}
+      </section>
       <PrimaryAction
         label={`Apply signature${count === 1 ? "" : "s"}`}
         onApply={apply}
-        disabled={count === 0}
+        disabled={count === 0 || uploading}
       />
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted">
+      <p className="air-help">
         Signatures embed as images — the page text underneath stays selectable.
       </p>
     </div>

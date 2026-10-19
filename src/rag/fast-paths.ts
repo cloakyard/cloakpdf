@@ -1,7 +1,7 @@
 /**
  * Deterministic fast-paths that bypass the chat model for question
  * shapes where regex over the retrieved chunks is more reliable than
- * asking SmolLM2-1.7B to do it. Each function returns
+ * asking a small language model to do it. Each function returns
  * `{ value, citedPages } | null`; `null` means "fall through to the
  * LLM" — either the question didn't match the intent pattern, or the
  * structural check on the chunks failed.

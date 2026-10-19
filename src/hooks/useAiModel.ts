@@ -158,8 +158,8 @@ export function useAiModel(modelId: AiModelId): UseAiModelReturn {
    * Distinguishes "downloading" (first-time, network-heavy) from
    * "loading" (files already in CacheStorage, just constructing the
    * pipeline). The state matters for the UI: downloads need a
-   * full-progress dialog with cancel; cache-warm loads just need a
-   * tiny inline spinner.
+   * progress dialog with Cancel; cache-warm loads use the same dialog
+   * with a distinct loading label and no invented download percentage.
    */
   const startDownload = useCallback(async () => {
     if (!mountedRef.current) return;

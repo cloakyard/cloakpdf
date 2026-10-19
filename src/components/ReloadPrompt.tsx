@@ -1,6 +1,3 @@
-/* Hallmark · component scope: PWA updater · design-system: DESIGN.md · tone: technical-operational · contrast/focus/mobile: pass */
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
-
 // ReloadPrompt.tsx — PWA service-worker update banner. Shown when a new
 // SW version is available, or briefly when the app first becomes
 // installable with its core interface cached.
@@ -10,9 +7,8 @@
 // cache-status toast on first install.
 
 import { RefreshCw, ShieldCheck, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
-import { AnimatePresence, m, variants } from "./motion.tsx";
 
 const UPDATE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 const RELOAD_FALLBACK_MS = 1500;
@@ -22,17 +18,27 @@ type ReloadNoticeVariant = "update" | "offline";
 interface ReloadNoticeProps {
   variant: ReloadNoticeVariant;
   updating?: boolean;
+  deferred?: boolean;
   onClose: () => void;
   onUpdate: () => void;
 }
 
-export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: ReloadNoticeProps) {
+export function ReloadNotice({
+  variant,
+  updating = false,
+  deferred = false,
+  onClose,
+  onUpdate,
+}: ReloadNoticeProps) {
+  const descriptionId = useId();
   const isUpdate = variant === "update";
   const Icon = isUpdate ? RefreshCw : ShieldCheck;
   const eyebrow = isUpdate ? "System update" : "Offline support";
   const title = isUpdate ? "Update CloakPDF" : "Core app cached";
   const body = isUpdate
-    ? "A newer build is ready. Update now to apply the latest fixes."
+    ? deferred
+      ? "A newer build is ready. Save or download your work, then return home to update."
+      : "A newer build is ready. Update now to apply the latest fixes."
     : "The core interface is cached. AI models and OCR data may still require a connection.";
   const announcement = updating ? "Updating CloakPDF…" : `${title}. ${body}`;
 
@@ -41,56 +47,53 @@ export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: R
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announcement}
       </span>
-      <div
-        className="cloak-dialog cloak-dialog--floating relative flex w-full max-w-sm flex-col overflow-hidden"
-        aria-busy={updating}
-      >
-        <div className="flex items-start gap-3 p-4">
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-2 font-mono text-xxs font-semibold uppercase leading-none tracking-[0.07em] text-primary-600">
-              <Icon
-                className={`h-4 w-4 shrink-0 ${updating ? "animate-spin" : ""}`}
-                aria-hidden="true"
-              />
+      <div className="pdf-toast" aria-busy={updating}>
+        <div className="pdf-toast-body">
+          <div>
+            <p className="pdf-toast-eyebrow">
+              <Icon size={16} aria-hidden="true" />
               {eyebrow}
             </p>
-            <p className="mt-2 text-card-title font-semibold leading-tight tracking-[-0.01em] text-[var(--color-ink)]">
-              {updating ? "Applying update…" : title}
+            <p className="pdf-toast-title">{updating ? "Applying update…" : title}</p>
+            <p id={descriptionId} className="pdf-toast-description">
+              {body}
             </p>
-            <p className="mt-1 text-xs leading-[1.5] text-[var(--color-ink-3)]">{body}</p>
           </div>
           {!isUpdate && (
             <button
               type="button"
               onClick={onClose}
               aria-label="Dismiss cache status"
-              className="cloak-dialog__close cloak-focus -mr-2 -mt-2"
+              className="air-icon-button air-button--quiet"
             >
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
+              <X size={16} aria-hidden="true" />
             </button>
           )}
         </div>
         {isUpdate && (
-          <div className="flex items-center justify-end gap-2 border-t border-[var(--color-rule)] bg-[var(--color-paper-2)] px-4 py-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={updating}
-              className="cloak-focus min-h-10 whitespace-nowrap rounded-md border border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-3 py-1.5 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-ink-2)] transition-[background-color,border-color,color,transform] hover:border-primary-500 hover:text-primary-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11"
-            >
+          <div className="pdf-toast-actions">
+            <button type="button" onClick={onClose} disabled={updating} className="air-button">
               Later
             </button>
             <button
               type="button"
-              onClick={onUpdate}
-              disabled={updating}
-              className="cloak-focus inline-flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-md bg-primary-600 px-3 py-1.5 font-mono text-xxs font-semibold uppercase tracking-wide text-[var(--color-accent-ink)] transition-[background-color,opacity,transform] hover:bg-primary-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary-600 pointer-coarse:min-h-11"
+              onClick={() => {
+                if (!updating && !deferred) onUpdate();
+              }}
+              aria-disabled={updating || deferred || undefined}
+              aria-describedby={descriptionId}
+              aria-busy={updating}
+              className="air-button air-button--primary"
             >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${updating ? "animate-spin" : ""}`}
-                aria-hidden="true"
-              />
-              {updating ? "Updating…" : "Update now"}
+              <RefreshCw size={16} aria-hidden="true" />
+              <span className="air-action-labels">
+                <span data-active={!updating || undefined} aria-hidden={updating}>
+                  Update now
+                </span>
+                <span data-active={updating || undefined} aria-hidden={!updating}>
+                  Updating…
+                </span>
+              </span>
             </button>
           </div>
         )}
@@ -99,7 +102,7 @@ export function ReloadNotice({ variant, updating = false, onClose, onUpdate }: R
   );
 }
 
-export function ReloadPrompt() {
+export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean }) {
   // Stash the SW update interval + the live registration so the unmount
   // cleanup can clear the timer and so the focus/visibility listeners below —
   // which fire outside `useRegisterSW`'s onRegisteredSW lifecycle — can reach
@@ -109,7 +112,30 @@ export function ReloadPrompt() {
   const swUrlRef = useRef<string>("");
   const lastCheckRef = useRef<number>(0);
   const updatingRef = useRef(false);
+  const deferUpdateRef = useRef(deferUpdate);
+  const reloadTimerRef = useRef<number | undefined>(undefined);
   const [updating, setUpdating] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  // SW callbacks are registered once. Read the committed route when they fire,
+  // including when another tab activates the waiting worker.
+  useLayoutEffect(() => {
+    deferUpdateRef.current = deferUpdate;
+  }, [deferUpdate]);
+  useEffect(() => {
+    if (!deferUpdate) setDismissed(false);
+  }, [deferUpdate]);
+
+  const finishUpdate = useCallback(() => {
+    window.clearTimeout(reloadTimerRef.current);
+    if (!updatingRef.current) return;
+    if (deferUpdateRef.current) {
+      updatingRef.current = false;
+      setUpdating(false);
+      return;
+    }
+    window.location.reload();
+  }, []);
 
   // Poll sw.js for a freshly-deployed build. Throttled to once a minute so the
   // interval and the focus/visibility listeners can all call it without
@@ -135,6 +161,12 @@ export function ReloadPrompt() {
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = useRegisterSW({
+    onNeedReload() {
+      // An update in another tab must never discard this tab's work. Only a
+      // local explicit Update now can reload, and only while outside a task.
+      setNeedRefresh(true);
+      finishUpdate();
+    },
     onRegisteredSW(swUrl, registration) {
       if (!registration) return;
       registrationRef.current = registration;
@@ -159,6 +191,7 @@ export function ReloadPrompt() {
     return () => {
       document.removeEventListener("visibilitychange", onForeground);
       window.removeEventListener("focus", onForeground);
+      window.clearTimeout(reloadTimerRef.current);
       if (updateIntervalRef.current !== null) {
         window.clearInterval(updateIntervalRef.current);
         updateIntervalRef.current = null;
@@ -170,17 +203,17 @@ export function ReloadPrompt() {
   // controlling event. Fall back to an explicit reload so the Update
   // button is never a no-op.
   const handleUpdate = useCallback(() => {
-    if (updatingRef.current) return;
+    if (updatingRef.current || deferUpdate) return;
     updatingRef.current = true;
     setUpdating(true);
     void updateServiceWorker(true);
-    setTimeout(() => window.location.reload(), RELOAD_FALLBACK_MS);
-  }, [updateServiceWorker]);
+    reloadTimerRef.current = window.setTimeout(finishUpdate, RELOAD_FALLBACK_MS);
+  }, [deferUpdate, finishUpdate, updateServiceWorker]);
 
   const close = useCallback(() => {
     setOfflineReady(false);
-    setNeedRefresh(false);
-  }, [setOfflineReady, setNeedRefresh]);
+    setDismissed(needRefresh);
+  }, [needRefresh, setOfflineReady]);
 
   useEffect(() => {
     if (!offlineReady || needRefresh) return;
@@ -188,31 +221,16 @@ export function ReloadPrompt() {
     return () => clearTimeout(id);
   }, [offlineReady, needRefresh, close]);
 
-  const show = offlineReady || needRefresh;
-  // Latch which toast is showing so its copy/buttons don't flip to the
-  // "offline" variant mid-exit — close() clears both flags at once, which
-  // would otherwise flash the wrong text for the length of the fade-out.
-  const shownRef = useRef<ReloadNoticeVariant>("offline");
-  if (show) shownRef.current = needRefresh ? "update" : "offline";
-
-  return (
-    <AnimatePresence>
-      {show && (
-        <m.div
-          className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] left-4 z-[var(--z-toast)] flex justify-center sm:right-6 sm:bottom-6 sm:left-auto sm:justify-end"
-          variants={variants.fadeUp}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
-          <ReloadNotice
-            variant={shownRef.current}
-            updating={updating}
-            onClose={close}
-            onUpdate={handleUpdate}
-          />
-        </m.div>
-      )}
-    </AnimatePresence>
-  );
+  const show = offlineReady || (needRefresh && !dismissed);
+  return show ? (
+    <div className="pdf-toast-host">
+      <ReloadNotice
+        variant={needRefresh ? "update" : "offline"}
+        updating={updating}
+        deferred={deferUpdate}
+        onClose={close}
+        onUpdate={handleUpdate}
+      />
+    </div>
+  ) : null;
 }

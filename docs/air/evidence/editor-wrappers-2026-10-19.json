@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-19",
+  "surface": "Editor wrappers and history",
+  "airVersion": "1.0.2",
+  "contract": "bb90f52e0b0a",
+  "baselineCommit": "eacefdd",
+  "scope": "Editor provider/entry/stage/overview ownership, history boundary focus and direct N-up composition; shared Air disabled-icon implementation",
+  "implementation": [
+    "Undo/Redo/Reset retain focus at history boundaries and guard unavailable pointer/keyboard activation",
+    "Provider undo/redo/reset reject calls synchronously while busy, including the same frame as task creation",
+    "Responsive inspector mounts preserve surviving toolbar focus; explicit tool changes still focus the heading",
+    "N-up uses PrimaryAction directly and exposes a settings focus fallback for Safari pointer activation",
+    "Canonical aria-disabled Air icon actions have inert hover/press and full-strength keyboard focus contours; five standalone bundles synchronized"
+  ],
+  "cleanup": [
+    "Removed unused provider commit/jumpTo actions and history base/size/jumpTo/labels helpers",
+    "Removed single-consumer WholeDocPanel and unused danger styling API",
+    "History tests assert actual undo/redo entries instead of a test-only labels API",
+    "Retained live EditorToolStage/EditorView/OverviewMode/stage dispatch seams after consumer audit",
+    "No dependency added; knip passes; 91 inventoried surfaces after wrapper removal"
+  ],
+  "validation": {
+    "units": 453,
+    "unitFiles": 46,
+    "navigationCases": 176,
+    "nupLayoutCases": 70,
+    "nupOutputSheets": 23,
+    "navigationSizes": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1024x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "767x1024",
+      "769x1024",
+      "1023x768",
+      "1025x768",
+      "844x499",
+      "844x500",
+      "844x501"
+    ],
+    "themes": ["light", "dark"],
+    "rootTextSizes": [16, 32],
+    "historyAssertions": [
+      "Mouse/Enter/Space at boundaries",
+      "Persistent focus across desktop/tablet/phone reflow",
+      "Disabled hover/press inert",
+      "Full-strength keyboard focus outline",
+      "Source previews and opposite action unchanged after blocked activation",
+      "Provider exact bytes/history version unchanged during processing"
+    ],
+    "nupOutputAssertions": [
+      "Crop/rotation/UserUnit",
+      "Blank slots and mixed page dimensions",
+      "Form appearance",
+      "Searchable vectors",
+      "Apply and undo"
+    ],
+    "native": [
+      "Safari production: N-up settings fallback, Undo/Redo/Reset boundary focus and no-op keys",
+      "Firefox: N-up apply/Undo focus and actual 200% zoom with panel scroll access; restored 100%"
+    ],
+    "regression": "PASS: complete 16 production smoke + seven extended + focused N-up/Select text = 25 distinct suites. The final seven extended suites ran unchanged on a fresh dev server at 8133.",
+    "requiredChecks": "Code/dead/build/asset/design/18 portability and canonical six-document bundle sync pass."
+  },
+  "bundleKB": {
+    "editorRaw": 327.04,
+    "editorGzip": 99.39,
+    "cssRaw": 138.43,
+    "cssGzip": 24.05,
+    "previousEditorGzip": 99.5,
+    "previousCssGzip": 24.02,
+    "deployAssets": 128,
+    "pwaEntries": 77
+  },
+  "correctionsDuringValidation": [
+    "The new responsive-focus assertion found a panel remount stealing toolbar focus; both desktop and mobile panels now preserve a surviving control.",
+    "Safari pointer clicks did not focus history controls; each history handler now establishes focus before a valid action.",
+    "Screenshot review found whole-control opacity dimming the disabled keyboard focus contour; focus-visible now restores opacity and mutes only the icon colour.",
+    "A repeated AI modal timing miss exposed late sampling after the 240ms entrance. The test now records native animation creation before the pointer action, forwards execution unchanged and retains the 240ms assertion.",
+    "An intermediate regression was stopped before completion for the final focus-contour rebuild; only the final complete run counts as the regression gate.",
+    "Extended runs on the long-lived dev8122 failed once with a destroyed compression context and once before the rotation fixture opened. The complete unchanged seven-suite command passes on fresh dev8133. Production smoke remains independently green; no runtime or test assertion was changed for these retries."
+  ],
+  "evidence": [
+    "editor-wrappers-desktop-2026-10-19.png",
+    "editor-wrappers-phone-dark-2026-10-19.png",
+    "editor-wrappers-checks-2026-10-19.log"
+  ],
+  "fullTemporaryEvidence": "/tmp/cloakpdf-air-review/wrappers-*; final desktop proof on dev8122 with final CSS and same editor code as production8132",
+  "openAcceptance": [
+    "Physical touch and software keyboards",
+    "Actual OS IME",
+    "Spoken assistive technology"
+  ],
+  "next": [
+    "Legacy CSS aliases/selectors and generated output-font exceptions",
+    "Non-visible registry and lifecycle consumer audit",
+    "Complete remaining PDF feature/device acceptance before family rollout"
+  ],
+  "completion": "Bounded editor piece only; full PDF/family migration remains open."
+}

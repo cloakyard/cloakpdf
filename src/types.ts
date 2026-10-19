@@ -31,6 +31,8 @@ export interface WatermarkOptions {
   /** Ink-texture amount 0–1 (light → heavy grunge); only used when `finish` is
    *  `"ink"`. Defaults to a medium level. */
   inkTexture?: number;
+  /** Captured preview time; omit to use the time of application. */
+  timestamp?: number;
 }
 
 /** Standard PDF document metadata fields. */
@@ -45,7 +47,7 @@ export interface PdfMetadata {
   modificationDate: string;
 }
 
-/** Absolute position and dimensions (in PDF points) for signature placement. */
+/** Signature box in visible, rotated page points, with a bottom-left origin. */
 export interface Position {
   x: number;
   y: number;
@@ -85,22 +87,10 @@ export interface Tool {
    * mobile experience.
    */
   desktopOnly?: boolean;
-  /**
-   * Keep this tool as a standalone home-screen card. The home page is
-   * editor-first — a PDF dropped on the home dropzone opens the unified
-   * editor, which already reaches every single-PDF edit/transform tool
-   * (plus PDF→image / contact-sheet / split via its Export dialog). Only
-   * tools that can't be a single-PDF "edit then export" flow stay as
-   * cards: multi-input constructors (merge, images→PDF), the dual-input
-   * compare, and special single-input tools (AI chat, image extraction,
-   * security cert/password). Tools without this flag are not shown as
-   * cards — they live inside the editor.
-   */
-  standaloneOnly?: boolean;
 }
 
 /** Position of page numbers on the page. */
-export type PageNumberPosition =
+type PageNumberPosition =
   | "top-left"
   | "top-center"
   | "top-right"
@@ -124,6 +114,8 @@ export interface PageNumberOptions {
 
 /** Configuration options for the Header & Footer tool. */
 export interface HeaderFooterOptions {
+  /** Captured preview time; reused for every saved date/time field. */
+  timestamp?: number;
   headerLeft: string;
   headerCenter: string;
   headerRight: string;
@@ -136,7 +128,7 @@ export interface HeaderFooterOptions {
   skipFirstPage: boolean;
 }
 
-/** Crop margins in PDF points. */
+/** Margins to trim from the current visible page, in physical points. */
 export interface CropMargins {
   top: number;
   right: number;
@@ -144,22 +136,13 @@ export interface CropMargins {
   left: number;
 }
 
-/** Position of Bates numbers on the page. */
-type BatesPosition =
-  | "top-left"
-  | "top-center"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-center"
-  | "bottom-right";
-
 /** Configuration options for the Bates Numbering tool. */
 export interface BatesNumberOptions {
   prefix: string;
   suffix: string;
   startNumber: number;
   digits: number;
-  position: BatesPosition;
+  position: PageNumberPosition;
   fontSize: number;
   color: { r: number; g: number; b: number };
   margin: number;

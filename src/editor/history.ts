@@ -49,6 +49,31 @@ export class EditorHistory {
     return [...urls];
   }
 
+  /** Thumbnails are a transient cache, shared by snapshots of the same bytes.
+   * Repair only that cache; document/geometry identity, edits and cursor survive. */
+  replacePreviews(
+    bytes: Uint8Array,
+    livePages: PageMeta[],
+    replacements: Map<number, string | null>,
+  ): string[] {
+    const pageSets = new Set([
+      livePages,
+      ...this.stack.filter((entry) => entry.bytes === bytes).map((entry) => entry.pages),
+    ]);
+    const old = new Set<string>();
+    for (const pages of pageSets)
+      for (const page of pages) {
+        if (!replacements.has(page.index)) continue;
+        if (page.thumbUrl) old.add(page.thumbUrl);
+        page.thumbUrl = replacements.get(page.index) ?? null;
+      }
+    const retained = new Set([
+      ...this.thumbUrls(),
+      ...livePages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])),
+    ]);
+    return [...old].filter((url) => !retained.has(url));
+  }
+
   clear(): void {
     const dropped = this.stack;
     this.stack = [];
@@ -77,16 +102,8 @@ export class EditorHistory {
     return this.stack[this.cursor] ?? null;
   }
 
-  base(): HistoryEntry | null {
-    return this.stack[0] ?? null;
-  }
-
   index(): number {
     return this.cursor;
-  }
-
-  size(): number {
-    return this.stack.length;
   }
 
   canUndo(): boolean {
@@ -121,16 +138,5 @@ export class EditorHistory {
     this.cursor = 0;
     this.emitEvict(dropped);
     return base;
-  }
-
-  /** Move the cursor to an absolute index (clamped) and return that entry. */
-  jumpTo(index: number): HistoryEntry | null {
-    if (this.stack.length === 0) return null;
-    this.cursor = Math.max(0, Math.min(index, this.stack.length - 1));
-    return this.current();
-  }
-
-  labels(): string[] {
-    return this.stack.map((e) => e.label);
   }
 }

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)" />
+    <title>Files — Cloakyard Air study</title>
+    <link rel="stylesheet" href="../../src/styles/air.css?air=a3f253a17c2b" />
+    <script type="module" src="./pages.mjs?air=11af689c6047"></script>
+    <script type="module" src="./files.mjs?air=7ae954ca6df8"></script>
+  </head>
+  <body class="air-page">
+    <a class="air-button air-page-skip" href="#main-content">Skip to content</a>
+    <header class="air-page-header air-page-width">
+      <a
+        class="air-page-brand"
+        href="components.html#experience"
+        aria-label="Cloakyard design reference"
+        ><svg class="air-page-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient
+              id="brand-fill"
+              x1="11"
+              y1="6"
+              x2="51"
+              y2="58"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#6FC3FF" />
+              <stop offset=".45" stop-color="#3975F6" />
+              <stop offset="1" stop-color="#2444D7" />
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#brand-fill)" />
+          <circle
+            cx="32"
+            cy="32"
+            r="29.25"
+            stroke="white"
+            stroke-opacity=".28"
+            stroke-width="1.5"
+          />
+          <g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M29.03 46.85V24.58a1.49 1.49 0 0 0-1.49-1.49h-7.42a2.97 2.97 0 0 0-2.97 2.97v17.82a2.97 2.97 0 0 0 2.97 2.97h17.82a2.97 2.97 0 0 0 2.97-2.97v-7.43a1.49 1.49 0 0 0-1.49-1.48H17.15"
+            />
+            <rect x="34.97" y="17.15" width="11.88" height="11.88" rx="1.49" />
+          </g></svg
+        ><span>Cloakyard</span></a
+      >
+      <nav class="air-page-nav" aria-label="Design studies">
+        <a href="components.html">Components</a><a href="reading.html">Reading</a
+        ><a href="recovery.html">Recovery</a><a href="files.html" aria-current="page">Files</a>
+        <a href="collections.html">Collections</a>
+      </nav>
+    </header>
+    <div class="air-page-studybar air-page-width">
+      <p>Air · Design reference</p>
+      <label class="air-page-theme" hidden
+        >Appearance<select class="air-field" id="air-page-theme" name="appearance">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+    </div>
+    <main id="main-content" class="air-page-width" tabindex="-1">
+      <header class="air-page-intro">
+        <p class="air-page-eyebrow">Files · Interaction study</p>
+        <h1>
+          A little room<br />
+          to begin.
+        </h1>
+        <p class="air-page-lede">
+          Bring a file, see what’s happening, and pick up where you left off. The tools stay quiet.
+          Your work stays in view.
+        </p>
+        <p class="air-page-meta">Local text preview · Design reference</p>
+      </header>
+      <div class="air-file-workspace" id="air-files">
+        <section aria-labelledby="air-file-heading">
+          <h2 id="air-file-heading">Start with a file</h2>
+          <div
+            class="air-file-drop"
+            id="air-file-drop"
+            role="region"
+            aria-label="File selection and paste area"
+            aria-describedby="air-file-help"
+          >
+            <svg
+              viewBox="0 0 32 32"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              aria-hidden="true"
+            >
+              <path d="M19 4H9a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10L19 4Z" />
+              <path d="M18 4v7h7M12 17h8M12 22h5" />
+            </svg>
+            <p class="air-file-invitation">Drop a text file here.</p>
+            <p class="air-help" id="air-file-help">
+              One UTF-8 .txt or .json file, up to 4 MiB. This study previews text; it does not
+              validate JSON or open images and PDFs.
+            </p>
+            <div id="air-file-enhanced" hidden>
+              <input id="air-file-input" name="text-file" type="file" accept=".txt,.json" hidden />
+              <div class="air-page-actions">
+                <button class="air-button air-button--primary" id="air-file-browse" type="button">
+                  Browse files
+                </button>
+                <button class="air-button" id="air-file-paste" type="button">Paste text</button>
+                <button class="air-button air-button--quiet" id="air-file-sample" type="button">
+                  Use sample
+                </button>
+              </div>
+              <div class="air-file-selection" id="air-file-selection" hidden>
+                <div>
+                  <p id="air-file-name"></p>
+                  <p class="air-help" id="air-file-size"></p>
+                </div>
+                <button class="air-button air-button--quiet" id="air-file-remove" type="button">
+                  Remove
+                </button>
+              </div>
+              <div
+                class="air-file-progress-region"
+                id="air-file-progress-region"
+                role="progressbar"
+                aria-label="File reading progress"
+                hidden
+              >
+                <p class="air-help" id="air-file-count"></p>
+                <div class="air-file-progress" id="air-file-progress">
+                  <span id="air-file-progress-fill"></span>
+                </div>
+              </div>
+              <div class="air-page-actions">
+                <button class="air-button" id="air-file-read" type="button" hidden>
+                  <span class="air-action-labels"
+                    ><span data-active>Preview text</span
+                    ><span aria-hidden="true">Reading file…</span
+                    ><span aria-hidden="true">Paused</span
+                    ><span aria-hidden="true">Try reading again</span
+                    ><span aria-hidden="true">Read again</span></span
+                  >
+                </button>
+                <button class="air-button" id="air-file-resume" type="button" hidden>
+                  Continue reading
+                </button>
+                <button
+                  class="air-button air-button--quiet"
+                  id="air-file-cancel"
+                  type="button"
+                  hidden
+                >
+                  Cancel
+                </button>
+              </div>
+              <p
+                class="air-help air-file-status"
+                id="air-file-status"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              ></p>
+            </div>
+            <noscript
+              ><p class="air-help">
+                Enable JavaScript to try local file reading, paste and progress. The design notes
+                below remain available.
+              </p></noscript
+            >
+          </div>
+          <details class="air-contents air-file-scenarios" id="air-file-scenarios" hidden>
+            <summary>
+              Study controls<svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <p class="air-help">
+              These options apply to the next read. Pauses and interruptions are study-only; byte
+              counts come from the actual file.
+            </p>
+            <label class="air-check-label"
+              ><input class="air-check" type="checkbox" id="air-file-pause" checked /><span
+                >Pause halfway for inspection</span
+              ></label
+            >
+            <label class="air-check-label"
+              ><input class="air-check" type="checkbox" id="air-file-fail" /><span
+                >Simulate interruption halfway</span
+              ></label
+            >
+            <label class="air-check-label"
+              ><input class="air-check" type="checkbox" id="air-file-unknown" /><span
+                >Show progress without a known total</span
+              ></label
+            >
+          </details>
+        </section>
+        <section class="air-file-preview" aria-labelledby="air-file-preview-title">
+          <h2 id="air-file-preview-title">A glimpse of your text</h2>
+          <p class="air-help">First 1,200 characters · Text only</p>
+          <pre
+            class="air-file-output"
+            id="air-file-output"
+            tabindex="0"
+            aria-label="Local text preview"
+            data-empty="true"
+          >
+Your preview will appear here.</pre>
+          <p class="air-help">
+            Reading happens on this device. Nothing in this study uploads, edits or saves the
+            original file. A partial preview stays visible if you cancel.
+          </p>
+        </section>
+      </div>
+      <section class="air-file-notes air-prose" aria-labelledby="air-file-notes-title">
+        <h2 id="air-file-notes-title">One language. Different kinds of work.</h2>
+        <p>
+          Browse, drop and paste share the same selection rules. Invalid files leave the previous
+          selection intact. Cancel stops the read; retry starts it again with the same file.
+        </p>
+        <p>
+          Each product keeps its own supported formats, size limits and recovery choices. Image
+          decoding, encrypted PDFs and résumé imports need their own verified adapters before this
+          pattern reaches an app.
+        </p>
+      </section>
+    </main>
+    <footer class="air-page-footer air-page-width">
+      <p>Air by Cloakyard. A little more room.</p>
+      <nav aria-label="Reference footer">
+        <a href="components.html">Components</a><a href="reading.html">Reading study</a
+        ><a href="recovery.html">Recovery study</a><a href="files.html">File study</a
+        ><a href="../../DESIGN.md">Design contract</a>
+      </nav>
+    </footer>
+  </body>
+</html>

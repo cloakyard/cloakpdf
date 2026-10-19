@@ -6,10 +6,8 @@ import { useActiveTool } from "./EditorContext.tsx";
 import { toolImpl } from "./registry.tsx";
 
 /**
- * Renders the active tool's options body. `toolId` overrides the active tool —
- * the mobile sheet passes the just-deactivated tool's id so the panel keeps
- * rendering through its slide-down animation (the active tool clears the moment
- * the user taps Done/Cancel). Defaults to the live active tool.
+ * Renders the active tool's options body. The mobile surface passes its selected
+ * tool explicitly; the desktop inspector uses the live active tool.
  */
 export function ToolControls({ toolId }: { toolId?: string } = {}) {
   const activeTool = useActiveTool();

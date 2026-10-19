@@ -1,0 +1,178 @@
+air-canvas-check.log
+pass: Formatting completed for checked files (2.0s)
+pass: Found no warnings, lint errors, or type errors in 232 files (768ms, 12 threads)
+
+air-canvas-dead.log
+knip exited 0; no unused files, exports, dependencies or cycles reported.
+
+
+air-canvas-unit.log
+ Test Files  36 passed (36)
+      Tests  367 passed (367)
+
+air-canvas-build.log
+✓ 3400 modules transformed.
+✓ built in 769ms
+Deployment asset check passed: 128 files, all <= 25 MiB.
+
+air-canvas-design.log
+Air contract and 84 inventory records valid. 17 isolated portability assertions passed.
+
+
+air-canvas-e2e.log
+PASS: 68 canvas layouts; 36px brand; selection colours; composition/focus/multiline/touch editing.
+
+air-canvas-editor-smoke-final.log
+  ✓ density control (single ↔ grid)
+  ✓ strip furniture detect + render (no trimmable furniture in fixture)
+  ✓ redact deferred — repeated find, box-colour pickers wired (no burn)
+  ✓ annotate draw
+  ✓ annotate text box (draw → type → commit)
+  ✓ crop drag + apply
+  ✓ signature place + apply
+  ✓ find & act search + highlight apply
+  ✓ smart erase draw (deferred mark)
+  ✓ OCR panel mounts (engine not run)
+  ✓ organize delete + apply (33 → 32 pages)
+  ✓ whole-doc apply (n-up)
+  ✓ metadata + scrub panels load
+  ✓ merged organize (reverse/extract/blank quick actions)
+  ✓ stamp-family apply (page numbers)
+  ✓ fill-form reads fields (empty)
+  ✓ bookmarks add + apply
+  ✓ bookmarks contents page apply
+  ✓ attachments panel loads
+  ✓ export modal · contact sheet → multipage_contact-sheet.pdf
+  ✓ export modal · grayscale → multipage_grayscale.pdf
+  ✓ export modal · text → multipage.txt
+  ✓ export modal · markdown (liteparse native, 31817 chars) → multipage.md
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+
+air-canvas-editor-smoke-mobile-final.log
+  ✓ mobile sheet entry (no desktop rail)
+  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)
+  ✓ annotate burn via global ✓
+  ✓ find & act burn via global ✓
+  ✓ page numbers via global ✓
+  ✓ metadata save via global ✓ (secondary action kept)
+  ✓ redact deferred — mark persists across ✓, no burn
+  ✓ render sweep — 12 tools mount in the sheet (✓/✗, 50:50)
+  ✓ organize delete + apply via global ✓ (33 → 32 pages)
+  ✓ OCR enabled on mobile (Extract visible, scrollable body)
+  ✓ export sheet · markdown (liteparse native, 26910 chars) → multipage.md
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+
+air-canvas-editor-features-final.log
+  ✓ multipage.pdf (33 pages)
+  ✓ sample-invoice.pdf (1 pages)
+  ✓ sample.pdf (4 pages)
+✓ editor-features passed on all 3 fixtures.
+
+air-canvas-editor-interactions-final.log
+  ✓ annotation Arrow keys nudge without panning; burst is one undo step
+  ✓ Delete removes the selected annotation from the focused canvas
+  ✓ unhandled Arrow pans; + zooms; 0 resets the viewport
+  ✓ pinch zoom is damped and follows simultaneous two-finger pan
+  ✓ middle-button drag pans without switching or firing the active tool
+  ✓ top-bar controls cannot be overwritten by a late wheel commit
+  ✓ a 12-event wheel burst measures layout once and stays compositor-driven
+  ✓ trackpad zoom stays anchored; overscroll remains reachable; background pinch recovers the view
+  ✓ date/time disclosure semantics and shorter-month focus clamp
+  ✓ custom colour exposes independent saturation and brightness controls
+  ✓ pinch and simultaneous pan remain natural in the mobile editor layout
+✓ editor keyboard interactions passed
+
+air-canvas-command-palette-final.log
+  ✓ editor opened
+✓ commands: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ filtered: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ empty: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+  ✓ 192 layout/theme/text cases · query persistence · wrap navigation · IME · clear/no-results · forced colours
+  ✓ rail Search opens palette · Escape closes (screenshot → /tmp/command-palette.png)
+  ✓ ⌘K toggles palette open/closed
+  ✓ ⌘K search → Enter selects the Crop tool
+  ✓ name-first ranking: Page numbers tops the desc match (Strip furniture)
+  ✓ apply page numbers → Undo enabled
+  ✓ ⌘Z undo (Undo→disabled, Redo→enabled)
+  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)
+  ✓ palette Undo, Redo and Reset actions update real editor history
+  ✓ selecting a bottom tool auto-scrolls it into view
+✓ Command palette + keyboard shortcuts passed.
+
+air-canvas-editor-navigation-final.log
+PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+
+air-canvas-editor-collections-final.log
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+
+air-canvas-export-dialog-final.log
+✓ export-pdf-options: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Native format/quality groups have one Tab stop, arrow keys and persistent choices; plain PDF bytes are exact
+✓ export-preparing: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Busy state retains focus and blocks editing/dismissal/duplicate work; split ZIP contains two valid single-page PDFs
+✓ export-images: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Images preserve 150 DPI dimensions; contact sheet, text and Markdown contain both pages in order
+✓ export-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Failure keeps options and focus, cleans up its download anchor, and retries successfully with metadata removed
+✓ Flatten, grayscale, repair, all three compression levels and combined options produce valid PDFs without changing source/history
+✓ All six formats burn pending redaction; PDF streams contain no original text, PNG pixels retain the redaction ink, OCR exports cannot recover the covered text
+✓ export-long-name: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Long filenames reflow at every viewport/theme/text size; reduced-motion reopen is immediate
+✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+
+air-canvas-modal-system-final.log
+  ✓ 320px palette/export bounds, focus, and single-stack ownership
+  ✓ 375px palette/export bounds, focus, and single-stack ownership
+  ✓ 414px palette/export bounds, focus, and single-stack ownership
+  ✓ 768px palette/export bounds, focus, and single-stack ownership
+  ✓ 1280px palette/export bounds, focus, and single-stack ownership
+  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates
+  ✓ AI details and consent dialogs share modal ownership
+  ✓ Selected tier persists; a partial-cache return waits for explicit download
+  ✓ Landscape/portrait tool access retains controls without an orientation gate
+✓ Shared modal system passed.
+
+air-canvas-responsive-motion-final.log
+  ✓ desktop landing motion
+  ✓ tablet landscape landing motion
+  ✓ tablet portrait landing motion
+  ✓ mobile landing motion
+  ✓ small mobile landing motion
+  ✓ mobile landscape landing motion
+  ✓ desktop editor motion
+  ✓ tablet landscape editor motion
+  ✓ tablet portrait editor motion
+  ✓ mobile editor motion
+  ✓ small mobile editor motion
+  ✓ mobile landscape editor motion
+  ✓ reduced-motion profile
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+
+air-canvas-annotate-fonts-final.log
+  ✓ editor → Annotate → Text
+  ✓ font picker lists 14 families incl. embedded ones
+  ✓ placed Roboto + underline text → /tmp/annotate-font.png
+  ✓ export embeds a Roboto subset → multipage_edited.pdf
+✓ Annotate fonts + underline passed.
+
+air-canvas-place-resize-final.log
+  ✓ signature Size slider removed
+  ✓ signature placed (corner handles drawn)
+  ✓ signature corner-resize (still 1 signature)
+  ✓ signature background toggle + colour
+  ✓ signature apply (embedded, object dropped)
+  ✓ QR placed
+  ✓ QR corner-resize (still 1 code)
+  ✓ QR apply (vector burn, object dropped)
+✓ place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-EfxA82
+
+air-canvas-place-resize-mobile-final.log
+  ✓ mobile signature place + corner-resize (no slider, 50:50 split)
+  ✓ mobile signature apply (global ✓)
+  ✓ mobile QR place + corner-resize
+✓ mobile place-resize verification passed — screenshots in /tmp/air-canvas-mobile
+
+air-canvas-stamp-preview-final.log
+  ✓ stamp watermark live preview paints (7257 px)
+  ✓ preview clears on tool switch (0 px)
+✓ Stamp preview smoke passed — paints live, clears on switch.

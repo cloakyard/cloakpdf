@@ -1,0 +1,430 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 166,
+        "right": 301.239990234375,
+        "top": 285.375,
+        "bottom": 432.375
+      }
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 193.5,
+        "right": 355.69000244140625,
+        "top": 486.375,
+        "bottom": 633.375
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 201,
+        "right": 370.5400085449219,
+        "top": 502.375,
+        "bottom": 649.375
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 221,
+        "right": 410.1400146484375,
+        "top": 729.375,
+        "bottom": 876.375
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 428,
+        "right": 820,
+        "top": 120.375,
+        "bottom": 267.375
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 499.54998779296875,
+        "right": 749.4500122070312,
+        "top": 680.0625,
+        "bottom": 827.0625
+      }
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 866.5,
+        "right": 1005.1699829101562,
+        "top": 361.375,
+        "bottom": 508.375
+      }
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1122.5,
+        "right": 1261.1700439453125,
+        "top": 361.135009765625,
+        "bottom": 496.375
+      }
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1208.5,
+        "right": 1347.1700439453125,
+        "top": 361.135009765625,
+        "bottom": 496.375
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1283.9150390625,
+        "right": 1422.5850830078125,
+        "top": 537.7550048828125,
+        "bottom": 672.9949951171875
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1763.9150390625,
+        "right": 1902.5850830078125,
+        "top": 537.7550048828125,
+        "bottom": 672.9949951171875
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 166,
+        "right": 301.239990234375,
+        "top": 285.375,
+        "bottom": 432.375
+      }
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 193.5,
+        "right": 355.69000244140625,
+        "top": 486.375,
+        "bottom": 633.375
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 201,
+        "right": 370.5400085449219,
+        "top": 502.375,
+        "bottom": 649.375
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 221,
+        "right": 410.1400146484375,
+        "top": 729.375,
+        "bottom": 876.375
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 428,
+        "right": 820,
+        "top": 120.375,
+        "bottom": 267.375
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 499.54998779296875,
+        "right": 749.4500122070312,
+        "top": 680.0625,
+        "bottom": 827.0625
+      }
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 44,
+      "menu": {
+        "left": 866.5,
+        "right": 1005.1699829101562,
+        "top": 361.375,
+        "bottom": 508.375
+      }
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1122.5,
+        "right": 1261.1700439453125,
+        "top": 361.135009765625,
+        "bottom": 496.375
+      }
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1208.5,
+        "right": 1347.1700439453125,
+        "top": 361.135009765625,
+        "bottom": 496.375
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1283.9150390625,
+        "right": 1422.5850830078125,
+        "top": 537.7550048828125,
+        "bottom": 672.9949951171875
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minHeight": 40,
+      "menu": {
+        "left": 1763.9150390625,
+        "right": 1902.5850830078125,
+        "top": 537.7550048828125,
+        "bottom": 672.9949951171875
+      }
+    }
+  ],
+  "edgeStates": [
+    {
+      "width": 390,
+      "theme": "light",
+      "failed": true,
+      "busy": true,
+      "empty": true,
+      "restored": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "failed": true,
+      "busy": true,
+      "empty": true,
+      "restored": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "failed": true,
+      "busy": true,
+      "empty": true,
+      "restored": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "failed": true,
+      "busy": true,
+      "empty": true,
+      "restored": true
+    }
+  ],
+  "boundaries": [
+    {
+      "width": 271,
+      "theme": "light",
+      "columns": 1
+    },
+    {
+      "width": 272,
+      "theme": "light",
+      "columns": 1
+    },
+    {
+      "width": 273,
+      "theme": "light",
+      "columns": 2
+    },
+    {
+      "width": 271,
+      "theme": "dark",
+      "columns": 1
+    },
+    {
+      "width": 272,
+      "theme": "dark",
+      "columns": 1
+    },
+    {
+      "width": 273,
+      "theme": "dark",
+      "columns": 2
+    }
+  ],
+  "nestedOutput": true,
+  "contentsLinks": true,
+  "overlayProtection": true,
+  "invalidTargetRetained": true,
+  "failureRetry": true,
+  "detectionAndRestore": true,
+  "abandonedDetectionIgnored": true,
+  "mobileDoneOnce": true,
+  "cancelDiscards": true,
+  "text200": true,
+  "forcedColours": true,
+  "errors": [],
+  "date": "2026-10-15",
+  "scope": "Bookmarks panel, nested outline/contents output and pending Apply retry",
+  "contract": "Air 1.0.1",
+  "native": {
+    "Safari": "invalid target retained and focused; keyboard nesting/Escape; contents apply/Undo",
+    "Firefox": "actual 200% browser zoom; menu containment; keyboard Add; remove/restore focus; apply"
+  },
+  "cleanup": [
+    "Removed legacy tinted/mono panel markup, cycling level button, Toggle/Loader2/Sparkles imports and global row counter",
+    "Removed silent target clamps and unused OutlineNode title/targetIndex properties; retained live Toggle consumers elsewhere",
+    "No dependencies added"
+  ],
+  "bundle": {
+    "editorGzipKB": 88.29,
+    "previousEditorGzipKB": 86.97,
+    "cssGzipKB": 25.24,
+    "previousCssGzipKB": 25.21,
+    "deployAssets": 128,
+    "pwaEntries": 77
+  },
+  "limits": [
+    "Physical touch and software keyboards",
+    "Real OS IME",
+    "Assistive speech/navigation",
+    "Full PDF and family migration incomplete"
+  ],
+  "fixture": "Synthetic PDF only; source remains local",
+  "sourceTests": ["tests/e2e/bookmarks.e2e.ts", "tests/unit/pdf-operations.test.ts"],
+  "gates": {
+    "check": "pass",
+    "deadCode": "pass",
+    "units": 390,
+    "unitFiles": 39,
+    "build": "pass",
+    "design": "pass",
+    "portability": "pass",
+    "productionSmokeSuites": 16,
+    "extendedSuites": 7,
+    "focusedSuites": 2
+  }
+}

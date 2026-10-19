@@ -8,10 +8,11 @@
  * Future dates are not allowed.
  */
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCloseOnModalOpen } from "../utils/modal-events.ts";
+import { SegmentedControl } from "./SegmentedControl.tsx";
 import { Select } from "./Select.tsx";
 import { useAnchoredPopover } from "./useAnchoredPopover.ts";
 
@@ -92,13 +93,30 @@ function formatDisplay(value: string): string {
 
 interface DateTimeInputProps {
   id?: string;
+  label: string;
+  disabled?: boolean;
   value: string;
   onChange: (value: string) => void;
 }
 
-export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
+export function DateTimeInput({
+  id,
+  label,
+  disabled = false,
+  value,
+  onChange,
+}: DateTimeInputProps) {
   const [open, setOpen] = useState(false);
-  const [animatePopover, setAnimatePopover] = useState(true);
+  const [narrow, setNarrow] = useState(() => window.matchMedia("(max-width: 360px)").matches);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 360px)");
+    const update = () => setNarrow(query.matches);
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
   useCloseOnModalOpen(setOpen);
   const popoverId = useId();
   const [showYearPicker, setShowYearPicker] = useState(false);
@@ -112,17 +130,13 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
 
   // Portal the calendar to <body> (fixed, anchored to the field) so the editor's
   // overflow-clipped panels / mobile sheet can't clip it.
-  const { style: popoverStyle, above: popoverAbove } = useAnchoredPopover(open, containerRef, {
-    width: 288,
-    height: 480,
+  const { style: popoverStyle } = useAnchoredPopover(open, containerRef, {
+    width: 368,
+    height: 580,
+    gap: 8,
+    margin: narrow ? 0 : 16,
+    contentRef: popoverRef,
   });
-  const popoverTop = popoverStyle?.top;
-  const visualBottom =
-    (window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight);
-  const popoverMaxHeight =
-    typeof popoverTop === "number"
-      ? Math.max(160, visualBottom - popoverTop - 8)
-      : "calc(100svh - 1rem)";
 
   const parsed = useMemo(() => parseValue(value), [value]);
 
@@ -157,33 +171,25 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
     }
   }, [showYearPicker]);
 
-  // When the popover opens, seed the roving focus to the selected/today day.
-  // Uses snapRef so this effect legitimately only needs to re-run when `open` changes.
-  useEffect(() => {
+  // Seed and focus before paint so immediate arrow keys belong to the calendar.
+  useLayoutEffect(() => {
     if (!open) {
       setFocusedDay(null);
       return;
     }
-    const raf = requestAnimationFrame(() => {
-      const { parsed, viewYear, viewMonth, todayYear, todayMonth, todayDay } = snapRef.current;
-      const target =
-        parsed?.year === viewYear && parsed?.month === viewMonth
-          ? parsed.day
-          : viewYear === todayYear && viewMonth === todayMonth
-            ? todayDay
-            : 1;
-      setFocusedDay(target);
-    });
-    return () => cancelAnimationFrame(raf);
+    const { parsed, viewYear, viewMonth, todayYear, todayMonth, todayDay } = snapRef.current;
+    setFocusedDay(
+      parsed?.year === viewYear && parsed?.month === viewMonth
+        ? parsed.day
+        : viewYear === todayYear && viewMonth === todayMonth
+          ? todayDay
+          : 1,
+    );
   }, [open]);
 
-  // Imperatively focus the roving-focus day button after state updates.
-  // viewMonth/viewYear are intentionally omitted: focusedDay always changes
-  // alongside them (via handleCalendarKeyDown), so it's a sufficient trigger.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open || focusedDay === null || showYearPicker) return;
-    const btn = popoverRef.current?.querySelector<HTMLButtonElement>(`[data-day="${focusedDay}"]`);
-    btn?.focus();
+    popoverRef.current?.querySelector<HTMLButtonElement>(`[data-day="${focusedDay}"]`)?.focus();
   }, [focusedDay, open, showYearPicker]);
 
   // Keep the roving-focus day valid when moving between months with different
@@ -211,7 +217,9 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !e.defaultPrevented) {
+        e.preventDefault();
+        e.stopPropagation();
         setOpen(false);
         triggerRef.current?.focus();
       }
@@ -243,7 +251,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
     [todayYear, todayMonth, todayDay],
   );
 
-  const canGoPrev = viewYear > todayYear - 30;
+  const canGoPrev = viewYear > todayYear - 30 || (viewYear === todayYear - 30 && viewMonth > 0);
   const canGoNext = useMemo(() => {
     const nextMonth = viewMonth === 11 ? 0 : viewMonth + 1;
     const nextYear = viewMonth === 11 ? viewYear + 1 : viewYear;
@@ -361,6 +369,7 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
       const d = delta[e.key];
       if (d !== undefined) {
         e.preventDefault();
+        e.stopPropagation();
         // new Date handles day-of-month overflow/underflow across months automatically
         const next = new Date(viewYear, viewMonth, focusedDay + d);
         if (isDateFuture(next.getFullYear(), next.getMonth(), next.getDate())) return;
@@ -407,37 +416,30 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
   // Year range for the year picker
   const yearList = Array.from({ length: 31 }, (_, i) => todayYear - 30 + i).reverse();
 
+  const close = () => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
   return (
-    <div ref={containerRef} className="relative w-full">
-      {/* Trigger button */}
+    <div ref={containerRef}>
       <button
         ref={triggerRef}
         id={id}
         type="button"
+        disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-controls={popoverId}
-        aria-label={displayText ? `Date and time: ${displayText}` : "Select date and time"}
-        onClick={(event) => {
-          setAnimatePopover(event.detail > 0);
+        aria-controls={open ? popoverId : undefined}
+        aria-label={`${label}: ${displayText || "Not set"}`}
+        onClick={() => {
           setOpen((v) => !v);
           setShowYearPicker(false);
         }}
-        className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-surface)] px-3 py-2 text-left text-sm transition-[color,background-color,border-color] pointer-coarse:min-h-11 focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        className="air-field pdf-date-trigger"
       >
-        <span
-          className={
-            displayText
-              ? "text-slate-800 dark:text-dark-text"
-              : "text-slate-500 dark:text-slate-400"
-          }
-        >
-          {displayText || "Not set"}
-        </span>
-        <CalendarDays className="h-4 w-4 shrink-0 text-[var(--color-ink-3)]" aria-hidden="true" />
+        <span>{displayText || "Not set"}</span>
+        <CalendarDays size={16} className="shrink-0" aria-hidden="true" />
       </button>
-
-      {/* Popover panel — portaled to <body>, fixed-anchored to the field */}
       {open &&
         popoverStyle &&
         createPortal(
@@ -445,109 +447,81 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
             ref={popoverRef}
             id={popoverId}
             role="dialog"
-            // No aria-modal: this is a non-modal anchored popover (no backdrop,
-            // no scroll lock, closes on outside click — Escape handled above).
-            // aria-modal="true" promised a focus trap this disclosure pattern
-            // deliberately doesn't have, so it's dropped to resolve the ARIA
-            // contradiction rather than trap focus in a scrim-less surface.
-            aria-label="Date and time picker"
-            style={{ ...popoverStyle, maxHeight: popoverMaxHeight }}
-            data-side={popoverAbove ? "above" : "below"}
-            data-motion={animatePopover ? "surface" : "instant"}
-            className="cloak-popover cloak-popover-motion thin-scrollbar z-[var(--z-popover)] max-h-[calc(100svh-1rem)] w-72 space-y-2 overflow-y-auto overscroll-contain p-3"
+            aria-label={`${label} date and time`}
+            aria-describedby={`${popoverId}-help`}
+            style={popoverStyle}
+            className="air-popover pdf-date-popover thin-scrollbar"
           >
-            {/* Month/year navigation header */}
-            <div className="flex items-center justify-between gap-1">
+            <div className="pdf-date-heading">
+              <h3>{label}</h3>
               <button
                 type="button"
+                className="air-icon-button"
+                aria-label="Close date picker"
+                onClick={close}
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+            <p className="air-help" id={`${popoverId}-help`}>
+              Choose a date up to today and a local time.
+            </p>
+            <div className="pdf-date-navigation">
+              <button
+                type="button"
+                className="air-icon-button"
                 onClick={handlePrevMonth}
                 disabled={!canGoPrev || showYearPicker}
                 aria-label="Previous month"
-                className={`cloak-focus rounded-md p-1 transition-[color,background-color,transform] active:translate-y-px pointer-coarse:min-h-11 pointer-coarse:min-w-11 ${
-                  canGoPrev && !showYearPicker
-                    ? "hover:bg-slate-100 dark:hover:bg-dark-surface-alt text-slate-500 dark:text-dark-text-muted"
-                    : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
-                }`}
               >
-                <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+                <ChevronLeft size={16} aria-hidden="true" />
               </button>
-
-              <div className="flex items-center gap-1 flex-1 justify-center">
-                <span className="text-xs font-semibold text-slate-700 dark:text-dark-text select-none">
-                  {MONTHS[viewMonth].slice(0, 3)}
-                </span>
-                {/* Clickable year — toggles the year picker */}
-                <button
-                  type="button"
-                  onClick={() => setShowYearPicker((v) => !v)}
-                  aria-expanded={showYearPicker}
-                  aria-label="Select year"
-                  className={`cloak-focus flex items-center gap-0.5 rounded px-1 py-0.5 text-xs font-semibold transition-colors select-none pointer-coarse:min-h-11 ${
-                    showYearPicker
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
-                      : "text-slate-700 dark:text-dark-text hover:bg-slate-100 dark:hover:bg-dark-surface-alt"
-                  }`}
-                >
-                  {viewYear}
-                  <ChevronDown
-                    className={`cloak-disclosure-icon h-3 w-3 ${showYearPicker ? "rotate-180" : ""}`}
-                    aria-hidden="true"
-                  />
-                </button>
-              </div>
-
+              <span aria-live="polite">{MONTHS[viewMonth]}</span>
               <button
                 type="button"
+                className="air-button air-button--quiet"
+                onClick={() => setShowYearPicker((v) => !v)}
+                aria-expanded={showYearPicker}
+                aria-label="Select year"
+              >
+                {viewYear}
+                <ChevronDown size={16} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="air-icon-button"
                 onClick={handleNextMonth}
                 disabled={!canGoNext || showYearPicker}
                 aria-label="Next month"
-                className={`cloak-focus rounded-md p-1 transition-[color,background-color,transform] active:translate-y-px pointer-coarse:min-h-11 pointer-coarse:min-w-11 ${
-                  canGoNext && !showYearPicker
-                    ? "hover:bg-slate-100 dark:hover:bg-dark-surface-alt text-slate-500 dark:text-dark-text-muted"
-                    : "text-slate-300 dark:text-slate-600 cursor-not-allowed"
-                }`}
               >
-                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+                <ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>
-
-            {/* Year picker grid */}
             {showYearPicker ? (
-              <div className="grid grid-cols-4 gap-1 max-h-44 overflow-y-auto thin-scrollbar py-0.5">
+              <div className="pdf-date-years thin-scrollbar" role="group" aria-label="Year">
                 {yearList.map((year) => (
                   <button
                     key={year}
                     ref={year === viewYear ? selectedYearRef : undefined}
                     type="button"
+                    className="air-button air-button--quiet"
+                    aria-pressed={year === viewYear}
                     onClick={() => handleYearSelect(year)}
-                    className={`cloak-focus rounded-md py-1.5 text-xs font-medium transition-colors pointer-coarse:min-h-11 ${
-                      year === viewYear
-                        ? "bg-primary-600 text-white"
-                        : year === todayYear
-                          ? "border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20"
-                          : "text-slate-700 dark:text-dark-text hover:bg-slate-100 dark:hover:bg-dark-surface-alt"
-                    }`}
                   >
                     {year}
                   </button>
                 ))}
               </div>
             ) : (
-              /* Calendar grid — use a real <table> so ARIA grid/columnheader/gridcell
-               roles are correctly implied by native HTML semantics */
               <table
                 aria-label={`${MONTHS[viewMonth]} ${viewYear}`}
                 onKeyDown={handleCalendarKeyDown}
-                className="w-full table-fixed"
+                className="pdf-date-calendar"
               >
                 <thead>
                   <tr>
                     {DAYS_SHORT.map((d) => (
-                      <th
-                        key={d}
-                        scope="col"
-                        className="text-center text-xxs font-medium text-slate-400 dark:text-slate-500 pb-0.5 select-none"
-                      >
+                      <th key={d} scope="col">
                         {d}
                       </th>
                     ))}
@@ -557,45 +531,28 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                   {rows.map((row) => (
                     <tr key={row[0]}>
                       {row.map((cell) => {
-                        if (cell < 0) {
-                          return <td key={cell} />;
-                        }
-                        const day = cell;
-                        const isFuture = isDateFuture(viewYear, viewMonth, day);
-                        const isSelected =
-                          parsed?.day === day &&
+                        if (cell < 0) return <td key={cell} />;
+                        const selected =
+                          parsed?.day === cell &&
                           parsed?.month === viewMonth &&
                           parsed?.year === viewYear;
-                        const isToday =
-                          day === todayDay && viewMonth === todayMonth && viewYear === todayYear;
-                        // Roving tabindex: only the focused day (or fallback to selected/today) is tabbable
-                        const isFocusTarget = calendarFocusDay === day;
-
+                        const today =
+                          cell === todayDay && viewMonth === todayMonth && viewYear === todayYear;
                         return (
-                          <td key={day}>
+                          <td key={cell}>
                             <button
                               type="button"
-                              data-day={day}
-                              onClick={() => handleDayClick(day)}
-                              onFocus={() => setFocusedDay(day)}
-                              disabled={isFuture}
-                              tabIndex={isFocusTarget ? 0 : -1}
-                              aria-label={`${day} ${MONTHS[viewMonth]} ${viewYear}${isSelected ? ", selected" : ""}${isToday ? ", today" : ""}`}
-                              aria-pressed={isSelected}
-                              className={`
-                              cloak-focus h-8 w-full flex items-center justify-center rounded-md text-xs transition-[color,background-color,transform] select-none active:translate-y-px pointer-coarse:h-11
-                              ${
-                                isSelected
-                                  ? "bg-primary-600 text-white font-semibold"
-                                  : isFuture
-                                    ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
-                                    : isToday
-                                      ? "border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium"
-                                      : "text-slate-700 dark:text-dark-text hover:bg-slate-100 dark:hover:bg-dark-surface-alt"
-                              }
-                            `}
+                              data-day={cell}
+                              className="air-button air-button--quiet"
+                              onClick={() => handleDayClick(cell)}
+                              onFocus={() => setFocusedDay(cell)}
+                              disabled={isDateFuture(viewYear, viewMonth, cell)}
+                              tabIndex={calendarFocusDay === cell ? 0 : -1}
+                              aria-label={`${cell} ${MONTHS[viewMonth]} ${viewYear}`}
+                              aria-pressed={selected}
+                              aria-current={today ? "date" : undefined}
                             >
-                              {day}
+                              {cell}
                             </button>
                           </td>
                         );
@@ -605,94 +562,61 @@ export function DateTimeInput({ id, value, onChange }: DateTimeInputProps) {
                 </tbody>
               </table>
             )}
-
-            {/* Time row */}
-            <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-dark-border flex-wrap">
-              <span className="text-xxs font-medium text-slate-500 dark:text-dark-text-muted">
-                Time
-              </span>
-
-              <div className="w-14">
+            <div className="pdf-date-time">
+              <div className="pdf-property-field">
+                <label className="air-label" htmlFor={`${popoverId}-hour`}>
+                  Hour
+                </label>
                 <Select
+                  id={`${popoverId}-hour`}
                   value={parsed ? String(hour12) : ""}
                   options={HOUR_OPTIONS}
-                  onChange={(v) => handleHour12Change(parseInt(v, 10))}
-                  ariaLabel="Hour"
+                  onChange={(v) => handleHour12Change(Number(v))}
                   placeholder="—"
-                  size="sm"
-                  className="pointer-coarse:min-h-11"
                 />
               </div>
-
-              <span className="text-slate-400 font-medium text-xs select-none" aria-hidden="true">
-                :
-              </span>
-
-              <div className="w-16">
+              <div className="pdf-property-field">
+                <label className="air-label" htmlFor={`${popoverId}-minute`}>
+                  Minute
+                </label>
                 <Select
+                  id={`${popoverId}-minute`}
                   value={parsed ? String(parsed.minute) : ""}
                   options={MINUTE_OPTIONS}
-                  onChange={(v) => handleTimePart("minute", parseInt(v, 10))}
-                  ariaLabel="Minute"
+                  onChange={(v) => handleTimePart("minute", Number(v))}
                   placeholder="—"
-                  size="sm"
-                  className="pointer-coarse:min-h-11"
                 />
               </div>
-
-              {/* AM/PM toggle — <fieldset> gives implicit role="group" */}
-              <fieldset className="flex m-0 p-0 rounded-md border border-slate-200 dark:border-dark-border overflow-hidden text-xs">
-                <legend className="sr-only">AM or PM</legend>
-                {(["AM", "PM"] as const).map((period) => (
-                  <button
-                    key={period}
-                    type="button"
-                    onClick={() => handleAmPm(period)}
-                    aria-pressed={parsed ? (period === "PM") === isPm : false}
-                    className={`cloak-focus px-2 py-1 transition-colors pointer-coarse:min-h-11 ${
-                      parsed && (period === "PM") === isPm
-                        ? "bg-primary-600 text-white font-medium"
-                        : "bg-white dark:bg-dark-bg text-slate-600 dark:text-dark-text-muted hover:bg-slate-50 dark:hover:bg-dark-surface-alt"
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
-              </fieldset>
             </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-dark-border">
+            <SegmentedControl
+              ariaLabel="AM or PM"
+              value={parsed ? (isPm ? "PM" : "AM") : ""}
+              onChange={(v) => {
+                if (v === "AM" || v === "PM") handleAmPm(v);
+              }}
+              options={[
+                { value: "AM", label: "AM" },
+                { value: "PM", label: "PM" },
+              ]}
+              fullWidth
+            />
+            <div className="pdf-date-actions">
               <button
                 type="button"
+                className="air-button air-button--quiet"
                 onClick={() => {
                   onChange("");
-                  setOpen(false);
-                  triggerRef.current?.focus();
+                  close();
                 }}
-                className="cloak-focus inline-flex items-center rounded-sm px-1 text-xs text-slate-500 transition-colors hover:text-red-500 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-red-400"
               >
                 Clear
               </button>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={setToNow}
-                  className="cloak-focus inline-flex items-center rounded-sm px-1 text-xs text-primary-600 transition-colors hover:text-primary-700 pointer-coarse:min-h-11 dark:text-primary-400"
-                >
-                  Now
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(false);
-                    triggerRef.current?.focus();
-                  }}
-                  className="cloak-focus min-h-8 rounded-md bg-primary-600 px-3 py-1 font-mono text-xxs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-primary-700 pointer-coarse:min-h-11"
-                >
-                  Done
-                </button>
-              </div>
+              <button type="button" className="air-button" onClick={setToNow}>
+                Now
+              </button>
+              <button type="button" className="air-button air-button--primary" onClick={close}>
+                Done
+              </button>
             </div>
           </div>,
           document.body,

@@ -1,0 +1,837 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-light-text.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-light-choice.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-light-finish.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-dark-text.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-dark-choice.png"
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-320x568-dark-finish.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-light-text.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-light-choice.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-light-finish.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-dark-text.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-dark-choice.png"
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-375x812-dark-finish.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-light-text.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-light-choice.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-light-finish.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-dark-text.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-dark-choice.png"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-390x844-dark-finish.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-light-text.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-light-choice.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-light-finish.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-dark-text.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-dark-choice.png"
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-430x932-dark-finish.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-light-text.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-light-choice.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-light-finish.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-dark-text.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-dark-choice.png"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-844x390-dark-finish.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-light-text.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-light-choice.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-light-finish.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-dark-text.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-dark-choice.png"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-768x1024-dark-finish.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-light-text.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-light-choice.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-light-finish.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-dark-text.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-dark-choice.png"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": true,
+      "minimumTargetHeight": 44,
+      "capture": "fill-form-1024x768-dark-finish.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-light-text.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-light-choice.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-light-finish.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-dark-text.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-dark-choice.png"
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1280x720-dark-finish.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-light-text.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-light-choice.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-light-finish.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-dark-text.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-dark-choice.png"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1366x768-dark-finish.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-light-text.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-light-choice.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-light-finish.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-dark-text.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-dark-choice.png"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1440x900-dark-finish.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-light-text.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-light-choice.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-light-finish.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "text",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-dark-text.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "choice",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-dark-choice.png"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "region": "finish",
+      "overflow": false,
+      "bodyOverflow": false,
+      "coarse": false,
+      "minimumTargetHeight": 40,
+      "capture": "fill-form-1920x1080-dark-finish.png"
+    }
+  ],
+  "enlarged": [
+    {
+      "width": 320,
+      "theme": "light",
+      "capture": "fill-form-text200-320-light.png"
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "capture": "fill-form-text200-320-dark.png"
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "capture": "fill-form-text200-768-light.png"
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "capture": "fill-form-text200-768-dark.png"
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "capture": "fill-form-text200-1440-light.png"
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "capture": "fill-form-text200-1440-dark.png"
+    }
+  ],
+  "errors": [],
+  "assertions": [
+    "all native field types and stored values",
+    "read-only/unsupported fields",
+    "custom menus and clearing",
+    "named validation failures",
+    "drafts across navigation/reflow",
+    "read retry and stale-result isolation",
+    "atomic Apply/retry/dedup",
+    "editable and flattened real PDF output",
+    "Undo/Redo/Cancel",
+    "mobile Done waits",
+    "privacy marks gate"
+  ],
+  "date": "2026-10-19",
+  "baseline": "58ac944",
+  "contract": "Air 1.0.2 / bb90f52e0b0a",
+  "status": "bounded implementation and automated/native-browser validation passed; physical acceptance remains open",
+  "checks": {
+    "units": 444,
+    "unitFiles": 46,
+    "browserSuites": 25,
+    "focused": ["fill-form.e2e.ts", "autofill.e2e.ts"],
+    "productionSmoke": 16,
+    "extendedDevelopment": 7,
+    "finalReruns": [
+      "form feedback/focus and prototype-like field names",
+      "Auto-fill success/Undo and shared field-list assertion",
+      "production editor-smoke"
+    ],
+    "formatLintTypes": "pass",
+    "deadCode": "pass",
+    "buildAssets": "128 files, all <=25MiB; 77 PWA entries",
+    "design": "pass",
+    "portability": 18
+  },
+  "nativeReview": {
+    "Safari": ["text edit", "menu typeahead", "multi-selection", "Save", "Undo"],
+    "Firefox": [
+      "actual 200% zoom",
+      "keyboard clear",
+      "read-only value protection",
+      "Save",
+      "corrected success/focus and Undo at normal zoom"
+    ],
+    "cleanup": "temporary review tabs closed; Firefox zoom restored"
+  },
+  "independentOutput": {
+    "renderer": "Poppler pdftoppm; max dimension 900px",
+    "comparison": "editable versus flattened output on two synthetic pages",
+    "channelSamples": 3645000,
+    "changedSamples": 0,
+    "meanDelta": 0,
+    "visualReview": "both flattened pages inspected"
+  },
+  "cleanup": [
+    "getFieldPageIndices + duplicate parent/name decoder",
+    "unused fillPdfForm/getFieldPageIndices barrel exports",
+    "Labeled",
+    "Toggle",
+    "SwitchTrack",
+    "cloak-switch-track/thumb CSS",
+    "retired Auto-fill field-row class names"
+  ],
+  "retained": [
+    "PositionGrid: PageNumbers/Bates",
+    "Rgb: FindAct/Redact",
+    "transparency checker: Signature"
+  ],
+  "limits": ["physical touch/software keyboard", "actual OS IME", "spoken assistive acceptance"],
+  "next": "Select text; then remaining wrapper/stage/provider and legacy-style consumer audit. N-up was already completed 2026-10-14.",
+  "bundles": [
+    "dist/assets/index-DJP0isYb.css                     141.01 kB │ gzip:    24.64 kB",
+    "dist/assets/EditorView-EbHT7kOW.js                 322.57 kB │ gzip:    98.39 kB"
+  ]
+}

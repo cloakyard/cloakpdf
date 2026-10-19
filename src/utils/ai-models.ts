@@ -453,8 +453,7 @@ export const AI_MODELS: Record<AiModelId, AiModelInfo> = {
 
 /**
  * Ordered list of chat variants — drives the picker UI. Order is
- * Compact → Balanced → Quality, matching the segmented-control flow
- * left-to-right (smallest to biggest footprint).
+ * Compact → Quality, from the smallest to the largest footprint.
  */
 export const CHAT_VARIANT_IDS: readonly ChatVariantId[] = ["lfm2.5-1.2b", "lfm2-2.6b"] as const;
 
@@ -492,8 +491,8 @@ function safeLocalStorage(): Storage | null {
  * LFM2.5-1.2B-Instruct fits any device we'd let near this tool,
  * downloads in a few minutes on broadband, and is purpose-built by
  * Liquid AI for on-device extraction (so the answer quality is
- * reasonable out of the box). Users who want more can pick Balanced
- * or Quality from the picker; the choice persists across reloads.
+ * reasonable out of the box). Users who want more can pick Quality
+ * from the picker; the choice persists across reloads.
  */
 export function getDefaultChatVariant(): ChatVariantId {
   return "lfm2.5-1.2b";

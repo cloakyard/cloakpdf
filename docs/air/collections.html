@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)" />
+    <title>Collections — Cloakyard Air study</title>
+    <link rel="stylesheet" href="../../src/styles/air.css?air=a3f253a17c2b" />
+    <script type="module" src="./pages.mjs?air=11af689c6047"></script>
+    <script type="module" src="./overlays-loader.mjs?air=82810322a6e9"></script>
+  </head>
+  <body class="air-page">
+    <a class="air-button air-page-skip" href="#main-content">Skip to content</a>
+    <header class="air-page-header air-page-width">
+      <a
+        class="air-page-brand"
+        href="components.html#experience"
+        aria-label="Cloakyard design reference"
+        ><svg class="air-page-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient
+              id="brand-fill"
+              x1="11"
+              y1="6"
+              x2="51"
+              y2="58"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#6FC3FF" />
+              <stop offset=".45" stop-color="#3975F6" />
+              <stop offset="1" stop-color="#2444D7" />
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#brand-fill)" />
+          <circle
+            cx="32"
+            cy="32"
+            r="29.25"
+            stroke="white"
+            stroke-opacity=".28"
+            stroke-width="1.5"
+          />
+          <g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M29.03 46.85V24.58a1.49 1.49 0 0 0-1.49-1.49h-7.42a2.97 2.97 0 0 0-2.97 2.97v17.82a2.97 2.97 0 0 0 2.97 2.97h17.82a2.97 2.97 0 0 0 2.97-2.97v-7.43a1.49 1.49 0 0 0-1.49-1.48H17.15"
+            />
+            <rect x="34.97" y="17.15" width="11.88" height="11.88" rx="1.49" />
+          </g></svg
+        ><span>Cloakyard</span></a
+      >
+      <nav class="air-page-nav" aria-label="Design studies">
+        <a href="components.html">Components</a><a href="reading.html">Reading</a
+        ><a href="recovery.html">Recovery</a><a href="files.html">Files</a
+        ><a href="collections.html" aria-current="page">Collections</a>
+      </nav>
+    </header>
+    <div class="air-page-studybar air-page-width">
+      <p>Air · Design reference</p>
+      <label class="air-page-theme" hidden
+        >Appearance<select class="air-field" id="air-page-theme" name="appearance">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select></label
+      >
+    </div>
+    <main id="main-content" class="air-page-width" tabindex="-1">
+      <header class="air-page-intro">
+        <p class="air-page-eyebrow">Collections · Interaction study</p>
+        <h1>
+          A place for<br />
+          every layer.
+        </h1>
+        <p class="air-page-lede">
+          Find your work. Shape its order. Change your mind.<br />A quiet system that keeps every
+          detail within reach.
+        </p>
+        <p class="air-page-meta">Layers, menus &amp; history · Design reference</p>
+      </header>
+      <div id="air-overlay-root" data-study="collections">
+        <p class="air-help" role="status" id="air-overlay-load-status">
+          Loading the local interaction study…
+        </p>
+        <button class="air-button" id="air-overlay-retry" type="button" hidden>
+          Try loading again
+        </button>
+        <noscript
+          ><p>
+            The interactive sample needs JavaScript. Layer rows have separate selection, visibility
+            and action controls. Reordering has explicit move actions; every edit can be undone.
+          </p></noscript
+        >
+      </div>
+      <section class="air-file-notes air-prose" aria-labelledby="air-collection-notes">
+        <h2 id="air-collection-notes">Every detail has a place.</h2>
+        <p>
+          Select a few layers, give one a new name, or move it through the stack. The actions stay
+          visible, the full name has room to wrap, and history gives each change a way back.
+        </p>
+        <p>
+          This reference uses sample layers. Each app keeps its own document operations: PDF
+          organises pages before you apply, IMG works with its real canvas history, and Resume keeps
+          its entry editing flow.
+        </p>
+      </section>
+    </main>
+    <footer class="air-page-footer air-page-width">
+      <p>Air by Cloakyard. A little more room.</p>
+      <nav aria-label="Reference footer">
+        <a href="components.html">Components</a><a href="files.html">Files</a
+        ><a href="../../DESIGN.md">Design contract</a>
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,103 @@
+{
+  "date": "2026-10-14",
+  "scope": "CloakPDF Ask PDF conversation, indexing, citations and recovery",
+  "baseCommit": "343bc00",
+  "contractVersion": "1.0.0",
+  "changes": [
+    "Air reading panel, single-contour labelled composer and neutral conversation hierarchy",
+    "Actual page/passage progress, explicit preparation retry and no-readable-text recovery",
+    "Source-page links open the original local PDF; URLs revoked on replacement/unmount",
+    "Synchronous duplicate-send guard, preserved next draft and partial answer, retry returns focus",
+    "Document-scoped indexing, obsolete-result guards and interrupt on replacement/navigation",
+    "Instant token following stops when the reader scrolls away; keyboard-accessible Latest answer",
+    "Stable model-ready callback; safe markdown links, bounded tables/code and no remote image fetches"
+  ],
+  "matrix": {
+    "cases": 448,
+    "states": [
+      "indexing",
+      "index-error",
+      "no-text",
+      "empty",
+      "answer-error",
+      "answer",
+      "long-content"
+    ],
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1023x768",
+      "1024x768",
+      "1025x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080",
+      "639x800",
+      "640x800",
+      "641x800"
+    ],
+    "result": "No page/workspace/log horizontal overflow or undersized controls; long code/tables scroll within their own regions"
+  },
+  "features": [
+    "Unknown progress has no invented ratio; text/OCR/embedding progress uses actual stage units",
+    "Index errors do not loop; explicit retry restores composer/recovery focus",
+    "IME Enter is ignored; Shift+Enter and 500-character limit retained",
+    "Enter while answering neither appends an orphan turn nor clears the next draft",
+    "Failed answer retains partial text; retry uses its original question and preserves the draft",
+    "Citation links have unique positive page numbers and serve byte-identical source PDFs",
+    "Markdown refuses unsafe URLs and never embeds external images",
+    "Streaming follows new text without scrolling the outer page, preserves reader position and supports jump to latest",
+    "Replacing a file or navigating away interrupts generation and isolates late index/tokens/results",
+    "Reduced motion and forced-colour focus remain functional"
+  ],
+  "checks": {
+    "formatLintTypes": "pass, no warnings",
+    "deadCode": "pass",
+    "unitTests": 366,
+    "unitFiles": 36,
+    "productionBuild": "pass, 128 assets within 25 MiB limit",
+    "designInventory": 83,
+    "portabilityAssertions": 17,
+    "browserSuites": ["ask-pdf-chat", "ai-tools (real models)", "ai-modal-states"]
+  },
+  "manualReview": [
+    "Desktop/laptop/tablet/mobile light/dark, input focus and table wrapping",
+    "Native Safari and Firefox: Enter submission, Shift+Enter multiline editing and actual 200% zoom",
+    "Safari citation opens the original two-page PDF in a new tab; source tab retained"
+  ],
+  "cleanup": {
+    "productionLinesRemovedNet": 216,
+    "dependenciesAdded": 0,
+    "removed": [
+      "Unused InfoCallout component and its centre modifier",
+      "Weighted 30/70 progress helper and obsolete model/context comments",
+      "Old mono/uppercase/tinted transcript and composer skins",
+      "Per-token smooth scrolling and destructive error clearing"
+    ],
+    "remainingLegacy": "Base notice styles still serve FindActTool and RedactTool; migration stays on the editor TODO."
+  },
+  "bundle": {
+    "askPdfRawKB": 589.71,
+    "askPdfGzipKB": 177.51,
+    "previousAskPdfRawKB": 596.21,
+    "previousAskPdfGzipKB": 179.08,
+    "cssRawKB": 142.91,
+    "cssGzipKB": 24.72,
+    "previousCssRawKB": 144.03,
+    "previousCssGzipKB": 24.86
+  },
+  "limitations": [
+    "Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open; validated stays false",
+    "Native browser visual/keyboard checks use deterministic synthetic answers; actual model behavior is validated separately in Chromium",
+    "Indexing cannot abort underlying extraction/embedding yet; changing file discards obsolete work/results rather than reporting cancelled processing",
+    "This slice does not complete the editor or family refresh"
+  ],
+  "next": "Editor header, tool rail/search, properties panel, page navigation and thumbnails, followed by canvas and every panel/overlay"
+}

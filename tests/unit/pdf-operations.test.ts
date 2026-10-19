@@ -534,6 +534,52 @@ describe("stripMetadata", () => {
 });
 
 describe("addPdfBookmarks", () => {
+  it.each([-1, 2, 0.5, NaN, Infinity])(
+    "rejects invalid target %s without silently redirecting it",
+    async (pageIndex) => {
+      await expect(
+        addPdfBookmarks(await pagesFile(2), [{ title: "Chapter", pageIndex }]),
+      ).rejects.toThrow("Bookmark target");
+    },
+  );
+
+  it("keeps original page references and metadata with multiple clickable contents pages", async () => {
+    const source = await PDFDocument.load(await (await pagesFile(3)).arrayBuffer(), {
+      updateMetadata: false,
+    });
+    source.setProducer("Original producer");
+    const originalRefs = source.getPages().map((p) => p.ref.toString());
+    const entries = Array.from({ length: 70 }, (_, i) => ({
+      title: `Section ${i + 1}`,
+      pageIndex: i % 3,
+      level: (i % 3) + 1,
+    }));
+    const output = await addPdfBookmarks(new File([await source.save()], "source.pdf"), entries, {
+      contentsPage: true,
+    });
+    const result = await PDFDocument.load(output, { updateMetadata: false });
+    const shift = result.getPageCount() - 3;
+    expect(shift).toBeGreaterThan(1);
+    expect(result.getProducer()).toBe("Original producer");
+    expect(
+      result
+        .getPages()
+        .slice(shift)
+        .map((p) => p.ref.toString()),
+    ).toEqual(originalRefs);
+    let count = 0;
+    for (const page of result.getPages().slice(0, shift)) {
+      const links = page.node.lookup(PDFName.of("Annots"), PDFArray);
+      for (let i = 0; i < links.size(); i++) {
+        const link = links.lookup(i, PDFDict);
+        expect(link.lookup(PDFName.of("Dest"), PDFArray).get(0).toString()).toBe(
+          originalRefs[entries[count++].pageIndex],
+        );
+      }
+    }
+    expect(count).toBe(entries.length);
+  });
+
   it("builds a flat outline (no level) and opens the bookmarks panel", async () => {
     const out = await addPdfBookmarks(await pagesFile(3), [
       { title: "One", pageIndex: 0 },

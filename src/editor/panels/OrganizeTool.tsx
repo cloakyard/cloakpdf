@@ -15,9 +15,10 @@
 import { ChevronDown, ChevronUp, FileX, Repeat2, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assemblePdf, type AssembleOp } from "../../utils/pdf-operations.ts";
-import { renderThumbnailsAndScores, revokeThumbnails } from "../../utils/pdf-renderer.ts";
-import { type CanvasObject, docToFile } from "../doc.ts";
+import { pageWhitenessScores } from "../../utils/pdf-renderer.ts";
+import { type CanvasDoc, type CanvasObject, docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useEditorView, useToolSlice } from "../EditorContext.tsx";
+import { PageCollection } from "../PageCollection.tsx";
 import { PageThumb } from "../PageThumb.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
@@ -49,97 +50,104 @@ interface OrganizeState {
   rotations: Record<number, number>;
   /** Original page indices marked for deletion. */
   deleted: number[];
-  /** Page count the state was initialised against (drives auto-reset). */
-  baseCount: number;
 }
 
-function readState(slice: Record<string, unknown>, pageCount: number): OrganizeState {
+function readState(slice: Record<string, unknown>, pages: CanvasDoc["pages"]): OrganizeState {
+  const pageCount = pages.length;
   const order = (slice.order as number[] | undefined) ?? null;
-  if (!order || (slice.baseCount as number | undefined) !== pageCount) {
+  if (!order || slice.basePages !== pages) {
     return {
       order: Array.from({ length: pageCount }, (_, i) => i),
       rotations: {},
       deleted: [],
-      baseCount: pageCount,
     };
   }
   return {
     order,
     rotations: (slice.rotations as Record<number, number>) ?? {},
     deleted: (slice.deleted as number[]) ?? [],
-    baseCount: pageCount,
   };
 }
 
 // ── Board (center, overview mode) ────────────────────────────────────
 
 export function Board() {
-  const { doc, layout } = useEditorRead();
+  const { doc } = useEditorRead();
   const view = useEditorView();
   const { patchToolState } = useEditorActions();
   const slice = useToolSlice(ORGANIZE_ID);
-  // Drag-to-reorder visual state: the cell being dragged (dim + shrink) and the
+  // Drag-to-reorder visual state: the cell being dragged (dim) and the
   // cell currently hovered as the drop target (accent ring). State, not a ref,
   // so the board re-renders to show the affordance during a desktop drag — the
   // gesture was previously invisible (no grab cursor, no drop indicator).
   const [fromPos, setFromPos] = useState<number | null>(null);
   const [overPos, setOverPos] = useState<number | null>(null);
-  const pageCount = doc?.pageCount ?? 0;
-  const state = readState(slice, pageCount);
+  const [announcement, setAnnouncement] = useState("");
+  const state = readState(slice, doc?.pages ?? []);
 
-  // Auto-initialise / reset whenever the page count changes (first open, or
-  // after an Apply rebuilds the doc).
+  // New page geometry (Apply or history) invalidates the staged plan, even when
+  // the count is unchanged. Overlay-only edits keep the same pages reference.
   useEffect(() => {
     if (!doc) return;
-    if ((slice.baseCount as number | undefined) !== doc.pageCount) {
+    if (slice.basePages !== doc.pages) {
       patchToolState(ORGANIZE_ID, {
         order: Array.from({ length: doc.pageCount }, (_, i) => i),
         rotations: {},
         deleted: [],
-        baseCount: doc.pageCount,
+        basePages: doc.pages,
       });
     }
-  }, [doc, slice.baseCount, patchToolState]);
+  }, [doc, slice.basePages, patchToolState]);
 
   if (!doc) return null;
 
   const rotate = (origIdx: number) => {
     const next = { ...state.rotations, [origIdx]: ((state.rotations[origIdx] ?? 0) + 90) % 360 };
     patchToolState(ORGANIZE_ID, { rotations: next });
+    setAnnouncement(`Page ${origIdx + 1} rotated to ${next[origIdx]} degrees.`);
   };
   const toggleDelete = (origIdx: number) => {
     const next = state.deleted.includes(origIdx)
       ? state.deleted.filter((i) => i !== origIdx)
       : [...state.deleted, origIdx];
     patchToolState(ORGANIZE_ID, { deleted: next });
+    setAnnouncement(
+      `Page ${origIdx + 1} ${next.includes(origIdx) ? "marked for deletion" : "restored"}.`,
+    );
   };
-  const reorder = (from: number, to: number) => {
-    if (from === to) return;
+  const reorder = (from: number, to: number, trigger?: HTMLButtonElement) => {
+    if (from === to || to < 0 || to >= state.order.length) return;
     const order = [...state.order];
     const [moved] = order.splice(from, 1);
     order.splice(to, 0, moved);
     patchToolState(ORGANIZE_ID, { order });
+    setAnnouncement(`Page ${moved + 1} moved to position ${to + 1} of ${order.length}.`);
+    // React may move the focused DOM node. Keep keyboard ownership on the same
+    // named action, including at the boundary where it becomes unavailable.
+    if (trigger)
+      requestAnimationFrame(() => {
+        if (trigger.isConnected) {
+          trigger.focus({ preventScroll: true });
+          trigger.scrollIntoView({ block: "nearest", behavior: "instant" });
+        }
+      });
   };
 
-  // Cap the column count on mobile so each cell stays wide enough for the
-  // touch-sized reorder / rotate / delete buttons — 3 columns on a phone makes
-  // the action row overflow the cell (and a tap lands on the wrong page).
-  const cols = layout === "mobile" ? Math.min(view.gridCols, 2) : view.gridCols;
-
   return (
-    <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto bg-slate-100 dark:bg-dark-bg p-4 sm:p-6">
-      <div
-        className="mx-auto grid max-w-5xl gap-3"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-      >
+    <>
+      <span className="sr-only" role="status">
+        {announcement}
+      </span>
+      <PageCollection columns={view.gridCols} label="Organize pages">
         {state.order.map((origIdx, pos) => {
           const page = doc.pages[origIdx];
           if (!page) return null;
           const rot = state.rotations[origIdx] ?? 0;
           const del = state.deleted.includes(origIdx);
           return (
-            <div
+            <li
               key={origIdx}
+              aria-label={`Page ${origIdx + 1}, position ${pos + 1} of ${state.order.length}`}
               draggable
               onDragStart={() => setFromPos(pos)}
               onDragOver={(e) => {
@@ -147,7 +155,8 @@ export function Board() {
                 if (fromPos !== null && pos !== fromPos) setOverPos(pos);
               }}
               onDragLeave={() => setOverPos((p) => (p === pos ? null : p))}
-              onDrop={() => {
+              onDrop={(event) => {
+                event.preventDefault();
                 if (fromPos !== null) reorder(fromPos, pos);
                 setFromPos(null);
                 setOverPos(null);
@@ -156,85 +165,68 @@ export function Board() {
                 setFromPos(null);
                 setOverPos(null);
               }}
-              className={`page-cell group relative flex cursor-grab flex-col items-center gap-1.5 rounded-lg border bg-white p-2 transition-[opacity,transform] active:cursor-grabbing dark:bg-dark-surface ${
-                del ? "opacity-40" : fromPos === pos ? "select-none opacity-50 scale-[0.97]" : ""
-              } ${
-                overPos === pos
-                  ? "border-primary-300 ring-2 ring-primary-500"
-                  : "border-slate-200 dark:border-dark-border"
-              }`}
+              className="page-cell editor-page-card editor-page-organize"
+              data-deleted={del || undefined}
+              data-dragging={fromPos === pos || undefined}
+              data-drop-target={overPos === pos || undefined}
             >
-              <PageThumb
-                page={page}
-                alt={`Page ${origIdx + 1}`}
-                rotation={rot}
-                className="w-full rounded-md ring-1 ring-slate-200/70 dark:ring-dark-border"
-                imgClassName="transition-transform"
-                loading="lazy"
-              />
-              <div className="flex w-full items-center justify-between px-0.5">
-                <span className="text-xs font-medium tabular-nums text-slate-500 dark:text-dark-text-muted">
-                  {origIdx + 1}
-                </span>
-                <div className="flex flex-wrap items-center justify-end gap-0.5 pointer-coarse:gap-1.5">
-                  {pos > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => reorder(pos, pos - 1)}
-                      aria-label={`Move page ${origIdx + 1} up`}
-                      className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                    >
-                      <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  )}
-                  {pos < state.order.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={() => reorder(pos, pos + 1)}
-                      aria-label={`Move page ${origIdx + 1} down`}
-                      className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                    >
-                      <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => rotate(origIdx)}
-                    aria-label={`Rotate page ${origIdx + 1}`}
-                    className="flex h-6 w-6 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-dark-surface-alt pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-                  >
-                    <RotateCw className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => toggleDelete(origIdx)}
-                    aria-label={`${del ? "Restore" : "Delete"} page ${origIdx + 1}`}
-                    aria-pressed={del}
-                    className={`flex h-6 w-6 items-center justify-center rounded pointer-coarse:min-h-11 pointer-coarse:min-w-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-                      del
-                        ? "text-primary-600"
-                        : "text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-dark-surface-alt"
-                    }`}
-                  >
-                    {del ? (
-                      <Undo2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    ) : (
-                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    )}
-                  </button>
-                </div>
+              <PageThumb page={page} alt={`Page ${origIdx + 1}`} rotation={rot} loading="lazy" />
+              <div className="editor-page-caption">
+                <span>Page {origIdx + 1}</span>
+                {del && <span className="editor-page-deleted">Removed</span>}
               </div>
-            </div>
+              <div
+                className="editor-page-actions"
+                role="group"
+                aria-label={`Page ${origIdx + 1} actions`}
+              >
+                <button
+                  type="button"
+                  onClick={(event) => reorder(pos, pos - 1, event.currentTarget)}
+                  aria-label={`Move page ${origIdx + 1} up`}
+                  aria-disabled={pos === 0 || undefined}
+                  className="air-icon-button air-button--quiet"
+                >
+                  <ChevronUp aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => reorder(pos, pos + 1, event.currentTarget)}
+                  aria-label={`Move page ${origIdx + 1} down`}
+                  aria-disabled={pos === state.order.length - 1 || undefined}
+                  className="air-icon-button air-button--quiet"
+                >
+                  <ChevronDown aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => rotate(origIdx)}
+                  aria-label={`Rotate page ${origIdx + 1}`}
+                  className="air-icon-button air-button--quiet"
+                >
+                  <RotateCw aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleDelete(origIdx)}
+                  aria-label={`${del ? "Restore" : "Delete"} page ${origIdx + 1}`}
+                  aria-pressed={del}
+                  className="air-icon-button air-button--quiet editor-page-delete"
+                >
+                  {del ? <Undo2 aria-hidden="true" /> : <Trash2 aria-hidden="true" />}
+                </button>
+              </div>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </PageCollection>
+    </>
   );
 }
 
 // ── Panel (right) ────────────────────────────────────────────────────
 
-/** A compact secondary action button, on-system (slate border, primary focus). */
+/** Shared family secondary action; labels may wrap with enlarged text. */
 function QuickAction({
   icon: Icon,
   label,
@@ -247,13 +239,8 @@ function QuickAction({
   disabled?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-2 font-mono text-xs font-medium text-slate-600 active:translate-y-px pointer-coarse:min-h-11 dark:border-dark-border dark:bg-dark-surface dark:text-dark-text-muted hover:border-primary-300 hover:text-primary-700 disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:dark:border-dark-border transition-[color,background-color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-    >
-      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    <button type="button" onClick={onClick} disabled={disabled} className="air-button">
+      <Icon size={16} aria-hidden="true" />
       {label}
     </button>
   );
@@ -264,22 +251,25 @@ export function Panel() {
   const { patchToolState, applyTransform } = useEditorActions();
   const slice = useToolSlice(ORGANIZE_ID);
   const pageCount = doc?.pageCount ?? 0;
-  const state = readState(slice, pageCount);
+  const state = readState(slice, doc?.pages ?? []);
 
   const [blanks, setBlanks] = useState<number[] | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState(false);
 
-  // Latest doc id, read inside the async scan callback to discard a result that
-  // resolved after the document was replaced (Apply rebuilds the doc → new id).
-  const liveDocId = useRef(doc?.id);
-  liveDocId.current = doc?.id;
-
-  // Drop stale blank-scan results whenever the document identity changes (any
-  // Apply rebuilds the doc, even when the page count is unchanged).
+  // Apply preserves doc.id. Compare the actual bytes so a previous scan cannot
+  // overwrite newer page geometry, including a same-count rotation/reorder.
+  const liveBytes = useRef(doc?.bytes);
+  liveBytes.current = doc?.bytes;
   useEffect(() => {
+    liveBytes.current = doc?.bytes;
     setBlanks(null);
     setScanning(false);
-  }, [doc?.id]);
+    setScanError(false);
+    return () => {
+      liveBytes.current = undefined;
+    };
+  }, [doc?.bytes]);
 
   const kept = state.order.filter((i) => !state.deleted.includes(i));
   const rotatedCount = Object.values(state.rotations).filter((d) => d % 360 !== 0).length;
@@ -294,20 +284,19 @@ export function Panel() {
 
   const findBlanks = () => {
     if (!doc) return;
-    const scanDocId = doc.id;
+    const scanBytes = doc.bytes;
     setScanning(true);
-    void renderThumbnailsAndScores(docToFile(doc)).then(
-      ({ thumbnails, scores }) => {
-        revokeThumbnails(thumbnails);
+    setScanError(false);
+    void pageWhitenessScores(docToFile(doc)).then(
+      (scores) => {
+        if (liveBytes.current !== scanBytes) return;
         setScanning(false);
-        // Discard if the doc was replaced mid-scan — these indices are stale.
-        if (liveDocId.current !== scanDocId) return;
         setBlanks(scores.map((s, i) => (s >= BLANK_THRESHOLD ? i : -1)).filter((i) => i >= 0));
       },
       () => {
+        if (liveBytes.current !== scanBytes) return;
         setScanning(false);
-        if (liveDocId.current !== scanDocId) return;
-        setBlanks([]);
+        setScanError(true);
       },
     );
   };
@@ -322,9 +311,9 @@ export function Panel() {
       order: Array.from({ length: pageCount }, (_, i) => i),
       rotations: {},
       deleted: [],
-      baseCount: pageCount,
+      basePages: doc?.pages,
     });
-  }, [patchToolState, pageCount]);
+  }, [patchToolState, pageCount, doc?.pages]);
 
   const apply = useCallback(() => {
     const order =
@@ -348,50 +337,45 @@ export function Panel() {
         .filter((o) => newIndex.has(o.pageIndex) && (rotations[o.pageIndex] ?? 0) % 360 === 0)
         .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
       return { bytes, label: "Organize pages", objects };
-    }).then(() => {
-      // The plan is now baked into the rebuilt doc's bytes. Reset it to a clean
-      // identity plan for the new doc — otherwise the board would re-apply the
-      // (now-baked) rotation / reorder a SECOND time on the fresh raster (a
-      // double-rotated preview), and the tool would read as permanently "dirty"
-      // so a second Apply would bake yet another rotation. `doc.id` is preserved
-      // across applyTransform and a rotate/reorder keeps the page count, so the
-      // auto-init effect (which keys on page count) can't catch this on its own.
-      patchToolState(ORGANIZE_ID, {
-        order: Array.from({ length: survivors.length }, (_, i) => i),
-        rotations: {},
-        deleted: [],
-        baseCount: survivors.length,
-      });
     });
-  }, [applyTransform, slice, pageCount, patchToolState]);
+  }, [applyTransform, slice, pageCount]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-xs text-slate-500 dark:text-dark-text-muted">
-        Drag pages or use the arrow buttons to reorder, rotate, or delete. Changes preview live and
-        apply all at once.
+    <div className="editor-organize-panel">
+      <p>
+        Drag pages or use their arrow buttons to reorder. Your changes stay pending until you apply
+        them.
       </p>
 
-      <div className="border-y border-[var(--color-rule)] py-3 text-sm text-slate-600 dark:text-dark-text-muted">
-        <div className="flex justify-between">
-          <span>Output pages</span>
-          <span className="font-medium tabular-nums text-slate-800 dark:text-dark-text">
-            {kept.length} / {pageCount}
-          </span>
+      <dl className="editor-organize-summary" aria-live="polite">
+        <div>
+          <dt>Pages to keep</dt>
+          <dd>
+            {kept.length} of {pageCount}
+          </dd>
         </div>
         {rotatedCount > 0 && (
-          <div className="mt-1 flex justify-between">
-            <span>Rotated</span>
-            <span className="tabular-nums">{rotatedCount}</span>
+          <div>
+            <dt>Rotated</dt>
+            <dd>{rotatedCount}</dd>
           </div>
         )}
-      </div>
+        {reordered && (
+          <div>
+            <dt>Order</dt>
+            <dd>Changed</dd>
+          </div>
+        )}
+      </dl>
+      {allDeleted && (
+        <p className="editor-organize-warning" role="status">
+          Restore at least one page to apply your changes.
+        </p>
+      )}
 
       <div className="flex flex-col gap-2">
-        <p className="font-mono text-xxs font-medium uppercase tracking-[0.1em] text-slate-600 dark:text-dark-text-muted">
-          Quick actions
-        </p>
-        <div className="grid grid-cols-2 gap-1.5">
+        <h3>Quick actions</h3>
+        <div className="editor-organize-quick">
           <QuickAction icon={Repeat2} label="Reverse order" onClick={reverse} />
           {allDeleted ? (
             <QuickAction icon={Undo2} label="Restore all" onClick={restoreAll} />
@@ -407,7 +391,7 @@ export function Panel() {
             disabled={scanning}
           />
         ) : blanks.length === 0 ? (
-          <p className="rounded-lg bg-slate-50 dark:bg-dark-bg px-2.5 py-2 text-xs text-slate-500 dark:text-dark-text-muted">
+          <p className="editor-organize-note" role="status">
             No blank pages found.
           </p>
         ) : (
@@ -417,7 +401,12 @@ export function Panel() {
             onClick={markBlanks}
           />
         )}
-        <p className="text-tag text-slate-500 dark:text-dark-text-muted">
+        {scanError && (
+          <p className="editor-organize-warning" role="alert">
+            Could not scan these pages. Try again; your pending changes are safe.
+          </p>
+        )}
+        <p className="editor-organize-note">
           To keep only a few pages, “Delete all” then restore the ones you want.
         </p>
       </div>
@@ -429,11 +418,7 @@ export function Panel() {
           disabled={!dirty || kept.length === 0}
         />
         {dirty && (
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-sm text-xs text-slate-500 hover:text-slate-700 pointer-coarse:min-h-11 dark:text-dark-text-muted dark:hover:text-dark-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
+          <button type="button" onClick={reset} className="air-button air-button--quiet">
             Reset pending changes
           </button>
         )}

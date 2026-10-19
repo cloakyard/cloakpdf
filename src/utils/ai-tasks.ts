@@ -88,8 +88,7 @@ export interface ChatGenerationOptions {
   topP?: number;
   /**
    * Min-p sampling cutoff. Liquid AI's LFM2 family is trained against
-   * this sampler (they recommend `min_p: 0.15`); SmolLM2 still uses
-   * `top_p`. Omit to disable.
+   * this sampler (the shipped tiers use `min_p: 0.15`). Omit to disable.
    */
   minP?: number;
   /**

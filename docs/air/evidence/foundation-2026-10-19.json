@@ -1,0 +1,106 @@
+{
+  "date": "2026-10-19",
+  "surface": "PDF foundation and Select",
+  "airVersion": "1.0.2",
+  "contract": "bb90f52e0b0a",
+  "baselineCommit": "b9738c0",
+  "implementation": [
+    "Air owns root fonts, surfaces, editor layers, processing scrim and modal stack directly",
+    "Frequent Select interactions are immediate; full labels wrap and the menu retains a readable viewport-bounded width",
+    "Native touch scrollbars and enlarged text remain supported"
+  ],
+  "cleanup": [
+    "Removed tokens.css and old Workbench/Ocean Blue theme aliases",
+    "Removed unused mono label, selection indicator, no-scrollbar, pulse and disclosure/popover motion rules",
+    "Removed two unused UI font assets and their obsolete credits; retained SIL license",
+    "Removed Select animation and placement-only state; no dependency added"
+  ],
+  "outputFonts": {
+    "annotationFaces": 42,
+    "embeddedFamilies": [
+      "roboto",
+      "opensans",
+      "lato",
+      "montserrat",
+      "poppins",
+      "merriweather",
+      "lora",
+      "playfairdisplay",
+      "robotomono",
+      "sourcecodepro",
+      "oswald"
+    ],
+    "cssAssetRoster": "exact match",
+    "bytes": "unchanged from b9738c0",
+    "removedUiFontBytes": 75332,
+    "runtimeLegacyReferences": []
+  },
+  "validation": {
+    "units": 453,
+    "unitFiles": 46,
+    "nupLayoutCases": 70,
+    "nupOutputSheets": 23,
+    "recoveryCaptures": 141,
+    "sizes": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1024x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080"
+    ],
+    "themes": ["light", "dark"],
+    "rootTextSizes": [16, 32],
+    "select": [
+      "Pointer and keyboard immediate opening",
+      "No label clipping",
+      "Viewport anchoring, flip and internal scrolling",
+      "Keyboard selection, typeahead, Escape and focus return",
+      "Real apply and Undo output"
+    ],
+    "recovery": [
+      "Air root system fonts",
+      "Processing scrim owns pointer hits above editor",
+      "Loading/progress/encrypted/failure/retry/saved session restoration",
+      "No page errors or leaked thumbnail URLs"
+    ],
+    "native": [
+      "Safari production8132: pointer/keyboard selection, Escape, N-up apply and Undo with focus return",
+      "Firefox dev8133: actual 200% zoom, End/Enter selects Booklet and Tab reaches Make booklet; restored 100% and closed only temporary tabs"
+    ],
+    "regression": "PASS: complete 16 production smoke + seven extended + focused N-up/recovery = 25 distinct suites; no retry or weakened assertions.",
+    "requiredChecks": "PASS: format/lint/types, knip, 453 units, production build/assets, design, 18 isolated portability checks and exact six-document bundle sync. Root code/types/build/design/portability pass. Final rebuild has the same editor/CSS hashes as the browser-tested build."
+  },
+  "bundleKB": {
+    "editorRaw": 326.91,
+    "editorGzip": 99.33,
+    "cssRaw": 132.38,
+    "cssGzip": 22.81,
+    "previousEditorGzip": 99.39,
+    "previousCssGzip": 24.05,
+    "deployAssets": 126,
+    "pwaEntries": 75
+  },
+  "evidence": [
+    "foundation-select-desktop-2026-10-19.png",
+    "foundation-phone-dark-2026-10-19.png",
+    "foundation-checks-2026-10-19.log"
+  ],
+  "fullTemporaryEvidence": "/tmp/cloakpdf-air-review/foundation-*",
+  "openAcceptance": [
+    "Physical touch and software keyboards",
+    "Actual OS IME",
+    "Spoken assistive technology"
+  ],
+  "next": [
+    "Non-visible registry and lifecycle consumer audit",
+    "Remaining full-PDF feature/device acceptance",
+    "IMG/Resume colour wheel adoption and remaining family rollout"
+  ],
+  "completion": "Bounded foundation piece only; full PDF/family migration remains open."
+}

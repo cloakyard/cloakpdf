@@ -1,0 +1,26 @@
+Navigation checkpoint: 2026-10-14
+Production browser target: http://127.0.0.1:8132
+
+Required checks (all exit 0):
+pass: Formatting completed for checked files (2.1s)
+pass: Found no warnings, lint errors, or type errors in 229 files (798ms, 12 threads)
+pnpm check:dead: passed, no unused/unresolved/cycle findings
+Test Files  36 passed (36)
+Tests  366 passed (366)
+Deployment asset check passed: 128 files, all <= 25 MiB.
+
+Browser suite final summaries (each exit 0):
+editor-navigation: PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+editor-smoke: ✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+editor-smoke-mobile: ✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+editor-features: ✓ editor-features passed on all 3 fixtures.
+editor-interactions: ✓ editor keyboard interactions passed
+command-palette: ✓ Command palette + keyboard shortcuts passed.
+export-dialog: ✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+responsive-motion: ✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+modal-system: ✓ Shared modal system passed.
+
+Air inventory: 83 records; portability: 17 assertions; exact six-repository specification sync passed.
+Cloakyard: format/lint/type/build, design integrity and 17 portability assertions passed.
+Native Safari and Firefox: compact disclosure keyboard activation, Tab to home action, Escape trigger return at 200% browser zoom passed.
+Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open.

@@ -7,7 +7,7 @@
 //
 // State is split across focused contexts so a slider drag in one tool doesn't
 // re-render the rail / top bar / every other panel:
-//   • ActionsCtx    — stable callbacks; identity never changes after mount.
+//   • ActionsCtx    — callbacks independent of per-frame view changes.
 //   • ToolStateCtx  — the namespaced per-tool option slices (high-frequency).
 //   • ActiveToolCtx — just the active tool id (flips only on tool switch).
 //   • ViewCtx       — zoom/pan/page-grid view state (changes EVERY pan/zoom
@@ -31,6 +31,7 @@ import {
   type CanvasObject,
   createDocFromBytes,
   createDocFromFile,
+  docToFile,
   flattenDestructiveObjects,
   hasPendingDestructive,
   nextId,
@@ -44,6 +45,7 @@ import {
   loadDraft,
   saveDraft,
 } from "./draft-store.ts";
+import { renderPagePreviews } from "../utils/pdf-renderer.ts";
 import { EditorHistory } from "./history.ts";
 import { findEditorTool } from "./tools.ts";
 import { DEFAULT_VIEW, type Layout, type ViewMode, type ViewState } from "./types.ts";
@@ -71,6 +73,8 @@ export interface PendingApply {
 }
 
 interface ActionsValue {
+  reportPreviewFailure: (pageIndex: number, url: string) => void;
+  retryPreviews: () => Promise<void>;
   loadFile: (file: File) => Promise<void>;
   setActiveTool: (id: string | null) => void;
   patchToolState: (toolId: string, partial: Record<string, unknown>) => void;
@@ -90,16 +94,20 @@ interface ActionsValue {
   updateObject: (id: string, patch: Partial<CanvasObject>) => void;
   /** Merge `patch` into one object AND push a single undoable history entry.
    *  Use for a finished move/edit; `updateObject` (no history) is for the
-   *  in-flight preview. */
-  moveObject: (id: string, patch: Partial<CanvasObject>, label: string) => void;
+   *  in-flight preview. expectedPayload guards deferred commits against
+   *  Undo, Cancel, removal or Apply replacing their source object. */
+  moveObject: (
+    id: string,
+    patch: Partial<CanvasObject>,
+    label: string,
+    expectedPayload?: unknown,
+  ) => void;
   removeObject: (id: string) => void;
   /** Remove many objects in a single undoable history entry (e.g. "Clear all"
    *  pending redaction / erase marks). */
   removeObjects: (ids: string[], label?: string) => void;
-  commit: (label: string) => void;
   undo: () => void;
   redo: () => void;
-  jumpTo: (index: number) => void;
   reset: () => void;
   registerPendingApply: (action: PendingApply | null) => void;
   flushPendingApply: () => Promise<void>;
@@ -123,8 +131,9 @@ interface ActionsValue {
 }
 
 interface ReadValue {
+  previewRetry: { pending: boolean; failed: boolean };
   doc: CanvasDoc | null;
-  loading: boolean;
+  opening: { fileName: string; rendered: number; total: number } | null;
   busyLabel: string | null;
   error: string | null;
   /** The dropped PDF is password-protected; the shell shows the unlock notice. */
@@ -175,7 +184,10 @@ export function EditorProvider({
   const [doc, setDoc] = useState<CanvasDoc | null>(null);
   // Start in the loading state when the editor opens with a file (the only way
   // in, post-redesign) so the no-doc fallback never flashes before loadFile runs.
-  const [loading, setLoading] = useState(initialFile != null);
+  const [opening, setOpening] = useState<ReadValue["opening"]>(
+    initialFile ? { fileName: initialFile.name, rendered: 0, total: 0 } : null,
+  );
+  const loadRequest = useRef(0);
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
   // Synchronous in-flight flag for runBusy's re-entry lock (busyLabel is async
   // state and updates a frame late, too slow to block a fast second invocation).
@@ -217,7 +229,69 @@ export function EditorProvider({
   docRef.current = doc;
 
   const historyRef = useRef(new EditorHistory());
+  const [previewVersion, setPreviewVersion] = useState(0);
+  const previewRequest = useRef<AbortController | null>(null);
+  const [previewRetry, setPreviewRetry] = useState({ pending: false, failed: false });
+  useEffect(() => {
+    setPreviewRetry({ pending: false, failed: false });
+    return () => {
+      previewRequest.current?.abort();
+      previewRequest.current = null;
+    };
+  }, [doc?.id, doc?.bytes]);
+
+  const replacePreviews = useCallback(
+    (bytes: Uint8Array, replacements: Map<number, string | null>) => {
+      const current = docRef.current;
+      if (!current || current.bytes !== bytes) return;
+      const retired = historyRef.current.replacePreviews(bytes, current.pages, replacements);
+      revokeThumbnails(retired);
+      // Publish the derived cache change without replacing the document and
+      // resetting in-progress tool forms, OCR results or page plans.
+      setPreviewVersion((version) => version + 1);
+    },
+    [],
+  );
+
+  const reportPreviewFailure = useCallback(
+    (index: number, url: string) => {
+      const current = docRef.current;
+      // Late image events cannot invalidate a newer revision or replacement URL.
+      if (current?.pages[index]?.thumbUrl === url)
+        replacePreviews(current.bytes, new Map([[index, null]]));
+    },
+    [replacePreviews],
+  );
+
+  const retryPreviews = useCallback(async () => {
+    const current = docRef.current;
+    if (!current || previewRequest.current || busyRef.current) return;
+    const missing = current.pages.filter((page) => !page.thumbUrl).map((page) => page.index);
+    if (!missing.length) return;
+    const controller = new AbortController();
+    previewRequest.current = controller;
+    setPreviewRetry({ pending: true, failed: false });
+    try {
+      const urls = await renderPagePreviews(
+        docToFile(current),
+        missing,
+        undefined,
+        controller.signal,
+      );
+      if (controller.signal.aborted || docRef.current?.bytes !== current.bytes) {
+        revokeThumbnails(urls.filter((url): url is string => url !== null));
+        return;
+      }
+      replacePreviews(current.bytes, new Map(missing.map((index, i) => [index, urls[i]])));
+      setPreviewRetry({ pending: false, failed: urls.some((url) => !url) });
+    } catch {
+      if (!controller.signal.aborted) setPreviewRetry({ pending: false, failed: true });
+    } finally {
+      if (previewRequest.current === controller) previewRequest.current = null;
+    }
+  }, [replacePreviews]);
   const pendingApplyRef = useRef<PendingApply | null>(null);
+  const flushingApply = useRef<Promise<void> | null>(null);
   const [pendingApplyVersion, setPendingApplyVersion] = useState(0);
   const toolCheckpointRef = useRef(0);
 
@@ -271,27 +345,35 @@ export function EditorProvider({
           return;
         }
         busyRef.current = true;
+        const request = loadRequest.current;
         setError(null); // clear any stale error from a prior operation
         setBusyLabel(label);
         requestAnimationFrame(() => {
           requestAnimationFrame(async () => {
             try {
-              // Hand the task setBusyLabel so it can refine the overlay text mid-run.
-              await fn(setBusyLabel);
+              // The editor may close before either paint. Abandoned work must
+              // not start or update the departed session's status.
+              if (request === loadRequest.current)
+                await fn((next) => {
+                  if (request === loadRequest.current) setBusyLabel(next);
+                });
               resolve();
             } catch (e) {
               // Surface the failure in the editor's error banner. Every byte
-              // transform (Apply) and background task (Export, draft restore)
+              // transform (Apply) and editor task (draft restore)
               // funnels through here, so this is the one place to wire failure
               // feedback — without it a thrown transform/export just made the
               // spinner vanish with no diagnosis. Still reject so success-only
               // `.then` chains (e.g. OCR "make searchable" clearing its preview)
               // correctly skip on failure.
-              setError(e instanceof Error ? e.message : "Something went wrong. Please try again.");
+              if (request === loadRequest.current)
+                setError(
+                  e instanceof Error ? e.message : "Something went wrong. Please try again.",
+                );
               reject(e);
             } finally {
               busyRef.current = false;
-              setBusyLabel(null);
+              if (request === loadRequest.current) setBusyLabel(null);
             }
           });
         });
@@ -321,12 +403,13 @@ export function EditorProvider({
 
   // After installing a freshly-loaded file, key the autosave to its original
   // bytes and offer back any saved edits for that same file.
-  const detectDraft = useCallback(async (next: CanvasDoc) => {
+  const detectDraft = useCallback(async (next: CanvasDoc, request: number) => {
     try {
       const key = await hashDocBytes(next.bytes);
+      if (request !== loadRequest.current) return;
       draftKeyRef.current = key;
       const existing = await loadDraft(key);
-      if (existing) setPendingDraft(existing);
+      if (request === loadRequest.current && existing) setPendingDraft(existing);
     } catch {
       // IndexedDB / SubtleCrypto unavailable — autosave silently disabled.
     }
@@ -334,39 +417,49 @@ export function EditorProvider({
 
   const loadFile = useCallback(
     async (file: File) => {
-      setLoading(true);
+      if (busyRef.current) return;
+      const request = ++loadRequest.current;
+      setOpening({ fileName: file.name, rendered: 0, total: 0 });
       setError(null);
       setEncryptedFile(null);
       setPendingDraft(null);
       draftKeyRef.current = null; // suspend autosave until re-keyed for this file
       try {
-        const next = await createDocFromFile(file);
+        const next = await createDocFromFile(file, (rendered, total) => {
+          if (request === loadRequest.current) setOpening({ fileName: file.name, rendered, total });
+        });
+        if (request !== loadRequest.current) {
+          revokeThumbnails(next.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+          return;
+        }
         installDoc(next);
-        void detectDraft(next);
+        void detectDraft(next, request);
       } catch (e) {
         // pdf-lib throws an "is encrypted" error for password-protected PDFs.
         // Re-check and route the user to the PDF Password tool instead of
         // surfacing the raw error (mirrors usePdfFile's gate for standalone
         // tools). `.catch` guards a genuinely corrupt file failing the recheck.
-        if (await isPdfEncrypted(file).catch(() => false)) {
+        if (request !== loadRequest.current) return;
+        const encrypted = await isPdfEncrypted(file).catch(() => false);
+        if (request !== loadRequest.current) return;
+        if (encrypted) {
           setEncryptedFile(file);
         } else {
           setError(e instanceof Error ? e.message : "Could not open this PDF.");
         }
       } finally {
-        setLoading(false);
+        if (request === loadRequest.current) setOpening(null);
       }
     },
     [installDoc, detectDraft],
   );
 
-  // Load the file the editor was opened with (if any), once.
-  const initialLoadedRef = useRef(false);
+  // A replaced file or departed editor cannot install late reads/previews/drafts.
   useEffect(() => {
-    if (initialLoadedRef.current) return;
-    if (!initialFile) return;
-    initialLoadedRef.current = true;
-    void loadFile(initialFile);
+    if (initialFile) void loadFile(initialFile);
+    return () => {
+      loadRequest.current += 1;
+    };
   }, [initialFile, loadFile]);
 
   /** Commit a new doc state to history and make it live. */
@@ -386,56 +479,52 @@ export function EditorProvider({
     setHistoryVersion((v) => v + 1);
   }, []);
 
-  const commit = useCallback(
-    (label: string) => {
-      const cur = docRef.current;
-      if (!cur) return;
-      commitDoc(cur, label);
-    },
-    [commitDoc],
-  );
-
   const restoreEntry = useCallback(() => {
     const entry = historyRef.current.current();
     const cur = docRef.current;
     if (!entry || !cur) return;
-    setDoc({ ...cur, bytes: entry.bytes, pages: entry.pages, objects: entry.objects });
+    setDoc({
+      ...cur,
+      bytes: entry.bytes,
+      pages: entry.pages,
+      pageCount: entry.pages.length,
+      objects: entry.objects,
+    });
     setSelectedPageState((p) => Math.min(p, Math.max(0, entry.pages.length - 1)));
     setHistoryVersion((v) => v + 1);
   }, []);
 
   const undo = useCallback(() => {
-    if (!historyRef.current.undo()) return;
+    if (busyRef.current || !historyRef.current.undo()) return;
     restoreEntry();
   }, [restoreEntry]);
 
   const redo = useCallback(() => {
-    if (!historyRef.current.redo()) return;
+    if (busyRef.current || !historyRef.current.redo()) return;
     restoreEntry();
   }, [restoreEntry]);
 
-  const jumpTo = useCallback(
-    (index: number) => {
-      historyRef.current.jumpTo(index);
-      restoreEntry();
-    },
-    [restoreEntry],
-  );
-
   // Hard reset: discard ALL edits and wipe the timeline, so undo/redo have
-  // nothing left to restore. (jumpTo(0) used to keep the redo tail, letting the
-  // user step right back into the edits they just cleared.)
+  // nothing left to restore.
   const reset = useCallback(() => {
+    if (busyRef.current || historyRef.current.index() <= 0) return;
     const base = historyRef.current.resetToBase();
     const cur = docRef.current;
     if (!base || !cur) return;
-    setDoc({ ...cur, bytes: base.bytes, pages: base.pages, objects: base.objects });
+    setDoc({
+      ...cur,
+      bytes: base.bytes,
+      pages: base.pages,
+      pageCount: base.pages.length,
+      objects: base.objects,
+    });
     setSelectedPageState((p) => Math.min(p, Math.max(0, base.pages.length - 1)));
     toolCheckpointRef.current = historyRef.current.index();
     setHistoryVersion((v) => v + 1);
   }, []);
 
   const setActiveTool = useCallback((id: string | null) => {
+    if (id !== null && !findEditorTool(id)) return;
     setActiveToolState(id);
     toolCheckpointRef.current = historyRef.current.index();
   }, []);
@@ -508,22 +597,32 @@ export function EditorProvider({
   // Like updateObject, but pushes ONE history entry so a finished move/edit is a
   // single undoable step. (Mirrors removeObject's snapshot; the live preview the
   // caller paints between pointerdown and pointerup never touches the doc.)
-  const moveObject = useCallback((id: string, patch: Partial<CanvasObject>, label: string) => {
-    const cur = docRef.current;
-    if (!cur) return;
-    const next: CanvasDoc = {
-      ...cur,
-      objects: cur.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
-    };
-    setDoc(next);
-    historyRef.current.push({
-      label,
-      bytes: next.bytes,
-      pages: next.pages,
-      objects: next.objects,
-    });
-    setHistoryVersion((v) => v + 1);
-  }, []);
+  const moveObject = useCallback(
+    (id: string, patch: Partial<CanvasObject>, label: string, expectedPayload?: unknown) => {
+      const cur = docRef.current;
+      if (!cur) return;
+      // Deferred overlay edits may finish after Undo, Cancel, removal or Apply.
+      // Only snapshot the live payload that scheduled the edit; never revive it.
+      if (
+        expectedPayload !== undefined &&
+        cur.objects.find((o) => o.id === id)?.payload !== expectedPayload
+      )
+        return;
+      const next: CanvasDoc = {
+        ...cur,
+        objects: cur.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
+      };
+      setDoc(next);
+      historyRef.current.push({
+        label,
+        bytes: next.bytes,
+        pages: next.pages,
+        objects: next.objects,
+      });
+      setHistoryVersion((v) => v + 1);
+    },
+    [],
+  );
 
   const removeObject = useCallback((id: string) => {
     const cur = docRef.current;
@@ -560,6 +659,7 @@ export function EditorProvider({
     async (t: DocTransform) => {
       const cur = docRef.current;
       if (!cur) return;
+      const request = loadRequest.current;
       await runBusy("Applying…", async () => {
         // Burn any pending destructive marks (redaction / erase) FIRST, so they
         // land on the geometry they were drawn on before this transform changes
@@ -572,11 +672,17 @@ export function EditorProvider({
           const burned = await flattenDestructiveObjects(cur);
           base = { ...cur, bytes: burned, objects: withoutDestructive(cur.objects) };
         }
+        if (request !== loadRequest.current) return;
         const { bytes, label, objects } = await t(base);
+        if (request !== loadRequest.current) return;
         // Re-derive page geometry + thumbnails from the new bytes. Keep the
         // objects the transform returned (used to drop just-burned marks), or
         // preserve the current ones (still valid in fraction space).
         const rebuilt = await createDocFromBytes(bytes, base.fileName);
+        if (request !== loadRequest.current) {
+          revokeThumbnails(rebuilt.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+          return;
+        }
         // Do NOT revoke cur's thumbnails here: the prior history entry (the undo
         // target) still references them. They're freed when that entry is
         // evicted from the stack — see history.setOnEvict above.
@@ -596,12 +702,25 @@ export function EditorProvider({
     if (changed) setPendingApplyVersion((v) => v + 1);
   }, []);
 
-  const flushPendingApply = useCallback(async () => {
+  const flushPendingApply = useCallback(() => {
+    if (flushingApply.current) return flushingApply.current;
     const action = pendingApplyRef.current;
-    if (!action || !action.ready) return; // nothing to apply, or not ready yet
-    pendingApplyRef.current = null;
-    setPendingApplyVersion((v) => v + 1);
-    await action.run();
+    if (!action?.ready) return Promise.resolve();
+    // Validation can reject before readiness changes. Keep that registration
+    // available for retry, and make concurrent callers await the same operation.
+    const work = Promise.resolve()
+      .then(() => action.run())
+      .then(() => {
+        if (pendingApplyRef.current === action) {
+          pendingApplyRef.current = null;
+          setPendingApplyVersion((v) => v + 1);
+        }
+      })
+      .finally(() => {
+        flushingApply.current = null;
+      });
+    flushingApply.current = work;
+    return work;
   }, []);
 
   const cancelCurrentTool = useCallback(async () => {
@@ -614,37 +733,47 @@ export function EditorProvider({
       if (historyRef.current.index() === before) break;
     }
     restoreEntry();
+    // Leaving a tool preserves its draft; explicit Cancel discards that draft.
+    if (activeTool)
+      setToolState((previous) => {
+        const next = { ...previous };
+        delete next[activeTool];
+        return next;
+      });
     setActiveToolState(null);
-  }, [restoreEntry]);
+  }, [activeTool, restoreEntry]);
 
   const clearError = useCallback(() => setError(null), []);
 
   const exit = useCallback(() => {
+    loadRequest.current += 1;
     revokeAllThumbs();
     onExit();
   }, [onExit, revokeAllThumbs]);
 
   // ── Draft autosave: restore / discard ───────────────────────────────
-  const applyDraft = useCallback(
-    async (draft: EditorDraft) => {
-      setPendingDraft(null);
-      await runBusy("Restoring your edits…", async () => {
-        const restored = await createDocFromBytes(draft.bytes, draft.fileName);
-        restored.objects = draft.objects;
-        draftKeyRef.current = draft.key; // keep the same original-bytes key
-        installDoc(restored);
-      });
-    },
-    [runBusy, installDoc],
-  );
-
   const restoreDraft = useCallback(async () => {
     const draft = pendingDraftRef.current;
-    if (draft) await applyDraft(draft);
-  }, [applyDraft]);
+    if (!draft) return;
+    const request = loadRequest.current;
+    await runBusy("Restoring your edits…", async () => {
+      const restored = await createDocFromBytes(draft.bytes, draft.fileName);
+      if (request !== loadRequest.current) {
+        revokeThumbnails(restored.pages.flatMap((page) => (page.thumbUrl ? [page.thumbUrl] : [])));
+        return;
+      }
+      restored.objects = draft.objects;
+      draftKeyRef.current = draft.key; // keep the same original-bytes key
+      installDoc(restored);
+      // Failed reads keep the original and the recovery action available.
+      pendingDraftRef.current = null;
+      setPendingDraft(null);
+    });
+  }, [runBusy, installDoc]);
 
   const dismissDraft = useCallback(() => {
     const draft = pendingDraftRef.current;
+    pendingDraftRef.current = null;
     setPendingDraft(null);
     if (draft) void deleteDraft(draft.key);
   }, []);
@@ -674,6 +803,8 @@ export function EditorProvider({
 
   const actions = useMemo<ActionsValue>(
     () => ({
+      reportPreviewFailure,
+      retryPreviews,
       loadFile,
       setActiveTool,
       patchToolState,
@@ -687,10 +818,8 @@ export function EditorProvider({
       moveObject,
       removeObject,
       removeObjects,
-      commit,
       undo,
       redo,
-      jumpTo,
       reset,
       registerPendingApply,
       flushPendingApply,
@@ -702,6 +831,8 @@ export function EditorProvider({
       exit,
     }),
     [
+      reportPreviewFailure,
+      retryPreviews,
       loadFile,
       setActiveTool,
       patchToolState,
@@ -715,10 +846,8 @@ export function EditorProvider({
       moveObject,
       removeObject,
       removeObjects,
-      commit,
       undo,
       redo,
-      jumpTo,
       reset,
       registerPendingApply,
       flushPendingApply,
@@ -734,9 +863,10 @@ export function EditorProvider({
   const readValue = useMemo<ReadValue>(
     () => ({
       doc,
-      loading,
+      opening,
       busyLabel,
       error,
+      previewRetry,
       encryptedFile,
       viewMode,
       selectedPage,
@@ -756,9 +886,11 @@ export function EditorProvider({
     }),
     [
       doc,
-      loading,
+      opening,
       busyLabel,
       error,
+      previewRetry,
+      previewVersion,
       encryptedFile,
       viewMode,
       selectedPage,

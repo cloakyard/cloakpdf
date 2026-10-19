@@ -7,26 +7,20 @@
  *
  * This file is a thin re-export barrel over the cohesive modules in
  * `./pdf/*`. Shared private helpers in `./pdf/raster.ts` (getPdfJs,
- * renderPageToCanvas, canvasToImageBytes, decodeImageToPngBytes) and the
+ * canvasToImageBytes, decodeImageToPngBytes) and the
  * per-module private helpers are intentionally NOT re-exported.
  */
 
 export type { AssembleOp } from "./pdf/pages.ts";
 export { mergePdfs, splitPdfIntoParts, assemblePdf } from "./pdf/pages.ts";
 
-export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
+export { flattenPdf } from "./pdf/forms.ts";
 
-export type { FlatField, ProfileKey, FieldFill } from "./pdf/form-detect.ts";
+export type { FlatField, ProfileKey } from "./pdf/form-detect.ts";
 export { detectFlatFields, fillFlatFormFields } from "./pdf/form-detect.ts";
 
 export type { NupLayout } from "./pdf/transform.ts";
-export {
-  compressPdf,
-  grayscalePdf,
-  imagesToPdf,
-  nupPages,
-  cropPagesIndividual,
-} from "./pdf/transform.ts";
+export { compressPdf, grayscalePdf, imagesToPdf, nupPages } from "./pdf/transform.ts";
 
 export {
   addWatermark,
@@ -51,7 +45,7 @@ export {
   stripMetadata,
 } from "./pdf/metadata.ts";
 
-export { extractTextOcr, createSearchablePdf, createSearchablePdfFromLayout } from "./pdf/ocr.ts";
+export { createSearchablePdfFromLayout } from "./pdf/ocr.ts";
 
 export { redactPdf } from "./pdf/redact.ts";
 
@@ -89,9 +83,4 @@ export {
 
 export { addPdfBookmarks } from "./pdf/bookmarks.ts";
 
-export type { PdfAttachment } from "./pdf/attachments.ts";
-export {
-  listPdfAttachments,
-  attachFilesToPdf,
-  removeAttachmentsFromPdf,
-} from "./pdf/attachments.ts";
+export { listPdfAttachments } from "./pdf/attachments.ts";

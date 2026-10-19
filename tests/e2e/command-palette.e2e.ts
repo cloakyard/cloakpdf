@@ -13,6 +13,8 @@
  * Run:  node --experimental-strip-types tests/e2e/command-palette.e2e.ts
  */
 
+import assert from "node:assert/strict";
+import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { KeyInput, Page } from "puppeteer-core";
@@ -22,8 +24,7 @@ const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FIXTURE_PATH = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
-const USER_DATA_DIR =
-  process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile-editor");
+const EVIDENCE = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-palette";
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);
@@ -55,7 +56,10 @@ async function waitForText(page: Page, re: RegExp, timeout = 15_000): Promise<vo
 
 /** Read whether a top-bar icon button (by aria-label) is currently disabled. */
 async function btnDisabled(page: Page, label: string): Promise<boolean> {
-  return page.$eval(`button[aria-label="${label}"]`, (b) => (b as HTMLButtonElement).disabled);
+  return page.$eval(
+    `button[aria-label="${label}"]`,
+    (b) => b.getAttribute("aria-disabled") === "true",
+  );
 }
 
 /** Fire ⌘K (Meta on macOS — the handler also accepts Ctrl). */
@@ -77,12 +81,12 @@ async function main() {
   const errors: string[] = [];
   const browser = await launch({
     executablePath: CHROME_PATH,
-    userDataDir: USER_DATA_DIR,
     headless: true,
     defaultViewport: { width: 1280, height: 900 },
   });
 
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   try {
     page.setDefaultTimeout(20_000);
     page.on("console", (m) => {
@@ -119,9 +123,15 @@ async function main() {
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
     const paletteMotion = await page.$eval(PALETTE, (element) => {
       const style = getComputedStyle(element);
-      return { opacity: style.opacity, transform: style.transform };
+      return {
+        opacity: style.opacity,
+        identity: new DOMMatrixReadOnly(style.transform).isIdentity,
+        running: element
+          .getAnimations({ subtree: true })
+          .filter((animation) => animation.playState === "running").length,
+      };
     });
-    if (paletteMotion.opacity !== "1" || paletteMotion.transform !== "none") {
+    if (paletteMotion.opacity !== "1" || !paletteMotion.identity || paletteMotion.running !== 0) {
       fail(`Command palette must open immediately; got ${JSON.stringify(paletteMotion)}.`);
     }
     const closeSelector = `${PALETTE} button[aria-label="Close command palette"]`;
@@ -142,9 +152,154 @@ async function main() {
         `Command palette close target must be at least 44×44px; got ${closeTarget.width}×${closeTarget.height}px.`,
       );
     }
+    const search = `${PALETTE} [role=combobox]`;
+    const options = `${PALETTE} [role=option]`;
+    const clear = `${PALETTE} button[aria-label="Clear command search"]`;
+    const allCount = (await page.$$(options)).length;
+    const selectedLabel = () =>
+      page.$eval(`${options}[aria-selected=true]`, (node) =>
+        document.getElementById(node.getAttribute("aria-labelledby")!)?.textContent?.trim(),
+      );
+    const first = await selectedLabel();
+    await auditAirDialog(page, "commands", EVIDENCE);
+    await page.focus(search);
+    await page.keyboard.press("ArrowUp");
+    assert.equal(await selectedLabel(), "Attach", "Up wraps to the last command");
+    assert.ok(
+      await page.$eval(`${options}[aria-selected=true]`, (node) => {
+        const box = node.getBoundingClientRect();
+        const parent = node.closest(".pdf-command-results")!.getBoundingClientRect();
+        return box.top >= parent.top - 1 && box.bottom <= parent.bottom + 1;
+      }),
+      "Keyboard navigation scrolls the active command into view",
+    );
+    await page.keyboard.press("ArrowDown");
+    assert.equal(await selectedLabel(), first, "Down wraps to the first command");
+    await page.keyboard.press("Tab");
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+      "Close command palette",
+      "Empty clear control is not a tab stop",
+    );
+    await page.keyboard.press("Tab");
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.getAttribute("role")),
+      "combobox",
+      "Focus loops back to search",
+    );
+
+    // Composition keeps the existing result set and cannot execute or dismiss.
+    await page.evaluate(() => {
+      const input = document.querySelector<HTMLInputElement>("#command-palette-query")!;
+      input.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true }));
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        input,
+        "crop",
+      );
+      input.dispatchEvent(
+        new InputEvent("input", { bubbles: true, data: "crop", isComposing: true }),
+      );
+      for (const key of ["ArrowDown", "Enter", "Escape"])
+        input.dispatchEvent(
+          new KeyboardEvent("keydown", { bubbles: true, key, isComposing: true, keyCode: 229 }),
+        );
+    });
+    assert.equal(
+      (await page.$$(options)).length,
+      allCount,
+      "Composition does not filter prematurely",
+    );
+    assert.equal(await selectedLabel(), first, "Composition does not navigate");
+    assert.ok(await paletteOpen(page), "IME confirm/cancel leaves the palette open");
+    await page.$eval(search, (input) =>
+      input.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true, data: "crop" })),
+    );
+    await page.waitForFunction(() => document.querySelectorAll("[role=option]").length === 1);
+    assert.equal(await selectedLabel(), "Crop");
+    await auditAirDialog(page, "filtered", EVIDENCE);
+    assert.equal(
+      await page.$eval(search, (input) => (input as HTMLInputElement).value),
+      "crop",
+      "Theme/viewport changes preserve the query",
+    );
+    await page.click(clear);
+    await page.waitForFunction(
+      (count) => document.querySelectorAll("[role=option]").length === count,
+      {},
+      allCount,
+    );
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "command-palette-query");
+    await page.type(search, "a deliberately missing command ".repeat(5));
+    await page.waitForFunction(() => document.querySelectorAll("[role=option]").length === 0);
+    assert.equal(
+      await page.$eval(search, (input) => input.getAttribute("aria-activedescendant")),
+      null,
+    );
+    await page.keyboard.press("Enter");
+    assert.ok(await paletteOpen(page), "Enter with no results is a no-op");
+    assert.equal(
+      await page.$eval("[role=listbox]", (list) => list.querySelectorAll("button").length),
+      0,
+      "Recovery action lives outside the listbox",
+    );
+    await auditAirDialog(page, "empty", EVIDENCE);
+    for (const [width, height, root] of [
+      [320, 568, 32],
+      [844, 390, 16],
+      [864, 542, 16],
+    ]) {
+      await page.setViewport({ width, height });
+      await page.evaluate((size) => {
+        document.documentElement.style.fontSize = `${size}px`;
+      }, root);
+      await page.focus(".pdf-command-empty button");
+      assert.ok(
+        await page.$eval(".pdf-command-empty button", (button) => {
+          const rect = button.getBoundingClientRect();
+          const panel = button.closest("[role=dialog]")!.getBoundingClientRect();
+          const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.bottom - 1);
+          return rect.top >= panel.top && rect.bottom <= panel.bottom && button.contains(hit);
+        }),
+        `Empty-state recovery remains fully visible when focused at ${width}/${height}/${root}`,
+      );
+    }
+    await page.setViewport({ width: 1280, height: 900 });
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "16px";
+    });
+    assert.ok(await clickByText(page, "Clear search"));
+    await page.waitForFunction(
+      (count) => document.querySelectorAll("[role=option]").length === count,
+      {},
+      allCount,
+    );
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "command-palette-query");
+    // Forced-colour selection must remain discernible without a background fill.
+    const cdp = await page.createCDPSession();
+    await cdp.send("Emulation.setEmulatedMedia", {
+      features: [{ name: "forced-colors", value: "active" }],
+    });
+    assert.equal(
+      await page.$eval(
+        `${options}[aria-selected=true]`,
+        (node) => getComputedStyle(node).outlineStyle,
+      ),
+      "solid",
+    );
+    await page.screenshot({ path: `${EVIDENCE}/forced-colors.png` });
+    await cdp.send("Emulation.setEmulatedMedia", { features: [] });
+    await cdp.detach();
+    console.log(
+      "  ✓ 192 layout/theme/text cases · query persistence · wrap navigation · IME · clear/no-results · forced colours",
+    );
     await page.screenshot({ path: "/tmp/command-palette.png" });
     await page.keyboard.press("Escape");
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
+    assert.equal(
+      await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+      "Search tools",
+      "Escape restores trigger focus",
+    );
     console.log(
       "  ✓ rail Search opens palette · Escape closes (screenshot → /tmp/command-palette.png)",
     );
@@ -153,6 +308,7 @@ async function main() {
     await pressMeta(page, "k");
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
     if (!(await paletteOpen(page))) fail("⌘K did not open the palette.");
+    await page.type(search, "will reset");
     await pressMeta(page, "k");
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
     console.log("  ✓ ⌘K toggles palette open/closed");
@@ -160,6 +316,11 @@ async function main() {
     // 3. ⌘K → type an unambiguous query → Enter runs the top result.
     await pressMeta(page, "k");
     await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
+    assert.equal(
+      await page.$eval(search, (input) => (input as HTMLInputElement).value),
+      "",
+      "Shortcut reopen starts with a fresh query",
+    );
     await page.type(`${PALETTE} input`, "crop"); // "crop" matches only the Crop tool
     await page.waitForFunction(
       (sel) => /crop/i.test(document.querySelector(`${sel} [role=option]`)?.textContent ?? ""),
@@ -203,11 +364,15 @@ async function main() {
     // 4. Undo/redo keyboard shortcuts. At base both should be disabled; applying
     //    page numbers commits one history entry → Undo lights.
     if (!(await btnDisabled(page, "Undo"))) fail("Undo should be disabled at base.");
+    await page.waitForSelector(".pdf-numbering-panel .air-button--primary:not(:disabled)", {
+      timeout: 10_000,
+    });
     if (!(await clickByText(page, "Add page numbers"))) fail("Page numbers Apply not found.");
-    await waitForText(page, /Working/i, 10_000);
-    await waitForText(page, /Add page numbers/i, 60_000); // restored after apply
+    await waitForText(page, /No pending numbers/i, 60_000); // restored after apply
     await page.waitForFunction(
-      () => !(document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled,
+      () =>
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+        "false",
       { timeout: 10_000 },
     );
     console.log("  ✓ apply page numbers → Undo enabled");
@@ -216,8 +381,10 @@ async function main() {
     await pressMeta(page, "z");
     await page.waitForFunction(
       () =>
-        (document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled &&
-        !(document.querySelector('button[aria-label="Redo"]') as HTMLButtonElement)?.disabled,
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+          "true" &&
+        document.querySelector('button[aria-label="Redo"]')?.getAttribute("aria-disabled") ===
+          "false",
       { timeout: 10_000 },
     );
     console.log("  ✓ ⌘Z undo (Undo→disabled, Redo→enabled)");
@@ -226,11 +393,39 @@ async function main() {
     await pressMeta(page, "z", true);
     await page.waitForFunction(
       () =>
-        !(document.querySelector('button[aria-label="Undo"]') as HTMLButtonElement)?.disabled &&
-        (document.querySelector('button[aria-label="Redo"]') as HTMLButtonElement)?.disabled,
+        document.querySelector('button[aria-label="Undo"]')?.getAttribute("aria-disabled") ===
+          "false" &&
+        document.querySelector('button[aria-label="Redo"]')?.getAttribute("aria-disabled") ===
+          "true",
       { timeout: 10_000 },
     );
     console.log("  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)");
+
+    for (const [query, undoDisabled, redoDisabled] of [
+      ["undo", true, false],
+      ["redo", false, true],
+      ["reset to original", true, true],
+    ] as const) {
+      await pressMeta(page, "k");
+      await page.waitForSelector(search);
+      await page.type(search, query);
+      await page.keyboard.press("Enter");
+      await page.waitForFunction((sel) => !document.querySelector(sel), {}, PALETTE);
+      await page.waitForFunction(
+        (undoOff, redoOff) => {
+          const undo = document.querySelector<HTMLButtonElement>('button[aria-label="Undo"]')!;
+          const redo = document.querySelector<HTMLButtonElement>('button[aria-label="Redo"]')!;
+          return (
+            (undo.getAttribute("aria-disabled") === "true") === undoOff &&
+            (redo.getAttribute("aria-disabled") === "true") === redoOff
+          );
+        },
+        {},
+        undoDisabled,
+        redoDisabled,
+      );
+    }
+    console.log("  ✓ palette Undo, Redo and Reset actions update real editor history");
 
     // 5. Auto-scroll: selecting a tool below the rail's fold (Attach is last)
     //    must scroll it into view. Assert it starts off-screen, then sits inside

@@ -210,7 +210,8 @@ async function evictOld(): Promise<void> {
 /**
  * Wipe every cached RAG index from IndexedDB. Returns the number of
  * records removed (0 if IDB is unavailable or the store was already
- * empty). The on-disk model weights live in CacheStorage and are
+ * empty). Explicit deletion uses `strict` to surface unavailable storage or
+ * transaction failures; startup invalidation remains best-effort. The on-disk model weights live in CacheStorage and are
  * cleared by a separate path — see `evictModelCacheBytes`.
  *
  * Used by the "Delete cached models" flow so a full reset clears
@@ -223,31 +224,36 @@ async function evictOld(): Promise<void> {
  * {@link getCachedIndex} call re-opens, in case we ever bump
  * {@link DB_VERSION} between the evict and the next reload.
  */
-export async function clearAllCachedIndexes(): Promise<number> {
+export async function clearAllCachedIndexes(strict = false): Promise<number> {
   const db = await openDb();
-  if (!db) return 0;
-  const count = await new Promise<number>((resolve) => {
-    const tx = db.transaction(STORE_NAME, "readwrite");
-    const os = tx.objectStore(STORE_NAME);
-    const countReq = os.count();
-    countReq.onsuccess = () => {
-      const n = countReq.result;
-      const clearReq = os.clear();
-      clearReq.onsuccess = () => resolve(n);
-      clearReq.onerror = () => resolve(0);
-    };
-    countReq.onerror = () => resolve(0);
-  });
-  // Drop the cached connection so the next caller re-opens fresh.
-  // The promise was the only handle to the db; closing it makes the
-  // module-level `_dbPromise` reset benign.
-  try {
-    db.close();
-  } catch {
-    // ignore
+  if (!db) {
+    _dbPromise = null;
+    if (strict) throw new Error("Document index storage is unavailable.");
+    return 0;
   }
-  _dbPromise = null;
-  return count;
+  try {
+    // Wait for the transaction to commit, not just the clear request: an
+    // aborted transaction can otherwise report success without removing data.
+    return await new Promise<number>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      let count = 0;
+      const request = store.count();
+      request.onsuccess = () => {
+        count = request.result;
+        store.clear();
+      };
+      tx.oncomplete = () => resolve(count);
+      tx.onabort = () => reject(tx.error ?? new Error("Document indexes could not be deleted."));
+      tx.onerror = () => reject(tx.error ?? new Error("Document indexes could not be deleted."));
+    });
+  } catch (error) {
+    if (strict) throw error;
+    return 0;
+  } finally {
+    db.close();
+    _dbPromise = null;
+  }
 }
 
 /** Hex SHA-256 of the bytes — the cache key we use everywhere. */

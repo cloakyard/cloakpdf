@@ -1,0 +1,478 @@
+{
+  "layouts": [
+    {
+      "mode": "Draw",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-320x568-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-320x568-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-375x812-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-375x812-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-390x844-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-390x844-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-430x932-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-430x932-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-844x390-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-844x390-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-768x1024-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-768x1024-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1024x768-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1024x768-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1280x720-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1280x720-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1366x768-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1366x768-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1440x900-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1440x900-dark.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1920x1080-light.png"
+    },
+    {
+      "mode": "Draw",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-draw-1920x1080-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-320x568-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-320x568-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-375x812-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-375x812-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-390x844-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-390x844-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-430x932-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-430x932-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-844x390-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-844x390-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-768x1024-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-768x1024-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1024x768-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1024x768-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1280x720-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1280x720-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1366x768-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1366x768-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1440x900-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1440x900-dark.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1920x1080-light.png"
+    },
+    {
+      "mode": "Choose",
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "bad": [],
+      "file": "signature-choose-1920x1080-dark.png"
+    }
+  ],
+  "pixels": {
+    "cancelled": true,
+    "limited": true,
+    "jpegAspect": 1,
+    "paper": [0, 0, 0, 0],
+    "ink": [224, 0, 0, 255],
+    "logo": [255, 255, 255, 255],
+    "backed": [18, 52, 86, 255]
+  },
+  "outputContent": {
+    "pages": [
+      {
+        "red": 1640,
+        "text": "Cloakyard - a thoughtful place for everyday documents  Body content on page 1  Page 1"
+      },
+      {
+        "red": 3782,
+        "text": "Body content on page 2  Page 2"
+      },
+      {
+        "red": 1640,
+        "text": "Cloakyard - a thoughtful place for everyday documents  Body content on page 3  Page 3"
+      }
+    ],
+    "attachments": ["reference.txt"]
+  },
+  "errors": [],
+  "date": "2026-10-15",
+  "product": "CloakPDF",
+  "scope": "Signature panel and drawing pad",
+  "contract": "Air 1.0.1",
+  "units": {
+    "files": 42,
+    "tests": 405
+  },
+  "suites": {
+    "production_smoke": 16,
+    "extended": 7,
+    "focused": ["signature-panel", "page-geometry"],
+    "final_css_recheck": "Signature focused and production responsive-motion"
+  },
+  "extra_visuals": [
+    "12 enlarged-text mode/size/theme cases",
+    "844x390 expanded drawing pad",
+    "forced-colours",
+    "reduced-motion"
+  ],
+  "native": [
+    "Safari: drawing tap, realistic ink, place/copy/apply and focus return",
+    "Firefox: drawing, select Escape, movement, Apply and focus return at 200% browser zoom"
+  ],
+  "limitations": [
+    "Physical pen/touch and software-keyboard acceptance remains open",
+    "Real OS IME and assistive speech acceptance remains open",
+    "PDF and family refresh unfinished"
+  ],
+  "cleanup": [
+    "Retired signature skins and global Delete listener",
+    "Removed unused Switch and focusRing exports",
+    "Removed ignored legacy payload property and stale standalone reference",
+    "Unified image preparation and released scratch canvases/object URLs",
+    "Preserved live Stamp/WholeDocPanel adapters"
+  ],
+  "bundle": {
+    "editor_raw_kB": 297.54,
+    "editor_gzip_kB": 91.13,
+    "css_raw_kB": 143.8,
+    "css_gzip_kB": 25.14,
+    "assets": 128,
+    "max_asset_MiB": 25,
+    "precache_entries": 77,
+    "dependencies_added": 0
+  },
+  "proofImages": [
+    "signature-panel-desktop-2026-10-15.png",
+    "signature-panel-mobile-2026-10-15.png",
+    "signature-panel-landscape-2026-10-15.png"
+  ]
+}

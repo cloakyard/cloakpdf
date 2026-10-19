@@ -1,13 +1,4 @@
-// CommandPalette.tsx — ⌘K / Ctrl-K quick switcher for the editor. With 23 tools
-// across six families on the rail, scanning icons to find one is slow; this is
-// the keyboard-first way to jump straight to any tool by name (or its
-// description — "watermark" finds Stamp). It also exposes the handful of global
-// actions that aren't a tool (undo / redo / reset) so the palette is the one
-// place to drive the editor without reaching for the mouse.
-//
-// Mirrors the app's modal idiom (ExportModal): portal to <body>, scroll-lock,
-// Escape / backdrop to close, one Ocean-Blue accent on the active row.
-
+// Air quick switcher. Commands follow the tool roster; name matches rank first.
 import { Redo2, RotateCcw, Search, Undo2, X } from "lucide-react";
 import { type ComponentType, useEffect, useMemo, useRef, useState } from "react";
 import { ModalCloseButton, ModalShell } from "../components/ModalShell.tsx";
@@ -57,7 +48,7 @@ function CommandMatch({ text, query }: { text: string; query: string }) {
   const needles = new Set(tokens.map((token) => token.toLocaleLowerCase()));
   return parts.map((part, index) =>
     needles.has(part.toLocaleLowerCase()) ? (
-      <mark key={`${part}-${index}`} className="bg-transparent font-bold text-primary-600">
+      <mark key={`${part}-${index}`} className="pdf-command-match">
         {part}
       </mark>
     ) : (
@@ -67,22 +58,57 @@ function CommandMatch({ text, query }: { text: string; query: string }) {
 }
 
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const pendingCommand = useRef<PaletteCommand | null>(null);
+  return (
+    <ModalShell
+      open={open}
+      onClose={onClose}
+      onAfterClose={() => {
+        const command = pendingCommand.current;
+        pendingCommand.current = null;
+        if (!command) return;
+        command.run();
+        // Re-selecting the active tool does not rerun its focus effect.
+        if (command.id.startsWith("tool-"))
+          document
+            .querySelector<HTMLElement>(".editor-properties h2, .editor-mobile-sheet__header h2")
+            ?.focus({ preventScroll: true });
+      }}
+      placement="command"
+      labelledBy="command-palette-title"
+      describedBy="command-palette-description"
+      panelClassName="pdf-dialog--command"
+      testId="command-palette"
+    >
+      <CommandPaletteContent
+        onClose={onClose}
+        onChoose={(command) => {
+          pendingCommand.current = command;
+          onClose();
+        }}
+      />
+    </ModalShell>
+  );
+}
+
+// The modal mounts this content per opening, including the global shortcut toggle.
+// Search and selection therefore reset before the first paint, without an effect.
+function CommandPaletteContent({
+  onClose,
+  onChoose,
+}: {
+  onClose: () => void;
+  onChoose: (command: PaletteCommand) => void;
+}) {
   const { canUndo, canRedo, canReset } = useEditorRead();
   const { setActiveTool, setViewMode, undo, redo, reset } = useEditorActions();
 
   const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
   const [active, setActive] = useState(0);
+  const composing = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Reset the query + selection every time the palette opens, so it never
-  // reopens onto a stale search from a previous invocation.
-  useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActive(0);
-    }
-  }, [open]);
 
   // Full command list. Global actions lead (only when they can run), then the
   // tools in rail order. Rebuilt when the can-* flags flip so a disabled action
@@ -129,7 +155,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   }, [canUndo, canRedo, canReset, undo, redo, reset, setActiveTool, setViewMode]);
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = search.trim().toLowerCase();
     if (!q) return commands;
     // Each whitespace-separated token must appear somewhere in the haystack, so
     // "page num" matches "Page numbers" without caring about token order.
@@ -142,146 +168,123 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         .sort((a, b) => b.score - a.score || a.i - b.i)
         .map((r) => r.c)
     );
-  }, [query, commands]);
+  }, [search, commands]);
 
-  // Clamp the highlight whenever the result set shrinks past it.
+  const selected = active < results.length ? active : 0;
   useEffect(() => {
-    setActive((a) => (a >= results.length ? 0 : a));
-  }, [results.length]);
+    if (listRef.current) listRef.current.scrollTop = 0;
+  }, [search]);
 
-  // Keep the highlighted row in view as the user arrows through a long list.
-  // Command navigation is an instant, utilitarian state change — animating the
-  // list itself makes rapid keyboard travel feel laggy.
-  useEffect(() => {
-    listRef.current?.querySelector<HTMLElement>(`[data-idx="${active}"]`)?.scrollIntoView({
-      block: "nearest",
-      behavior: "auto",
-    });
-  }, [active]);
-
-  const closePalette = () => {
+  const clearSearch = () => {
     setQuery("");
+    setSearch("");
     setActive(0);
-    onClose();
+    inputRef.current?.focus();
   };
 
   const choose = (cmd: PaletteCommand | undefined) => {
     if (!cmd) return;
-    closePalette();
-    cmd.run();
+    onChoose(cmd);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown") {
+    // Enter confirms an IME candidate before it can run an editor command.
+    if (composing.current || e.nativeEvent.isComposing || e.keyCode === 229) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
-      setActive((a) => (results.length ? (a + 1) % results.length : 0));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActive((a) => (results.length ? (a - 1 + results.length) % results.length : 0));
+      const next = results.length
+        ? (selected + (e.key === "ArrowDown" ? 1 : -1) + results.length) % results.length
+        : 0;
+      setActive(next);
+      listRef.current?.querySelector<HTMLElement>(`[data-idx="${next}"]`)?.scrollIntoView({
+        block: "nearest",
+        behavior: "auto",
+      });
     } else if (e.key === "Enter") {
       e.preventDefault();
-      choose(results[active]);
+      choose(results[selected]);
     }
   };
 
   const countLabel = `${results.length} ${results.length === 1 ? "command" : "commands"}`;
 
   return (
-    <ModalShell
-      open={open}
-      onClose={closePalette}
-      placement="command"
-      labelledBy="command-palette-title"
-      describedBy="command-palette-count"
-      panelClassName="cloak-dialog--command max-h-[calc(100svh-2rem)] sm:max-h-[min(640px,80svh)] sm:w-[min(680px,100%)]"
-      testId="command-palette"
-    >
-      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--color-rule)] px-4 py-3">
-        <div className="min-w-0">
-          <p className="cloak-dialog__eyebrow">Workbench / navigation</p>
-          <h2 id="command-palette-title" className="cloak-dialog__title">
-            Command index
+    <>
+      <header className="pdf-dialog__header">
+        <div>
+          <h2 id="command-palette-title" className="pdf-dialog__title">
+            Find a tool
           </h2>
+          <p id="command-palette-description" className="pdf-dialog__description">
+            Jump to a tool or an editor action.
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span
-            id="command-palette-count"
-            className="font-mono text-[10px] uppercase tracking-[0.06em] text-[var(--color-ink-3)]"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {countLabel}
-          </span>
-          <ModalCloseButton onClick={closePalette} label="Close command palette" />
-        </div>
+        <ModalCloseButton onClick={onClose} label="Close command palette" />
       </header>
 
-      <div className="flex min-h-12 shrink-0 items-center gap-2.5 border-b border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-4 focus-within:z-10 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-[var(--color-focus)]">
-        <Search className="h-4.5 w-4.5 shrink-0 text-[var(--color-ink-3)]" aria-hidden="true" />
-        <input
-          ref={inputRef}
-          data-dialog-initial-focus
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActive(0);
-          }}
-          onKeyDown={onKeyDown}
-          type="search"
-          role="combobox"
-          aria-expanded="true"
-          aria-autocomplete="list"
-          aria-controls="command-palette-listbox"
-          aria-activedescendant={results.length ? `command-palette-opt-${active}` : undefined}
-          placeholder="Search tools and actions…"
-          aria-label="Search tools and actions"
-          autoComplete="off"
-          spellCheck={false}
-          className="h-12 min-w-0 flex-1 appearance-none bg-transparent text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-3)] focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setActive(0);
-              inputRef.current?.focus();
+      <div className="pdf-command-search">
+        <label htmlFor="command-palette-query" className="air-label">
+          Search tools and actions
+        </label>
+        <div className="air-field-group">
+          <Search
+            className="pdf-command-search__icon"
+            size={18}
+            strokeWidth={1.6}
+            aria-hidden="true"
+          />
+          <input
+            id="command-palette-query"
+            ref={inputRef}
+            data-dialog-initial-focus
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!composing.current) {
+                setSearch(e.target.value);
+                setActive(0);
+              }
             }}
-            aria-label="Clear command search"
-            className="cloak-focus grid h-11 w-11 shrink-0 place-items-center rounded-[var(--radius-input)] text-[var(--color-ink-3)] hover:bg-[var(--color-surface-strong)] hover:text-[var(--color-ink)]"
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        )}
-      </div>
-
-      <div
-        ref={listRef}
-        id="command-palette-listbox"
-        role="listbox"
-        aria-label="Tools and actions"
-        className="thin-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain"
-      >
-        {results.length === 0 ? (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm font-semibold text-[var(--color-ink)]">No command found</p>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-3)]">
-              Try a tool name such as “redact”, “crop”, or “page numbers”.
-            </p>
+            onCompositionStart={() => {
+              composing.current = true;
+            }}
+            onCompositionEnd={(e) => {
+              composing.current = false;
+              setSearch(e.currentTarget.value);
+              setActive(0);
+            }}
+            onKeyDown={onKeyDown}
+            type="search"
+            role="combobox"
+            aria-expanded="true"
+            aria-autocomplete="list"
+            aria-controls="command-palette-listbox"
+            aria-activedescendant={results.length ? `command-palette-opt-${selected}` : undefined}
+            placeholder="Try crop or page numbers…"
+            autoComplete="off"
+            spellCheck={false}
+            className="air-field"
+          />
+          <span className="air-field-actions">
             <button
               type="button"
-              onClick={() => {
-                setQuery("");
-                inputRef.current?.focus();
-              }}
-              className="cloak-focus mt-4 min-h-11 rounded-[var(--radius-input)] border border-[var(--color-rule)] px-3 font-mono text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-600 hover:border-primary-500"
+              hidden={!query}
+              onClick={clearSearch}
+              aria-label="Clear command search"
+              className="air-icon-button air-button--quiet air-field-clear"
             >
-              Clear search
+              <X size={18} strokeWidth={1.6} aria-hidden="true" />
             </button>
-          </div>
-        ) : (
-          results.map((cmd, i) => {
-            const on = i === active;
+          </span>
+        </div>
+        <p id="command-palette-count" className="air-help" role="status" aria-atomic="true">
+          {countLabel}
+        </p>
+      </div>
+
+      <div ref={listRef} className="pdf-command-results thin-scrollbar">
+        <div id="command-palette-listbox" role="listbox" aria-label="Tools and actions">
+          {results.map((cmd, i) => {
             const Icon = cmd.Icon;
             return (
               <button
@@ -290,47 +293,56 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 type="button"
                 data-idx={i}
                 role="option"
-                aria-selected={on}
+                aria-labelledby={`command-palette-label-${i}`}
+                aria-describedby={`command-palette-detail-${i}`}
+                aria-selected={i === selected}
                 tabIndex={-1}
-                onPointerMove={() => setActive(i)}
+                onPointerMove={(event) => {
+                  if (event.pointerType === "mouse") setActive(i);
+                }}
                 onClick={() => choose(cmd)}
-                className={`relative grid min-h-[3.75rem] w-full grid-cols-[2rem_1.25rem_minmax(0,1fr)] items-center gap-2.5 border-b border-[var(--color-rule)] px-4 py-2.5 text-left transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-focus)] sm:grid-cols-[2rem_1.25rem_minmax(0,1fr)_auto] ${
-                  on
-                    ? "bg-[var(--color-accent-soft)] shadow-[inset_2px_0_0_var(--color-accent)]"
-                    : "hover:bg-[var(--color-paper)]"
-                }`}
+                className="pdf-command-option"
               >
-                <span className="font-mono text-[10px] tabular-nums text-[var(--color-ink-3)]">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <Icon
-                  className={`h-4 w-4 ${on ? "text-primary-600" : "text-[var(--color-ink-3)]"}`}
-                  aria-hidden="true"
-                />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-[var(--color-ink)]">
-                    <CommandMatch text={cmd.label} query={query} />
+                <Icon className="pdf-command-option__icon" aria-hidden="true" />
+                <span className="pdf-command-option__text">
+                  <span id={`command-palette-label-${i}`} className="pdf-command-option__label">
+                    <CommandMatch text={cmd.label} query={search} />
                   </span>
-                  {cmd.description && (
-                    <span className="mt-0.5 block line-clamp-2 text-xs leading-snug text-[var(--color-ink-2)] sm:truncate">
-                      <CommandMatch text={cmd.description} query={query} />
-                    </span>
-                  )}
-                </span>
-                <span className="col-start-3 mt-0.5 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)] sm:col-start-auto sm:mt-0 sm:shrink-0">
-                  {cmd.hint}
+                  <span id={`command-palette-detail-${i}`} className="pdf-command-option__detail">
+                    {cmd.description && (
+                      <span>
+                        <CommandMatch text={cmd.description} query={search} />
+                      </span>
+                    )}
+                    <span className="pdf-command-option__group">{cmd.hint}</span>
+                  </span>
                 </span>
               </button>
             );
-          })
+          })}
+        </div>
+        {results.length === 0 && (
+          <div className="pdf-command-empty">
+            <p>No matching tools or actions</p>
+            <p>Try “redact”, “crop” or “page numbers”.</p>
+            <button type="button" onClick={clearSearch} className="air-button">
+              Clear search
+            </button>
+          </div>
         )}
       </div>
 
-      <footer className="hidden shrink-0 items-center justify-between gap-4 border-t border-[var(--color-rule-strong)] bg-[var(--color-paper)] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.05em] text-[var(--color-ink-3)] sm:flex">
-        <span>↑↓ Navigate</span>
-        <span>Enter Open</span>
-        <span>Esc Close</span>
+      <footer className="pdf-command-hints">
+        <span>
+          <kbd>↑ ↓</kbd> Navigate
+        </span>
+        <span>
+          <kbd>Enter</kbd> Open
+        </span>
+        <span>
+          <kbd>Esc</kbd> Close
+        </span>
       </footer>
-    </ModalShell>
+    </>
   );
 }

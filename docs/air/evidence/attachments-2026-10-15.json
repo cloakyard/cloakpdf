@@ -1,0 +1,287 @@
+{
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "light",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 44,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "theme": "dark",
+      "overflow": false,
+      "pageOverflow": false,
+      "minTarget": 40,
+      "filenamesWrap": true
+    }
+  ],
+  "edgeStates": [
+    {
+      "width": 390,
+      "theme": "light",
+      "empty": true,
+      "readError": true,
+      "reading": true,
+      "retry": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "empty": true,
+      "readError": true,
+      "reading": true,
+      "retry": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "empty": true,
+      "readError": true,
+      "reading": true,
+      "retry": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "empty": true,
+      "readError": true,
+      "reading": true,
+      "retry": true
+    }
+  ],
+  "exactEmbeddedBytes": true,
+  "distinctDuplicateRemoval": true,
+  "physicalRemoval": true,
+  "failedSelectionRetained": true,
+  "failureRetry": true,
+  "staleReadIgnored": true,
+  "undoRedo": true,
+  "cancelDiscards": true,
+  "donePreservesSelection": true,
+  "text200": true,
+  "forcedColours": true,
+  "errors": [],
+  "date": "2026-10-15",
+  "scope": "Attach panel and byte-level attachment identity/removal; shared busy focus restoration",
+  "native": {
+    "safari": "Unicode file addition, native chooser cancellation, remove, Undo and surviving-action focus passed",
+    "firefox": "Actual 200% browser zoom, keyboard removal and Undo passed; zoom restored",
+    "productionPreview": "Updated 8132 build: synthetic PDF, Unicode attachment add/remove/Undo and expanded mobile controls passed"
+  },
+  "checks": {
+    "unitTests": 400,
+    "unitFiles": 40,
+    "productionSmokeSuites": 16,
+    "extendedSuites": 7,
+    "focusedSuites": ["attachments", "bookmarks"],
+    "check": true,
+    "deadCode": true,
+    "build": true,
+    "design": true,
+    "portability": true
+  },
+  "cleanup": [
+    "Replaced mono/dashed/tinted attachment skins and truncated filename rows",
+    "Removed dead attachment barrel exports and name-based removal logic",
+    "Unified tree traversal and removed redundant live-object traversal",
+    "No new dependency; existing FileEmbedder remains the encoding implementation"
+  ],
+  "bundle": {
+    "editorRawKB": 290.52,
+    "editorGzipKB": 88.34,
+    "cssRawKB": 144.58,
+    "cssGzipKB": 25.29,
+    "deployFiles": 128,
+    "maxAssetMiB": 25,
+    "precacheEntries": 77
+  },
+  "limitations": [
+    "Physical touch/software keyboards, OS IME and assistive speech remain unverified",
+    "Only catalog EmbeddedFiles entries are managed; nonstandard surviving references fail explicitly",
+    "Other PDF tool interiors and the remaining family products are not complete"
+  ]
+}

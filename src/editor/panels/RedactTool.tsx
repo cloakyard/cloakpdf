@@ -6,10 +6,9 @@
 // (text physically destroyed) only at export, or just before the next byte
 // transform — see EditorContext.applyTransform + doc.ts flattenDestructiveObjects.
 // The committed boxes paint as an always-on base layer in PdfStage; the Stage
-// here only draws the in-progress drag box. Reuses the geometry + PII pipeline
-// the standalone RedactPdf tool proved. See CLAUDE.md (redaction is destructive).
+// here only draws the in-progress drag box. Shares the geometry + PII pipeline with text extraction. See CLAUDE.md (redaction is destructive).
 
-import { AlertTriangle, Loader2, ScanSearch, Search, Trash2 } from "lucide-react";
+import { AlertTriangle, ScanSearch, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   detectPiiRects,
@@ -28,7 +27,9 @@ import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.
 import { drawRedactionMark } from "../overlay-paint.ts";
 import { type StagePoint, useStageProps } from "../stage.tsx";
 import type { FractionRect } from "../types.ts";
-import { ColorRow, Labeled, type Rgb } from "./controls.tsx";
+import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
+import type { Rgb } from "./controls.tsx";
+import { PendingMarkList } from "./PendingMarkList.tsx";
 
 const TOOL_ID = "redact-pdf";
 
@@ -149,388 +150,288 @@ export function Stage() {
 }
 
 export function Panel() {
-  const { doc } = useEditorRead();
-  const { addObjects, removeObject, removeObjects, patchToolState, setSelectedPage, setViewMode } =
-    useEditorActions();
+  const { doc, busyLabel } = useEditorRead();
+  const { addObjects, patchToolState } = useEditorActions();
   const { fillColor, borderColor } = readStyle(useToolSlice(TOOL_ID));
   const [piiTypes, setPiiTypes] = useState<Set<PiiType>>(
     () => new Set(PII_TYPES.filter((t) => t !== "date")),
   );
-  const [detecting, setDetecting] = useState(false);
-  type StatusMessage = { tone: "muted" | "error"; text: string };
-  // Scan and text-query feedback stay independent. A PII scan failure must not
-  // make the separate text field invalid (or vice versa).
-  const [scanSummary, setScanSummary] = useState<StatusMessage | null>(null);
-  const [querySummary, setQuerySummary] = useState<StatusMessage | null>(null);
-  // Find-text-and-redact: type a name/phrase, black out every occurrence.
+  type Operation = "scan" | "query";
+  type Message = { tone: "muted" | "error"; text: string };
+  const [summary, setSummary] = useState<Partial<Record<Operation, Message>>>({});
+  const [pending, setPending] = useState<Operation | null>(null);
+  const [progress, setProgress] = useState("");
   const [term, setTerm] = useState("");
-  const [finding, setFinding] = useState(false);
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [wholeWord, setWholeWord] = useState(false);
-  const [ocr, setOcr] = useState<{ done: number; total: number } | null>(null);
+  const request = useRef<AbortController | null>(null);
+  const geometry = useRef<{ key: Uint8Array; pages: LayoutPage[] } | null>(null);
+  const current = useRef(doc);
+  current.current = doc;
+  const blocked = !!pending || !!busyLabel;
 
-  // Geometry cache keyed by the doc's byte buffer — Detect and Find share one
-  // extraction (and one OCR pass) instead of re-reading the whole document on
-  // every click. Adding redaction objects keeps the same bytes, so the cache
-  // survives a detect→find sequence; applyTransform mints fresh bytes on Apply,
-  // which invalidates it automatically (the reference comparison fails).
-  const geomRef = useRef<{ key: Uint8Array; pages: LayoutPage[] } | null>(null);
+  // Byte transforms preserve the document ID. Own the actual byte revision,
+  // not only its ID; undo, replacement and tool exit invalidate in-flight OCR.
+  useEffect(() => {
+    setPending(null);
+    setProgress("");
+    setSummary({});
+    return () => {
+      request.current?.abort();
+      request.current = null;
+    };
+  }, [doc?.id, doc?.bytes, busyLabel]);
 
-  // Detect/Find run a (possibly long) OCR pass with NO busy overlay, so the user
-  // can undo / switch tools / apply another transform meanwhile. Track the live
-  // doc id so a scan that started against an old doc drops its results instead of
-  // committing redaction boxes at fraction coords that no longer line up.
-  const docIdRef = useRef(doc?.id);
-  docIdRef.current = doc?.id;
-
-  const ensureGeometry = useCallback(async (): Promise<LayoutPage[]> => {
-    if (!doc) return [];
-    const cached = geomRef.current;
-    if (cached && cached.key === doc.bytes) return cached.pages;
-    const pages = await extractTextGeometry(docToFile(doc), {
-      ocr: true,
-      onOcrPage: (done, total) => setOcr({ done, total }),
-    });
-    geomRef.current = { key: doc.bytes, pages };
-    return pages;
-  }, [doc]);
-
-  const redactions = (doc?.objects ?? []).filter((o) => o.kind === "redaction");
-  const count = redactions.length;
-
-  const toggle = (t: PiiType) =>
-    setPiiTypes((prev) => {
-      const next = new Set(prev);
-      if (next.has(t)) next.delete(t);
-      else next.add(t);
-      return next;
-    });
-
-  const detect = useCallback(async () => {
-    if (!doc || piiTypes.size === 0) return;
-    const startId = doc.id;
-    setDetecting(true);
-    setScanSummary(null);
-    setOcr(null);
-    try {
-      const pages = await ensureGeometry();
-      if (docIdRef.current !== startId) return; // doc changed mid-scan — drop stale results
-      const found = detectPiiRects(pages, [...piiTypes]);
-      if (found.length === 0) {
-        setScanSummary({
-          tone: "muted",
-          text: "No matching sensitive data found — draw boxes by hand if needed.",
-        });
-        return;
-      }
-      addObjects(
-        found.map((r) => ({
-          kind: "redaction" as const,
-          pageIndex: r.pageIndex,
-          rect: { xPct: r.xPct, yPct: r.yPct, wPct: r.wPct, hPct: r.hPct },
-          payload: { fill: fillColor, border: borderColor } satisfies RedactionPayload,
-        })),
-        "Detect PII",
-      );
-      setScanSummary({
-        tone: "muted",
-        text: `Added ${found.length} box${found.length > 1 ? "es" : ""}.`,
-      });
-    } catch {
-      setScanSummary({ tone: "error", text: "Couldn't scan this document for sensitive data." });
-    } finally {
-      setDetecting(false);
-      setOcr(null);
-    }
-  }, [doc, piiTypes, addObjects, ensureGeometry, fillColor, borderColor]);
-
-  const find = useCallback(async () => {
+  const run = async (operation: Operation) => {
     const q = term.trim();
-    if (!doc || !q) return;
-    const startId = doc.id;
-    setFinding(true);
-    setQuerySummary(null);
-    setOcr(null);
+    if (!doc || busyLabel || request.current || (operation === "scan" ? !piiTypes.size : !q))
+      return;
+    const controller = new AbortController();
+    const { signal } = controller;
+    request.current = controller;
+    setPending(operation);
+    setSummary((s) => ({ ...s, [operation]: undefined }));
+    setProgress("Reading document…");
+    const ownsRequest = () =>
+      !signal.aborted &&
+      request.current === controller &&
+      current.current?.id === doc.id &&
+      current.current?.bytes === doc.bytes;
     try {
-      const pages = await ensureGeometry();
-      if (docIdRef.current !== startId) return; // doc changed mid-search — drop stale results
-      const rects = findTextRects(pages, [q], { caseSensitive, wholeWord });
-      if (rects.length === 0) {
-        setQuerySummary({
-          tone: "muted",
-          text: `No text-layer matches for “${q}”. It may be an image — run OCR first.`,
+      let pages = geometry.current?.key === doc.bytes ? geometry.current.pages : null;
+      if (!pages) {
+        pages = await extractTextGeometry(docToFile(doc), {
+          ocr: true,
+          signal,
+          onProgress: (done, total) => {
+            if (ownsRequest()) setProgress(`Reading pages… (${done}/${total})`);
+          },
+          onOcrPage: (done, total) => {
+            if (ownsRequest()) setProgress(`Reading scanned pages… (${done}/${total})`);
+          },
         });
-        return;
+        if (!ownsRequest()) return;
+        geometry.current = { key: doc.bytes, pages };
       }
-      addObjects(
-        rects.map((r) => ({
-          kind: "redaction" as const,
-          pageIndex: r.pageIndex,
-          rect: { xPct: r.xPct, yPct: r.yPct, wPct: r.wPct, hPct: r.hPct },
-          payload: { fill: fillColor, border: borderColor } satisfies RedactionPayload,
-        })),
-        `Find “${q}”`,
-      );
-      const onPages = [...new Set(rects.map((r) => r.pageIndex + 1))].sort((a, b) => a - b);
-      setQuerySummary({
-        tone: "muted",
-        text: `Added ${rects.length} box${rects.length === 1 ? "" : "es"} for “${q}” on page${
-          onPages.length === 1 ? "" : "s"
-        } ${onPages.join(", ")}.`,
-      });
-      setTerm("");
+      if (!ownsRequest()) return;
+      const found =
+        operation === "scan"
+          ? detectPiiRects(pages, [...piiTypes])
+          : findTextRects(pages, [q], { caseSensitive, wholeWord });
+      if (found.length) {
+        addObjects(
+          found.map((r) => ({
+            kind: "redaction" as const,
+            pageIndex: r.pageIndex,
+            rect: { xPct: r.xPct, yPct: r.yPct, wPct: r.wPct, hPct: r.hPct },
+            payload: { fill: fillColor, border: borderColor } satisfies RedactionPayload,
+          })),
+          operation === "scan" ? "Detect PII" : `Find “${q}”`,
+        );
+        if (operation === "query") setTerm("");
+      }
+      setSummary((s) => ({
+        ...s,
+        [operation]: {
+          tone: "muted",
+          text: found.length
+            ? `Added ${found.length} box${found.length === 1 ? "" : "es"}${operation === "query" ? ` for “${q}”` : ""}. Review every box before exporting.`
+            : operation === "scan"
+              ? "No matching sensitive data found. You can draw boxes by hand."
+              : `No matches for “${q}”. Check the spelling or draw a box over the text.`,
+        },
+      }));
     } catch {
-      setQuerySummary({ tone: "error", text: "Couldn't search this document for that text." });
+      if (ownsRequest())
+        setSummary((s) => ({
+          ...s,
+          [operation]: {
+            tone: "error",
+            text: `Couldn't ${operation === "scan" ? "scan for sensitive data" : "find that text"}. Your marks are safe. Try again.`,
+          },
+        }));
     } finally {
-      setFinding(false);
-      setOcr(null);
+      if (request.current === controller) {
+        request.current = null;
+        setPending(null);
+        setProgress("");
+      }
     }
-  }, [doc, term, caseSensitive, wholeWord, addObjects, ensureGeometry, fillColor, borderColor]);
+  };
 
-  const clearAll = () => {
-    const ids = (doc?.objects ?? []).filter((o) => o.kind === "redaction").map((o) => o.id);
-    if (ids.length > 0) removeObjects(ids, "Clear redactions");
+  const feedback = (operation: Operation) => {
+    const message = summary[operation];
+    return (
+      <p
+        id={`redaction-${operation}-status`}
+        role={message?.tone === "error" ? "alert" : "status"}
+        className={message?.tone === "error" ? "air-notice air-notice--error" : "air-help"}
+      >
+        {message?.tone === "error" && <AlertTriangle size={16} aria-hidden="true" />}
+        <span>{pending === operation ? progress : message?.text}</span>
+      </p>
+    );
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <section
-        className="space-y-3 border-y border-[var(--color-rule)] py-3"
-        aria-label="Smart redaction"
-      >
-        <div className="flex items-start gap-2">
-          <ScanSearch className="mt-0.5 h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-          <p className="text-xs text-[var(--color-ink-3)]">
-            Auto-detect emails, phones & IDs, or drag boxes on the page.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-input)] border border-[var(--color-rule)] bg-[var(--color-rule)]">
-          {PII_TYPES.map((t) => {
-            const on = piiTypes.has(t);
-            return (
-              <button
-                key={t}
-                type="button"
-                onClick={() => toggle(t)}
-                disabled={detecting}
-                aria-pressed={on}
-                className={`cloak-focus min-h-9 px-2.5 py-2 text-left font-mono text-[10px] font-semibold uppercase tracking-[0.04em] transition-colors disabled:cursor-not-allowed disabled:opacity-50 pointer-coarse:min-h-11 ${
-                  on
-                    ? "bg-[var(--color-accent-soft)] text-primary-700 shadow-[inset_2px_0_0_var(--color-accent)]"
-                    : "bg-[var(--color-surface)] text-[var(--color-ink-3)] hover:bg-[var(--color-paper)] hover:text-[var(--color-ink)]"
-                }`}
-              >
-                {PII_LABELS[t]}
-              </button>
-            );
-          })}
-        </div>
+    <div className="pdf-mark-panel">
+      <p>Find sensitive text or draw boxes on the page. Review each mark before exporting.</p>
+      <section aria-label="Smart redaction">
+        <fieldset className="air-choice-group" disabled={blocked}>
+          <legend>Detect sensitive data</legend>
+          <div className="pdf-mark-choices">
+            {PII_TYPES.map((type) => (
+              <label key={type} className="air-check-label">
+                <input
+                  className="air-check"
+                  type="checkbox"
+                  checked={piiTypes.has(type)}
+                  onChange={() =>
+                    setPiiTypes((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(type)) next.delete(type);
+                      else next.add(type);
+                      return next;
+                    })
+                  }
+                />
+                <span>{PII_LABELS[type]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
         <button
           type="button"
-          onClick={() => void detect()}
-          disabled={detecting || finding || piiTypes.size === 0}
-          aria-describedby={
-            detecting && ocr
-              ? "redaction-scan-progress"
-              : scanSummary
-                ? "redaction-scan-status"
-                : undefined
-          }
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary-600 px-3 py-2.5 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:cursor-not-allowed disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          className="air-button air-button--primary"
+          aria-disabled={blocked || !piiTypes.size}
+          aria-busy={pending === "scan"}
+          aria-describedby="redaction-scan-status"
+          onClick={() => void run("scan")}
         >
-          {detecting ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          ) : (
-            <ScanSearch className="h-4 w-4" aria-hidden="true" />
-          )}
-          {detecting ? "Scanning…" : "Detect & add boxes"}
+          <ScanSearch size={16} aria-hidden="true" />
+          <span className="air-action-labels">
+            <span data-active={pending !== "scan" || undefined} aria-hidden={pending === "scan"}>
+              Detect &amp; add boxes
+            </span>
+            <span data-active={pending === "scan" || undefined} aria-hidden={pending !== "scan"}>
+              Scanning…
+            </span>
+          </span>
         </button>
-        {detecting && ocr && (
-          <p
-            id="redaction-scan-progress"
-            role="status"
-            className="text-xs text-[var(--color-ink-3)]"
-          >
-            Reading scanned pages… ({ocr.done}/{ocr.total})
-          </p>
-        )}
-        {scanSummary && (
-          <p
-            id="redaction-scan-status"
-            role={scanSummary.tone === "error" ? "alert" : "status"}
-            className={
-              scanSummary.tone === "error"
-                ? "cloak-notice cloak-notice--danger text-xs"
-                : "text-xs text-[var(--color-ink-3)]"
-            }
-          >
-            {scanSummary.tone === "error" && (
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            )}
-            <span>{scanSummary.text}</span>
-          </p>
-        )}
+        {feedback("scan")}
       </section>
-
-      {/* Find text & redact — black out every occurrence of a name or phrase. */}
-      <section
-        className="space-y-2 border-b border-[var(--color-rule)] pb-3"
-        aria-label="Find text"
-      >
-        <p className="text-xs text-[var(--color-ink-3)]">
-          Type a name or phrase to black out every occurrence — what auto-detect cannot catch.
-        </p>
-        <label htmlFor="redaction-search" className="cloak-field-label">
+      <section className="pdf-mark-query" aria-label="Find text">
+        <label htmlFor="redaction-search" className="air-label">
           Text to redact
         </label>
-        <div className="flex items-center gap-1.5">
-          <div className="cloak-search-field min-w-0 flex-1 px-2.5">
-            <Search className="h-4 w-4 shrink-0 text-primary-600" aria-hidden="true" />
-            <input
-              id="redaction-search"
-              type="text"
-              aria-label="Text to redact"
-              aria-describedby="redaction-search-status"
-              aria-invalid={querySummary?.tone === "error"}
-              name="redaction-search"
-              autoComplete="off"
-              value={term}
-              placeholder="Search text…"
-              onChange={(e) => setTerm(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  void find();
-                }
-              }}
-              className="h-11 px-2 text-sm placeholder:text-[var(--color-ink-3)]"
-            />
-          </div>
+        <div className="pdf-mark-search">
+          <input
+            id="redaction-search"
+            className="air-field"
+            type="text"
+            name="redaction-search"
+            autoComplete="off"
+            value={term}
+            placeholder="Search text…"
+            readOnly={blocked}
+            aria-describedby="redaction-query-status redaction-search-help"
+            onChange={(e) => setTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+                e.preventDefault();
+                void run("query");
+              }
+            }}
+          />
           <button
             type="button"
-            onClick={() => void find()}
-            disabled={detecting || finding || !term.trim()}
+            className="air-button"
             aria-label="Find and redact"
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-md bg-primary-600 px-3 py-2 font-mono text-xs font-semibold text-[var(--color-accent-ink)] hover:bg-primary-700 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 transition-[color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+            aria-disabled={blocked || !term.trim()}
+            aria-busy={pending === "query"}
+            onClick={() => void run("query")}
           >
-            {finding && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-            {finding ? "Finding…" : "Find"}
+            <Search size={16} aria-hidden="true" />
+            <span className="air-action-labels">
+              <span
+                data-active={pending !== "query" || undefined}
+                aria-hidden={pending === "query"}
+              >
+                Find
+              </span>
+              <span
+                data-active={pending === "query" || undefined}
+                aria-hidden={pending !== "query"}
+              >
+                Finding…
+              </span>
+            </span>
           </button>
         </div>
-        {querySummary ? (
-          <p
-            id="redaction-search-status"
-            role={querySummary.tone === "error" ? "alert" : "status"}
-            className={
-              querySummary.tone === "error"
-                ? "cloak-notice cloak-notice--danger text-xs"
-                : "text-xs text-[var(--color-ink-3)]"
-            }
-          >
-            {querySummary.tone === "error" && (
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            )}
-            <span>{querySummary.text}</span>
-          </p>
-        ) : (
-          <p
-            id="redaction-search-status"
-            role={finding ? "status" : undefined}
-            className="min-h-[1lh] text-xs text-[var(--color-ink-3)]"
-          >
-            {finding
-              ? ocr
-                ? `Reading scanned pages… (${ocr.done}/${ocr.total})`
-                : "Finding matches…"
-              : "Search one phrase at a time; every match becomes an editable redaction box."}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-2)]">
+        <p className="air-help" id="redaction-search-help">
+          Every match becomes an editable box. Names need a text search or a hand-drawn box.
+        </p>
+        <div className="pdf-mark-choices">
+          <label className="air-check-label">
             <input
               type="checkbox"
+              className="air-check"
               checked={caseSensitive}
               onChange={(e) => setCaseSensitive(e.target.checked)}
-              disabled={finding}
-              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus-visible:ring-primary-500"
+              disabled={blocked}
             />
             Match case
           </label>
-          <label className="flex items-center gap-2 text-xs text-[var(--color-ink-2)]">
+          <label className="air-check-label">
             <input
               type="checkbox"
+              className="air-check"
               checked={wholeWord}
               onChange={(e) => setWholeWord(e.target.checked)}
-              disabled={finding}
-              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus-visible:ring-primary-500"
+              disabled={blocked}
             />
             Whole word
           </label>
         </div>
+        {feedback("query")}
       </section>
-
-      {/* Box appearance — fill + border, the same colour picker + presets every
-          tool uses. Applies to new boxes (detect / find / hand-drawn). */}
-      <div className="flex flex-col gap-3">
-        <Labeled label="Fill colour">
-          <ColorRow value={fillColor} onChange={(c) => patchToolState(TOOL_ID, { fillColor: c })} />
-        </Labeled>
-        <Labeled label="Border colour">
-          <ColorRow
-            value={borderColor}
-            onChange={(c) => patchToolState(TOOL_ID, { borderColor: c })}
-          />
-        </Labeled>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[var(--color-ink-2)]">
-            {count} redaction{count === 1 ? "" : "s"}
-          </span>
-          {count > 0 && (
-            <button
-              type="button"
-              onClick={clearAll}
-              className="cloak-focus inline-flex min-h-11 items-center px-1 font-mono text-[10px] font-semibold uppercase tracking-wide text-primary-600 hover:text-primary-700"
-            >
-              Clear all
-            </button>
-          )}
-        </div>
-        {count > 0 && (
-          <ul className="cloak-ledger thin-scrollbar max-h-40 overflow-y-auto">
-            {redactions.map((r, i) => (
-              <li
-                key={r.id}
-                className="flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPage(r.pageIndex);
-                    setViewMode("focus");
-                  }}
-                  className="cloak-focus min-h-9 min-w-0 flex-1 truncate text-left text-[var(--color-ink-2)] hover:text-primary-600 pointer-coarse:min-h-11"
-                >
-                  Box {i + 1} · page {r.pageIndex + 1}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeObject(r.id)}
-                  aria-label={`Remove box ${i + 1}`}
-                  className="cloak-focus inline-flex min-h-9 min-w-9 items-center justify-center text-[var(--color-ink-3)] hover:bg-[var(--color-paper)] hover:text-[var(--color-danger)] pointer-coarse:min-h-11 pointer-coarse:min-w-11"
-                >
-                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <p className="text-xs text-[var(--color-ink-3)]">
-        Redactions stay editable — your text remains searchable — and are burned into the pages
-        permanently when you export.
+      {pending && (
+        <button
+          type="button"
+          className="air-button"
+          onClick={() => {
+            request.current?.abort();
+            request.current = null;
+            setSummary((s) => ({
+              ...s,
+              [pending]: { tone: "muted", text: "Cancelled. Your marks are unchanged." },
+            }));
+            setPending(null);
+            setProgress("");
+            document.getElementById("redaction-search")?.focus();
+          }}
+        >
+          Cancel scan
+        </button>
+      )}
+      <section aria-label="New box appearance">
+        <ColorPicker
+          label="Fill colour"
+          value={rgbToHex(fillColor.r, fillColor.g, fillColor.b)}
+          onChange={(hex) => patchToolState(TOOL_ID, { fillColor: hexToRgb(hex) })}
+        />
+        <ColorPicker
+          label="Border colour"
+          value={rgbToHex(borderColor.r, borderColor.g, borderColor.b)}
+          onChange={(hex) => patchToolState(TOOL_ID, { borderColor: hexToRgb(hex) })}
+        />
+        <p className="air-help">Colours apply to the next boxes you add.</p>
+      </section>
+      <PendingMarkList kind="redaction" />
+      <p className="air-help">
+        Marks stay editable until export or another operation changes the PDF. Then marked pages
+        become images: covered text is permanently removed, selectable text is lost on those pages,
+        and the file may grow.
       </p>
     </div>
   );

@@ -1,0 +1,85 @@
+[check]
+pass: Formatting completed for checked files (2.0s)
+pass: Found no warnings, lint errors, or type errors in 236 files (785ms, 12 threads)
+
+[dead]
+
+
+[unit]
+ Test Files  37 passed (37)
+      Tests  376 passed (376)
+
+[build]
+✓ 3402 modules transformed.
+✓ built in 821ms
+Deployment asset check passed: 128 files, all <= 25 MiB.
+
+[browser]
+PASS 48 responsive rotated-page layouts; no page errors.
+
+[smoke]
+✓ All 6 non-AI standalone tools passed their headless browser workflows.
+✓ Home routing smoke passed — editor-card preselect + constructor hand-off.
+✓ Landing search refinement passed.
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+✓ editor-features passed on all 3 fixtures.
+✓ editor keyboard interactions passed
+✓ commands: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ filtered: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ empty: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Command palette + keyboard shortcuts passed.
+✓ Shared modal system passed.
+✓ export-pdf-options: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Native format/quality groups have one Tab stop, arrow keys and persistent choices; plain PDF bytes are exact
+✓ export-preparing: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Busy state retains focus and blocks editing/dismissal/duplicate work; split ZIP contains two valid single-page PDFs
+✓ export-images: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Images preserve 150 DPI dimensions; contact sheet, text and Markdown contain both pages in order
+✓ export-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Failure keeps options and focus, cleans up its download anchor, and retries successfully with metadata removed
+✓ Flatten, grayscale, repair, all three compression levels and combined options produce valid PDFs without changing source/history
+✓ All six formats burn pending redaction; PDF streams contain no original text, PNG pixels retain the redaction ink, OCR exports cannot recover the covered text
+✓ export-long-name: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Long filenames reflow at every viewport/theme/text size; reduced-motion reopen is immediate
+✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+✓ Pointer motion, exit ownership, immediate keyboard/reduced-motion and reopen
+✓ delete-confirmation: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Safe delete cancellation preserves storage and returns focus
+✓ cache failure remains actionable without false success
+✓ index failure remains actionable without false success
+✓ Retry removes real CacheStorage, committed IDB records and readiness flags
+✓ Cancelled cached loading stays idle and permits explicit reload
+✓ loading: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ download-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Download errors stay at actual ready count; Retry and Cancel recover
+✓ indexing: 64 size/theme/text cases
+✓ index-error: 64 size/theme/text cases
+✓ no-text: 64 size/theme/text cases
+✓ empty: 64 size/theme/text cases
+✓ answer-error: 64 size/theme/text cases
+✓ answer: 64 size/theme/text cases
+✓ long-content: 64 size/theme/text cases
+✓ Explicit indexing retry; IME, Shift+Enter and limits; guarded send; partial recovery; draft/focus retention; real source bytes; safe markdown; scroll ownership; obsolete-result isolation; source URL cleanup; reduced motion/forced colours
+PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+PASS: 68 canvas layouts; 36px brand; selection colours; composition/focus/multiline/touch editing.
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.
+
+[extended]
+✓ Rotation smoke passed — bake, no stale compounding, export warns when pending.
+✓ Compress smoke passed — guard holds, text preserved, images crushed.
+✓ Signature pen/mouse/touch input passed.
+✓ Annotate fonts + underline passed.
+✓ Stamp preview smoke passed — paints live, clears on switch.
+✓ place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-WbSyKs
+✓ mobile place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-m-nyq0hl
+
+[final-canvas]
+PASS: 68 canvas layouts; 36px brand; selection colours; composition/focus/multiline/touch editing.
+
+[final-collections]
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+
+[final-rotate]
+✓ Rotation smoke passed — bake, no stale compounding, export warns when pending.

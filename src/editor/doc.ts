@@ -8,25 +8,23 @@
 // (history snapshots cheap bytes-by-ref + object deltas, never page rasters).
 
 import { PDFDocument } from "@pdfme/pdf-lib";
+import { visiblePageGeometry } from "../utils/pdf/page-geometry.ts";
 import { type EraseMode, erasePdf, redactPdf } from "../utils/pdf-operations.ts";
-import { PREVIEW_SCALE, renderAllThumbnails, revokeThumbnails } from "../utils/pdf-renderer.ts";
+import { renderPagePreviews, revokeThumbnails } from "../utils/pdf-renderer.ts";
 import type { FractionRect } from "./types.ts";
 
 /** Re-exported so editor modules revoke thumbnail blob URLs without reaching
  *  into the renderer directly (history eviction, full teardown). */
 export { revokeThumbnails };
 
-/** Per-page geometry + cached preview. Dimensions are in PDF points (the space
- *  pdf-lib writes in) and taken from the CropBox — the visible box PDF.js
- *  renders — so the focus canvas aspect ratio always matches the thumbnail,
- *  even for cropped pages or inputs that ship a CropBox. `rotation` is the
- *  page's own /Rotate angle. */
+/** Per-page geometry in physical points of the visible, rotated PDF.js page.
+ * Overlay fractions and point-sized tools share this display frame. */
 export interface PageMeta {
   index: number;
   widthPt: number;
   heightPt: number;
-  rotation: number;
-  /** PDF.js blob: URL preview, or null before it renders. Revoke on replace. */
+  /** Transient PDF.js preview cache; null when unavailable. History may repair
+   * this field in place without changing the immutable document/geometry. */
   thumbUrl: string | null;
 }
 
@@ -132,22 +130,29 @@ export async function createDocFromFile(
   // pdf-lib gets its own copy so PDF.js's worker-side detach can't strand it.
   const pdf = await PDFDocument.load(bytes.slice(0));
   const pages: PageMeta[] = pdf.getPages().map((p, index) => {
-    // CropBox (defaults to MediaBox when absent) — the box PDF.js renders, so
-    // the canvas aspect ratio matches the preview for cropped pages too.
-    const { width, height } = p.getCropBox();
+    const { width, height } = visiblePageGeometry(p);
     return {
       index,
       widthPt: width,
       heightPt: height,
-      rotation: p.getRotation().angle,
       thumbUrl: null,
     };
   });
 
-  // One render pass at preview scale — crisp enough for the focus canvas, and
-  // CSS-downscaled for the strip / overview grid. Matches RedactPdf's approach.
-  const thumbs = await renderAllThumbnails(file, PREVIEW_SCALE, onProgress);
-  for (let i = 0; i < pages.length; i++) pages[i].thumbUrl = thumbs[i] ?? null;
+  onProgress?.(0, pages.length);
+
+  // Valid document bytes survive a preview failure. The editor names missing
+  // previews and can rebuild them without reopening the file or losing edits.
+  try {
+    const thumbs = await renderPagePreviews(
+      file,
+      pages.map((p) => p.index),
+      onProgress,
+    );
+    for (let i = 0; i < pages.length; i++) pages[i].thumbUrl = thumbs[i] ?? null;
+  } catch {
+    // PDF.js may fail even though pdf-lib has read the document successfully.
+  }
 
   return {
     id: nextId("doc"),

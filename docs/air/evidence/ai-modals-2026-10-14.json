@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-14",
+  "scope": "Air shared modal frame and AI consent, details, tier picker and loaded-model actions",
+  "contractVersion": "1.0.0",
+  "baseCommit": "74e32ed",
+  "changes": [
+    "One 576px Air dialog, 20px corners, 24px spacing, phone sheet and intentional internal scrolling",
+    "Pointer entrance 240ms, exit 160ms; immediate keyboard/reduced motion; focus/inert ownership through exit",
+    "Safari-compatible complete Tab loop, native radio single Tab stop, disabled-fieldset filtering and recovery trigger focus",
+    "Actual ready-model count and received bytes replace estimated download percentages",
+    "Memory release stays idle until explicit reload; cancelled warm loading remains recoverable",
+    "Cache and IDB failures remain retryable; IDB deletion waits for transaction commit; other tier cache hints remain discoverable",
+    "Pending tier selection resets before the reopened dialog commits"
+  ],
+  "matrix": {
+    "details": 44,
+    "deleteConfirmation": 56,
+    "loading": 56,
+    "downloadError": 56,
+    "modelPicker": 56,
+    "total": 268,
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1024x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080"
+    ],
+    "dialogBreakpointNeighbors": ["639x800", "640x800", "641x800"],
+    "horizontalOverflow": 0,
+    "undersizedCoarseTargets": 0
+  },
+  "nativeReview": [
+    "Safari 200% browser zoom, keyboard source-link traversal; source-only final trigger-return follow-up",
+    "Firefox 200% browser zoom, Tab/Shift+Tab, Escape and trigger return"
+  ],
+  "featureTests": [
+    "modal-system: palette/export focus stacks, responsive bounds, setup and consent",
+    "ai-modal-states: pointer/keyboard/reduced motion, exit inertness, cache denial, IDB abort, successful retry, cancellation and download error recovery",
+    "ai-tools: real model load, warm return, questions/extraction, tier switch, cancelled pending selection, radio Tab stop, free-memory/explicit reload",
+    "editor-features: three real PDF fixtures",
+    "command-palette: tool/search/history keyboard behavior",
+    "responsive-motion: desktop/tablet/phone orientations and reduced motion"
+  ],
+  "checks": [
+    "format/lint/types",
+    "knip",
+    "366 unit tests in 36 files",
+    "production build and 127-asset deployment limits",
+    "Air design and isolated portability"
+  ],
+  "cleanup": [
+    "Removed legacy cloak-dialog skin and obsolete modal variants",
+    "Removed unused aggregate-progress calculation and single-model consent API",
+    "Consolidated model-details ownership in Ask PDF",
+    "Removed per-dialog hardcoded geometry, uppercase/mono controls, spinners and duplicated storage markup"
+  ],
+  "dependenciesAdded": 0,
+  "askPdfChunk": {
+    "rawKB": 596.2,
+    "gzipKB": 179.08,
+    "previousRawKB": 611.72,
+    "previousGzipKB": 181.88
+  },
+  "reviewCorrections": [
+    "Native Safari exposed default Tab skipping links; shared traversal corrected",
+    "Persistent E2E service worker served an older candidate; tests now bypass it while retaining model/index caches",
+    "The state test now bypasses the service worker so request interception reaches the intended failure paths",
+    "Responsive geometry waits for entrance motion to settle; pointer-size emulation uses CDP without reloading the open dialog",
+    "Cancelled tier briefly appeared on reopen; reset moved before commit"
+  ],
+  "localReviewDirectory": "/Users/sumitsahoo/.codex/visualizations/2026/10/11/01a12abe-1cfd-7980-bf8e-f585aee286a5/air-ai-modals",
+  "versionedScreenshots": ["ai-modals-details-1440-light.png", "ai-modals-loading-390-dark.png"],
+  "remaining": [
+    "Export and command-palette interiors are still scheduled; only their shared frame changed",
+    "Ask PDF chat/indexing/citations and the editor remain pending",
+    "Real touch/software-keyboard and assistive speech acceptance remain open; inventory validated stays false"
+  ],
+  "deployment": "No push or deployment"
+}

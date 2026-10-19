@@ -10,28 +10,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CommandPalette } from "./CommandPalette.tsx";
 import { EncryptedPdfNotice } from "../components/EncryptedPdfNotice.tsx";
+import { LoadingState } from "../components/LoadingState.tsx";
+import { ProgressBar } from "../components/ProgressBar.tsx";
 import { FileDropZone } from "../components/FileDropZone.tsx";
 import { useActiveTool, useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
 import { EditorToolStage } from "./EditorToolStage.tsx";
 import { EditorTopBar } from "./EditorTopBar.tsx";
 import { MobileEditorSurface } from "./MobileEditorSurface.tsx";
 import { OverviewMode } from "./OverviewMode.tsx";
+import { PreviewRecovery } from "./PreviewRecovery.tsx";
 import { PdfStage } from "./PdfStage.tsx";
 import { PropertiesPanel } from "./PropertiesPanel.tsx";
 import { ToolRail } from "./ToolRail.tsx";
 import { OCR_ID, OcrPreview, ocrHasPreview } from "./panels/OcrTool.tsx";
-
-function Spinner({ label }: { label: string }) {
-  return (
-    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4">
-      <div
-        className="h-8 w-8 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600"
-        aria-hidden="true"
-      />
-      <p className="font-mono text-sm text-slate-500 dark:text-dark-text-muted">{label}</p>
-    </div>
-  );
-}
 
 /** True when the keystroke landed in a text field — let native text undo/redo
  *  win there rather than hijacking it for document history. */
@@ -44,7 +35,7 @@ function isEditableTarget(el: EventTarget | null): boolean {
 export function EditorShell() {
   const {
     doc,
-    loading,
+    opening,
     busyLabel,
     error,
     encryptedFile,
@@ -65,15 +56,17 @@ export function EditorShell() {
   const wasBusyRef = useRef(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
 
-  // A local transform/export is a blocking state, even though it is not a
+  // An editor transform is a blocking state, even though it is not a
   // dismissible dialog. Move focus to its status surface while the editor is
-  // inert, then return to the Export trigger once the operation settles.
+  // inert, then restore the initiating control. Removed rows can nominate a
+  // surviving action; closed dialogs fall back to Export.
   useEffect(() => {
     if (busyLabel) {
       if (!wasBusyRef.current) {
         busyRestoreRef.current =
-          document.querySelector<HTMLElement>('button[aria-label="Export"]') ??
-          (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+          document.activeElement instanceof HTMLElement && document.activeElement !== document.body
+            ? document.activeElement
+            : null;
       }
       wasBusyRef.current = true;
       const frame = requestAnimationFrame(() => busyOverlayRef.current?.focus());
@@ -84,7 +77,12 @@ export function EditorShell() {
     const restore = busyRestoreRef.current;
     busyRestoreRef.current = null;
     const frame = requestAnimationFrame(() => {
-      if (restore?.isConnected && !restore.hasAttribute("disabled")) restore.focus();
+      const target =
+        restore?.isConnected && !restore.hasAttribute("disabled")
+          ? restore
+          : (document.querySelector<HTMLElement>("[data-busy-focus-fallback]") ??
+            document.querySelector<HTMLElement>('button[aria-label="Export"]'));
+      target?.focus();
     });
     return () => cancelAnimationFrame(frame);
   }, [busyLabel]);
@@ -97,7 +95,7 @@ export function EditorShell() {
   useEffect(() => {
     if (!doc) return;
     const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      if (busyLabel || !(e.metaKey || e.ctrlKey) || e.altKey) return;
       const key = e.key.toLowerCase();
       if (key === "k") {
         // Never stack Command Palette over Export (or another modal). A second
@@ -108,6 +106,7 @@ export function EditorShell() {
         setPaletteOpen((o) => !o);
         return;
       }
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       if (isEditableTarget(e.target)) return;
       if (key === "z") {
         e.preventDefault();
@@ -123,13 +122,13 @@ export function EditorShell() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [doc, canUndo, canRedo, undo, redo, paletteOpen]);
+  }, [doc, busyLabel, canUndo, canRedo, undo, redo, paletteOpen]);
 
   // OCR's side-by-side preview takes over the center once an extraction exists
   // for the current doc, regardless of focus/overview; otherwise the normal
   // stage / page grid. On mobile it fills the canvas half above the tool sheet —
-  // the recognised-text/page panels stack under that width.
-  const showOcrPreview = activeTool === OCR_ID && ocrHasPreview(ocrSlice, doc?.id);
+  // the text/source switch preserves the available height on narrow screens.
+  const showOcrPreview = activeTool === OCR_ID && ocrHasPreview(ocrSlice, doc);
   const center = showOcrPreview ? (
     <OcrPreview />
   ) : viewMode === "overview" ? (
@@ -143,7 +142,7 @@ export function EditorShell() {
 
   return (
     <main
-      className="fixed inset-0 z-[var(--z-editor)] flex flex-col overflow-hidden bg-[var(--color-paper-2)] font-sans text-[var(--color-ink)]"
+      className="fixed inset-0 z-[var(--air-z-editor)] flex flex-col overflow-hidden bg-[var(--air-surface-soft)] font-sans text-[var(--air-ink)]"
       aria-label="PDF editor"
       aria-busy={busyLabel ? true : undefined}
       inert={busyLabel ? true : undefined}
@@ -151,55 +150,95 @@ export function EditorShell() {
       <h1 className="sr-only">CloakPDF editor</h1>
       <EditorTopBar />
 
-      {doc && error && (
-        <div
-          role="alert"
-          className="flex items-center gap-2 border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300"
-        >
-          <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0 flex-1">{error}</span>
-          <button
-            type="button"
-            onClick={clearError}
-            aria-label="Dismiss error"
-            className="shrink-0 rounded-md p-1 hover:bg-red-100 pointer-coarse:min-h-11 pointer-coarse:min-w-11 dark:hover:bg-red-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-          >
-            <X className="h-4 w-4" />
-          </button>
+      {doc && !opening && (error || pendingDraft) && (
+        <div className="editor-notices" aria-label="Document notices" role="region" tabIndex={0}>
+          {error && (
+            <div className="editor-notice" data-tone="danger">
+              <AlertTriangle size={18} aria-hidden="true" />
+              <div role="alert">
+                <strong>That action couldn't finish</strong>
+                <p>{error}</p>
+              </div>
+              <button
+                type="button"
+                onClick={(event) => {
+                  if (event.currentTarget === document.activeElement)
+                    document
+                      .querySelector<HTMLButtonElement>('button[aria-label="Export"]')
+                      ?.focus();
+                  clearError();
+                }}
+                aria-label="Dismiss error"
+                className="air-icon-button air-button--quiet"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+          {pendingDraft && (
+            <div className="editor-notice">
+              <History size={18} aria-hidden="true" />
+              <div role="status">
+                <strong>Saved edits available</strong>
+                <p>
+                  Restore your previous session from this browser, or discard it to keep the
+                  original.
+                </p>
+              </div>
+              <div className="editor-notice__actions">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void restoreDraft().catch(() => {
+                      /* The error notice owns feedback. */
+                    })
+                  }
+                  className="air-button air-button--primary"
+                >
+                  Restore edits
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    if (event.currentTarget === document.activeElement)
+                      document
+                        .querySelector<HTMLButtonElement>('button[aria-label="Export"]')
+                        ?.focus();
+                    dismissDraft();
+                  }}
+                  className="air-button"
+                  aria-label="Discard saved edits"
+                >
+                  Discard edits
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {doc && pendingDraft && (
-        <div className="flex items-center gap-3 border-b border-primary-200 bg-primary-50 px-4 py-2 text-sm text-primary-800 dark:border-primary-900/50 dark:bg-primary-900/30 dark:text-primary-200">
-          <History className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0 flex-1 truncate">
-            Found unsaved edits for this file from a previous session.
-          </span>
-          <button
-            type="button"
-            onClick={() => void restoreDraft()}
-            className="shrink-0 rounded-md bg-primary-600 px-2.5 py-1 font-mono text-xs font-semibold text-white hover:bg-primary-700 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-          >
-            Restore
-          </button>
-          <button
-            type="button"
-            onClick={dismissDraft}
-            className="shrink-0 rounded-md px-2.5 py-1 font-mono text-xs font-medium text-primary-700 hover:bg-primary-100 pointer-coarse:min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-300 dark:hover:bg-primary-900/40"
-          >
-            Discard
-          </button>
-        </div>
-      )}
-
-      {loading ? (
-        <Spinner label="Opening PDF…" />
+      {opening ? (
+        <section className="editor-opening" aria-label="Opening PDF">
+          <div className="editor-opening__body">
+            <p className="air-page-eyebrow">On your device</p>
+            <h2>Opening your PDF</h2>
+            <p className="editor-opening__file">{opening.fileName}</p>
+            <LoadingState label={opening.total ? "Preparing page previews…" : "Reading PDF…"} />
+            {opening.total > 0 && (
+              <ProgressBar current={opening.rendered} total={opening.total} label="Page previews" />
+            )}
+            <p className="air-help">Your document stays in this browser.</p>
+            <button type="button" className="air-button" onClick={exit}>
+              Back to toolkit
+            </button>
+          </div>
+        </section>
       ) : encryptedFile ? (
         // Password-protected drop — point the user at the one tool that can
         // strip the password, then come back. No dropzone fallback: the editor
         // is only ever entered with a file from the home page.
-        <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-xl">
+        <div className="editor-opening">
+          <div className="m-auto w-full max-w-xl">
             <EncryptedPdfNotice file={encryptedFile} onChangeFile={exit} />
           </div>
         </div>
@@ -207,42 +246,29 @@ export function EditorShell() {
         // Landing search can deep-link to an editor tool before a PDF exists.
         // Keep that intent selected and acquire the file here instead of
         // routing to a dead-end empty shell.
-        <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto p-4 sm:p-8">
-          <div className="w-full max-w-2xl border-y border-[var(--color-rule-strong)] bg-[var(--color-surface)] py-5 sm:py-7">
-            <div className="mb-4 flex items-start justify-between gap-4 px-1">
-              <div>
-                <p className="cloak-mono-label text-primary-600">Workbench / local input</p>
-                <h2 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[var(--color-ink)]">
-                  {error ? "Choose another PDF" : "Open a PDF to continue"}
-                </h2>
-                <p className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--color-ink-3)]">
-                  {error
-                    ? "That file could not be opened. Try another PDF; your selected tool will stay ready."
-                    : "Your selected editor tool is ready. The document opens locally and never leaves this browser."}
-                </p>
-              </div>
-              {error && (
-                <AlertTriangle
-                  className="mt-1 h-5 w-5 shrink-0 text-[var(--color-danger)]"
-                  aria-hidden="true"
-                />
-              )}
-            </div>
+        <div className="editor-opening">
+          <div className="editor-opening__body editor-intake">
+            <p className="air-page-eyebrow">On your device</p>
+            <h2>{error ? "Choose another PDF" : "Open a PDF to continue"}</h2>
+            <p className="air-help">
+              {error
+                ? "Your selected tool will stay ready. The next file opens here, on your device."
+                : "Your selected editor tool is ready. Open a document to get started."}
+            </p>
+            {error && (
+              <p className="editor-intake-error" role="alert" tabIndex={0}>
+                This file couldn't be read. Check that it's a valid PDF and try again.
+              </p>
+            )}
             <FileDropZone
               accept="application/pdf,.pdf"
               onFiles={(files) => files[0] && void loadFile(files[0])}
               label="Drop a PDF here"
               hint="One PDF · processed entirely on this device"
             />
-            <div className="mt-4 flex justify-start">
-              <button
-                type="button"
-                onClick={exit}
-                className="cloak-focus inline-flex min-h-11 items-center px-1 font-mono text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-3)] hover:text-primary-600"
-              >
-                Back to toolkit
-              </button>
-            </div>
+            <button type="button" onClick={exit} className="air-button">
+              Back to toolkit
+            </button>
           </div>
         </div>
       ) : (
@@ -250,8 +276,11 @@ export function EditorShell() {
           {!isMobile && <ToolRail onOpenPalette={openPalette} />}
 
           <div className="flex min-w-0 flex-1 flex-col">
-            {center}
-            {isMobile && <MobileEditorSurface />}
+            <PreviewRecovery />
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
+              {isMobile && <MobileEditorSurface />}
+            </div>
           </div>
 
           {!isMobile && <PropertiesPanel collapsed={isTablet} />}
@@ -268,26 +297,14 @@ export function EditorShell() {
         createPortal(
           <div
             ref={busyOverlayRef}
-            className="fixed inset-0 z-[var(--z-system-overlay)] flex items-center justify-center bg-[var(--color-overlay)]"
-            role="status"
-            aria-busy="true"
-            aria-live="polite"
+            className="editor-busy"
+            role="group"
             aria-label={busyLabel}
             tabIndex={-1}
           >
-            <div className="flex w-[min(24rem,calc(100%_-_2rem))] items-center gap-3 border-y border-[var(--color-rule-strong)] bg-[var(--color-surface)] px-5 py-4 shadow-[var(--shadow-popover)]">
-              <div
-                className="h-5 w-5 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600"
-                aria-hidden="true"
-              />
-              <div className="min-w-0">
-                <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.06em] text-primary-600">
-                  Processing / local
-                </p>
-                <p className="mt-0.5 text-card-desc font-medium text-[var(--color-ink)]">
-                  {busyLabel}
-                </p>
-              </div>
+            <div className="editor-busy__body">
+              <p className="air-page-eyebrow">Working on your device</p>
+              <LoadingState label={busyLabel} />
             </div>
           </div>,
           document.body,

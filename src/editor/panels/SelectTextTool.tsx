@@ -1,20 +1,9 @@
-// SelectTextTool.tsx — Real text selection over the page, like a PDF reader.
-// Drag across the page and the actual words under the drag light up (mapped from
-// PDF.js text geometry in reading order); then Highlight, Box, Redact, or Copy
-// the selection. This is the only tool that *selects* existing text visually —
-// Find & Act searches for it, Annotate places new marks. Deterministic geometry,
-// no model, so it works identically on every device (scanned pages must be OCR'd
-// first — they have no text layer to select).
-//
-// The committed selection lives in the tool slice (so Stage + Panel share it);
-// the Stage paints it and owns the drag, the Panel acts on it.
-
-import { Highlighter, type LucideIcon, Copy, EyeOff, Square } from "lucide-react";
+/** Text selection belongs to one visible page and exact document revision. */
+import { AlertTriangle, Highlighter, Copy, EyeOff, Square } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { extractPageTextGeometry } from "../../utils/layout-extract.ts";
 import { type Annotation, annotatePdf } from "../../utils/pdf-operations.ts";
 import {
-  type FracRect,
   nearestWordIndex,
   orderReading,
   type SelWord,
@@ -26,253 +15,305 @@ import {
   DEFAULT_REDACTION_BORDER,
   DEFAULT_REDACTION_FILL,
   docToFile,
+  hasPendingDestructive,
   type RedactionPayload,
 } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
-import { type StagePoint, useStageProps } from "../stage.tsx";
+import { type StagePoint, type StageKeyboardEvent, useStageProps } from "../stage.tsx";
 
-const TOOL_ID = "select-text";
-const HILITE = { r: 37, g: 99, b: 235 }; // primary blue — the selection tint
-
-interface SelectSlice {
-  /** Page the committed selection belongs to. */
+const TOOL = "select-text";
+interface TextPage {
+  bytes: Uint8Array;
   pageIndex: number;
-  /** Selected word boxes (page fractions), reading order. */
-  rects: FracRect[];
-  /** Selected text. */
-  text: string;
+  words: SelWord[];
+  failed?: boolean;
 }
-
-function readSlice(slice: Record<string, unknown>): SelectSlice {
-  return {
-    pageIndex: (slice.pageIndex as number) ?? 0,
-    rects: (slice.rects as FracRect[]) ?? [],
-    text: (slice.text as string) ?? "",
-  };
+interface Selection {
+  page: TextPage;
+  anchor: number;
+  focus: number;
 }
-
-function paintRects(ctx: CanvasRenderingContext2D, rects: FracRect[], w: number, h: number) {
-  ctx.save();
-  ctx.fillStyle = `rgba(${HILITE.r}, ${HILITE.g}, ${HILITE.b}, 0.28)`;
-  for (const r of rects) ctx.fillRect(r.xPct * w, r.yPct * h, r.wPct * w, r.hPct * h);
-  ctx.restore();
+const EMPTY: SelWord[] = [];
+function useSelection() {
+  const { doc, selectedPage, busyLabel } = useEditorRead();
+  const slice = useToolSlice(TOOL);
+  const stored = slice.page as TextPage | undefined;
+  const blocked = hasPendingDestructive(doc);
+  const page =
+    !blocked && stored?.bytes === doc?.bytes && stored?.pageIndex === selectedPage
+      ? stored
+      : undefined;
+  const saved = slice.selection as Selection | undefined;
+  const selection = page && saved?.page === page ? saved : undefined;
+  return { doc, selectedPage, busy: busyLabel !== null, blocked, page, selection, slice };
+}
+function range(selection: Selection) {
+  return selectionRange(selection.anchor, selection.focus);
 }
 
 export function Stage() {
-  const { doc, selectedPage } = useEditorRead();
+  const { doc, selectedPage, busy, blocked, page, selection, slice } = useSelection();
   const { patchToolState } = useEditorActions();
-  const committed = readSlice(useToolSlice(TOOL_ID));
-
-  // Reading-order words for the focused page (extracted lazily; empty for a
-  // scanned page with no text layer).
-  const wordsRef = useRef<SelWord[]>([]);
-  const anchorRef = useRef(-1);
-  const draggingRef = useRef(false);
-  const [draft, setDraft] = useState<{ lo: number; hi: number } | null>(null);
-
   const bytes = doc?.bytes;
+  const retry = slice.retry;
   useEffect(() => {
-    if (!doc) return;
-    let cancelled = false;
-    wordsRef.current = [];
-    setDraft(null);
-    extractPageTextGeometry(docToFile(doc), selectedPage + 1)
-      .then((page) => {
-        if (cancelled || !page) return;
-        const W = page.width || 1;
-        const H = page.height || 1;
-        const raw: SelWord[] = page.items
-          .filter((it) => it.text.trim().length > 0)
-          .map((it) => ({
-            text: it.text,
-            rect: { xPct: it.x / W, yPct: it.y / H, wPct: it.width / W, hPct: it.height / H },
-          }));
-        wordsRef.current = orderReading(raw);
-      })
-      .catch(() => {});
+    if (!doc || blocked || page) return;
+    let live = true;
+    patchToolState(TOOL, { selection: undefined });
+    void extractPageTextGeometry(docToFile(doc), selectedPage + 1, { selectionBounds: true }).then(
+      (layout) => {
+        if (!live) return;
+        const words = layout
+          ? orderReading(
+              layout.items
+                .filter(
+                  (item) =>
+                    item.text.trim() &&
+                    item.width > 0 &&
+                    item.height > 0 &&
+                    item.x < layout.width &&
+                    item.y < layout.height &&
+                    item.x + item.width > 0 &&
+                    item.y + item.height > 0,
+                )
+                .map((item) => ({
+                  text: item.text,
+                  rect: {
+                    xPct: Math.max(0, item.x) / layout.width,
+                    yPct: Math.max(0, item.y) / layout.height,
+                    wPct:
+                      (Math.min(layout.width, item.x + item.width) - Math.max(0, item.x)) /
+                      layout.width,
+                    hPct:
+                      (Math.min(layout.height, item.y + item.height) - Math.max(0, item.y)) /
+                      layout.height,
+                  },
+                })),
+              layout.rotation,
+            )
+          : [];
+        patchToolState(TOOL, {
+          page: {
+            bytes: doc.bytes,
+            pageIndex: selectedPage,
+            words,
+            failed: !layout,
+          } satisfies TextPage,
+        });
+      },
+      () => {
+        if (live)
+          patchToolState(TOOL, {
+            page: {
+              bytes: doc.bytes,
+              pageIndex: selectedPage,
+              words: [],
+              failed: true,
+            } satisfies TextPage,
+          });
+      },
+    );
     return () => {
-      cancelled = true;
+      live = false;
     };
-    // bytes identity changes when the doc is transformed → re-extract.
-  }, [bytes, selectedPage, doc]);
+    // Only byte/page changes or an explicit retry invalidate the text geometry.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bytes, selectedPage, blocked, retry, patchToolState]);
 
-  // Drop a committed selection once the user navigates to a different page — its
-  // overlay already hides there, but otherwise the Panel keeps acting on the old
-  // page's selection while you're looking at another. (The stage is single-page,
-  // so this only fires on explicit navigation, never on scroll.)
+  const words = page?.words ?? EMPTY;
+  const dragging = useRef<Selection | null>(null);
+  const frame = useRef<number | null>(null);
+  const [draft, setDraft] = useState<Selection | null>(null);
+  const cancelDrag = useCallback(() => {
+    dragging.current = null;
+    if (frame.current !== null) cancelAnimationFrame(frame.current);
+    frame.current = null;
+    setDraft(null);
+  }, []);
   useEffect(() => {
-    if (committed.rects.length > 0 && committed.pageIndex !== selectedPage) {
-      patchToolState(TOOL_ID, { rects: [], text: "", pageIndex: selectedPage });
-    }
-  }, [selectedPage, committed.pageIndex, committed.rects.length, patchToolState]);
+    cancelDrag();
+    return cancelDrag;
+  }, [page, cancelDrag]);
 
-  // rAF-coalesce drag updates (mirrors the other drag tools).
-  const pendingRef = useRef<number | null>(null);
-  const frameRef = useRef<number | null>(null);
-  const scheduleDraft = useCallback((focus: number) => {
-    pendingRef.current = focus;
-    if (frameRef.current != null) return;
-    frameRef.current = requestAnimationFrame(() => {
-      frameRef.current = null;
-      const f = pendingRef.current;
-      if (f != null && anchorRef.current >= 0) {
-        const [lo, hi] = selectionRange(anchorRef.current, f);
-        setDraft({ lo, hi });
-      }
-    });
-  }, []);
-  const cancelFrame = useCallback(() => {
-    if (frameRef.current != null) {
-      cancelAnimationFrame(frameRef.current);
-      frameRef.current = null;
-    }
-    pendingRef.current = null;
-  }, []);
-  useEffect(() => cancelFrame, [cancelFrame]);
-
-  const draftRects = draft ? selectedRects(wordsRef.current, draft.lo, draft.hi) : null;
-
+  const visible = draft?.page === page ? draft : selection;
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
-      // Draft (active drag) wins; otherwise paint the committed selection on its
-      // own page.
-      if (draftRects) paintRects(ctx, draftRects, w, h);
-      else if (committed.rects.length > 0 && committed.pageIndex === pageIndex)
-        paintRects(ctx, committed.rects, w, h);
+      if (!visible || visible.page.pageIndex !== pageIndex) return;
+      ctx.save();
+      ctx.fillStyle = getComputedStyle(ctx.canvas).getPropertyValue("--air-paper-accent");
+      ctx.globalAlpha = 0.28;
+      for (const r of selectedRects(visible.page.words, ...range(visible)))
+        ctx.fillRect(r.xPct * w, r.yPct * h, r.wPct * w, r.hPct * h);
+      ctx.restore();
     },
-    [draftRects, committed.rects, committed.pageIndex],
+    [visible],
   );
-
   const onPointerDown = useCallback(
     (p: StagePoint) => {
-      const idx = nearestWordIndex(wordsRef.current, p.xPct, p.yPct);
-      if (idx < 0) {
-        // Empty area / no text — clear any committed selection.
-        anchorRef.current = -1;
-        draggingRef.current = false;
-        setDraft(null);
-        if (committed.rects.length > 0)
-          patchToolState(TOOL_ID, { rects: [], text: "", pageIndex: selectedPage });
-        return;
-      }
-      anchorRef.current = idx;
-      draggingRef.current = true;
-      setDraft({ lo: idx, hi: idx });
+      if (!page || busy) return;
+      const anchor = nearestWordIndex(words, p.xPct, p.yPct);
+      if (anchor < 0) return;
+      dragging.current = { page, anchor, focus: anchor };
+      setDraft(dragging.current);
     },
-    [committed.rects.length, patchToolState, selectedPage],
+    [page, words, busy],
   );
-
   const onPointerMove = useCallback(
     (p: StagePoint) => {
-      if (!draggingRef.current) return;
-      const idx = nearestWordIndex(wordsRef.current, p.xPct, p.yPct);
-      if (idx >= 0) scheduleDraft(idx);
-    },
-    [scheduleDraft],
-  );
-
-  const onPointerUp = useCallback(
-    (p: StagePoint) => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
-      cancelFrame();
-      const words = wordsRef.current;
-      const focus = nearestWordIndex(words, p.xPct, p.yPct);
-      const anchor = anchorRef.current;
-      if (anchor < 0 || focus < 0) {
-        setDraft(null);
-        return;
-      }
-      const [lo, hi] = selectionRange(anchor, focus);
-      setDraft(null);
-      patchToolState(TOOL_ID, {
-        rects: selectedRects(words, lo, hi),
-        text: selectedText(words, lo, hi),
-        pageIndex: selectedPage,
+      if (!dragging.current || dragging.current.page !== page) return;
+      dragging.current = { ...dragging.current, focus: nearestWordIndex(words, p.xPct, p.yPct) };
+      if (frame.current !== null) return;
+      frame.current = requestAnimationFrame(() => {
+        frame.current = null;
+        setDraft(dragging.current);
       });
     },
-    [cancelFrame, patchToolState, selectedPage],
+    [page, words],
   );
-
-  const onPointerCancel = useCallback(() => {
-    draggingRef.current = false;
-    cancelFrame();
-    setDraft(null);
-  }, [cancelFrame]);
-
+  const onPointerUp = useCallback(
+    (p: StagePoint) => {
+      if (dragging.current?.page === page && page && !busy)
+        patchToolState(TOOL, {
+          selection: { ...dragging.current, focus: nearestWordIndex(words, p.xPct, p.yPct) },
+        });
+      cancelDrag();
+    },
+    [page, words, busy, patchToolState, cancelDrag],
+  );
+  const onKeyDown = useCallback(
+    (e: StageKeyboardEvent) => {
+      if (!page || !words.length || busy || e.nativeEvent.isComposing) return false;
+      if (e.key === "Escape" && (selection || draft)) {
+        cancelDrag();
+        patchToolState(TOOL, { selection: undefined });
+        return true;
+      }
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return false;
+      const focus =
+        e.key === "Home"
+          ? 0
+          : e.key === "End"
+            ? words.length - 1
+            : Math.max(
+                0,
+                Math.min(
+                  words.length - 1,
+                  selection ? selection.focus + (e.key === "ArrowRight" ? 1 : -1) : 0,
+                ),
+              );
+      cancelDrag();
+      patchToolState(TOOL, {
+        selection: {
+          page,
+          anchor: e.shiftKey && selection ? selection.anchor : focus,
+          focus,
+        } satisfies Selection,
+      });
+      return true;
+    },
+    [page, words, busy, selection, draft, cancelDrag, patchToolState],
+  );
   useStageProps({
-    cursor: "text",
+    cursor: busy || !words.length ? "default" : "text",
     paintOverlay,
     onPointerDown,
     onPointerMove,
     onPointerUp,
-    onPointerCancel,
+    onPointerCancel: cancelDrag,
+    onKeyDown,
+    keyboardHelp: words.length
+      ? "Use Left and Right to select text, Shift to extend, Home and End to reach the first and last text, and Escape to clear. Up and Down pan the page."
+      : undefined,
+    keyboardShortcuts: words.length
+      ? "ArrowLeft ArrowRight Shift+ArrowLeft Shift+ArrowRight Home End Shift+Home Shift+End Escape"
+      : undefined,
   });
-
   return null;
 }
 
-function ActionButton({
-  icon: Icon,
-  label,
-  onClick,
-  disabled,
-}: {
-  icon: LucideIcon;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="inline-flex items-center justify-center gap-1.5 rounded-md border border-slate-200 dark:border-dark-border bg-white dark:bg-dark-surface px-3 py-2.5 font-mono text-xs font-medium text-slate-700 dark:text-dark-text hover:border-primary-400 hover:text-primary-700 active:translate-y-px pointer-coarse:min-h-11 disabled:opacity-50 transition-[color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
-    >
-      <Icon className="h-4 w-4" />
-      {label}
-    </button>
-  );
-}
-
 export function Panel() {
-  const { addObjects, applyTransform, patchToolState } = useEditorActions();
-  const { pageIndex, rects, text } = readSlice(useToolSlice(TOOL_ID));
-  const [copied, setCopied] = useState(false);
-  const has = rects.length > 0;
-
-  const clear = () => patchToolState(TOOL_ID, { rects: [], text: "", pageIndex });
-
-  const mark = (mode: "highlight" | "box") => {
-    if (!has) return;
+  const { doc, page, selection, blocked, busy, slice } = useSelection();
+  const { addObjects, applyTransform, patchToolState, setActiveTool } = useEditorActions();
+  const [copying, setCopying] = useState(false);
+  const applying = useRef(false);
+  const live = useRef(true);
+  useEffect(() => {
+    live.current = true;
+    return () => {
+      live.current = false;
+    };
+  }, []);
+  const [note, setNote] = useState<{
+    text: string;
+    failed?: boolean;
+    selection?: Selection;
+    bytes?: Uint8Array;
+  }>();
+  const bytes = doc?.bytes;
+  useEffect(() => {
+    if (note && !note.bytes && bytes) setNote({ ...note, bytes });
+  }, [bytes, note]);
+  const feedback =
+    note?.bytes === bytes && (!note?.selection || note.selection === selection) ? note : undefined;
+  const text = selection ? selectedText(selection.page.words, ...range(selection)) : "";
+  const disabled = busy || copying || !selection;
+  const clear = () => {
+    patchToolState(TOOL, { selection: undefined });
+    setNote(undefined);
+  };
+  const mark = async (mode: "highlight" | "box") => {
+    if (!selection || disabled || applying.current) return;
+    applying.current = true;
+    setNote(undefined);
     const color = mode === "highlight" ? { r: 250, g: 204, b: 21 } : { r: 220, g: 38, b: 38 };
-    const anns: Annotation[] = rects.map((r) => {
-      const base = {
-        kind: "rect" as const,
-        pageIndex,
+    const annotations: Annotation[] = selectedRects(selection.page.words, ...range(selection)).map(
+      (r) => ({
+        kind: "rect",
+        pageIndex: selection.page.pageIndex,
         x: r.xPct,
         y: r.yPct,
         w: r.wPct,
         h: r.hPct,
         color,
         thicknessFrac: mode === "box" ? 0.004 : 0.0008,
-      };
-      return mode === "highlight" ? { ...base, fill: { color, opacity: 0.4 } } : base;
-    });
-    void applyTransform(async (d) => ({
-      bytes: await annotatePdf(docToFile(d), anns),
-      label: mode === "highlight" ? "Highlight selection" : "Box selection",
-    })).then(clear);
+        ...(mode === "highlight" ? { fill: { color, opacity: 0.4 } } : {}),
+      }),
+    );
+    try {
+      await applyTransform(async (d) => {
+        if (d.bytes !== selection.page.bytes)
+          throw new Error("The document changed. Select its text again.");
+        return {
+          bytes: await annotatePdf(docToFile(d), annotations),
+          label: mode === "highlight" ? "Highlight selection" : "Box selection",
+        };
+      });
+      if (live.current)
+        setNote({
+          text:
+            mode === "highlight"
+              ? "Highlight added. Undo restores the original."
+              : "Box added. Undo restores the original.",
+        });
+    } catch {
+      if (live.current)
+        setNote({
+          bytes,
+          selection,
+          failed: true,
+          text: "Couldn't add the mark. Your selection is preserved. Try again.",
+        });
+    } finally {
+      applying.current = false;
+    }
   };
-
   const redact = () => {
-    if (!has) return;
+    if (!selection || disabled) return;
     addObjects(
-      rects.map((r) => ({
-        kind: "redaction" as const,
-        pageIndex,
-        rect: r,
+      selectedRects(selection.page.words, ...range(selection)).map((rect) => ({
+        kind: "redaction",
+        pageIndex: selection.page.pageIndex,
+        rect,
         payload: {
           fill: DEFAULT_REDACTION_FILL,
           border: DEFAULT_REDACTION_BORDER,
@@ -282,61 +323,184 @@ export function Panel() {
     );
     clear();
   };
-
-  const copy = () => {
-    if (!text) return;
-    void navigator.clipboard?.writeText(text).then(
-      () => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      },
-      () => {},
-    );
+  const copy = async () => {
+    if (!selection || disabled) return;
+    setCopying(true);
+    setNote(undefined);
+    try {
+      if (!navigator.clipboard) throw new Error("Clipboard unavailable");
+      await navigator.clipboard.writeText(text);
+      if (live.current) setNote({ bytes, selection, text: "Text copied." });
+    } catch {
+      if (live.current)
+        setNote({
+          bytes,
+          selection,
+          failed: true,
+          text: "Couldn't copy to the clipboard. Select the text above and copy it manually, or try again.",
+        });
+    } finally {
+      if (live.current) setCopying(false);
+    }
   };
-
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-sm text-slate-500 dark:text-dark-text-muted">
-        Drag across the page to select the actual text — like a reader. Then highlight, box, redact,
-        or copy it. Scanned pages must be OCR'd first.
-      </p>
-
-      {has ? (
-        <>
-          <div className="rounded-lg border border-slate-200 dark:border-dark-border bg-slate-50 dark:bg-dark-bg p-3">
-            <p className="mb-1 font-mono text-xs font-medium uppercase tracking-[0.12em] text-slate-400 dark:text-dark-text-muted">
-              Selected · page {pageIndex + 1}
-            </p>
-            <p className="thin-scrollbar max-h-24 overflow-y-auto text-sm text-slate-700 dark:text-dark-text">
-              {text || "(no text)"}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-1.5">
-            <ActionButton icon={Highlighter} label="Highlight" onClick={() => mark("highlight")} />
-            <ActionButton icon={Square} label="Box" onClick={() => mark("box")} />
-            <ActionButton icon={EyeOff} label="Redact" onClick={redact} />
-            <ActionButton
-              icon={Copy}
-              label={copied ? "Copied!" : "Copy text"}
-              onClick={copy}
-              disabled={!text}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={clear}
-            className="self-start text-xs text-primary-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded"
-          >
-            Clear selection
+    <div className="pdf-mark-panel pdf-selecttext-panel" tabIndex={-1} data-busy-focus-fallback>
+      {blocked ? (
+        <section aria-label="Pending privacy marks">
+          <p className="air-notice">
+            Redaction or erase marks are waiting. Export applies them permanently; Undo removes the
+            last edit. Text selection is paused so covered text cannot be copied.
+          </p>
+          <button className="air-button" type="button" onClick={() => setActiveTool("redact")}>
+            Review redactions
           </button>
-        </>
+        </section>
+      ) : !page ? (
+        <p className="air-help" role="status">
+          Reading page text…
+        </p>
+      ) : page.failed ? (
+        <section aria-label="Read page text">
+          <p className="air-notice air-notice--error" role="alert">
+            <AlertTriangle size={16} aria-hidden="true" />
+            <span>Couldn't read this page's text. Your PDF is unchanged.</span>
+          </p>
+          <button
+            className="air-button"
+            type="button"
+            onClick={() =>
+              patchToolState(TOOL, { page: undefined, retry: Number(slice.retry ?? 0) + 1 })
+            }
+          >
+            Retry reading text
+          </button>
+        </section>
+      ) : !page.words.length ? (
+        <section aria-label="No selectable text">
+          <p className="air-notice">
+            This page has no selectable text. For a scanned page, run OCR to add a text layer, then
+            return here.
+          </p>
+          <button className="air-button" type="button" onClick={() => setActiveTool("ocr")}>
+            Open OCR
+          </button>
+        </section>
       ) : (
-        <div className="rounded-lg bg-slate-50 dark:bg-dark-bg px-3 py-3 text-xs text-slate-500 dark:text-dark-text-muted">
-          Drag across text on the page to select it. Multi-line selections follow reading order.
-        </div>
+        <>
+          <section aria-label="Text selection">
+            {selection ? (
+              <>
+                <div className="pdf-form-heading">
+                  <label className="air-label" htmlFor="selected-page-text">
+                    Selected text
+                  </label>
+                  <span className="air-help">Page {page.pageIndex + 1}</span>
+                </div>
+                <textarea
+                  id="selected-page-text"
+                  className="air-field pdf-selection-preview"
+                  readOnly
+                  value={text}
+                  rows={4}
+                />
+                <p className="sr-only" role="status">
+                  {text.length} characters selected.
+                </p>
+              </>
+            ) : (
+              <p className="air-help">
+                Drag across text on the page, or select the whole page below.
+              </p>
+            )}
+            <div className="pdf-selection-actions">
+              <button
+                className="air-button"
+                type="button"
+                disabled={disabled}
+                onClick={() => void mark("highlight")}
+              >
+                <Highlighter size={16} aria-hidden="true" />
+                Highlight
+              </button>
+              <button
+                className="air-button"
+                type="button"
+                disabled={disabled}
+                onClick={() => void mark("box")}
+              >
+                <Square size={16} aria-hidden="true" />
+                Box
+              </button>
+              <button
+                className="air-button"
+                type="button"
+                disabled={disabled}
+                onClick={redact}
+                aria-describedby="selection-redaction-help"
+              >
+                <EyeOff size={16} aria-hidden="true" />
+                Redact
+              </button>
+              <button
+                className="air-button"
+                type="button"
+                disabled={disabled}
+                aria-busy={copying}
+                onClick={() => void copy()}
+              >
+                <Copy size={16} aria-hidden="true" />
+                Copy text
+              </button>
+            </div>
+            <p className="air-help" id="selection-redaction-help">
+              Redact adds removable marks. Exporting or applying another edit makes them permanent
+              in that output.
+            </p>
+            <div className="pdf-selection-actions">
+              <button
+                className="air-button air-button--quiet"
+                type="button"
+                disabled={busy || copying}
+                onClick={() => {
+                  setNote(undefined);
+                  patchToolState(TOOL, {
+                    selection: {
+                      page,
+                      anchor: 0,
+                      focus: page.words.length - 1,
+                    } satisfies Selection,
+                  });
+                }}
+              >
+                Select page text
+              </button>
+              <button
+                className="air-button air-button--quiet"
+                type="button"
+                disabled={disabled}
+                onClick={clear}
+              >
+                Clear selection
+              </button>
+            </div>
+          </section>
+          <details className="pdf-selection-help">
+            <summary>Keyboard selection</summary>
+            <p className="air-help">
+              Focus the page, then use Left or Right to move through text. Hold Shift to extend the
+              selection. Home and End reach the first and last text; Escape clears it. Up and Down
+              pan the page.
+            </p>
+          </details>
+        </>
       )}
+      <p
+        className={feedback?.failed ? "air-notice air-notice--error" : "air-help"}
+        role={feedback?.failed ? "alert" : "status"}
+      >
+        {feedback?.failed && <AlertTriangle size={16} aria-hidden="true" />}
+        <span>{feedback?.text}</span>
+      </p>
     </div>
   );
 }

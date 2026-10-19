@@ -1,0 +1,506 @@
+{
+  "date": "2026-10-15",
+  "piece": "Bates numbering",
+  "contract": "Air 1.0.1",
+  "scope": [
+    "Air affixes and minimum-digit controls",
+    "shared position/colour/precision controls",
+    "byte-owned preview and awaited Apply/mobile Done",
+    "shared identifier/Courier layout and writer validation",
+    "retired StampTools and unused adapters"
+  ],
+  "checks": {
+    "formatLintTypes": "pass",
+    "deadCode": "pass",
+    "unit": {
+      "files": 45,
+      "tests": 429
+    },
+    "build": "pass; 128 assets, 77 PWA entries",
+    "design": "pass; 91 surfaces",
+    "portability": "pass; 17 assertions",
+    "canonicalSync": "pass",
+    "browserSuites": {
+      "productionSmoke": 16,
+      "extended": 7,
+      "focusedBates": 1,
+      "pageGeometry": 1
+    }
+  },
+  "features": [
+    "six positions",
+    "minimum digits 4/6/8",
+    "blank and nonblank affixes",
+    "9999 to 10000 grows without truncation",
+    "nine-digit start and ten-digit next identifier",
+    "invalid numeric drafts survive tool/layout changes",
+    "keyboard step and slider recovery",
+    "current-page fit and all-page exact writer fit",
+    "unsupported encoding preserves bytes and draft",
+    "one selectable identifier per page",
+    "source text, metadata and attachments preserved",
+    "Apply focus retention",
+    "Undo/Redo do not revive applied preview",
+    "explicit restart",
+    "mobile Done failure/retry/wait",
+    "Cancel checkpoint"
+  ],
+  "visual": {
+    "layouts": [
+      {
+        "width": 320,
+        "height": 568,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-320x568-light.png"
+      },
+      {
+        "width": 320,
+        "height": 568,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-320x568-light.png"
+      },
+      {
+        "width": 320,
+        "height": 568,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-320x568-dark.png"
+      },
+      {
+        "width": 320,
+        "height": 568,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-320x568-dark.png"
+      },
+      {
+        "width": 375,
+        "height": 812,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-375x812-light.png"
+      },
+      {
+        "width": 375,
+        "height": 812,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-375x812-light.png"
+      },
+      {
+        "width": 375,
+        "height": 812,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-375x812-dark.png"
+      },
+      {
+        "width": 375,
+        "height": 812,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-375x812-dark.png"
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-390x844-light.png"
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-390x844-light.png"
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-390x844-dark.png"
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-390x844-dark.png"
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-430x932-light.png"
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-430x932-light.png"
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-430x932-dark.png"
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-430x932-dark.png"
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-844x390-light.png"
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-844x390-light.png"
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-844x390-dark.png"
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-844x390-dark.png"
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-768x1024-light.png"
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-768x1024-light.png"
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-768x1024-dark.png"
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-768x1024-dark.png"
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1024x768-light.png"
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1024x768-light.png"
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1024x768-dark.png"
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1024x768-dark.png"
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1280x720-light.png"
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1280x720-light.png"
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1280x720-dark.png"
+      },
+      {
+        "width": 1280,
+        "height": 720,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1280x720-dark.png"
+      },
+      {
+        "width": 1366,
+        "height": 768,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1366x768-light.png"
+      },
+      {
+        "width": 1366,
+        "height": 768,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1366x768-light.png"
+      },
+      {
+        "width": 1366,
+        "height": 768,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1366x768-dark.png"
+      },
+      {
+        "width": 1366,
+        "height": 768,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1366x768-dark.png"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1440x900-light.png"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1440x900-light.png"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1440x900-dark.png"
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1440x900-dark.png"
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "theme": "light",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1920x1080-light.png"
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "theme": "light",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1920x1080-light.png"
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "theme": "dark",
+        "region": "identifier",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-identifier-1920x1080-dark.png"
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "theme": "dark",
+        "region": "values",
+        "overflow": false,
+        "bad": [],
+        "file": "bates-values-1920x1080-dark.png"
+      }
+    ],
+    "enlargedText": "12 captures: 320/768/1440, light/dark, identifier/values regions",
+    "forcedColors": "reviewed",
+    "reducedMotion": "pass",
+    "chromium": "44 regions and enlarged captures reviewed; in-app real upload and pending preview at 8132",
+    "firefox": "Actual 200% browser zoom, affixes/keyboard order, nine-digit input, invalid-size feedback, slider correction, Apply/focus/Undo/re-arm passed using the real production app with a temporary in-memory File fixture. Native chooser remained disabled for new and older synthetic PDFs; file chooser acceptance remains open.",
+    "safari": "UNAVAILABLE: remained at Opening PDF before Bates opened, after a normal upload, reload, and a clean-origin in-memory fixture. Window raise/bring-to-front did not resolve it. No Bates pass is claimed; investigate loading/render scheduling and rerun. Cause not established."
+  },
+  "output": {
+    "text": [
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 1  CASE-9999-A",
+      "Body content on page 2  CASE-10000-A",
+      "Cloakyard - a thoughtful place for everyday documents  Body content on page 3  CASE-10001-A"
+    ],
+    "metadata": {
+      "PDFFormatVersion": "1.7",
+      "Language": null,
+      "EncryptFilterName": null,
+      "IsLinearized": false,
+      "IsAcroFormPresent": false,
+      "IsXFAPresent": false,
+      "IsCollectionPresent": false,
+      "IsSignaturesPresent": false,
+      "Producer": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "ModDate": "D:20261015112909Z",
+      "Creator": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+      "CreationDate": "D:20261015112859Z",
+      "Title": "Bates acceptance",
+      "Author": "Synthetic author"
+    },
+    "attachments": ["reference.txt"]
+  },
+  "pageErrors": [],
+  "cleanup": [
+    "Removed StampTools.tsx, old paint/default readers, duplicate BatesPosition and unused exported position type",
+    "Removed unused ColorRow bridge; remaining legacy controls have verified consumers",
+    "No dependencies added",
+    "Temporary review harness removed, 8133 server stopped, native tabs closed and Firefox zoom reset"
+  ],
+  "cost": {
+    "editorRawKB": 314.55,
+    "editorGzipKB": 96.27,
+    "editorGzipDeltaKB": 0.33,
+    "cssRawKB": 146.06,
+    "cssGzipKB": 25.5,
+    "cssGzipDeltaKB": 0.03
+  },
+  "proof": [
+    "docs/air/evidence/bates-2026-10-15-desktop-light.png",
+    "docs/air/evidence/bates-2026-10-15-phone-dark.png"
+  ],
+  "localCaptures": "/tmp/cloakpdf-air-review/bates-*.png",
+  "openGates": [
+    "Safari loading/native Bates review",
+    "Firefox native file chooser",
+    "physical touch/software keyboard",
+    "actual OS IME",
+    "assistive speech acceptance",
+    "remaining PDF/family migration"
+  ]
+}

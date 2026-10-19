@@ -27,7 +27,8 @@ const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FIXTURE_PATH = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
-const USER_DATA_DIR = resolve(import.meta.dirname, "../.puppeteer-profile-editor");
+const USER_DATA_DIR =
+  process.env.E2E_USER_DATA_DIR ?? resolve(import.meta.dirname, "../.puppeteer-profile-editor");
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);
@@ -39,7 +40,9 @@ if (!existsSync(FIXTURE_PATH)) fail(`Fixture not found at ${FIXTURE_PATH}.`);
 async function clickByText(page: Page, label: string): Promise<boolean> {
   return page.evaluate((text) => {
     const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
-    const el = els.find((e) => (e.textContent ?? "").trim().toLowerCase() === text.toLowerCase());
+    const el = els.find(
+      (e) => (e as HTMLElement).innerText.trim().toLowerCase() === text.toLowerCase(),
+    );
     if (!el) return false;
     (el as HTMLElement).click();
     return true;
@@ -68,6 +71,7 @@ async function main() {
     defaultViewport: { width: 1280, height: 900 },
   });
   const page = await browser.newPage();
+  await page.setBypassServiceWorker(true);
   const errors: string[] = [];
   try {
     page.setDefaultTimeout(30_000);
@@ -117,7 +121,7 @@ async function main() {
       page.evaluate(
         (t) =>
           Array.from(document.querySelectorAll("button, a, [role=button]")).some(
-            (e) => (e.textContent ?? "").trim().toLowerCase() === t,
+            (e) => (e as HTMLElement).innerText.trim().toLowerCase() === t,
           ),
         label.toLowerCase(),
       );
@@ -135,10 +139,13 @@ async function main() {
       for (const f of readdirSync(dir))
         if (statSync(join(dir, f)).isFile()) unlinkSync(join(dir, f));
       if (!(await clickByText(page, "Export"))) fail("Export button not found.");
-      await page.waitForSelector('button[aria-label="PDF"]', { timeout: 5_000 });
-      await page.click('button[aria-label="PDF"]');
+      await page.waitForSelector('input[aria-label="PDF"]', { timeout: 5_000 });
+      await page.locator('input[aria-label="PDF"]').click();
       if (!(await clickByText(page, "Download"))) fail("Download button not found.");
       const dl = await waitForFile(dir, /\.pdf$/i);
+      // A download can reach disk before the modal's exit releases the editor.
+      // Do not send the next rotation into the still-inert canvas underneath.
+      await page.waitForSelector('[role="dialog"]', { hidden: true });
       const pdf = await PDFDocument.load(readFileSync(join(dir, dl)));
       return pdf.getPage(0).getRotation().angle;
     };
@@ -150,7 +157,7 @@ async function main() {
     await rotatePage1();
     await ensureExportable();
     if (!(await clickByText(page, "Export"))) fail("Export button not found (warn check).");
-    await page.waitForSelector('button[aria-label="PDF"]', { timeout: 5_000 });
+    await page.waitForSelector('input[aria-label="PDF"]', { timeout: 5_000 });
     if (!/unapplied page changes/i.test(await bodyText(page)))
       fail("Export modal did not warn about unapplied page changes.");
     await page.keyboard.press("Escape");

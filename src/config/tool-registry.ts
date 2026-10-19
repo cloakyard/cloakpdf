@@ -8,8 +8,8 @@
  * via Organize). Only tools that can't be a single-PDF "edit then export" flow
  * stay as cards here — the multi-input constructors (merge, images→PDF), the
  * dual-input compare, terminal-output extract-images, the security flows
- * (password, digital signature), and on-device AI chat. See
- * `Tool.standaloneOnly`.
+ * (password, digital signature), and on-device AI chat. The standalone and
+ * editor rosters are disjoint.
  *
  * Tool order within each category encodes importance / frequency of use — the
  * home grid displays them in this order.
@@ -28,19 +28,9 @@ import { lazy } from "react";
 import type { EditorToolId } from "../editor/tools.ts";
 import type { Tool } from "../types.ts";
 
-// ── Lazy-loaded tool components (code-split per tool) ────────────
-
-const MergePdf = lazy(() => import("../standalone/MergePdf.tsx"));
-const ImagesToPdf = lazy(() => import("../standalone/ImagesToPdf.tsx"));
-const ExtractImages = lazy(() => import("../standalone/ExtractImages.tsx"));
-const PdfPassword = lazy(() => import("../standalone/PdfPassword.tsx"));
-const ComparePdf = lazy(() => import("../standalone/ComparePdf.tsx"));
-const DigitalSignature = lazy(() => import("../standalone/DigitalSignature.tsx"));
-const AskPdf = lazy(() => import("../standalone/AskPdf.tsx"));
-
 // ── Tool metadata ────────────────────────────────────────────────
 
-export const tools = [
+export const HOME_CARD_TOOLS = [
   // ── Combine & Convert ────────────────────────────────────
   // Multi-file constructors + format conversion — the jobs the single-PDF
   // editor can't do (it edits one document, these build one from many or
@@ -51,7 +41,6 @@ export const tools = [
     description: "Combine multiple PDF files into one document",
     icon: GitMerge,
     category: "combine",
-    standaloneOnly: true, // multi-input constructor (merge/convert → download)
   },
   {
     id: "images-to-pdf",
@@ -59,7 +48,6 @@ export const tools = [
     description: "Convert images into a PDF document",
     icon: Images,
     category: "combine",
-    standaloneOnly: true, // multi-input constructor (merge/convert → download)
   },
   {
     id: "extract-images",
@@ -67,7 +55,6 @@ export const tools = [
     description: "Pull all embedded images from a PDF and download as PNG or ZIP",
     icon: ImageDown,
     category: "combine",
-    standaloneOnly: true, // terminal output (embedded images → PNG/ZIP), not a PDF edit
   },
 
   // ── Secure & Sign ────────────────────────────────────────
@@ -77,7 +64,6 @@ export const tools = [
     description: "Add or remove a password and control print, copy, and edit rights",
     icon: Lock,
     category: "security",
-    standaloneOnly: true, // security flow (encrypt/decrypt), not a single-PDF edit step
   },
   {
     id: "compare-pdf",
@@ -85,7 +71,6 @@ export const tools = [
     description: "Visual side-by-side diff of two PDFs with pixel-level change detection",
     icon: ArrowLeftRight,
     category: "security",
-    standaloneOnly: true, // dual-input (needs two PDFs)
   },
   {
     id: "digital-signature",
@@ -93,7 +78,6 @@ export const tools = [
     description: "Sign PDFs with a cryptographic certificate for authenticity verification",
     icon: FileKey2,
     category: "security",
-    standaloneOnly: true, // security flow (cert signing), not a single-PDF edit step
   },
 
   // ── On-device AI ─────────────────────────────────────────
@@ -132,29 +116,22 @@ export const tools = [
     // feature that crashes the user's browser.
     requirements: "Best on devices with ≥ 16 GB RAM — pick the Compact tier on lower-RAM machines",
     desktopOnly: true,
-    standaloneOnly: true, // on-device AI chat, not a PDF edit-and-export flow
   },
 ] as const satisfies readonly Tool[];
 
-/**
- * Every valid tool identifier — derived from the data so it can't drift: the 7
- * standalone home cards above plus every editor tool id (`EditorToolId`). Most
- * ids route to the unified editor; only the `standaloneOnly` ones mount a
- * standalone view. Replaces the hand-maintained union that used to live in
- * `src/types.ts`.
- */
-export type ToolId = (typeof tools)[number]["id"] | EditorToolId;
+/** Route identities come from the two metadata rosters. */
+export type StandaloneToolId = (typeof HOME_CARD_TOOLS)[number]["id"];
+export type ToolId = StandaloneToolId | EditorToolId;
 
-// ── Map tool IDs → lazy-loaded components ────────────────────────
-
-const toolComponents: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
-  merge: MergePdf,
-  "images-to-pdf": ImagesToPdf,
-  "extract-images": ExtractImages,
-  "pdf-password": PdfPassword,
-  "compare-pdf": ComparePdf,
-  "digital-signature": DigitalSignature,
-  "ask-pdf": AskPdf,
+// Metadata stays on the home path; heavy implementations load only on selection.
+const toolComponents: Record<StandaloneToolId, React.LazyExoticComponent<React.ComponentType>> = {
+  merge: lazy(() => import("../standalone/MergePdf.tsx")),
+  "images-to-pdf": lazy(() => import("../standalone/ImagesToPdf.tsx")),
+  "extract-images": lazy(() => import("../standalone/ExtractImages.tsx")),
+  "pdf-password": lazy(() => import("../standalone/PdfPassword.tsx")),
+  "compare-pdf": lazy(() => import("../standalone/ComparePdf.tsx")),
+  "digital-signature": lazy(() => import("../standalone/DigitalSignature.tsx")),
+  "ask-pdf": lazy(() => import("../standalone/AskPdf.tsx")),
 };
 
 // ── Category definitions for the home screen ─────────────────────
@@ -182,23 +159,14 @@ export const categories = [
   },
 ];
 
-/**
- * Tools shown as standalone cards on the editor-first home screen — the
- * multi-input constructors and special single-input tools that can't be a
- * single-PDF "edit then export" editor flow (see `Tool.standaloneOnly`).
- * Everything else is reached by dropping a PDF on the home dropzone, which
- * opens the unified editor.
- */
-export const HOME_CARD_TOOLS: Tool[] = tools.filter((t) => t.standaloneOnly);
-
 /** Look up a tool's metadata by id, or `null` if unknown. */
 export function findTool(id: string): Tool | null {
-  return tools.find((t) => t.id === id) ?? null;
+  return HOME_CARD_TOOLS.find((t) => t.id === id) ?? null;
 }
 
 /** Look up a tool's lazy component by id, or `null` if unknown. */
 export function findToolComponent(
-  id: ToolId,
+  id: string,
 ): React.LazyExoticComponent<React.ComponentType> | null {
-  return toolComponents[id] ?? null;
+  return Object.hasOwn(toolComponents, id) ? toolComponents[id as StandaloneToolId] : null;
 }

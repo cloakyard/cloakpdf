@@ -6,15 +6,14 @@
  * the printed, folded booklet reads out of sequence — so it's pinned against the
  * known side order for 4- and 8-page documents, including blank-leaf padding.
  */
-import { PDFDocument, rgb } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFName, PDFNumber, degrees, rgb } from "@pdfme/pdf-lib";
 import { describe, expect, it } from "vite-plus/test";
 import { bookletOrder, nupPages } from "../../src/utils/pdf/transform.ts";
 
 async function makePdf(n: number): Promise<File> {
   const doc = await PDFDocument.create();
   for (let i = 0; i < n; i++) {
-    // Give each page a content stream so it can be embedded (nupPages embeds
-    // source pages as XObjects; a truly blank page has no Contents to embed).
+    // Visible source ink complements the separate content-free page case.
     const page = doc.addPage([400, 600]);
     page.drawRectangle({ x: 10, y: 10, width: 50, height: 50, color: rgb(0, 0, 0) });
   }
@@ -47,6 +46,31 @@ describe("bookletOrder", () => {
 });
 
 describe('nupPages("booklet")', () => {
+  it.each([0, 90, 180, 270])(
+    "uses visible physical sheet dimensions at %i degrees",
+    async (rotation) => {
+      const source = await PDFDocument.create();
+      const page = source.addPage([600, 800]);
+      page.setCropBox(40, 60, 200, 300);
+      page.setRotation(degrees(rotation));
+      page.node.set(PDFName.of("UserUnit"), PDFNumber.of(2));
+      page.drawText("Visible page");
+      const out = await nupPages(new File([await source.save()], "geometry.pdf"), "booklet");
+      const sheet = (await PDFDocument.load(out)).getPage(0);
+      expect(sheet.getSize()).toEqual(
+        rotation % 180 ? { width: 600, height: 400 } : { width: 400, height: 600 },
+      );
+      expect(sheet.getRotation().angle).toBe(0);
+    },
+  );
+
+  it("keeps genuinely blank pages without requiring a content stream", async () => {
+    const source = await PDFDocument.create();
+    source.addPage([400, 600]);
+    const out = await nupPages(new File([await source.save()], "blank.pdf"), "booklet");
+    expect((await PDFDocument.load(out)).getPageCount()).toBe(2);
+  });
+
   it("emits two 2-up sides per 4 source pages, sheet-sized", async () => {
     const file = await makePdf(8); // → 4 printed sides
     const out = await nupPages(file, "booklet", { cropMarks: true });
