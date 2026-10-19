@@ -1360,7 +1360,7 @@ journeys across all apps; it is not inferred from the pilot alone.
   pending objects and selection, successful output removes only annotation overlays,
   and Undo restores them. Preserve embedded fonts, vector marks, selectable original
   text, metadata and attachments. Remove retired StyleToggle/FontControls skins and
-  RangeField; keep controls with remaining form/N-up consumers until their migration.
+  RangeField. Retain only shared adapters with verified live consumers.
 
 - Auto-fill uses open Air detection/profile/answer groups, complete field labels and
   named page-navigation actions. The saved profile is independent of PDF Apply/Cancel;
@@ -1378,3 +1378,21 @@ journeys across all apps; it is not inferred from the pilot alone.
   intact. Preserve original vector text, rotated/cropped physical page geometry,
   metadata and attachments. Await Apply/mobile Done, deduplicate, retire applied
   drafts before Undo, and preserve failure/retry and explicit Cancel semantics.
+
+- Fill form uses open Air rows, full native field names, page-navigation actions,
+  labelled text/multiline fields, custom single-choice menus and native check rows.
+  Read-only values remain copyable; unsupported fields stay visible and unchanged.
+  Preserve native choices, multi-selection, required flags and text-length limits.
+  Required labels describe the PDF; saving a partially completed form is allowed.
+- Field reads and drafts belong to exact source bytes. Retain drafts across tool,
+  viewport and appearance changes; ignore abandoned reads and offer real read-error
+  retry separately from an empty form. XFA forms must show an explicit unsupported
+  state rather than dropping their data. Resolve pending privacy marks before editing.
+- Save only changed writable values. Clearing choices must clear their PDF value;
+  unsupported/read-only values cannot be silently overwritten. Field errors retain
+  all input and identify the correction. Flattening is explicit and unavailable
+  when unsupported fields would be lost. Await Apply/mobile Done, preserve failed
+  work and prevent duplicate output. Verify field values/flags/widget geometry,
+  catalog data, fixed appearances, Undo/Redo and Cancel before committing. Success
+  feedback belongs to the editor's committed bytes and disappears on Undo; preserve
+  focus inside the inspector when the saving control becomes disabled.

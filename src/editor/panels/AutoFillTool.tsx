@@ -110,6 +110,11 @@ export function Panel() {
     text: "",
     failed: false,
   });
+  // The editor copies writer output; retain the committed byte identity for Undo.
+  useEffect(() => {
+    if (note.text && !note.failed && !note.sourceBytes && doc)
+      setNote({ ...note, sourceBytes: doc.bytes });
+  }, [doc, note]);
   const request = useRef<AbortController | null>(null);
   const applying = useRef(false);
   const current = useRef(doc);
@@ -216,14 +221,13 @@ export function Panel() {
     applying.current = true;
     setNote({ text: "", failed: false });
     try {
-      let appliedBytes: Uint8Array | undefined;
       await applyTransform(async (d) => {
         if (d.bytes !== answers.sourceBytes)
           throw new Error("The document changed. Detect its fields again before applying answers.");
         const fills = answers.fields
           .map((f, i) => ({ ...f, text: answers.values[i] ?? "" }))
           .filter((f) => f.text.trim());
-        appliedBytes = await fillFlatFormFields(docToFile(d), fills);
+        const appliedBytes = await fillFlatFormFields(docToFile(d), fills);
         return {
           bytes: appliedBytes,
           label: `Fill ${fills.length} field${fills.length === 1 ? "" : "s"}`,
@@ -233,7 +237,6 @@ export function Panel() {
       setNote({
         text: "Answers added to the PDF. Undo restores the previous document.",
         failed: false,
-        sourceBytes: appliedBytes,
       });
     } catch (error) {
       setNote({
@@ -380,7 +383,7 @@ export function Panel() {
 
       {!!answers?.fields.length && (
         <section aria-label="Detected answers">
-          <div className="pdf-autofill-heading">
+          <div className="pdf-form-heading">
             <h3>Answers</h3>
             <span className="air-help">
               {filledCount} of {answers.fields.length} filled
@@ -409,10 +412,10 @@ export function Panel() {
               Fill empty answers from profile
             </button>
           )}
-          <ol className="pdf-autofill-fields">
+          <ol className="pdf-form-fields">
             {answers.fields.map((f, i) => (
               <li key={fieldKey(f)} className="pdf-property-field">
-                <div className="pdf-autofill-heading">
+                <div className="pdf-form-heading">
                   <label className="air-label" htmlFor={`autofill-answer-${i}`}>
                     {f.label || "Field"}
                   </label>

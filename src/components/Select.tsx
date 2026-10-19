@@ -44,6 +44,8 @@ interface SelectProps<T extends string> {
   disabled?: boolean;
   /** Accessible name — required when there's no associated visible <label>. */
   ariaLabel?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
   /** id for the trigger (so a <label htmlFor> can point at it). */
   id?: string;
   /** Shown when `value` matches no option (e.g. an empty-string prompt). */
@@ -63,6 +65,8 @@ export function Select<T extends string>({
   onChange,
   disabled = false,
   ariaLabel,
+  ariaDescribedBy,
+  ariaInvalid,
   id,
   placeholder,
   size = "md",
@@ -324,6 +328,8 @@ export function Select<T extends string>({
         aria-controls={open ? listId : undefined}
         aria-activedescendant={open && activeIndex >= 0 ? optId(activeIndex) : undefined}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         onClick={(event) =>
           open
             ? close()

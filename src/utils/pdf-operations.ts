@@ -14,7 +14,7 @@
 export type { AssembleOp } from "./pdf/pages.ts";
 export { mergePdfs, splitPdfIntoParts, assemblePdf } from "./pdf/pages.ts";
 
-export { getFieldPageIndices, fillPdfForm, flattenPdf } from "./pdf/forms.ts";
+export { flattenPdf } from "./pdf/forms.ts";
 
 export type { FlatField, ProfileKey } from "./pdf/form-detect.ts";
 export { detectFlatFields, fillFlatFormFields } from "./pdf/form-detect.ts";

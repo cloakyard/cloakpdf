@@ -265,7 +265,7 @@ try {
     (window as any).releaseRead = null;
   });
   await settle();
-  assert.equal(await page.$$(".pdf-autofill-fields input").then((a) => a.length), 0);
+  assert.equal(await page.$$(".pdf-form-fields input").then((a) => a.length), 0);
   assert.match(await page.$eval(".pdf-autofill-panel", (e) => e.textContent!), /document changed/);
   await scan();
 
@@ -338,6 +338,11 @@ try {
       assert.ok(item.y >= 0 && item.y + item.height < p.height + 2);
     }
   await writeFile(join(output, "Air autofill output.pdf"), new Uint8Array(outputBytes));
+  await page.waitForFunction(() =>
+    document
+      .querySelector(".pdf-autofill-panel")
+      ?.textContent?.includes("Answers added to the PDF"),
+  );
   await page.evaluate(() => (window as any).airActions.undo());
   await settle();
   assert.equal(await values(), undefined, "applied draft must not reappear after Undo");

@@ -1,134 +1,219 @@
-/**
- * Form-field operations and the private AcroForm helpers they share.
- */
-
+/** Native form schema and writes share one set of supported field types. */
 import {
   PDFDocument,
   PDFTextField,
   PDFCheckBox,
   PDFDropdown,
   PDFRadioGroup,
+  PDFOptionList,
   PDFDict,
   PDFArray,
   PDFName,
-  PDFNumber,
-  PDFString,
 } from "@pdfme/pdf-lib";
+import { visiblePageGeometry } from "./page-geometry.ts";
 
-/** Walk the /Parent chain collecting /T values to build the dotted full name. */
-function deriveFullFieldName(pdf: PDFDocument, dict: PDFDict): string | null {
-  const parts: string[] = [];
-  let next: PDFDict | null = dict;
-  while (next !== null) {
-    const current: PDFDict = next;
-    const t = current.get(PDFName.of("T"));
-    if (t) parts.unshift(decodePdfString(t));
-    const parentEntry = current.get(PDFName.of("Parent"));
-    if (!parentEntry) break;
-    const resolved = pdf.context.lookup(parentEntry);
-    next = resolved instanceof PDFDict ? (resolved as PDFDict) : null;
-  }
-  return parts.length > 0 ? parts.join(".") : null;
+function assertNativeForm(pdf: PDFDocument) {
+  if (pdf.catalog.lookupMaybe(PDFName.of("AcroForm"), PDFDict)?.has(PDFName.of("XFA")))
+    throw new FormFieldError(
+      "",
+      "This PDF uses XFA form fields, which cannot be edited here. Open it in a PDF reader that supports XFA.",
+    );
 }
 
-function decodePdfString(obj: { toString(): string } | undefined): string {
-  if (!obj) return "";
-  if (obj instanceof PDFString) return obj.decodeText();
-  // Fallback for any other PDFObject (e.g. PDFHexString): strip delimiters.
-  return obj
-    .toString()
-    .replace(/^\(|\)$/g, "")
-    .replace(/^<|>$/g, "");
+export type FormValue = string | boolean | string[];
+export interface FormFieldInfo {
+  name: string;
+  type: "text" | "checkbox" | "choice" | "unsupported";
+  value: FormValue;
+  pages: number[];
+  readOnly: boolean;
+  required: boolean;
+  options?: string[];
+  multiple?: boolean;
+  editable?: boolean;
+  multiline?: boolean;
+  password?: boolean;
+  maxLength?: number;
 }
 
-/**
- * Build a map of fully-qualified field name → { pageIndex, y } by scanning
- * each page's widget annotations. The y value is the top of the widget's Rect
- * in PDF user-space units (higher = closer to top of page). Useful for grouping
- * and sorting form fields by their visual position in the document.
- * Fields that appear on multiple pages are mapped to their first occurrence.
- *
- * @param file - The source PDF file.
- * @returns Map of field name → pageIndex and y position.
- */
-export async function getFieldPageIndices(
-  file: File,
-): Promise<Map<string, { pageIndex: number; y: number }>> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
-  const map = new Map<string, { pageIndex: number; y: number }>();
-  for (let pageIdx = 0; pageIdx < pdf.getPageCount(); pageIdx++) {
-    const page = pdf.getPage(pageIdx);
-    const annotsEntry = page.node.get(PDFName.of("Annots"));
-    if (!annotsEntry) continue;
-    const annots = pdf.context.lookup(annotsEntry);
-    if (!(annots instanceof PDFArray)) continue;
-    for (let j = 0; j < annots.size(); j++) {
-      const annot = pdf.context.lookup(annots.get(j));
-      if (!(annot instanceof PDFDict)) continue;
-      const subtype = annot.get(PDFName.of("Subtype"));
-      if (!subtype || subtype.toString() !== "/Widget") continue;
-      const name = deriveFullFieldName(pdf, annot);
-      if (!name || map.has(name)) continue;
-      // Extract the upper-left y from the Rect [llx, lly, urx, ury].
-      // ury is the top edge; higher value = higher on page.
-      let y = 0;
-      const rectEntry = annot.get(PDFName.of("Rect"));
-      if (rectEntry) {
-        const rect = pdf.context.lookup(rectEntry);
-        if (rect instanceof PDFArray && rect.size() >= 4) {
-          const ury = rect.get(3);
-          if (ury instanceof PDFNumber) y = ury.asNumber();
-        }
+/** One parse; widget identity avoids decoding or traversing user-supplied names. */
+export async function readFormFields(file: File): Promise<FormFieldInfo[]> {
+  const pdf = await PDFDocument.load(await file.arrayBuffer());
+  assertNativeForm(pdf);
+  const pages = pdf.getPages();
+  const widgetPages = new Map<PDFDict, number>();
+  pages.forEach((page, i) => {
+    const annots = page.node.lookupMaybe(PDFName.of("Annots"), PDFArray);
+    if (annots)
+      for (let j = 0; j < annots.size(); j++) {
+        const dict = pdf.context.lookup(annots.get(j));
+        if (dict instanceof PDFDict) widgetPages.set(dict, i);
       }
-      map.set(name, { pageIndex: pageIdx, y });
-    }
-  }
-  return map;
+  });
+  return pdf
+    .getForm()
+    .getFields()
+    .map((field) => {
+      const positions = field.acroField
+        .getWidgets()
+        .flatMap((widget) => {
+          const pageIndex = widgetPages.get(widget.dict);
+          if (pageIndex === undefined) return [];
+          const {
+            height,
+            matrix: [a, b, c, d, e, f],
+          } = visiblePageGeometry(pages[pageIndex]);
+          const { x, y, width, height: h } = widget.getRectangle();
+          const det = a * d - b * c;
+          const corners = [
+            [x, y],
+            [x + width, y],
+            [x, y + h],
+            [x + width, y + h],
+          ].map(([px, py]) => ({
+            x: (d * (px - e) - c * (py - f)) / det,
+            y: height - (-b * (px - e) + a * (py - f)) / det,
+          }));
+          return [
+            {
+              pageIndex,
+              x: Math.min(...corners.map((p) => p.x)),
+              y: Math.min(...corners.map((p) => p.y)),
+            },
+          ];
+        })
+        .sort((a, b) => a.pageIndex - b.pageIndex || a.y - b.y || a.x - b.x);
+      const info: FormFieldInfo = {
+        name: field.getName(),
+        type: "unsupported",
+        value: "",
+        pages: [...new Set(positions.map((p) => p.pageIndex))],
+        readOnly: field.isReadOnly(),
+        required: field.isRequired(),
+      };
+      if (field instanceof PDFTextField)
+        Object.assign(info, {
+          type: "text",
+          value: field.getText() ?? "",
+          multiline: field.isMultiline(),
+          password: field.isPassword(),
+          maxLength: field.getMaxLength(),
+        });
+      else if (field instanceof PDFCheckBox)
+        Object.assign(info, { type: "checkbox", value: field.isChecked() });
+      else if (field instanceof PDFDropdown || field instanceof PDFOptionList)
+        Object.assign(info, {
+          type: "choice",
+          value: field.isMultiselect() ? field.getSelected() : (field.getSelected()[0] ?? ""),
+          options: field.getOptions(),
+          multiple: field.isMultiselect(),
+          editable: field instanceof PDFDropdown && field.isEditable(),
+        });
+      else if (field instanceof PDFRadioGroup)
+        Object.assign(info, {
+          type: "choice",
+          value: field.getSelected() ?? "",
+          options: field.getOptions(),
+        });
+      return { info, position: positions[0] };
+    })
+    .sort(
+      (a, b) =>
+        (a.position?.pageIndex ?? Infinity) - (b.position?.pageIndex ?? Infinity) ||
+        (a.position?.y ?? 0) - (b.position?.y ?? 0) ||
+        (a.position?.x ?? 0) - (b.position?.x ?? 0),
+    )
+    .map(({ info }) => info);
 }
 
-/**
- * Fill interactive form fields in a PDF with the provided values.
- *
- * Handles text fields, checkboxes, dropdowns, and radio groups. Fields whose
- * names are not found in `fieldValues` are left unchanged. Silently skips
- * any field that errors (e.g. read-only or unsupported type). Optionally
- * flattens the form after filling to produce a non-editable document.
- *
- * @param file - The source PDF file containing form fields.
- * @param fieldValues - Map of field name → value (string for text/dropdown/radio, boolean for checkboxes).
- * @param flatten - If true, flattens the form after filling (default false).
- * @returns New PDF bytes with fields filled (and optionally flattened).
- */
+export class FormFieldError extends Error {
+  fieldName: string;
+  constructor(fieldName: string, message: string) {
+    super(message);
+    this.fieldName = fieldName;
+  }
+}
+
+/** Changing a form is atomic: an invalid value cannot masquerade as a saved field. */
 export async function fillPdfForm(
   file: File,
-  fieldValues: Record<string, string | boolean>,
+  fieldValues: Record<string, FormValue>,
   flatten = false,
 ): Promise<Uint8Array> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
+  const pdf = await PDFDocument.load(await file.arrayBuffer());
+  assertNativeForm(pdf);
   const form = pdf.getForm();
-
+  if (
+    flatten &&
+    form
+      .getFields()
+      .some(
+        (f) =>
+          !(
+            f instanceof PDFTextField ||
+            f instanceof PDFCheckBox ||
+            f instanceof PDFDropdown ||
+            f instanceof PDFOptionList ||
+            f instanceof PDFRadioGroup
+          ),
+      )
+  )
+    throw new Error(
+      "This form contains fields that cannot be flattened here. Keep the form editable.",
+    );
   for (const [name, value] of Object.entries(fieldValues)) {
     try {
       const field = form.getField(name);
+      if (field.isReadOnly()) throw new Error("This field is read-only.");
       if (field instanceof PDFTextField) {
-        field.setText(typeof value === "string" ? value : "");
+        if (typeof value !== "string") throw new Error("Enter a text value.");
+        const max = field.getMaxLength();
+        if (max !== undefined && value.length > max)
+          throw new Error(`Use ${max} characters or fewer.`);
+        field.setText(value);
       } else if (field instanceof PDFCheckBox) {
-        if (value === true || value === "true") field.check();
+        if (typeof value !== "boolean") throw new Error("Choose checked or unchecked.");
+        if (value) field.check();
         else field.uncheck();
-      } else if (field instanceof PDFDropdown) {
-        if (typeof value === "string" && value) field.select(value);
+      } else if (field instanceof PDFDropdown || field instanceof PDFOptionList) {
+        const selections = Array.isArray(value)
+          ? value
+          : typeof value === "string" && value
+            ? [value]
+            : [];
+        if (typeof value === "boolean" || (!field.isMultiselect() && selections.length > 1))
+          throw new Error("Choose one available option.");
+        if (
+          !(field instanceof PDFDropdown && field.isEditable()) &&
+          selections.some((v) => !field.getOptions().includes(v))
+        )
+          throw new Error("Choose an available option.");
+        if (selections.length) field.select(selections);
+        else field.clear();
       } else if (field instanceof PDFRadioGroup) {
-        if (typeof value === "string" && value) field.select(value);
-      }
-    } catch {
-      // Skip fields that cannot be set (read-only, unknown type, etc.)
+        if (typeof value !== "string" || (value && !field.getOptions().includes(value)))
+          throw new Error("Choose an available option.");
+        if (value) field.select(value);
+        else field.clear();
+      } else throw new Error("This field type cannot be edited here.");
+      // Update changed appearances here so encoding failures identify their field.
+      if (
+        field instanceof PDFTextField ||
+        field instanceof PDFDropdown ||
+        field instanceof PDFOptionList
+      )
+        field.defaultUpdateAppearances(form.getDefaultFont());
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : "Couldn't save this value.";
+      throw new FormFieldError(
+        name,
+        /encode|WinAnsi/i.test(reason)
+          ? "This field's font cannot print one or more characters. Change those characters and try again."
+          : reason,
+      );
     }
   }
-
   if (flatten) form.flatten();
-
   return pdf.save();
 }
 

@@ -3819,34 +3819,34 @@ body:has(.pdf-site) {
 
 /* Printed-form answers share the inspector's scrolling region. */
 .pdf-autofill-profile,
-.pdf-autofill-fields {
+.pdf-form-fields {
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-width: 0;
 }
-.pdf-autofill-fields {
+.pdf-form-fields {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.pdf-autofill-fields > li {
+.pdf-form-fields > li {
   padding-block: 12px;
   border-top: 1px solid var(--air-line);
 }
-.pdf-autofill-heading {
+.pdf-form-heading {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
-.pdf-autofill-heading .air-label {
+.pdf-form-heading .air-label {
   flex: 1;
   min-width: min(8rem, 100%);
   overflow-wrap: anywhere;
 }
-.pdf-autofill-heading .air-button {
+.pdf-form-heading .air-button {
   flex-shrink: 0;
 }
 .pdf-autofill-profile-toggle {

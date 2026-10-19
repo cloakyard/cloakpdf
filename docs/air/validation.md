@@ -1902,3 +1902,60 @@ tab12 draft is preserved. No push/deployment.
 Next: FillFormTool and NupTool. Their remaining controls/empty/error/output and
 mobile completion semantics still need migration. This completes the bounded
 Auto-fill implementation, not the whole PDF/family refresh.
+
+## 2026-10-19 — Native Fill form
+
+The interactive AcroForm inspector now shares Auto-fill's Air field rows, full-width
+inputs, page links, native check rows and custom choice menus. It includes option
+lists with multiple selections, editable dropdown answers, multiline/password flags,
+required labels, length errors and copyable read-only values. Unsupported fields
+remain visible and unchanged; flattening is disabled for those documents. XFA is
+explicitly unsupported instead of being silently stripped by the PDF library.
+
+Reads and drafts belong to exact source bytes. Tool/page/layout changes retain
+answers; abandoned reads cannot revive stale state. Read failures have Retry;
+empty forms offer Auto-fill. Pending privacy marks block field editing. Saving
+changes only writable edited values, clears empty choices, reports the affected
+field on encoding/validation failure and keeps all answers. Apply/mobile Done
+awaits output and deduplicates; Cancel, Undo and Redo retain their existing semantics.
+Success feedback binds to the editor's committed byte copy and Undo hides it. The
+same correction applies to Auto-fill; focus returns to the form after Save.
+
+Validation: 444 units in 46 files; Fill form and Auto-fill focused integrations;
+all 16 production smoke and seven extended development suites (25 distinct suites).
+Final focused form regressions and production editor smoke recheck the save-feedback
+and focus correction. The initial smoke failure used the retired empty-state copy;
+it now asserts the semantic empty-form region. Auto-fill's empty-list assertion
+uses the new shared class. No output assertion was weakened.
+
+66 Fill form captures cover text, choice and finish regions at eleven sizes in
+light/dark, plus six enlarged-text captures and forced colours/reduced motion.
+Emulated coarse targets are at least 44px; menus remain within the viewport.
+Contact sheets and full desktop/laptop/tablet/phone/short-landscape views inspected.
+Safari verifies text, custom menu typeahead, multi-selection, Save and Undo. Firefox
+at actual 200% verifies custom keyboard clearing and read-only values; final normal
+zoom Save/Undo confirms feedback and focus. Native review tabs closed and zoom reset.
+Physical touch/software keyboard, actual OS IME and spoken assistive acceptance
+remain open, so inventory records remain validated:false.
+
+Real output checks cover text, multiline, checkbox, radio, single/multi-choice and
+custom answers, native flags, widget positions, rotation/CropBox/UserUnit, metadata
+and an attachment. An independent Poppler render of saved and flattened two-page
+outputs has zero pixel-channel differences (3,645,000 samples at 900px maximum size).
+Both pages inspected. Unsupported/readonly/unknown fields and unsupported characters
+fail atomically. The browser test also covers prototype-like field names.
+
+Removed the duplicate field parser/name decoder, unused barrel exports, final
+Labeled/Toggle/SwitchTrack and obsolete switch CSS. Remaining PositionGrid, Rgb and
+transparency checker have live consumers. No dependency or family contract change;
+Air stays 1.0.2 (`bb90f52e0b0a`). Required check/dead/build/asset/design/18 portability
+and exact standalone design sync pass. Final bundle measurements and full command
+results are recorded in the adjacent evidence JSON/log.
+
+Evidence: `evidence/fill-form-2026-10-19.json`, two proof PNGs and
+`evidence/fill-form-checks-2026-10-19.log`. Larger captures and synthetic PDFs remain
+in `/tmp/cloakpdf-air-review/`. IAB tab1 on 8132 shows the synthetic form for review.
+No push or deployment. N-up was already implemented and validated on 2026-10-14;
+the earlier handoff was stale. Next bounded tool: Select text, followed by the
+remaining wrapper/stage/provider and legacy-style consumer audit. Full PDF/family
+migration and the physical/assistive acceptance gates remain unfinished.

@@ -135,14 +135,6 @@
   transition: transform var(--dur-short) var(--ease-in-out);
 }
 
-.cloak-switch-track {
-  transition: background-color var(--dur-short) var(--ease-standard);
-}
-
-.cloak-switch-thumb {
-  transition: transform var(--dur-normal) var(--ease-in-out);
-}
-
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /* Root stack heights and base background. Mirrors CloakResume's
@@ -227,8 +219,7 @@ body {
   }
 
   .cloak-selection-indicator,
-  .cloak-disclosure-icon,
-  .cloak-switch-thumb {
+  .cloak-disclosure-icon {
     transition: none !important;
   }
 

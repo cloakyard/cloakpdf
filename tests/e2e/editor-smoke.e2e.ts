@@ -488,7 +488,9 @@ async function main() {
       .then(() => true)
       .catch(() => false);
     if (!ffSwitched) await page.click('button[aria-label="Fill form"]');
-    await waitForText(page, /no fillable form fields/i, 15_000);
+    await page.waitForSelector('.pdf-fillform-panel [aria-label="No form fields"]', {
+      timeout: 15_000,
+    });
     console.log("  ✓ fill-form reads fields (empty)");
 
     // 12. Bookmarks: add one row + apply, page count unchanged.
