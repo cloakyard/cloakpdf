@@ -29,7 +29,8 @@ const paths = [
   ...(await scan(resolve(root, "public"), /\.html$/)),
   ...(await scan(resolve(root, "artwork"), /\.html$/)),
   "index.html",
-].sort();
+  "404.html",
+].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 const surfaces = paths.map(
   (path) =>
     saved.get(path) ?? {

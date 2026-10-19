@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#fafbfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Page not found — CloakPDF</title>
+    <link rel="icon" href="%BASE_URL%icons/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles/air.css" />
+    <style>
+      body {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+      }
+      .requested-address {
+        max-width: 65ch;
+        margin-block: 32px 0;
+        color: var(--air-ink-muted);
+        font-size: var(--air-text-body);
+      }
+      .requested-address code {
+        display: block;
+        margin-top: 8px;
+        font-family: var(--air-font-mono);
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body class="air-page">
+    <a class="air-button air-page-skip" href="#main-content">Skip to content</a>
+    <header class="air-page-header air-page-width">
+      <a class="air-page-brand" href="%BASE_URL%" aria-label="CloakPDF home">
+        <img
+          class="air-page-mark"
+          src="%BASE_URL%cloakpdf-mark.svg"
+          width="36"
+          height="36"
+          alt=""
+        />
+        <span translate="no">CloakPDF</span>
+      </a>
+      <nav class="air-page-nav" aria-label="Main navigation"><a href="%BASE_URL%">Home</a></nav>
+    </header>
+    <main class="air-page-width" id="main-content" tabindex="-1">
+      <div class="air-page-intro">
+        <p class="air-page-eyebrow">Page not found · 404</p>
+        <h1>This page isn’t here.</h1>
+        <p class="air-page-lede">
+          The address may have changed, or the link may be incomplete. Open CloakPDF to start with a
+          document from your device.
+        </p>
+        <div class="air-page-actions">
+          <a class="air-button air-button--primary" href="%BASE_URL%"
+            >Open CloakPDF <span aria-hidden="true">→</span></a
+          >
+        </div>
+        <p class="requested-address" hidden>Requested address<code id="requested-path"></code></p>
+      </div>
+    </main>
+    <footer class="air-page-footer air-page-width">
+      <p>Your files stay on your device.</p>
+      <nav aria-label="Footer navigation">
+        <a href="https://cloakyard.com/">Cloakyard</a>
+        <a href="https://github.com/cloakyard/cloakpdf">Source</a>
+        <a href="https://github.com/cloakyard/cloakpdf/issues/new">Report a broken link</a>
+      </nav>
+    </footer>
+    <script type="module">
+      const path = document.getElementById("requested-path");
+      if (path) {
+        path.textContent = window.location.pathname + window.location.search;
+        path.parentElement.hidden = false;
+      }
+    </script>
+  </body>
+</html>

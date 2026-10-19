@@ -2196,3 +2196,38 @@ two laptop PNGs and the five published preview PNGs. Larger captures/logs live i
 `/tmp/cloakpdf-air-review/previews/`. Full PDF/family conformance, physical touch/
 software keyboard, OS IME, spoken assistive use and real-device shader gates remain
 open. Next: static 404 and checklist/evidence reconciliation, then IMG rollout.
+
+## 2026-10-19 — Static recovery and acceptance reconciliation
+
+Replace the 497-line public Workbench 404 with a build-owned static entry importing
+the pinned Air CSS. It shares reading/navigation/buttons, original 36px mark, light/
+dark tokens, keyboard skip link and safe wrapping path text. No-JavaScript recovery
+works without an empty address block. Retired palette/font links/footer are removed.
+The PWA navigation fallback now matches only supported root/index entry paths, with
+queries preserved: installed users get the host's real 404 instead of a masked home.
+Both entries share built CSS; no document/output styling or runtime tool changed.
+
+The focused local Workers suite passes 66 cases across all eleven required sizes,
+light/dark, 16/32px root text, JS and no-JS. It checks actual HTTP 404 before/after
+installation, built CSS, path text safety, no retired font preload, fine/coarse target
+sizes, no overflow, keyboard skip/home, reduced motion/forced colours and valid
+root/index offline entry. Desktop/laptop/tablet/phone captures were visually reviewed.
+Native Safari light recovery and actual home navigation pass; Firefox 158 also passes
+actual 200% zoom/scroll and home navigation. Native dark/SW tests are not claimed.
+
+Required checks pass: formatting/lint/types, dead code, 458 units/47 files, production
+build (131 assets/80 precache entries), design and 18 portability cases. All sixteen
+production smoke and seven extended suites pass. Compress requires the development
+module server; the initial production run stopped at its source import, then all
+seven passed on 8122. Harness attempts corrected fine/coarse target expectations, a
+no-JS RAF wait and forced-colours CDP emulation. No product failure was waived.
+
+Inventory remains 94 sources; the new root 404 replaces the removed public source.
+`acceptance.md` maps older broad Phase 3 items to the dated panel/output evidence.
+It preserves physical/assistive gates and identifies a still-open PWA update-safety
+gap: reproduce real waiting-worker Update now with active editor/standalone work.
+Final supported AI tier/device coverage remains explicit. This is not full PDF or
+family acceptance. Next: PWA integration, remaining PDF acceptance, then IMG.
+
+Evidence: `evidence/recovery-page-2026-10-19.json`, companion checks log and two PNGs;
+full captures/logs in `/tmp/cloakpdf-air-review/recovery-page/`. Local commits only.

@@ -103,3 +103,8 @@ See AGENTS.md for the required lint, dead-code, unit and browser checks.
 ### Deployment
 
 Cloudflare Workers + Static Assets (`wrangler.jsonc`). Auto-deploys on push to `main` via Workers Builds. Preview deploys per PR. The static `dist/` directory is served from the Worker — no SSR.
+`404.html` is a Vite build entry sharing the local Air stylesheet. Unknown URLs
+retain the host 404 response after installation; only the app base and index entry
+use the service-worker navigation fallback. Validate with a local Workers asset
+server (`wrangler dev --local --port 8134`) and `pnpm test:e2e:recovery-page`.
+Vite preview alone does not reproduce the Workers 404 response policy.

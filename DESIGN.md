@@ -1448,3 +1448,15 @@ journeys across all apps; it is not inferred from the pilot alone.
   before generating previews and release any previews that finish after departure.
   Tool changes clear old canvas handlers/overlays while preserving document pages;
   keep these lifecycle seams even when their components render no visible content.
+
+- Static recovery is a build entry using the same locally pinned Air CSS as the app.
+  Keep useful no-JavaScript home/skip navigation, safe wrapping requested-path text,
+  both themes, 36px identity and responsive/enlarged-text behavior. Do not restore
+  the retired public 404 palette, UI fonts, technical receipt or statement footer.
+- The host returns HTTP 404 for unknown URLs before and after PWA installation.
+  Limit the service-worker navigation fallback to the app base and index entry,
+  preserving valid offline entry/query URLs without masking missing routes.
+- Install/README previews show the real application with synthetic content and
+  truthful dimensions/layout/theme labels. Social artwork uses the canonical Air
+  CSS, original mark and real capture. Validate shipped metadata against image bytes;
+  include static HTML/artwork in the surface inventory alongside React sources.

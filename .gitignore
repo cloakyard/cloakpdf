@@ -41,3 +41,6 @@ tests/.puppeteer-profile*/
 tests/retrieval-debug/
 .playwright-mcp/
 .vitest/
+
+# Local Workers assets preview state
+.wrangler/

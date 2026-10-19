@@ -11,6 +11,7 @@ declare const process: { env: Record<string, string | undefined> };
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8")) as {
   version: string;
 };
+const appBasePath = process.env.VITE_APP_BASE_PATH || "/";
 
 // pdfjs-dist v6 fetches WASM image decoders (jbig2 / openjpeg / qcms, plus JS
 // fallbacks and the quickjs scripting runtime) on demand to decode CCITT-fax,
@@ -61,7 +62,15 @@ export default defineConfig({
     // https://vitest.dev/guide/migration/#clearmocks-is-enabled-by-default
     clearMocks: false,
   },
-  base: process.env.VITE_APP_BASE_PATH || "/",
+  base: appBasePath,
+  build: {
+    rolldownOptions: {
+      input: {
+        app: fileURLToPath(new URL("./index.html", import.meta.url)),
+        notFound: fileURLToPath(new URL("./404.html", import.meta.url)),
+      },
+    },
+  },
   resolve: {
     // Transformers.js already loads version-matched ORT WASM from its CDN.
     // Select ORT's supported external-WASM entry so Vite does not also emit
@@ -94,8 +103,8 @@ export default defineConfig({
         // Individual workflows can still show their own narrow-screen guidance,
         // but the installed app must not globally lock landing/privacy/editor.
         orientation: "any",
-        scope: process.env.VITE_APP_BASE_PATH || "/",
-        start_url: process.env.VITE_APP_BASE_PATH || "/",
+        scope: appBasePath,
+        start_url: appBasePath,
         icons: [
           {
             src: "icons/pwa-64x64.png",
@@ -154,6 +163,13 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // App views use in-memory state. Unknown URLs must reach the host's 404,
+        // even after installation, instead of being rewritten to the home screen.
+        navigateFallbackAllowlist: [
+          new RegExp(
+            `^${appBasePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:index\\.html)?(?:\\?.*)?$`,
+          ),
+        ],
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
         // The pdfjs WASM decoders + JS fallbacks are large and only needed for
         // scanned CCITT/JBIG2/JPEG2000 images; cache them on demand via

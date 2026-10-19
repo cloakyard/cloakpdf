@@ -4,6 +4,28 @@
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
+      "path": "404.html",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "default",
+        "keyboard focus",
+        "no JavaScript",
+        "long path",
+        "installed/offline routing",
+        "reduced motion",
+        "forced colours"
+      ],
+      "viewports": [
+        "11 required sizes in light/dark; 16px and 32px root text",
+        "Native Safari light; Firefox light at actual 200%"
+      ],
+      "evidence": ["docs/air/evidence/recovery-page-2026-10-19.json"],
+      "notes": "Build-owned shared Air recovery replaces retired public/404.html. All 66 Chromium layouts pass. Physical/assistive acceptance remains open."
+    },
+    {
       "path": "artwork/og.html",
       "kind": "app-surface",
       "sourceReviewed": true,
@@ -24,17 +46,6 @@
       "viewports": ["metadata only; rendered entry covered separately"],
       "evidence": ["docs/air/evidence/previews-2026-10-19.json"],
       "notes": "Static metadata/social artwork; no interactive or device states. Real application captures inspected in both appearances."
-    },
-    {
-      "path": "public/404.html",
-      "kind": "app-surface",
-      "sourceReviewed": true,
-      "airImplemented": false,
-      "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": "Discovered outside the previous src-only inventory. Still uses retired Workbench styling and requests removed UI fonts; next bounded PDF closure piece."
     },
     {
       "path": "src/App.tsx",

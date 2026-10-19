@@ -13,9 +13,9 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 
 | Source                                     | Kind                | Source audit | Air implementation | Validation |
 | ------------------------------------------ | ------------------- | ------------ | ------------------ | ---------- |
+| `404.html`                                 | app-surface         | Done         | Done               | Pending    |
 | `artwork/og.html`                          | app-surface         | Done         | Done               | Done       |
 | `index.html`                               | app-surface         | Done         | Done               | Done       |
-| `public/404.html`                          | app-surface         | Done         | Pending            | Pending    |
 | `src/App.tsx`                              | app-surface         | Done         | Done               | Pending    |
 | `src/components/ActionButton.tsx`          | app-surface         | Done         | Done               | Pending    |
 | `src/components/ActiveModelBar.tsx`        | app-surface         | Done         | Done               | Pending    |

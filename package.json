@@ -14,6 +14,7 @@
     "test:watch": "pnpm test:unit:watch",
     "test:unit:watch": "vp test watch tests/unit",
     "test:e2e": "node --experimental-strip-types tests/e2e/ai-tools.e2e.ts",
+    "test:e2e:recovery-page": "node --experimental-strip-types tests/e2e/recovery-page.e2e.ts",
     "test:e2e:motion": "node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts",
     "test:e2e:smoke": "node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.e2e.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.e2e.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts && node --experimental-strip-types tests/e2e/export-dialog.e2e.ts && node --experimental-strip-types tests/e2e/ai-modal-states.e2e.ts && node --experimental-strip-types tests/e2e/ask-pdf-chat.e2e.ts && node --experimental-strip-types tests/e2e/editor-navigation.e2e.ts && node --experimental-strip-types tests/e2e/editor-collections.e2e.ts && node --experimental-strip-types tests/e2e/editor-canvas.e2e.ts && node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts",
     "test:e2e:all": "pnpm test:e2e:smoke && pnpm test:e2e",
