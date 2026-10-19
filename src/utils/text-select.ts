@@ -24,22 +24,35 @@ export interface SelWord {
 /**
  * Sort positioned words into human reading order: group into rows by vertical
  * overlap (text on the same line), order rows top-to-bottom, and words
- * left-to-right within each row. `rowTol` is the fraction of a word's height two
- * words may differ in `y` and still count as the same row. Pure.
+ * left-to-right within each row. Undo the page's display rotation for ordering;
+ * retain each word's visible rectangle for hit testing and painting. Pure.
  */
-export function orderReading(words: SelWord[], rowTol = 0.6): SelWord[] {
+export function orderReading(words: SelWord[], rotation = 0): SelWord[] {
+  const readingRect = ({ rect: r }: SelWord) => {
+    switch (((rotation % 360) + 360) % 360) {
+      case 90:
+        return { xPct: r.yPct, yPct: 1 - r.xPct - r.wPct, wPct: r.hPct, hPct: r.wPct };
+      case 180:
+        return { ...r, xPct: 1 - r.xPct - r.wPct, yPct: 1 - r.yPct - r.hPct };
+      case 270:
+        return { xPct: 1 - r.yPct - r.hPct, yPct: r.xPct, wPct: r.hPct, hPct: r.wPct };
+      default:
+        return r;
+    }
+  };
   const ws = words.filter((w) => w.text.length > 0);
   if (ws.length === 0) return [];
-  const sorted = [...ws].sort((a, b) => a.rect.yPct - b.rect.yPct);
+  const sorted = [...ws].sort((a, b) => readingRect(a).yPct - readingRect(b).yPct);
   const rows: SelWord[][] = [];
   for (const w of sorted) {
     const row = rows[rows.length - 1];
     if (row) {
-      const ref = row[0].rect;
-      const tol = Math.max(ref.hPct, w.rect.hPct) * rowTol;
+      const ref = readingRect(row[0]);
+      const rect = readingRect(w);
+      const tol = Math.max(ref.hPct, rect.hPct) * 0.6;
       // Same row when the vertical centres are within tolerance.
       const refMid = ref.yPct + ref.hPct / 2;
-      const wMid = w.rect.yPct + w.rect.hPct / 2;
+      const wMid = rect.yPct + rect.hPct / 2;
       if (Math.abs(refMid - wMid) <= tol) {
         row.push(w);
         continue;
@@ -47,7 +60,7 @@ export function orderReading(words: SelWord[], rowTol = 0.6): SelWord[] {
     }
     rows.push([w]);
   }
-  return rows.flatMap((row) => [...row].sort((a, b) => a.rect.xPct - b.rect.xPct));
+  return rows.flatMap((row) => [...row].sort((a, b) => readingRect(a).xPct - readingRect(b).xPct));
 }
 
 /** Distance² from a point to the nearest spot on (or in) a rect. */
@@ -95,4 +108,37 @@ export function selectedText(words: SelWord[], lo: number, hi: number): string {
     .join(" ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** Font ascent/descent, text direction and all four transformed corners matter
+ * for marks: a baseline-only box leaves descenders visible after redaction. */
+export function textSelectionBounds(
+  transform: number[],
+  width: number,
+  height: number,
+  style: { ascent?: number; descent?: number; vertical?: boolean },
+  toViewport: (x: number, y: number) => number[],
+) {
+  const [a, b, c, d, x, y] = transform;
+  const fontHeight = Math.hypot(c, d) || height;
+  const advance = style.vertical ? height : width;
+  const baseline = Math.hypot(a, b) || 1;
+  const ux = style.vertical ? -c / fontHeight : a / baseline;
+  const uy = style.vertical ? -d / fontHeight : b / baseline;
+  const vx = style.vertical ? a / baseline : c / fontHeight;
+  const vy = style.vertical ? b / baseline : d / fontHeight;
+  // Font metrics describe an em; include a small edge allowance for ink overshoot.
+  const top = (Math.max(0, style.ascent ?? 1) + 0.05) * fontHeight;
+  const bottom = (Math.min(0, style.descent ?? -0.25) - 0.05) * fontHeight;
+  const points = [0, advance].flatMap((along) =>
+    [bottom, top].map((up) => toViewport(x + ux * along + vx * up, y + uy * along + vy * up)),
+  );
+  const xs = points.map((p) => p[0]),
+    ys = points.map((p) => p[1]);
+  return {
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+    width: Math.max(...xs) - Math.min(...xs),
+    height: Math.max(...ys) - Math.min(...ys),
+  };
 }

@@ -37,6 +37,7 @@ import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from "pdf
 import { clampScaleForCanvas, getPdfJs } from "./pdf/raster.ts";
 import { PDFJS_WASM_URL } from "./pdfjs-config.ts";
 import { detectPii, type PiiType } from "./pii.ts";
+import { textSelectionBounds } from "./text-select.ts";
 
 /** A single positioned text run. Coordinates are PDF points, top-left origin. */
 export interface LayoutItem {
@@ -50,6 +51,8 @@ export interface LayoutItem {
 
 /** One page of extracted layout. */
 export interface LayoutPage {
+  /** Clockwise display rotation, when read from a native PDF page. */
+  rotation?: number;
   /** 1-based page index. */
   pageNumber: number;
   /** Page width in PDF points. */
@@ -1350,12 +1353,19 @@ export async function extractMarkdown(
 async function pageLayoutFromTextLayer(
   page: PDFPageProxy,
   pageNumber: number,
+  selectionBounds = false,
 ): Promise<LayoutPage> {
   const viewport = page.getViewport({ scale: 1 });
   const content = await page.getTextContent();
   const items: LayoutItem[] = [];
   for (const raw of content.items) {
-    const it = raw as { str?: string; transform?: number[]; width?: number; height?: number };
+    const it = raw as {
+      str?: string;
+      transform?: number[];
+      width?: number;
+      height?: number;
+      fontName?: string;
+    };
     const text = it.str ?? "";
     if (!text.trim() || !it.transform) continue;
     const tr = it.transform;
@@ -1370,12 +1380,18 @@ async function pageLayoutFromTextLayer(
       width: Math.abs(bx - ax),
       height: Math.abs(by - ay),
       fontSize: height * page.userUnit,
+      ...(selectionBounds
+        ? textSelectionBounds(tr, width, height, content.styles[it.fontName ?? ""] ?? {}, (x, y) =>
+            viewport.convertToViewportPoint(x, y),
+          )
+        : {}),
     });
   }
   return {
     pageNumber,
     width: viewport.width,
     height: viewport.height,
+    rotation: page.rotate,
     text: "",
     items,
     source: "text",
@@ -1444,11 +1460,13 @@ export async function extractTextGeometry(
  * the dependable size proxy (PDF.js's own font-size is degenerate on many PDFs).
  *
  * @param pageNumber - 1-based page index.
+ * @param options - Selection bounds include font descenders and transformed ink extents.
  * @returns the page's {@link LayoutPage}, or null when the index is out of range.
  */
 export async function extractPageTextGeometry(
   file: File,
   pageNumber: number,
+  options: { selectionBounds?: boolean } = {},
 ): Promise<LayoutPage | null> {
   const pdfjsLib = await getPdfJs();
   const arrayBuffer = await file.arrayBuffer();
@@ -1458,7 +1476,7 @@ export async function extractPageTextGeometry(
     if (pageNumber < 1 || pageNumber > pdf.numPages) return null;
     const page = await pdf.getPage(pageNumber);
     try {
-      return await pageLayoutFromTextLayer(page, pageNumber);
+      return await pageLayoutFromTextLayer(page, pageNumber, options.selectionBounds);
     } finally {
       page.cleanup();
     }

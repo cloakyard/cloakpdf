@@ -1828,7 +1828,7 @@
         "pending privacy marks / forced colours / reduced motion / enlarged text"
       ],
       "viewports": [
-        "320\u20131920px: all 11 required viewport classes, light/dark",
+        "320–1920px: all 11 required viewport classes, light/dark",
         "200% root text at 320/390/1440px",
         "Native Safari and Firefox with actual Firefox 200% zoom"
       ],
@@ -1923,7 +1923,7 @@
         "empty/default; populated; nested; reordered; removed/restored; invalid title/page; detecting; no-match; failed/retry; cancelled/stale; contents/pending-overlay protection; applied/undo; mobile Done/Cancel"
       ],
       "viewports": [
-        "all 11 required sizes \u00d7 light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
+        "all 11 required sizes × light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/bookmarks-2026-10-15.json"],
       "notes": "Air rows/shared select, explicit target validation, byte-scoped drafts, cancellable detection, overlay protection and promised mobile apply. Applied drafts retire; failed validation keeps pending Apply for retry. Physical touch/software keyboard, OS IME and assistive speech remain unverified."
@@ -2473,17 +2473,25 @@
     {
       "path": "src/editor/panels/SelectTextTool.tsx",
       "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
-      "evidence": [
-        "docs/air/editor-audit.md",
-        "docs/air/editor-panel-audit.json",
-        "docs/air/editor-mobile-audit.json"
+      "states": [
+        "reading, read error/retry, no text/OCR, ready/no selection",
+        "pointer/keyboard range, whole page, cancel, clear, tool/layout retention",
+        "disabled, focus, clipboard success/refusal/unavailable, manual copy",
+        "highlight/box busy/failure/retry, committed feedback, Undo/Redo/Cancel",
+        "redaction pending/Undo/export; privacy-mark text gate",
+        "rotated/cropped/scaled pages, font descenders, transformed corners, long excerpt"
       ],
-      "notes": "Baseline default-panel audit only; remaining states and feature gates are listed in editor-audit.md. No Air runtime migration."
+      "viewports": [
+        "13 sizes (11 required plus 767/769 breakpoint neighbors) × light/dark × selection/action regions",
+        "320/768/1440 at 200% root text, both themes",
+        "coarse targets >=44px, forced colours/reduced motion",
+        "Safari native application/Undo; Firefox actual 200% zoom"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/select-text-2026-10-19.json"],
+      "notes": "Air implementation and automated/native desktop review complete. Physical touch/software keyboard, actual OS IME and spoken assistive acceptance remain open. Yellow/red marks are document ink, not UI palette. Reading order remains a spatial text-run heuristic; arbitrary complex multi-column logical order is not guaranteed."
     },
     {
       "path": "src/editor/panels/SignatureTool.tsx",
@@ -2659,7 +2667,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -2674,7 +2682,7 @@
       "airImplemented": true,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -2692,7 +2700,7 @@
       "airImplemented": false,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -3205,10 +3213,7 @@
         "1023x768",
         "1025x768"
       ],
-      "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
-        "docs/air/components.html"
-      ],
+      "evidence": ["docs/air/validation.md — refinement 02 candidate", "docs/air/components.html"],
       "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated."
     }
   ]

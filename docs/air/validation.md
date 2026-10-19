@@ -1959,3 +1959,57 @@ No push or deployment. N-up was already implemented and validated on 2026-10-14;
 the earlier handoff was stale. Next bounded tool: Select text, followed by the
 remaining wrapper/stage/provider and legacy-style consumer audit. Full PDF/family
 migration and the physical/assistive acceptance gates remain unfinished.
+
+## 2026-10-19 — Select text
+
+The Select text inspector now shares Air buttons, a labelled read-only excerpt,
+quiet page/clear actions and a keyboard-help disclosure. The canvas uses the family
+paper accent. Geometry and ranges belong to exact bytes and page; selections
+survive tool/layout changes, stale reads are ignored, and page or byte changes
+retire the selection. Loading, failed reading/retry and no-text/OCR are distinct.
+Clipboard refusal/unavailability offers a manual-copy path. Failed writes preserve
+selection; applied marks keep the existing explicit-apply checkpoint, with Undo/Redo
+restoring exact bytes. Cancel discards the selection, not already-applied marks.
+
+Independent PDF renders exposed the old baseline-only rectangles leaving glyph
+descenders outside marks. Selection bounds now include ascent/descent, a small ink
+allowance and all four transformed corners (including shear); visible fractions
+respect CropBox/UserUnit and reading order compensates for page rotation. Fully
+cropped-out runs are excluded. Other geometry consumers retain their existing
+bounds through an opt-in selection mode. Yellow highlights and red boxes remain
+output ink. Redaction remains deferred until export/another edit; pending privacy
+marks pause source-text selection. Real redacted output has no extractable covered
+text, keeps the other page's text and renders without descender fragments.
+
+453 units in 46 files; focused selection lifecycle/output, Auto-fill and search/scrub
+regressions; seven extended editor suites. The complete 16-suite production smoke
+command passes serially after an initial parallel run missed a 240ms AI modal
+entrance; the unchanged timing assertion also passed alone. Final command outcomes are
+in the evidence log. No assertion was weakened. The first focused Cancel assertion
+was corrected to the editor's existing committed-action semantics, with separate
+Undo assertions verifying original-byte restoration.
+
+52 rendered selection/action regions cover eleven required sizes and 767/769px
+neighbors in both themes; six root-text200 cases, forced colours and reduced motion
+also pass. Emulated coarse targets are at least 44px. Contact sheets and full-size
+views inspected. Safari production verifies apply, focus, success and Undo;
+Firefox actual 200% preserves selection and scroll access. Native review tabs closed
+and zoom restored. Physical touch/software keyboards, OS IME and spoken assistive
+acceptance remain open; inventory stays validated:false. Complex multi-column
+logical reading order remains a spatial text-run heuristic.
+
+Removed private ActionButton/HILITE/readSlice, duplicate selected text/rectangle
+payload, unmanaged copy timeout and legacy palette/monospace/ring classes. All new
+classes and shared helpers have live consumers; knip passes with no dependency
+added. Regenerated the surface table to reflect previously completed form/control
+work too. Editor bundle 327.17/99.50 kB raw/gzip (+1.11 gzip), CSS 138.20/24.02
+(-0.62 gzip). All 128 assets meet the 25 MiB limit; 77 PWA entries. Air remains
+1.0.2 / bb90f52e0b0a; the canonical PDF appendix and standalone DESIGN are synchronized.
+
+Evidence: `evidence/select-text-2026-10-19.json`, desktop-light/phone-dark proof PNGs
+and `evidence/select-text-checks-2026-10-19.log`. Full captures, native zoom proof,
+synthetic source and three outputs remain in `/tmp/cloakpdf-air-review/`. The
+production review tab shows the selected synthetic study on 8132. Local commits
+only. Next: EditorContext, EditorToolStage, EditorView, OverviewMode, WholeDocPanel
+and stage ownership/legacy-consumer audits, including focus when Undo disables its
+button. Full PDF/family refresh remains open.

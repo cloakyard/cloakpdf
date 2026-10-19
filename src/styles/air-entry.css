@@ -3856,3 +3856,42 @@ body:has(.pdf-site) {
 .pdf-autofill-profile-toggle[aria-expanded="true"] > svg {
   transform: rotate(180deg);
 }
+
+/* Text selection shares field/action geometry and the inspector's scroll area. */
+.pdf-selection-preview {
+  min-height: 6rem;
+  max-height: 14rem;
+  resize: vertical;
+}
+.pdf-selection-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.pdf-selection-actions .air-button {
+  min-width: 0;
+  white-space: normal;
+}
+.pdf-selection-help summary {
+  display: list-item;
+  width: fit-content;
+  padding-block: 8px;
+  color: var(--air-ink);
+  cursor: pointer;
+  border-radius: var(--air-radius-control);
+}
+.pdf-selection-help summary:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+@media (pointer: coarse) {
+  .pdf-selection-help summary {
+    min-height: 44px;
+    align-content: center;
+  }
+}
+@container (max-width: 14rem) {
+  .pdf-selection-actions {
+    grid-template-columns: 1fr;
+  }
+}

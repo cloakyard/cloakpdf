@@ -1396,3 +1396,22 @@ journeys across all apps; it is not inferred from the pilot alone.
   catalog data, fixed appearances, Undo/Redo and Cancel before committing. Success
   feedback belongs to the editor's committed bytes and disappears on Undo; preserve
   focus inside the inspector when the saving control becomes disabled.
+
+- Select text uses Air actions, a labelled read-only excerpt and a single inspector
+  scroll area. Keep separate Highlight, Box, Redact and Copy actions; none is a
+  staged Apply operation. Provide whole-page selection and focus-scoped keyboard
+  selection (Left/Right, Shift to extend, Home/End and Escape), preserving viewport
+  shortcuts and ordinary text-field editing.
+- Text geometry and selections belong to exact bytes and the visible page. Preserve
+  selection across tool/layout changes, ignore abandoned reads and retire it after
+  a page or byte revision. Reading, read-error/retry and no-text/OCR are distinct.
+  Clipboard refusal/unavailability needs visible feedback and a manual-copy path;
+  failed PDF writes preserve the selection. Apply once, retain Undo/Redo and keep
+  focus in the inspector. Explicitly applied marks remain after Cancel; Undo reverses
+  those actions, while Cancel discards the current selection.
+- Selection bounds include font ascent/descent and transformed corners, respect
+  CropBox/UserUnit/page rotation, and omit text fully outside the visible crop.
+  Use the family paper accent for the overlay; actual yellow highlight/red box ink
+  stays document content. Redaction marks remain removable until export or another
+  transform applies them; explain this beside the action. Pause text selection while
+  privacy marks are pending so covered text cannot be copied from the source layer.
