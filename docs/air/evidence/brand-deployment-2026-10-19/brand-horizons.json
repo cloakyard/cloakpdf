@@ -1,0 +1,181 @@
+[
+  {
+    "app": "cloakpdf",
+    "url": "https://pdf.cloakyard.com",
+    "layouts": [
+      {
+        "width": 1440,
+        "height": 160,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 1440,
+        "height": 160,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 1280,
+        "height": 160,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 1280,
+        "height": 160,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 768,
+        "height": 160,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 768,
+        "height": 160,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 390,
+        "height": 104,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 390,
+        "height": 104,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 320,
+        "height": 104,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 320,
+        "height": 104,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 844,
+        "height": 64,
+        "theme": "light",
+        "expected": "rgb(37, 99, 235)",
+        "colour": "rgb(37, 99, 235)",
+        "base": "rgb(250, 251, 252)",
+        "page": "rgb(250, 251, 252)",
+        "strokes": ["rgb(37, 99, 235)", "rgb(37, 99, 235)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      },
+      {
+        "width": 844,
+        "height": 64,
+        "theme": "dark",
+        "expected": "rgb(116, 199, 255)",
+        "colour": "rgb(116, 199, 255)",
+        "base": "rgb(16, 18, 22)",
+        "page": "rgb(16, 18, 22)",
+        "strokes": ["rgb(116, 199, 255)", "rgb(116, 199, 255)"],
+        "overflow": false,
+        "contained": true,
+        "state": "reduced"
+      }
+    ],
+    "gpu": [
+      {
+        "theme": "light",
+        "lightState": "idle",
+        "lightFrames": "2",
+        "lightFirstDraw": "423.3",
+        "lightReady": "true"
+      },
+      {
+        "theme": "dark",
+        "lightState": "idle",
+        "lightFrames": "1",
+        "lightFirstDraw": "49.5",
+        "lightReady": "true"
+      }
+    ],
+    "errors": []
+  }
+]

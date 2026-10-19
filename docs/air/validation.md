@@ -2388,3 +2388,13 @@ against Wrangler and the 44-layout real PWA integration pass. App entry and outp
 bytes remain unchanged. Evidence: `evidence/deployment-headers-2026-10-19/`.
 Live checks repeat after this bounded deployment follow-up; the prior live failure
 is not counted as a pass.
+
+## 2026-10-19 — brand-coloured production deployment
+
+Dev → main PR #203 merged as `72f8883`; Cloudflare version
+`afe96c45` is active at 100%. Fresh checks/builds and remote CI pass.
+Exact live asset hashes, twelve responsive/theme cases, both real GPU themes
+and idle checks pass; desktop/laptop/phone light/dark states were inspected.
+All six standalone output workflows pass against production.
+[Deployment audit](brand-deployment-2026-10-19.md) contains the source/build identity
+and evidence. Resume/IMG remain local; physical/assistive acceptance remains open.
