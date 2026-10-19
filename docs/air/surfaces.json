@@ -715,9 +715,10 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/export-2026-10-14.json",
         "docs/air/evidence/palette-2026-10-14.json",
-        "docs/air/evidence/navigation-2026-10-14.json"
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/evidence/foundation-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox. Foundation checkpoint: useFocusTrap stack now derives layers from --air-z-dialog directly; nested modal and focus regressions pass after removing the old layer aliases."
     },
     {
       "path": "src/components/ModelCard.tsx",
@@ -979,9 +980,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/nup-2026-10-14.json",
-        "docs/air/evidence/fill-form-2026-10-19.json"
+        "docs/air/evidence/fill-form-2026-10-19.json",
+        "docs/air/evidence/foundation-2026-10-19.json"
       ],
-      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision."
+      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: full labels wrap, popup width is at least 15rem when space permits and clamped to the viewport; immediate pointer/keyboard opening and arrow state use the canonical Air rule. Removed animation/placement-only state. 70 layouts plus native Safari and Firefox actual 200% pass."
     },
     {
       "path": "src/components/SignaturePad.tsx",
@@ -1268,9 +1270,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/preview-recovery-2026-10-14.json",
-        "docs/air/evidence/editor-recovery-2026-10-15.json"
+        "docs/air/evidence/editor-recovery-2026-10-15.json",
+        "docs/air/evidence/foundation-2026-10-19.json"
       ],
-      "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations."
+      "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations. Foundation checkpoint: editor root uses canonical Air layer/surface/ink; 141 recovery captures confirm processing stays above the editor and root typography uses the system stack."
     },
     {
       "path": "src/editor/EditorToolStage.tsx",
@@ -2747,14 +2750,36 @@
     },
     {
       "path": "src/fonts.css",
-      "kind": "app-surface",
-      "sourceReviewed": false,
-      "airImplemented": false,
+      "kind": "output-preservation",
+      "sourceReviewed": true,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
-      "evidence": [],
-      "notes": ""
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors",
+        "preview/export parity",
+        "embedded annotation output"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
+      "evidence": ["docs/air/validation.md", "docs/air/evidence/foundation-2026-10-19.json"],
+      "notes": "Output-preservation exception: 42 TTF faces for 11 embedded annotation families exactly match CSS URLs and FONT_FAMILIES variants; all bytes unchanged from b9738c0. Built-in PDF families remain available. The real annotation export embeds Roboto successfully. These are document fonts, not interface typography; retain the SIL license. Physical/assistive acceptance remains separate."
     },
     {
       "path": "src/home/HomeScreen.tsx",
@@ -2822,16 +2847,37 @@
       "path": "src/index.css",
       "kind": "app-surface",
       "sourceReviewed": true,
-      "airImplemented": false,
+      "airImplemented": true,
       "validated": false,
-      "states": [],
-      "viewports": [],
+      "states": [
+        "light",
+        "dark",
+        "keyboard",
+        "enlarged-text",
+        "coarse-emulation",
+        "reduced-motion",
+        "forced-colors"
+      ],
+      "viewports": [
+        "320x568",
+        "375x812",
+        "390x844",
+        "430x932",
+        "844x390",
+        "768x1024",
+        "1024x768",
+        "1280x720",
+        "1366x768",
+        "1440x900",
+        "1920x1080"
+      ],
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/extract-2026-10-14.json",
-        "docs/air/evidence/navigation-2026-10-14.json"
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/evidence/foundation-2026-10-19.json"
       ],
-      "notes": "Entry/routing migrated; old landing-only CSS removed. Standalone instrument header, editor/global recovery and their active legacy styles remain in the next slices. Do not mark the whole source migrated. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers."
+      "notes": "Foundation checkpoint: root typography/surfaces, editor layers, processing scrim and modal stack now consume Air directly. Removed old palette/theme/type/motion utilities and unused UI fonts; live fine-pointer scrollbars and page-cell rendering remain. 70 select layouts, 141 recovery captures and full 25-suite regression pass. Earlier pending legacy notes are superseded by this source audit; physical/assistive acceptance remains open."
     },
     {
       "path": "src/main.tsx",
@@ -3196,9 +3242,10 @@
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/collections-2026-10-14.json",
         "docs/air/evidence/page-numbers-2026-10-15.json",
-        "docs/air/evidence/fill-form-2026-10-19.json"
+        "docs/air/evidence/fill-form-2026-10-19.json",
+        "docs/air/evidence/foundation-2026-10-19.json"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass."
     },
     {
       "path": "src/styles/air.css",

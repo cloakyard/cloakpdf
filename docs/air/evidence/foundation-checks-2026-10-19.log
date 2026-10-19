@@ -1,0 +1,29 @@
+Air foundation + Select — 2026-10-19
+Baseline PDF: b9738c0 | Air 1.0.2 / bb90f52e0b0a
+
+PASS pnpm exec vp check (format/lint/types; 281 source files)
+PASS pnpm check:dead (knip)
+PASS pnpm test:unit (453 tests / 46 files)
+PASS pnpm build (126 assets <=25 MiB; 75 PWA entries)
+PASS focused nup-layout.e2e.ts (70 layouts; 23 real output sheets)
+PASS focused editor-recovery.e2e.ts (141 captures; no console errors/leaked thumbnails)
+PASS pnpm test:e2e:smoke (16 complete serial suites, production8132)
+PASS pnpm test:e2e:extended (7 complete serial suites, fresh dev8133)
+PASS design:check (91 surfaces)
+PASS design:portability (18 checks; independent bundle)
+PASS canonical sync-air-design.mjs --bundle --check (six documents)
+PASS root vp check, tsc --noEmit, build, design and portability
+PASS runtime legacy palette/layer/motion/UI-font reference audit (no remaining consumers)
+PASS 42 TTF files / 11 embedded families match CSS and registry; bytes unchanged
+PASS Safari production pointer/keyboard select, Escape, apply, Undo and focus
+PASS Firefox actual 200% select and lower action access; restored 100%
+
+Final editor: EditorView-BCfCy97Y.js 326.91 / 99.33 kB raw/gzip
+Final CSS: index-fhN-K8ke.css 132.38 / 22.81 kB raw/gzip
+Final post-documentation rebuild preserves both hashes from the tested build.
+Removed UI assets: 75,332 bytes; no new dependency.
+25 distinct browser suites, no failed/retried validation run for this piece.
+Native browser review tabs closed; isolated dev8133 stopped after checks.
+Full logs, fixtures, layout JSON and captures: /tmp/cloakpdf-air-review/foundation-*
+Physical touch/software keyboard, actual OS IME, spoken assistive acceptance remain open.
+Full PDF/family migration remains open. Local commit only; no push/deploy.

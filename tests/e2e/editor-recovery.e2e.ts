@@ -92,9 +92,17 @@ async function capture(
       regionHeight: rect.height,
       screen: innerHeight,
       canvasHeight: document.querySelector(".editor-stage")?.getBoundingClientRect().height,
+      rootFont: getComputedStyle(document.body).fontFamily,
+      topLayer: !busy || !!document.elementFromPoint(1, 1)?.closest(".editor-busy"),
     };
   });
   assert.equal(metrics.coarse, width < 1100, "pointer emulation is active");
+  assert.doesNotMatch(metrics.rootFont, /Archivo|JetBrains/, "UI uses the Air system stack");
+  assert.equal(
+    metrics.topLayer,
+    true,
+    "Processing still owns pointer interaction above the editor",
+  );
   assert.equal(metrics.overflow, false, `${state} ${width} ${theme} horizontal overflow`);
   assert.deepEqual(metrics.bad, [], `${state} ${width} ${theme} controls`);
   if (state === "notices")

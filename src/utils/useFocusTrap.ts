@@ -96,7 +96,7 @@ function syncModalStackPresentation(): void {
 
   for (const entry of ordered) {
     if (entry.root?.dataset.cloakModalLayer === "dialog") {
-      entry.root.style.zIndex = `calc(var(--z-dialog) + ${dialogLayer})`;
+      entry.root.style.zIndex = `calc(var(--air-z-dialog) + ${dialogLayer})`;
       dialogLayer += 1;
     }
     if (entry === top) revealModalRoot(entry.root);

@@ -151,6 +151,20 @@ try {
   await (await page.$('input[type="file"]'))!.uploadFile(file);
   await page.waitForSelector('img[alt="Page 1"]');
   await page.click('[aria-label="N-up"]');
+  // Pointer opening is immediate too, including the arrow; keyboard assertions
+  // below repeat across all layouts, themes and enlarged text.
+  await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "no-preference" }]);
+  await page.click("#nup-layout");
+  assert.deepEqual(
+    await page.$eval("[role=listbox]", (n) => ({
+      animations: n.getAnimations({ subtree: true }).length,
+      transition: getComputedStyle(n).transitionDuration,
+      arrowTransition: getComputedStyle(document.querySelector("#nup-layout svg")!)
+        .transitionDuration,
+    })),
+    { animations: 0, transition: "0s", arrowTransition: "0s" },
+  );
+  await page.keyboard.press("Escape");
   const select = async (index: number) => {
     await page.focus("#nup-layout");
     await page.keyboard.press("Enter");
@@ -168,7 +182,7 @@ try {
       if (!node || !trigger) return false;
       const a = node.getBoundingClientRect(),
         b = trigger.getBoundingClientRect();
-      const gap = node.getAttribute("data-side") === "above" ? b.top - a.bottom : a.top - b.bottom;
+      const gap = a.bottom <= b.top ? b.top - a.bottom : a.top - b.bottom;
       return Math.abs(gap - 4) < 1;
     });
     const popup = await page.$eval('[role="listbox"]', (node) => {
@@ -179,14 +193,16 @@ try {
         right: r.right,
         top: r.top,
         bottom: r.bottom,
-        gap:
-          node.getAttribute("data-side") === "above"
-            ? trigger.top - r.bottom
-            : r.top - trigger.bottom,
+        gap: r.bottom <= trigger.top ? trigger.top - r.bottom : r.top - trigger.bottom,
         width: innerWidth,
         height: innerHeight,
         target: node.querySelector('[role="option"]')!.getBoundingClientRect().height,
         touch: matchMedia("(pointer: coarse)").matches,
+        clippedLabels: Array.from(node.querySelectorAll("[role=option] > span")).filter(
+          (label) => label.scrollWidth > label.clientWidth + 1,
+        ).length,
+        animationCount: node.getAnimations({ subtree: true }).length,
+        transition: getComputedStyle(node).transitionDuration,
       };
     });
     assert.ok(
@@ -198,6 +214,9 @@ try {
     );
     assert.ok(Math.abs(popup.gap - 4) < 1, JSON.stringify(popup));
     assert.ok(popup.target >= (popup.touch ? 44 : 40), JSON.stringify(popup));
+    assert.equal(popup.clippedLabels, 0, "Full choice labels remain readable");
+    assert.equal(popup.animationCount, 0, "Frequent selects are immediate");
+    assert.equal(popup.transition, "0s");
     await page.keyboard.press("Home");
     for (let i = 0; i < index; i++) await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");

@@ -84,8 +84,6 @@ export function Select<T extends string>({
   useCloseOnModalOpen(setOpen);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [menuStyle, setMenuStyle] = useState<CSSProperties | null>(null);
-  const [menuAbove, setMenuAbove] = useState(false);
-  const [animateMenu, setAnimateMenu] = useState(true);
 
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
@@ -121,7 +119,8 @@ export function Select<T extends string>({
     const spaceAbove = r.top - viewportTop - margin - gap;
     const below = spaceBelow >= spaceAbove || spaceBelow >= 240;
     const maxHeight = Math.max(0, Math.floor(Math.min(280, below ? spaceBelow : spaceAbove)));
-    const width = Math.min(r.width, vw - margin * 2);
+    const minimumWidth = 15 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const width = Math.min(Math.max(r.width, minimumWidth), vw - margin * 2);
     const left = Math.max(viewportLeft + margin, Math.min(r.left, viewportRight - width - margin));
     setMenuStyle({
       position: "fixed",
@@ -131,7 +130,6 @@ export function Select<T extends string>({
       top: below ? r.bottom + gap : undefined,
       bottom: below ? undefined : window.innerHeight - r.top + gap,
     });
-    setMenuAbove(!below);
   }, []);
 
   const close = useCallback((refocus = true) => {
@@ -141,13 +139,12 @@ export function Select<T extends string>({
   }, []);
 
   const openMenu = useCallback(
-    (active: number, animated: boolean) => {
+    (active: number) => {
       if (disabled || firstEnabled < 0) return;
       // Safari does not focus buttons on pointer click. A select-only combobox
       // keeps keyboard ownership on its trigger while the listbox is open.
       triggerRef.current?.focus({ preventScroll: true });
       place();
-      setAnimateMenu(animated);
       setActiveIndex(active);
       setOpen(true);
     },
@@ -228,7 +225,7 @@ export function Select<T extends string>({
         const o = options[i];
         if (!o.disabled && optText(o).toLowerCase().startsWith(q)) {
           if (open) setActiveIndex(i);
-          else openMenu(i, false);
+          else openMenu(i);
           return;
         }
       }
@@ -251,10 +248,10 @@ export function Select<T extends string>({
       if (!open) {
         if (key === "ArrowDown" || key === "Enter" || key === " ") {
           consume();
-          openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled, false);
+          openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled);
         } else if (key === "ArrowUp") {
           consume();
-          openMenu(selectedIndex >= 0 ? selectedIndex : lastEnabled, false);
+          openMenu(selectedIndex >= 0 ? selectedIndex : lastEnabled);
         } else if (printable) {
           consume();
           typeAhead(key);
@@ -330,22 +327,19 @@ export function Select<T extends string>({
         aria-label={ariaLabel}
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid}
-        onClick={(event) =>
-          open
-            ? close()
-            : openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled, event.detail > 0)
+        onClick={() =>
+          open ? close() : openMenu(selectedIndex >= 0 ? selectedIndex : firstEnabled)
         }
         onKeyDown={onKeyDown}
+        data-popup-open={open || undefined}
         data-size={size}
         className={`air-field air-select-trigger pdf-select ${className}`}
       >
-        <span
-          className={`min-w-0 truncate text-left ${selected ? "" : "text-[var(--air-ink-muted)]"}`}
-        >
+        <span className={`min-w-0 text-left ${selected ? "" : "text-[var(--air-ink-muted)]"}`}>
           {selected ? selected.label : (placeholder ?? "")}
         </span>
         <span className="air-select-icon" aria-hidden="true">
-          <ChevronDown className={`cloak-disclosure-icon ${open ? "rotate-180" : ""}`} />
+          <ChevronDown />
         </span>
       </button>
 
@@ -359,9 +353,7 @@ export function Select<T extends string>({
             aria-label={ariaLabel}
             aria-labelledby={ariaLabel ? undefined : id}
             style={menuStyle}
-            data-side={menuAbove ? "above" : "below"}
-            data-motion={animateMenu ? "surface" : "instant"}
-            className="air-menu air-select-popup pdf-select-popup cloak-popover-motion thin-scrollbar"
+            className="air-menu air-select-popup pdf-select-popup thin-scrollbar"
           >
             {options.map((o, i) => {
               const isSel = o.value === value;
@@ -380,7 +372,7 @@ export function Select<T extends string>({
                   data-disabled={o.disabled || undefined}
                   className="air-menu-item"
                 >
-                  <span className="min-w-0 truncate">{o.label}</span>
+                  <span className="min-w-0">{o.label}</span>
                   {isSel && <Check className="air-menu-check" aria-hidden="true" />}
                 </li>
               );

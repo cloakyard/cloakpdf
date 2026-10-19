@@ -1426,3 +1426,15 @@ journeys across all apps; it is not inferred from the pilot alone.
   Remove provider actions/helpers without runtime consumers. A single-use composition
   belongs with its tool; N-up uses PrimaryAction directly and retains a settings focus
   destination after processing. Do not reintroduce the retired WholeDocPanel wrapper.
+
+- Root styling, editor backgrounds, processing scrims and modal layers consume Air
+  directly. Do not restore the retired Workbench token file, Ocean Blue aliases,
+  uppercase/mono UI labels or bundled Archivo/JetBrains UI fonts. Framework font
+  aliases may only point to the corresponding Air system stack.
+- Frequent selects open, select and dismiss immediately for pointer and keyboard;
+  their chevrons use the shared open-state rule. Full labels wrap, menu width has
+  a 15rem readable minimum capped by the viewport, and anchoring preserves scroll/
+  resize/visual-viewport placement. Do not retain animation-only state or classes.
+- Annotation font faces are output data. Keep fonts.css, the embedded-family roster
+  and bundled TTFs in exact agreement; preview and export use the same bytes. Removing
+  UI fonts must not remove document fonts or change their output metrics.

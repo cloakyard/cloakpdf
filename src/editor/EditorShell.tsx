@@ -142,7 +142,7 @@ export function EditorShell() {
 
   return (
     <main
-      className="fixed inset-0 z-[var(--z-editor)] flex flex-col overflow-hidden bg-[var(--color-paper-2)] font-sans text-[var(--color-ink)]"
+      className="fixed inset-0 z-[var(--air-z-editor)] flex flex-col overflow-hidden bg-[var(--air-surface-soft)] font-sans text-[var(--air-ink)]"
       aria-label="PDF editor"
       aria-busy={busyLabel ? true : undefined}
       inert={busyLabel ? true : undefined}

@@ -2060,3 +2060,46 @@ Evidence: `evidence/editor-wrappers-2026-10-19.json`, desktop/phone PNGs and
 proofs are in `/tmp/cloakpdf-air-review/wrappers-*`. Next: legacy CSS/output font
 exceptions and registry/lifecycle consumers, followed by full PDF closure.
 Local commits only; full PDF/family migration is unfinished.
+
+## 2026-10-19 — Air foundation and Select cleanup
+
+The PDF root, editor shell, processing scrim and modal stack now consume canonical
+Air fonts, surfaces and layers directly. Removed tokens.css and the retired
+Workbench/Ocean Blue palette, typography aliases, unused label/selection/scrollbar/
+pulse rules and dropdown/disclosure motion. Fine-pointer internal scrollbars remain;
+touch keeps native scrollbars. The page-grid rendering optimization is preserved.
+
+Select follows Air's immediate frequent-control rule for pointer and keyboard use.
+Full labels wrap, the popup keeps a 15rem minimum when space permits and remains
+bounded to the viewport. Removed animation and placement-only state; placement,
+keyboard/typeahead, focus, dismissal and disabled behavior remain covered.
+
+Deleted the unused Archivo and JetBrains UI assets (75,332 bytes). The 42 document
+TTF faces are unchanged from b9738c0 and exactly match CSS and FONT_FAMILIES: eleven
+embedded families plus the existing built-in PDF choices. Real Roboto annotation
+output still embeds correctly. The shared SIL license remains. fonts.css is now
+classified as output-preservation in the 91-surface inventory. No dependency added.
+
+453 unit tests in 46 files, 70 N-up layouts with 23 real output sheets and 141
+recovery captures pass. Full 16-suite production smoke plus seven extended suites
+pass serially without retries: 25 distinct suites with focused N-up/recovery.
+Coverage includes all eleven viewport classes, both themes, enlarged text, coarse
+input emulation, forced colours and reduced motion. New assertions check complete
+choice labels, immediate opening/arrow feedback, system UI fonts and processing
+pointer ownership. Desktop/laptop/tablet/phone contact sheets and full-size phone
+views inspected. Safari production validates selection/Escape/Apply/Undo and focus;
+Firefox actual 200% validates selection and lower action access. Native review tabs
+closed and Firefox zoom restored. Physical touch/software keyboard, actual OS IME
+and spoken assistive acceptance remain open; inventory validation stays false.
+
+Editor bundle 326.91/99.33 kB raw/gzip (gzip -0.06), CSS 132.38/22.81 (-1.24);
+126 deployment assets and 75 PWA entries. Required code/dead/build/assets/design/
+portability and exact family sync outcomes are recorded in the evidence log.
+Air remains 1.0.2 / bb90f52e0b0a; canonical PDF requirements and standalone DESIGN
+are synchronized. Evidence: `evidence/foundation-2026-10-19.json`, desktop/phone
+PNGs and `evidence/foundation-checks-2026-10-19.log`; full captures and native proof
+remain in `/tmp/cloakpdf-air-review/foundation-*`.
+
+Next: non-visible registry/lifecycle consumers and remaining full-PDF acceptance,
+then IMG/Resume colour wheel adoption and family rollout. Local commits only;
+this bounded cleanup does not complete the PDF or family migration.

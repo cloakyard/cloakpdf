@@ -1,320 +1,78 @@
-/* Air entry surfaces use the portable bundle. Legacy editor/utility rules remain
- * until their tracked migration; document output fonts are independent. */
-@import "../tokens.css";
+/* Product foundations inherit Air; document fonts remain output data. */
 @import "tailwindcss";
 @import "./fonts.css";
 
-@font-face {
-  font-family: "Archivo";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("/fonts/archivo-latin.woff2") format("woff2");
+@theme inline {
+  --font-sans: var(--air-font);
+  --font-mono: var(--air-font-mono);
 }
 
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-weight: 100 800;
-  font-display: swap;
-  src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
-}
-
-@theme {
-  --font-sans: "Archivo", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  /* Fixed Ocean Blue scale. Keeping this independent of the adaptive surface
-     tokens preserves dark-mode text and focus contrast. */
-  --color-primary-50: oklch(0.97 0.014 254.604);
-  --color-primary-100: oklch(0.932 0.032 255.585);
-  --color-primary-200: oklch(0.882 0.059 254.128);
-  --color-primary-300: oklch(0.809 0.105 251.813);
-  --color-primary-400: oklch(0.707 0.165 254.624);
-  --color-primary-500: var(--color-focus);
-  --color-primary-600: var(--color-accent);
-  --color-primary-700: var(--color-accent-hover);
-  --color-primary-800: oklch(0.424 0.199 265.638);
-  --color-primary-900: oklch(0.379 0.146 265.522);
-  --color-primary: var(--color-accent);
-  --color-primary-hover: var(--color-accent-hover);
-  --color-primary-light: var(--color-accent-soft);
-  /* Surfaces & text */
-  --color-page-bg: var(--color-paper);
-  --color-surface-alt: var(--color-paper-2);
-  --color-border: var(--color-rule);
-  --color-text: var(--color-ink);
-  --color-text-muted: var(--color-ink-3);
-  /* Status */
-  --color-danger: var(--color-status-danger);
-  --color-success: var(--color-status-success);
-  /* Dark-mode surface tokens */
-  --color-dark-bg: var(--color-night);
-  --color-dark-surface: var(--color-night-2);
-  --color-dark-surface-alt: var(--color-surface-strong);
-  --color-dark-border: var(--color-night-rule);
-  --color-dark-text: var(--color-night-ink);
-  --color-dark-text-muted: var(--color-night-muted);
-  /*
-   * Typography scale for design-specific sizes that fall between Tailwind's
-   * default text-xs/sm/base. Use these instead of arbitrary text-[Npx]
-   * utilities so the scale stays cohesive.
-   *
-   *  text-xxs        10px — eyebrow caps, version chip
-   *  text-tag        11px — kbd hints, small badges
-   *  text-meta       12.5px — secondary meta text
-   *  text-card-desc  13px — card descriptions
-   *  text-card-title 15px — card titles, section labels
-   */
-  --text-xxs: 10px;
-  --text-tag: 11px;
-  --text-meta: 12.5px;
-  --text-card-desc: 13px;
-  --text-card-title: 15px;
-}
-
-/* Primary-600 is the CTA fill, but that same blue is too quiet for small copy
-   on Night surfaces. Text utilities step up to the accessible family tint in
-   dark mode without changing button backgrounds or the brand hue. */
-@media (prefers-color-scheme: dark) {
-  .text-primary-600 {
-    color: var(--color-primary-400);
-  }
-
-  .hover\:text-primary-600:hover,
-  .hover\:text-primary-700:hover {
-    color: var(--color-primary-300);
-  }
-}
-
-/* Legacy editor and tool-body primitives remain until their migration. */
-.cloak-mono-label {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  line-height: 1.4;
-  text-transform: uppercase;
-}
-
-/* Portaled dropdowns, calendars, and color pickers share one anchored entry.
-   Pointer-opened surfaces get a 4px settle; keyboard-opened surfaces opt out
-   through data-motion="instant" so keyboard workflows remain immediate. */
-.cloak-popover-motion {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  transform-origin: top left;
-  transition:
-    opacity var(--dur-short) var(--ease-out),
-    transform var(--dur-short) var(--ease-out);
-}
-
-.cloak-popover-motion[data-side="above"] {
-  transform-origin: bottom left;
-}
-
-.cloak-popover-motion[data-motion="instant"] {
-  transition: none;
-}
-
-@starting-style {
-  .cloak-popover-motion:not([data-motion="instant"]) {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.98);
-  }
-
-  .cloak-popover-motion[data-side="above"]:not([data-motion="instant"]) {
-    transform: translateY(4px) scale(0.98);
-  }
-}
-
-.cloak-selection-indicator {
-  transition: transform var(--dur-normal) var(--ease-in-out);
-}
-
-.cloak-disclosure-icon {
-  transition: transform var(--dur-short) var(--ease-in-out);
-}
-
-@custom-variant dark (@media (prefers-color-scheme: dark));
-
-/* Root stack heights and base background. Mirrors CloakResume's
-   index.css: html/body/#app are sized to 100% of their parent so
-   100svh on the layout wrapper resolves cleanly, and body carries a
-   solid colour so any area iOS Safari samples below the React tree
-   (e.g. when the URL bar collapses and reveals more height than the
-   wrapper covers) shows the same slate as the wrapper bottom -- no
-   bare-white strip. */
+/* Keep the root background behind Safari's elastic overscroll and browser chrome. */
 html,
 body,
 #app {
   height: 100%;
   margin: 0;
-  background: var(--color-paper);
+  background: var(--air-page);
 }
 
-/* `touch-action: manipulation` suppresses double-tap-to-zoom and the
-   legacy 300ms tap delay WITHOUT blocking intentional pinch-zoom — pinch
-   stays enabled for accessibility (the viewport meta no longer sets
-   `user-scalable=no`/`maximum-scale`). Tool surfaces that need pinch
-   gestures (PDF previews, signature pads, the colour wheel) opt out via
-   `touch-action: none` on their own container, so page zoom never fights
-   them. `overflow-x: clip` is a safety net against accidental horizontal
-   overflow at narrow widths — `clip`, not `hidden`, so the sticky header
-   still pins. */
 html,
 body {
+  /* Preserve pinch zoom and native overscroll. Canvas gestures opt out locally. */
   touch-action: manipulation;
   overflow-x: clip;
-  /* Native elastic overscroll (macOS/iOS rubber-band) is left ON by deliberate
-     choice — the soft bounce reads far better than the hard stop a lock gives.
-     The accepted trade-off: over-pulling the top of a sticky-header page briefly
-     exposes the backdrop above the bar (the old "detached toolbar" look), and
-     mobile pull-to-refresh comes back (the editor's IndexedDB draft autosave
-     restores any in-flight edit a refresh would otherwise drop). Do NOT re-add
-     `overscroll-behavior-y: none` here without revisiting that call. */
-  /* Belt-and-suspenders: text-size-adjust prevents Safari's automatic
-     font upscaling in landscape, which would otherwise break the
-     pixel-tuned panel chrome. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* iOS Safari auto-zooms any form control whose font-size is < 16px when it
-   gains focus. With pinch-zoom re-enabled (no `maximum-scale`), pin form
-   controls to 16px on coarse pointers so focusing a field never jumps the
-   viewport. Desktop keeps its pixel-tuned 13–14px chrome. */
-@media (pointer: coarse) {
-  input,
-  select,
-  textarea {
-    font-size: 16px;
-  }
-}
-@media (prefers-color-scheme: dark) {
-  html,
-  body,
-  #app {
-    background: var(--color-paper);
-  }
-}
-
 body {
-  font-family: var(--font-body);
-  color: var(--color-ink);
+  font-family: var(--air-font);
+  color: var(--air-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  /* Tailwind's decorative pulse (streaming caret in Ask PDF, the "Detecting…"
-     hint in PDF Password) carries no information — silence it. animate-spin is
-     deliberately left running: loading spinners are essential status feedback
-     and are exempt under reduced-motion guidance. */
-  .animate-pulse {
-    animation: none;
-  }
-
-  .cloak-popover-motion {
-    transition: opacity var(--dur-instant) var(--ease-out) !important;
-  }
-
-  .cloak-selection-indicator,
-  .cloak-disclosure-icon {
-    transition: none !important;
-  }
-
-  .cloak-popover-motion {
-    transform: none;
-  }
-
-  @starting-style {
-    .cloak-popover-motion:not([data-motion="instant"]) {
-      opacity: 0;
-      transform: none;
-    }
+/* Prevent touch-focus zoom without suppressing enlarged text. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: max(1rem, 16px);
   }
 }
 
-/*
- * Thin, theme-aware scrollbar for in-modal / in-card overflow areas.
- * The default browser bar looks chunky and out of place against
- * compact overflow surfaces such as dialogs and popovers. This class swaps it for
- * a slim slate thumb that rests INVISIBLE and surfaces only while the
- * user interacts with the container (hover / keyboard focus inside) —
- * styling ::-webkit-scrollbar otherwise forces a permanently painted
- * bar even where the OS would overlay-hide it. The 8px gutter is
- * always reserved, so revealing the thumb never shifts layout; touch
- * devices ignore these rules and keep their native auto-hiding bars.
- *
- * Use sparingly: only on overflow containers inside surfaces, never on
- * the page itself — users expect their browser's default scrollbar at
- * the document level.
- */
-.thin-scrollbar {
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-.thin-scrollbar:hover,
-.thin-scrollbar:focus-within {
-  scrollbar-color: color-mix(in oklab, var(--color-ink-3) 35%, transparent) transparent;
-}
-.thin-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.thin-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.thin-scrollbar::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.thin-scrollbar:hover::-webkit-scrollbar-thumb,
-.thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--color-ink-3) 30%, transparent);
-  background-clip: padding-box;
-}
-@media (prefers-color-scheme: dark) {
+/* Internal overflow only; touch keeps the native scrollbar. A reserved gutter
+   prevents layout shifts as fine-pointer hover/focus reveals the thumb. */
+@media (pointer: fine) {
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
   .thin-scrollbar:hover,
   .thin-scrollbar:focus-within {
-    scrollbar-color: color-mix(in oklab, var(--color-ink-3) 30%, transparent) transparent;
+    scrollbar-color: color-mix(in oklab, var(--air-ink-muted) 35%, transparent) transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
   .thin-scrollbar:hover::-webkit-scrollbar-thumb,
   .thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--color-ink-3) 30%, transparent);
+    background: color-mix(in oklab, var(--air-ink-muted) 30%, transparent);
     background-clip: padding-box;
   }
 }
 
-/*
- * .no-scrollbar — a scroll container with no visible scrollbar at all. For
- * chrome that scrolls but shouldn't show a track (the editor tool rail, the
- * mobile tool picker). Content still scrolls via wheel/touch/keyboard.
- */
-.no-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* legacy Edge */
-}
-.no-scrollbar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
-
-/*
- * .page-cell — applied to each page thumbnail cell in the unbounded page grids
- * (editor Overview grid, Organize board). A PDF can carry hundreds–1000+ pages,
- * so painting/laying-out every off-screen cell on entering overview janks the
- * main thread. `content-visibility: auto` skips rendering work for cells that
- * are off-screen; the `auto` keyword on contain-intrinsic-size makes the browser
- * remember each cell's last real size, so the 240px estimate is only used before
- * a cell has ever been on-screen (avoids scroll-length jumps with mixed page
- * aspect ratios). Goes on the CELL, never on the .thin-scrollbar scroll
- * container — the hidden-scrollbar design is untouched.
- */
+/* Skip offscreen page-grid rendering; preserve each measured cell size. */
 .page-cell {
   content-visibility: auto;
   contain-intrinsic-size: auto 240px;
