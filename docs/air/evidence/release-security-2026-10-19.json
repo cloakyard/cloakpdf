@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-19",
+  "scope": "Release integration security follow-up; application runtime unchanged",
+  "findings": {
+    "codeqlCheck": "https://github.com/cloakyard/cloakpdf/runs/118021146142",
+    "temporaryFileAlerts": 77,
+    "referenceHtmlAlerts": 2,
+    "nonblockingGeneratedBundleWarningsAndNotes": 806
+  },
+  "fixes": [
+    "Private unique browser evidence directories, including AIR_EVIDENCE_DIR runs",
+    "Escape all HTML metacharacters in retained reference values and paper labels",
+    "Wait for Chrome download completion before parsing PWA test output; retain 10-second budget and PDF assertions"
+  ],
+  "checks": {
+    "pdfUnits": 461,
+    "referenceTests": 25,
+    "referenceLayouts": 6,
+    "pdfCanvasLayouts": 68,
+    "pdfPwaLayouts": 44,
+    "aiModalStates": "pass",
+    "checkDeadCodePortability": "pass",
+    "remoteCodeql": "pending rescan"
+  },
+  "notes": [
+    "First PWA rerun read an incomplete file before Chrome finished; final event-synchronized rerun passed.",
+    "No CodeQL rules, branch protection, output assertions or timeouts weakened.",
+    "Generated reference synchronized to all five repositories; other product runtimes untouched."
+  ]
+}

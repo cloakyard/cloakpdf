@@ -1,4 +1,5 @@
 /** Real Export outputs, native choices, recovery, and the full Air dialog matrix. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readdir, readFile, writeFile, stat } from "node:fs/promises";
@@ -18,7 +19,7 @@ import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 
 const root = await mkdtemp(join(tmpdir(), "air-export-"));
 const downloads = join(root, "downloads");
-const evidence = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-export";
+const evidence = createEvidenceDirectory("cloakpdf-air-export");
 await mkdir(downloads);
 await mkdir(evidence, { recursive: true });
 // Synthetic, non-personal fixture: searchable text, colour, form data and metadata.

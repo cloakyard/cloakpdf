@@ -1,11 +1,12 @@
 /** Page collections: responsive geometry, keyboard ownership and real staged PDF edits. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, StandardFonts, rgb } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-collections";
+const output = createEvidenceDirectory("cloakpdf-air-collections");
 await mkdir(output, { recursive: true });
 const downloads = join(output, `downloads-${Date.now()}`);
 await mkdir(downloads);

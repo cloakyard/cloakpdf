@@ -2309,3 +2309,24 @@ in `acceptance.md`; a documentation-only change does not imply they were rerun.
 Human/device and untested inference combinations remain explicitly open. The user
 changed rollout order: finish PDF, then Drop website, Resume, IMG last. No push or
 deployment. Checks: `evidence/ai-acceptance-checks-2026-10-19.log`.
+
+## 2026-10-19 — release security follow-up
+
+PR [#201](https://github.com/cloakyard/cloakpdf/pull/201) merges the Air branch
+through dev. CodeQL reported 77 predictable temporary-file writes in browser tests
+and two retained-value HTML insertion paths in the portable reference. Tests now
+create private unique evidence directories; AIR_EVIDENCE_DIR selects their parent.
+The canonical reference escapes retained precision, contact and paper values.
+No application runtime or exported document logic changed.
+
+Check/dead-code, 461 units, 68 canvas layouts, AI modal states, 44 real PWA update
+layouts and design/18 portability checks pass. The reference passes 25 logic tests
+and six desktop/laptop/phone light/dark cases with literal hostile values. A PWA
+rerun exposed an incomplete-download race in the harness; it now waits for Chrome's
+completion event before parsing, retaining the 10-second limit and output assertions.
+No security rules or branch protections were bypassed. Remote rescan follows the commit.
+Evidence: `evidence/release-security-2026-10-19.json`; full logs in
+`/tmp/cloakpdf-air-release-2026-10-19/` and the family release evidence directory.
+
+The user's next refinement adds the missing shared horizon to PDF's landing only,
+then reviews CloakDrop's page, before resuming CloakResume. IMG remains last.

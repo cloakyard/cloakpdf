@@ -16,6 +16,7 @@
  * embedder and reranker. E2E_FRESH=1 clears that profile only when a fresh download
  * is intentionally required. Cached runs do not establish cold-download progress.
  */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { launch } from "puppeteer-core";
@@ -1019,7 +1020,7 @@ async function main() {
       await auditAirDialog(
         page,
         "model-picker",
-        process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-modal-states",
+        createEvidenceDirectory("cloakpdf-air-modal-states"),
       );
       await page.focus(".pdf-ai-tiers input:checked");
       await page.keyboard.press("ArrowRight");

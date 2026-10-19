@@ -1,4 +1,5 @@
 /** Air editor navigation: real document, responsive chrome, state and keyboard ownership. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -6,7 +7,7 @@ import { PDFDocument, StandardFonts } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 import { EDITOR_TOOLS } from "../../src/editor/tools.ts";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-navigation";
+const output = createEvidenceDirectory("cloakpdf-air-navigation");
 await mkdir(output, { recursive: true });
 const pdf = await PDFDocument.create();
 const font = await pdf.embedFont(StandardFonts.Helvetica);

@@ -1,4 +1,5 @@
 /** Chat UI lifecycle and geometry with a deterministic RAG boundary. Real models: ai-tools.e2e.ts. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { PDFDocument, StandardFonts } from "@pdfme/pdf-lib";
@@ -8,7 +9,7 @@ import type {} from "./fixtures/ask-pdf-runtime.ts";
 
 const server = process.env.CHAT_TEST_URL ? null : await startAskPdfServer();
 const url = process.env.CHAT_TEST_URL ?? "http://127.0.0.1:8142";
-const evidence = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-chat";
+const evidence = createEvidenceDirectory("cloakpdf-air-chat");
 await mkdir(evidence, { recursive: true });
 const pdf = await PDFDocument.create();
 const font = await pdf.embedFont(StandardFonts.Helvetica);

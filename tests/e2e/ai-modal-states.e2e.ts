@@ -2,6 +2,7 @@
  * Uses an isolated profile, disposable storage fixtures and held model requests.
  * The actual model/answer path is covered separately by ai-tools.e2e.ts.
  */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 import { launch, type Page, type HTTPRequest } from "puppeteer-core";
@@ -16,7 +17,7 @@ const browser = await launch({
 const page = await browser.newPage();
 await page.setBypassServiceWorker(true);
 const dialog = '[data-testid="ai-model-details-dialog"]';
-const evidenceDir = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-modal-states";
+const evidenceDir = createEvidenceDirectory("cloakpdf-air-modal-states");
 const held: HTTPRequest[] = [];
 let modelRequests = 0;
 let rejectModels = false;

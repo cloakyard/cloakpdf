@@ -10,6 +10,7 @@
  * Run: node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts
  */
 
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import { existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { CDPSession, KeyInput, Page } from "puppeteer-core";
@@ -823,9 +824,10 @@ async function main(): Promise<void> {
     if (errors.length > 0) fail(`Console/page errors:\n${errors.join("\n")}`);
     console.log("✓ editor keyboard interactions passed");
   } catch (error) {
-    await page.screenshot({ path: "/tmp/cloakpdf-editor-interactions-fail.png", fullPage: true });
+    const evidence = createEvidenceDirectory("cloakpdf-editor-interactions");
+    await page.screenshot({ path: resolve(evidence, "failure.png"), fullPage: true });
     writeFileSync(
-      "/tmp/cloakpdf-editor-interactions-fail.json",
+      resolve(evidence, "failure.json"),
       JSON.stringify(
         await page.evaluate(() => ({
           text: document.body.innerText,

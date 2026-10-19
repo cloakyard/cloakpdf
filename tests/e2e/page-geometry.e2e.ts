@@ -1,4 +1,5 @@
 /** Development-server integration: PDF.js is the independent geometry/render oracle. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -13,7 +14,7 @@ import {
 } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-geometry";
+const output = createEvidenceDirectory("cloakpdf-air-geometry");
 await mkdir(output, { recursive: true });
 const fixture = await PDFDocument.create();
 const sourceFont = await fixture.embedFont(StandardFonts.Helvetica);

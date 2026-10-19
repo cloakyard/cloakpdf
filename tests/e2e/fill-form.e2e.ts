@@ -1,11 +1,12 @@
 /** Real native form output, retained drafts and responsive Air controls. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { launch } from "puppeteer-core";
 import { PDFDocument, PDFName, PDFDict } from "@pdfme/pdf-lib";
 import { formFixture } from "../helpers/form-fixture.ts";
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-review";
+const output = createEvidenceDirectory("cloakpdf-air-review");
 await mkdir(output, { recursive: true });
 const bytes = Array.from(await formFixture());
 await writeFile(join(output, "Air form.pdf"), new Uint8Array(bytes));

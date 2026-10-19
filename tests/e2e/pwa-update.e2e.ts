@@ -1,4 +1,5 @@
 /** Real built SW lifecycle with disposable work and two tabs. Run after pnpm build. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
@@ -7,7 +8,7 @@ import { PDFDocument } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
 const root = resolve(import.meta.dirname, "../..");
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-pwa-update";
+const output = createEvidenceDirectory("cloakpdf-air-pwa-update");
 await mkdir(output, { recursive: true });
 const downloads = await mkdtemp(resolve(output, "downloads-"));
 let revision = 1;
@@ -62,6 +63,7 @@ try {
   await cdp.send("Browser.setDownloadBehavior", {
     behavior: "allow",
     downloadPath: downloads,
+    eventsEnabled: true,
   });
   await page.goto(base);
   await page.evaluate(() => navigator.serviceWorker.ready);
@@ -198,12 +200,24 @@ try {
   );
   await page.click('[aria-label="Export"]');
   await page.waitForSelector("[data-export-download]");
-  await page.click("[data-export-download]");
-  let downloaded: string | undefined;
-  for (let attempt = 0; attempt < 100 && !downloaded; attempt++) {
-    downloaded = (await readdir(downloads)).find((n) => n.endsWith(".pdf"));
-    if (!downloaded) await new Promise((r) => setTimeout(r, 100));
-  }
+  // The final filename can appear before Chrome finishes writing its bytes.
+  // Wait for the browser's completion event before parsing the actual output.
+  const downloadCompleted = new Promise<void>((done, reject) => {
+    const finish = (error?: Error) => {
+      clearTimeout(timeout);
+      cdp.off("Browser.downloadProgress", progress);
+      if (error) reject(error);
+      else done();
+    };
+    const progress = ({ state }: { state: string }) => {
+      if (state === "completed") finish();
+      else if (state === "canceled") finish(new Error("PDF download canceled"));
+    };
+    const timeout = setTimeout(() => finish(new Error("PDF download did not complete")), 10_000);
+    cdp.on("Browser.downloadProgress", progress);
+  });
+  await Promise.all([downloadCompleted, page.click("[data-export-download]")]);
+  const downloaded = (await readdir(downloads)).find((n) => n.endsWith(".pdf"));
   assert.ok(downloaded, "Real PDF download completed");
   const saved = await PDFDocument.load(await readFile(resolve(downloads, downloaded)));
   assert.equal(saved.getTitle(), "Saved after deferred update");

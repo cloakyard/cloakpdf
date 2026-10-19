@@ -1,4 +1,5 @@
 /** Dev-server integration: real OCR and independent PDF.js output geometry. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -13,7 +14,7 @@ import {
 import sharp from "sharp";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-ocr";
+const output = createEvidenceDirectory("cloakpdf-air-ocr");
 await mkdir(output, { recursive: true });
 const fixture = await PDFDocument.create();
 const scan = await sharp(

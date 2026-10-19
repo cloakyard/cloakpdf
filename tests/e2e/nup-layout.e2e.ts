@@ -1,11 +1,12 @@
 /** Development-server integration: compare print output with independently rendered source pages. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, PDFName, PDFNumber, StandardFonts, degrees, rgb } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-nup";
+const output = createEvidenceDirectory("cloakpdf-air-nup");
 await mkdir(output, { recursive: true });
 const fixture = await PDFDocument.create();
 const font = await fixture.embedFont(StandardFonts.Helvetica);

@@ -3356,7 +3356,7 @@
       }
       const controlValues = {};
       function slider(label, id, value, unit = "%", min = 0, max = 100, step = 1) {
-        value = controlValues[id] ?? value;
+        value = escapeValue(String(controlValues[id] ?? value));
         return `<div class="field-group field-group--numeric"><div class="field-title"><label for="${id}">${label}</label><div class="numeric-value"><input class="air-field" id="${id}-value" type="number" min="${min}" max="${max}" step="${step}" value="${value}" aria-label="${label} value" aria-describedby="${id}-error" data-range="${id}"/><span>${unit}</span></div></div><div class="range-track">${min < 0 ? '<span class="range-neutral" aria-hidden="true"></span>' : ""}<input class="air-range" id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" aria-valuetext="${value}${unit ? " " + unit : ""}" data-unit="${unit}"/></div><p class="air-help air-help--error" id="${id}-error" hidden>Enter a value from ${min} to ${max}, in steps of ${step}.</p></div>`;
       }
       const adjustNames = [
@@ -3722,7 +3722,12 @@
         { type: "Website", value: "alexmorgan.example" },
       ];
       function escapeValue(value) {
-        return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
       }
       function setApp(id) {
         currentApp = id;
@@ -4216,7 +4221,7 @@
           document.querySelector("#export-title").textContent = saving
             ? "Save editable résumé"
             : "Export PDF";
-          options = `<p class="air-help">${saving ? "JSON preserves the editable résumé. Load it in the app to continue." : `The app exports PDF directly using your chosen template, ${resumeOptions.paper} paper and document colour.`}</p>`;
+          options = `<p class="air-help">${saving ? "JSON preserves the editable résumé. Load it in the app to continue." : `The app exports PDF directly using your chosen template, ${escapeValue(resumeOptions.paper)} paper and document colour.`}</p>`;
         }
         document.querySelector("#export-options").innerHTML = options;
         dialog.showModal();

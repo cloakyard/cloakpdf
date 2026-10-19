@@ -1,11 +1,12 @@
 /** Real PDF crop/scan/straighten output, async recovery and Air layout acceptance. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, StandardFonts, PDFName, PDFNumber, degrees } from "@pdfme/pdf-lib";
 import { drawOnVisiblePage } from "../../src/utils/pdf/page-geometry.ts";
 import { launch } from "puppeteer-core";
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-review";
+const output = createEvidenceDirectory("cloakpdf-air-review");
 await mkdir(output, { recursive: true });
 const pdf = await PDFDocument.create();
 const font = await pdf.embedFont(StandardFonts.Helvetica);

@@ -13,6 +13,7 @@
  * Run:  node --experimental-strip-types tests/e2e/command-palette.e2e.ts
  */
 
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { auditAirDialog } from "./helpers/air-dialog-audit.ts";
 import { existsSync } from "node:fs";
@@ -24,7 +25,7 @@ const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
   process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const FIXTURE_PATH = resolve(import.meta.dirname, "../fixtures/multipage.pdf");
-const EVIDENCE = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-palette";
+const EVIDENCE = createEvidenceDirectory("cloakpdf-air-palette");
 
 function fail(msg: string): never {
   console.error(`✗ ${msg}`);

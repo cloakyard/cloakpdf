@@ -1,4 +1,5 @@
 /** Attach identity, output, retry ownership and responsive Air acceptance. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -11,7 +12,7 @@ import {
   StandardFonts,
 } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-review";
+const output = createEvidenceDirectory("cloakpdf-air-review");
 await mkdir(join(output, "a"), { recursive: true });
 await mkdir(join(output, "b"), { recursive: true });
 const filename = "Project-notes-with-a-complete-readable-name-résumé-東京.txt";

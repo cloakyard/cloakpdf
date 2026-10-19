@@ -1,11 +1,12 @@
 /** Dev-server integration: real PDF rendering, fault recovery and editor state. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, StandardFonts, degrees } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-preview";
+const output = createEvidenceDirectory("cloakpdf-air-preview");
 await mkdir(output, { recursive: true });
 const pdf = await PDFDocument.create();
 const font = await pdf.embedFont(StandardFonts.Helvetica);

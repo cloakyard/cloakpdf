@@ -1,11 +1,12 @@
 /** Air canvas: responsive paper/focus, shared brand size and inline editing ownership. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument, StandardFonts, rgb } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
 
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-canvas";
+const output = createEvidenceDirectory("cloakpdf-air-canvas");
 await mkdir(output, { recursive: true });
 const pdf = await PDFDocument.create();
 const font = await pdf.embedFont(StandardFonts.Helvetica);

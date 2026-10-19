@@ -1,11 +1,12 @@
 /** Real production 404 + installed-app routing. Requires a local Workers asset server. */
+import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { launch } from "puppeteer-core";
 
 const base = process.env.E2E_URL ?? "http://127.0.0.1:8134/";
-const output = process.env.AIR_EVIDENCE_DIR ?? "/tmp/cloakpdf-air-recovery-page";
+const output = createEvidenceDirectory("cloakpdf-air-recovery-page");
 await mkdir(output, { recursive: true });
 const browser = await launch({
   executablePath:
