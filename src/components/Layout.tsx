@@ -1,5 +1,5 @@
 /** Air shell shared by the entry, reading and standalone routes. */
-import { ArrowUpRight, ChevronLeft } from "lucide-react";
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
 
 declare const __APP_VERSION__: string;
@@ -54,7 +54,7 @@ export function Layout({
             rel="noopener noreferrer"
             aria-label="View CloakPDF source on GitHub"
           >
-            Source <ArrowUpRight size={14} aria-hidden="true" />
+            Source <ArrowRight size={14} aria-hidden="true" />
           </a>
         </nav>
       </header>

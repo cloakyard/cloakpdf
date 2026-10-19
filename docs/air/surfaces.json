@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.3",
+  "contractVersion": "1.0.4",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -171,7 +171,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AiConsentModal.tsx",
@@ -215,7 +215,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AiModelDetailsModal.tsx",
@@ -293,7 +293,7 @@
         "docs/air/evidence/ai-setup-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AlertBox.tsx",
@@ -412,7 +412,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/ColorPicker.tsx",
@@ -557,7 +557,11 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/recovery-utility-2026-10-13.json", "docs/air/validation.md"],
+      "evidence": [
+        "docs/air/evidence/recovery-utility-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/link-arrows-2026-10-19.md"
+      ],
       "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate."
     },
     {
@@ -703,7 +707,11 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/link-arrows-2026-10-19.md"
+      ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
@@ -1936,7 +1944,7 @@
         "pending privacy marks / forced colours / reduced motion / enlarged text"
       ],
       "viewports": [
-        "320\u20131920px: all 11 required viewport classes, light/dark",
+        "320–1920px: all 11 required viewport classes, light/dark",
         "200% root text at 320/390/1440px",
         "Native Safari and Firefox with actual Firefox 200% zoom"
       ],
@@ -2031,7 +2039,7 @@
         "empty/default; populated; nested; reordered; removed/restored; invalid title/page; detecting; no-match; failed/retry; cancelled/stale; contents/pending-overlay protection; applied/undo; mobile Done/Cancel"
       ],
       "viewports": [
-        "all 11 required sizes \u00d7 light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
+        "all 11 required sizes × light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/bookmarks-2026-10-15.json"],
       "notes": "Air rows/shared select, explicit target validation, byte-scoped drafts, cancellable detection, overlay protection and promised mobile apply. Applied drafts retire; failed validation keeps pending Apply for retry. Physical touch/software keyboard, OS IME and assistive speech remain unverified."
@@ -2597,7 +2605,7 @@
         "rotated/cropped/scaled pages, font descenders, transformed corners, long excerpt"
       ],
       "viewports": [
-        "13 sizes (11 required plus 767/769 breakpoint neighbors) \u00d7 light/dark \u00d7 selection/action regions",
+        "13 sizes (11 required plus 767/769 breakpoint neighbors) × light/dark × selection/action regions",
         "320/768/1440 at 200% root text, both themes",
         "coarse targets >=44px, forced colours/reduced motion",
         "Safari native application/Undo; Firefox actual 200% zoom"
@@ -2779,7 +2787,7 @@
       "airImplemented": true,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -2888,7 +2896,7 @@
         "constrained device",
         "forced colours"
       ],
-      "viewports": ["17 sizes \u00d7 light/dark \u00d7 16px/32px text; 68 layouts"],
+      "viewports": ["17 sizes × light/dark × 16px/32px text; 68 layouts"],
       "evidence": [
         "docs/air/evidence/landing-horizon-2026-10-19/results.json",
         "docs/air/evidence/brand-horizons-2026-10-19/checks.json"
@@ -3078,7 +3086,7 @@
         "docs/air/validation.md",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air conversation, composer, measured indexing, page links and explicit recovery implemented. 448 deterministic layout cases and real-model integration pass; Safari/Firefox keyboard and actual 200% zoom inspected. Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air conversation, composer, measured indexing, page links and explicit recovery implemented. 448 deterministic layout cases and real-model integration pass; Safari/Firefox keyboard and actual 200% zoom inspected. Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/standalone/ComparePdf.tsx",
@@ -3412,7 +3420,7 @@
         "1025x768"
       ],
       "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
+        "docs/air/validation.md — refinement 02 candidate",
         "docs/air/components.html",
         "docs/air/evidence/editor-wrappers-2026-10-19.json"
       ],

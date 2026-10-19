@@ -2398,3 +2398,10 @@ and idle checks pass; desktop/laptop/phone light/dark states were inspected.
 All six standalone output workflows pass against production.
 [Deployment audit](brand-deployment-2026-10-19.md) contains the source/build identity
 and evidence. Resume/IMG remain local; physical/assistive acceptance remains open.
+
+## 2026-10-19 — consistent landing arrows
+
+Air 1.0.4 uses straight forward-navigation arrows. See
+[scope, validation and evidence](link-arrows-2026-10-19.md). Twenty-two responsive
+light/dark cases and two enlarged-text cases pass, including compact-menu
+keyboard return; desktop/laptop/phone captures were visually inspected.

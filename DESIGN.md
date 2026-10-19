@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.3
+version: 1.0.4
 status: approved
 date: 2026-10-19
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: abcaee334ca7f5e7806fbab230349bb0522020c9670a9c19504e707d4c9f1424
+family-contract-sha256: 0f6ea38f83a91dd0121b15bc803ec21aa9493e612fe5031852058da4f1848453
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.3 — app-coloured landing light** · Direction: **Air** · Updated: **2026-10-19**
+Version: **1.0.4 — consistent navigation arrows** · Direction: **Air** · Updated: **2026-10-19**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -688,6 +688,16 @@ platform, and how to open it. KERR is a text exploration link with brief context
 no screenshot, simulation, orbital illustration, animated preview, or embedded app.
 
 ### Landing navigation and text resilience
+
+- Forward links and calls to action use a straight right arrow, including outbound
+  source/product links in the header, content and footer. Use the existing Lucide
+  ArrowRight shape (or its matching static SVG), not a 45-degree arrow. Keep
+  decorative arrows hidden from assistive technology and preserve each link’s
+  destination and new-tab behavior. Plain text links do not need an added icon.
+- Back, download and disclosure controls retain their meaningful directional icons.
+  Arrow artwork inside an editor remains document data, outside this navigation
+  rule. Existing fine-pointer hover movement follows the horizontal direction
+  only; keyboard focus and reduced motion stay still.
 
 - Keep every destination available at every width. A compact header uses a native,
   in-flow disclosure; its links expand below the brand row without covering the
