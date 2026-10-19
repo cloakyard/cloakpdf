@@ -26,15 +26,56 @@ open for the human/device gates below.
 | Active-work PWA updates                                             | `pwa-update-2026-10-19.json`; real waiting workers, two tabs, pending drafts, standalone queue, export and handoff-race protection; 44 layouts                                      |
 | Static missing-page recovery                                        | `recovery-page-2026-10-19.json`; built shared CSS, actual HTTP 404, installed/offline routing, no-JS recovery and 66 responsive/theme/text cases                                    |
 
-## Remaining software acceptance
+## Final AI software matrix — 2026-10-19
 
-- Before final PDF sign-off, record the exact supported AI tier/device matrix and
-  final real-model run. Prior real initial/warm/tier-swap/reload tests are preserved,
-  but not generalized to untested combinations. Keep synthetic response/state tests
-  distinct from actual inference. Do not silently replace missing ground-truth PDFs.
-- PWA integration is now covered by real waiting-worker tests. Recheck any new
-  findings from the final source/state audit.
-  Full 2026-10-19 regression coverage does not make physical acceptance automatic.
+The shipped choices and estimates come from `src/utils/ai-models.ts`, not retired
+model descriptions. A fresh visitor receives Compact; the test explicitly seeds
+its starting tier. The test's default remains Quality for repeatable comparisons.
+
+| Tier                    | Exact repository / dtype                  | Chat estimate                        | UI guidance     |
+| ----------------------- | ----------------------------------------- | ------------------------------------ | --------------- |
+| Compact (`lfm2.5-1.2b`) | `LiquidAI/LFM2.5-1.2B-Instruct-ONNX` / q4 | 810 MiB download, ~2 GiB peak RAM    | 3–4 GB free RAM |
+| Quality (`lfm2-2.6b`)   | `onnx-community/LFM2-2.6B-ONNX` / q4f16   | 1.55 GiB download, ~3.5 GiB peak RAM | ≥8 GB free RAM  |
+
+Both load EmbeddingGemma (`onnx-community/embeddinggemma-300m-ONNX`, q8,
+320 MiB, forced WASM) and MS MARCO MiniLM (`Xenova/ms-marco-MiniLM-L-6-v2`,
+int8, 23 MiB). Chat and reranking request WebGPU when an adapter is available;
+without it the runtime delegates to the library default. The reranker is **not**
+forced to WASM. Full registry estimates total ~1.13/1.89 GiB, excluding runtime
+resources. Estimates are not measured whole-app memory peaks or minimum guarantees.
+Both chat samplers use 256 maximum new tokens, temperature .3, min-p .15,
+repetition penalty 1.05 and no-repeat n-gram size 6. No model/settings changed here.
+
+| Device / engine                               | Eligibility and evidence                                                                                                                                                                                                    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desktop/laptop Chrome                         | Real runs: Apple M2 Max, 32 GiB RAM, macOS 27.0.1, Chrome 155.0.8059.85, Apple Metal 3 WebGPU adapter available. Both tiers × both original fixtures pass.                                                                  |
+| Desktop Safari / Firefox                      | Prior native layout, keyboard and 200% zoom reviews remain dated evidence. No real inference certification on these engines in this matrix.                                                                                 |
+| Phones/tablets                                | Ask PDF is desktop-only via the existing mobile-UA heuristic. Phone-sized captures resize a desktop session; they do not establish mobile model support. Desktop-mode iPad UA is not reliably classified by this heuristic. |
+| No WebGPU / lower-memory devices / other GPUs | Runtime fallback and UI estimates exist; actual model execution, whole-app memory and performance on these combinations remain unverified.                                                                                  |
+
+The ignored original fixtures were parsed before testing: a four-page résumé and
+the 33-page skills guide, with all asserted ground-truth facts present. Hashes,
+exact commands, timings and coverage are in `evidence/ai-acceptance-2026-10-19.json`.
+Every run covers initial loading, warm return/index reuse, required facts, keyboard
+tier change/cancel, a generated answer after swapping, and memory release/reload.
+The résumé's overview/contact answers use deterministic fast paths; the subsequent
+summary exercises actual generation. The longer fixture exercises real retrieval
+and generation. Reranking and HyDE were left enabled. Existing cache bytes were
+preserved; these runs **do not** establish a fresh full-model download or meaningful
+byte-progress transitions. Synthetic consent/cache/failure tests cover those UI states
+separately. 256 tier-picker viewport/theme/text observations accompany the four runs.
+
+All assertions passed without weaker ground truth. This is bounded integration
+acceptance, not universal answer accuracy: generated long-document overviews
+paraphrased the title imprecisely, and one Compact security reply prefaced the correct
+three facts with a contradictory statement. Keep the Beta framing and source checks;
+no quality claim is inferred from keyword assertions. The first Quality/multipage
+attempt navigated during indexing; a held-steady rerun passed. Its failed log is
+retained locally; no product fix or definitive cause is claimed.
+
+PWA waiting-worker integration and the broader source/state/output reconciliation
+remain covered by the dated records above. The software checkpoint allows the corrected
+CloakDrop website rollout to proceed; physical and cross-device gates below remain open.
 
 ## Human/device acceptance
 
@@ -58,6 +99,6 @@ copyable OCR previews remain available. Some processing cannot be interrupted;
 late results are discarded safely. These are documented product limits, not proof
 of missing Air styling or permission to drop content.
 
-CloakIMG, CloakResume and CloakDrop's website remain the next family rollout in that
-order. KERR and native macOS interfaces are excluded. No push or deployment is part
+The user revised the remaining rollout on 2026-10-19: CloakDrop's website next,
+then CloakResume, with CloakIMG last. KERR and native macOS interfaces are excluded. No push or deployment is part
 of this work.

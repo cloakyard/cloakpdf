@@ -2278,3 +2278,34 @@ editor, interactions, overlays, AI interface states, 176 tool selections + 176
 navigation layouts, 88 collection layouts, 68 canvas layouts and motion. The seven
 extended suites passed for the preceding 404/build piece; they were not repeated
 for this routing/notice-only change. Real-model final acceptance remains distinct.
+
+## 2026-10-19 — PDF final AI software acceptance
+
+Both shipped tiers × both verified original PDFs pass real initial/warm loading,
+fixture-specific grounded facts, keyboard tier swap/cancel, generated summary,
+and Free memory/explicit reload. Exact model repositories, binary-size estimates,
+backend selection and host coverage are recorded in `acceptance.md`; the full
+matrix and non-private geometry/timings are in
+`evidence/ai-acceptance-2026-10-19.json`. All 256 picker cases pass. Desktop light
+and phone-sized dark screenshots were reviewed; this is desktop inference resized,
+not a mobile support claim. Raw résumé replies/captures stay local.
+
+The final synthetic modal suite adds 192 geometry cases and verifies motion,
+CacheStorage/IDB failure/retry, safe deletion, cancelled loading and accurate failed
+counts. Cached inference does not establish cold-byte download progress. One
+Quality/multipage attempt failed on an indexing-time navigation; its held-steady
+rerun passed, with no assumed root cause. Generated title wording and a Compact
+security-answer preface remain imperfect even though required facts passed.
+
+Current AI descriptions and obsolete picker/model comments are corrected, including
+the reranker's actual WebGPU selection and complete-tier download size. Historical
+failure rationale stays. The real harness now matches the plural consent label,
+records the browser/adapter, and closes Chrome on assertion failure. No production
+behavior, stylesheet, model/sampler or dependency changed.
+
+Required code/dead/459-unit/build/131-asset/design/18-portability gates pass. The
+previous complete production/extended/output/PWA sweeps remain the regression map
+in `acceptance.md`; a documentation-only change does not imply they were rerun.
+Human/device and untested inference combinations remain explicitly open. The user
+changed rollout order: finish PDF, then Drop website, Resume, IMG last. No push or
+deployment. Checks: `evidence/ai-acceptance-checks-2026-10-19.log`.

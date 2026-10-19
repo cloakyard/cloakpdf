@@ -94,7 +94,7 @@ import {
 } from "./fast-paths.ts";
 
 /**
- * System prompt for the on-device chat model (currently SmolLM2-1.7B).
+ * System prompt shared by the shipped LFM2-family chat tiers.
  *
  * Three things this phrasing is specifically engineered for:
  *

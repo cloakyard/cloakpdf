@@ -43,7 +43,7 @@ export interface TransformersJsChatModelOptions extends BaseChatModelParams {
   /**
    * Metadata for the active chat variant — supplies the generation
    * defaults (`generationParams`). Required so a tier switch
-   * (SmolLM2 ↔ LFM2) automatically picks up the right sampler / rep-
+   * (Compact ↔ Quality) automatically picks up the right sampler / rep-
    * penalty / loop-breaker combo without a per-call override.
    */
   info: AiModelInfo;
@@ -63,11 +63,11 @@ export interface TransformersJsChatModelOptions extends BaseChatModelParams {
 
 /**
  * Per-variant tuning history (so future-us doesn't repeat past
- * dead-ends). Each entry below is keyed to the model in
- * `src/utils/ai-models.ts` and lists the actual sampler walks against
+ * dead-ends), including retired candidates. Current settings live in
+ * `src/utils/ai-models.ts`; these are the actual sampler walks against
  * the résumé probe in `tests/e2e/tools/retrieval-probe.ts`.
  *
- * **SmolLM2-1.7B-Instruct**  — `{ temp: 0.2, top_p: 0.85, rep: 1.15,
+ * **SmolLM2-1.7B-Instruct (retired)** — `{ temp: 0.2, top_p: 0.85, rep: 1.15,
  *                                no_repeat_ngram_size: 6, max: 256 }`
  *
  *   - 0.6 / 0.9 / 512 / 1.1 (original) → too much rope on factual
