@@ -1,0 +1,1 @@
+PASS: 68 responsive/theme/text layouts; real GPU arrival, pointer response, idle/offscreen/reduced cleanup, editor/standalone teardown and all static fallbacks.

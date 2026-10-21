@@ -1,0 +1,32 @@
+  ✓ export warns about unapplied page changes
+  ✓ rotate + apply bakes /Rotate = 90 into the export
+  ✓ second rotate + apply compounds to 180 (no stale double-apply)
+✓ Rotation smoke passed — bake, no stale compounding, export warns when pending.
+✓ Compress smoke passed — guard holds, text preserved, images crushed.
+  ✓ editor → Signature → Realistic ink on
+  ✓ stylus (pen) draws with pressure-varying weight
+  ✓ mouse / touchpad draws (speed fallback)
+  ✓ touch (finger) draws
+  ✓ palm rejection: stray finger ignored while pen draws
+✓ Signature pen/mouse/touch input passed.
+  ✓ editor → Annotate → Text
+  ✓ font picker lists 14 families incl. embedded ones
+  ✓ placed Roboto + underline text → /tmp/annotate-font.png
+  ✓ export embeds a Roboto subset → multipage_edited.pdf
+✓ Annotate fonts + underline passed.
+  ✓ stamp watermark live preview paints (7318 px)
+  ✓ preview clears on tool switch (0 px)
+✓ Stamp preview smoke passed — paints live, clears on switch.
+  ✓ signature Size slider removed
+  ✓ signature placed (corner handles drawn)
+  ✓ signature corner-resize (still 1 signature)
+  ✓ signature background toggle + colour
+  ✓ signature apply (embedded, object dropped)
+  ✓ QR placed
+  ✓ QR corner-resize (still 1 code)
+  ✓ QR apply (vector burn, object dropped)
+✓ place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-ML3Nav
+  ✓ mobile signature place + corner-resize (no slider, 50:50 split)
+  ✓ mobile signature apply (global ✓)
+  ✓ mobile QR place + corner-resize
+✓ mobile place-resize verification passed — screenshots in /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-e2e-m-L3liKf

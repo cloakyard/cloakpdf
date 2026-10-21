@@ -16,6 +16,19 @@ const browser = await launch({
 });
 const page = await browser.newPage();
 await page.setBypassServiceWorker(true);
+// Deliver no media change notifications in this profile. Opening the dialog must
+// read the browser's current preference even while its change event is delayed.
+await page.evaluateOnNewDocument(() => {
+  const nativeMatchMedia = window.matchMedia.bind(window);
+  window.matchMedia = (query) => {
+    const media = nativeMatchMedia(query);
+    if (query === "(prefers-reduced-motion: reduce)") {
+      media.addEventListener = () => {};
+      media.removeEventListener = () => {};
+    }
+    return media;
+  };
+});
 const dialog = '[data-testid="ai-model-details-dialog"]';
 const evidenceDir = createEvidenceDirectory("cloakpdf-air-modal-states");
 const held: HTTPRequest[] = [];

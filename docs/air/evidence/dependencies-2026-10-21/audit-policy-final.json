@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-10-21",
+  "rawFindings": ["GHSA-86w9-cpqp-85rv"],
+  "approvedExistingException": "GHSA-86w9-cpqp-85rv",
+  "expires": "2026-11-06",
+  "newOrUnacceptedFindings": [],
+  "policy": "osv-scanner.toml",
+  "policySha256": "53bc48bb67430651e2a122ee71e9a605e50be774c4ee57405c0bb0677c9a9e23",
+  "noExceptionExtended": true
+}

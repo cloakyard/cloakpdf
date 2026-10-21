@@ -1,0 +1,91 @@
+$ tsc && vp build && node scripts/check-deploy-assets.mjs
+transforming...
+✓ 3475 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/manifest.webmanifest                            1.34 kB
+dist/404.html                                        2.81 kB │ gzip:     1.18 kB
+dist/pdfjs-wasm/quickjs-eval.js                      6.23 kB
+dist/index.html                                      8.18 kB │ gzip:     2.71 kB
+dist/air-light.LICENSE.txt                          15.86 kB │ gzip:     4.72 kB
+dist/pdfjs-wasm/qcms_bg.wasm                        96.58 kB │ gzip:    36.09 kB
+dist/pdfjs-wasm/jbig2.wasm                         103.67 kB │ gzip:    41.64 kB
+dist/pdfjs-wasm/jbig2_nowasm_fallback.js           152.00 kB
+dist/pdfjs-wasm/openjpeg.wasm                      251.13 kB │ gzip:    82.95 kB
+dist/assets/crypto.worker-BbjJSowA.js              285.00 kB
+dist/pdfjs-wasm/openjpeg_nowasm_fallback.js        445.78 kB
+dist/pdfjs-wasm/quickjs-eval.wasm                  469.10 kB │ gzip:   220.69 kB
+dist/assets/pdf.worker.min-D4wteZct.js           1,177.75 kB
+dist/assets/liteparse_wasm_bg-CXEdjwhy.wasm      5,557.60 kB │ gzip: 2,652.71 kB
+dist/assets/air-SrFtzEvt.css                        38.35 kB │ gzip:     7.62 kB
+dist/assets/app-DJteipA7.css                        95.07 kB │ gzip:    16.61 kB
+dist/assets/pdfjs-config-B5pwv-IP.js                 0.03 kB │ gzip:     0.05 kB
+dist/assets/pdf.worker.min-CBRxNi36.js               0.05 kB │ gzip:     0.07 kB
+dist/assets/pdf.worker.min-_pQsm28j.js               0.05 kB │ gzip:     0.07 kB
+dist/assets/persistence-Cdcxz83o.js                  0.06 kB │ gzip:     0.08 kB
+dist/assets/liteparse_wasm_bg-CBC5Y1eE.js            0.06 kB │ gzip:     0.08 kB
+dist/assets/check-DxjkPqiD.js                        0.16 kB │ gzip:     0.16 kB
+dist/assets/chevron-left-Cpwk7B30.js                 0.16 kB │ gzip:     0.17 kB
+dist/assets/notFound-BQonPJ0h.js                     0.16 kB │ gzip:     0.15 kB
+dist/assets/arrow-down-CVrvqTmd.js                   0.20 kB │ gzip:     0.18 kB
+dist/assets/eye-BL43HCwG.js                          0.29 kB │ gzip:     0.23 kB
+dist/assets/triangle-alert-Do9vsv8i.js               0.32 kB │ gzip:     0.25 kB
+dist/assets/LoadingState-I8AU_e9D.js                 0.35 kB │ gzip:     0.26 kB
+dist/assets/eye-off-CrSK7R6n.js                      0.46 kB │ gzip:     0.30 kB
+dist/assets/AlertBox-CuGXKNR4.js                     0.53 kB │ gzip:     0.35 kB
+dist/assets/useAsyncProcess-Dp5DZtRk.js              0.57 kB │ gzip:     0.36 kB
+dist/assets/FileInfoBar-D_2i3xe2.js                  0.57 kB │ gzip:     0.32 kB
+dist/assets/SegmentedControl-CRSc1BKN.js             0.58 kB │ gzip:     0.39 kB
+dist/assets/air-NR8Gk4pN.js                          0.67 kB │ gzip:     0.38 kB
+dist/assets/ProgressBar-TFc0u9Cj.js                  0.72 kB │ gzip:     0.40 kB
+dist/assets/usePdfFile-DtZRsbLV.js                   1.21 kB │ gzip:     0.56 kB
+dist/assets/pdf-BlUiDsP6.js                          1.23 kB │ gzip:     0.64 kB
+dist/assets/PagePreviewNav-DtUJUMeW.js               1.25 kB │ gzip:     0.67 kB
+dist/assets/rolldown-runtime-BCiCTKAo.js             1.30 kB │ gzip:     0.71 kB
+dist/assets/pages-CWJwIgdr.js                        1.51 kB │ gzip:     0.71 kB
+dist/assets/preload-helper-BLdHbfdN.js               1.51 kB │ gzip:     0.79 kB
+dist/assets/ActionButton-CC9rv7yz.js                 1.80 kB │ gzip:     0.84 kB
+dist/assets/zip-aWvN4PZo.js                          2.12 kB │ gzip:     0.80 kB
+dist/assets/pdf-renderer-x8RCeVwz.js                 2.32 kB │ gzip:     1.09 kB
+dist/assets/MergePdf-B3NQF21e.js                     2.67 kB │ gzip:     1.30 kB
+dist/assets/ImagesToPdf-BVQVA6C2.js                  2.74 kB │ gzip:     1.35 kB
+dist/assets/x-DnYtU7so.js                            4.04 kB │ gzip:     1.52 kB
+dist/assets/workbox-window.prod.es5-Bd17z0YL.js      5.65 kB │ gzip:     2.20 kB
+dist/assets/pdf-security-DuZwPWau.js                 7.62 kB │ gzip:     2.90 kB
+dist/assets/ExtractImages-Dj9bP6l1.js                8.55 kB │ gzip:     3.53 kB
+dist/assets/ai-runtime-Df4SrkX-.js                   8.86 kB │ gzip:     3.84 kB
+dist/assets/PdfPassword-DMFJuMai.js                  9.23 kB │ gzip:     3.40 kB
+dist/assets/FileQueue-Dd6rRMXf.js                    9.25 kB │ gzip:     3.47 kB
+dist/assets/tools-CCn8qDkx.js                       11.17 kB │ gzip:     4.06 kB
+dist/assets/ComparePdf-poA_V3XP.js                  11.20 kB │ gzip:     4.15 kB
+dist/assets/FileDropZone-DTVyMNP7.js                15.75 kB │ gzip:     6.28 kB
+dist/assets/src-BmUdCsRu.js                         17.25 kB │ gzip:     7.29 kB
+dist/assets/liteparse_wasm-U1mpHi0b.js              17.60 kB │ gzip:     5.30 kB
+dist/assets/pii-Bam6fBF1.js                         21.10 kB │ gzip:     8.61 kB
+dist/assets/motion-DwL002lY.js                      78.66 kB │ gzip:    27.82 kB
+dist/assets/app-CK9ppEkM.js                        250.21 kB │ gzip:    78.89 kB
+dist/assets/DigitalSignature-Bg5pLATU.js           303.92 kB │ gzip:    81.93 kB
+dist/assets/EditorView-DyJ3R6rP.js                 327.05 kB │ gzip:    98.81 kB
+dist/assets/pdf-BNYYUNYE.js                        429.48 kB │ gzip:   129.20 kB
+dist/assets/transformers.web-BvE5q03A.js           526.90 kB │ gzip:   147.17 kB
+dist/assets/dist-Bmh0qPJv.js                       527.69 kB │ gzip:   224.58 kB
+dist/assets/persistence-g83U8ccG.js                543.43 kB │ gzip:   142.51 kB
+dist/assets/AskPdf-B5H7Ee4a.js                     597.97 kB │ gzip:   179.92 kB
+dist/assets/pdf-operations-0zUUaAzp.js             750.21 kB │ gzip:   343.50 kB
+dist/assets/air-light-shader-BwlRjQzD.js         1,261.55 kB │ gzip:   294.31 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 824ms
+
+PWA v2.0.0
+mode      generateSW
+precache  80 entries (6514.08 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-c06bacfd.js
+Manifest icons/screenshots and social card match shipped image dimensions.
+Deployment asset check passed: 133 files, all <= 25 MiB.

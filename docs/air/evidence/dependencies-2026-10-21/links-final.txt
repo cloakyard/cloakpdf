@@ -1,0 +1,1 @@
+All links neutral: 60 layout/state checks, 18 keyboard checks. Evidence: /tmp/cloakyard-rollout-2026-10-21/cloakpdf/links-final

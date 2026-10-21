@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-21",
+  "baselineCommit": "1ce863a",
+  "status": "approved-for-rollout-with-existing-compact-beta-limitation",
+  "changes": {
+    "@langchain/core": {
+      "before": "^1.2.17",
+      "after": "^1.2.20"
+    },
+    "@langchain/langgraph": {
+      "before": "^1.4.20",
+      "after": "^1.5.1"
+    },
+    "@llamaindex/liteparse-wasm": {
+      "before": "^2.15.1",
+      "after": "^2.16.0"
+    },
+    "@pdfme/pdf-lib": {
+      "before": "^6.2.4",
+      "after": "^6.2.8"
+    },
+    "lucide-react": {
+      "before": "^1.52.0",
+      "after": "^1.61.0"
+    },
+    "motion": {
+      "before": "^14.0.0",
+      "after": "^14.5.0"
+    },
+    "react": {
+      "before": "^19.3.0",
+      "after": "^19.3.1"
+    },
+    "react-dom": {
+      "before": "^19.3.0",
+      "after": "^19.3.1"
+    },
+    "knip": {
+      "before": "^6.40.0",
+      "after": "^6.42.1"
+    },
+    "puppeteer-core": {
+      "before": "^25.12.0",
+      "after": "^25.15.0"
+    }
+  },
+  "packageManager": "pnpm@12.14.0",
+  "vitePlus": "1.3.0",
+  "transitiveRefresh": "Compatible upstream ranges refreshed; existing security overrides retained, obsolete release-age exemptions removed",
+  "checks": {
+    "formatLintTypes": true,
+    "deadCode": true,
+    "unitTests": 461,
+    "unitFiles": 48,
+    "productionBuild": {
+      "files": 133,
+      "allFilesWithin25MiB": true
+    },
+    "smokeSuites": 16,
+    "extendedSuites": 7,
+    "pwa": "44 layouts, real waiting worker, editor/export, two tabs, standalone and races pass",
+    "horizonLayouts": 68,
+    "realGpuLifecycleAndFallbacks": true,
+    "linkStates": 60,
+    "keyboardChecks": 18,
+    "realModel": "Quality sample and multipage pass; Compact sample passes. Compact multipage omits facts on the unchanged assertion in upgraded and pre-upgrade builds, and again with a freshly generated index. Explicit user exception below; this test is not relabeled as passed.",
+    "audit": "One high, existing user-approved node-forge exception GHSA-86w9-cpqp-85rv; expires 2026-11-06, no new findings or extension",
+    "wranglerDryRun": "4.151.3 pass; not deployed"
+  },
+  "fix": {
+    "source": "src/components/motion.tsx",
+    "reason": "Read native media-query snapshots during dialog render so delayed notifications cannot animate a reduced-motion entrance",
+    "regression": "Old source + current dependencies fails the delayed-notification assertion; fixed source passes without changing the assertion",
+    "cleanup": "Removed duplicated provider media-query state/listeners; keyboard modality remains shared"
+  },
+  "visualReview": [
+    "Desktop/laptop/phone landing in both themes",
+    "Desktop/tablet/phone loading dialogs in both themes; full geometry matrix covered by smoke suites"
+  ],
+  "fixtures": "Original local sample and multipage PDFs for real models; supported E2E_DEMO_FIXTURES=1 for other missing optional private fixtures; no ground-truth substitutions for model tests",
+  "frozenFiles": 496,
+  "rollout": "User authorizes committing this exact candidate, creating an individual dev-to-main PR, merging and deploying with the stated existing Compact limitation. Other checks remain required; node-forge exception unchanged.",
+  "knownLimitation": {
+    "scope": "This deployment only; existing Compact beta long-document answer quality",
+    "approvedBy": "User in this conversation, 2026-10-21",
+    "exactApproval": "Deploy PDF with the documented existing limitation",
+    "remainingWork": "Resolve the missing-facts failure separately; retain the unchanged grounded-answer assertion and original fixtures. Quality tier is available.",
+    "diagnosis": "Default RAG flags verified; fresh generated index still fails with the correct source passage retrieved. A relevance-order experiment did not resolve it and was removed; no model, prompt or retrieval change ships."
+  },
+  "releaseFreeze": {
+    "files": 496,
+    "matchesPriorAcceptance": true,
+    "freshUnitTests": 461
+  }
+}

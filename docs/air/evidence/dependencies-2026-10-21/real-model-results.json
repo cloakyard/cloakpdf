@@ -1,0 +1,186 @@
+[
+  {
+    "run": "ai-sample.txt",
+    "sha256": "26878aa5f33287081c2259341f4cdbb9e189db3c9f4ac78153cf8a03cb291aa5",
+    "baseline": false,
+    "passed": true,
+    "fixture": "sample",
+    "variant": "lfm2.5-1.2b",
+    "environment": {
+      "browser": "Chrome/156.0.8078.48",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "webGpuAdapterAvailable": true,
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": ""
+      }
+    },
+    "timings": [
+      {
+        "label": "question-cold-overview",
+        "ms": 1470
+      },
+      {
+        "label": "question-warm-overview",
+        "ms": 767
+      },
+      {
+        "label": "question-phone-extraction",
+        "ms": 259
+      },
+      {
+        "label": "question-email-extraction",
+        "ms": 232
+      },
+      {
+        "label": "question-address-extraction",
+        "ms": 446
+      },
+      {
+        "label": "question-after-swap",
+        "ms": 6795
+      }
+    ]
+  },
+  {
+    "run": "ai-quality-sample.txt",
+    "sha256": "ea34a58741c735b382fef8feea443261507da0822cbd0c24ee87639870e82dac",
+    "baseline": false,
+    "passed": true,
+    "fixture": "sample",
+    "variant": "lfm2-2.6b",
+    "environment": {
+      "browser": "Chrome/156.0.8078.48",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "webGpuAdapterAvailable": true,
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": ""
+      }
+    },
+    "timings": [
+      {
+        "label": "question-cold-overview",
+        "ms": 1011
+      },
+      {
+        "label": "question-warm-overview",
+        "ms": 776
+      },
+      {
+        "label": "question-phone-extraction",
+        "ms": 215
+      },
+      {
+        "label": "question-email-extraction",
+        "ms": 225
+      },
+      {
+        "label": "question-address-extraction",
+        "ms": 625
+      },
+      {
+        "label": "question-after-swap",
+        "ms": 3751
+      }
+    ]
+  },
+  {
+    "run": "ai-quality-multipage.txt",
+    "sha256": "6312dfea0995710e207927f877d485fbbd4b5f5c516c0db23003bd55bc8352d4",
+    "baseline": false,
+    "passed": true,
+    "fixture": "multipage",
+    "variant": "lfm2-2.6b",
+    "environment": {
+      "browser": "Chrome/156.0.8078.48",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "webGpuAdapterAvailable": true,
+      "adapter": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": ""
+      }
+    },
+    "timings": [
+      {
+        "label": "question-cold-overview",
+        "ms": 4387
+      },
+      {
+        "label": "question-warm-overview",
+        "ms": 3695
+      },
+      {
+        "label": "question-multipage-topic",
+        "ms": 2462
+      },
+      {
+        "label": "question-multipage-file-structure",
+        "ms": 4367
+      },
+      {
+        "label": "question-multipage-yaml-security",
+        "ms": 3625
+      },
+      {
+        "label": "question-after-swap",
+        "ms": 2515
+      }
+    ]
+  },
+  {
+    "run": "ai-multipage.txt",
+    "sha256": "83e54fa9e0d9b45711a2e858099c90c48e46b0902e0765c8c3881fe8cfcbbb5c",
+    "baseline": false,
+    "passed": false,
+    "fixture": "multipage",
+    "variant": "lfm2.5-1.2b",
+    "failure": "YAML-security answer omitted required facts from the source; unchanged assertion failed"
+  },
+  {
+    "run": "ai-multipage-baseline.txt",
+    "sha256": "ca9216f3d4fd3f98afe53f57d5e2421d19ed6dac9b2e7f80dd337b9b73abf66c",
+    "baseline": true,
+    "passed": false,
+    "fixture": "multipage",
+    "variant": "lfm2.5-1.2b",
+    "failure": "YAML-security answer omitted required facts from the source; unchanged assertion failed"
+  },
+  {
+    "run": "ai-compact-recheck.txt",
+    "sha256": "099da1389fe6ae14071e969fb4f504665d5ee054ea80be6ad40679344eae33c3",
+    "baseline": false,
+    "passed": false,
+    "fixture": "multipage",
+    "variant": "lfm2.5-1.2b",
+    "failure": "YAML-security answer omitted required facts from the source; unchanged assertion failed"
+  },
+  {
+    "run": "pdf-ai-diagnostic.txt",
+    "sha256": "c524c1ad03896a3255895f72ed50bff59d2d9a0cd7f2d2d1a674989fb2e81668",
+    "passed": false,
+    "fixture": "multipage",
+    "variant": "lfm2.5-1.2b",
+    "failure": "Long-document reply omitted required facts",
+    "diagnosticOnly": true,
+    "shippedCandidate": true,
+    "notes": "Freshly generated index; default flags"
+  },
+  {
+    "run": "pdf-ai-rank.txt",
+    "sha256": "13b9e2f6a57c970537d3d024c34d449ecad1ba43a2ed37c454a94fc508e925b0",
+    "passed": false,
+    "fixture": "multipage",
+    "variant": "lfm2.5-1.2b",
+    "failure": "Long-document reply omitted required facts",
+    "diagnosticOnly": true,
+    "shippedCandidate": false,
+    "notes": "Relevance-order experiment removed; does not ship"
+  }
+]
