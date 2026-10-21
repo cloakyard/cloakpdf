@@ -27,10 +27,17 @@ checks pass. The actual footer button opens the verified state-routed policy; al
 pass neutral resting/hover text and visible keyboard-focus checks.
 
 Evidence: `evidence/neutral-links-2026-10-19/`; full captures, raw browser results
-and command logs are in `/tmp/air-neutral-links-2026-10-19/`. Final visual review is complete. Production publication is recorded below when
-complete. No native code, release
+and command logs are in `/tmp/air-neutral-links-2026-10-19/`. Final local and production visual reviews are complete. No native code, release
 tags, installer assets, document/image output or link destinations changed.
 
 Local all-link checks pass: 116 layout/state cases and 34 keyboard focus checks. Desktop/laptop/phone light/dark captures were visually inspected, including page content and policy text.
 
 Checker hardening: use an OS-created unique temporary directory when no evidence directory is supplied. The default-directory browser run passes 60 layout/state and 18 keyboard checks; canonical formatting/lint and portable synchronization pass. This resolves the CodeQL temporary-file finding without changing shipped website assets.
+
+## Production verification
+
+Merged through dev → main in PR #206; deployed main `f863471`. Cloudflare version `eb28ae8d` serves 100% of traffic. All release checks now report success, including the corrected shared checker’s CodeQL analysis in PDF. Completed job logs corroborated the temporarily delayed GitHub badges.
+
+All 132 deployed files match the local SHA-256 values; no-transform and missing-route behavior pass. The live browser check passes 116 layout/state cases and 34 keyboard checks, with no non-neutral link text or browser errors. Desktop/laptop/phone light/dark captures were visually inspected.
+
+Production evidence is in `evidence/neutral-links-2026-10-19/production/`. Release tags and native/installer assets are unchanged.

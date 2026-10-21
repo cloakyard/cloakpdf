@@ -1,0 +1,17 @@
+{
+  "note": "GitHub displayed stale in-progress badges after the jobs completed. Cancellation requests were rejected as already completed; no jobs were cancelled or rerun. Normal merges used successful job logs and passing duplicate same-head workflows/security checks; no admin override.",
+  "pdf": {
+    "run": 39278072216,
+    "job": 118147106916,
+    "result": "CodeQL job status was success.",
+    "finished": "2026-10-19T15:29:20.7273267Z",
+    "url": "https://github.com/cloakyard/cloakpdf/actions/runs/39278072216/job/118147106916"
+  },
+  "drop": {
+    "run": 39278110714,
+    "job": 118147217558,
+    "result": "Astro check 0 errors / 0 warnings; three pages built; cleanup completed.",
+    "finished": "2026-10-19T15:27:54.7722074Z",
+    "url": "https://github.com/cloakyard/cloakdrop/actions/runs/39278110714/job/118147217558"
+  }
+}

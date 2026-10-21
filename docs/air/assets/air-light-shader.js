@@ -1,5 +1,5 @@
 /* Air light / Shaders 4.0.4. Generated; see THIRD_PARTY_LICENSES.txt. */
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/shaders/dist/core/support-D3W86vgR.js
+//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/support-D3W86vgR.js
 var e = class extends Error {
 	reason;
 	constructor(e, t, n) {
@@ -69,7 +69,7 @@ function h() {
 	return p;
 }
 //#endregion
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
+//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
 function g(e, t) {
 	let n = e.length;
 	Array.isArray(e[0]) || (e = [e]), Array.isArray(t[0]) || (t = t.map((e) => [e]));
@@ -197,11 +197,8 @@ var ce = /* @__PURE__ */ Object.freeze({
 	zdiv: oe
 }), le = new class {
 	add(e, t, n) {
-		if (typeof arguments[0] != "string") {
-			for (var e in arguments[0]) this.add(e, arguments[0][e], arguments[1]);
-			return;
-		}
-		(Array.isArray(e) ? e : [e]).forEach(function(e) {
+		if (typeof arguments[0] != "string") for (var e in arguments[0]) this.add(e, arguments[0][e], arguments[1]);
+		else (Array.isArray(e) ? e : [e]).forEach(function(e) {
 			this[e] = this[e] || [], t && this[e][n ? "unshift" : "push"](t);
 		}, this);
 	}
@@ -4922,7 +4919,7 @@ var oc = ac({
 			let t = Math.trunc(e);
 			return t < 0 ? 0 : t > 4294967295 ? 4294967295 : t;
 		}
-		return (e & 4294967295) >>> 0;
+		return (e | 0) >>> 0;
 	},
 	codegenImpl: (e, [t]) => e.gen.typeInstantiation(M, t ? [t] : [])
 }), M = Object.assign(cc, {
@@ -8094,16 +8091,14 @@ function Jp(e, t) {
 			if (n.type === "normal") {
 				if (!t.normalMode.set) throw Error(`'${this.toString()}' cannot be set in normal mode`);
 				t.normalMode.set.apply(this, [e]);
-				return;
-			}
-			if (n.type === "simulate") {
+			} else if (n.type === "simulate") {
 				if (t.simulateMode?.set) t.simulateMode.set.apply(this, [n, e]);
 				else if (t.normalMode.set) t.normalMode.set.apply(this, [e]);
 				else throw Error(`'${this.toString()}' cannot be set in simulate mode`);
-				return;
+			} else {
+				if (n.type === "codegen") throw Error("Unreachable makeDerefenceable.ts#$ (set)");
+				return Gs(n, "makeDereferenceable.ts#$ (set)");
 			}
-			if (n.type === "codegen") throw Error("Unreachable makeDerefenceable.ts#$ (set)");
-			return Gs(n, "makeDereferenceable.ts#$ (set)");
 		}
 	}), e;
 }
@@ -8272,19 +8267,10 @@ function um(e) {
 }
 function dm(e) {
 	let t = new fm(e), n = "", r;
-	for (; !t.isFinished();) {
-		if (t.isAt(lm)) {
-			t.advanceBy(1);
-			continue;
-		}
-		if (t.isAt("//")) {
-			t.consume("//"), t.parseUntil(cm), t.advanceBy(1);
-			continue;
-		}
-		if (t.isAt("/*")) {
-			t.parseUntil(gm, ym), t.consume("*/");
-			continue;
-		}
+	for (; !t.isFinished();) if (t.isAt(lm)) t.advanceBy(1);
+	else if (t.isAt("//")) t.consume("//"), t.parseUntil(cm), t.advanceBy(1);
+	else if (t.isAt("/*")) t.parseUntil(gm, ym), t.consume("*/");
+	else {
 		if (t.isAt("{")) return {
 			strippedCode: n,
 			argRange: [r, t.pos]
@@ -12179,12 +12165,11 @@ var Uv = class {
 	generateMipmaps(e = 0, t) {
 		if (!this.usableAsRender) throw Error("generateMipmaps called without specifying 'render' usage. Add it via the $usage('render') method.");
 		let n = t ?? (this.props.mipLevelCount ?? 1) - e;
-		if (n <= 1) {
-			ao.warn("suspicious", `generateMipmaps is a no-op: would generate ${n} mip levels (base: ${e}, total: ${this.props.mipLevelCount ?? 1})`);
-			return;
+		if (n <= 1) ao.warn("suspicious", `generateMipmaps is a no-op: would generate ${n} mip levels (base: ${e}, total: ${this.props.mipLevelCount ?? 1})`);
+		else {
+			if (e >= (this.props.mipLevelCount ?? 1)) throw Error(`Base mip level ${e} is out of range. Texture has ${this.props.mipLevelCount ?? 1} mip levels.`);
+			Lv(this[O].device, this[D].materialize(), e, n);
 		}
-		if (e >= (this.props.mipLevelCount ?? 1)) throw Error(`Base mip level ${e} is out of range. Texture has ${this.props.mipLevelCount ?? 1} mip levels.`);
-		Lv(this[O].device, this[D].materialize(), e, n);
 	}
 	write(e, t = 0) {
 		if (e instanceof ArrayBuffer || ArrayBuffer.isView(e)) {
@@ -12226,9 +12211,7 @@ var Uv = class {
 		if (a !== r || o !== i) {
 			if (n?.fit !== "stretch") throw Error(`Texture write source size ${a}x${o} does not match target size ${r}x${i}. Pass fit: 'stretch' to resize explicitly.`);
 			Rv(this[O].device, this[D].materialize(), e, t);
-			return;
-		}
-		this[O].device.queue.copyExternalImageToTexture({ source: e }, {
+		} else this[O].device.queue.copyExternalImageToTexture({ source: e }, {
 			texture: this[D].materialize(),
 			...t !== void 0 && { origin: {
 				x: 0,
@@ -12971,20 +12954,16 @@ function ky(e, t) {
 }
 function Ay(e) {
 	let t = "", n = 0, r = 0;
-	for (; r < e.length;) {
-		if (e.startsWith("//", r)) {
-			for (t += `${e.slice(n, r)} `, r += 2; r < e.length && !cm.has(e.charAt(r));) r += 1;
-			n = r;
-			continue;
-		}
-		if (e.startsWith("/*", r)) {
-			t += `${e.slice(n, r)} `;
-			let i = 1;
-			for (r += 2; r < e.length && i > 0;) e.startsWith("/*", r) ? (i += 1, r += 2) : e.startsWith("*/", r) ? (--i, r += 2) : r += 1;
-			if (i > 0) throw SyntaxError("Block comment opening without corresponding closing found during minification.");
-			n = r;
-			continue;
-		}
+	for (; r < e.length;) if (e.startsWith("//", r)) {
+		for (t += `${e.slice(n, r)} `, r += 2; r < e.length && !cm.has(e.charAt(r));) r += 1;
+		n = r;
+	} else if (e.startsWith("/*", r)) {
+		t += `${e.slice(n, r)} `;
+		let i = 1;
+		for (r += 2; r < e.length && i > 0;) e.startsWith("/*", r) ? (i += 1, r += 2) : e.startsWith("*/", r) ? (--i, r += 2) : r += 1;
+		if (i > 0) throw SyntaxError("Block comment opening without corresponding closing found during minification.");
+		n = r;
+	} else {
 		if (e.startsWith("*/", r)) throw SyntaxError("Block comment closing without corresponding opening found during minification.");
 		r += 1;
 	}
@@ -16335,31 +16314,25 @@ var yC = class {
 		return this.cpu ? this._raw : this._kind === "scalar" ? this._mirror[0] : this._view;
 	}
 	set value(e) {
-		if (this.cpu) {
-			this._raw = e;
-			return;
-		}
-		if (this._kind === "scalar") this._mirror[0] = gC(e);
+		if (this.cpu) this._raw = e;
 		else {
-			let t = mC(e, this._componentCount);
-			for (let e = 0; e < this._componentCount; e++) this._mirror[e] = t[e];
+			if (this._kind === "scalar") this._mirror[0] = gC(e);
+			else {
+				let t = mC(e, this._componentCount);
+				for (let e = 0; e < this._componentCount; e++) this._mirror[e] = t[e];
+			}
+			this._enqueue();
 		}
-		this._enqueue();
 	}
 	setFromRaw(e) {
-		if (this.cpu) {
-			this._raw = e;
-			return;
-		}
-		this.value = this.transform ? this.transform(e) : e;
+		this.cpu ? this._raw = e : this.value = this.transform ? this.transform(e) : e;
 	}
 	setComponents(...e) {
-		if (this.cpu || this._kind === "scalar") {
-			e.length && (this.value = e[0]);
-			return;
+		if (this.cpu || this._kind === "scalar") e.length && (this.value = e[0]);
+		else {
+			for (let t = 0; t < this._componentCount && t < e.length; t++) this._mirror[t] = e[t];
+			this._enqueue();
 		}
-		for (let t = 0; t < this._componentCount && t < e.length; t++) this._mirror[t] = e[t];
-		this._enqueue();
 	}
 }, xC = class {
 	gpuPath;
@@ -16598,11 +16571,7 @@ function wC(t, n = {}) {
 	};
 }
 function TC(e, t) {
-	if (e instanceof xC) {
-		Array.isArray(t) && (e.array = t);
-		return;
-	}
-	e.setFromRaw(t);
+	e instanceof xC ? Array.isArray(t) && (e.array = t) : e.setFromRaw(t);
 }
 var EC = Math.PI / 180, DC = Math.PI, OC = Math.PI * 2, kC = OC, AC = Math.PI / 2, jC = Math.sqrt(3), MC = 2.3999632297286535, NC = $.fn([M, N], M)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
@@ -46416,12 +46385,11 @@ function wD(e, t = {}) {
 				c = n;
 				break;
 			}
-			if (n.definition.uvRemap && !je(n) && r.length === 1) {
-				a = n, o = r;
-				continue;
+			if (n.definition.uvRemap && !je(n) && r.length === 1) a = n, o = r;
+			else {
+				l = n;
+				break;
 			}
-			l = n;
-			break;
 		}
 		if (!c && !l) return null;
 		for (let e of i) s.add(e.id);
@@ -46453,11 +46421,8 @@ function wD(e, t = {}) {
 				c = n;
 				break;
 			}
-			if (n.definition.providesUVContextViaCompute) {
-				o = n, l = e.getChildren(n.id);
-				continue;
-			}
-			return null;
+			if (n.definition.providesUVContextViaCompute) o = n, l = e.getChildren(n.id);
+			else return null;
 		}
 		if (!c) return null;
 		s.add(c.id);
@@ -140094,7 +140059,7 @@ $.fn([
 	}
 }) && e.f)({})).$name("shapeFieldExtrudeZ");
 //#endregion
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/shaders/dist/core/shaderRegistry-C-P5WvzF.js
+//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/shaderRegistry-C-P5WvzF.js
 var AI = () => void 0, jI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(mS({
 	in: { vertexIndex: kp.vertexIndex },
 	out: {
@@ -140837,9 +140802,7 @@ function fL(e, t, n, r, i, a, o, s) {
 				}
 			});
 		}
-		return;
-	}
-	o.push({
+	} else o.push({
 		kind: "box",
 		id: e.id,
 		xPx: n - t.widthPx / 2,
@@ -140884,9 +140847,7 @@ function mL(e, t, n, r) {
 			pL(e, o, t, n, i, void 0, r, s);
 			let c = new Set(s.map((e) => e.id));
 			for (let t of e.children) t.visible !== !1 && (c.has(t.id) || a(t));
-			return;
-		}
-		for (let t of e.children) t.visible !== !1 && a(t);
+		} else for (let t of e.children) t.visible !== !1 && a(t);
 	};
 	for (let t of e) t.visible !== !1 && a(t);
 	return i;
@@ -141812,27 +141773,25 @@ function bL() {
 			let e = r.uniforms.origin?.value ?? "center", s = $e(r, e);
 			n = uP(a, t, n, e, se(), ce(), o, s);
 		}
-		if (i.transform === FN) {
-			i._rawList = n, Mt(r, t), On(), Xt();
-			return;
-		}
-		if (i.value = n, Dt(r, t, n), (i.transform === PN || i.transform === Ki) && jt(r), t === "origin" && a) nt(r);
-		else if (a && (r.uniforms.origin?.value ?? "center") !== "center") {
-			let e = rP(a, o), n = !!a.computeBounds || (e?.sizeProps.has(t) ?? !1), i = e?.positionProps.has(t) ?? !1;
-			n && !i && nt(r);
-		}
-		if (t === "shape" && On(), pt() && ft(), i.compileTime) {
-			Yt();
-			return;
-		}
-		if (i.compileTimeWhen) {
-			let e = i._lastCompiledValue;
-			if (i.compileTimeWhen(e, n)) {
-				i._lastCompiledValue = n, Yt();
-				return;
+		if (i.transform === FN) i._rawList = n, Mt(r, t), On(), Xt();
+		else {
+			if (i.value = n, Dt(r, t, n), (i.transform === PN || i.transform === Ki) && jt(r), t === "origin" && a) nt(r);
+			else if (a && (r.uniforms.origin?.value ?? "center") !== "center") {
+				let e = rP(a, o), n = !!a.computeBounds || (e?.sizeProps.has(t) ?? !1), i = e?.positionProps.has(t) ?? !1;
+				n && !i && nt(r);
+			}
+			if (t === "shape" && On(), pt() && ft(), i.compileTime) Yt();
+			else {
+				if (i.compileTimeWhen) {
+					let e = i._lastCompiledValue;
+					if (i.compileTimeWhen(e, n)) {
+						i._lastCompiledValue = n, Yt();
+						return;
+					}
+				}
+				Xt();
 			}
 		}
-		Xt();
 	}, en = (e, t) => {
 		let n = p.get(e);
 		if (!n) {
@@ -142177,11 +142136,7 @@ function bL() {
 	}, On = () => {
 		let e = !1;
 		for (let t of p.values()) {
-			if (t.usesPointer) {
-				e = !0;
-				break;
-			}
-			if (yL(t.uniforms?.shape?.value) || Pt(t)) {
+			if (t.usesPointer || yL(t.uniforms?.shape?.value) || Pt(t)) {
 				e = !0;
 				break;
 			}
@@ -142233,26 +142188,14 @@ function bL() {
 			}
 		}
 	}, jn = (e) => {
-		if (t(e)) {
-			An(e.reason, e);
-			return;
-		}
-		Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= _L && An("render-failed", e);
+		t(e) ? An(e.reason, e) : (Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= _L && An("render-failed", e));
 	}, Mn = (e) => {
 		e && typeof e.addEventListener == "function" && (Nn(), Ue = e, We = (e) => {
 			try {
 				e.preventDefault();
 			} catch {}
 			let t = e.error;
-			if (o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError) {
-				An("out-of-memory", t);
-				return;
-			}
-			if (typeof GPUInternalError < "u" && t instanceof GPUInternalError) {
-				An("gpu-error", t);
-				return;
-			}
-			Ge++, Ge >= gL && An("gpu-error", t);
+			o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError ? An("out-of-memory", t) : typeof GPUInternalError < "u" && t instanceof GPUInternalError ? An("gpu-error", t) : (Ge++, Ge >= gL && An("gpu-error", t));
 		}, e.addEventListener("uncapturederror", We));
 	}, Nn = () => {
 		if (Ue && We) try {
@@ -142274,9 +142217,7 @@ function bL() {
 						c("[gpu] onDeviceLost callback threw:", e);
 					}
 				});
-				return;
-			}
-			An("device-lost", e);
+			} else An("device-lost", e);
 		}
 	}, Fn = async (o) => {
 		if (o.context !== void 0) throw Error("[gpu] initialize({ context }) is not supported — this renderer is WebGPU-only. Remove the WebGL `context` option.");

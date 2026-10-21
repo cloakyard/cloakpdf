@@ -1,0 +1,38 @@
+{
+  "advisories": {
+    "1240912": {
+      "findings": [
+        {
+          "version": "1.4.0",
+          "paths": [".>node-forge"],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1240912,
+      "title": "node-forge RSA PKCS#1 v1.5 signature verification accepts extra nested DigestAlgorithm elements",
+      "module_name": "node-forge",
+      "vulnerable_versions": "<=1.4.0",
+      "patched_versions": null,
+      "patched_versions_unpublished": true,
+      "severity": "high",
+      "cwe": "CWE-347",
+      "github_advisory_id": "GHSA-86w9-cpqp-85rv",
+      "url": "https://github.com/advisories/GHSA-86w9-cpqp-85rv"
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 1,
+      "critical": 0
+    },
+    "dependencies": 208,
+    "devDependencies": 605,
+    "optionalDependencies": 241,
+    "totalDependencies": 866
+  }
+}

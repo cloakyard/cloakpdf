@@ -1,0 +1,14 @@
+$ pnpm test:unit
+$ vp test run tests/unit
+
+ RUN  v5.0.5 /Users/sumitsahoo/Developer/cloakpdf
+
+
+ Test Files  48 passed (48)
+      Tests  461 passed (461)
+   Start at  18:00:16
+   Duration  1.25s (import 46%, tests 44%, transform 8%, worker 2%)
+
+    Isolate  48 workers spawned · ~92ms startup each (spawn + environment, per file)
+             at least ~308ms faster with isolate: false — reuses workers across files instead of one per file
+
