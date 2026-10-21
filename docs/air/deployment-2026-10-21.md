@@ -23,3 +23,18 @@ dependency evidence. The existing node-forge GHSA-86w9-cpqp-85rv exception remai
 unchanged and expires 2026-11-06. No additional security exception is introduced.
 
 Evidence: `docs/air/evidence/dependencies-2026-10-21.json`.
+
+## Production verification and test readiness
+
+PR #207 merged at `f3a231d`; dev was synchronized to main. The live site serves
+132 exact deployed asset hashes with `no-transform` and no injected scripts.
+All six real standalone output workflows, 68 horizon layouts with GPU/fallbacks,
+and 60 neutral link states / 18 keyboard checks pass. Desktop/laptop/phone light
+and dark landing captures were reviewed.
+
+The live smoke run exposed a test-only readiness race: `networkidle2` permits
+two pending requests and can return before the remote entry module renders the
+home cards. Wait for the requested card before the existing click/assertions.
+No feature assertion is weakened and no application bytes change. Code checks,
+dead-code and all 461 units pass; all six real production workflows pass with
+the readiness correction. See `evidence/deployment-2026-10-21.json`.

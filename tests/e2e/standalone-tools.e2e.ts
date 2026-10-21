@@ -148,6 +148,16 @@ async function uploadFiles(page: Page, selector: string, ...paths: string[]): Pr
 
 async function openTool(page: Page, title: string): Promise<void> {
   await page.goto(DEV_URL, { waitUntil: "networkidle2" });
+  // A remote module can still be loading when networkidle2 allows two active
+  // requests. Wait for the actual tool before inspecting/clicking its card.
+  await page.waitForFunction(
+    (expected) =>
+      Array.from(document.querySelectorAll("button, a, [role=button]")).some(
+        (candidate) => (candidate.querySelector("h3")?.textContent ?? "").trim() === expected,
+      ),
+    { timeout: 30_000 },
+    title,
+  );
   const clicked = await page.evaluate((expected) => {
     const cards = Array.from(document.querySelectorAll("button, a, [role=button]"));
     const card = cards.find(

@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-21",
+  "releasePr": "https://github.com/cloakyard/cloakpdf/pull/207",
+  "main": "f3a231d3e428893a54915d963def8531dc6a0fca",
+  "live": {
+    "url": "https://pdf.cloakyard.com",
+    "matchingAssets": 132,
+    "allNoTransform": true,
+    "injectedScripts": false,
+    "standaloneOutputWorkflows": 6,
+    "horizonLayouts": 68,
+    "realGpuAndFallbacks": true,
+    "neutralLinkStates": 60,
+    "keyboardChecks": 18
+  },
+  "visualReview": "Desktop/laptop/phone light and dark reviewed",
+  "readinessCorrection": "networkidle2 can return with the remote entry module still loading. Wait up to 30 seconds for the requested card before the existing click/assertions. All six actual production output workflows now pass. No assertion weakened.",
+  "followupChecks": {
+    "formatLintTypes": true,
+    "deadCode": true,
+    "unitTests": 461,
+    "runtimeBuildUnchanged": true,
+    "changedFrozenFiles": ["tests/e2e/standalone-tools.e2e.ts"]
+  },
+  "knownLimitation": "Explicit user approval of the pre-existing Compact long-document missing-facts limitation; tests remain unchanged and the limitation is not a pass."
+}
