@@ -1,23 +1,19 @@
 ## 17 · Type Specimen
 
-The typeface IS the design. Foundry homepage or design-system marketing where a custom typeface is the brand's proof.
+The typeface is the design. Foundry pages and design systems where a custom face is the proof.
 
-- **Heading:** the typeface set at multiple sizes, demonstrating what it does.
-- **Body:** progressive demonstration — display size, body size, italic, language coverage, OpenType features.
-- **Divider:** centred caption labels between specimens.
-- **Button:** outlined "Buy" or "Use it" at the foot.
-- **Image:** none — typography is the imagery.
-- **Reveal:** type-unmask on first paint of each specimen block.
+- **Heading:** the typeface set at several sizes, demonstrating what it does.
+- **Body:** a progressive demonstration: display size, body size, italic, language coverage, OpenType features.
+- **Divider:** a `<figcaption>` under each specimen; a caption below is legal, a label above is an eyebrow (54).
+- **Button:** one outlined action ("Buy the family") in the fold (44b), returning at the foot.
+- **Image:** none; the typography is the imagery.
+- **Reveal:** one type-unmask, on the first specimen as it paints; the rest is simply there.
 
 Reach for it for type foundries, design systems where a custom face is the differentiator, font product pages.
 
 Avoid when the brand uses an off-the-shelf face. Type Specimen needs something distinctive to celebrate.
 
-Reference: Klim Type Foundry, Pangram Pangram, Geist Pixel announcement pages.
-
-**Sample opening lines** (imitate the *specificity* — Type Specimen openings are foundry-voice: name the typeface, the weights, the use):
-> *"Reckless Display, set in 96 pt."* — names the face and the size, nothing else
-> *"Eight weights. Three optical sizes. One good italic."* — counts the system in three short phrases
-> *"A type system for editorial."* — refusal of the verb, single noun phrase
-
----
+**Sample opening lines** (foundry voice: name the face, the weights, the use):
+> *"Corvid Display, set at 96pt."* Names the face and the size, nothing else.
+> *"Eight weights. Three optical sizes. One good italic."* Counts the system in three short phrases.
+> *"A type system for editorial."* Refusal of the verb, one noun phrase.

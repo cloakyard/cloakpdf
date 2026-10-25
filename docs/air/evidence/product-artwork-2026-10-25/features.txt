@@ -1,0 +1,183 @@
+$ node --experimental-strip-types tests/e2e/standalone-tools.e2e.ts && node --experimental-strip-types tests/e2e/home-routing.e2e.ts && node --experimental-strip-types tests/e2e/landing-search.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke.e2e.ts && node --experimental-strip-types tests/e2e/editor-smoke-mobile.e2e.ts && node --experimental-strip-types tests/e2e/editor-features.e2e.ts && node --experimental-strip-types tests/e2e/editor-interactions.e2e.ts && node --experimental-strip-types tests/e2e/command-palette.e2e.ts && node --experimental-strip-types tests/e2e/modal-system.e2e.ts && node --experimental-strip-types tests/e2e/export-dialog.e2e.ts && node --experimental-strip-types tests/e2e/ai-modal-states.e2e.ts && node --experimental-strip-types tests/e2e/ask-pdf-chat.e2e.ts && node --experimental-strip-types tests/e2e/editor-navigation.e2e.ts && node --experimental-strip-types tests/e2e/editor-collections.e2e.ts && node --experimental-strip-types tests/e2e/editor-canvas.e2e.ts && node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts
+
+→ Merge PDFs
+  ✓ sorted removal/undo restores keyboard focus and original manual order
+  ✓ uploaded 4 PDFs; merged.pdf has 24 pages
+
+→ Images to PDF
+  ✓ uploaded 2 shipped PNG assets; images.pdf has 2 pages
+
+→ Extract Images
+  ✓ keyboard selection, full-resolution PNG, all 3 images and partial ZIPs preserve bytes/order; empty result and intake focus pass
+  ✓ ZIP failure/retry retains selection; cancelling a measured scan releases the worker/canvas and cannot replace newer results
+
+→ PDF Password
+  ✓ AES-256/permissions, visibility/mismatch recovery, wrong-password retry, source-stream fidelity and unlock-to-editor pass
+  ✓ Empty-password PDF unlock remains supported
+  ✓ Cancelling detection preserves the newer file and restores intake focus
+
+→ Compare PDFs
+  ✓ identical pixels/overlay; changed content and page geometry; missing page; keyboard navigation; source preservation; reset/replacement/unmount URL cleanup; encrypted/corrupt input; cancel and retry
+
+→ Digital Signature
+  ✓ generated signature verifies with OpenSSL CMS; source streams and reopened metadata survive; editing identity invalidates the old certificate
+  ✓ imported PKCS#12 chain, wrong-password retry, visibility and empty-password certificate produce independently verified output
+  ✓ malformed certificate recovery, import cancellation/replacement and real-worker cancellation/retry preserve input and focus
+
+✓ All 6 non-AI standalone tools passed their headless browser workflows.
+→ Loading http://127.0.0.1:8167
+  ✓ home drop zone → editor (focus page rendered)
+  ✓ merge → editor hand-off (focus page rendered)
+✓ Home routing smoke passed — editor-card preselect + constructor hand-off.
+  ✓ 320px search stays anchored, ranked, and overflow-free
+  ✓ 375px search stays anchored, ranked, and overflow-free
+  ✓ 414px search stays anchored, ranked, and overflow-free
+  ✓ 768px search stays anchored, ranked, and overflow-free
+  → checking shortcut and singular result copy
+✓ Landing search refinement passed.
+→ Loading http://127.0.0.1:8167
+  ✓ density control (single ↔ grid)
+  ✓ strip furniture detect + trim (crop) apply
+  ✓ redact deferred — repeated find, box-colour pickers wired (no burn)
+  ✓ annotate draw
+  ✓ annotate text box (draw → type → commit)
+  ✓ crop drag + apply
+  ✓ signature place + apply
+  ✓ find & act search + highlight apply
+  ✓ smart erase draw (deferred mark)
+  ✓ OCR panel mounts (engine not run)
+  ✓ organize delete + apply (33 → 32 pages)
+  ✓ whole-doc apply (n-up)
+  ✓ metadata + scrub panels load
+  ✓ merged organize (reverse/extract/blank quick actions)
+  ✓ stamp-family apply (page numbers)
+  ✓ fill-form reads fields (empty)
+  ✓ bookmarks add + apply
+  ✓ bookmarks contents page apply
+  ✓ attachments panel loads
+  ✓ export modal · contact sheet → multipage_contact-sheet.pdf
+  ✓ export modal · grayscale → multipage_grayscale.pdf
+  ✓ export modal · text → multipage.txt
+  ✓ export modal · markdown (liteparse native, 26738 chars) → multipage.md
+✓ Editor smoke passed — strip furniture, redact (deferred), find & act, smart erase (deferred), annotate, crop, signature, organize (now 32 pages), overview/focus, stamps, forms, bookmarks (+ contents page), attachments, OCR wired, export PDF/contact-sheet/text/markdown.
+→ Loading http://127.0.0.1:8167 (390×844 mobile)
+  ✓ mobile sheet entry (no desktop rail)
+  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)
+  ✓ annotate burn via global ✓
+  ✓ find & act burn via global ✓
+  ✓ page numbers via global ✓
+  ✓ metadata save via global ✓ (secondary action kept)
+  ✓ redact deferred — mark persists across ✓, no burn
+  ✓ render sweep — 12 tools mount in the sheet (✓/✗, 50:50)
+  ✓ organize delete + apply via global ✓ (33 → 32 pages)
+  ✓ OCR enabled on mobile (Extract visible, scrollable body)
+  ✓ export sheet · markdown (liteparse native, 26937 chars) → multipage.md
+✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.
+→ Testing 3 fixtures: multipage.pdf, sample-invoice.pdf, sample.pdf
+  ✓ multipage.pdf (33 pages)
+  ✓ sample-invoice.pdf (1 pages)
+  ✓ sample.pdf (4 pages)
+✓ editor-features passed on all 3 fixtures.
+  ✓ annotation Arrow keys nudge without panning; burst is one undo step
+  ✓ Delete removes the selected annotation from the focused canvas
+  ✓ unhandled Arrow pans; + zooms; 0 resets the viewport
+  ✓ pinch zoom is damped and follows simultaneous two-finger pan
+  ✓ middle-button drag pans without switching or firing the active tool
+  ✓ top-bar controls cannot be overwritten by a late wheel commit
+  ✓ a 12-event wheel burst measures layout once and stays compositor-driven
+  ✓ trackpad zoom stays anchored; overscroll remains reachable; background pinch recovers the view
+  ✓ date/time disclosure semantics and shorter-month focus clamp
+  ✓ custom colour exposes independent saturation and brightness controls
+  ✓ pinch and simultaneous pan remain natural in the mobile editor layout
+✓ editor keyboard interactions passed
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-palette-OQrU5T
+→ Loading http://127.0.0.1:8167
+  ✓ editor opened
+✓ commands: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ filtered: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ empty: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+  ✓ 192 layout/theme/text cases · query persistence · wrap navigation · IME · clear/no-results · forced colours
+  ✓ rail Search opens palette · Escape closes (screenshot → /tmp/command-palette.png)
+  ✓ ⌘K toggles palette open/closed
+  ✓ ⌘K search → Enter selects the Crop tool
+  ✓ name-first ranking: Page numbers tops the desc match (Strip furniture)
+  ✓ apply page numbers → Undo enabled
+  ✓ ⌘Z undo (Undo→disabled, Redo→enabled)
+  ✓ ⌘⇧Z redo (Redo→disabled, Undo→enabled)
+  ✓ palette Undo, Redo and Reset actions update real editor history
+  ✓ selecting a bottom tool auto-scrolls it into view
+✓ Command palette + keyboard shortcuts passed.
+  ✓ 320px palette/export bounds, focus, and single-stack ownership
+  ✓ 375px palette/export bounds, focus, and single-stack ownership
+  ✓ 414px palette/export bounds, focus, and single-stack ownership
+  ✓ 768px palette/export bounds, focus, and single-stack ownership
+  ✓ 1280px palette/export bounds, focus, and single-stack ownership
+  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates
+  ✓ AI details and consent dialogs share modal ownership
+→ Checking partial-cache return…
+  · Reloaded test page
+  · Partial-cache setup visible
+  ✓ Selected tier persists; a partial-cache return waits for explicit download
+  ✓ Landscape/portrait tool access retains controls without an orientation gate
+✓ Shared modal system passed.
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-export-5Pk6Ot
+✓ export-pdf-options: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Native format/quality groups have one Tab stop, arrow keys and persistent choices; plain PDF bytes are exact
+✓ export-preparing: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Busy state retains focus and blocks editing/dismissal/duplicate work; split ZIP contains two valid single-page PDFs
+✓ export-images: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Images preserve 150 DPI dimensions; contact sheet, text and Markdown contain both pages in order
+✓ export-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Failure keeps options and focus, cleans up its download anchor, and retries successfully with metadata removed
+→ Export option Flatten
+→ Export option Grayscale
+→ Export option Repair
+→ Export option Compress / low
+→ Export option Compress / medium
+→ Export option Compress / high
+✓ Flatten, grayscale, repair, all three compression levels and combined options produce valid PDFs without changing source/history
+✓ All six formats burn pending redaction; PDF streams contain no original text, PNG pixels retain the redaction ink, OCR exports cannot recover the covered text
+✓ export-long-name: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Long filenames reflow at every viewport/theme/text size; reduced-motion reopen is immediate
+✓ Single-page Images downloads a PNG; no uncaught errors. Export suite passed.
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-modal-states-BjUZjb
+✓ Pointer motion, exit ownership, immediate keyboard/reduced-motion and reopen
+✓ delete-confirmation: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Safe delete cancellation preserves storage and returns focus
+✓ cache failure remains actionable without false success
+✓ index failure remains actionable without false success
+✓ Retry removes real CacheStorage, committed IDB records and readiness flags
+✓ Cancelled cached loading stays idle and permits explicit reload
+✓ loading: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ download-error: 64 theme/viewport/text cases, including dialog breakpoint neighbors
+✓ Download errors stay at actual ready count; Retry and Cancel recover
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-chat-YOYgoj
+✓ indexing: 64 size/theme/text cases
+✓ index-error: 64 size/theme/text cases
+✓ no-text: 64 size/theme/text cases
+✓ empty: 64 size/theme/text cases
+✓ answer-error: 64 size/theme/text cases
+✓ answer: 64 size/theme/text cases
+✓ long-content: 64 size/theme/text cases
+✓ Explicit indexing retry; IME, Shift+Enter and limits; guarded send; partial recovery; draft/focus retention; real source bytes; safe markdown; scroll ownership; obsolete-result isolation; source URL cleanup; reduced motion/forced colours
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-navigation-WJMJ6A
+PASS: 176 registered tool selections preserve pages, focus and history.
+PASS: 176 navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-collections-H8ewpY
+PASS: 88 collection layouts, staged edits, real PDF output and keyboard ownership.
+Evidence: /var/folders/k0/mzs4nsyn7k78t1j1xlsxq1q40000gn/T/cloakpdf-air-canvas-61KVud
+PASS: 68 canvas layouts; 36px brand; selection colours; composition/focus/multiline/touch editing.
+  ✓ desktop landing motion
+  ✓ tablet landscape landing motion
+  ✓ tablet portrait landing motion
+  ✓ mobile landing motion
+  ✓ small mobile landing motion
+  ✓ mobile landscape landing motion
+  ✓ desktop editor motion
+  ✓ tablet landscape editor motion
+  ✓ tablet portrait editor motion
+  ✓ mobile editor motion
+  ✓ small mobile editor motion
+  ✓ mobile landscape editor motion
+  ✓ reduced-motion profile
+✓ Responsive motion audit passed — desktop, tablet portrait/landscape, mobile portrait/landscape, 320px, modal anchoring, and reduced motion.

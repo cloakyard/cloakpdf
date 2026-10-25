@@ -122,56 +122,105 @@ textarea.editor-inline-text {
 }
 .pdf-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--air-space-24) var(--air-space-64);
-  align-items: center;
-  padding-block: var(--air-space-64) var(--air-space-32);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--air-space-24);
+  justify-items: center;
+  text-align: center;
+  padding-block: var(--air-space-48) var(--air-space-64);
 }
 .pdf-home .pdf-hero h1 {
   font-size: var(--air-text-hero);
-  letter-spacing: -0.065em;
-  line-height: 1.08;
-}
-.pdf-hero h1 span {
-  color: var(--air-accent);
-}
-.pdf-hero-copy > .air-button {
-  margin-inline-start: -16px;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
 }
 .pdf-hero .air-page-lede {
-  max-inline-size: 38ch;
+  max-inline-size: 48ch;
+  margin-inline: auto;
 }
-.pdf-horizon {
-  grid-column: 1 / -1;
+.pdf-page-stack {
   position: relative;
   inline-size: 100%;
-  block-size: 160px;
-  color: var(--air-light-cloakpdf);
-  background-color: var(--air-page);
-  outline-color: var(--air-surface-soft);
+  block-size: 240px;
+  container-type: inline-size;
   pointer-events: none;
-  overflow: clip;
 }
-.pdf-horizon svg,
-.pdf-horizon canvas {
+.pdf-page-stack-board {
   position: absolute;
-  inset: 0;
-  inline-size: 100%;
-  block-size: 100%;
+  inline-size: 480px;
+  block-size: 240px;
+  left: 50%;
+  transform: translateX(-50%);
 }
-.pdf-horizon canvas {
-  visibility: hidden;
+/* A white document is artwork in either theme, not a second UI palette. */
+.pdf-page-stack-sheet {
+  position: absolute;
+  inline-size: 146px;
+  block-size: 196px;
+  left: 167px;
+  top: 22px;
+  padding: 20px 16px;
+  color-scheme: light;
+  border: 1px solid var(--air-paper-line);
+  border-radius: var(--air-radius-check);
+  background: white;
+  color: var(--air-paper-ink);
+  box-shadow: var(--air-shadow-surface);
+  transform-origin: 50% 85%;
+  text-align: left;
 }
-.pdf-horizon[data-light-ready="true"] canvas {
-  visibility: visible;
+.pdf-page-stack-rules {
+  display: block;
+  block-size: 66px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--air-paper-line) 0 2px,
+    transparent 2px 11px
+  );
+  opacity: 0.8;
+}
+.pdf-page-stack-front {
+  inline-size: 160px;
+  block-size: 216px;
+  left: 160px;
+  top: 8px;
+  z-index: 5;
+  padding: 23px 19px;
+  transform: rotate(-1deg);
+  border-block-start-color: var(--air-paper-accent);
+}
+.pdf-page-stack-front p {
+  margin: 0 0 16px;
+  font:
+    400 22px/1.15 Georgia,
+    "Times New Roman",
+    serif;
+  letter-spacing: -0.02em;
+}
+.pdf-page-stack-front .pdf-page-stack-rules {
+  block-size: 77px;
+}
+.pdf-page-stack-short-rule {
+  display: block;
+  margin-block-start: 10px;
+  block-size: 2px;
+  inline-size: 65%;
+  background: var(--air-paper-line);
+}
+@container (max-width: 420px) {
+  .pdf-page-stack-board {
+    transform: translateX(-50%) scale(0.68);
+    transform-origin: 50% 50%;
+  }
 }
 .pdf-entry {
   min-inline-size: 0;
+  inline-size: min(100%, 42rem);
   scroll-margin-block: var(--air-space-24);
 }
 .pdf-entry-note {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0 var(--air-space-8);
   margin: var(--air-space-16) 0 0;
   font-size: var(--air-text-meta);
@@ -193,8 +242,22 @@ textarea.editor-inline-text {
   overflow-wrap: anywhere;
 }
 .pdf-file-drop--hero {
-  min-block-size: 20rem;
-  padding: var(--air-space-32);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--air-space-4) var(--air-space-24);
+  min-block-size: 0;
+  padding: var(--air-space-24);
+  text-align: left;
+}
+.pdf-file-drop--hero .air-file-invitation,
+.pdf-file-drop--hero .air-help {
+  grid-column: 1;
+}
+.pdf-file-drop--hero .pdf-file-browse {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  margin: 0;
+  align-self: center;
 }
 .pdf-file-drop input {
   position: absolute;
@@ -474,6 +537,9 @@ textarea.editor-inline-text {
   text-underline-offset: 3px;
 }
 @media (hover: hover) and (pointer: fine) {
+  .pdf-file-drop--hero:hover:not([data-dragging]) {
+    background: var(--air-surface-soft);
+  }
   .pdf-tool-entry:hover {
     background: var(--air-surface-soft);
   }
@@ -516,12 +582,15 @@ textarea.editor-inline-text {
   .pdf-hero {
     padding-block: var(--air-space-32) var(--air-space-16);
   }
-  .pdf-horizon {
-    block-size: 104px;
-  }
   .pdf-file-drop--hero {
-    min-block-size: 18rem;
-    padding: var(--air-space-24);
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+  .pdf-file-drop--hero .pdf-file-browse {
+    grid-column: 1;
+    grid-row: auto;
+    margin-block-start: var(--air-space-12);
   }
   .pdf-category {
     gap: var(--air-space-8);
@@ -543,8 +612,12 @@ textarea.editor-inline-text {
   .pdf-hero {
     padding-block-start: var(--air-space-24);
   }
-  .pdf-horizon {
-    block-size: 64px;
+  .pdf-page-stack {
+    block-size: 140px;
+  }
+  .pdf-page-stack-board {
+    top: -50px;
+    transform: translateX(-50%) scale(0.5);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -554,8 +627,8 @@ textarea.editor-inline-text {
   }
 }
 @media (forced-colors: active) {
-  .pdf-horizon {
-    display: none;
+  .pdf-page-stack-sheet {
+    forced-color-adjust: none;
   }
   .pdf-file-drop:has(input:focus-visible) {
     outline-color: Highlight;

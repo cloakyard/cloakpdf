@@ -144,6 +144,24 @@ try {
   checks.push("altered overlay module rejected");
   await writeFile(overlayPath, overlay);
 
+  const artworkPath = resolve(fixture, "docs/air/artwork.mjs");
+  const artwork = await readFile(artworkPath, "utf8");
+  await writeFile(artworkPath, `${artwork}\n// Deliberate portability-test drift.\n`);
+  const artworkDrift = verify();
+  assert.notEqual(artworkDrift.status, 0);
+  assert.match(artworkDrift.stderr, /Air study asset drift: artwork\.mjs/);
+  checks.push("altered artwork lifecycle rejected");
+  await writeFile(artworkPath, artwork);
+
+  const withoutArtwork = structuredClone(manifest);
+  delete withoutArtwork.studyAssets["artwork.mjs"];
+  await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutArtwork));
+  const missingArtwork = verify();
+  assert.notEqual(missingArtwork.status, 0);
+  assert.match(missingArtwork.stderr, /Missing Air study asset hash: artwork\.mjs/);
+  checks.push("missing artwork lifecycle hash rejected");
+  await writeFile(resolve(fixture, manifestPath), manifestText);
+
   const withoutPages = structuredClone(manifest);
   delete withoutPages.studyAssets["pages.mjs"];
   await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutPages));

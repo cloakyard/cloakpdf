@@ -1,32 +1,21 @@
 ## 05 · Workbench
 
-Product screenshots in frames are the primary content. The page is a guided tour of the app in use. Less marketing copy, more "here's what you do with it."
+Real product captures are the primary content. The page is a guided tour of the app in use, with short captions in place of marketing copy.
 
-- **Heading:** small, functional — workbench pages don't shout.
-- **Body:** sequence of screenshot blocks, each with a short caption and an inline annotation arrow.
-- **Divider:** the screenshot frame *is* the divider; sections separate by gap and frame.
-- **Button:** sticky-bottom CTA bar after the third screenshot ("Try it →"), once context is built.
-- **Image:** central — browser/device frames around real product captures, with annotation arrows.
-- **Reveal:** type-unmask on captions; screenshots load instantly.
+- **Heading:** plain and functional at the section size; the captures do the talking.
+- **Body:** a sequence of capture blocks, each a `<figure>` with a `<figcaption>` that states a fact and one inline annotation.
+- **Divider:** the figure is the divider; sections separate by gap and figure.
+- **Button:** the hero's one action (44b), then, where the theme allows a sticky element, a bottom bar carrying it after the third capture, labelled with the verb ("Start a project").
+- **Image:** the real capture, unframed, in a `<figure>`; until the user supplies it, the product built in a `data-slot` (`imagery.md` § 4). No browser or device chrome (47a, 47b).
+- **Reveal:** one type-unmask, on the first caption; the captures load instantly and the rest is simply there.
 
-Reach for it for SaaS, developer tools, IDE extensions — anywhere seeing the product in motion is the sale.
+Reach for it for SaaS, developer tools, editor extensions, anywhere seeing the product in use is the sale.
 
 Avoid when the product is conceptual or services-led. Workbench needs a UI to show.
 
-Reference: Linear.app, Vercel, Raycast, Arc Browser.
+Compositions: Showcase and Split for the captures, a Band for the close (`layout.md` § 5); the optional bar is a sticky bottom bar with one action at `--z-sticky`.
 
-**Sample opening lines** (imitate the *specificity*, not the wording — the page walks the user through):
-> *"$ streampipe parse access.log --filter status=5xx | jq"* — open on a real command, not a marketing claim
-> *"Read anything that emits lines. Files, pipes, sockets, kubectl logs."* — names the inputs, refuses abstraction
-> *"Open the trace, find the span, fix the regression. No glossary required."* — three concrete verbs, then a refusal
-
-```html
-<header class="lite">…</header>
-<section class="screenshot-frame">
-  <figure><img src="step-1.png" /><figcaption>Open a project.</figcaption></figure>
-</section>
-<section class="screenshot-frame">…</section>
-<aside class="sticky-cta">Try it free →</aside>
-```
-
----
+**Sample opening lines** (imitate the specificity; the page walks the visitor through):
+> *"$ streampipe parse access.log --filter status=5xx | jq"* Opens on a real command, not a claim.
+> *"Read anything that emits lines: files, pipes, sockets, kubectl logs."* Names the inputs, refuses abstraction.
+> *"Open the trace, find the span, fix the regression."* Three concrete verbs.

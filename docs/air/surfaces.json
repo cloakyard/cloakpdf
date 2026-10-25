@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.0.6",
+  "contractVersion": "1.1.0",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -570,7 +570,7 @@
       "kind": "app-surface",
       "sourceReviewed": true,
       "airImplemented": true,
-      "validated": false,
+      "validated": true,
       "states": [
         "light",
         "dark",
@@ -578,7 +578,14 @@
         "coarse-emulation",
         "reduced-motion",
         "forced-colors",
-        "enlarged-text"
+        "enlarged-text",
+        "finite unveil",
+        "static fallbacks",
+        "fixed entry",
+        "file picker/drop and editor handoff",
+        "hidden/offscreen cleanup",
+        "neutral links/hover",
+        "200% text and browser zoom"
       ],
       "viewports": [
         "320x568",
@@ -591,14 +598,17 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
+        "native Chrome 200%"
       ],
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/evidence/constructors-2026-10-13.json"
+        "docs/air/evidence/constructors-2026-10-13.json",
+        "evidence/product-artwork-2026-10-25/"
       ],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open."
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
     },
     {
       "path": "src/components/FileInfoBar.tsx",
@@ -2879,38 +2889,11 @@
       "notes": "Output-preservation exception: 42 TTF faces for 11 embedded annotation families exactly match CSS URLs and FONT_FAMILIES variants; all bytes unchanged from b9738c0. Built-in PDF families remain available. The real annotation export embeds Roboto successfully. These are document fonts, not interface typography; retain the SIL license. Physical/assistive acceptance remains separate."
     },
     {
-      "path": "src/home/AirHorizon.tsx",
-      "kind": "app-surface",
-      "sourceReviewed": true,
-      "airImplemented": true,
-      "validated": false,
-      "states": [
-        "static first paint",
-        "finite arrival",
-        "pointer response",
-        "idle",
-        "offscreen",
-        "unmount",
-        "theme switch",
-        "reduced motion",
-        "Save-Data",
-        "unsupported WebGPU",
-        "constrained device",
-        "forced colours"
-      ],
-      "viewports": ["17 sizes × light/dark × 16px/32px text; 68 layouts"],
-      "evidence": [
-        "docs/air/evidence/landing-horizon-2026-10-19/results.json",
-        "docs/air/evidence/brand-horizons-2026-10-19/checks.json"
-      ],
-      "notes": "Canonical locally bundled horizon, lazy GPU enhancement excluded from PWA precache. Real WebGPU lifecycle and static fallbacks pass. Physical GPU/battery/thermal acceptance remains open. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open."
-    },
-    {
       "path": "src/home/HomeScreen.tsx",
       "kind": "app-surface",
       "sourceReviewed": true,
       "airImplemented": true,
-      "validated": false,
+      "validated": true,
       "states": [
         "light",
         "dark",
@@ -2918,7 +2901,14 @@
         "coarse-emulation",
         "reduced-motion",
         "forced-colors",
-        "enlarged-text"
+        "enlarged-text",
+        "finite unveil",
+        "static fallbacks",
+        "fixed entry",
+        "file picker/drop and editor handoff",
+        "hidden/offscreen cleanup",
+        "neutral links/hover",
+        "200% text and browser zoom"
       ],
       "viewports": [
         "320x568",
@@ -2931,16 +2921,41 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
+        "native Chrome 200%"
       ],
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",
         "docs/air/evidence/landing-horizon-2026-10-19/results.json",
-        "docs/air/hyperlinks-2026-10-19.md"
+        "docs/air/hyperlinks-2026-10-19.md",
+        "evidence/product-artwork-2026-10-25/"
       ],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Registry/lifecycle checkpoint: the standalone roster is direct and readonly; device filtering still applies. Editor search metadata remains independent of the heavy editor component graph."
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Registry/lifecycle checkpoint: the standalone roster is direct and readonly; device filtering still applies. Editor search metadata remains independent of the heavy editor component graph. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
+    },
+    {
+      "path": "src/home/PageStack.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": true,
+      "states": [
+        "finite unveil",
+        "static fallbacks",
+        "fixed entry",
+        "file picker/drop and editor handoff",
+        "hidden/offscreen cleanup",
+        "neutral links/hover",
+        "200% text and browser zoom"
+      ],
+      "viewports": [
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
+        "native Chrome 200%"
+      ],
+      "evidence": ["evidence/product-artwork-2026-10-25/"],
+      "notes": " Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
     },
     {
       "path": "src/home/ToolEntry.tsx",
@@ -3341,7 +3356,7 @@
       "kind": "app-surface",
       "sourceReviewed": true,
       "airImplemented": true,
-      "validated": false,
+      "validated": true,
       "states": [
         "light",
         "dark",
@@ -3352,7 +3367,14 @@
         "enlarged-text",
         "loading",
         "error",
-        "recovery"
+        "recovery",
+        "finite unveil",
+        "static fallbacks",
+        "fixed entry",
+        "file picker/drop and editor handoff",
+        "hidden/offscreen cleanup",
+        "neutral links/hover",
+        "200% text and browser zoom"
       ],
       "viewports": [
         "320x568",
@@ -3365,7 +3387,9 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
+        "native Chrome 200%"
       ],
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
@@ -3381,9 +3405,10 @@
         "docs/air/evidence/foundation-2026-10-19.json",
         "docs/air/evidence/landing-horizon-2026-10-19/results.json",
         "docs/air/evidence/brand-horizons-2026-10-19/checks.json",
-        "docs/air/neutral-links-2026-10-19.md"
+        "docs/air/neutral-links-2026-10-19.md",
+        "evidence/product-artwork-2026-10-25/"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
     },
     {
       "path": "src/styles/air.css",

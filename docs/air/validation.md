@@ -1,5 +1,37 @@
 # Air validation record
 
+## 2026-10-25 — page unveiling and immediate PDF entry
+
+Implemented the approved five-page composition. Four rear sheets unveil left/right
+once over 2,200ms with 60ms stagger; the front sheet, stacking order and real file
+entry stay fixed. No file selection waits for motion. The compact entry retains
+native file selection, drag feedback, editor handoff and neutral hover. White paper
+uses canonical fixed light ink/line tokens in both themes. Reduced/forced,
+Save-Data, constrained and unsupported profiles remain static; offscreen/hidden
+motion pauses, and SPA workspace departure cancels effects and listeners.
+
+Passing checks: `vp check`, `pnpm check:dead`, 461 unit tests, production build and
+asset limits; all 16 `test:e2e:smoke` suites using `E2E_DEMO_FIXTURES=1` (real editor,
+constructors, exports, mobile, search, modals, recovery, navigation and canvas);
+68 artwork layouts/fallback/lifecycle checks; neutral links across 120 layout/state
+and 36 keyboard checks; Air contract and 20 isolated portability checks. Native
+Chrome 200% zoom preserves the entry and has no horizontal overflow. Desktop,
+laptop and mobile light/dark captures were visually inspected. Physical-device,
+assistive and final family cross-browser acceptance remain separate release gates.
+The documented Compact long-document AI limitation is unchanged; no model code
+or output algorithm changed. A lingering Chrome helper pipe after navigation
+tests is now explicitly released after browser shutdown.
+
+Cleanup: removed `AirHorizon.tsx`, its CSS, shader build/license emitter, obsolete
+precache exclusion and GPU-only test. Kept portable reference assets used by the
+family gallery. Build contains no shader chunk or shader precache. Existing real
+editor PWA/README/OG captures remain accurate. No dependencies added.
+
+Evidence: [artwork, features, links, payload and captures](evidence/product-artwork-2026-10-25/).
+The CLI also refreshed seven project skills; vendored skill scripts and their
+Claude symlinks are excluded from application lint/format, preserving upstream bytes.
+No push or deployment in this piece.
+
 ## 2026-10-11 — portable contract and inventory
 
 `vp check`, `pnpm check:dead`, 355/355 unit tests and production build/asset limits pass.

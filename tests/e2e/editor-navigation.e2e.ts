@@ -512,5 +512,10 @@ try {
   );
   throw error;
 } finally {
+  const chrome = browser.process();
   await browser.close();
+  // Chrome's helper processes can retain the launcher's stderr pipe after the
+  // browser exits. Release these owned streams so the smoke chain can finish.
+  chrome?.stdout?.destroy();
+  chrome?.stderr?.destroy();
 }

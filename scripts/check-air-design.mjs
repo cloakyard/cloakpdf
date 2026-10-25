@@ -66,6 +66,8 @@ else {
     "collections.html",
     "files.mjs",
     "motion.mjs",
+    "artwork.mjs",
+    "artwork.d.mts",
     "colour.mjs",
     "colour.d.mts",
     "light-controller.mjs",
@@ -135,6 +137,11 @@ else {
   const paperAccent = css.match(/--air-paper-accent:\s*(#[a-f\d]{6});/)?.[1];
   if (paperAccent !== palette.find((entry) => entry[1] === "accent")?.[2])
     fail("On-paper selection must use the family's light accent.");
+  for (const token of ["ink", "line"]) {
+    const paper = css.match(new RegExp(`--air-paper-${token}:\\s*(#[a-f\\d]{6});`))?.[1];
+    if (paper !== palette.find((entry) => entry[1] === token)?.[2])
+      fail(`White paper must use the family's light ${token}.`);
+  }
   for (const [, token, light, dark] of palette) {
     const pair = css.match(
       new RegExp(`--air-${token}:\\s*light-dark\\((${"#[a-f\\d]{6}"}),\\s*(${"#[a-f\\d]{6}"})\\);`),

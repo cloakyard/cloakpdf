@@ -1,161 +1,101 @@
-# Theme - Grid
+---
+name: Grid
+slug: grid
+genre: editorial
+paper: light 97.5 90
+display: grotesk-sans Radio Canada Big
+accent: cool 266
+posture: full-palette
+keywords: identity, brand system, wayfinding, signage, design studio, type specimen, editorial grid, institution, museum, archive, index, directory, systems, modular, swiss, grotesque, manual, programme, poster, collection
+material: white poster stock, blue-black ink, Radio Canada Big 700 in sentence case over Radio Canada, flat fields of ultramarine and one Swiss red mark, no strokes
+pictured: Poster Sequence, Poster hero
+photo: duotone ink paper-2 con=12
+---
 
-Swiss neo-grotesque systems design: the object-poster and transit-signage school, executed on a **near-white cool sheet with an exposed 12-column hairline grid, one heavy grotesk, and exactly one signal ink spent entirely on geometry**. Giant lowercase Archivo slams to the left margin, the column rules stay visible behind the content, and every section carries a constructed object: a plate, a figure, a giant numeral, a mark from the kit. It reads like a wayfinding manual a poster designer got hold of: rational, gridded, and unafraid of one loud move per band.
+# Grid
 
-The material, in one line: **a visible column grid, one grotesk, one signal ink, and geometry doing the talking.**
+Swiss international style as it is practised now: a white sheet, a blue-black ink, one neo-grotesque in two optical cuts, and two flat colours with separate jobs, an ultramarine that floods fields and a Swiss red that marks the one chosen thing. Structure comes from the column system itself: type hung from column lines, fields that start and stop on them, jumps of three or four steps in scale and white held on purpose. No strokes part the sections and nothing is boxed; a page reads as a run of composed sheets. It is not a nostalgic poster pastiche, not a red-and-black template and not a minimal product page.
 
-> **The editorial exception.** The editorial cluster is otherwise serif-led (Newsprint, Editorial, Specimen). Grid is its Swiss neo-grotesque slot: no serif anywhere, structure carried by an exposed grid and hairlines, warmth carried by one signal ink. A brief wanting a roman serif or a soft column is a different editorial theme.
+## Tokens
 
-## Axes (diversification)
+```css
+:root {
+  --color-paper: oklch(97.5% 0.005 90); --color-paper-2: oklch(94.2% 0.006 90); --color-paper-3: oklch(90.5% 0.008 90);
+  --color-ink: oklch(19% 0.022 266); --color-ink-2: oklch(31% 0.02 266); --color-muted: oklch(47% 0.016 266);
+  --color-rule: oklch(87.5% 0.008 90);
+  --color-accent: oklch(44% 0.2 266); --color-accent-ink: oklch(97.5% 0.005 90); --color-focus: oklch(46% 0.2 266);
+  --color-field: oklch(44% 0.2 266); --color-field-ink: oklch(97.5% 0.005 90);
+  --color-mark: oklch(57% 0.215 29); --color-mark-ink: oklch(97.5% 0.005 90);
+  --font-display: "Radio Canada Big", ui-sans-serif, system-ui, sans-serif; --font-body: "Radio Canada", ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: var(--font-display);
+  --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --shadow-card: none;
+  --tracking-display: -0.035em; --display-weight: 700;
+}
+```
 
-- **Paper band** - **light**, cool near-white (`--color-paper: oklch(99% 0.003 255)`, faintly cool, never `#fff`). Stepped at `paper-2 97.2%` and `paper-3 94.5%`. Ink is cool near-black `--color-ink: oklch(16% 0.010 255)`.
-- **Display style** - **grotesk-heavy** (Archivo **800**, `--display-weight: 800`), run **lowercase** at `--tracking-display: -0.045em`. Heavy plus lowercase is the differentiator against every uppercase-condensed and serif option.
-- **Accent hue** - **the signal ink, exactly one per page**, picked to the brief's temperature:
-  - **signal red** `oklch(55% 0.21 28)` - the default; cultural, editorial, civic.
-  - **ultramarine** `oklch(45% 0.19 264)` - technical, institutional, engineering.
-  - **signal yellow** `oklch(82% 0.17 95)` - industrial, archive, logistics. Yellow is **surface-only**: it floods plates and fills marks, always carrying ink text or sitting beside ink; yellow type on paper never happens at any size.
+Three roles and the paper, one job each. **Field**, the ultramarine: the flood a sheet is printed on, full width or from a column line to the bleed. **Mark**, the Swiss red: what is chosen or current (a letter, a year, a hovered link) and at most one red field a page. **Ink**: type on paper and the primary control. Red never sits on the ultramarine, and two fields never touch.
 
-  Two Grid pages built in the same run must not share the ink. `--color-focus` is the chosen ink (for yellow, focus is ink on a yellow fill).
+## Type
 
-## Reference register
+- **Display:** Radio Canada Big 700, sentence case (a capital first letter and proper nouns, nothing else), `--tracking-display`, line-height 0.9 at poster size, 1.0 at section size. Lines start on a column line, flush left, ragged right; never centred. One weight and one colour a head; a head that crosses from paper onto a field switches to field-ink at the field's edge, as an overprint would, the only change it may carry.
+- **Poster scale:** a poster head sizes with the screen, `clamp(4.5rem, 10.2vw, 10rem)`, tracking -0.045em, held at 1920. Figures and index letters take the display cut and may run larger than any head beside them; a statement takes the display at 400.
+- **Body:** Radio Canada 400 at 17px, line-height 1.5. Labels, field names, captions and nav links are Radio Canada 500 a step smaller, sentence case, untracked, `--color-muted` on paper and field-ink on a field. No mono, no capitals in a label.
+- **Wordmark:** the name in two lines at one size, the first word in the display at 700, the second at 400, leading 0.92; it may hang beside a square of the mark red exactly two lines tall.
 
-Vitra, Braun, the Vignelli canon, Museum fur Gestaltung, the Swiss International poster tradition and its object posters. The material to match: the institutional identity manual crossed with the exhibition poster - a modular grid drawn in public, one grotesk, one ink, geometry as the only image. When in doubt, ask whether this reads like a systems manual designed by a poster artist or like a marketing template, and keep the former. Never name any of these in the output.
+## Surfaces
 
-## Typography
+- No strokes: sections part by space, a change of paper or a field, never a rule. The only lines are 1px hairlines between table rows and under an input.
+- Radius 0 and no shadow anywhere; depth is scale and colour. A well is `--color-paper-2` with no border.
+- Fields: a page takes two or three, one of them may be the red; each runs edge to edge or from a column line off the page, and abuts white.
+- Photographs: objective and frontal in even light, of print and its tools (type, presses, sheets, drawers), printing in the blue-black on `--color-paper-2` (the `photo:` duotone), so the frame is a step of tone, never a line. Square, both edges on column lines; never type over a picture.
+- Texture: none. The white is the material.
 
-**Archivo only, one family across the whole page** (400/500/600/700/800). Swiss discipline comes from weight, scale, and tracking, not from a second family. `--font-serif` and `--font-mono` resolve to unused fallbacks; do not load them.
+## Range
 
-- **Display** - Archivo 800, **lowercase**, `clamp(52px, 10.5vw, 136px)`, `letter-spacing: -0.045em`, `line-height: 0.9`. Slammed to the left margin, edge-aligned to the grid.
-- **Body** - Archivo 400, 16px, `line-height: 1.5`.
-- **Label voice** - Archivo uppercase at 12px, weight 600, `letter-spacing: 0.09em`, `--color-muted`. It sets captions, table headers, meta rows, folios, units, and index numbering - the quiet caps counterpoint to the giant lowercase display. It never sits above a heading as a kicker.
-- **The numeral voice** - Archivo 800 numerals at display scale and beyond (`clamp(120px, 22vw, 320px)`), used as objects: a section index numeral set beside or behind the head at 6-10% opacity ink or in the signal ink, cropped by the band edge (`overflow: clip` on the band, the numeral deliberately hanging past it). One per section at most; it is art, not a heading.
+- **The overprint sheet:** a head at poster scale hung from column 1 and running across a field that starts on a later column line, its letters turning field-ink where they cross, one real figure set large at the field's foot.
+- **The index as a specimen:** letters, decades or names at display size as a ragged line of buttons, the chosen one in the mark red and repeated at full height beside the line as the figure.
+- **A field that holds a control:** a range, a choice or a set of inputs on the ultramarine or the red, the value set at poster scale in field-ink and changing as it moves; inputs on a field are type at `--text-3xl` over a hairline.
+- **A statement hung asymmetric:** one sentence at statement size from column 3 or 4, the columns to its left white, its key nouns as links.
 
-## The marks kit
+## Controls
 
-The signal ink and the ink itself are spent on a small vocabulary of constructed geometry. Every mark aligns to the column grid or to type metrics; nothing floats freehand.
-
-- **The period square** - a solid `0.52em` square where a full stop would fall.
-- **The bar** - a `3px` signal rule over a head, cut to a column width, never full-bleed.
-- **The register** - a 1px ink circle with a crosshair through it (print registration), set in a margin column as a folio device.
-- **The quarter-disc** - a solid quarter circle filling one grid cell corner, ink or signal.
-- **The stepped bars** - 3-5 solid rectangles of stepped widths on the column tracks, a data-less bar chart used as texture beside a claim, or a data-ful one beside real numbers.
-- **The dot module** - a cell filled with a dot lattice (`radial-gradient` repeated on an exact grid), ink at low weight, as ground texture inside one figure cell.
-- **The border arrow** - arrows and chevrons drawn entirely from borders and rotated squares, signage style.
-- **The diagonal** - one 45-degree rule crossing a band or a cell, 1px ink or 3px signal, snapped corner to corner on the column tracks.
-- **The cropped numeral** - see the numeral voice above.
-
-Per viewport, marks stay geometric and under 5% painted area; the plate is the one exception.
-
-## The plate
-
-**At most one per page, and every page should want one.** A full-bleed horizontal band flooded solid - the signal ink, or near-black ink - carrying the page's poster moment: an oversized claim, a giant numeral, a figure built from the kit, a specimen line. Text on a red or ultramarine plate is paper; text on a yellow plate is ink; an ink plate may use both paper and the signal. The hairline rails continue across the plate at low opacity (`--color-paper` at 12-18% alpha) so the grid is never interrupted. The plate has zero radius, zero shadow, and butts flush against the rules above and below it. It is a poster inside a manual: one loud move, then back to the sheet.
-
-## Material
-
-- **The exposed 12-column hairline grid is the theme.** A `repeating-linear-gradient` of 1px `--color-rule` lines every `calc(100% / 12)`, painted behind the content, capped to the shell width. The grid is content, not scaffolding to delete, and content rides `repeat(12, minmax(0,1fr))` on top of it.
-- **Every section carries an object.** A section that is only prose has failed this theme. Each band sets at least one constructed thing: a plate, a figure cell, a cropped numeral, a specimen, a diagram, a matrix of ruled cells, stepped bars against real numbers. The object is built from the kit and the grid, never from an image, an emoji, or an icon font.
-- **Asymmetric occupancy.** Running text never spans more than 6 of the 12 columns. The remaining columns carry the section's object or stay empty as designed whitespace - and the occupied side alternates or steps as the page descends, so consecutive sections never share the same silhouette.
-- **Air is structural.** Desktop bands breathe at 120-160px vertical padding minimum; the hero holds most of the first viewport with type occupying less than half of it. Density belongs to tables and indexes; everything else is air and geometry.
-- **Hairlines and ink rules do all the structure; zero cards.** `--radius-card: 0`, `--shadow-card: none`. Faint `--color-rule` hairlines split cells, a 1px-to-2px solid `--color-ink` rule tops a section, and content butts flush against it. No boxes, no float, no drop shadow.
-- **Cells, not tiles.** Where the page needs repeated units, they are equal cells of the same grid divided by `border-inline-start` hairlines, sharing the band's top and bottom rules. The band reads as one ruled object, not as a row of separate objects.
-- **`::selection` is the signal ink on paper** (ink on yellow). The one place the accent floods text.
-
-**Shapes Grid suits** (affinities, never requirements): a numbered index of full-width rows riding the 12 columns with a cropped numeral hanging in the margin; an object-poster plate between two quiet ruled bands; a type or system specimen where the grid is the exhibit; figures set in bordered cells with caps labels beneath; a stepped-bar figure beside three real numbers.
+- Primary: a square block of ink with paper text, 52px tall, the same on paper and on either field. Secondary: text with a 1px underline that turns mark red on hover.
+- Inputs: square, no box; a 1px line beneath in `--color-muted` on paper, field-ink at 60% on a field. The focus ring is 2px `--color-focus`, field-ink on the ultramarine and ink on the red.
+- `::selection` is the mark red with paper text. Otherwise red marks only a chosen value, a hover and its one field.
 
 ## Motion
 
-Restrained, geometric, grid-snapped. No scroll reveals, no parallax, no autoplay, no blur or fade choreography. What is allowed:
+State only, `--dur-short` on `--ease-out`: a letter or link turns red, a value at poster scale swaps in place. No scroll reveals, no parallax.
 
-- **Hover micro-states** - a row background shifts to `--color-paper-2` and its title slides 8px; links underline; a bordered surface shifts its border to the signal ink. ~0.18-0.2s ease.
-- **Hover geometry** - a mark answers the pointer with a snapped transform: the quarter-disc rotates 90 degrees, a stepped bar extends one column track, a border arrow translates 8px along its axis. Same 0.18-0.2s, transforms land on grid increments, nothing springs or bounces.
-- **The ticker** - optionally, one thin full-bleed band of label-voice text scrolling at a constant slow rate between two rules, wayfinding-sign style. One per page at most, pausable on hover.
+## Voice
 
-Smooth scroll only, and `prefers-reduced-motion: reduce` kills transitions, the ticker, and `scroll-behavior`.
+Exact and plain, sentence case: name the record, the field, the year and the press in the order a catalogue lists them, and leave the adjectives out.
 
-## Do-nots (this theme's own failure modes)
+## Do-nots
 
-- **Never hide the grid.** The rails stay visible, including across the plate. Deleting them because they look like scaffolding removes the theme.
-- **Never a prose-only section.** Text plus nothing is the failure this revision exists to kill; every band builds an object from the kit.
-- **Never uppercase display, never a serif, never a mono body.** Grid's display is lowercase Archivo; uppercase-condensed is Manifesto or Brutal, and the second family never arrives.
-- **Never two signal inks on one page.** One ink, chosen once. A red page with a blue chart is a broken page.
-- **Never a dark page, and never a second plate.** One flooded band is a poster moment; two is a striped template, and a full dark ground is Manifesto.
-- **Never a gradient, a wash, or a tint fill** outside `paper-2`/`paper-3`. The ink is solid or absent.
-- **Never a card, a radius, or a drop shadow.** Depth is hairlines, ink rules, and the plate.
-- **Never a centred hero.** Slam left.
-- **Never freehand geometry.** Every mark sits on a column track or a type metric; decoration that ignores the grid is another theme.
-
-## Voice range
-
-Rational, plainspoken, institutional. Name the system, the place, the year concretely. No hype. Never: seamless, robust, cutting-edge, leverage, synergy, revolutionary, unlock, supercharge, elevate, curated, bespoke. Never "click here."
-
-## How Grid differs from its neighbours
-
-| vs | difference |
-|---|---|
-| **Manifesto** | Manifesto is a **dark** ground (`oklch(10% 0.005 60)`), Anton 400 **uppercase** at `--lh-tight: 0.86`, red `#E51A1A`. Grid is a **light** sheet (`oklch(99% 0.003 255)`), Archivo **800 lowercase**; its one plate is a band inside a light page, never the page itself. Same "one ink, type carries it" DNA, opposite value and case. |
-| **Cobalt** | Cobalt is modern-minimal: electric cobalt `oklch(58% 0.20 256)`, Familjen Grotesk plus JetBrains Mono, graphite code surfaces, 6-10px radii. Grid is editorial: a chosen signal ink, single-family Archivo, an exposed 12-column grid, zero radius, no code. Even on ultramarine the difference holds: Grid's blue is a flat poster ink on a ruled sheet, not an interface accent on soft surfaces. |
-| **Brutal** | Both are light near-neutral sheets with red available and zero radius, but Brutal draws with **3px** black rules (`--color-rule: oklch(12%)`) boxing solid inverted blocks in Albert Sans 700 **uppercase**. Grid draws with **1px** hairlines (`--color-rule: oklch(88%)`) painting a **visible column grid**, Archivo 800 **lowercase**, and at most one flooded plate. Marker vs pencil; shout vs quiet with one loud move. |
-
-## When the brief routes here
-
-*identity · brand system · wayfinding · signage · design studio · type specimen · editorial grid · institution · museum · archive · index · directory · systems · modular · Swiss · grotesque · manual · programme · poster*. Categories: design and branding studios, cultural institutions, publishers, specimens and catalogs, portfolio indexes, archives and logistics. Tone: rational, systematic, precise, institutional, disciplined, timeless, calm-authoritative.
-
-Warm, consumer, image-led, or serif-editorial briefs route elsewhere. When the brief wants a visible grid, one grotesk, and one signal ink spent on geometry, it is Grid.
+- Never a rule above a section, a black stroke round a control or a boxed card.
+- Never red on the ultramarine, never two fields touching, never a second blue.
+- Never a lowercase or an all-capitals head.
+- Never a photograph in colour, toned in a field colour, framed, or under type.
+- Never a centred head or a centred block of text.
 
 ## Build hint
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Radio+Canada+Big:wght@400;700&family=Radio+Canada:wght@400;500&display=swap" rel="stylesheet">
 ```
 
 ```css
-html, body { overflow-x: clip; }
-body { background: var(--color-paper); color: var(--color-ink);
-       font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
-
-/* THE ground: the exposed 12-column hairline grid, painted behind the content */
-.rails {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  max-width: 1280px; margin-inline: auto;
-  background-image: repeating-linear-gradient(to right,
-    var(--color-rule) 0, var(--color-rule) 1px,
-    transparent 1px, transparent calc(100% / 12));
-}
-
-h1, h2 { font-family: var(--font-display); font-weight: var(--display-weight);
-  font-size: clamp(52px, 10.5vw, 136px); letter-spacing: var(--tracking-display);
-  line-height: 0.9; text-transform: lowercase; }
-
-.period {                              /* the smallest mark in the kit */
-  display: inline-block; width: 0.52em; height: 0.52em;
-  background: var(--color-accent);
-}
-
-.plate {                               /* the one poster moment */
-  background: var(--color-accent); color: var(--color-paper);
-  position: relative; overflow: clip;
-}
-.plate::before {                       /* rails continue across the plate */
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: repeating-linear-gradient(to right,
-    color-mix(in oklab, var(--color-paper) 15%, transparent) 0,
-    color-mix(in oklab, var(--color-paper) 15%, transparent) 1px,
-    transparent 1px, transparent calc(100% / 12));
-}
-
-.numeral {                             /* the cropped section numeral */
-  font-weight: 800; font-size: clamp(120px, 22vw, 320px);
-  line-height: 0.8; letter-spacing: -0.05em;
-  color: color-mix(in oklab, var(--color-ink) 8%, transparent);
-  user-select: none;
-}
-
-::selection { background: var(--color-accent); color: var(--color-accent-ink); }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  * { transition-duration: 0.01ms !important; animation: none !important; }
-}
+h1, h2, h3 { font-weight: var(--display-weight); line-height: 1; text-align: start; }
+.btn { min-height: 52px; padding-inline: var(--space-lg); border: 0; border-radius: 0; font-weight: 500; transition: background-color var(--dur-short) var(--ease-out); }
+.btn--primary { background: var(--color-ink); color: var(--color-paper); }
+.btn--primary:hover { background: var(--color-ink-2); }
+.btn--secondary { background: none; color: currentColor; text-decoration: underline var(--rule-hair); text-underline-offset: 0.32em; }
+.btn--secondary:hover { color: var(--color-mark); }
+.field { background: var(--color-field); color: var(--color-field-ink); --color-focus: var(--color-field-ink); }
+.field--mark { background: var(--color-mark); color: var(--color-mark-ink); --color-focus: var(--color-ink); }
+.overprint { color: var(--color-field-ink); clip-path: inset(0 0 0 calc(7 * (100% + var(--gap-columns)) / 12 - var(--gap-columns))); }
+.wordmark { display: inline-grid; grid-template-columns: auto auto; column-gap: var(--space-sm); font: var(--display-weight) var(--text-md)/0.92 var(--font-display); }
+.wordmark::before { content: ""; grid-row: span 2; aspect-ratio: 1; background: var(--color-mark); }
+::selection { background: var(--color-mark); color: var(--color-mark-ink); }
 ```
-
-Grid supplies the sheet, the rails, the one grotesk, the marks kit, and one plate. What rides those twelve columns is the brief's business, not the theme's.

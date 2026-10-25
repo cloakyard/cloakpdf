@@ -1,35 +1,21 @@
 ## 01 · Bento Grid
 
-Modular blocks of varying sizes laid out as an irregular grid. Each block is a feature, a quote, an image, a stat. Visual rhythm comes from size variation, not card uniformity.
+Modular blocks of varying sizes laid out as an irregular grid. Each block is a feature, a figure the user gave, an image or a supplied quote. Rhythm comes from size variation, not card uniformity.
 
-- **Heading:** centered display in a fixed-height hero (not full viewport).
-- **Body:** asymmetric grid — 8–15 blocks of mixed spans (1×1, 2×1, 1×2, 2×2).
-- **Divider:** consistent 12–24 px gap; no rules; the grid itself is the rhythm.
-- **Button:** outlined chip on the hero; tile-internal CTAs as typographic links.
+- **Heading:** a display head over the grid's first row; the hero is one screen and the grid starts inside it or right under it (44c), never a tall empty band.
+- **Body:** asymmetric grid, six to nine blocks of mixed spans (1×1, 2×1, 1×2, 2×2); image-bearing tracks `minmax(0, 1fr)` (50).
+- **Divider:** one gap, `--gap-columns`; no rules; the grid is the rhythm.
+- **Button:** an outlined chip in the hero; inside a tile, a typographic link carrying a verb.
 - **Image:** tightly cropped inside individual blocks; never full-bleed.
-- **Reveal:** none, or a subtle one-shot fade on grid-tile entry.
+- **Reveal:** none, or one one-shot fade as the grid enters.
 
-Reach for it when the brief is "many small things to show", a feature page, a SaaS landing, or anywhere users have multiple equally-valid entry points.
+Reach for it when the prompt is "many small things to show": a feature page, a SaaS landing, anywhere visitors have several equally valid entry points. A block holding a figure or a quote exists only when the user supplied it (46a).
 
-Avoid when the message is a single hero idea — Bento spreads attention; one-idea pages need Marquee or Stat-Led.
+Avoid when the message is one hero idea. Bento spreads attention; a one-idea page wants Marquee or Stat-Led.
 
-Reference: Apple in-page sections, Framer feature pages, Tailwind UI templates.
+Compositions: Bento and Grid (`layout.md` § 5).
 
-**Sample opening lines** (imitate the *specificity*, not the wording):
-> *"Tracejam · v0.4 · for SREs. Distributed tracing that explains itself."* — paraphrased from real observability tools
-> *"Resend is the email API for developers. Send transactional and marketing emails at scale."* — resend.com
-> *"The product development system for teams and agents."* — linear.app
-
-```html
-<header class="hero-fixed">…</header>
-<section class="bento">
-  <article class="cell span-2x2">…</article>  <!-- hero feature -->
-  <article class="cell span-1x1">…</article>
-  <article class="cell span-2x1">…</article>  <!-- wide stat -->
-  <article class="cell span-1x2">…</article>  <!-- tall image -->
-  <article class="cell span-1x1">…</article>
-  <article class="cell span-1x1">…</article>
-</section>
-```
-
----
+**Sample opening lines** (imitate the specificity, not the wording):
+> *"Distributed tracing that explains itself."* Names the category and the promise in five words (Tracejam).
+> *"An API for sending mail from code."* Names the product class and the reader.
+> *"Everything a small kitchen needs to sell online."* Names the scale and the job.

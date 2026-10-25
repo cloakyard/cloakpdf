@@ -104,7 +104,7 @@ export function FileDropZone({
         aria-label={label}
         aria-describedby={hintId}
       />
-      <FileUp className="pdf-file-icon" strokeWidth={1.5} aria-hidden="true" />
+      {!hero && <FileUp className="pdf-file-icon" strokeWidth={1.5} aria-hidden="true" />}
       <span className="air-file-invitation">{isDragOver ? "Release to open" : label}</span>
       <span id={hintId} className="air-help">
         {hint ||

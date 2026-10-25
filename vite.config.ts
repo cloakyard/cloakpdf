@@ -1,7 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
-import { gzipSync } from "node:zlib";
 import { defaultClientConditions, defineConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -87,25 +86,6 @@ export default defineConfig({
   },
   plugins: [
     pdfjsWasmAssets(),
-    {
-      name: "air-landing-assets",
-      generateBundle(_options, bundle) {
-        const shader = Object.values(bundle).find(
-          (asset) => asset.type === "chunk" && asset.fileName.includes("air-light-shader"),
-        );
-        if (!shader || shader.type !== "chunk") this.error("Expected a separate lazy Air shader");
-        if (gzipSync(shader.code).byteLength > 350_000)
-          this.error("Lazy Air shader exceeds 350 kB gzip");
-        this.emitFile({
-          type: "asset",
-          fileName: "air-light.LICENSE.txt",
-          source: readFileSync(
-            new URL("./docs/air/assets/THIRD_PARTY_LICENSES.txt", import.meta.url),
-            "utf8",
-          ),
-        });
-      },
-    },
     react(),
     tailwindcss(),
     VitePWA({
@@ -194,9 +174,7 @@ export default defineConfig({
         // The pdfjs WASM decoders + JS fallbacks are large and only needed for
         // scanned CCITT/JBIG2/JPEG2000 images; cache them on demand via
         // runtimeCaching below rather than bloating every install's precache.
-        // The landing artwork has an SVG fallback; its optional GPU code is not
-        // part of the offline document workspace or a reduced-motion visit.
-        globIgnores: ["**/pdfjs-wasm/**", "**/air-light-shader-*.js"],
+        globIgnores: ["**/pdfjs-wasm/**"],
         skipWaiting: false,
         cleanupOutdatedCaches: true,
         navigationPreload: true,
@@ -315,7 +293,10 @@ export default defineConfig({
   // source. Keep the project's format gate focused on files we own instead of
   // rewriting that third-party instruction corpus.
   fmt: {
-    ignorePatterns: [".agents/**", "docs/air/assets/**"],
+    ignorePatterns: [".agents/**", ".claude/skills/**", "docs/air/assets/**"],
   },
-  lint: { ignorePatterns: ["docs/air/assets/**"], options: { typeAware: true, typeCheck: true } },
+  lint: {
+    ignorePatterns: [".agents/**", ".claude/skills/**", "docs/air/assets/**"],
+    options: { typeAware: true, typeCheck: true },
+  },
 });
