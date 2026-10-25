@@ -112,8 +112,14 @@ textarea.editor-inline-text {
 .pdf-brand span {
   white-space: nowrap;
 }
+.pdf-header-shell {
+  container-type: inline-size;
+}
+.pdf-mobile-nav {
+  display: none;
+}
 .pdf-header .air-page-nav a {
-  gap: var(--air-space-4);
+  gap: var(--air-space-8);
 }
 .pdf-site :where(a, button:not(.air-button, .air-icon-button)):focus-visible,
 .pdf-main:focus-visible {
@@ -305,7 +311,7 @@ textarea.editor-inline-text {
   margin: var(--air-space-12) 0 0;
   font-size: var(--air-text-section);
   font-weight: 400;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.03em;
   line-height: 1.15;
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -511,7 +517,7 @@ textarea.editor-inline-text {
 }
 .pdf-policy-section {
   border-block-start: 1px solid var(--air-line);
-  padding-block: var(--air-space-32);
+  padding-block: var(--air-space-48);
 }
 .pdf-policy-section h2 {
   font-size: 1.5rem;
@@ -522,7 +528,7 @@ textarea.editor-inline-text {
 }
 .pdf-policy-body {
   color: var(--air-ink-secondary);
-  line-height: 1.7;
+  line-height: 1.6;
 }
 .pdf-policy-body > * + * {
   margin-block-start: var(--air-space-16);
@@ -606,6 +612,62 @@ textarea.editor-inline-text {
   }
   .pdf-policy {
     padding-block: var(--air-space-32);
+  }
+}
+@container (max-width: 40rem) {
+  .pdf-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: var(--air-space-16);
+  }
+  .pdf-brand-group {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    align-self: start;
+  }
+  .pdf-desktop-nav {
+    display: none;
+  }
+  .pdf-mobile-nav {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-inline-size: 0;
+    pointer-events: none;
+  }
+  .pdf-mobile-nav summary {
+    display: flex;
+    pointer-events: auto;
+    min-block-size: 44px;
+    inline-size: fit-content;
+    margin-inline-start: auto;
+    list-style: none;
+  }
+  .pdf-mobile-nav summary::-webkit-details-marker {
+    display: none;
+  }
+  .pdf-mobile-nav[open] summary svg {
+    rotate: 180deg;
+  }
+  .pdf-mobile-nav nav {
+    pointer-events: auto;
+    display: grid;
+    gap: 0;
+    margin-block-start: var(--air-space-12);
+    border-block-start: 1px solid var(--air-line);
+    padding-block-start: var(--air-space-8);
+  }
+  .pdf-mobile-nav nav a {
+    padding: var(--air-space-8) var(--air-space-12);
+  }
+}
+@container (max-width: 22rem) {
+  .pdf-brand {
+    min-inline-size: 44px;
+  }
+  .pdf-brand span {
+    display: none;
   }
 }
 @media (max-height: 480px) and (orientation: landscape) {

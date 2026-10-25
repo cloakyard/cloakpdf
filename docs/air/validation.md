@@ -1,5 +1,22 @@
 # Air validation record
 
+## 2026-10-25 — family public-page conformance
+
+Aligned compact navigation with the native in-flow Air Menu, retaining Editor,
+Tools, Source, Escape/focus return and existing home/privacy navigation. Corrected
+Source icon/gap, section-heading tracking and privacy 16px/1.6/48px cadence.
+No document/output logic or artwork behavior changed; no dependency added.
+
+Passing: lint/types/dead-code, 461 units, production build/asset limits, all 16
+smoke suites with synthetic demo fixtures, 66 Workers recovery layouts, 68 artwork
+layouts/file-entry/lifecycle checks, 132 link states and 34 keyboard checks.
+PDF contributes 160 Chrome/Firefox layouts to the 480-layout family comparison.
+Desktop/laptop/mobile light/dark and native Safari home/privacy/enlarged-menu
+captures were visually reviewed. Zero final comparison deviations/browser errors.
+Evidence: [family comparison](evidence/family-comparison-2026-10-25/).
+Air stays at 1.1.0. Physical/assistive acceptance and the existing Compact long-
+document limitation remain open. No push/deployment; Resume concept stays separate.
+
 ## 2026-10-25 — page unveiling and immediate PDF entry
 
 Implemented the approved five-page composition. Four rear sheets unveil left/right
