@@ -1,0 +1,84 @@
+[
+  {
+    "fixture": "plain",
+    "paperSize": "a4",
+    "equal": true,
+    "pages": [
+      {
+        "box": [0.0, 0.0, 595.28, 841.89],
+        "text": "Zara Patel\nEngineer",
+        "links": []
+      }
+    ],
+    "rasterSize": [849, 1200],
+    "rasterSha256": "c92a94cac26207ad0f78a957c2345e3f4dda0490e224d8b149bc879f9c9f4ce3"
+  },
+  {
+    "fixture": "plain",
+    "paperSize": "letter",
+    "equal": true,
+    "pages": [
+      {
+        "box": [0.0, 0.0, 612.0, 792.0],
+        "text": "Zara Patel\nEngineer",
+        "links": []
+      }
+    ],
+    "rasterSize": [928, 1200],
+    "rasterSha256": "ca1b26bb5a4e777eb8f338a92c3bab3d35b0bcdd2a6a1eed847802eb43921a54"
+  },
+  {
+    "fixture": "links",
+    "paperSize": "a4",
+    "equal": true,
+    "pages": [
+      {
+        "box": [0.0, 0.0, 595.28, 841.89],
+        "text": "Zara Patel\nEngineer\nair@example.com example.com/air +15551234567",
+        "links": [
+          {
+            "uri": "mailto:air@example.com",
+            "rect": [42.515625, 747.2728125, 123.234375, 735.2728125]
+          },
+          {
+            "uri": "https://example.com/air",
+            "rect": [131.390625, 747.2728125, 204.73828125000003, 735.2728125]
+          },
+          {
+            "uri": "tel:+15551234567",
+            "rect": [212.89453125, 747.2728125, 279.90234375, 735.2728125]
+          }
+        ]
+      }
+    ],
+    "rasterSize": [849, 1200],
+    "rasterSha256": "b4fa469a5db23ee676dd8a3539903b63d01b4b61317c18bf655858a437cedb64"
+  },
+  {
+    "fixture": "links",
+    "paperSize": "letter",
+    "equal": true,
+    "pages": [
+      {
+        "box": [0.0, 0.0, 612.0, 792.0],
+        "text": "Zara Patel\nEngineer\nair@example.com example.com/air +15551234567",
+        "links": [
+          {
+            "uri": "mailto:air@example.com",
+            "rect": [42.515625, 697.3828125, 123.234375, 685.3828125]
+          },
+          {
+            "uri": "https://example.com/air",
+            "rect": [131.390625, 697.3828125, 204.73828125000003, 685.3828125]
+          },
+          {
+            "uri": "tel:+15551234567",
+            "rect": [212.89453125, 697.3828125, 279.90234375, 685.3828125]
+          }
+        ]
+      }
+    ],
+    "rasterSize": [928, 1200],
+    "rasterSha256": "9a0f50296338c1e8a8cccc8c336a0904acc30fd89e63a093415a74a8c35ccc7f"
+  }
+]

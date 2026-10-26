@@ -12,8 +12,8 @@ async function load() {
     const collections = host.dataset.study === "collections";
     const url = new URL(
       collections
-        ? "./assets/air-collections.js?air=f56bc63b6044"
-        : "./assets/air-overlays.js?air=fa560da974cb",
+        ? "./assets/air-collections.js?air=279d61d4b9ff"
+        : "./assets/air-overlays.js?air=e93cc1d363a8",
       import.meta.url,
     );
     const attempt = attempts++;

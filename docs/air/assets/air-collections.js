@@ -1,5 +1,5 @@
 /* Air overlay study. Generated; see OVERLAY_LICENSES.txt. */
-//#region \0rolldown/runtime.js
+// \0rolldown/runtime.js
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
 	if (i && typeof i == "object" || typeof i == "function") for (var c = r(i), l = 0, u = c.length, d; l < u; l++) d = c[l], !a.call(e, d) && d !== o && t(e, d, {
 		get: ((e) => i[e]).bind(null, d),
@@ -4970,13 +4970,13 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 					r.push(s), s.view && (a = !0);
 				} else a || Op(o).view && (a = !0);
 				Al = !0, Tp(o, Fl === 0 ? t : t + "_" + Fl, n), Fl++;
-			} else (e.tag !== 22 || e.memoizedState === null) && (e.tag === 30 && i || Ll(e.child, t, n, r, i) && (a = !0));
+			} else e.tag === 22 && e.memoizedState !== null || e.tag === 30 && i || Ll(e.child, t, n, r, i) && (a = !0);
 			e = e.sibling;
 		}
 		return a;
 	}
 	function Rl(e, t) {
-		for (; e !== null;) e.tag === 5 ? Ep(e.stateNode, e.memoizedProps) : (e.tag !== 22 || e.memoizedState === null) && (e.tag === 30 && t || Rl(e.child, t)), e = e.sibling;
+		for (; e !== null;) e.tag === 5 ? Ep(e.stateNode, e.memoizedProps) : e.tag === 22 && e.memoizedState !== null || e.tag === 30 && t || Rl(e.child, t), e = e.sibling;
 	}
 	function zl(e) {
 		if (e.subtreeFlags & 18874368) for (e = e.child; e !== null;) {
@@ -6044,7 +6044,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 		}
 	}
 	function jd(e, t, n) {
-		(e === qu && (Xu === 2 || Xu === 9) || e.cancelPendingCommit !== null) && (Rd(e, 0), Fd(e, Yu, od, !1)), rt(e, n), (!(Ku & 2) || e !== qu) && (e === qu && (!(Ku & 2) && (id |= n), nd === 4 && Fd(e, Yu, od, !1)), wf(e));
+		(e === qu && (Xu === 2 || Xu === 9) || e.cancelPendingCommit !== null) && (Rd(e, 0), Fd(e, Yu, od, !1)), rt(e, n), Ku & 2 && e === qu || (e === qu && (!(Ku & 2) && (id |= n), nd === 4 && Fd(e, Yu, od, !1)), wf(e));
 	}
 	function Md(e, t, n) {
 		if (Ku & 6) throw Error(i(327));
@@ -9044,8 +9044,7 @@ var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescr
 	}
 	n(), t.exports = h();
 }));
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/formatErrorMessage.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/formatErrorMessage.mjs
 function _(e, t) {
 	return function(n, ...r) {
 		let i = new URL(e);
@@ -9058,23 +9057,20 @@ function x(e) {
 	if (t === void 0 && !e) throw Error(v(33));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/root/MenuRootContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/root/MenuRootContext.mjs
 var S = /*#__PURE__*/ y.createContext(void 0);
 function C(e) {
 	let t = y.useContext(S);
 	if (t === void 0 && !e) throw Error(v(36));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useRefWithInit.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useRefWithInit.mjs
 var w = {};
 function T(e, t) {
 	let n = y.useRef(w);
 	return n.current === w && (n.current = e(t)), n;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useMergedRefs.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useMergedRefs.mjs
 function E(e, t, n, r) {
 	let i = T(O).current;
 	return k(i, e, t, n, r) && j(i, [
@@ -9132,21 +9128,18 @@ function j(e, t) {
 		}
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/reactVersion.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/reactVersion.mjs
 var M = 19;
 function N(e) {
 	return M >= e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/getReactElementRef.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/getReactElementRef.mjs
 function P(e) {
 	if (!/*#__PURE__*/ y.isValidElement(e)) return null;
 	let t = e, n = t.props;
 	return (N(19) ? n?.ref : t.ref) ?? null;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/mergeObjects.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/mergeObjects.mjs
 function F(e, t) {
 	if (e && !t) return e;
 	if (!e && t) return t;
@@ -9155,12 +9148,10 @@ function F(e, t) {
 		...t
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/empty.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/empty.mjs
 function I() {}
 var L = Object.freeze([]), R = Object.freeze({});
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/getStateAttributesProps.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/getStateAttributesProps.mjs
 function z(e, t) {
 	let n = {};
 	for (let r in e) {
@@ -9172,18 +9163,15 @@ function z(e, t) {
 	}
 	return n;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveClassName.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveClassName.mjs
 function B(e, t) {
 	return typeof e == "function" ? e(t) : e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveStyle.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveStyle.mjs
 function ee(e, t) {
 	return typeof e == "function" ? e(t) : e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/merge-props/mergeProps.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/merge-props/mergeProps.mjs
 var V = {};
 function H(e, t, n, r, i) {
 	if (!n && !r && !i && !e) return W(t);
@@ -9264,8 +9252,7 @@ function se(e, t) {
 function ce(e) {
 	return typeof e == "object" && !!e && "nativeEvent" in e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useRenderElement.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useRenderElement.mjs
 function q(e, t, n = {}) {
 	let r = t.render;
 	n.enabled !== !1 && (r = fe(r));
@@ -9310,8 +9297,7 @@ function me(e, t) {
 		key: t.key
 	}) : /*#__PURE__*/ y.createElement(e, t);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/TransitionStatusDataAttributes.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/TransitionStatusDataAttributes.mjs
 var he = "data-starting-style", ge = "data-ending-style", _e = { [he]: "" }, ve = { [ge]: "" }, ye = { transitionStatus(e) {
 	return e === "starting" ? _e : e === "ending" ? ve : null;
 } }, be = "data-open", xe = "data-closed", Se = "data-anchor-hidden", Ce = "data-popup-open", we = "data-pressed", Te = { [Ce]: "" }, Ee = {
@@ -9337,19 +9323,16 @@ function Fe(e = !0) {
 	if (t === void 0 && !e) throw Error(v(25));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/reason-parts.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/reason-parts.mjs
 var Ie = "none", Le = "trigger-press", Re = "trigger-hover", ze = "trigger-focus", Be = "outside-press", Ve = "item-press", He = "close-press", Ue = "focus-out", We = "escape-key", Ge = "list-navigation", Ke = "keyboard", qe = "pointer", Je = "cancel-open", Ye = "sibling-open", Xe = "imperative-action", Ze = "window-resize";
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useControlled.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useControlled.mjs
 function Qe({ controlled: e, default: t, name: n, state: r = "value" }) {
 	let { current: i } = y.useRef(e !== void 0), [a, o] = y.useState(() => t);
 	return [i && e !== void 0 ? e : a, y.useCallback((e) => {
 		i || o(e);
 	}, [])];
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/filter-root/MenuFilterContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/filter-root/MenuFilterContext.mjs
 var $e = /*#__PURE__*/ y.createContext(null);
 function et(e = "root") {
 	let t = y.useContext($e), n = y.useContext(S);
@@ -9374,8 +9357,7 @@ function rt(e, t, n = "root") {
 		props: i.props
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@floating-ui+utils@0.2.12/node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
+// node_modules/.pnpm/@floating-ui+utils@0.2.12/node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
 function it() {
 	return typeof window < "u";
 }
@@ -9471,8 +9453,7 @@ function Dt(e, t, n) {
 function Ot(e) {
 	return e.parent && Object.getPrototypeOf(e.parent) ? e.frameElement : null;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/safeReact.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/safeReact.mjs
 var kt = { ...y }, At = kt.useInsertionEffect, jt = At && At !== kt.useLayoutEffect ? At : (e) => e();
 function J(e) {
 	let t = T(Mt).current;
@@ -9496,8 +9477,7 @@ function Ft(e = !1) {
 	if (t === void 0 && !e) throw Error(v(16));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useFocusableWhenDisabled.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useFocusableWhenDisabled.mjs
 function It(e) {
 	let { focusableWhenDisabled: t, disabled: n, composite: r = !1, tabIndex: i = 0, isNativeButton: a } = e, o = r && t !== !1, s = r && t === !1;
 	return { props: y.useMemo(() => {
@@ -9515,13 +9495,11 @@ function It(e) {
 		i
 	]) };
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/owner.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/owner.mjs
 function Lt(e) {
 	return e?.ownerDocument || document;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/dispatchClickWithModifiers.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/dispatchClickWithModifiers.mjs
 function Rt(e, t, { detail: n = 0, pointerType: r = "" } = {}) {
 	e.dispatchEvent(new (ot(e)).PointerEvent("click", {
 		bubbles: !0,
@@ -9535,8 +9513,7 @@ function Rt(e, t, { detail: n = 0, pointerType: r = "" } = {}) {
 		metaKey: t.metaKey
 	}));
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/use-button/useButton.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/use-button/useButton.mjs
 function zt(e = {}) {
 	let { disabled: t = !1, focusableWhenDisabled: n, tabIndex: r = 0, native: i = !0, composite: a } = e, o = y.useRef(null), s = Ft(!0), c = a ?? s !== void 0, { props: l } = It({
 		focusableWhenDisabled: n,
@@ -9571,7 +9548,7 @@ function zt(e = {}) {
 					} else !l || i || !d && !u ? n && s && d && e.preventDefault() : e.defaultPrevented || (e.preventDefault(), u && (e.preventBaseUIHandler(), Rt(r, e)));
 				},
 				onKeyUp(e) {
-					t || (oe(e), a?.(e), e.target === e.currentTarget && i && c && Bt(e.currentTarget) && e.key === " " ? e.preventDefault() : e.baseUIHandlerPrevented || e.target === e.currentTarget && !i && !c && !e.defaultPrevented && e.key === " " && (e.preventBaseUIHandler(), Rt(e.currentTarget, e)));
+					t || (oe(e), a?.(e), e.target === e.currentTarget && i && c && Bt(e.currentTarget) && e.key === " " ? e.preventDefault() : e.baseUIHandlerPrevented || e.target !== e.currentTarget || i || c || e.defaultPrevented || e.key !== " " || (e.preventBaseUIHandler(), Rt(e.currentTarget, e)));
 				},
 				onPointerDown(e) {
 					t ? e.preventDefault() : s?.(e);
@@ -9594,8 +9571,7 @@ function Bt(e) {
 function Vt(e) {
 	return ut(e) && e.tagName === "A" && !!e.href;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/platform/shared.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/platform/shared.mjs
 function Ht() {
 	return typeof navigator > "u" ? {
 		userAgent: "",
@@ -9611,11 +9587,9 @@ var { userAgent: Ut, platform: Wt, maxTouchPoints: Gt } = Ht(), Kt = Ut.toLowerC
 qt.startsWith("win"), !Xt && /^(linux|chrome os)/.test(qt);
 var Qt = Zt || Jt, $t = typeof CSS < "u" && !!CSS.supports?.("-webkit-backdrop-filter:none");
 !$t && Kt.includes("firefox"), !$t && Kt.includes("chrom");
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/platform/screen-reader.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/platform/screen-reader.mjs
 var en = Qt, tn = /jsdom|happydom/.test(Kt);
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/item/useMenuItemCommonProps.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/item/useMenuItemCommonProps.mjs
 function nn(e) {
 	e.preventDefault();
 }
@@ -9668,8 +9642,7 @@ function rn(e) {
 		f
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/item/useMenuItem.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/item/useMenuItem.mjs
 var an = { type: "regular-item" };
 function on(e) {
 	let { closeOnClick: t, disabled: n, highlighted: r, id: i, store: a, typingRef: o = a.context.typingRef, nativeButton: s, itemMetadata: c, nodeId: l } = e, u = y.useRef(null), { getButtonProps: d, buttonRef: f } = zt({
@@ -9698,8 +9671,7 @@ function on(e) {
 		itemRef: h
 	}), [m, h]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/CompositeListContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/CompositeListContext.mjs
 var sn = /*#__PURE__*/ y.createContext({
 	register: () => {},
 	unregister: () => {},
@@ -9709,8 +9681,7 @@ var sn = /*#__PURE__*/ y.createContext({
 function cn() {
 	return y.useContext(sn);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/useCompositeListItem.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/useCompositeListItem.mjs
 function ln(e = {}) {
 	let { guess: t, label: n, metadata: r, textRef: i, index: a } = e, { register: o, unregister: s, subscribeMapChange: c, nextIndexRef: l } = cn(), u = y.useRef(-1), [d, f] = y.useState(a == null && t ? () => {
 		if (u.current === -1) {
@@ -9744,16 +9715,14 @@ function ln(e = {}) {
 		index: p
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useForcedRerendering.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useForcedRerendering.mjs
 function un() {
 	let [, e] = y.useState({});
 	return y.useCallback(() => {
 		e({});
 	}, []);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useId.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useId.mjs
 var dn = 0;
 function fn(e, t = "mui") {
 	let n = y.useRef(void 0), r = un(), i = e ?? n.current;
@@ -9773,13 +9742,11 @@ function mn(e, t) {
 	}
 	return fn(e, t);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useBaseUiId.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useBaseUiId.mjs
 function hn(e) {
 	return mn(e, "base-ui");
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/createBaseUIEventDetails.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/createBaseUIEventDetails.mjs
 function X(e, t, n, r) {
 	let i = !1, a = !1, o = r ?? R;
 	return {
@@ -9809,8 +9776,7 @@ function gn(e, t, n) {
 		...r
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/react@19.3.1/node_modules/react/cjs/react-jsx-runtime.production.js
+// node_modules/.pnpm/react@19.3.1/node_modules/react/cjs/react-jsx-runtime.production.js
 var _n = /* @__PURE__ */ o(((e) => {
 	var t = Symbol.for("react.transitional.element"), n = Symbol.for("react.fragment");
 	function r(e, n, r) {
@@ -9829,13 +9795,11 @@ var _n = /* @__PURE__ */ o(((e) => {
 })), vn = /* @__PURE__ */ o(((e, t) => {
 	t.exports = _n();
 }));
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useOnMount.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useOnMount.mjs
 function yn(e) {
 	y.useEffect(e, L);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useAnimationFrame.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useAnimationFrame.mjs
 var bn = null;
 globalThis.requestAnimationFrame;
 var xn = new class {
@@ -9882,8 +9846,7 @@ function Cn() {
 	let e = T(Sn.create).current;
 	return yn(e.disposeEffect), e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useTransitionStatus.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useTransitionStatus.mjs
 function wn(e, t = !1, n = !1, r = !1) {
 	let [i, a] = y.useState(e && t ? "idle" : void 0), [o, s] = y.useState(e && !r);
 	return e && !o && (s(!0), a("starting")), !e && o && i !== "ending" && !n && a("ending"), !e && !o && i === "ending" && a(void 0), Y(() => {
@@ -9932,21 +9895,18 @@ function wn(e, t = !1, n = !1, r = !1) {
 		transitionStatus: i
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveRef.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveRef.mjs
 function Tn(e) {
 	return e == null ? e : "current" in e ? e.current : e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getFiniteAnimations.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getFiniteAnimations.mjs
 function En(e, t) {
 	return e.getAnimations(t).filter((e) => {
 		let t = e.effect?.getTiming();
 		return t?.duration !== Infinity && t?.iterations !== Infinity;
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useAnimationsFinished.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useAnimationsFinished.mjs
 var Dn = /* @__PURE__ */ c(m(), 1), On = null;
 function kn(e) {
 	if (!On) {
@@ -9997,8 +9957,7 @@ function An(e, t = !1, n = !1) {
 		} else r.request(l);
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useOpenChangeComplete.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useOpenChangeComplete.mjs
 function jn(e) {
 	let { enabled: t = !0, open: n, ref: r, batch: i = !1, onComplete: a } = e, o = J(a), s = An(r, n, i);
 	y.useEffect(() => {
@@ -10014,16 +9973,14 @@ function jn(e) {
 		s
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/group/MenuGroupContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/group/MenuGroupContext.mjs
 var Mn = /*#__PURE__*/ y.createContext(void 0);
 function Nn() {
 	let e = y.useContext(Mn);
 	if (e === void 0) throw Error(v(31));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/group/MenuGroup.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/group/MenuGroup.mjs
 var Z = vn(), Pn = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, ...a } = e, [o, s] = y.useState(void 0), c = q("div", e, {
 		ref: t,
@@ -10113,8 +10070,7 @@ function Vn() {
 	let e = T(Bn.create).current;
 	return yn(e.disposeEffect), e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/event.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/event.mjs
 function Hn(e) {
 	e.preventDefault(), e.stopPropagation();
 }
@@ -10135,8 +10091,7 @@ function qn(e) {
 	let t = e.type;
 	return t === "click" || t === "mousedown" || t === "keydown" || t === "keyup";
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/shadowDom.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/shadowDom.mjs
 function Jn(e) {
 	let t = e.activeElement;
 	for (; t?.shadowRoot?.activeElement != null;) t = t.shadowRoot.activeElement;
@@ -10166,11 +10121,9 @@ function Yn(e, t) {
 function Xn(e) {
 	return "composedPath" in e ? e.composedPath()[0] ?? e.target : e.target;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/constants.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/constants.mjs
 var Zn = "data-base-ui-focusable", Qn = "input:not([type='hidden']):not([disabled]),[contenteditable]:not([contenteditable='false']),textarea:not([disabled])", $n = "ArrowLeft", er = "ArrowRight", tr = "ArrowUp", nr = "ArrowDown", rr = "data-trigger-disabled";
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/element.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/element.mjs
 function ir(e, t) {
 	if (!lt(e)) return !1;
 	let n = e;
@@ -10207,8 +10160,7 @@ function ur(e) {
 function dr(e) {
 	return e ? e.hasAttribute("data-base-ui-focusable") ? e : e.querySelector("[data-base-ui-focusable]") || e : null;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverShared.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverShared.mjs
 function fr(e, t) {
 	return t != null && !Kn(t) ? 0 : typeof e == "function" ? e() : e;
 }
@@ -10225,15 +10177,13 @@ function hr(e, t) {
 function gr(e) {
 	return e?.includes("mouse") && e !== "mousedown";
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/addEventListener.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/addEventListener.mjs
 function _r(e, t, n, r) {
 	return e.addEventListener(t, n, r), () => {
 		e.removeEventListener(t, n, r);
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/mergeCleanups.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/mergeCleanups.mjs
 function vr(...e) {
 	return () => {
 		for (let t = 0; t < e.length; t += 1) {
@@ -10242,8 +10192,7 @@ function vr(...e) {
 		}
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useValueAsRef.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useValueAsRef.mjs
 function yr(e) {
 	let t = T(br, e).current;
 	return t.next = e, Y(t.effect), t;
@@ -10258,8 +10207,7 @@ function br(e) {
 	};
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/visuallyHidden.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/visuallyHidden.mjs
 var xr = {
 	clipPath: "inset(50%)",
 	overflow: "hidden",
@@ -10392,8 +10340,7 @@ function Zr(e) {
 		y: n
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/composite.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/composite.mjs
 function Qr(e, t) {
 	return t < 0 || t >= e.length;
 }
@@ -10441,8 +10388,7 @@ function ii(e) {
 function ai(e, t = e ? Ct(e) : null) {
 	return !e || !e.isConnected || !t || ii(t) ? !1 : typeof e.checkVisibility == "function" ? e.checkVisibility() : t.display !== "none" && t.display !== "contents";
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/tabbable.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/tabbable.mjs
 var oi = "a[href],button,input,select,textarea,summary,details,iframe,object,embed,[tabindex],[contenteditable]:not([contenteditable=\"false\"]),audio[controls],video[controls]";
 function si(e) {
 	let t = e.assignedSlot;
@@ -10569,8 +10515,7 @@ function Oi(e) {
 		delete e.dataset.tabindex, t ? e.setAttribute("tabindex", t) : e.removeAttribute("tabindex");
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/nodes.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/nodes.mjs
 function ki(e, t, n = !0) {
 	return e.filter((e) => e.parentId === t).flatMap((t) => [...!n || t.context?.open ? [t] : [], ...ki(e, t.id, n)]);
 }
@@ -10582,13 +10527,11 @@ function Ai(e, t) {
 	}
 	return n;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/createAttribute.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/createAttribute.mjs
 function ji(e) {
 	return `data-base-ui-${e}`;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/enqueueFocus.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/enqueueFocus.mjs
 var Mi = 0;
 function Ni(e, t = {}) {
 	let { preventScroll: n = !1, sync: r = !1, shouldFocus: i } = t;
@@ -10602,8 +10545,7 @@ function Ni(e, t = {}) {
 		Mi === o && (cancelAnimationFrame(o), Mi = 0);
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/markOthers.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/markOthers.mjs
 var Pi = "data-base-ui-inert", Fi = /* @__PURE__ */ new WeakMap(), Ii = /* @__PURE__ */ new WeakSet(), Li = /* @__PURE__ */ new WeakMap(), Ri = 0;
 function zi(e) {
 	return e ? dt(e) ? e.host : zi(e.parentNode) : null;
@@ -10652,8 +10594,7 @@ function Wi(e, t = {}) {
 	let { ariaHidden: n = !1, mark: r = !0 } = t, i = Lt(e[0]).body;
 	return Ui(e, i, n, { mark: r });
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/constants.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/constants.mjs
 var Gi = { style: { transition: "none" } }, Ki = { fallbackAxisSide: "none" }, qi = { fallbackAxisSide: "end" }, Ji = {
 	clipPath: "inset(50%)",
 	position: "fixed",
@@ -10735,8 +10676,7 @@ var $i = /*#__PURE__*/ y.forwardRef(function(e, t) {
 		]
 	})] });
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/createEventEmitter.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/utils/createEventEmitter.mjs
 function ea() {
 	let e = /* @__PURE__ */ new Map();
 	return {
@@ -10751,8 +10691,7 @@ function ea() {
 		}
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/components/FloatingTreeStore.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/components/FloatingTreeStore.mjs
 var ta = class {
 	nodesRef = { current: [] };
 	events = ea();
@@ -10801,8 +10740,7 @@ function ca(e) {
 		children: t
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/components/FloatingFocusManager.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/components/FloatingFocusManager.mjs
 function la(e, t) {
 	let n = ot(Xn(e));
 	return e instanceof n.KeyboardEvent ? "keyboard" : e instanceof n.FocusEvent ? t || "keyboard" : "pointerType" in e ? e.pointerType || (Wn(e) ? "keyboard" : t || "mouse") : "touches" in e ? "touch" : e instanceof n.MouseEvent ? t || (e.detail === 0 ? "keyboard" : "mouse") : "";
@@ -11101,8 +11039,7 @@ function _a(e) {
 		})
 	] });
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useClick.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useClick.mjs
 function va(e, t = {}) {
 	let { enabled: n = !0, event: r = "click", toggle: i = !0, ignoreMouse: a = !1, stickIfOpen: o = !0, touchOpenDelay: s = 0, reason: c = Le } = t, l = e.context.dataRef, u = y.useRef(void 0), d = Cn(), f = Vn(), p = y.useMemo(() => {
 		function t(t, n, r, i) {
@@ -11155,8 +11092,7 @@ function va(e, t = {}) {
 	]);
 	return y.useMemo(() => n ? { reference: p } : R, [n, p]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useDismiss.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useDismiss.mjs
 function ya() {
 	return !1;
 }
@@ -11258,7 +11194,7 @@ function xa(e, t = {}) {
 							return;
 						}
 					}
-					(typeof h != "function" || h(n)) && (M("__outsidePressBubbles") || (e.setOpen(!1, X(Be, n)), j()));
+					typeof h == "function" && !h(n) || M("__outsidePressBubbles") || (e.setOpen(!1, X(Be, n)), j());
 				}
 			}
 		}
@@ -11381,8 +11317,7 @@ function xa(e, t = {}) {
 		B
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useSyncedFloatingRootContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useSyncedFloatingRootContext.mjs
 function Sa(e) {
 	let { popupStore: t, treatPopupAsFloatingElement: n = !1, floatingRootContext: r, floatingId: i, nested: a, onOpenChange: o } = e, s = t.useState("open"), c = t.useState("activeTriggerElement"), l = t.useState(n ? "popupElement" : "positionerElement"), u = o;
 	return t.useSyncedValue("floatingId", i), Y(() => {
@@ -11401,8 +11336,7 @@ function Sa(e) {
 		r
 	]), r.context.onOpenChange = u, r.context.nested = a, r;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useUnmountAfterClose.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useUnmountAfterClose.mjs
 function Ca(e) {
 	let { open: t, ref: n, preventUnmountOnClose: r, setPreventUnmountOnClose: i, onUnmount: a, animateInitialOpen: o } = e, s = J(i), { mounted: c, setMounted: l, transitionStatus: u } = wn(t, !1, !1, o), d = !t && r;
 	Y(() => {
@@ -11431,8 +11365,7 @@ function Ca(e) {
 		forceUnmount: g
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/popupStoreUtils.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/popupStoreUtils.mjs
 var wa = {
 	tabIndex: -1,
 	[Zn]: ""
@@ -11622,8 +11555,7 @@ function Ia(e, t) {
 		e.state.openMethod !== null && e.set("openMethod", null);
 	}, [e]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/popupTriggerMap.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/popupTriggerMap.mjs
 var La = class {
 	idMap = /* @__PURE__ */ new Map();
 	add(e, t) {
@@ -11768,8 +11700,7 @@ function qa(e) {
 function Ja() {
 	return { didInitialize: !1 };
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/store/useStore.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/store/useStore.mjs
 var Ya = za(), Xa = Va(), Za = N(19) ? eo : to;
 function Qa(e, t, n, r, i) {
 	return Za(e, t, n, r, i);
@@ -11813,7 +11744,7 @@ function eo(e, t, n, r, i) {
 	let o = a.syncIndex;
 	a.syncIndex += 1;
 	let s;
-	return a.didInitialize ? (s = a.syncHooks[o], (s.store !== e || s.selector !== t || !Object.is(s.a1, n) || !Object.is(s.a2, r) || !Object.is(s.a3, i)) && (s.store !== e && (a.didChangeStore = !0), s.store = e, s.selector = t, s.a1 = n, s.a2 = r, s.a3 = i, s.value = t(e.getSnapshot(), n, r, i))) : (s = {
+	return a.didInitialize ? (s = a.syncHooks[o], s.store === e && s.selector === t && Object.is(s.a1, n) && Object.is(s.a2, r) && Object.is(s.a3, i) || (s.store !== e && (a.didChangeStore = !0), s.store = e, s.selector = t, s.a1 = n, s.a2 = r, s.a3 = i, s.value = t(e.getSnapshot(), n, r, i))) : (s = {
 		store: e,
 		selector: t,
 		a1: n,
@@ -11825,8 +11756,7 @@ function eo(e, t, n, r, i) {
 function to(e, t, n, r, i) {
 	return (0, Xa.useSyncExternalStoreWithSelector)(e.subscribe, e.getSnapshot, e.getSnapshot, (e) => t(e, n, r, i));
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/store/Store.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/store/Store.mjs
 var no = class {
 	static create(e) {
 		return new this(e);
@@ -11985,8 +11915,7 @@ var no = class {
 		this.syncOnly || this.dispatchOpenChange(e, t), this.context.onOpenChange?.(e, t);
 	};
 };
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/store.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/store.mjs
 function oo(e, t, n = !1) {
 	return {
 		open: !1,
@@ -12046,14 +11975,12 @@ var po = {
 	popupElement: (e) => e.popupElement,
 	positionerElement: (e) => e.positionerElement
 };
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/usePopupHandleStore.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/usePopupHandleStore.mjs
 function mo(e) {
 	let t = y.useCallback((t) => e === void 0 ? I : e.subscribeStore(t), [e]), n = y.useCallback(() => e === void 0 ? void 0 : e.store, [e]);
 	return (0, Ya.useSyncExternalStore)(t, n, () => e?.serverStore);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFloatingRootContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFloatingRootContext.mjs
 function ho(e) {
 	let { open: t = !1, onOpenChange: n, elements: r = {} } = e, i = mn(), a = ia() != null, o = T(() => new ao({
 		open: t,
@@ -12080,8 +12007,7 @@ function ho(e) {
 		o
 	]), o.context.onOpenChange = n, o.context.nested = a, o;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFocus.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFocus.mjs
 var go = Zt && $t;
 function _o(e, t = {}) {
 	let { enabled: n = !0, delay: r } = t, { events: i, dataRef: a } = e.context, o = y.useRef(!1), s = y.useRef(null), c = y.useRef(!0), l = Vn();
@@ -12146,7 +12072,7 @@ function _o(e, t = {}) {
 				let r = n.relatedTarget, i = n.nativeEvent, o = lt(r) && r.hasAttribute(ji("focus-guard")) && r.getAttribute("data-type") === "outside";
 				l.start(0, () => {
 					let t = e.select("domReferenceElement"), n = Jn(Lt(t));
-					(r || n !== t) && (Q(a.current.floatingContext?.refs.floating.current, n) || Q(t, n) || o || ir(r ?? n, e.context.triggerElements) || e.setOpen(!1, X(ze, i)));
+					!r && n === t || Q(a.current.floatingContext?.refs.floating.current, n) || Q(t, n) || o || ir(r ?? n, e.context.triggerElements) || e.setOpen(!1, X(ze, i));
 				});
 			}
 		};
@@ -12161,8 +12087,7 @@ function _o(e, t = {}) {
 		trigger: u
 	} : {}, [n, u]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverInteractionSharedState.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverInteractionSharedState.mjs
 var vo = class e {
 	pointerType = void 0;
 	interactedInside = !1;
@@ -12197,8 +12122,7 @@ function So(e) {
 	let t = e.context.dataRef.current, n = T(() => t.hoverInteractionState ?? vo.create()).current;
 	return t.hoverInteractionState ||= n, yn(t.hoverInteractionState.disposeEffect), t.hoverInteractionState;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverFloatingInteraction.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverFloatingInteraction.mjs
 function Co(e, t = {}) {
 	let { enabled: n = !0, closeDelay: r = 0, nodeId: i } = t, a = e.useState("open"), o = e.useState("floatingElement"), s = e.useState("domReferenceElement"), { dataRef: c } = e.context, l = aa(), u = ia(), d = So(e), f = Vn(), p = J(() => hr(c.current.openEvent?.type, d.interactedInside)), m = J(() => gr(c.current.openEvent?.type)), h = J(() => {
 		bo(d);
@@ -12284,8 +12208,7 @@ function Co(e, t = {}) {
 		f
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverReferenceInteraction.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useHoverReferenceInteraction.mjs
 var wo = { current: null };
 function To(e, t = {}) {
 	let { enabled: n = !0, delay: r = 0, handleClose: i = null, mouseOnly: a = !1, restMs: o = 0, move: s = !0, triggerElementRef: c = wo, externalTree: l, isActiveTrigger: u = !0, getHandleCloseContext: d, isClosing: f, shouldOpen: p, guardStaleOpen: m = !1 } = t, { dataRef: h, events: g } = e.context, _ = aa(l), v = So(e), b = y.useRef(!1), x = yr(i), S = yr(r), C = yr(o), w = yr(n), T = yr(p), E = yr(f), D = J(() => hr(h.current.openEvent?.type, v.interactedInside)), O = J(() => T.current?.() !== !1), k = J((t, n, r) => {
@@ -12359,7 +12282,7 @@ function To(e, t = {}) {
 							j(), A(), w.current && !D() && a === e.select("domReferenceElement") && t(n, !0);
 						}
 					}), r.addEventListener("mousemove", v.handler), v.handler(n);
-				} else (v.pointerType !== "touch" || !Q(e.select("floatingElement"), n.relatedTarget)) && t(n);
+				} else v.pointerType === "touch" && Q(e.select("floatingElement"), n.relatedTarget) || t(n);
 			}
 		}
 		function l(e) {
@@ -12435,8 +12358,7 @@ function To(e, t = {}) {
 		O
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useListNavigation.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useListNavigation.mjs
 function Eo(e) {
 	return $t && e.movementX === 0 && e.movementY === 0;
 }
@@ -12482,7 +12404,7 @@ function jo(e, t) {
 	Y(() => {
 		k.current.orientation = g;
 	}, [k, g]), Y(() => {
-		E || (L.current = null), (!E || f !== "auto") && (F.current = f);
+		E || (L.current = null), E && f === "auto" || (F.current = f);
 	}, [E, f]), Y(() => {
 		a && (E && D ? (I.current = o ?? -1, F.current && o != null && (H.current = !0, z())) : B.current && (I.current = -1, z()));
 	}, [
@@ -12692,8 +12614,7 @@ function jo(e, t) {
 		le
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useTypeahead.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useTypeahead.mjs
 function Mo(e, t) {
 	let { listRef: n, elementsRef: r, activeIndex: i, onMatch: a, disabledIndices: o, onTyping: s, enabled: c = !0, resetMs: l = 750, selectedIndex: u = null } = t, d = J(s), f = e.useState("open"), p = Vn(), m = y.useRef(""), h = y.useRef(u ?? i ?? -1), g = y.useRef(null), _ = J((e) => {
 		function t(e) {
@@ -12742,8 +12663,7 @@ function Mo(e, t) {
 		floating: b
 	} : {}, [c, b]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/safePolygon.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/safePolygon.mjs
 var No = .1, Po = No * No, Fo = .5;
 function Io(e, t, n, r, i, a) {
 	return r >= t != a >= t && e <= (i - n) * (t - r) / (a - r) + n;
@@ -12842,8 +12762,7 @@ function Bo(e = {}) {
 		blockPointerEvents: t
 	}, r;
 }
-//#endregion
-//#region node_modules/.pnpm/@floating-ui+core@1.8.0/node_modules/@floating-ui/core/dist/floating-ui.core.mjs
+// node_modules/.pnpm/@floating-ui+core@1.8.0/node_modules/@floating-ui/core/dist/floating-ui.core.mjs
 function Vo(e, t, n) {
 	let { reference: r, floating: i } = e, a = Lr(t), o = Rr(t), s = Ir(o), c = Nr(t), l = a === "y", u = r.x + r.width / 2 - i.width / 2, d = r.y + r.height / 2 - i.height / 2, f = r[s] / 2 - i[s] / 2, p;
 	switch (c) {
@@ -13112,8 +13031,7 @@ var Jo = function(e) {
 		}
 	};
 };
-//#endregion
-//#region node_modules/.pnpm/@floating-ui+dom@1.8.0/node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
+// node_modules/.pnpm/@floating-ui+dom@1.8.0/node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
 function Qo(e) {
 	let t = Ct(e), n = parseFloat(t.width) || 0, r = parseFloat(t.height) || 0, i = ut(e), a = i ? e.offsetWidth : n, o = i ? e.offsetHeight : r, s = Dr(n) !== a || Dr(r) !== o;
 	return s && (n = a, r = o), {
@@ -13129,7 +13047,7 @@ function es(e) {
 	let t = $o(e);
 	if (!ut(t)) return kr(1);
 	let n = t.getBoundingClientRect(), { width: r, height: i, $: a } = Qo(t), o = (a ? Dr(n.width) : n.width) / r, s = (a ? Dr(n.height) : n.height) / i;
-	return (!o || !Number.isFinite(o)) && (o = 1), (!s || !Number.isFinite(s)) && (s = 1), {
+	return o && Number.isFinite(o) || (o = 1), s && Number.isFinite(s) || (s = 1), {
 		x: o,
 		y: s
 	};
@@ -13614,19 +13532,16 @@ var Ks = /* @__PURE__ */ new Set([
 	"Home",
 	"End"
 ]);
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/getDisabledMountTransitionStyles.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/getDisabledMountTransitionStyles.mjs
 function qs(e) {
 	return e === "starting" ? Gi : R;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-root/MenuSubmenuRootContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-root/MenuSubmenuRootContext.mjs
 var Js = /*#__PURE__*/ y.createContext(void 0);
 function Ys() {
 	return y.useContext(Js);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolveRenderedId.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolveRenderedId.mjs
 function Xs(e, t) {
 	let n = fe(e.render);
 	if (/*#__PURE__*/ y.isValidElement(n)) {
@@ -13639,14 +13554,12 @@ function Zs(e, t, n) {
 	let r = Xs(e, t), i = r === t ? void 0 : r;
 	return [r, y.useCallback((e) => n?.(e ? i : void 0), [i, n])];
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolvePopupLabel.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolvePopupLabel.mjs
 function Qs(e, t, n) {
 	let r = fe(e.render), i = /*#__PURE__*/ y.isValidElement(r) ? r.props : void 0, a = e["aria-label"] ?? i?.["aria-label"], o = e["aria-labelledby"] ?? i?.["aria-labelledby"];
 	return o == null && !a && (o = t ? t.id || void 0 : n || void 0), o;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/popup/MenuPopup.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/popup/MenuPopup.mjs
 var $s = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, finalFocus: a, id: o, initialFocus: s, ...c } = e, { store: l, defaultFloatingId: u, setRenderedFloatingId: d, virtualFocus: f, orientation: p } = C(), m = Ys(), { side: h, align: g } = x(), _ = Gs(!0) != null, v = l.useState("open"), b = l.useState("transitionStatus"), S = l.useState("popupProps"), w = l.useState("mounted"), T = l.useState("instantType"), E = l.useState("activeTriggerElement"), D = l.useState("parent"), O = l.useState("lastOpenChangeReason"), k = l.useState("rootId"), A = l.useState("floatingRootContext"), j = l.useState("floatingTreeRoot"), M = l.useState("closeDelay"), N = l.useState("hoverEnabled"), P = l.useState("disabled"), F = l.useState("openMethod"), I = l.useState("activeTriggerId"), L = l.useState("listElement"), [R, z] = Zs(e, u, d), B = Qs(e, E, I), ee = D.type === "menu" ? m : void 0, V = D.type === "context-menu", H = s ?? D.type !== "menu";
 	s === void 0 && L && D.type !== "menu" && (H = () => l.state.activeIndex === null && L), jn({
@@ -13738,8 +13651,7 @@ function ic() {
 	if (e === void 0) throw Error(v(32));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/portal/MenuPortal.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/portal/MenuPortal.mjs
 var ac = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { keepMounted: n = !1, ...r } = e, { store: i, parent: a } = C();
 	if (!(i.useState("mounted") || n)) return null;
@@ -13753,13 +13665,11 @@ var ac = /*#__PURE__*/ y.forwardRef(function(e, t) {
 		})
 	});
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/inertValue.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/inertValue.mjs
 function oc(e) {
 	return N(19) ? e : e ? "true" : void 0;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFloating.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/hooks/useFloating.mjs
 function sc(e) {
 	let { nodeId: t, externalTree: n, rootContext: r } = e, i = r.useState("referenceElement"), a = r.useState("floatingElement"), o = r.useState("domReferenceElement"), s = r.useState("open"), c = r.useState("floatingId"), [l, u] = y.useState(null), d = y.useRef(null), f = aa(n), p = y.useMemo(() => ({
 		reference: i,
@@ -13829,14 +13739,12 @@ function sc(e) {
 		r
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/direction-context/DirectionContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/direction-context/DirectionContext.mjs
 var cc = /*#__PURE__*/ y.createContext(void 0);
 function lc() {
 	return y.useContext(cc)?.direction ?? "ltr";
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/middleware/arrow.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/floating-ui-react/middleware/arrow.mjs
 var uc = (e) => ({
 	name: "arrow",
 	options: e,
@@ -14111,8 +14019,7 @@ function wc(e, t) {
 function Tc(e) {
 	return e != null && "current" in e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/CompositeList.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/list/CompositeList.mjs
 function Ec(e) {
 	let { children: t, elementsRef: n, labelsRef: r, onMapChange: i } = e, a = J(i), [, o] = y.useState(0), s = T(Oc).current, c = T(Dc).current, l = y.useRef(0), u = y.useRef(!0), d = y.useRef(null), f = y.useRef(null), p = J(() => {
 		u.current || (u.current = !0, o((e) => e + 1));
@@ -14221,8 +14128,7 @@ function jc(e) {
 function Mc(e, t) {
 	return e.nextElementSibling === t ? -1 : t.nextElementSibling === e ? 1 : e.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/InternalBackdrop.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/InternalBackdrop.mjs
 var Nc = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { cutout: n, ...r } = e, i;
 	if (n) {
@@ -14243,8 +14149,7 @@ var Nc = /*#__PURE__*/ y.forwardRef(function(e, t) {
 		}
 	});
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useTriggerSwitchTransition.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useTriggerSwitchTransition.mjs
 function Pc(e) {
 	let { store: t, domReference: n, positionerElement: r, open: i } = e, a = y.useRef(null), o = y.useRef(null), s = An(r);
 	Y(() => {
@@ -14265,8 +14170,7 @@ function Pc(e) {
 		t
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/usePositioner.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/usePositioner.mjs
 function Fc(e, t, { styles: n, transitionStatus: r, props: i, refs: a, hidden: o, inert: s = !1 }) {
 	let c = { ...n };
 	return s && (c.pointerEvents = "none"), q("div", e, {
@@ -14284,8 +14188,7 @@ function Fc(e, t, { styles: n, transitionStatus: r, props: i, refs: a, hidden: o
 		stateAttributesMapping: Me
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useScrollLock.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useScrollLock.mjs
 var Ic = {}, Lc = {}, Rc = "";
 function zc(e, t) {
 	return ft(e) ? e : t;
@@ -14397,8 +14300,7 @@ function Kc(e = !0, t = null) {
 		if (e) return Gc.acquire(t);
 	}, [e, t]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useAnchoredPopupScrollLock.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useAnchoredPopupScrollLock.mjs
 var qc = 20;
 function Jc(e, t, n, r) {
 	let [i, a] = y.useState(!1);
@@ -14415,8 +14317,7 @@ function Jc(e, t, n, r) {
 		n
 	]), Kc(e && (!t || i), r);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/positioner/MenuPositioner.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/positioner/MenuPositioner.mjs
 var Yc = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { anchor: n, positionMethod: r = "absolute", className: i, render: a, side: o, align: s, sideOffset: c = 0, alignOffset: l = 0, collisionBoundary: u = "clipping-ancestors", collisionPadding: d = 5, arrowPadding: f = 5, sticky: p = !1, disableAnchorTracking: m = !1, collisionAvoidance: h = Ki, style: g, ..._ } = e, { store: v, virtualFocus: x, syncHighlightedItem: S } = C(), w = ic(), T = Fe(!0), E = v.useState("parent"), D = v.useState("floatingRootContext"), O = v.useState("floatingTreeRoot"), k = v.useState("mounted"), A = v.useState("open"), j = v.useState("modal"), M = v.useState("openMethod"), N = v.useState("activeTriggerElement"), P = v.useState("transitionStatus"), F = v.useState("positionerElement"), I = v.useState("instantType"), L = v.useState("adaptiveOrigin"), R = v.useState("lastOpenChangeReason"), z = v.useState("floatingNodeId"), B = v.useState("floatingParentNodeId"), ee = D.useState("domReferenceElement"), V = n, H = c, U = l, W = s, te = h;
 	E.type === "context-menu" && (V = n ?? E.context?.anchor, W ??= "start", !o && W !== "center" && (U = e.alignOffset ?? 2, H = e.sideOffset ?? -5));
@@ -14551,8 +14452,7 @@ function Zc(e) {
 	if (t === null && !e) throw Error(v(5));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useEnhancedClickHandler.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useEnhancedClickHandler.mjs
 function Qc(e) {
 	let t = y.useRef(""), n = y.useCallback((n) => {
 		n.defaultPrevented || (t.current = n.pointerType, e(n, n.pointerType));
@@ -14564,16 +14464,14 @@ function Qc(e) {
 		onPointerDown: n
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useValueChanged.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/useValueChanged.mjs
 function $c(e, t) {
 	let n = y.useRef(e), r = J(t);
 	Y(() => {
 		n.current !== e && r(n.current), n.current = e;
 	}, [e, r]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useOpenInteractionType.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useOpenInteractionType.mjs
 function el(e, t) {
 	let { onClick: n, onPointerDown: r } = Qc(J((n, r) => {
 		(typeof e == "function" ? e() : e) || t(r || (Jt ? "touch" : ""));
@@ -14592,13 +14490,11 @@ function tl(e) {
 		triggerProps: r
 	}), [t, r]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getHighlightReason.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getHighlightReason.mjs
 function nl(e) {
 	return e == null ? Ie : e.type.startsWith("key") ? Ke : e.type.startsWith("mouse") || e.type.startsWith("pointer") ? qe : Ie;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/store/MenuStore.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/store/MenuStore.mjs
 var rl = {
 	...po,
 	disabled: (e) => e.parent.type === "menubar" && e.parent.context.disabled || e.disabled,
@@ -14716,19 +14612,16 @@ function ol(e, t, n = !1, r) {
 		...r
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/filter-provider/MenuFilterProviderContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/filter-provider/MenuFilterProviderContext.mjs
 var sl = /*#__PURE__*/ y.createContext(null);
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/utils/isKeyboardOpen.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/utils/isKeyboardOpen.mjs
 function cl(e, t) {
 	return (e === "trigger-press" || e === "item-press") && t?.detail === 0;
 }
 function ll(e, t) {
 	return e === "list-navigation" || cl(e, t);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/root/MenuRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/root/MenuRoot.mjs
 var ul = Ka(function(e) {
 	let { children: t, open: n, onOpenChange: r, onOpenChangeComplete: i, onItemHighlighted: a, defaultOpen: o = !1, disabled: s = !1, modal: c, loopFocus: l = !0, orientation: u = "vertical", actionsRef: d, closeParentOnEsc: f = !1, handle: p, triggerId: m, defaultTriggerId: h = null, highlightItemOnHover: g = !0, isSubmenu: _ = !1, virtualFocus: v = !1, virtualFocusRef: b, allowEscape: x = !0, resetOnPointerLeave: w = !0 } = e, E = Fe(!0), D = C(!0), O = Zc(!0), k = D?.store, A = D?.virtualFocus ?? !1, j = y.useMemo(() => _ && k ? {
 		type: "menu",
@@ -15019,8 +14912,7 @@ function dl(e) {
 		})
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-root/MenuSubmenuRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-root/MenuSubmenuRoot.mjs
 var fl = {};
 function pl(e) {
 	C();
@@ -15043,8 +14935,7 @@ function pl(e) {
 		})
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getPseudoElementBounds.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/getPseudoElementBounds.mjs
 var ml = 5;
 function hl(e, t) {
 	let n = gl(t);
@@ -15063,8 +14954,7 @@ function gl(e) {
 		bottom: t.bottom + f / 2
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/item/useCompositeItem.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/item/useCompositeItem.mjs
 function _l(e = {}) {
 	let { highlightItemOnHover: t, highlightedIndex: n, onHighlightedIndexChange: r } = Ft(), { ref: i, index: a } = ln(e), o = n === a, s = y.useRef(null), c = E(i, s);
 	return {
@@ -15084,8 +14974,7 @@ function _l(e = {}) {
 		index: a
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/item/CompositeItem.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/composite/item/CompositeItem.mjs
 function vl(e) {
 	let { render: t, className: n, style: r, state: i = R, props: a = L, refs: o = L, metadata: s, stateAttributesMapping: c, tag: l = "div", ...u } = e, { compositeProps: d, compositeRef: f } = _l({ metadata: s });
 	return q(l, e, {
@@ -15099,14 +14988,12 @@ function vl(e) {
 		stateAttributesMapping: c
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/utils/findRootOwnerId.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/utils/findRootOwnerId.mjs
 function yl(e) {
 	if (ut(e) && e.hasAttribute("data-rootownerid")) return e.getAttribute("data-rootownerid");
 	if (!St(e)) return yl(Tt(e));
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/useTriggerFocusGuards.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/popups/useTriggerFocusGuards.mjs
 function bl(e, t) {
 	function n(n, r, i) {
 		let a = n.currentTarget;
@@ -15126,8 +15013,7 @@ function bl(e, t) {
 		handleFocusTargetFocus: i
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useMixedToggleClickHandler.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/useMixedToggleClickHandler.mjs
 function xl(e) {
 	let { enabled: t = !0, mouseDownAction: n, open: r } = e, i = y.useRef(!1);
 	return y.useMemo(() => t ? {
@@ -15145,8 +15031,7 @@ function xl(e) {
 		r
 	]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/trigger/MenuTrigger.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/trigger/MenuTrigger.mjs
 var Sl = qa(function(e, t) {
 	let { render: n, className: r, style: i, disabled: a = !1, nativeButton: o = !0, id: s, openOnHover: c, delay: l = 100, closeDelay: u = 0, handle: d, payload: f, ...p } = e, m = C(!0), h = mo(d) ?? m?.store;
 	if (!h) throw Error(v(85));
@@ -15173,10 +15058,10 @@ var Sl = qa(function(e, t) {
 		if (!I.current) return;
 		L.clear(), h.context.allowMouseUpTriggerRef.current = !1;
 		let t = e.target;
-		Q(I.current, t) || Q(h.select("positionerElement"), t) || t === I.current || (t == null || yl(t) !== h.select("rootId")) && (hl(e, I.current) || O.events.emit("close", {
+		Q(I.current, t) || Q(h.select("positionerElement"), t) || t === I.current || t != null && yl(t) === h.select("rootId") || hl(e, I.current) || O.events.emit("close", {
 			domEvent: e,
 			reason: Je
-		}));
+		});
 	});
 	y.useEffect(() => {
 		let e = Lt(I.current);
@@ -15284,8 +15169,7 @@ function wl() {
 		context: e
 	} : { type: void 0 }, [e]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/usePreviousValue.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/usePreviousValue.mjs
 function Tl(e) {
 	let [t, n] = y.useState({
 		current: e,
@@ -15296,8 +15180,7 @@ function Tl(e) {
 		previous: t.current
 	}), t.previous;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/separator/Separator.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/separator/Separator.mjs
 var El = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { className: n, render: r, orientation: i = "horizontal", style: a, ...o } = e;
 	return q("div", e, {
@@ -15309,13 +15192,11 @@ var El = /*#__PURE__*/ y.forwardRef(function(e, t) {
 		}, o]
 	});
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/isElementDisabled.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/isElementDisabled.mjs
 function Dl(e) {
 	return e == null || e.hasAttribute("disabled") || e.getAttribute("aria-disabled") === "true";
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-trigger/MenuSubmenuTrigger.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/menu/submenu-trigger/MenuSubmenuTrigger.mjs
 var Ol = { "aria-expanded": void 0 }, kl = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, label: a, id: o, nativeButton: s = !1, openOnHover: c = !0, delay: l = 100, closeDelay: u = 0, disabled: d = !1, ...f } = e, p = C(!0);
 	if (p?.parent.type !== "menu") throw Error(v(37));
@@ -15433,8 +15314,7 @@ var Ol = { "aria-expanded": void 0 }, kl = /*#__PURE__*/ y.forwardRef(function(e
 		ref: n.ref
 	});
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/serializeValue.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/serializeValue.mjs
 function jl(e) {
 	if (e == null) return "";
 	if (typeof e == "string") return e;
@@ -15444,8 +15324,7 @@ function jl(e) {
 		return String(e);
 	}
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolveValueLabel.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/resolveValueLabel.mjs
 function Ml(e) {
 	return typeof e == "object" && !!e && Array.isArray(e.items);
 }
@@ -15499,14 +15378,12 @@ function Rl(e, t, n) {
 function zl(e, t, n) {
 	return e.reduce((e, r, i) => (i > 0 && e.push(", "), e.push(/*#__PURE__*/ (0, Z.jsx)(y.Fragment, { children: Rl(r, t, n) }, i)), e), []);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useOnFirstRender.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/useOnFirstRender.mjs
 function Bl(e) {
 	let t = y.useRef(!0);
 	t.current && (t.current = !1, e());
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/root/SelectRootContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/root/SelectRootContext.mjs
 var Vl = /*#__PURE__*/ y.createContext(void 0), Hl = /*#__PURE__*/ y.createContext(void 0);
 function Ul() {
 	let e = y.useContext(Vl);
@@ -15518,8 +15395,7 @@ function Wl() {
 	if (e === void 0) throw Error(v(61));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/field/control/FieldControlDataAttributes.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/field/control/FieldControlDataAttributes.mjs
 var Gl = "data-valid", Kl = "data-invalid", ql = {
 	badInput: !1,
 	customError: !1,
@@ -15577,8 +15453,7 @@ function Ql(e = !0) {
 	if (t.setValidityData === I && !e) throw Error(v(28));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/field-register-control/useRegisterFieldControl.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/field-register-control/useRegisterFieldControl.mjs
 function $l(e, t, n, r, i = !0, a) {
 	let { registerFieldControl: o } = Ql(), s = T(() => Symbol());
 	Y(() => {
@@ -15606,8 +15481,7 @@ function $l(e, t, n, r, i = !0, a) {
 		};
 	}, [o, s]);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/labelable-provider/LabelableContext.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/labelable-provider/LabelableContext.mjs
 var eu = /*#__PURE__*/ y.createContext({
 	controlId: void 0,
 	registerControlId: I,
@@ -15621,8 +15495,7 @@ var eu = /*#__PURE__*/ y.createContext({
 function tu() {
 	return y.useContext(eu);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/labelable-provider/useLabelableId.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/labelable-provider/useLabelableId.mjs
 function nu(e = {}) {
 	let { id: t, enabled: n = !0 } = e, { controlId: r, registerControlId: i, resetControlId: a } = tu(), o = hn(), s = T(() => Symbol()), c = y.useRef(!1), l = y.useRef(!1), u = J(() => {
 		c.current && i !== I && (c.current = !1, i(s.current, void 0));
@@ -15650,16 +15523,14 @@ function nu(e = {}) {
 		u
 	]), Y(() => u, [u]), (n ? r : void 0) ?? t ?? o;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/areArraysEqual.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/areArraysEqual.mjs
 function ru(e, t, n = Object.is) {
 	let { length: r } = e;
 	if (r !== t.length) return !1;
 	for (let i = 0; i < r; i += 1) if (!n(e[i], t[i])) return !1;
 	return !0;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/itemEquality.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/itemEquality.mjs
 var iu = (e, t) => Object.is(e, t);
 function au(e, t, n) {
 	return e == null || t == null ? Object.is(e, t) : n(e, t);
@@ -15688,8 +15559,7 @@ function du(e, t, n, r, i, a) {
 function fu(e, t, n) {
 	return e.filter((e) => !au(t, e, n));
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/store.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/store.mjs
 var pu = {
 	id: (e) => e.id,
 	labelId: (e) => e.labelId,
@@ -15742,8 +15612,7 @@ var pu = {
 function hu() {
 	return y.useContext(mu);
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/clamp.mjs
+// node_modules/.pnpm/@base-ui+utils@0.5.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/utils/clamp.mjs
 function gu(e, t = -(2 ** 53 - 1), n = 2 ** 53 - 1) {
 	return Math.max(t, Math.min(e, n));
 }
@@ -15755,8 +15624,7 @@ function vu(e, t) {
 	let n = gu(e, 0, t), r = n, i = t - n, a = r <= 1, o = i <= 1;
 	return a && o ? r <= i ? 0 : t : a ? 0 : o ? t : n;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/root/SelectRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/root/SelectRoot.mjs
 function yu(e) {
 	let { id: t, value: n, defaultValue: r = null, onValueChange: i, open: a, defaultOpen: o = !1, onOpenChange: s, name: c, form: l, autoComplete: u, disabled: d = !1, readOnly: f = !1, required: p = !1, modal: m = !0, actionsRef: h, inputRef: g, onOpenChangeComplete: _, items: v, multiple: b = !1, itemToStringLabel: x, itemToStringValue: S, isItemEqualToValue: C = iu, highlightItemOnHover: w = !0, children: D } = e, { clearErrors: O } = hu(), { setDirty: k, setTouched: A, setFocused: j, validityData: M, setFilled: N, name: P, disabled: F, validation: z, validationMode: B } = Ql(), ee = nu({ id: t }), V = F || d, U = P ?? c, [W, te] = Qe({
 		controlled: n,
@@ -15867,7 +15735,7 @@ function yu(e) {
 	});
 	let je = J((e, t) => {
 		let n = t, r = ja(n);
-		s?.(e, n), !t.isCanceled && (e || ve(r()), ne(e), !e && (t.reason === "focus-out" || t.reason === "outside-press") && (A(!0), j(!1), B === "onBlur" && z.commit(W)));
+		s?.(e, n), !t.isCanceled && (e || ve(r()), ne(e), e || t.reason !== "focus-out" && t.reason !== "outside-press" || (A(!0), j(!1), B === "onBlur" && z.commit(W)));
 	});
 	y.useImperativeHandle(h, () => ({
 		unmount: xe,
@@ -16029,13 +15897,11 @@ function yu(e) {
 		]
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveAriaLabelledBy.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/utils/resolveAriaLabelledBy.mjs
 function bu(e, t) {
 	return e ?? t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/field-root-context/useSetFieldFocused.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/internals/field-root-context/useSetFieldFocused.mjs
 function xu(e, t, n) {
 	let { setFocused: r, focusOwnerRef: i } = Ql(), a = J((t) => {
 		(t ? !e : i.current === a) && (i.current = t && a, n?.(t), r(t));
@@ -16164,8 +16030,7 @@ function ju() {
 	if (!e) throw Error(v(59));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/popup/utils.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/popup/utils.mjs
 function Mu(e, t) {
 	e && Object.assign(e.style, t);
 }
@@ -16269,8 +16134,7 @@ var Nu = {
 function Bu() {
 	return y.useContext(Ru) ?? zu;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/positioner/SelectPositionerCssVars.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/positioner/SelectPositionerCssVars.mjs
 var Vu = "--transform-origin", Hu = {
 	...Me,
 	...ye
@@ -16466,8 +16330,7 @@ function Xu(e) {
 		}
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/list/SelectList.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/list/SelectList.mjs
 var Zu = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, ...a } = e, o = Ul(), s = o.useState("multiple"), c = o.useState("readOnly"), { alignItemWithTriggerActive: l } = ju(), u = o.useState("hasScrollArrows"), d = o.useState("openMethod"), f = {
 		id: `${o.useState("id")}-list`,
@@ -16490,8 +16353,7 @@ function $u() {
 	if (!e) throw Error(v(57));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/item/SelectItem.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/select/item/SelectItem.mjs
 var ed = /*#__PURE__*/ y.memo(/*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, value: a = null, label: o, disabled: s = !1, nativeButton: c = !1, ...l } = e, u = y.useRef(null), d = ln({
 		guess: !0,
@@ -16646,8 +16508,7 @@ function ad(e) {
 	if (!e && t === void 0) throw Error(v(27));
 	return t;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/backdrop/DialogBackdrop.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/backdrop/DialogBackdrop.mjs
 var od = /*#__PURE__*/ y.forwardRef(function(e, t) {
 	let { render: n, className: r, style: i, forceRender: a = !1, ...o } = e, s = ad(), c = s.useState("open"), l = s.useState("nested"), u = s.useState("mounted");
 	return q("div", e, {
@@ -16696,8 +16557,7 @@ function ud() {
 	if (e === void 0) throw Error(v(26));
 	return e;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/popup/DialogPopupCssVars.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/popup/DialogPopupCssVars.mjs
 var dd = "--nested-dialogs", fd = "data-nested-dialog-open", pd = {
 	...Me,
 	...ye,
@@ -16768,8 +16628,7 @@ var dd = "--nested-dialogs", fd = "data-nested-dialog-open", pd = {
 		})
 	}) : null;
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/useDialogRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/useDialogRoot.mjs
 function gd({ store: e, parentContext: t, isDrawer: n }) {
 	let r = e.useState("open"), i = e.useState("mounted"), a = e.useState("disablePointerDismissal"), o = e.useState("modal"), s = e.useState("popupElement"), c = e.useState("floatingRootContext"), [l, u] = y.useState(0), [d, f] = y.useState(0), p = l === 0, m = xa(c, {
 		outsidePressEvent() {
@@ -16817,8 +16676,7 @@ function gd({ store: e, parentContext: t, isDrawer: n }) {
 		nestedOpenDrawerCount: d
 	}), null;
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/store/DialogStore.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/store/DialogStore.mjs
 var _d = {
 	...po,
 	modal: (e) => e.modal,
@@ -16869,8 +16727,7 @@ function bd(e) {
 		onOpenChangeComplete: void 0
 	};
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/useRenderDialogRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/useRenderDialogRoot.mjs
 function xd(e, t) {
 	let { children: n, open: r, defaultOpen: i = !1, onOpenChange: a, onOpenChangeComplete: o, disablePointerDismissal: s = !1, modal: c = !0, actionsRef: l, handle: u, triggerId: d, defaultTriggerId: f = null } = t, p = e === "drawer", m = e === "alert-dialog", h = m ? !0 : c, g = m || s, _ = m ? "alertdialog" : "dialog", v = ad(!0), b = {
 		modal: h,
@@ -16909,8 +16766,7 @@ function xd(e, t) {
 		]
 	});
 }
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/DialogRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/dialog/root/DialogRoot.mjs
 var Sd = Ka(function(e) {
 	return xd("dialog", e);
 }), Cd = /*#__PURE__*/ y.forwardRef(function(e, t) {
@@ -16939,13 +16795,11 @@ var Sd = Ka(function(e) {
 		props: [{ id: c }, o]
 	});
 });
-//#endregion
-//#region node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/alert-dialog/root/AlertDialogRoot.mjs
+// node_modules/.pnpm/@base-ui+react@1.9.0_@types+react@19.3.0_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/@base-ui/react/alert-dialog/root/AlertDialogRoot.mjs
 function Td(e) {
 	return xd("alert-dialog", e);
 }
-//#endregion
-//#region design/air/collection-model.ts
+// design/air/collection-model.ts
 var Ed = g();
 function Dd(e = 5) {
 	let t = [
@@ -17031,8 +16885,7 @@ function Od(e, t) {
 		selected: e.selected.filter((e) => r.some((t) => t.id === e))
 	};
 }
-//#endregion
-//#region design/air/collections.tsx
+// design/air/collections.tsx
 var kd = {
 	sideOffset: 8,
 	collisionPadding: 16,
@@ -17585,5 +17438,4 @@ function Pd(e, t = !1) {
 	let n = (0, Ed.createRoot)(e);
 	return n.render(/* @__PURE__ */ (0, Z.jsx)(Nd, { focusOnMount: t })), () => n.unmount();
 }
-//#endregion
 export { Pd as mountCollectionStudy };

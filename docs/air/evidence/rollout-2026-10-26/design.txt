@@ -1,0 +1,29 @@
+Air contract and 95 inventory records are valid. Runtime conformance is audited separately.
+{
+  "product": "cloakpdf",
+  "checks": [
+    "isolated bundle passes with no dependencies or sibling files",
+    "missing light lifecycle hash rejected",
+    "altered light lifecycle rejected",
+    "unsynchronized canonical source rejected when present",
+    "bundle paired with a different contract rejected",
+    "mismatched document version rejected",
+    "missing motion hash rejected",
+    "altered motion module rejected",
+    "altered colour math rejected",
+    "missing overlay bundle hash rejected",
+    "altered overlay module rejected",
+    "altered artwork lifecycle rejected",
+    "missing artwork lifecycle hash rejected",
+    "missing reading/recovery behavior hash rejected",
+    "altered reading page rejected",
+    "missing file lifecycle behavior hash rejected",
+    "altered file study rejected",
+    "altered collection study rejected",
+    "missing manifest rejected",
+    "restored bundle passes"
+  ],
+  "files": 26,
+  "fixture": null
+}
+Tracked 95 surfaces in docs/air.

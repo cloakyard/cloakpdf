@@ -32,7 +32,7 @@ const light = mountAirLight(field, {
     ].includes(state);
     replay.textContent = state === "failed" ? "Retry light" : "Replay arrival";
     metrics.textContent = firstDraw
-      ? `Local Shaders 4.0.4 · first draw ${Math.round(firstDraw)} ms · ${frames} submitted frames · ${averageCPU.toFixed(2)} ms average CPU submission. GPU time and battery cost are separate checks.`
+      ? `Local Shaders 4.0.5 · first draw ${Math.round(firstDraw)} ms · ${frames} submitted frames · ${averageCPU.toFixed(2)} ms average CPU submission. GPU time and battery cost are separate checks.`
       : "The renderer loads only when the artwork is visible. No remote assets or telemetry.";
   },
 });

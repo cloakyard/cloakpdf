@@ -1,5 +1,5 @@
-/* Air light / Shaders 4.0.4. Generated; see THIRD_PARTY_LICENSES.txt. */
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/support-D3W86vgR.js
+/* Air light / Shaders 4.0.5. Generated; see THIRD_PARTY_LICENSES.txt. */
+// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/support-D3W86vgR.js
 var e = class extends Error {
 	reason;
 	constructor(e, t, n) {
@@ -68,8 +68,7 @@ function m(e) {
 function h() {
 	return p;
 }
-//#endregion
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
+// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
 function g(e, t) {
 	let n = e.length;
 	Array.isArray(e[0]) || (e = [e]), Array.isArray(t[0]) || (t = t.map((e) => [e]));
@@ -44678,7 +44677,178 @@ var mE = 1e-4, hE = 6 / 29, gE = (e, t, n) => [
 		"std.le": () => pg,
 		"std.select": () => Q
 	}
-}) && e.f)({})), ZE = (e) => e ? e.offsetX !== 0 || e.offsetY !== 0 || e.rotation !== 0 || e.scale !== 1 || e.anchorX !== .5 || e.anchorY !== .5 : !1, QE = $.fn([
+}) && e.f)({})), ZE = /* @__PURE__ */ new Set([
+	"px",
+	"%",
+	"cw",
+	"ch",
+	"cmin",
+	"cmax",
+	"vw",
+	"vh",
+	"vmin",
+	"vmax",
+	"rem",
+	"uv"
+]), QE = /* @__PURE__ */ new Set([
+	"vw",
+	"vh",
+	"vmin",
+	"vmax",
+	"rem"
+]), $E = /^\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*(px|%|cw|ch|cmin|cmax|vw|vh|vmin|vmax|rem|uv)\s*$/i, eD = 64;
+function tD(e) {
+	return typeof e == "object" && !!e && typeof e.value == "number" && typeof e.unit == "string" && ZE.has(e.unit);
+}
+function nD(e) {
+	if (e.length > eD) return null;
+	if (e.trim() === "0") return {
+		value: 0,
+		unit: "px"
+	};
+	let t = $E.exec(e);
+	if (!t) return null;
+	let n = Number(t[1]);
+	return Number.isFinite(n) ? {
+		value: n,
+		unit: t[2].toLowerCase()
+	} : null;
+}
+function rD(e) {
+	return tD(e) ? e : typeof e == "string" ? nD(e) : null;
+}
+function iD(e) {
+	let t = rD(e);
+	if (t) return QE.has(t.unit);
+	if (typeof e == "object" && e) {
+		let t = e;
+		return iD(t.x) || iD(t.y);
+	}
+	return !1;
+}
+var aD = null, oD = null;
+function sD() {
+	if (typeof document > "u" || !document.body) return typeof window < "u" && window.innerWidth > 0 ? {
+		width: window.innerWidth,
+		height: window.innerHeight
+	} : null;
+	if (!oD || !oD.isConnected) {
+		let e = document.createElement("div");
+		e.setAttribute("aria-hidden", "true"), e.setAttribute("data-shaders-viewport-probe", ""), e.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;visibility:hidden;pointer-events:none;z-index:-1;contain:strict;", document.body.appendChild(e), oD = e;
+	}
+	let e = oD.offsetWidth, t = oD.offsetHeight;
+	return e > 0 && t > 0 ? {
+		width: e,
+		height: t
+	} : typeof window < "u" && window.innerWidth > 0 ? {
+		width: window.innerWidth,
+		height: window.innerHeight
+	} : null;
+}
+function cD() {
+	if (typeof document > "u" || typeof getComputedStyle > "u" || !document.documentElement) return null;
+	let e = parseFloat(getComputedStyle(document.documentElement).fontSize);
+	return Number.isFinite(e) && e > 0 ? e : null;
+}
+function lD(e, t) {
+	if (!aD) {
+		let e = sD();
+		aD = {
+			viewportWidth: e?.width ?? 0,
+			viewportHeight: e?.height ?? 0,
+			rem: cD() ?? 16
+		};
+	}
+	let n = aD;
+	return {
+		viewportWidth: n.viewportWidth > 0 ? n.viewportWidth : e,
+		viewportHeight: n.viewportHeight > 0 ? n.viewportHeight : t,
+		rem: n.rem > 0 ? n.rem : 16
+	};
+}
+function uD() {
+	aD = null;
+}
+var dD = /* @__PURE__ */ new Set();
+function fD(e) {
+	dD.has(e) || (dD.add(e), console.warn(`[shaders] ${e}`));
+}
+function pD(e, t, n) {
+	let { canvasWidth: r, canvasHeight: i } = n;
+	switch (e.unit) {
+		case "px": return e.value;
+		case "%": {
+			if (t === "none") return null;
+			let a = t === "x" ? n.boxWidth ?? r : n.boxHeight ?? i;
+			return e.value / 100 * a;
+		}
+		case "cw": return e.value / 100 * r;
+		case "ch": return e.value / 100 * i;
+		case "cmin": return e.value / 100 * Math.min(r, i);
+		case "cmax": return e.value / 100 * Math.max(r, i);
+		case "vw":
+		case "vh":
+		case "vmin":
+		case "vmax":
+		case "rem": {
+			let t = lD(r, i);
+			if (e.unit === "rem") return e.value * t.rem;
+			let n = e.unit === "vw" ? t.viewportWidth : e.unit === "vh" ? t.viewportHeight : e.unit === "vmin" ? Math.min(t.viewportWidth, t.viewportHeight) : Math.max(t.viewportWidth, t.viewportHeight);
+			return e.value / 100 * n;
+		}
+		default: return null;
+	}
+}
+function mD(e, t, n, r) {
+	let i = t === "x" ? n : r;
+	if (typeof e == "number") return i > 0 ? e / i : 0;
+	let a = rD(e);
+	if (!a) {
+		let t = e?.value;
+		return typeof t == "number" ? t : 0;
+	}
+	if (a.unit === "uv") return a.value;
+	let o = pD(a, t, {
+		canvasWidth: n,
+		canvasHeight: r
+	}) ?? 0;
+	return i > 0 ? o / i : 0;
+}
+function hD(e, t, n) {
+	if (e == null) return 0;
+	if (typeof e == "number") return n > 0 ? e / n : 0;
+	let r = rD(e);
+	if (!r) {
+		let t = e?.value;
+		return typeof t == "number" ? t : 0;
+	}
+	if (r.unit === "uv") return r.value;
+	let i = pD(r, "none", {
+		canvasWidth: t,
+		canvasHeight: n
+	});
+	return i == null ? (fD(`"${r.unit}" isn't supported on boundingBox.cornerRadius — % corners are elliptical in CSS and not supported yet. Using square corners.`), 0) : n > 0 ? i / n : 0;
+}
+function gD(e) {
+	if (!e) return !1;
+	for (let t of [
+		e.x,
+		e.y,
+		e.width,
+		e.height,
+		e.cornerRadius
+	]) {
+		let e = rD(t);
+		if (e && (e.unit === "vw" || e.unit === "vh" || e.unit === "vmin" || e.unit === "vmax" || e.unit === "rem")) return !0;
+	}
+	return !1;
+}
+function _D(e) {
+	if (!e || typeof e != "object") return !1;
+	let t = (e) => e === "x" ? "cw" : "ch", n = (e, n, r) => !!e && typeof e == "object" && (e.unit === "uv" && e.value === n || (e.unit === "%" || e.unit === t(r)) && e.value === n * 100);
+	return n(e.x, 0, "x") && n(e.y, 0, "y") && n(e.width, 1, "x") && n(e.height, 1, "y") && (e.rotation ?? 0) === 0 && (e.cornerRadius?.value ?? 0) === 0;
+}
+var vD = (e) => e ? e.offsetX !== 0 || e.offsetY !== 0 || e.rotation !== 0 || e.scale !== 1 || e.anchorX !== .5 || e.anchorY !== .5 : !1, yD = $.fn([
 	I,
 	P,
 	P,
@@ -45136,17 +45306,17 @@ $.fn([
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
-var $E = (e, t, n) => {
-	let r = (e) => e.unit === "px" ? e.value / t : e.value, i = (e) => e.unit === "px" ? e.value / n : e.value, a = r(e.x), o = i(e.y), s = r(e.width), c = i(e.height), l = (e, t, n) => n === "end" ? 1 - e - t : n === "center" ? .5 + e - t / 2 : e, u = e.origin ?? "top-left", d = u.includes("left") ? "start" : u.includes("right") ? "end" : "center", f = u.includes("top") ? "start" : u.includes("bottom") ? "end" : "center", p = l(a, s, d), m = l(o, c, f), h = p + s / 2, g = m + c / 2, _ = e.cornerRadius ? e.cornerRadius.unit === "px" ? e.cornerRadius.value / n : e.cornerRadius.value : 0;
+var bD = (e, t, n) => {
+	let r = mD(e.x, "x", t, n), i = mD(e.y, "y", t, n), a = mD(e.width, "x", t, n), o = mD(e.height, "y", t, n), s = (e, t, n) => n === "end" ? 1 - e - t : n === "center" ? .5 + e - t / 2 : e, c = e.origin ?? "top-left", l = c.includes("left") ? "start" : c.includes("right") ? "end" : "center", u = c.includes("top") ? "start" : c.includes("bottom") ? "end" : "center", d = s(r, a, l), f = s(i, o, u), p = d + a / 2, m = f + o / 2, h = hD(e.cornerRadius, t, n);
 	return {
-		centerX: h,
-		centerY: g,
-		halfWidthUV: s / 2,
-		halfHeightUV: c / 2,
-		cornerRadiusUV: _,
+		centerX: p,
+		centerY: m,
+		halfWidthUV: a / 2,
+		halfHeightUV: o / 2,
+		cornerRadiusUV: h,
 		rotation: e.rotation
 	};
-}, eD = $.fn([
+}, xD = $.fn([
 	I,
 	P,
 	P,
@@ -45516,7 +45686,7 @@ var $E = (e, t, n) => {
 		"std.select": () => Q,
 		"d.f32": () => P
 	}
-}) && e.f)({})), tD = $.fn([
+}) && e.f)({})), SD = $.fn([
 	I,
 	P,
 	P,
@@ -45760,99 +45930,93 @@ var $E = (e, t, n) => {
 		"std.max": () => K,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), nD = (e, t, n) => {
+}) && e.f)({})), CD = (e, t, n) => {
 	let r = n.rotationDeg * Math.PI / 180, i = Math.cos(r), a = Math.sin(r), o = (e - n.centerX) * n.aspectRatio, s = t - n.centerY, c = o * i + s * a, l = o * -a + s * i, u = Math.max(n.halfWidthUV * n.aspectRatio, 1e-6), d = Math.max(n.halfHeightUV, 1e-6);
 	return {
 		x: c / (2 * u) + .5,
 		y: l / (2 * d) + .5
 	};
-};
-function rD(e) {
-	if (!e || typeof e != "object") return !1;
-	let t = (e, t) => !!e && e.unit === "uv" && e.value === t;
-	return t(e.x, 0) && t(e.y, 0) && t(e.width, 1) && t(e.height, 1) && (e.rotation ?? 0) === 0 && (e.cornerRadius?.value ?? 0) === 0;
-}
-var iD = class e {
+}, wD = class e {
 	_emit;
 	constructor(e) {
 		this._emit = e;
 	}
 	member(t) {
-		return new e((e) => `${aD(this._emit(e))}.${t}`);
+		return new e((e) => `${TD(this._emit(e))}.${t}`);
 	}
 	mul(t) {
-		return new e((e) => `(${this._emit(e)} * ${oD(t, e)})`);
+		return new e((e) => `(${this._emit(e)} * ${ED(t, e)})`);
 	}
 	add(t) {
-		return new e((e) => `(${this._emit(e)} + ${oD(t, e)})`);
+		return new e((e) => `(${this._emit(e)} + ${ED(t, e)})`);
 	}
 };
-function aD(e) {
+function TD(e) {
 	return /^[\w.$]+$/.test(e) ? e : `(${e})`;
 }
-function oD(e, t) {
-	return typeof e == "number" ? sD(e) : e._emit(t);
+function ED(e, t) {
+	return typeof e == "number" ? DD(e) : e._emit(t);
 }
-function sD(e) {
+function DD(e) {
 	return Number.isFinite(e) ? Number.isInteger(e) ? `${e}.0` : `${e}` : e > 0 ? "3.4e38" : e < 0 ? "-3.4e38" : "0.0";
 }
-var cD = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+var OD = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 	linearClamp: { sampler: "filtering" },
 	nearestClamp: { sampler: "filtering" },
 	linearRepeat: { sampler: "filtering" },
 	nearestRepeat: { sampler: "filtering" }
-}).$idx(2), "SHARED_SAMPLER_LAYOUT"), lD = {
+}).$idx(2), "SHARED_SAMPLER_LAYOUT"), kD = {
 	uniforms: 0,
 	textures: 1,
 	samplers: 2,
 	external: 3
 };
-function uD(e) {
-	return new iD(() => e);
+function AD(e) {
+	return new wD(() => e);
 }
-function dD(e) {
-	return new iD(() => sD(e));
+function jD(e) {
+	return new wD(() => DD(e));
 }
-function fD(e, t, n) {
-	return new iD((r) => `${r.external(e, t)}(${n.map((e) => e._emit(r)).join(", ")})`);
+function MD(e, t, n) {
+	return new wD((r) => `${r.external(e, t)}(${n.map((e) => e._emit(r)).join(", ")})`);
 }
-function pD(...e) {
-	return new iD((t) => `vec4f(${e.map((e) => yD(e, t)).join(", ")})`);
+function ND(...e) {
+	return new wD((t) => `vec4f(${e.map((e) => zD(e, t)).join(", ")})`);
 }
-function mD(e, t, n) {
-	return new iD((r) => `mix(${e._emit(r)}, ${t._emit(r)}, ${yD(n, r)})`);
+function PD(e, t, n) {
+	return new wD((r) => `mix(${e._emit(r)}, ${t._emit(r)}, ${zD(n, r)})`);
 }
-var hD = 0;
-function gD(e, t) {
-	let n = hD++;
-	return new iD((r) => r.memo(`local:${n}`, () => {
+var FD = 0;
+function ID(e, t) {
+	let n = FD++;
+	return new wD((r) => r.memo(`local:${n}`, () => {
 		let n = r.freshLocal(t);
 		return r.statement(`let ${n} = ${e._emit(r)};`), n;
 	}));
 }
-var _D = uD("vec4f(0.0, 0.0, 0.0, 0.0)"), vD = uD("vec4f(1.0, 1.0, 1.0, 0.0)");
-function yD(e, t) {
-	return typeof e == "number" ? sD(e) : e._emit(t);
+var LD = AD("vec4f(0.0, 0.0, 0.0, 0.0)"), RD = AD("vec4f(1.0, 1.0, 1.0, 0.0)");
+function zD(e, t) {
+	return typeof e == "number" ? DD(e) : e._emit(t);
 }
-function bD(e, t, n, r) {
-	return fD(OE[n] ?? OE.normal, `blend_${SD(n)}`, [
+function BD(e, t, n, r) {
+	return MD(OE[n] ?? OE.normal, `blend_${HD(n)}`, [
 		e,
 		t,
 		r
 	]);
 }
-function xD(e, t, n) {
-	return fD(AE[n] ?? AE.alpha, `mask_${SD(n)}`, [e, t]);
+function VD(e, t, n) {
+	return MD(AE[n] ?? AE.alpha, `mask_${HD(n)}`, [e, t]);
 }
-function SD(e) {
+function HD(e) {
 	return e.replace(/[^a-zA-Z0-9_]/g, "_");
 }
-function CD(e, t, n, r) {
+function UD(e, t, n, r) {
 	let i = {}, a = /* @__PURE__ */ new Map(), o = /* @__PURE__ */ new Set(), s = [], c = /* @__PURE__ */ new Map(), l = 0, u = {
 		external(e, t) {
 			let n = a.get(e);
 			if (n) return n;
-			let r = SD(t);
+			let r = HD(t);
 			if (o.has(r)) {
 				let e = 1;
 				for (; o.has(`${r}_${e}`);) e++;
@@ -45864,7 +46028,7 @@ function CD(e, t, n, r) {
 			s.push(e);
 		},
 		freshLocal(e) {
-			return `${SD(e)}_${l++}`;
+			return `${HD(e)}_${l++}`;
 		},
 		memo(e, t) {
 			let n = c.get(e);
@@ -45880,11 +46044,11 @@ function CD(e, t, n, r) {
 		externals: i
 	};
 }
-function wD(e, t = {}) {
-	let n = { sampler: cD }, r = [], i = [], a = [], o = [], s = /* @__PURE__ */ new Set(), l = [], u = [], d = [], f = [], p = 0, m = 0, h = 0, g = 0, _ = /* @__PURE__ */ new Set(), v = e.store.layout;
-	v && v.$idx(lD.uniforms), n.uniform = v;
-	let y = (e) => new iD((t) => (v && t.external(v, "uni"), e)), b = (e) => y(`uni.$.uniforms.${e}`), x = (t) => y(e.store.gpuAccessor(t, "uni")), S = {
-		uv: new iD(() => "uv"),
+function WD(e, t = {}) {
+	let n = { sampler: OD }, r = [], i = [], a = [], o = [], s = /* @__PURE__ */ new Set(), l = [], u = [], d = [], f = [], p = 0, m = 0, h = 0, g = 0, _ = /* @__PURE__ */ new Set(), v = e.store.layout;
+	v && v.$idx(kD.uniforms), n.uniform = v;
+	let y = (e) => new wD((t) => (v && t.external(v, "uni"), e)), b = (e) => y(`uni.$.uniforms.${e}`), x = (t) => y(e.store.gpuAccessor(t, "uni")), S = {
+		uv: new wD(() => "uv"),
 		time: b("_sys.time"),
 		viewportSize: b("_sys.viewportSize"),
 		logicalViewportSize: b("_sys.logicalViewportSize"),
@@ -45892,16 +46056,16 @@ function wD(e, t = {}) {
 		pointer: b("_sys.pointer")
 	}, C = (e) => ({
 		key: e,
-		sample: (t, n = "linearClamp") => new iD((r) => `textureSample(tex.$.${e}, samp.$.${n}, ${t._emit(r)})`),
-		sampleLevel: (t, n = "linearClamp") => new iD((r) => `textureSampleLevel(tex.$.${e}, samp.$.${n}, ${t._emit(r)}, 0.0)`),
-		accessor: () => new iD(() => `tex.$.${e}`),
-		dimensions: () => new iD(() => `vec2f(textureDimensions(tex.$.${e}))`)
+		sample: (t, n = "linearClamp") => new wD((r) => `textureSample(tex.$.${e}, samp.$.${n}, ${t._emit(r)})`),
+		sampleLevel: (t, n = "linearClamp") => new wD((r) => `textureSampleLevel(tex.$.${e}, samp.$.${n}, ${t._emit(r)}, 0.0)`),
+		accessor: () => new wD(() => `tex.$.${e}`),
+		dimensions: () => new wD(() => `vec2f(textureDimensions(tex.$.${e}))`)
 	}), w = (e) => ({
 		key: e,
-		sample: (t, n = "linearClamp") => new iD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
-		sampleLevel: (t, n = "linearClamp") => new iD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
-		accessor: () => new iD(() => `ext.$.${e}`),
-		dimensions: () => new iD(() => `vec2f(textureDimensions(ext.$.${e}))`)
+		sample: (t, n = "linearClamp") => new wD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
+		sampleLevel: (t, n = "linearClamp") => new wD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
+		accessor: () => new wD(() => `ext.$.${e}`),
+		dimensions: () => new wD(() => `vec2f(textureDimensions(ext.$.${e}))`)
 	}), T = (e) => {
 		let t = `rtt_${p++}`;
 		return r.push({
@@ -45941,7 +46105,7 @@ function wD(e, t = {}) {
 		let t = lC(e.id), n = e.metadata.maps;
 		if (!n || Object.keys(n).length === 0) return b(t);
 		let r = ne(e);
-		return Object.keys(r).length === 0 ? b(t) : new iD((n) => n.memo(`props:${e.id}`, () => {
+		return Object.keys(r).length === 0 ? b(t) : new wD((n) => n.memo(`props:${e.id}`, () => {
 			v && n.external(v, "uni");
 			let e = n.freshLocal(`p_${t}`);
 			n.statement(`var ${e} = uni.$.uniforms.${t};`);
@@ -45968,7 +46132,7 @@ function wD(e, t = {}) {
 		let i = e, a = lC(t.id);
 		if (i.type === "map") {
 			let e = ee(t, n, i.source);
-			return e ? kD(OD(e.sample(r ?? S.uv), i.channel ?? "luminance"), b(`${a}._map_${n}_inputMin`), b(`${a}._map_${n}_inputMax`), b(`${a}._map_${n}_outputMin`), b(`${a}._map_${n}_outputMax`), b(`${a}._map_${n}_curve`)) : null;
+			return e ? YD(JD(e.sample(r ?? S.uv), i.channel ?? "luminance"), b(`${a}._map_${n}_inputMin`), b(`${a}._map_${n}_inputMax`), b(`${a}._map_${n}_outputMin`), b(`${a}._map_${n}_outputMax`), b(`${a}._map_${n}_curve`)) : null;
 		}
 		return i.type === "mouse-position" || i.type === "mouse" || i.type === "auto-animate" ? b(`${a}._smoothed_${n}`) : null;
 	}, se = (t, n, r, i) => {
@@ -45980,10 +46144,10 @@ function wD(e, t = {}) {
 		let s = new Set(r);
 		s.add(n.id);
 		let c = De(o, s);
-		return i && (c = T(c).sample(i)), xD(t, c, a.type ?? "alpha");
-	}, ce = (e) => b(`${lC(e.id)}._opacity`), le = (e) => !!e.metadata.boundingBox && !!e.definition.boundingBoxDeclaration && !rD(e.metadata.boundingBox), ue = (e) => e.handles.cutout?.value === 1, de = (e) => !!e.definition.requiresChild, fe = (e) => !!e.definition.blendWithChildren, pe = (e) => le(e) && !e.definition.boundingBoxDeclaration?.boxResamplesContent && de(e) && e.metadata.blendMode === "normal" && !ue(e) && !fe(e), me = () => new iD((e) => `(0.5 / max(${S.viewportSize.member("y")._emit(e)}, 1.0))`), he = (e, t = S.uv) => {
+		return i && (c = T(c).sample(i)), VD(t, c, a.type ?? "alpha");
+	}, ce = (e) => b(`${lC(e.id)}._opacity`), le = (e) => !!e.metadata.boundingBox && !!e.definition.boundingBoxDeclaration && !_D(e.metadata.boundingBox), ue = (e) => e.handles.cutout?.value === 1, de = (e) => !!e.definition.requiresChild, fe = (e) => !!e.definition.blendWithChildren, pe = (e) => le(e) && !e.definition.boundingBoxDeclaration?.boxResamplesContent && de(e) && e.metadata.blendMode === "normal" && !ue(e) && !fe(e), me = () => new wD((e) => `(0.5 / max(${S.viewportSize.member("y")._emit(e)}, 1.0))`), he = (e, t = S.uv) => {
 		let n = lC(e.id), r = (e) => b(`${n}._bbox_${e}`);
-		return fD(eD, "bboxClipMask", [
+		return MD(xD, "bboxClipMask", [
 			t,
 			r("centerX"),
 			r("centerY"),
@@ -45997,7 +46161,7 @@ function wD(e, t = {}) {
 	}, ge = (e, t) => {
 		if (!le(t)) return e;
 		if (t.definition.boundingBoxDeclaration?.boxResamplesContent) {
-			let n = lC(t.id), r = (e) => b(`${n}._bbox_${e}`), i = T(e), a = fD(tD, "bboxGenUVContext", [
+			let n = lC(t.id), r = (e) => b(`${n}._bbox_${e}`), i = T(e), a = MD(SD, "bboxGenUVContext", [
 				S.uv,
 				r("centerX"),
 				r("centerY"),
@@ -46005,16 +46169,16 @@ function wD(e, t = {}) {
 				r("halfHeight"),
 				r("rotation"),
 				r("aspectRatio")
-			]), o = fD(DE, "unpremultiplyAlpha", [i.sample(a)]);
-			return pD(o.member("rgb"), o.member("a").mul(he(t)));
+			]), o = MD(DE, "unpremultiplyAlpha", [i.sample(a)]);
+			return ND(o.member("rgb"), o.member("a").mul(he(t)));
 		}
 		let n = he(t);
-		return pD(e.member("rgb"), e.member("a").mul(n));
+		return ND(e.member("rgb"), e.member("a").mul(n));
 	}, _e = (e, t) => {
 		let n = t.metadata.transform;
-		if (!n || !ZE(n)) return e;
+		if (!n || !vD(n)) return e;
 		let r = lC(t.id), i = T(e), a = (e) => b(`${r}._xform_${e}`);
-		return GD(fD(QE, "applyUVTransform", [
+		return dO(MD(yD, "applyUVTransform", [
 			S.uv,
 			a("offsetX"),
 			a("offsetY"),
@@ -46023,16 +46187,16 @@ function wD(e, t = {}) {
 			a("anchorX"),
 			a("anchorY"),
 			a("aspectRatio")
-		]), (e) => i.sample(e), AD[n.edges] ?? 0);
-	}, ve = (e, t, n) => le(n) ? t !== void 0 && pe(n) ? mD(t, e, he(n)) : ge(e, n) : _e(e, n), ye = (e, t) => pe(t) ? {
+		]), (e) => i.sample(e), XD[n.edges] ?? 0);
+	}, ve = (e, t, n) => le(n) ? t !== void 0 && pe(n) ? PD(t, e, he(n)) : ge(e, n) : _e(e, n), ye = (e, t) => pe(t) ? {
 		transformedFragment: e,
 		clipMaskNode: he(t)
 	} : {
 		transformedFragment: le(t) ? ge(e, t) : _e(e, t),
 		clipMaskNode: void 0
 	}, be = (e, t, n, r) => {
-		let i = ce(n), a = fe(n) ? e === void 0 ? mD(_D, t, i) : bD(e, t, "normal", i) : mD(e ?? _D, t, i);
-		return r === void 0 ? a : mD(e ?? _D, a, r);
+		let i = ce(n), a = fe(n) ? e === void 0 ? PD(LD, t, i) : BD(e, t, "normal", i) : PD(e ?? LD, t, i);
+		return r === void 0 ? a : PD(e ?? LD, a, r);
 	}, xe = (e, t) => {
 		if (e.definition.compute) try {
 			let n = e.definition.compute(t);
@@ -46073,7 +46237,7 @@ function wD(e, t = {}) {
 					centerY: r("centerY"),
 					halfWidth: r("halfWidth"),
 					halfHeight: r("halfHeight"),
-					rotation: dD(0)
+					rotation: jD(0)
 				};
 				break;
 			}
@@ -46174,7 +46338,7 @@ function wD(e, t = {}) {
 	});
 	function De(t, n = /* @__PURE__ */ new Set()) {
 		let r = e.getNode(t);
-		if (!r) return _D;
+		if (!r) return LD;
 		let i = e.getChildren(t);
 		if (i.length > 0 && r.definition.providesUVContextViaCompute) {
 			let e = Ge(r, i, n);
@@ -46225,7 +46389,7 @@ function wD(e, t = {}) {
 			if (c) l = De(o.id, r);
 			else {
 				let e = i;
-				o.definition.requiresRTT && i !== void 0 && (e = bD(_D, i, "normal", dD(1))), o.definition.acceptsOptionalChild && (e = void 0);
+				o.definition.requiresRTT && i !== void 0 && (e = BD(LD, i, "normal", jD(1))), o.definition.acceptsOptionalChild && (e = void 0);
 				let t = Ee(o, e, {
 					bboxMask: Ae(o),
 					...ke(o)
@@ -46237,7 +46401,7 @@ function wD(e, t = {}) {
 			if (o.definition.requiresChild && o.metadata.blendMode === "normal" && !c) i = be(i, l, o, u);
 			else {
 				let e = o.metadata.blendMode ?? "normal", n = o.metadata.opacity ?? 1;
-				i = i === void 0 ? t.definition.requiresRTT || n !== 1 ? bD(vD, l, e, ce(o)) : l : bD(i, l, e, ce(o));
+				i = i === void 0 ? t.definition.requiresRTT || n !== 1 ? BD(RD, l, e, ce(o)) : l : BD(i, l, e, ce(o));
 			}
 		}
 		return i;
@@ -46246,7 +46410,7 @@ function wD(e, t = {}) {
 		if (!le(e) || !e.definition.boundingBoxDeclaration?.supportsResizeFit) return {};
 		let n = lC(e.id), r = (e) => b(`${n}._bbox_${e}`);
 		return {
-			uvContext: fD(tD, "bboxGenUVContext", [
+			uvContext: MD(SD, "bboxGenUVContext", [
 				t,
 				r("centerX"),
 				r("centerY"),
@@ -46255,13 +46419,13 @@ function wD(e, t = {}) {
 				r("rotation"),
 				r("aspectRatio")
 			]),
-			effectiveViewportSize: pD(r("halfWidth").mul(2).mul(S.viewportSize.member("x")), r("halfHeight").mul(2).mul(S.viewportSize.member("y")), 0, 0).member("xy")
+			effectiveViewportSize: ND(r("halfWidth").mul(2).mul(S.viewportSize.member("x")), r("halfHeight").mul(2).mul(S.viewportSize.member("y")), 0, 0).member("xy")
 		};
 	}
 	function Ae(e) {
 		if (le(e) && e.definition.requiresRTT && !e.definition.boundingBoxDeclaration?.supportsResizeFit) return he(e);
 	}
-	let je = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || ZE(e.metadata.transform) || le(e), Me = (t) => !!t.definition.uvRemap && e.getChildren(t.id).length === 0 && !je(t);
+	let je = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || le(e), Me = (t) => !!t.definition.uvRemap && e.getChildren(t.id).length === 0 && !je(t);
 	function Ne(e, t, n) {
 		s.add(e.id);
 		let r = xe(e, Ee(e, void 0));
@@ -46277,7 +46441,7 @@ function wD(e, t = {}) {
 		});
 	}
 	function Pe(e) {
-		let t = S.uv, n = dD(1);
+		let t = S.uv, n = jD(1);
 		for (let r = e.length - 1; r >= 0; r--) {
 			let i = Ne(e[r], t, n);
 			t = i.uv, n = i.mask;
@@ -46287,8 +46451,8 @@ function wD(e, t = {}) {
 			mask: n
 		};
 	}
-	let Fe = dD(1), Ie = (t, n) => {
-		if (n.left-- <= 0 || t.metadata.mask || ZE(t.metadata.transform)) return !1;
+	let Fe = jD(1), Ie = (t, n) => {
+		if (n.left-- <= 0 || t.metadata.mask || vD(t.metadata.transform)) return !1;
 		let r = e.getChildren(t.id).filter((e) => e.metadata.visible !== !1);
 		return r.length === 0 ? le(t) && t.definition.boundingBoxDeclaration?.boxResamplesContent ? !1 : !!t.definition.acceptsUVContext && !t.definition.requiresChild : !t.definition.uvRemap || le(t) ? !1 : r.every((e) => Ie(e, n));
 	};
@@ -46305,7 +46469,7 @@ function wD(e, t = {}) {
 		if (i.length > 0) {
 			if (!t.definition.uvRemap) return null;
 			let e = Le(t, n, r);
-			return Be(i, gD(e.uv, "foldUV"), e.mask);
+			return Be(i, ID(e.uv, "foldUV"), e.mask);
 		}
 		if (!t.definition.acceptsUVContext) return null;
 		s.add(t.id);
@@ -46313,8 +46477,8 @@ function wD(e, t = {}) {
 		o.computeOutputs = xe(t, o);
 		let c = t.definition.fragment(o), l = Re(r, le(t) ? he(t, n) : void 0);
 		if (l === void 0) return c;
-		let u = gD(c, "gen");
-		return pD(u.member("rgb"), u.member("a").mul(l));
+		let u = ID(c, "gen");
+		return ND(u.member("rgb"), u.member("a").mul(l));
 	}
 	function Be(e, t, n) {
 		let r = [...e].sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder), i;
@@ -46322,12 +46486,12 @@ function wD(e, t = {}) {
 			let n = ze(e, t, void 0);
 			if (n === null) return null;
 			let r = e.metadata.blendMode ?? "normal", a = e.metadata.opacity ?? 1;
-			i = i === void 0 ? r === "normal" && a === 1 ? n : bD(vD, n, r, ce(e)) : bD(i, n, r, ce(e));
+			i = i === void 0 ? r === "normal" && a === 1 ? n : BD(RD, n, r, ce(e)) : BD(i, n, r, ce(e));
 		}
 		if (i === void 0) return null;
 		if (n === void 0) return i;
-		let a = gD(i, "sibs");
-		return pD(a.member("rgb"), a.member("a").mul(n));
+		let a = ID(i, "sibs");
+		return ND(a.member("rgb"), a.member("a").mul(n));
 	}
 	function Ve(e, t) {
 		if (!e.definition.uvRemap || je(e)) return null;
@@ -46337,7 +46501,7 @@ function wD(e, t = {}) {
 		if (!n.every((e) => Ie(e, r))) return null;
 		s.add(e.id);
 		let { uv: i, mask: a } = Le(e, S.uv, void 0);
-		return Be(n, gD(i, "foldUV"), a);
+		return Be(n, ID(i, "foldUV"), a);
 	}
 	function He(t, n) {
 		let r = t.filter((e) => e.metadata.visible !== !1);
@@ -46353,7 +46517,7 @@ function wD(e, t = {}) {
 		let { uv: l, mask: u } = Pe(a), d = Ee(c, void 0, { uvContext: l });
 		d.computeOutputs = xe(c, d);
 		let f = c.definition.fragment(d);
-		return pD(f.member("rgb"), f.member("a").mul(u));
+		return ND(f.member("rgb"), f.member("a").mul(u));
 	}
 	function Ue(e, t, n, r) {
 		if (!Me(e[t])) return null;
@@ -46367,9 +46531,9 @@ function wD(e, t = {}) {
 		}
 		if (i.length === 0) return null;
 		for (let e of i) s.add(e.id);
-		let { uv: o, mask: c } = Pe(i), l = T(bD(_D, n, "normal", dD(1))).sample(o);
+		let { uv: o, mask: c } = Pe(i), l = T(BD(LD, n, "normal", jD(1))).sample(o);
 		return {
-			node: pD(l.member("rgb"), l.member("a").mul(c)),
+			node: ND(l.member("rgb"), l.member("a").mul(c)),
 			endIndex: a
 		};
 	}
@@ -46399,15 +46563,15 @@ function wD(e, t = {}) {
 			let e = Ee(c, void 0, { uvContext: u });
 			e.computeOutputs = xe(c, e);
 			let t = c.definition.fragment(e);
-			f = pD(t.member("rgb"), t.member("a").mul(d));
+			f = ND(t.member("rgb"), t.member("a").mul(d));
 		} else {
-			let e = T(bD(vD, De(l.id, r), l.metadata.blendMode ?? "normal", ce(l))).sample(u);
-			f = pD(e.member("rgb"), e.member("a").mul(d));
+			let e = T(BD(RD, De(l.id, r), l.metadata.blendMode ?? "normal", ce(l))).sample(u);
+			f = ND(e.member("rgb"), e.member("a").mul(d));
 		}
 		return se(le(t) ? ge(f, t) : _e(f, t), t, r);
 	}
 	function Ge(t, n, r) {
-		let i = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || ZE(e.metadata.transform) || le(e);
+		let i = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || le(e);
 		if (!t.definition.providesUVContextViaCompute || i(t)) return null;
 		let a = [], o = t, c = null, l = n;
 		for (let t = 0; t < 8; t++) {
@@ -46433,23 +46597,23 @@ function wD(e, t = {}) {
 			if (!r || !r.uvMaskMap) return null;
 			n.computeOutputs = r, u.push(n), d = r.uvMaskMap;
 		}
-		let f = d.sample(S.uv), p = pD(f.member("r"), f.member("g"), 0, 0).member("xy"), m = Ee(c, void 0, { uvContext: p });
+		let f = d.sample(S.uv), p = ND(f.member("r"), f.member("g"), 0, 0).member("xy"), m = Ee(c, void 0, { uvContext: p });
 		m.computeOutputs = xe(c, m);
 		let h = c.definition.fragment(m);
 		for (let e = a.length - 1; e >= 0; e--) u[e].childNode = h, u[e].uvPropagationActive = !0, h = a[e].definition.fragment(u[e]);
 		return se(le(t) ? ge(h, t) : _e(h, t), t, r);
 	}
-	let Ke = e.rootId ? De(e.rootId) : _D, qe = r.map((e) => {
-		let { body: r, externals: i } = CD(e.root, (e) => e, t.flipY ?? !0, n.uniform);
+	let Ke = e.rootId ? De(e.rootId) : LD, qe = r.map((e) => {
+		let { body: r, externals: i } = UD(e.root, (e) => e, t.flipY ?? !0, n.uniform);
 		return {
 			textureKey: e.key,
-			fragment: ED(r, i, `rtt_${e.key}`, n.sampler, _)
+			fragment: KD(r, i, `rtt_${e.key}`, n.sampler, _)
 		};
-	}), Je = t.toneMapping ?? "linear", Ye = CD(Ke, (e, n) => TD(e, n, Je, t.premultiplyAlpha ?? !1), t.flipY ?? !0, n.uniform);
+	}), Je = t.toneMapping ?? "linear", Ye = UD(Ke, (e, n) => GD(e, n, Je, t.premultiplyAlpha ?? !1), t.flipY ?? !0, n.uniform);
 	return {
 		computeSteps: o,
 		rttPasses: qe,
-		finalPass: ED(Ye.body, Ye.externals, "final", n.sampler, _),
+		finalPass: KD(Ye.body, Ye.externals, "final", n.sampler, _),
 		textures: i,
 		externalTextures: a,
 		layouts: {
@@ -46464,28 +46628,28 @@ function wD(e, t = {}) {
 		usesCustomWgsl: Te
 	};
 }
-function TD(e, t, n, r) {
+function GD(e, t, n, r) {
 	let i = t.external(JE[n] ?? JE.linear, `tone_${n}`), a = t.external(YE, "linearToSrgb"), o = t.freshLocal("composed");
 	t.statement(`var ${o} = ${e};`);
 	let s = `${a}(${i}(${o}.rgb))`;
 	return r ? `vec4f(${s} * ${o}.a, ${o}.a)` : `vec4f(${s}, ${o}.a)`;
 }
-function ED(e, t, n, r, i = /* @__PURE__ */ new Set()) {
-	let a = DD(e, /\btex\.\$\.(\w+)/g), o = DD(e, /\bext\.\$\.(\w+)/g), s = /\bsamp\.\$\./.test(e), c;
+function KD(e, t, n, r, i = /* @__PURE__ */ new Set()) {
+	let a = qD(e, /\btex\.\$\.(\w+)/g), o = qD(e, /\bext\.\$\.(\w+)/g), s = /\bsamp\.\$\./.test(e), c;
 	if (a.length > 0) {
 		let e = {};
 		for (let t of a) e[t] = i.has(t) ? {
 			texture: Cd(P),
 			sampleType: "unfilterable-float"
 		} : { texture: Cd(P) };
-		c = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout(e).$idx(lD.textures), "textureLayout"), t.tex = c;
+		c = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout(e).$idx(kD.textures), "textureLayout"), t.tex = c;
 	}
 	let l;
 	if (o.length > 0) {
 		let e = {};
 		for (let t of o) e[t] = { externalTexture: Nd() };
-		let n = /* @__PURE__ */ new Set([lD.uniforms]);
-		a.length > 0 && n.add(lD.textures), s && n.add(lD.samplers);
+		let n = /* @__PURE__ */ new Set([kD.uniforms]);
+		a.length > 0 && n.add(kD.textures), s && n.add(kD.samplers);
 		let r = 0;
 		for (; n.has(r);) r++;
 		l = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout(e).$idx(r), "externalLayout"), t.ext = l;
@@ -46504,38 +46668,38 @@ function ED(e, t, n, r, i = /* @__PURE__ */ new Set()) {
 		externalLayout: l
 	};
 }
-function DD(e, t) {
+function qD(e, t) {
 	let n = /* @__PURE__ */ new Set();
 	for (let r of e.matchAll(t)) n.add(r[1]);
 	return [...n];
 }
-function OD(e, t) {
+function JD(e, t) {
 	switch (t) {
 		case "alpha": return e.member("a");
-		case "alphaInverted": return new iD((t) => `(1.0 - ${e._emit(t)}.a)`);
-		case "luminanceInverted": return new iD((t) => `(1.0 - dot(${e._emit(t)}.rgb, vec3f(0.2126, 0.7152, 0.0722)))`);
-		default: return new iD((t) => `dot(${e._emit(t)}.rgb, vec3f(0.2126, 0.7152, 0.0722))`);
+		case "alphaInverted": return new wD((t) => `(1.0 - ${e._emit(t)}.a)`);
+		case "luminanceInverted": return new wD((t) => `(1.0 - dot(${e._emit(t)}.rgb, vec3f(0.2126, 0.7152, 0.0722)))`);
+		default: return new wD((t) => `dot(${e._emit(t)}.rgb, vec3f(0.2126, 0.7152, 0.0722))`);
 	}
 }
-function kD(e, t, n, r, i, a) {
-	return new iD((o) => {
+function YD(e, t, n, r, i, a) {
+	return new wD((o) => {
 		let s = e._emit(o), c = t._emit(o), l = n._emit(o), u = r._emit(o), d = i._emit(o), f = a._emit(o);
 		return `mix(${u}, ${d}, ${`pow(${`clamp((${s} - ${c}) / max(${l} - ${c}, 0.0001), 0.0, 1.0)`}, pow(2.0, -${f} * 2.0))`})`;
 	});
 }
-var AD = {
+var XD = {
 	stretch: 0,
 	transparent: 1,
 	mirror: 2,
 	wrap: 3
 };
-function jD(e, t = {}) {
+function ZD(e, t = {}) {
 	let n = [];
 	n.push(`tone:${t.toneMapping ?? "linear"}`), n.push(`flipY:${t.flipY ?? !0}`), n.push(`premul:${t.premultiplyAlpha ?? !1}`);
 	let r = (t) => {
 		let i = e.getNode(t);
 		if (!i) return;
-		let a = i.metadata, o = i.definition, s = ZE(a.transform), c = !!a.boundingBox && !!o.boundingBoxDeclaration && !rD(a.boundingBox), l = (a.opacity ?? 1) === 0 ? "zero" : "nonzero", u = a.mask ? `${a.mask.source}:${a.mask.type}` : "none", d = [];
+		let a = i.metadata, o = i.definition, s = vD(a.transform), c = !!a.boundingBox && !!o.boundingBoxDeclaration && !_D(a.boundingBox), l = (a.opacity ?? 1) === 0 ? "zero" : "nonzero", u = a.mask ? `${a.mask.source}:${a.mask.type}` : "none", d = [];
 		for (let [e, t] of Object.entries(o.props ?? {})) if (t.compileTime) {
 			let t = i.handles[e];
 			d.push(`${e}=${t ? String(t.value) : "?"}`);
@@ -46560,7 +46724,7 @@ function jD(e, t = {}) {
 	};
 	return e.rootId && r(e.rootId), n;
 }
-var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var QD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_mul(e, t), r = __tsover_add(U(__tsover_sub(n, .5)), .5), i = __tsover_sub(n, r), a = __tsover_add(1, __tsover_mul(__tsover_mul(i, i), __tsover_add(-2.5, __tsover_mul(1.5, i)))), o = __tsover_mul(i, __tsover_add(.5, __tsover_mul(i, __tsover_sub(2, __tsover_mul(1.5, i))))), s = K(__tsover_add(a, o), 1e-6), c = __tsover_div(o, s);
 	return L(__tsover_div(__tsover_sub(r, 1), t), __tsover_div(__tsover_add(r, c), t), __tsover_div(__tsover_add(r, 2), t));
@@ -46749,7 +46913,7 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.max": () => K,
 		"d.vec3f": () => L
 	}
-}) && e.f)({})), ND = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), $D = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_mul(e, t), r = __tsover_add(U(__tsover_sub(n, .5)), .5), i = __tsover_sub(n, r), a = __tsover_mul(i, __tsover_add(-.5, __tsover_mul(i, __tsover_sub(1, __tsover_mul(.5, i))))), o = __tsover_add(1, __tsover_mul(__tsover_mul(i, i), __tsover_add(-2.5, __tsover_mul(1.5, i)))), s = __tsover_mul(i, __tsover_add(.5, __tsover_mul(i, __tsover_sub(2, __tsover_mul(1.5, i))))), c = __tsover_mul(__tsover_mul(i, i), __tsover_add(-.5, __tsover_mul(.5, i)));
 	return L(a, __tsover_add(o, s), c);
@@ -46951,12 +47115,12 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.floor": () => U,
 		"d.vec3f": () => L
 	}
-}) && e.f)({})), PD = 0, FD = (e, t, n = "linearClamp", r = "positive") => {
-	let i = PD++;
-	return new iD((a) => a.memo(`catmullRom:${i}`, () => {
+}) && e.f)({})), eO = 0, tO = (e, t, n = "linearClamp", r = "positive") => {
+	let i = eO++;
+	return new wD((a) => a.memo(`catmullRom:${i}`, () => {
 		let i = a.freshLocal("crUV"), o = a.freshLocal("crSize"), s = a.freshLocal("crPosX"), c = a.freshLocal("crPosY"), l = a.freshLocal("crWx"), u = a.freshLocal("crWy"), d = a.freshLocal("crOut");
 		a.statement(`let ${i} = ${t._emit(a)};`), a.statement(`let ${o} = ${e.dimensions()._emit(a)};`);
-		let f = a.external(MD, "catmullRomAxisPositions"), p = a.external(ND, "catmullRomAxisWeights");
+		let f = a.external(QD, "catmullRomAxisPositions"), p = a.external($D, "catmullRomAxisWeights");
 		a.statement(`let ${s} = ${f}(${i}.x, ${o}.x);`), a.statement(`let ${c} = ${f}(${i}.y, ${o}.y);`), a.statement(`let ${l} = ${p}(${i}.x, ${o}.x);`), a.statement(`let ${u} = ${p}(${i}.y, ${o}.y);`), a.statement(`var ${d} = vec4f(0.0, 0.0, 0.0, 0.0);`);
 		let m = [
 			"x",
@@ -46972,12 +47136,12 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 			1,
 			2
 		]) {
-			let i = new iD(() => `vec2f(${s}.${m[r]}, ${c}.${m[t]})`), o = `(${l}.${m[r]} * ${u}.${m[t]})`;
+			let i = new wD(() => `vec2f(${s}.${m[r]}, ${c}.${m[t]})`), o = `(${l}.${m[r]} * ${u}.${m[t]})`;
 			a.statement(`${d} += ${e.sample(i, n)._emit(a)} * ${o};`);
 		}
 		return a.statement(r === "unit" ? `${d} = clamp(${d}, vec4f(0.0, 0.0, 0.0, 0.0), vec4f(1.0, 1.0, 1.0, 1.0));` : `${d} = max(${d}, vec4f(0.0, 0.0, 0.0, 0.0));`), d;
 	}));
-}, ID = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}, nO = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return B(e, I(0, 0), I(1, 1));
 }), {
@@ -47010,7 +47174,7 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.clamp": () => B,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), LD = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), rO = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = Su(z(e.x), 2), n = Su(z(e.y), 2);
 	return I(Q(t, __tsover_sub(2, t), t >= 1), Q(n, __tsover_sub(2, n), n >= 1));
@@ -47106,7 +47270,7 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"d.vec2f": () => I,
 		"std.select": () => Q
 	}
-}) && e.f)({})), RD = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), iO = $.fn([I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return W(e);
 }), {
@@ -47124,7 +47288,7 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]]]
 	},
 	externals: { "std.fract": () => W }
-}) && e.f)({})), zD = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), aO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = __tsover_mul(Zh(0, e.x), Zh(e.x, 1)), n = __tsover_mul(Zh(0, e.y), Zh(e.y, 1));
 	return __tsover_mul(t, n);
@@ -47198,7 +47362,7 @@ var MD = $.fn([P, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]
 	},
 	externals: { "std.step": () => Zh }
-}) && e.f)({})), BD = 1, VD = 2, HD = 3;
+}) && e.f)({})), oO = 1, sO = 2, cO = 3;
 $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return R(e.x, e.y, e.z, __tsover_mul(e.w, t));
@@ -47247,44 +47411,44 @@ $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	},
 	externals: { "d.vec4f": () => R }
 }) && e.f)({}));
-var UD = (e, t) => {
+var lO = (e, t) => {
 	switch (t) {
-		case BD: return e;
-		case VD: return fD(LD, "edgeMirrorUV", [e]);
-		case HD: return fD(RD, "edgeWrapUV", [e]);
-		default: return fD(ID, "edgeClampUV", [e]);
+		case oO: return e;
+		case sO: return MD(rO, "edgeMirrorUV", [e]);
+		case cO: return MD(iO, "edgeWrapUV", [e]);
+		default: return MD(nO, "edgeClampUV", [e]);
 	}
-}, WD = (e, t, n) => {
-	if (n === BD) {
-		let n = fD(zD, "edgeTransparentMask", [e]);
+}, uO = (e, t, n) => {
+	if (n === oO) {
+		let n = MD(aO, "edgeTransparentMask", [e]);
 		return {
 			uv: e,
 			mask: t.mul(n)
 		};
 	}
 	return {
-		uv: UD(e, n),
+		uv: lO(e, n),
 		mask: t
 	};
-}, GD = (e, t, n) => {
-	if (n === BD) {
-		let n = t(e), r = fD(zD, "edgeTransparentMask", [e]);
-		return pD(n.member("rgb"), n.member("a").mul(r));
+}, dO = (e, t, n) => {
+	if (n === oO) {
+		let n = t(e), r = MD(aO, "edgeTransparentMask", [e]);
+		return ND(n.member("rgb"), n.member("a").mul(r));
 	}
-	return t(n === VD ? fD(LD, "edgeMirrorUV", [e]) : n === HD ? fD(RD, "edgeWrapUV", [e]) : e);
-}, KD = (e, t, n) => GD(t, n === VD ? (t) => e.sample(t) : (t) => FD(e, t, n === HD ? "linearRepeat" : "linearClamp"), n), qD = Vu({
+	return t(n === sO ? MD(rO, "edgeMirrorUV", [e]) : n === cO ? MD(iO, "edgeWrapUV", [e]) : e);
+}, fO = (e, t, n) => dO(t, n === sO ? (t) => e.sample(t) : (t) => tO(e, t, n === cO ? "linearRepeat" : "linearClamp"), n), pO = Vu({
 	rUV: I,
 	gUV: I,
 	bUV: I
-}).$name("ChromaticSplitUVs"), JD = $.fn([
+}).$name("ChromaticSplitUVs"), mO = $.fn([
 	I,
 	I,
 	P,
 	P
-], qD)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
+], pO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
 	let i = t.mul(__tsover_mul(n, .1)), a = .15, o = B(i, I(-.15, -.15), I(a, a)), s = __tsover_mul(r, .1);
-	return qD({
+	return pO({
 		rUV: e.sub(o.mul(__tsover_add(1, s))),
 		gUV: e.sub(o),
 		bUV: e.sub(o.mul(__tsover_sub(1, s)))
@@ -47453,9 +47617,9 @@ var UD = (e, t) => {
 	externals: {
 		"std.clamp": () => B,
 		"d.vec2f": () => I,
-		ChromaticSplitUVs: () => qD
+		ChromaticSplitUVs: () => pO
 	}
-}) && e.f)({})), YD = OC;
+}) && e.f)({})), hO = OC;
 $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_mul(t, EC), r = V(n), i = Y(n), a = __tsover_div(1, 3), o = __tsover_sub(1, r), s = __tsover_mul(o, a), c = __tsover_div(i, jC), l = __tsover_add(r, s), u = __tsover_sub(s, c), d = __tsover_add(s, c), f = __tsover_add(s, c), p = __tsover_add(r, s), m = __tsover_sub(s, c), h = __tsover_sub(s, c), g = __tsover_add(s, c), _ = __tsover_add(r, s), v = e.x, y = e.y, b = e.z;
@@ -49245,7 +49409,7 @@ $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	L
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = i.mul(e).add(a).add(L(t, t, t)).mul(YD);
+	let o = i.mul(e).add(a).add(L(t, t, t)).mul(hO);
 	return B(n.add(r.mul(V(o))), L(0, 0, 0), L(1, 1, 1));
 }), {
 	v: 2,
@@ -49377,7 +49541,7 @@ $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	},
 	externals: {
 		"d.vec3f": () => L,
-		TWO_PI: () => YD,
+		TWO_PI: () => hO,
 		"std.cos": () => V,
 		"std.clamp": () => B
 	}
@@ -49775,7 +49939,7 @@ $.fn([R, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var XD = $.fn([
+var gO = $.fn([
 	P,
 	P,
 	P,
@@ -49975,7 +50139,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return XD(kw(e.xyz), t, n, r, i, a);
+	return gO(kw(e.xyz), t, n, r, i, a);
 }), {
 	v: 2,
 	name: void 0,
@@ -50028,7 +50192,7 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		contourLineMask: () => XD,
+		contourLineMask: () => gO,
 		luma709Dot: () => kw
 	}
 }) && e.f)({})), $.fn([
@@ -50040,7 +50204,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return XD(e.w, t, n, r, i, a);
+	return gO(e.w, t, n, r, i, a);
 }), {
 	v: 2,
 	name: void 0,
@@ -50088,7 +50252,7 @@ $.fn([
 			]
 		]]]]
 	},
-	externals: { contourLineMask: () => XD }
+	externals: { contourLineMask: () => gO }
 }) && e.f)({})), $.fn([
 	R,
 	R,
@@ -50224,7 +50388,7 @@ $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var ZD = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var _O = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return __tsover_mul(__tsover_sub(W(__tsover_mul(Y(__tsover_mul(e, 12.9898)), 43758.5453)), .5), 2);
 }), {
@@ -50624,7 +50788,7 @@ $.fn([
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
-var QD = 2, $D = 1.2;
+var vO = 2, yO = 1.2;
 $.fn([
 	P,
 	P,
@@ -50633,7 +50797,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = __tsover_mul(n, EC), o = I(V(a), Y(a)), s = I(__tsover_mul(o.y, -1), o.x), c = I(__tsover_mul(__tsover_sub(r.x, .5), i), __tsover_sub(r.y, .5)), l = H(c, o), u = H(c, s), d = K(__tsover_mul(__tsover_add(__tsover_mul(z(o.x), i), z(o.y)), .5), .001), f = __tsover_div(l, d), p = __tsover_mul(e, $D), m = __tsover_mul(B(t, 0, 1), .9), h = __tsover_sub(1, m), g = z(f), _ = Q(P(-1), P(1), f >= 0), v = __tsover_mul(p, g), y = __tsover_add(__tsover_mul(__tsover_mul(__tsover_mul(QD, QD), h), h), __tsover_mul(__tsover_mul(__tsover_mul(4, v), QD), __tsover_sub(g, m))), b = z(v) < 1e-5, x = Q(__tsover_mul(v, 2), P(1), b), S = Q(__tsover_div(__tsover_sub(Z(K(y, 0)), __tsover_mul(QD, h)), x), __tsover_div(__tsover_sub(g, m), h), b), C = Q(P(6), K(S, 0), y >= 0), w = __tsover_mul(_, __tsover_add(m, __tsover_mul(C, h))), T = g <= m, E = Q(w, f, T), ee = Q(__tsover_mul(__tsover_mul(p, C), C), P(0), T), te = __tsover_div(__tsover_mul(u, __tsover_sub(QD, ee)), QD), ne = o.mul(__tsover_mul(E, d)).add(s.mul(te));
+	let a = __tsover_mul(n, EC), o = I(V(a), Y(a)), s = I(__tsover_mul(o.y, -1), o.x), c = I(__tsover_mul(__tsover_sub(r.x, .5), i), __tsover_sub(r.y, .5)), l = H(c, o), u = H(c, s), d = K(__tsover_mul(__tsover_add(__tsover_mul(z(o.x), i), z(o.y)), .5), .001), f = __tsover_div(l, d), p = __tsover_mul(e, yO), m = __tsover_mul(B(t, 0, 1), .9), h = __tsover_sub(1, m), g = z(f), _ = Q(P(-1), P(1), f >= 0), v = __tsover_mul(p, g), y = __tsover_add(__tsover_mul(__tsover_mul(__tsover_mul(vO, vO), h), h), __tsover_mul(__tsover_mul(__tsover_mul(4, v), vO), __tsover_sub(g, m))), b = z(v) < 1e-5, x = Q(__tsover_mul(v, 2), P(1), b), S = Q(__tsover_div(__tsover_sub(Z(K(y, 0)), __tsover_mul(vO, h)), x), __tsover_div(__tsover_sub(g, m), h), b), C = Q(P(6), K(S, 0), y >= 0), w = __tsover_mul(_, __tsover_add(m, __tsover_mul(C, h))), T = g <= m, E = Q(w, f, T), ee = Q(__tsover_mul(__tsover_mul(p, C), C), P(0), T), te = __tsover_div(__tsover_mul(u, __tsover_sub(vO, ee)), vO), ne = o.mul(__tsover_mul(E, d)).add(s.mul(te));
 	return I(__tsover_add(__tsover_div(ne.x, i), .5), __tsover_add(ne.y, .5));
 }), {
 	v: 2,
@@ -51222,11 +51386,11 @@ $.fn([
 		"std.dot": () => H,
 		"std.max": () => K,
 		"std.abs": () => z,
-		B_MAX: () => $D,
+		B_MAX: () => yO,
 		"std.clamp": () => B,
 		"std.select": () => Q,
 		"d.f32": () => P,
-		CAMERA_D: () => QD,
+		CAMERA_D: () => vO,
 		"std.sqrt": () => Z
 	}
 }) && e.f)({})), $.fn([
@@ -52321,7 +52485,7 @@ $.fn([
 		"std.clamp": () => B
 	}
 }) && e.f)({}));
-var eO = $.fn([
+var bO = $.fn([
 	I,
 	P,
 	P,
@@ -52483,7 +52647,7 @@ var eO = $.fn([
 		"std.sin": () => Y,
 		TAU: () => OC
 	}
-}) && e.f)({})), tO = $.fn([
+}) && e.f)({})), xO = $.fn([
 	I,
 	P,
 	P,
@@ -52619,7 +52783,7 @@ var eO = $.fn([
 		"std.sin": () => Y,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), nO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), SO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return Y(e);
 }), {
@@ -52637,7 +52801,7 @@ var eO = $.fn([
 		]]]]
 	},
 	externals: { "std.sin": () => Y }
-}) && e.f)({})), rO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), CO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = W(__tsover_div(e, OC));
 	return __tsover_sub(__tsover_mul(z(__tsover_sub(__tsover_mul(t, 2), 1)), 2), 1);
@@ -52693,7 +52857,7 @@ var eO = $.fn([
 		TAU: () => OC,
 		"std.abs": () => z
 	}
-}) && e.f)({})), iO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), wO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = W(__tsover_div(e, OC));
 	return __tsover_sub(__tsover_mul(Zh(.5, t), 2), 1);
@@ -52739,7 +52903,7 @@ var eO = $.fn([
 		TAU: () => OC,
 		"std.step": () => Zh
 	}
-}) && e.f)({})), aO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), TO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = W(__tsover_div(e, OC));
 	return __tsover_sub(__tsover_mul(t, 2), 1);
@@ -52780,7 +52944,7 @@ var eO = $.fn([
 		"std.fract": () => W,
 		TAU: () => OC
 	}
-}) && e.f)({})), oO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), EO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return z(Y(e));
 }), {
@@ -52815,7 +52979,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return tO(e, t, n, i, nO(eO(e, t, n, r, a)));
+	return xO(e, t, n, i, SO(bO(e, t, n, r, a)));
 }), {
 	v: 2,
 	name: void 0,
@@ -52877,9 +53041,9 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		waveformSine: () => nO,
-		wavePhase: () => eO,
-		waveApply: () => tO
+		waveformSine: () => SO,
+		wavePhase: () => bO,
+		waveApply: () => xO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -52890,7 +53054,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return tO(e, t, n, i, rO(eO(e, t, n, r, a)));
+	return xO(e, t, n, i, CO(bO(e, t, n, r, a)));
 }), {
 	v: 2,
 	name: void 0,
@@ -52952,9 +53116,9 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		waveformTriangle: () => rO,
-		wavePhase: () => eO,
-		waveApply: () => tO
+		waveformTriangle: () => CO,
+		wavePhase: () => bO,
+		waveApply: () => xO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -52965,7 +53129,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return tO(e, t, n, i, iO(eO(e, t, n, r, a)));
+	return xO(e, t, n, i, wO(bO(e, t, n, r, a)));
 }), {
 	v: 2,
 	name: void 0,
@@ -53027,9 +53191,9 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		waveformSquare: () => iO,
-		wavePhase: () => eO,
-		waveApply: () => tO
+		waveformSquare: () => wO,
+		wavePhase: () => bO,
+		waveApply: () => xO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -53040,7 +53204,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return tO(e, t, n, i, aO(eO(e, t, n, r, a)));
+	return xO(e, t, n, i, TO(bO(e, t, n, r, a)));
 }), {
 	v: 2,
 	name: void 0,
@@ -53102,9 +53266,9 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		waveformSawtooth: () => aO,
-		wavePhase: () => eO,
-		waveApply: () => tO
+		waveformSawtooth: () => TO,
+		wavePhase: () => bO,
+		waveApply: () => xO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -53115,7 +53279,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return tO(e, t, n, i, oO(eO(e, t, n, r, a)));
+	return xO(e, t, n, i, EO(bO(e, t, n, r, a)));
 }), {
 	v: 2,
 	name: void 0,
@@ -53177,9 +53341,9 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		waveformBounce: () => oO,
-		wavePhase: () => eO,
-		waveApply: () => tO
+		waveformBounce: () => EO,
+		wavePhase: () => bO,
+		waveApply: () => xO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -53508,9 +53672,9 @@ $.fn([
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
-var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var DO = 1e-8, OO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	return __tsover_div(e, Q(t, sO, z(t) < sO));
+	return __tsover_div(e, Q(t, DO, z(t) < DO));
 }), {
 	v: 2,
 	name: void 0,
@@ -53548,10 +53712,10 @@ var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGP
 	},
 	externals: {
 		"std.select": () => Q,
-		EPS: () => sO,
+		EPS: () => DO,
 		"std.abs": () => z
 	}
-}) && e.f)({})), lO = $.fn([
+}) && e.f)({})), kO = $.fn([
 	I,
 	I,
 	I
@@ -53669,14 +53833,14 @@ var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGP
 		]]
 	},
 	externals: {}
-}) && e.f)({})), uO = $.fn([
+}) && e.f)({})), AO = $.fn([
 	I,
 	I,
 	I,
 	I
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = lO(e, t, n), a = lO(e, n, r), o = lO(e, r, t), s = __tsover_mul(__tsover_mul(Zh(P(0), i), Zh(P(0), a)), Zh(P(0), o)), c = __tsover_mul(__tsover_mul(Zh(i, P(0)), Zh(a, P(0))), Zh(o, P(0)));
+	let i = kO(e, t, n), a = kO(e, n, r), o = kO(e, r, t), s = __tsover_mul(__tsover_mul(Zh(P(0), i), Zh(P(0), a)), Zh(P(0), o)), c = __tsover_mul(__tsover_mul(Zh(i, P(0)), Zh(a, P(0))), Zh(o, P(0)));
 	return __tsover_add(s, c);
 }), {
 	v: 2,
@@ -53827,18 +53991,18 @@ var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGP
 		]]
 	},
 	externals: {
-		cornerSideOf: () => lO,
+		cornerSideOf: () => kO,
 		"std.step": () => Zh,
 		"d.f32": () => P
 	}
-}) && e.f)({})), dO = $.fn([
+}) && e.f)({})), jO = $.fn([
 	I,
 	I,
 	I,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = n.sub(t), a = B(__tsover_div(H(e.sub(t), i), K(H(i, i), sO)), 0, 1), o = t.add(i.mul(a)), s = I(__tsover_mul(i.y, -1), i.x).div(K(G(i), sO)), c = __tsover_mul(__tsover_mul(Wh(r), -1), .004);
+	let i = n.sub(t), a = B(__tsover_div(H(e.sub(t), i), K(H(i, i), DO)), 0, 1), o = t.add(i.mul(a)), s = I(__tsover_mul(i.y, -1), i.x).div(K(G(i), DO)), c = __tsover_mul(__tsover_mul(Wh(r), -1), .004);
 	return o.add(s.mul(c));
 }), {
 	v: 2,
@@ -54023,20 +54187,20 @@ var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGP
 		"std.clamp": () => B,
 		"std.dot": () => H,
 		"std.max": () => K,
-		EPS: () => sO,
+		EPS: () => DO,
 		"d.vec2f": () => I,
 		"std.length": () => G,
 		"std.sign": () => Wh
 	}
-}) && e.f)({})), fO = $.fn([
+}) && e.f)({})), MO = $.fn([
 	I,
 	I,
 	I,
 	I
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = uO(e, t, n, r) > .5;
-	return Q(e, dO(e, t, n, lO(r, t, n)), i);
+	let i = AO(e, t, n, r) > .5;
+	return Q(e, jO(e, t, n, kO(r, t, n)), i);
 }), {
 	v: 2,
 	name: void 0,
@@ -54113,9 +54277,9 @@ var sO = 1e-8, cO = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGP
 		]]
 	},
 	externals: {
-		cornerInsideTri: () => uO,
-		cornerProjectToDiagonal: () => dO,
-		cornerSideOf: () => lO,
+		cornerInsideTri: () => AO,
+		cornerProjectToDiagonal: () => jO,
+		cornerSideOf: () => kO,
 		"std.select": () => Q
 	}
 }) && e.f)({}));
@@ -54128,7 +54292,7 @@ $.fn([
 	I
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = I(t, t), s = J(I(0, 0), I(n.x, __tsover_sub(1, n.y)), o), c = J(I(1, 0), I(r.x, __tsover_sub(1, r.y)), o), l = J(I(1, 1), I(i.x, __tsover_sub(1, i.y)), o), u = J(I(0, 1), I(a.x, __tsover_sub(1, a.y)), o), d = fO(s, c, u, l), f = fO(c, s, l, u), p = fO(l, c, u, s), m = fO(u, s, l, c), h = __tsover_sub(f.x, p.x), g = __tsover_sub(m.x, p.x), _ = __tsover_sub(__tsover_add(__tsover_sub(d.x, f.x), p.x), m.x), v = __tsover_sub(f.y, p.y), y = __tsover_sub(m.y, p.y), b = __tsover_sub(__tsover_add(__tsover_sub(d.y, f.y), p.y), m.y), x = __tsover_sub(__tsover_mul(h, y), __tsover_mul(g, v)), S = cO(__tsover_sub(__tsover_mul(_, y), __tsover_mul(g, b)), x), C = cO(__tsover_sub(__tsover_mul(h, b), __tsover_mul(_, v)), x), w = __tsover_add(__tsover_sub(f.x, d.x), __tsover_mul(S, f.x)), T = __tsover_add(__tsover_sub(m.x, d.x), __tsover_mul(C, m.x)), E = d.x, ee = __tsover_add(__tsover_sub(f.y, d.y), __tsover_mul(S, f.y)), te = __tsover_add(__tsover_sub(m.y, d.y), __tsover_mul(C, m.y)), ne = d.y, re = __tsover_sub(te, __tsover_mul(ne, C)), ie = __tsover_mul(__tsover_sub(T, __tsover_mul(E, C)), -1), ae = __tsover_sub(__tsover_mul(T, ne), __tsover_mul(E, te)), oe = __tsover_mul(__tsover_sub(ee, __tsover_mul(ne, S)), -1), se = __tsover_sub(w, __tsover_mul(E, S)), ce = __tsover_mul(__tsover_sub(__tsover_mul(w, ne), __tsover_mul(E, ee)), -1), le = __tsover_sub(__tsover_mul(ee, C), __tsover_mul(te, S)), ue = __tsover_mul(__tsover_sub(__tsover_mul(w, C), __tsover_mul(T, S)), -1), de = __tsover_sub(__tsover_mul(w, te), __tsover_mul(T, ee)), fe = e.x, pe = e.y, me = __tsover_add(__tsover_add(__tsover_mul(le, fe), __tsover_mul(ue, pe)), de), he = cO(__tsover_add(__tsover_add(__tsover_mul(re, fe), __tsover_mul(ie, pe)), ae), me), ge = cO(__tsover_add(__tsover_add(__tsover_mul(oe, fe), __tsover_mul(se, pe)), ce), me), _e = __tsover_add(__tsover_add(__tsover_mul(w, re), __tsover_mul(T, oe)), __tsover_mul(E, le));
+	let o = I(t, t), s = J(I(0, 0), I(n.x, __tsover_sub(1, n.y)), o), c = J(I(1, 0), I(r.x, __tsover_sub(1, r.y)), o), l = J(I(1, 1), I(i.x, __tsover_sub(1, i.y)), o), u = J(I(0, 1), I(a.x, __tsover_sub(1, a.y)), o), d = MO(s, c, u, l), f = MO(c, s, l, u), p = MO(l, c, u, s), m = MO(u, s, l, c), h = __tsover_sub(f.x, p.x), g = __tsover_sub(m.x, p.x), _ = __tsover_sub(__tsover_add(__tsover_sub(d.x, f.x), p.x), m.x), v = __tsover_sub(f.y, p.y), y = __tsover_sub(m.y, p.y), b = __tsover_sub(__tsover_add(__tsover_sub(d.y, f.y), p.y), m.y), x = __tsover_sub(__tsover_mul(h, y), __tsover_mul(g, v)), S = OO(__tsover_sub(__tsover_mul(_, y), __tsover_mul(g, b)), x), C = OO(__tsover_sub(__tsover_mul(h, b), __tsover_mul(_, v)), x), w = __tsover_add(__tsover_sub(f.x, d.x), __tsover_mul(S, f.x)), T = __tsover_add(__tsover_sub(m.x, d.x), __tsover_mul(C, m.x)), E = d.x, ee = __tsover_add(__tsover_sub(f.y, d.y), __tsover_mul(S, f.y)), te = __tsover_add(__tsover_sub(m.y, d.y), __tsover_mul(C, m.y)), ne = d.y, re = __tsover_sub(te, __tsover_mul(ne, C)), ie = __tsover_mul(__tsover_sub(T, __tsover_mul(E, C)), -1), ae = __tsover_sub(__tsover_mul(T, ne), __tsover_mul(E, te)), oe = __tsover_mul(__tsover_sub(ee, __tsover_mul(ne, S)), -1), se = __tsover_sub(w, __tsover_mul(E, S)), ce = __tsover_mul(__tsover_sub(__tsover_mul(w, ne), __tsover_mul(E, ee)), -1), le = __tsover_sub(__tsover_mul(ee, C), __tsover_mul(te, S)), ue = __tsover_mul(__tsover_sub(__tsover_mul(w, C), __tsover_mul(T, S)), -1), de = __tsover_sub(__tsover_mul(w, te), __tsover_mul(T, ee)), fe = e.x, pe = e.y, me = __tsover_add(__tsover_add(__tsover_mul(le, fe), __tsover_mul(ue, pe)), de), he = OO(__tsover_add(__tsover_add(__tsover_mul(re, fe), __tsover_mul(ie, pe)), ae), me), ge = OO(__tsover_add(__tsover_add(__tsover_mul(oe, fe), __tsover_mul(se, pe)), ce), me), _e = __tsover_add(__tsover_add(__tsover_mul(w, re), __tsover_mul(T, oe)), __tsover_mul(E, le));
 	return L(he, ge, Zh(P(0), __tsover_mul(me, _e)));
 }), {
 	v: 2,
@@ -55079,8 +55243,8 @@ $.fn([
 	externals: {
 		"d.vec2f": () => I,
 		"std.mix": () => J,
-		cornerConvexify: () => fO,
-		cornerPinSafeDiv: () => cO,
+		cornerConvexify: () => MO,
+		cornerPinSafeDiv: () => OO,
 		"std.step": () => Zh,
 		"d.f32": () => P,
 		"d.vec3f": () => L
@@ -55459,7 +55623,7 @@ $.fn([
 		"std.max": () => K
 	}
 }) && e.f)({}));
-var pO = $.fn([
+var NO = $.fn([
 	I,
 	P,
 	I,
@@ -55660,8 +55824,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c) => {
 	"use gpu";
-	let l = I(e.x, __tsover_sub(1, e.y)), u = G(I(__tsover_mul(__tsover_sub(s.x, l.x), c), __tsover_sub(s.y, l.y))), d = __tsover_mul(u, n), f = U(d), p = W(d), m = __tsover_mul(t, EC), h = __tsover_mul(i, .137), g = __tsover_mul(ZD(__tsover_add(f, h)), m), _ = __tsover_mul(ZD(__tsover_add(__tsover_add(f, 1), h)), m), v = J(1, ZD(__tsover_add(f, 42.7)), a), y = J(1, ZD(__tsover_add(__tsover_add(f, 1), 42.7)), a), b = __tsover_mul(__tsover_mul(o, .25), v), x = __tsover_mul(__tsover_mul(o, .25), y), S = __tsover_add(g, b), C = __tsover_add(_, x), w = __tsover_add(__tsover_sub(C, S), DC), T = __tsover_sub(__tsover_sub(w, __tsover_mul(OC, U(__tsover_div(w, OC)))), DC), E = __tsover_add(__tsover_mul(r, .5), .001), ee = X(__tsover_sub(.5, E), __tsover_add(.5, E), p);
-	return pO(s, c, e, __tsover_add(S, __tsover_mul(T, ee)));
+	let l = I(e.x, __tsover_sub(1, e.y)), u = G(I(__tsover_mul(__tsover_sub(s.x, l.x), c), __tsover_sub(s.y, l.y))), d = __tsover_mul(u, n), f = U(d), p = W(d), m = __tsover_mul(t, EC), h = __tsover_mul(i, .137), g = __tsover_mul(_O(__tsover_add(f, h)), m), _ = __tsover_mul(_O(__tsover_add(__tsover_add(f, 1), h)), m), v = J(1, _O(__tsover_add(f, 42.7)), a), y = J(1, _O(__tsover_add(__tsover_add(f, 1), 42.7)), a), b = __tsover_mul(__tsover_mul(o, .25), v), x = __tsover_mul(__tsover_mul(o, .25), y), S = __tsover_add(g, b), C = __tsover_add(_, x), w = __tsover_add(__tsover_sub(C, S), DC), T = __tsover_sub(__tsover_sub(w, __tsover_mul(OC, U(__tsover_div(w, OC)))), DC), E = __tsover_add(__tsover_mul(r, .5), .001), ee = X(__tsover_sub(.5, E), __tsover_add(.5, E), p);
+	return NO(s, c, e, __tsover_add(S, __tsover_mul(T, ee)));
 }), {
 	v: 2,
 	name: void 0,
@@ -56086,12 +56250,12 @@ $.fn([
 		"std.floor": () => U,
 		"std.fract": () => W,
 		DEG_TO_RAD: () => EC,
-		legacySinHash11: () => ZD,
+		legacySinHash11: () => _O,
 		"std.mix": () => J,
 		PI: () => DC,
 		TAU: () => OC,
 		"std.smoothstep": () => X,
-		csRotateUV: () => pO
+		csRotateUV: () => NO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -56987,7 +57151,7 @@ $.fn([
 		"std.fract": () => W
 	}
 }) && e.f)({}));
-var mO = $.fn([
+var PO = $.fn([
 	I,
 	P,
 	P,
@@ -57233,8 +57397,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = __tsover_mul(t, EC), c = V(s), l = Y(s), u = K(o, 1), d = __tsover_mul(a.x, o), f = a.y, p = __tsover_sub(d, __tsover_mul(o, .5)), m = __tsover_sub(f, .5), h = __tsover_add(__tsover_mul(p, c), __tsover_mul(m, l)), g = U(__tsover_div(__tsover_mul(h, e), u)), _ = __tsover_mul(r, .137), v = ZD(__tsover_add(g, _)), y = ZD(__tsover_add(__tsover_add(g, _), 42.7)), b = __tsover_mul(__tsover_mul(i, y), .2);
-	return mO(a, o, t, __tsover_mul(__tsover_add(v, b), n));
+	let s = __tsover_mul(t, EC), c = V(s), l = Y(s), u = K(o, 1), d = __tsover_mul(a.x, o), f = a.y, p = __tsover_sub(d, __tsover_mul(o, .5)), m = __tsover_sub(f, .5), h = __tsover_add(__tsover_mul(p, c), __tsover_mul(m, l)), g = U(__tsover_div(__tsover_mul(h, e), u)), _ = __tsover_mul(r, .137), v = _O(__tsover_add(g, _)), y = _O(__tsover_add(__tsover_add(g, _), 42.7)), b = __tsover_mul(__tsover_mul(i, y), .2);
+	return PO(a, o, t, __tsover_mul(__tsover_add(v, b), n));
 }), {
 	v: 2,
 	name: void 0,
@@ -57490,8 +57654,8 @@ $.fn([
 		"std.sin": () => Y,
 		"std.max": () => K,
 		"std.floor": () => U,
-		legacySinHash11: () => ZD,
-		barSampleUV: () => mO
+		legacySinHash11: () => _O,
+		barSampleUV: () => PO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -58166,7 +58330,7 @@ $.fn([
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
-var hO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var FO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	refractedUV: I,
 	chrOff: I,
 	slope: P
@@ -58183,10 +58347,10 @@ $.fn([
 	P,
 	P,
 	L
-], hO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u) => {
+], FO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u) => {
 	"use gpu";
 	let d = u.x, f = u.y, p = u.z, m = __tsover_div(__tsover_mul(r, DC), 180), h = V(m), g = Y(m), _ = I(__tsover_mul(__tsover_sub(e.x, .5), t), __tsover_sub(e.y, .5)), v = __tsover_add(__tsover_mul(_.x, h), __tsover_mul(_.y, g)), y = __tsover_add(__tsover_mul(-_.x, g), __tsover_mul(_.y, h)), b = __tsover_mul(Y(__tsover_add(__tsover_mul(__tsover_mul(y, s), __tsover_mul(DC, 2)), __tsover_mul(n, 2))), o), x = __tsover_add(v, __tsover_mul(p, b)), S = __tsover_add(__tsover_mul(x, i), n), C = __tsover_mul(__tsover_sub(W(S), .5), 2), w = K(z(C), 1e-4), T = J(d, f, a), E = __tsover_mul(Wh(C), Lh(w, T)), ee = __tsover_div(.5, K(i, .001)), te = -__tsover_mul(__tsover_mul(E, c), ee), ne = I(__tsover_add(e.x, __tsover_div(__tsover_mul(te, h), t)), __tsover_add(e.y, __tsover_mul(te, g))), re = __tsover_mul(__tsover_mul(te, l), .5);
-	return hO({
+	return FO({
 		refractedUV: ne,
 		chrOff: I(__tsover_div(__tsover_mul(re, h), t), __tsover_mul(re, g)),
 		slope: E
@@ -58662,7 +58826,7 @@ $.fn([
 		"std.mix": () => J,
 		"std.sign": () => Wh,
 		"std.pow": () => Lh,
-		FlutedGeom: () => hO
+		FlutedGeom: () => FO
 	}
 }) && e.f)({})), $.fn([
 	P,
@@ -58857,7 +59021,7 @@ $.fn([
 		"std.pow": () => Lh
 	}
 }) && e.f)({}));
-var gO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var IO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	curlUV: I,
 	theta: P,
 	distPastCrease: P,
@@ -58876,10 +59040,10 @@ $.fn([
 	P,
 	P,
 	P
-], gO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
+], IO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
 	let c = I(__tsover_mul(e.x, t), e.y), l = I(__tsover_mul(n, t), r), u = I(__tsover_mul(i, t), a).sub(l), d = G(u), f = u.mul(__tsover_div(1, d)), p = H(c.sub(l), f), m = __tsover_mul(o, d), h = m, g = K(__tsover_mul(s, d), 1e-4), _ = __tsover_div(m, g), v = __tsover_div(__tsover_sub(p, h), g), y = $m(B(v, 0, 1)), b = __tsover_mul(Zh(0, v), Zh(v, 1)), x = Zh(y, _), S = __tsover_sub(m, __tsover_mul(g, y)), C = c.add(f.mul(__tsover_sub(S, p))), w = I(__tsover_div(C.x, t), C.y), T = __tsover_mul(__tsover_mul(__tsover_mul(Zh(0, w.x), Zh(w.x, 1)), Zh(0, w.y)), Zh(w.y, 1)), E = __tsover_sub(1, V(B(_, 0, AC))), ee = __tsover_mul(g, E), te = K(__tsover_add(g, __tsover_mul(ee, .5)), 1e-4), ne = __tsover_sub(p, h), re = K(__tsover_mul(ee, 2.5), 1e-4);
-	return gO({
+	return IO({
 		curlUV: w,
 		theta: y,
 		distPastCrease: ne,
@@ -59403,7 +59567,7 @@ $.fn([
 		"std.cos": () => V,
 		HALF_PI: () => AC,
 		"std.smoothstep": () => X,
-		PagePeelGeom: () => gO
+		PagePeelGeom: () => IO
 	}
 }) && e.f)({})), $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
@@ -59538,7 +59702,7 @@ $.fn([
 		"std.exp": () => vh
 	}
 }) && e.f)({}));
-var _O = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var LO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return __tsover_mul(X(0, .04, e), Lh(__tsover_sub(1, e), .7));
 }), {
@@ -59577,7 +59741,7 @@ var _O = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		"std.smoothstep": () => X,
 		"std.pow": () => Lh
 	}
-}) && e.f)({})), vO = $.fn([
+}) && e.f)({})), RO = $.fn([
 	P,
 	P,
 	P
@@ -59643,7 +59807,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_mul(vO(e, t, 2), _O(n));
+	let i = __tsover_mul(RO(e, t, 2), LO(n));
 	return __tsover_sub(1, __tsover_mul(__tsover_mul(r, i), .5));
 }), {
 	v: 2,
@@ -59706,8 +59870,8 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		shadowFalloff: () => vO,
-		liftShadowStrength: () => _O
+		shadowFalloff: () => RO,
+		liftShadowStrength: () => LO
 	}
 }) && e.f)({})), $.fn([
 	P,
@@ -59716,7 +59880,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_mul(__tsover_mul(vO(e, t, 1.5), _O(n)), r);
+	let i = __tsover_mul(__tsover_mul(RO(e, t, 1.5), LO(n)), r);
 	return __tsover_mul(i, .6);
 }), {
 	v: 2,
@@ -59774,8 +59938,8 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		shadowFalloff: () => vO,
-		liftShadowStrength: () => _O
+		shadowFalloff: () => RO,
+		liftShadowStrength: () => LO
 	}
 }) && e.f)({})), $.fn([
 	R,
@@ -59954,7 +60118,7 @@ $.fn([
 		"std.select": () => Q
 	}
 }) && e.f)({}));
-var yO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var zO = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	uv: I,
 	coverage: P,
 	normal: L
@@ -59965,10 +60129,10 @@ $.fn([
 	I,
 	P,
 	P
-], yO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
+], zO)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
 	let a = __tsover_div(t.x, t.y), o = n.x, s = __tsover_sub(1, n.y), c = __tsover_mul(__tsover_sub(e.x, o), a), l = __tsover_sub(e.y, s), u = __tsover_div(__tsover_mul(c, 2), r), d = __tsover_div(__tsover_mul(l, 2), r), f = __tsover_add(__tsover_mul(u, u), __tsover_mul(d, d)), p = __tsover_sub(1, X(.98, 1, f)), m = Z(K(P(0), __tsover_sub(1, f))), h = __tsover_add(1, __tsover_mul(m, i)), g = __tsover_div(__tsover_mul(__tsover_div(u, h), r), 2), _ = __tsover_div(__tsover_mul(__tsover_div(d, h), r), 2), v = __tsover_add(__tsover_div(g, a), o), y = __tsover_add(_, s), b = Fh(L(u, d, m));
-	return yO({
+	return zO({
 		uv: I(v, y),
 		coverage: p,
 		normal: b
@@ -60283,7 +60447,7 @@ $.fn([
 		"d.f32": () => P,
 		"std.normalize": () => Fh,
 		"d.vec3f": () => L,
-		SphereBulge: () => yO,
+		SphereBulge: () => zO,
 		"d.vec2f": () => I
 	}
 }) && e.f)({})), $.fn([
@@ -60659,7 +60823,7 @@ $.fn([
 	},
 	externals: { "d.vec4f": () => R }
 }) && e.f)({}));
-var bO = 1 / 360;
+var BO = 1 / 360;
 $.fn([
 	I,
 	I,
@@ -61281,7 +61445,7 @@ $.fn([
 	I
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = Ww(n, e, r), a = sh(i.y, i.x), o = __tsover_sub(.5, __tsover_div(a, OC)), s = __tsover_mul(t, bO);
+	let i = Ww(n, e, r), a = sh(i.y, i.x), o = __tsover_sub(.5, __tsover_div(a, OC)), s = __tsover_mul(t, BO);
 	return __tsover_add(o, s);
 }), {
 	v: 2,
@@ -61373,7 +61537,7 @@ $.fn([
 		aspectCenteredDelta: () => Ww,
 		"std.atan2": () => sh,
 		TAU: () => OC,
-		INV_360: () => bO
+		INV_360: () => BO
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -61981,7 +62145,7 @@ $.fn([
 		"std.step": () => Zh
 	}
 }) && e.f)({}));
-var xO = $.fn([
+var VO = $.fn([
 	I,
 	P,
 	P,
@@ -62150,7 +62314,7 @@ $.fn([
 	I
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = __tsover_div(s.x, s.y), l = G(I(__tsover_sub(__tsover_mul(o.x, c), __tsover_mul(e.x, c)), __tsover_sub(o.y, __tsover_sub(1, e.y)))), u = xO(e, t, a, o, s), d = W(u), f = __tsover_mul(z(__tsover_sub(d, .5)), 2), p = B(n, __tsover_mul(r, .005), 1), m = __tsover_sub(1, __tsover_mul(B(r, 0, 1), l)), h = __tsover_mul(p, m), g = HS(u), _ = __tsover_sub(4, __tsover_mul(__tsover_mul(X(.05, .4, __tsover_mul(n, 2)), X(.05, .4, __tsover_mul(__tsover_sub(1, n), 2))), 3)), v = J(__tsover_mul(_, g), HS(f), B(g, 0, 1));
+	let c = __tsover_div(s.x, s.y), l = G(I(__tsover_sub(__tsover_mul(o.x, c), __tsover_mul(e.x, c)), __tsover_sub(o.y, __tsover_sub(1, e.y)))), u = VO(e, t, a, o, s), d = W(u), f = __tsover_mul(z(__tsover_sub(d, .5)), 2), p = B(n, __tsover_mul(r, .005), 1), m = __tsover_sub(1, __tsover_mul(B(r, 0, 1), l)), h = __tsover_mul(p, m), g = HS(u), _ = __tsover_sub(4, __tsover_mul(__tsover_mul(X(.05, .4, __tsover_mul(n, 2)), X(.05, .4, __tsover_mul(__tsover_sub(1, n), 2))), 3)), v = J(__tsover_mul(_, g), HS(f), B(g, 0, 1));
 	return X(__tsover_sub(__tsover_sub(h, v), i), __tsover_add(__tsover_add(h, v), i), f);
 }), {
 	v: 2,
@@ -62491,7 +62655,7 @@ $.fn([
 	externals: {
 		"std.length": () => G,
 		"d.vec2f": () => I,
-		spiralOffset: () => xO,
+		spiralOffset: () => VO,
 		"std.fract": () => W,
 		"std.abs": () => z,
 		"std.clamp": () => B,
@@ -62500,7 +62664,7 @@ $.fn([
 		"std.mix": () => J
 	}
 }) && e.f)({}));
-var SO = $.fn([
+var HO = $.fn([
 	I,
 	I,
 	P
@@ -62620,7 +62784,7 @@ $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = Iw(t), l = I(__tsover_mul(e.x, c), e.y), u = Uw(n, c), d = Uw(r, c), f = Uw(i, c), p = Uw(a, c), m = Uw(o, c), h = q(__tsover_div(8, __tsover_add(s, .5)), 8), g = SO(l, u, h), _ = SO(l, d, h), v = SO(l, f, h), y = SO(l, p, h), b = SO(l, m, h), x = g, S = __tsover_div(_, __tsover_add(x, _)), C = __tsover_add(x, _), w = __tsover_div(v, __tsover_add(C, v)), T = __tsover_add(C, v), E = __tsover_div(y, __tsover_add(T, y)), ee = __tsover_add(T, y);
+	let c = Iw(t), l = I(__tsover_mul(e.x, c), e.y), u = Uw(n, c), d = Uw(r, c), f = Uw(i, c), p = Uw(a, c), m = Uw(o, c), h = q(__tsover_div(8, __tsover_add(s, .5)), 8), g = HO(l, u, h), _ = HO(l, d, h), v = HO(l, f, h), y = HO(l, p, h), b = HO(l, m, h), x = g, S = __tsover_div(_, __tsover_add(x, _)), C = __tsover_add(x, _), w = __tsover_div(v, __tsover_add(C, v)), T = __tsover_add(C, v), E = __tsover_div(y, __tsover_add(T, y)), ee = __tsover_add(T, y);
 	return R(S, w, E, __tsover_div(b, __tsover_add(ee, b)));
 }), {
 	v: 2,
@@ -62933,7 +63097,7 @@ $.fn([
 		"d.vec2f": () => I,
 		aspectCentrePosition: () => Uw,
 		"std.min": () => q,
-		mpgWeight: () => SO,
+		mpgWeight: () => HO,
 		"d.vec4f": () => R
 	}
 }) && e.f)({})), $.fn([
@@ -64281,7 +64445,7 @@ $.fn([
 	},
 	externals: { "std.sin": () => Y }
 }) && e.f)({}));
-var CO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var UO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return cw(e);
 }), {
@@ -64299,9 +64463,9 @@ var CO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]]]
 	},
 	externals: { "noise.hash12": () => cw }
-}) && e.f)({})), wO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), WO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = U(e), n = W(e), r = CO(t), i = CO(I(__tsover_add(t.x, 1), t.y)), a = CO(I(t.x, __tsover_add(t.y, 1))), o = CO(I(__tsover_add(t.x, 1), __tsover_add(t.y, 1))), s = n.mul(n).mul(n.mul(-2).add(3));
+	let t = U(e), n = W(e), r = UO(t), i = UO(I(__tsover_add(t.x, 1), t.y)), a = UO(I(t.x, __tsover_add(t.y, 1))), o = UO(I(__tsover_add(t.x, 1), __tsover_add(t.y, 1))), s = n.mul(n).mul(n.mul(-2).add(3));
 	return J(J(r, i, s.x), J(a, o, s.x), s.y);
 }), {
 	v: 2,
@@ -64515,11 +64679,11 @@ var CO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 	externals: {
 		"std.floor": () => U,
 		"std.fract": () => W,
-		godraysHash: () => CO,
+		godraysHash: () => UO,
 		"d.vec2f": () => I,
 		"std.mix": () => J
 	}
-}) && e.f)({})), TO = $.fn([
+}) && e.f)({})), GO = $.fn([
 	P,
 	P,
 	P,
@@ -64528,8 +64692,8 @@ var CO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = Lh(wO(I(__tsover_mul(e, i), r)), a);
-	return J(Lh(wO(I(__tsover_mul(t, i), r)), a), o, n);
+	let o = Lh(WO(I(__tsover_mul(e, i), r)), a);
+	return J(Lh(WO(I(__tsover_mul(t, i), r)), a), o, n);
 }), {
 	v: 2,
 	name: void 0,
@@ -64618,7 +64782,7 @@ var CO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 	},
 	externals: {
 		"std.pow": () => Lh,
-		godraysValueNoise: () => wO,
+		godraysValueNoise: () => WO,
 		"d.vec2f": () => I,
 		"std.mix": () => J
 	}
@@ -64761,7 +64925,7 @@ $.fn([
 		"std.length": () => G
 	}
 }) && e.f)({}));
-var EO = $.fn([
+var KO = $.fn([
 	R,
 	P,
 	P,
@@ -64771,7 +64935,7 @@ var EO = $.fn([
 	I
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = __tsover_sub(__tsover_mul(e.w, a.x), __tsover_mul(t, a.y)), c = __tsover_sub(__tsover_mul(__tsover_mul(e.w, a.z), __tsover_add(1, n)), __tsover_mul(t, a.w)), l = __tsover_mul(i, o.x), u = TO(e.x, e.y, e.z, s, l, r), d = TO(e.x, e.y, e.z, c, __tsover_mul(l, o.y), r);
+	let s = __tsover_sub(__tsover_mul(e.w, a.x), __tsover_mul(t, a.y)), c = __tsover_sub(__tsover_mul(__tsover_mul(e.w, a.z), __tsover_add(1, n)), __tsover_mul(t, a.w)), l = __tsover_mul(i, o.x), u = GO(e.x, e.y, e.z, s, l, r), d = GO(e.x, e.y, e.z, c, __tsover_mul(l, o.y), r);
 	return __tsover_mul(u, d);
 }), {
 	v: 2,
@@ -64969,7 +65133,7 @@ var EO = $.fn([
 			]]
 		]]
 	},
-	externals: { godraysRaysShape: () => TO }
+	externals: { godraysRaysShape: () => GO }
 }) && e.f)({}));
 $.fn([
 	R,
@@ -64979,7 +65143,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = __tsover_mul(t, .2), o = __tsover_mul(6.5, z(i)), s = __tsover_sub(4, __tsover_mul(3, B(r, 0, 1))), c = __tsover_mul(6, n), l = EO(e, a, o, s, c, R(1, 3, .5, 2), I(5, 4)), u = EO(e, a, o, s, c, R(1.4, 2.5, .7, 1.8), I(4.5, 3.5));
+	let a = __tsover_mul(t, .2), o = __tsover_mul(6.5, z(i)), s = __tsover_sub(4, __tsover_mul(3, B(r, 0, 1))), c = __tsover_mul(6, n), l = KO(e, a, o, s, c, R(1, 3, .5, 2), I(5, 4)), u = KO(e, a, o, s, c, R(1.4, 2.5, .7, 1.8), I(4.5, 3.5));
 	return B(__tsover_add(l, __tsover_mul(u, .7)), 0, 1);
 }), {
 	v: 2,
@@ -65149,7 +65313,7 @@ $.fn([
 	externals: {
 		"std.abs": () => z,
 		"std.clamp": () => B,
-		godraysRayLayer: () => EO,
+		godraysRayLayer: () => KO,
 		"d.vec4f": () => R,
 		"d.vec2f": () => I
 	}
@@ -66157,11 +66321,11 @@ $.fn([
 		"std.smoothstep": () => X
 	}
 }) && e.f)({}));
-function DO(e, t) {
+function qO(e, t) {
 	return {
 		guarded: e,
 		with(n) {
-			return DO(e.with(n), t);
+			return qO(e.with(n), t);
 		},
 		dispatch() {
 			if (!t) throw Error("[gpu] KitComputePipeline.dispatch(): no pre-bound size — pass opts.size to createGuardedCompute or call dispatchThreads(...) directly");
@@ -66172,16 +66336,16 @@ function DO(e, t) {
 		}
 	};
 }
-function OO(e, t, n = {}) {
+function JO(e, t, n = {}) {
 	let r = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createGuardedComputePipeline(t), "guarded");
-	return n.bindGroup && (r = r.with(n.bindGroup)), DO(r, n.size);
+	return n.bindGroup && (r = r.with(n.bindGroup)), qO(r, n.size);
 }
-function kO(e) {
+function YO(e) {
 	return { dispatch(e) {
 		for (let t of e) typeof t == "function" ? t() : t.dispatch();
 	} };
 }
-function AO(e, t) {
+function XO(e, t) {
 	let n = !1;
 	return {
 		a: e,
@@ -66208,11 +66372,11 @@ function AO(e, t) {
 		}
 	};
 }
-function jO(e, t, n) {
+function ZO(e, t, n) {
 	return (/* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createBuffer(pd(t, n)), "buffer")).$usage("storage");
 }
-var MO = EC;
-function NO(e, t) {
+var QO = EC;
+function $O(e, t) {
 	let n = Number((t * t).toPrecision(15)), r = e - 1, i = Array.from({ length: e }, (e, t) => {
 		let i = (t / r - .5) * 2;
 		return Math.exp(-.5 * i * i / n);
@@ -67010,7 +67174,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = __tsover_mul(e, MO), s = I(__tsover_div(V(o), a), Y(o)), c = I(t, __tsover_sub(1, n));
+	let o = __tsover_mul(e, QO), s = I(__tsover_div(V(o), a), Y(o)), c = I(t, __tsover_sub(1, n));
 	return X(0, r, K(0, H(i.sub(c), s)));
 }), {
 	v: 2,
@@ -67127,7 +67291,7 @@ $.fn([
 		]]
 	},
 	externals: {
-		DEG_TO_RAD: () => MO,
+		DEG_TO_RAD: () => QO,
 		"d.vec2f": () => I,
 		"std.cos": () => V,
 		"std.sin": () => Y,
@@ -67144,7 +67308,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = __tsover_mul(e, MO), s = I(__tsover_mul(Y(o), -1), V(o)), c = I(t.x, __tsover_sub(1, t.y)), l = i.sub(c), u = z(H(I(__tsover_mul(l.x, a), l.y), s)), d = __tsover_mul(n, .5);
+	let o = __tsover_mul(e, QO), s = I(__tsover_mul(Y(o), -1), V(o)), c = I(t.x, __tsover_sub(1, t.y)), l = i.sub(c), u = z(H(I(__tsover_mul(l.x, a), l.y), s)), d = __tsover_mul(n, .5);
 	return X(d, __tsover_add(d, r), u);
 }), {
 	v: 2,
@@ -67310,7 +67474,7 @@ $.fn([
 		]]
 	},
 	externals: {
-		DEG_TO_RAD: () => MO,
+		DEG_TO_RAD: () => QO,
 		"d.vec2f": () => I,
 		"std.sin": () => Y,
 		"std.cos": () => V,
@@ -67436,7 +67600,7 @@ $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({})).$name("glowCompose"), Math.PI * (3 - Math.sqrt(5));
-var PO = .35;
+var ek = .35;
 $.fn([
 	R,
 	P,
@@ -67444,7 +67608,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = H(e.xyz, L(.2126, .7152, .0722)), a = X(t, __tsover_add(t, PO), i);
+	let i = H(e.xyz, L(.2126, .7152, .0722)), a = X(t, __tsover_add(t, ek), i);
 	return __tsover_mul(__tsover_add(1, __tsover_mul(__tsover_mul(n, a), a)), r);
 }), {
 	v: 2,
@@ -67535,11 +67699,11 @@ $.fn([
 		"std.dot": () => H,
 		"d.vec3f": () => L,
 		"std.smoothstep": () => X,
-		HIGHLIGHT_KNEE: () => PO
+		HIGHLIGHT_KNEE: () => ek
 	}
 }) && e.f)({})).$name("bokehHighlightWeight");
-var FO = EC;
-NO(32, .8), $.fn([
+var tk = EC;
+$O(32, .8), $.fn([
 	I,
 	P,
 	P,
@@ -67547,7 +67711,7 @@ NO(32, .8), $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = __tsover_mul(t, FO), o = __tsover_div(r.x, r.y), s = __tsover_div(V(a), o), c = Y(a), l = __tsover_mul(__tsover_div(__tsover_mul(s, n), r.x), 2), u = __tsover_mul(__tsover_div(__tsover_mul(c, n), r.y), 2);
+	let a = __tsover_mul(t, tk), o = __tsover_div(r.x, r.y), s = __tsover_div(V(a), o), c = Y(a), l = __tsover_mul(__tsover_div(__tsover_mul(s, n), r.x), 2), u = __tsover_mul(__tsover_div(__tsover_mul(c, n), r.y), 2);
 	return I(__tsover_add(e.x, __tsover_mul(l, i)), __tsover_add(e.y, __tsover_mul(u, i)));
 }), {
 	v: 2,
@@ -67711,7 +67875,7 @@ NO(32, .8), $.fn([
 		]]
 	},
 	externals: {
-		DEG_TO_RAD: () => FO,
+		DEG_TO_RAD: () => tk,
 		"std.cos": () => V,
 		"std.sin": () => Y,
 		"d.vec2f": () => I
@@ -68141,7 +68305,7 @@ NO(32, .8), $.fn([
 	},
 	externals: { "d.vec2f": () => I }
 }) && e.f)({}));
-function IO(e) {
+function nk(e) {
 	let t = (t) => {
 		let n = e * 6 + t, r = n - 6 * Math.floor(n / 6), i = Math.min(1, Math.max(0, Math.abs(r - 3) - 1));
 		return i * i * (3 - 2 * i);
@@ -68152,16 +68316,16 @@ function IO(e) {
 		t(2)
 	];
 }
-var LO = .75;
+var rk = .75;
 [...Array.from({ length: 32 }, (e, t) => {
-	let [n, r, i] = IO(t / 31 * LO);
+	let [n, r, i] = nk(t / 31 * rk);
 	return [
 		n - 1,
 		r - 1,
 		i - 1
 	];
 })].reverse();
-var RO = .3;
+var ik = .3;
 $.fn([
 	I,
 	P,
@@ -68437,7 +68601,7 @@ $.fn([
 	I
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = I(t.x, __tsover_sub(1, t.y)), l = __tsover_mul(__tsover_sub(e.x, c.x), n), u = __tsover_sub(e.y, c.y), d = Z(__tsover_add(__tsover_mul(l, l), __tsover_mul(u, u))), f = __tsover_mul(K(c.x, __tsover_sub(1, c.x)), n), p = K(c.y, __tsover_sub(1, c.y)), m = K(Z(__tsover_add(__tsover_mul(f, f), __tsover_mul(p, p))), 1e-4), h = B(__tsover_div(d, m), 0, 1), g = J(P(1), __tsover_mul(h, h), i), _ = __tsover_mul(r, g), v = K(_, 0), y = K(__tsover_mul(_, -1), 0), b = X(__tsover_mul(a, __tsover_sub(1, RO)), __tsover_add(__tsover_mul(a, __tsover_add(1, RO)), 1e-4), h), x = J(P(1), b, Zh(1e-4, a)), S = I(__tsover_mul(e.x, s.x), __tsover_mul(e.y, s.y)), C = W(__tsover_mul(52.9829189, W(__tsover_add(__tsover_mul(S.x, .06711056), __tsover_mul(S.y, .00583715)))));
+	let c = I(t.x, __tsover_sub(1, t.y)), l = __tsover_mul(__tsover_sub(e.x, c.x), n), u = __tsover_sub(e.y, c.y), d = Z(__tsover_add(__tsover_mul(l, l), __tsover_mul(u, u))), f = __tsover_mul(K(c.x, __tsover_sub(1, c.x)), n), p = K(c.y, __tsover_sub(1, c.y)), m = K(Z(__tsover_add(__tsover_mul(f, f), __tsover_mul(p, p))), 1e-4), h = B(__tsover_div(d, m), 0, 1), g = J(P(1), __tsover_mul(h, h), i), _ = __tsover_mul(r, g), v = K(_, 0), y = K(__tsover_mul(_, -1), 0), b = X(__tsover_mul(a, __tsover_sub(1, ik)), __tsover_add(__tsover_mul(a, __tsover_add(1, ik)), 1e-4), h), x = J(P(1), b, Zh(1e-4, a)), S = I(__tsover_mul(e.x, s.x), __tsover_mul(e.y, s.y)), C = W(__tsover_mul(52.9829189, W(__tsover_add(__tsover_mul(S.x, .06711056), __tsover_mul(S.y, .00583715)))));
 	return R(v, y, x, __tsover_mul(__tsover_sub(C, .5), o));
 }), {
 	v: 2,
@@ -68889,7 +69053,7 @@ $.fn([
 		"std.mix": () => J,
 		"d.f32": () => P,
 		"std.smoothstep": () => X,
-		FOCUS_SOFTNESS: () => RO,
+		FOCUS_SOFTNESS: () => ik,
 		"std.step": () => Zh,
 		"std.fract": () => W,
 		"d.vec4f": () => R
@@ -69387,7 +69551,7 @@ $.fn([
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
-var zO = [
+var ak = [
 	.056,
 	.135,
 	.278,
@@ -69401,15 +69565,15 @@ var zO = [
 	.278,
 	.135,
 	.056
-], BO = 6.214;
-zO.map((e) => e / BO), $.fn([
+], ok = 6.214;
+ak.map((e) => e / ok), $.fn([
 	I,
 	I,
 	P,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_mul(n, FO), a = __tsover_mul(r, .2), o = __tsover_div(t.x, t.y), s = __tsover_div(__tsover_mul(Y(i), a), o), c = __tsover_mul(__tsover_mul(V(i), -1), a);
+	let i = __tsover_mul(n, tk), a = __tsover_mul(r, .2), o = __tsover_div(t.x, t.y), s = __tsover_div(__tsover_mul(Y(i), a), o), c = __tsover_mul(__tsover_mul(V(i), -1), a);
 	return I(__tsover_sub(e.x, s), __tsover_sub(e.y, c));
 }), {
 	v: 2,
@@ -69540,7 +69704,7 @@ zO.map((e) => e / BO), $.fn([
 		]]
 	},
 	externals: {
-		DEG_TO_RAD: () => FO,
+		DEG_TO_RAD: () => tk,
 		"std.sin": () => Y,
 		"std.cos": () => V,
 		"d.vec2f": () => I
@@ -70571,7 +70735,7 @@ zO.map((e) => e / BO), $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = t > 1, s = I(Q(__tsover_mul(r, t), r, o), Q(r, __tsover_div(r, t), o)), c = I(__tsover_mul(e.x, t), e.y), l = __tsover_mul(i, FO), u = V(l), d = Y(l), f = c.sub(I(__tsover_mul(.5, t), .5)), p = I(__tsover_sub(__tsover_mul(f.x, u), __tsover_mul(f.y, d)), __tsover_add(__tsover_mul(f.x, d), __tsover_mul(f.y, u))).add(I(__tsover_mul(.5, t), .5)), m = I(__tsover_div(p.x, t), p.y), h = U(m.mul(s)).div(s), g = m.sub(h), _ = I(1, 1).div(s), v = g.div(_).sub(I(.5, .5)), y = __tsover_add(__tsover_mul(v.x, v.x), __tsover_mul(v.y, v.y)), b = K(__tsover_sub(1, __tsover_mul(y, __tsover_mul(a, 4))), 0), x = __tsover_mul(n, .025), S = __tsover_mul(x, b), C = I(__tsover_div(__tsover_mul(v.x, S), t), __tsover_mul(v.y, S));
+	let o = t > 1, s = I(Q(__tsover_mul(r, t), r, o), Q(r, __tsover_div(r, t), o)), c = I(__tsover_mul(e.x, t), e.y), l = __tsover_mul(i, tk), u = V(l), d = Y(l), f = c.sub(I(__tsover_mul(.5, t), .5)), p = I(__tsover_sub(__tsover_mul(f.x, u), __tsover_mul(f.y, d)), __tsover_add(__tsover_mul(f.x, d), __tsover_mul(f.y, u))).add(I(__tsover_mul(.5, t), .5)), m = I(__tsover_div(p.x, t), p.y), h = U(m.mul(s)).div(s), g = m.sub(h), _ = I(1, 1).div(s), v = g.div(_).sub(I(.5, .5)), y = __tsover_add(__tsover_mul(v.x, v.x), __tsover_mul(v.y, v.y)), b = K(__tsover_sub(1, __tsover_mul(y, __tsover_mul(a, 4))), 0), x = __tsover_mul(n, .025), S = __tsover_mul(x, b), C = I(__tsover_div(__tsover_mul(v.x, S), t), __tsover_mul(v.y, S));
 	return e.add(C);
 }), {
 	v: 2,
@@ -71041,7 +71205,7 @@ zO.map((e) => e / BO), $.fn([
 	externals: {
 		"d.vec2f": () => I,
 		"std.select": () => Q,
-		DEG_TO_RAD: () => FO,
+		DEG_TO_RAD: () => tk,
 		"std.cos": () => V,
 		"std.sin": () => Y,
 		"std.floor": () => U,
@@ -71671,7 +71835,7 @@ zO.map((e) => e / BO), $.fn([
 		"std.mix": () => J
 	}
 }) && e.f)({}));
-var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var sk = 487, ck = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return cw(e);
 }), {
@@ -71689,9 +71853,9 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 		]]]]
 	},
 	externals: { "noise.hash12": () => cw }
-}) && e.f)({})), UO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), lk = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = U(e), n = W(e), r = n.mul(n).mul(I(3, 3).sub(n.mul(2))), i = HO(t), a = HO(t.add(I(1, 0))), o = HO(t.add(I(0, 1))), s = HO(t.add(I(1, 1)));
+	let t = U(e), n = W(e), r = n.mul(n).mul(I(3, 3).sub(n.mul(2))), i = ck(t), a = ck(t.add(I(1, 0))), o = ck(t.add(I(0, 1))), s = ck(t.add(I(1, 1)));
 	return J(J(i, a, r.x), J(o, s, r.x), r.y);
 }), {
 	v: 2,
@@ -71876,12 +72040,12 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 		"std.floor": () => U,
 		"std.fract": () => W,
 		"d.vec2f": () => I,
-		hash2D: () => HO,
+		hash2D: () => ck,
 		"std.mix": () => J
 	}
-}) && e.f)({})), WO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), uk = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	return X(.45, .8, UO(I(__tsover_mul(e, .4), 0)));
+	return X(.45, .8, lk(I(__tsover_mul(e, .4), 0)));
 }), {
 	v: 2,
 	name: void 0,
@@ -71915,17 +72079,17 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 	},
 	externals: {
 		"std.smoothstep": () => X,
-		smoothNoise2D: () => UO,
+		smoothNoise2D: () => lk,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), GO = $.fn([
+}) && e.f)({})), dk = $.fn([
 	P,
 	P,
 	P,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = U(__tsover_mul(e, VO)), a = __tsover_mul(__tsover_sub(cw(I(i, t)), .5), 2), o = __tsover_mul(__tsover_sub(cw(I(i, __tsover_add(t, 69.42))), .5), 2), s = __tsover_add(.25, __tsover_mul(r, .75)), c = __tsover_mul(__tsover_mul(__tsover_mul(a, n), .008), s);
+	let i = U(__tsover_mul(e, sk)), a = __tsover_mul(__tsover_sub(cw(I(i, t)), .5), 2), o = __tsover_mul(__tsover_sub(cw(I(i, __tsover_add(t, 69.42))), .5), 2), s = __tsover_add(.25, __tsover_mul(r, .75)), c = __tsover_mul(__tsover_mul(__tsover_mul(a, n), .008), s);
 	return I(__tsover_mul(__tsover_mul(__tsover_mul(o, n), .004), s), c);
 }), {
 	v: 2,
@@ -72079,17 +72243,17 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 	},
 	externals: {
 		"std.floor": () => U,
-		FIELD_LINES: () => VO,
+		FIELD_LINES: () => sk,
 		"noise.hash12": () => cw,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), KO = $.fn([
+}) && e.f)({})), fk = $.fn([
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = __tsover_sub(UO(I(__tsover_mul(e, 3), __tsover_mul(t, .8))), .5), i = __tsover_sub(UO(I(__tsover_mul(e, 30), __tsover_mul(t, 6))), .5);
+	let r = __tsover_sub(lk(I(__tsover_mul(e, 3), __tsover_mul(t, .8))), .5), i = __tsover_sub(lk(I(__tsover_mul(e, 30), __tsover_mul(t, 6))), .5);
 	return __tsover_mul(__tsover_add(__tsover_mul(r, .008), __tsover_mul(i, .002)), n);
 }), {
 	v: 2,
@@ -72190,16 +72354,16 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 		]]
 	},
 	externals: {
-		smoothNoise2D: () => UO,
+		smoothNoise2D: () => lk,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), qO = $.fn([
+}) && e.f)({})), pk = $.fn([
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = X(.92, .99, Y(__tsover_sub(__tsover_mul(e, 8), __tsover_mul(t, 3.77)))), i = X(.3, 1, UO(I(__tsover_mul(e, 4.77), t)));
+	let r = X(.92, .99, Y(__tsover_sub(__tsover_mul(e, 8), __tsover_mul(t, 3.77)))), i = X(.3, 1, lk(I(__tsover_mul(e, 4.77), t)));
 	return __tsover_mul(__tsover_mul(__tsover_mul(r, i), n), -.018);
 }), {
 	v: 2,
@@ -72303,17 +72467,17 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 	externals: {
 		"std.smoothstep": () => X,
 		"std.sin": () => Y,
-		smoothNoise2D: () => UO,
+		smoothNoise2D: () => lk,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), JO = $.fn([
+}) && e.f)({})), mk = $.fn([
 	P,
 	P,
 	P,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_sub(1, X(0, .06, e)), a = __tsover_sub(UO(I(__tsover_mul(e, 60), __tsover_mul(t, 14))), .5);
+	let i = __tsover_sub(1, X(0, .06, e)), a = __tsover_sub(lk(I(__tsover_mul(e, 60), __tsover_mul(t, 14))), .5);
 	return I(__tsover_mul(__tsover_mul(__tsover_mul(i, a), n), .09), __tsover_mul(__tsover_mul(__tsover_mul(i, n), r), .02));
 }), {
 	v: 2,
@@ -72433,7 +72597,7 @@ var VO = 487, HO = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_ME
 	},
 	externals: {
 		"std.smoothstep": () => X,
-		smoothNoise2D: () => UO,
+		smoothNoise2D: () => lk,
 		"d.vec2f": () => I
 	}
 }) && e.f)({}));
@@ -72445,7 +72609,7 @@ $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = __tsover_mul(t, n), o = WO(a), s = GO(e.y, a, i, o), c = JO(e.y, a, r, o), l = __tsover_add(__tsover_add(KO(e.y, a, r), qO(e.y, a, r)), c.x), u = __tsover_add(e.y, c.y);
+	let a = __tsover_mul(t, n), o = uk(a), s = dk(e.y, a, i, o), c = mk(e.y, a, r, o), l = __tsover_add(__tsover_add(fk(e.y, a, r), pk(e.y, a, r)), c.x), u = __tsover_add(e.y, c.y);
 	return R(__tsover_add(__tsover_add(e.x, l), s.x), u, __tsover_add(__tsover_add(e.x, l), s.y), u);
 }), {
 	v: 2,
@@ -72639,11 +72803,11 @@ $.fn([
 		]]
 	},
 	externals: {
-		burstGate: () => WO,
-		rowJitter: () => GO,
-		headSwitch: () => JO,
-		tapeWave: () => KO,
-		creaseShift: () => qO,
+		burstGate: () => uk,
+		rowJitter: () => dk,
+		headSwitch: () => mk,
+		tapeWave: () => fk,
+		creaseShift: () => pk,
 		"d.vec4f": () => R
 	}
 }) && e.f)({})), $.fn([
@@ -73237,7 +73401,7 @@ $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var hk = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return sw(e);
 }), {
@@ -73255,13 +73419,13 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]]]
 	},
 	externals: { "noise.hash11": () => sw }
-}) && e.f)({})), XO = $.fn([
+}) && e.f)({})), gk = $.fn([
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = YO(e), i = __tsover_mul(__tsover_mul(r, r), r), a = YO(__tsover_add(t, 73)), o = __tsover_mul(a, a), s = __tsover_sub(1, n), c = Zh(s, i), l = Zh(__tsover_add(s, .15), o);
+	let r = hk(e), i = __tsover_mul(__tsover_mul(r, r), r), a = hk(__tsover_add(t, 73)), o = __tsover_mul(a, a), s = __tsover_sub(1, n), c = Zh(s, i), l = Zh(__tsover_add(s, .15), o);
 	return __tsover_mul(B(__tsover_add(__tsover_mul(c, .8), __tsover_mul(l, .4)), 0, 1), n);
 }), {
 	v: 2,
@@ -73395,11 +73559,11 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]
 	},
 	externals: {
-		hash11: () => YO,
+		hash11: () => hk,
 		"std.step": () => Zh,
 		"std.clamp": () => B
 	}
-}) && e.f)({})), ZO = $.fn([
+}) && e.f)({})), _k = $.fn([
 	P,
 	P,
 	P,
@@ -73410,8 +73574,8 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 	P
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = __tsover_add(__tsover_mul(e, n), __tsover_mul(t, r)), l = YO(c), u = Zh(__tsover_sub(1, __tsover_mul(s, i)), l);
-	return L(__tsover_mul(__tsover_mul(__tsover_sub(YO(__tsover_add(c, a)), .5), o), u), u, c);
+	let c = __tsover_add(__tsover_mul(e, n), __tsover_mul(t, r)), l = hk(c), u = Zh(__tsover_sub(1, __tsover_mul(s, i)), l);
+	return L(__tsover_mul(__tsover_mul(__tsover_sub(hk(__tsover_add(c, a)), .5), o), u), u, c);
 }), {
 	v: 2,
 	name: void 0,
@@ -73540,19 +73704,19 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]
 	},
 	externals: {
-		hash11: () => YO,
+		hash11: () => hk,
 		"std.step": () => Zh,
 		"d.vec3f": () => L
 	}
-}) && e.f)({})), QO = $.fn([
+}) && e.f)({})), vk = $.fn([
 	P,
 	P,
 	P,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_add(__tsover_add(__tsover_mul(e, .41), __tsover_mul(t, .67)), __tsover_mul(n, 2.31)), a = YO(i), o = Zh(__tsover_sub(1, __tsover_mul(r, .35)), a);
-	return I(__tsover_mul(__tsover_mul(__tsover_sub(YO(__tsover_add(i, 77)), .5), .18), o), o);
+	let i = __tsover_add(__tsover_add(__tsover_mul(e, .41), __tsover_mul(t, .67)), __tsover_mul(n, 2.31)), a = hk(i), o = Zh(__tsover_sub(1, __tsover_mul(r, .35)), a);
+	return I(__tsover_mul(__tsover_mul(__tsover_sub(hk(__tsover_add(i, 77)), .5), .18), o), o);
 }), {
 	v: 2,
 	name: void 0,
@@ -73671,11 +73835,11 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]
 	},
 	externals: {
-		hash11: () => YO,
+		hash11: () => hk,
 		"std.step": () => Zh,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), $O = $.fn([
+}) && e.f)({})), yk = $.fn([
 	I,
 	P,
 	P,
@@ -73685,7 +73849,7 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = __tsover_add(__tsover_add(__tsover_mul(t, .83), __tsover_mul(n, 1.17)), __tsover_mul(r, 4.57)), c = YO(s), l = YO(__tsover_add(s, 500)), u = __tsover_mul(Zh(__tsover_sub(1, __tsover_mul(a, o)), c), i), d = __tsover_mul(Zh(__tsover_sub(1, __tsover_mul(__tsover_mul(a, o), .4)), l), i);
+	let s = __tsover_add(__tsover_add(__tsover_mul(t, .83), __tsover_mul(n, 1.17)), __tsover_mul(r, 4.57)), c = hk(s), l = hk(__tsover_add(s, 500)), u = __tsover_mul(Zh(__tsover_sub(1, __tsover_mul(a, o)), c), i), d = __tsover_mul(Zh(__tsover_sub(1, __tsover_mul(__tsover_mul(a, o), .4)), l), i);
 	return I(J(e.x, __tsover_sub(1, e.x), u), J(e.y, __tsover_sub(1, e.y), d));
 }), {
 	v: 2,
@@ -73878,12 +74042,12 @@ var YO = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		]]
 	},
 	externals: {
-		hash11: () => YO,
+		hash11: () => hk,
 		"std.step": () => Zh,
 		"d.vec2f": () => I,
 		"std.mix": () => J
 	}
-}) && e.f)({})), ek = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+}) && e.f)({})), bk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	mirroredUV: I,
 	spread: P,
 	strength: P,
@@ -73900,10 +74064,10 @@ $.fn([
 	P,
 	P,
 	P
-], ek)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
+], bk)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = __tsover_mul(t, r), s = U(__tsover_mul(o, 2.5)), c = U(__tsover_mul(o, 10)), l = XO(s, c, n), u = U(__tsover_mul(e.y, i)), d = ZO(u, s, .37, 7.13, .5, 42, .25, l), f = ZO(U(__tsover_mul(e.y, __tsover_mul(i, 2))), c, .53, 3.37, .7, 99, .12, l), p = ZO(U(__tsover_mul(e.y, __tsover_mul(i, 4))), c, .71, 11.71, .9, 173, .05, l), m = U(__tsover_mul(e.x, 4)), h = QO(m, u, s, l), g = __tsover_add(__tsover_add(__tsover_add(d.x, f.x), p.x), h.x), _ = __tsover_mul(__tsover_mul(d.y, __tsover_sub(YO(__tsover_add(d.z, 200)), .5)), .012), v = $O(I(B(__tsover_add(e.x, __tsover_mul(g, l)), 0, 1), B(__tsover_add(e.y, __tsover_mul(_, l)), 0, 1)), m, u, s, d.y, a, l), y = __tsover_add(l, __tsover_mul(z(g), 2)), b = B(__tsover_add(__tsover_add(d.y, f.y), p.y), 0, 1);
-	return ek({
+	let o = __tsover_mul(t, r), s = U(__tsover_mul(o, 2.5)), c = U(__tsover_mul(o, 10)), l = gk(s, c, n), u = U(__tsover_mul(e.y, i)), d = _k(u, s, .37, 7.13, .5, 42, .25, l), f = _k(U(__tsover_mul(e.y, __tsover_mul(i, 2))), c, .53, 3.37, .7, 99, .12, l), p = _k(U(__tsover_mul(e.y, __tsover_mul(i, 4))), c, .71, 11.71, .9, 173, .05, l), m = U(__tsover_mul(e.x, 4)), h = vk(m, u, s, l), g = __tsover_add(__tsover_add(__tsover_add(d.x, f.x), p.x), h.x), _ = __tsover_mul(__tsover_mul(d.y, __tsover_sub(hk(__tsover_add(d.z, 200)), .5)), .012), v = yk(I(B(__tsover_add(e.x, __tsover_mul(g, l)), 0, 1), B(__tsover_add(e.y, __tsover_mul(_, l)), 0, 1)), m, u, s, d.y, a, l), y = __tsover_add(l, __tsover_mul(z(g), 2)), b = B(__tsover_add(__tsover_add(d.y, f.y), p.y), 0, 1);
+	return bk({
 		mirroredUV: v,
 		spread: y,
 		strength: l,
@@ -74372,15 +74536,15 @@ $.fn([
 	},
 	externals: {
 		"std.floor": () => U,
-		burstPulse: () => XO,
-		bandJitter: () => ZO,
-		blockShift: () => QO,
-		hash11: () => YO,
+		burstPulse: () => gk,
+		bandJitter: () => _k,
+		blockShift: () => vk,
+		hash11: () => hk,
 		"d.vec2f": () => I,
 		"std.clamp": () => B,
-		mirrorFlips: () => $O,
+		mirrorFlips: () => yk,
 		"std.abs": () => z,
-		GlitchGeom: () => ek
+		GlitchGeom: () => bk
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -74503,7 +74667,7 @@ $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = U(__tsover_mul(t.x, 4)), l = __tsover_add(__tsover_add(__tsover_mul(c, .41), __tsover_mul(n, .67)), __tsover_mul(r, 2.31)), u = YO(__tsover_add(l, 555)), d = YO(__tsover_add(__tsover_add(n, __tsover_mul(r, 3.33)), 333)), f = W(__tsover_add(__tsover_mul(t.x, 3), __tsover_mul(d, 7))), p = U(__tsover_mul(f, 7)), m = L(__tsover_add(__tsover_sub(1, Zh(2, p)), __tsover_mul(Zh(4, p), __tsover_sub(1, Zh(6, p)))), __tsover_sub(1, Zh(4, p)), __tsover_sub(1, Zh(.5, W(__tsover_mul(p, .5))))), h = W(__tsover_add(__tsover_mul(YO(__tsover_add(n, 13)), .8), __tsover_mul(r, .07))), g = __tsover_mul(h, 6), _ = J(L(B(__tsover_sub(z(__tsover_sub(g, 3)), 1), 0, 1), B(__tsover_sub(2, z(__tsover_sub(g, 2))), 0, 1), B(__tsover_sub(2, z(__tsover_sub(g, 4))), 0, 1)).mul(1.3), m, L(Zh(.5, u))), v = __tsover_mul(__tsover_mul(__tsover_mul(o, s), i), a), y = J(e.xyz, _.mul(e.w), L(v));
+	let c = U(__tsover_mul(t.x, 4)), l = __tsover_add(__tsover_add(__tsover_mul(c, .41), __tsover_mul(n, .67)), __tsover_mul(r, 2.31)), u = hk(__tsover_add(l, 555)), d = hk(__tsover_add(__tsover_add(n, __tsover_mul(r, 3.33)), 333)), f = W(__tsover_add(__tsover_mul(t.x, 3), __tsover_mul(d, 7))), p = U(__tsover_mul(f, 7)), m = L(__tsover_add(__tsover_sub(1, Zh(2, p)), __tsover_mul(Zh(4, p), __tsover_sub(1, Zh(6, p)))), __tsover_sub(1, Zh(4, p)), __tsover_sub(1, Zh(.5, W(__tsover_mul(p, .5))))), h = W(__tsover_add(__tsover_mul(hk(__tsover_add(n, 13)), .8), __tsover_mul(r, .07))), g = __tsover_mul(h, 6), _ = J(L(B(__tsover_sub(z(__tsover_sub(g, 3)), 1), 0, 1), B(__tsover_sub(2, z(__tsover_sub(g, 2))), 0, 1), B(__tsover_sub(2, z(__tsover_sub(g, 4))), 0, 1)).mul(1.3), m, L(Zh(.5, u))), v = __tsover_mul(__tsover_mul(__tsover_mul(o, s), i), a), y = J(e.xyz, _.mul(e.w), L(v));
 	return R(y.x, y.y, y.z, e.w);
 }), {
 	v: 2,
@@ -74993,7 +75157,7 @@ $.fn([
 	},
 	externals: {
 		"std.floor": () => U,
-		hash11: () => YO,
+		hash11: () => hk,
 		"std.fract": () => W,
 		"std.step": () => Zh,
 		"d.vec3f": () => L,
@@ -75148,7 +75312,7 @@ $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var tk = 2 / Math.sqrt(3), nk = Math.sqrt(3) / 2;
+var xk = 2 / Math.sqrt(3), Sk = Math.sqrt(3) / 2;
 $.fn([
 	I,
 	I,
@@ -75516,7 +75680,7 @@ $.fn([
 		rotateAboutCanvasCentre: () => Kw
 	}
 }) && e.f)({}));
-var rk = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var Ck = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return iT(tT(e), t);
 }), {
@@ -75544,7 +75708,7 @@ var rk = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		variationFactor: () => iT,
 		cellHash: () => tT
 	}
-}) && e.f)({})), ik = $.fn([
+}) && e.f)({})), wk = $.fn([
 	P,
 	P,
 	P,
@@ -75631,7 +75795,7 @@ var rk = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.max": () => K,
 		lineMaskFromField: () => uT
 	}
-}) && e.f)({})), ak = $.fn([
+}) && e.f)({})), Tk = $.fn([
 	P,
 	P,
 	P
@@ -75742,7 +75906,7 @@ $.fn([
 		footprint2: () => oT
 	}
 }) && e.f)({}));
-var ok = $.fn([
+var Ek = $.fn([
 	I,
 	I,
 	P,
@@ -75876,7 +76040,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = ok(e, t, n, r, i, a);
+	let c = Ek(e, t, n, r, i, a);
 	return sT(c, aT(c, s), o);
 }), {
 	v: 2,
@@ -75946,7 +76110,7 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		stripeCoordP: () => ok,
+		stripeCoordP: () => Ek,
 		quilezStepFilter: () => sT,
 		footprint1: () => aT
 	}
@@ -76398,7 +76562,7 @@ $.fn([
 		"std.smoothstep": () => X
 	}
 }) && e.f)({}));
-var sk = $.fn([P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var Dk = $.fn([P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return I(W(__tsover_mul(Y(__tsover_mul(e, 127.1)), 43758.5453123)), W(__tsover_mul(Y(__tsover_mul(e, 311.7)), 38291.3421)));
 }), {
@@ -76456,7 +76620,7 @@ var sk = $.fn([P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		"std.fract": () => W,
 		"std.sin": () => Y
 	}
-}) && e.f)({})), ck = $.fn([
+}) && e.f)({})), Ok = $.fn([
 	P,
 	P,
 	P,
@@ -76635,7 +76799,7 @@ var sk = $.fn([P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		"std.sqrt": () => Z,
 		"std.smoothstep": () => X
 	}
-}) && e.f)({})), lk = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), kk = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_sub(__tsover_mul(2, t), 1), r = K(__tsover_mul(2, __tsover_sub(1, t)), .001);
 	return B(__tsover_div(__tsover_add(e, n), r), 0, 1);
@@ -76724,8 +76888,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l) => {
 	"use gpu";
-	let u = Iw(t), d = I(__tsover_mul(e.x, u), e.y).sub(I(__tsover_mul(u, .5), .5)), f = __tsover_mul(n, EC), p = V(f), m = Y(f), h = __tsover_sub(__tsover_mul(d.y, p), __tsover_mul(d.x, m)), g = __tsover_add(__tsover_mul(d.x, p), __tsover_mul(d.y, m)), _ = __tsover_mul(h, r), v = U(_), y = W(_), b = sk(v), x = __tsover_add(1, __tsover_mul(__tsover_mul(__tsover_sub(b.x, .5), i), 2)), S = b.y, C = W(__tsover_mul(l, x)), w = W(__tsover_sub(__tsover_sub(g, C), S)), T = a, E = B(__tsover_div(w, T), 0, 1), ee = B(HS(g), .001, .1), te = B(__tsover_mul(HS(h), r), .001, .1), ne = __tsover_sub(1, X(__tsover_sub(T, ee), __tsover_add(T, ee), w)), re = __tsover_mul(o, .5), ie = z(__tsover_sub(y, .5)), ae = __tsover_sub(1, X(__tsover_sub(re, te), __tsover_add(re, te), ie));
-	return I(K(__tsover_mul(ne, ae), ck(w, T, r, re, s, te, ie)), lk(E, c));
+	let u = Iw(t), d = I(__tsover_mul(e.x, u), e.y).sub(I(__tsover_mul(u, .5), .5)), f = __tsover_mul(n, EC), p = V(f), m = Y(f), h = __tsover_sub(__tsover_mul(d.y, p), __tsover_mul(d.x, m)), g = __tsover_add(__tsover_mul(d.x, p), __tsover_mul(d.y, m)), _ = __tsover_mul(h, r), v = U(_), y = W(_), b = Dk(v), x = __tsover_add(1, __tsover_mul(__tsover_mul(__tsover_sub(b.x, .5), i), 2)), S = b.y, C = W(__tsover_mul(l, x)), w = W(__tsover_sub(__tsover_sub(g, C), S)), T = a, E = B(__tsover_div(w, T), 0, 1), ee = B(HS(g), .001, .1), te = B(__tsover_mul(HS(h), r), .001, .1), ne = __tsover_sub(1, X(__tsover_sub(T, ee), __tsover_add(T, ee), w)), re = __tsover_mul(o, .5), ie = z(__tsover_sub(y, .5)), ae = __tsover_sub(1, X(__tsover_sub(re, te), __tsover_add(re, te), ie));
+	return I(K(__tsover_mul(ne, ae), Ok(w, T, r, re, s, te, ie)), kk(E, c));
 }), {
 	v: 2,
 	name: void 0,
@@ -77215,14 +77379,14 @@ $.fn([
 		"std.sin": () => Y,
 		"std.floor": () => U,
 		"std.fract": () => W,
-		colHash: () => sk,
+		colHash: () => Dk,
 		"std.clamp": () => B,
 		"std.fwidth": () => HS,
 		"std.smoothstep": () => X,
 		"std.abs": () => z,
-		fallingCapAlpha: () => ck,
+		fallingCapAlpha: () => Ok,
 		"std.max": () => K,
-		fallingBalanceRemap: () => lk
+		fallingBalanceRemap: () => kk
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -77282,7 +77446,7 @@ $.fn([
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
 	let i = __tsover_mul(t, .01), a = K(i, 1e-4), o = __tsover_mul(a, 2), s = __tsover_div(1, o), c = e.add(a), l = BS(c), u = VS(c), d = __tsover_add(K(K(z(l.x), z(u.x)), 1e-5), n), f = __tsover_add(K(K(z(l.y), z(u.y)), 1e-5), n), p = cT(c.x, d, s), m = cT(c.y, f, s), h = __tsover_mul(__tsover_sub(1, p), __tsover_sub(1, m));
-	return I(__tsover_mul(__tsover_sub(1, h), Zh(1e-4, i)), rk(U(e), r));
+	return I(__tsover_mul(__tsover_sub(1, h), Zh(1e-4, i)), Ck(U(e), r));
 }), {
 	v: 2,
 	name: void 0,
@@ -77544,7 +77708,7 @@ $.fn([
 		"std.abs": () => z,
 		quilezLineFilterAxis: () => cT,
 		"std.step": () => Zh,
-		cellVariation: () => rk,
+		cellVariation: () => Ck,
 		"std.floor": () => U,
 		"d.vec2f": () => I
 	}
@@ -77905,8 +78069,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = Qw(e, I(jC, 1)), a = rk(I(Vh(__tsover_mul(i.id.x, tk)), Vh(__tsover_mul(i.id.y, 2))), r), o = I(z(i.gv.x), z(i.gv.y)), s = K(H(o, I(nk, .5)), o.y);
-	return I(ik(__tsover_sub(.5, s), __tsover_mul(t, .01), __tsover_mul(HS(e.x), .5), n), a);
+	let i = Qw(e, I(jC, 1)), a = Ck(I(Vh(__tsover_mul(i.id.x, xk)), Vh(__tsover_mul(i.id.y, 2))), r), o = I(z(i.gv.x), z(i.gv.y)), s = K(H(o, I(Sk, .5)), o.y);
+	return I(wk(__tsover_sub(.5, s), __tsover_mul(t, .01), __tsover_mul(HS(e.x), .5), n), a);
 }), {
 	v: 2,
 	name: void 0,
@@ -78118,14 +78282,14 @@ $.fn([
 		"d.vec2f": () => I,
 		SQRT3: () => jC,
 		"std.round": () => Vh,
-		INV_SQRT3_2: () => tk,
-		cellVariation: () => rk,
+		INV_SQRT3_2: () => xk,
+		cellVariation: () => Ck,
 		"std.abs": () => z,
 		"std.max": () => K,
 		"std.dot": () => H,
-		SQRT3_2: () => nk,
+		SQRT3_2: () => Sk,
 		"std.fwidth": () => HS,
-		strokeBandFloored: () => ik
+		strokeBandFloored: () => wk
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -78136,8 +78300,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = $w(e), s = rT(nT(U(o.y)), i), c = __tsover_mul(a, s), l = I(__tsover_sub(o.x, c), o.y), u = U(l), d = W(l), f = Zh(1, __tsover_add(d.x, d.y)), p = rk(I(__tsover_add(__tsover_mul(u.x, 2), f), u.y), r);
-	return I(ak(q(q(q(d.x, __tsover_sub(1, d.x)), q(d.y, __tsover_sub(1, d.y))), z(__tsover_sub(__tsover_add(d.x, d.y), 1))), __tsover_mul(t, .02), __tsover_add(K(HS(o.x), HS(o.y)), __tsover_mul(n, .5))), p);
+	let o = $w(e), s = rT(nT(U(o.y)), i), c = __tsover_mul(a, s), l = I(__tsover_sub(o.x, c), o.y), u = U(l), d = W(l), f = Zh(1, __tsover_add(d.x, d.y)), p = Ck(I(__tsover_add(__tsover_mul(u.x, 2), f), u.y), r);
+	return I(Tk(q(q(q(d.x, __tsover_sub(1, d.x)), q(d.y, __tsover_sub(1, d.y))), z(__tsover_sub(__tsover_add(d.x, d.y), 1))), __tsover_mul(t, .02), __tsover_add(K(HS(o.x), HS(o.y)), __tsover_mul(n, .5))), p);
 }), {
 	v: 2,
 	name: void 0,
@@ -78454,15 +78618,15 @@ $.fn([
 		"d.vec2f": () => I,
 		"std.fract": () => W,
 		"std.step": () => Zh,
-		cellVariation: () => rk,
+		cellVariation: () => Ck,
 		"std.min": () => q,
 		"std.abs": () => z,
 		"std.max": () => K,
 		"std.fwidth": () => HS,
-		strokeBandSymmetric: () => ak
+		strokeBandSymmetric: () => Tk
 	}
 }) && e.f)({}));
-var uk = $.fn([
+var Ak = $.fn([
 	I,
 	I,
 	P
@@ -78591,7 +78755,7 @@ var uk = $.fn([
 		rotate2: () => zw,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), dk = $.fn([
+}) && e.f)({})), jk = $.fn([
 	P,
 	P,
 	P
@@ -78712,7 +78876,7 @@ var uk = $.fn([
 		"d.vec2f": () => I,
 		"std.mix": () => J
 	}
-}) && e.f)({})), fk = $.fn([
+}) && e.f)({})), Mk = $.fn([
 	I,
 	I,
 	I
@@ -78850,8 +79014,8 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u, d) => {
 	"use gpu";
-	let f = Iw(t), p = uk(e, t, s), m = p.x, h = p.y, g = __tsover_mul(i, .3), _ = __tsover_div(__tsover_mul(__tsover_mul(g, f), r), n), v = U(__tsover_mul(h, r)), y = dk(v, u, l), b = __tsover_add(__tsover_add(__tsover_add(__tsover_mul(m, n), y.x), __tsover_mul(d, y.y)), c), x = __tsover_mul(h, r), S = W(b), C = W(x), w = __tsover_mul(a, .5), T = __tsover_add(HS(b), w), E = __tsover_add(HS(x), w);
-	return I(fk(I(S, C), I(g, _), I(T, E)), rk(I(U(b), v), o));
+	let f = Iw(t), p = Ak(e, t, s), m = p.x, h = p.y, g = __tsover_mul(i, .3), _ = __tsover_div(__tsover_mul(__tsover_mul(g, f), r), n), v = U(__tsover_mul(h, r)), y = jk(v, u, l), b = __tsover_add(__tsover_add(__tsover_add(__tsover_mul(m, n), y.x), __tsover_mul(d, y.y)), c), x = __tsover_mul(h, r), S = W(b), C = W(x), w = __tsover_mul(a, .5), T = __tsover_add(HS(b), w), E = __tsover_add(HS(x), w);
+	return I(Mk(I(S, C), I(g, _), I(T, E)), Ck(I(U(b), v), o));
 }), {
 	v: 2,
 	name: void 0,
@@ -79164,17 +79328,17 @@ $.fn([
 	},
 	externals: {
 		aspectOf: () => Iw,
-		brickFrame: () => uk,
+		brickFrame: () => Ak,
 		"std.floor": () => U,
-		brickRowStagger: () => dk,
+		brickRowStagger: () => jk,
 		"std.fract": () => W,
 		"std.fwidth": () => HS,
-		brickMortarMask: () => fk,
+		brickMortarMask: () => Mk,
 		"d.vec2f": () => I,
-		cellVariation: () => rk
+		cellVariation: () => Ck
 	}
 }) && e.f)({}));
-var pk = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var Nk = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = H(e, I(127.1, 311.7));
 	return W(__tsover_mul(Y(t), 43758.5453));
@@ -79227,8 +79391,8 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = Xw(e), a = pk(I(__tsover_add(i.cell.x, r), __tsover_add(i.cell.y, r))) > .5, o = Q(P(0), P(1), a), s = Q(P(1), P(0), a);
-	return ik(q(z(__tsover_sub(G(I(__tsover_sub(i.local.x, o), i.local.y)), .5)), z(__tsover_sub(G(I(__tsover_sub(i.local.x, s), __tsover_sub(i.local.y, 1))), .5))), __tsover_mul(t, .005), __tsover_mul(HS(e.x), .5), n);
+	let i = Xw(e), a = Nk(I(__tsover_add(i.cell.x, r), __tsover_add(i.cell.y, r))) > .5, o = Q(P(0), P(1), a), s = Q(P(1), P(0), a);
+	return wk(q(z(__tsover_sub(G(I(__tsover_sub(i.local.x, o), i.local.y)), .5)), z(__tsover_sub(G(I(__tsover_sub(i.local.x, s), __tsover_sub(i.local.y, 1))), .5))), __tsover_mul(t, .005), __tsover_mul(HS(e.x), .5), n);
 }), {
 	v: 2,
 	name: void 0,
@@ -79494,7 +79658,7 @@ $.fn([
 	},
 	externals: {
 		squareTiling: () => Xw,
-		truchetHash: () => pk,
+		truchetHash: () => Nk,
 		"d.vec2f": () => I,
 		"std.select": () => Q,
 		"d.f32": () => P,
@@ -79502,7 +79666,7 @@ $.fn([
 		"std.length": () => G,
 		"std.min": () => q,
 		"std.fwidth": () => HS,
-		strokeBandFloored: () => ik
+		strokeBandFloored: () => wk
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -79887,15 +80051,15 @@ $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var mk = 2 / Math.sqrt(3);
+var Pk = 2 / Math.sqrt(3);
 $.fn([
 	I,
 	P,
 	P
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = Qw(e, I(1, jC)), i = H(r.gv, I(0, 1)), a = H(r.gv, I(-nk, -.5)), o = H(r.gv, I(nk, -.5)), s = i >= K(a, o), c = Q(Q(.74, .5, a >= o), 1, s), l = tT(I(Vh(__tsover_mul(r.id.x, 2)), Vh(__tsover_mul(r.id.y, mk)))), u = K(i, K(a, o)), d = q(i, q(a, o)), f = __tsover_sub(__tsover_sub(__tsover_add(__tsover_add(i, a), o), u), d), p = __tsover_sub(u, f), m = I(z(r.gv.x), z(r.gv.y)), h = K(H(m, I(.5, nk)), m.x);
-	return L(l, c, ak(q(p, __tsover_sub(.5, h)), __tsover_mul(t, .02), __tsover_add(__tsover_mul(HS(e.x), .5), __tsover_mul(n, .5))));
+	let r = Qw(e, I(1, jC)), i = H(r.gv, I(0, 1)), a = H(r.gv, I(-Sk, -.5)), o = H(r.gv, I(Sk, -.5)), s = i >= K(a, o), c = Q(Q(.74, .5, a >= o), 1, s), l = tT(I(Vh(__tsover_mul(r.id.x, 2)), Vh(__tsover_mul(r.id.y, Pk)))), u = K(i, K(a, o)), d = q(i, q(a, o)), f = __tsover_sub(__tsover_sub(__tsover_add(__tsover_add(i, a), o), u), d), p = __tsover_sub(u, f), m = I(z(r.gv.x), z(r.gv.y)), h = K(H(m, I(.5, Sk)), m.x);
+	return L(l, c, Tk(q(p, __tsover_sub(.5, h)), __tsover_mul(t, .02), __tsover_add(__tsover_mul(HS(e.x), .5), __tsover_mul(n, .5))));
 }), {
 	v: 2,
 	name: void 0,
@@ -80294,20 +80458,20 @@ $.fn([
 		"d.vec2f": () => I,
 		SQRT3: () => jC,
 		"std.dot": () => H,
-		SQRT3_2: () => nk,
+		SQRT3_2: () => Sk,
 		"std.max": () => K,
 		"std.select": () => Q,
 		"std.round": () => Vh,
-		INV_2_SQRT3: () => mk,
+		INV_2_SQRT3: () => Pk,
 		cellHash: () => tT,
 		"std.min": () => q,
 		"std.abs": () => z,
 		"std.fwidth": () => HS,
-		strokeBandSymmetric: () => ak,
+		strokeBandSymmetric: () => Tk,
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var hk = .1;
+var Fk = .1;
 $.fn([
 	R,
 	I,
@@ -80316,7 +80480,7 @@ $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = I(__tsover_mul(t.x, n), t.y), o = __tsover_mul(r, EC), s = V(o), c = Y(o), l = W(I(H(a, I(s, __tsover_mul(c, -1))), H(a, I(c, s))).mul(i)).sub(I(.5, .5)), u = H(L(e.x, e.y, e.z), L(.299, .587, .114)), d = __tsover_add(__tsover_mul(u, .7), .15), f = G(l), p = __tsover_sub(1, X(__tsover_sub(d, hk), __tsover_add(d, hk), f));
+	let a = I(__tsover_mul(t.x, n), t.y), o = __tsover_mul(r, EC), s = V(o), c = Y(o), l = W(I(H(a, I(s, __tsover_mul(c, -1))), H(a, I(c, s))).mul(i)).sub(I(.5, .5)), u = H(L(e.x, e.y, e.z), L(.299, .587, .114)), d = __tsover_add(__tsover_mul(u, .7), .15), f = G(l), p = __tsover_sub(1, X(__tsover_sub(d, Fk), __tsover_add(d, Fk), f));
 	return R(__tsover_mul(e.x, p), __tsover_mul(e.y, p), __tsover_mul(e.z, p), __tsover_mul(e.w, p));
 }), {
 	v: 2,
@@ -80605,7 +80769,7 @@ $.fn([
 		"d.vec3f": () => L,
 		"std.length": () => G,
 		"std.smoothstep": () => X,
-		SMOOTHNESS: () => hk,
+		SMOOTHNESS: () => Fk,
 		"d.vec4f": () => R
 	}
 }) && e.f)({})), $.fn([
@@ -80712,7 +80876,7 @@ $.fn([
 		"std.sin": () => Y
 	}
 }) && e.f)({}));
-var gk = $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var Ik = $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return __tsover_sub(1, K(K(e.x, e.y), e.z));
 }), {
@@ -80754,7 +80918,7 @@ var gk = $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 }) && e.f)({}));
 $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = gk(e), n = K(__tsover_sub(1, t), 1e-4);
+	let t = Ik(e), n = K(__tsover_sub(1, t), 1e-4);
 	return __tsover_div(__tsover_sub(__tsover_sub(1, e.x), t), n);
 }), {
 	v: 2,
@@ -80811,12 +80975,12 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		halftoneChannelK: () => gk,
+		halftoneChannelK: () => Ik,
 		"std.max": () => K
 	}
 }) && e.f)({})), $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = gk(e), n = K(__tsover_sub(1, t), 1e-4);
+	let t = Ik(e), n = K(__tsover_sub(1, t), 1e-4);
 	return __tsover_div(__tsover_sub(__tsover_sub(1, e.y), t), n);
 }), {
 	v: 2,
@@ -80873,12 +81037,12 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		halftoneChannelK: () => gk,
+		halftoneChannelK: () => Ik,
 		"std.max": () => K
 	}
 }) && e.f)({})), $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = gk(e), n = K(__tsover_sub(1, t), 1e-4);
+	let t = Ik(e), n = K(__tsover_sub(1, t), 1e-4);
 	return __tsover_div(__tsover_sub(__tsover_sub(1, e.z), t), n);
 }), {
 	v: 2,
@@ -80935,7 +81099,7 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		halftoneChannelK: () => gk,
+		halftoneChannelK: () => Ik,
 		"std.max": () => K
 	}
 }) && e.f)({})), $.fn([
@@ -80946,8 +81110,8 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = I(__tsover_mul(e.x, t), e.y), o = __tsover_mul(n, EC), s = V(o), c = Y(o), l = G(W(I(H(a, I(s, __tsover_mul(c, -1))), H(a, I(c, s))).mul(i)).sub(I(.5, .5))), u = __tsover_sub(__tsover_mul(r, .75), hk);
-	return __tsover_sub(1, X(__tsover_sub(u, hk), __tsover_add(u, hk), l));
+	let a = I(__tsover_mul(e.x, t), e.y), o = __tsover_mul(n, EC), s = V(o), c = Y(o), l = G(W(I(H(a, I(s, __tsover_mul(c, -1))), H(a, I(c, s))).mul(i)).sub(I(.5, .5))), u = __tsover_sub(__tsover_mul(r, .75), Fk);
+	return __tsover_sub(1, X(__tsover_sub(u, Fk), __tsover_add(u, Fk), l));
 }), {
 	v: 2,
 	name: void 0,
@@ -81146,7 +81310,7 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"std.dot": () => H,
 		"std.fract": () => W,
 		"std.length": () => G,
-		SMOOTHNESS: () => hk,
+		SMOOTHNESS: () => Fk,
 		"std.smoothstep": () => X
 	}
 }) && e.f)({})), $.fn([R, P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
@@ -81430,7 +81594,7 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var _k = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var Lk = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return __tsover_sub(__tsover_add(__tsover_mul(t, 3), __tsover_mul(e, 2)), __tsover_mul(__tsover_mul(e, t), 4));
 }), {
@@ -81480,7 +81644,7 @@ var _k = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 }) && e.f)({}));
 $.fn([I], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = __tsover_sub(e.x, __tsover_mul(8, U(__tsover_div(e.x, 8)))), n = __tsover_sub(e.y, __tsover_mul(8, U(__tsover_div(e.y, 8)))), r = __tsover_sub(t, __tsover_mul(2, U(__tsover_div(t, 2)))), i = __tsover_sub(n, __tsover_mul(2, U(__tsover_div(n, 2)))), a = __tsover_sub(t, __tsover_mul(4, U(__tsover_div(t, 4)))), o = __tsover_sub(n, __tsover_mul(4, U(__tsover_div(n, 4)))), s = U(__tsover_div(a, 2)), c = U(__tsover_div(o, 2)), l = U(__tsover_div(t, 4)), u = U(__tsover_div(n, 4)), d = _k(r, i), f = _k(s, c), p = _k(l, u), m = __tsover_div(d, 4), h = __tsover_div(__tsover_add(__tsover_mul(d, 4), f), 16), g = __tsover_div(__tsover_add(__tsover_add(__tsover_mul(d, 16), __tsover_mul(f, 4)), p), 64), _ = __tsover_add(__tsover_mul(N(o), 4), N(a)), v = .75;
+	let t = __tsover_sub(e.x, __tsover_mul(8, U(__tsover_div(e.x, 8)))), n = __tsover_sub(e.y, __tsover_mul(8, U(__tsover_div(e.y, 8)))), r = __tsover_sub(t, __tsover_mul(2, U(__tsover_div(t, 2)))), i = __tsover_sub(n, __tsover_mul(2, U(__tsover_div(n, 2)))), a = __tsover_sub(t, __tsover_mul(4, U(__tsover_div(t, 4)))), o = __tsover_sub(n, __tsover_mul(4, U(__tsover_div(n, 4)))), s = U(__tsover_div(a, 2)), c = U(__tsover_div(o, 2)), l = U(__tsover_div(t, 4)), u = U(__tsover_div(n, 4)), d = Lk(r, i), f = Lk(s, c), p = Lk(l, u), m = __tsover_div(d, 4), h = __tsover_div(__tsover_add(__tsover_mul(d, 4), f), 16), g = __tsover_div(__tsover_add(__tsover_add(__tsover_mul(d, 16), __tsover_mul(f, 4)), p), 64), _ = __tsover_add(__tsover_mul(N(o), 4), N(a)), v = .75;
 	return v = Q(v, .3125, _ === 1), v = Q(v, .375, _ === 2), v = Q(v, .8125, _ === 3), v = Q(v, .25, _ === 4), v = Q(v, P(0), _ === 5), v = Q(v, .0625, _ === 6), v = Q(v, .4375, _ === 7), v = Q(v, .6875, _ === 8), v = Q(v, .1875, _ === 9), v = Q(v, .125, _ === 10), v = Q(v, .5, _ === 11), v = Q(v, .9375, _ === 12), v = Q(v, .625, _ === 13), v = Q(v, .5625, _ === 14), v = Q(v, .875, _ === 15), R(m, h, g, v);
 }), {
 	v: 2,
@@ -82125,7 +82289,7 @@ $.fn([I], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		"std.floor": () => U,
-		ditherBayerQuad: () => _k,
+		ditherBayerQuad: () => Lk,
 		"d.i32": () => N,
 		"std.select": () => Q,
 		"d.f32": () => P,
@@ -83265,14 +83429,14 @@ $.fn([I], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-function vk(e) {
+function Rk(e) {
 	return e.map((e, t) => ({
 		stop: e,
 		index: t
 	})).sort((e, t) => e.stop.position - t.stop.position || e.index - t.index).map(({ stop: e }) => e);
 }
-function yk(e, t) {
-	let n = Array(32).fill(0), r = Array(8).fill(0), i = Array.isArray(e) && e.length > 0 ? vk(e) : [], a = Math.min(i.length, 8);
+function zk(e, t) {
+	let n = Array(32).fill(0), r = Array(8).fill(0), i = Array.isArray(e) && e.length > 0 ? Rk(e) : [], a = Math.min(i.length, 8);
 	for (let e = 0; e < a; e++) {
 		let a = t(i[e].color);
 		n[e * 4] = a[0], n[e * 4 + 1] = a[1], n[e * 4 + 2] = a[2], n[e * 4 + 3] = a[3], r[e] = i[e].position;
@@ -83283,7 +83447,7 @@ function yk(e, t) {
 		stopCount: a
 	};
 }
-function bk(e, t, n) {
+function Bk(e, t, n) {
 	let r = Array(24).fill(0);
 	for (let i = 0; i < t; i++) {
 		let t = SE(e[i * 4], e[i * 4 + 1], e[i * 4 + 2], n);
@@ -83473,7 +83637,7 @@ $.fn([L, P], fE)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__
 	},
 	externals: { "d.vec4f": () => R }
 }) && e.f)({}));
-var xk = $.fn([
+var Vk = $.fn([
 	P,
 	pd(R, 8),
 	pd(R, 2),
@@ -84138,7 +84302,7 @@ $.fn([I, I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 		curl22z: () => bw
 	}
 }) && e.f)({}));
-var Sk = gT(tw, {
+var Hk = gT(tw, {
 	maxOctaves: 8,
 	drift: "goldenAngle",
 	name: "fractalOctaveSum"
@@ -84152,7 +84316,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	return Sk(e, 2, t, n, r, I(i, __tsover_mul(i, .7)), a);
+	return Hk(e, 2, t, n, r, I(i, __tsover_mul(i, .7)), a);
 }), {
 	v: 2,
 	name: void 0,
@@ -84207,7 +84371,7 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		fractalOctaveSum: () => Sk,
+		fractalOctaveSum: () => Hk,
 		"d.vec2f": () => I
 	}
 }) && e.f)({})), $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
@@ -84256,11 +84420,11 @@ $.fn([
 	},
 	externals: { "std.clamp": () => B }
 }) && e.f)({}));
-var Ck = wT({
+var Uk = wT({
 	distance: "selectableSquared",
 	jitter: "mix",
 	name: "worleyNearest2"
-}), wk = gT($.fn([
+}), Wk = gT($.fn([
 	I,
 	P,
 	P,
@@ -84269,7 +84433,7 @@ var Ck = wT({
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = Ck(e, t, n, r, i);
+	let o = Uk(e, t, n, r, i);
 	return ET(o.x, o.y, i, a);
 }), {
 	v: 2,
@@ -84335,7 +84499,7 @@ var Ck = wT({
 		]]]]
 	},
 	externals: {
-		worleyNearest2: () => Ck,
+		worleyNearest2: () => Uk,
 		cellReduceSelectable: () => ET
 	}
 }) && e.f)({})), {
@@ -84356,7 +84520,7 @@ $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l) => {
 	"use gpu";
-	return wk(e, t, i, a, o, n, L(r, c, l), s);
+	return Wk(e, t, i, a, o, n, L(r, c, l), s);
 }), {
 	v: 2,
 	name: void 0,
@@ -84427,7 +84591,7 @@ $.fn([
 		]]]]
 	},
 	externals: {
-		worleyOctaveSum: () => wk,
+		worleyOctaveSum: () => Wk,
 		"d.vec3f": () => L
 	}
 }) && e.f)({})), $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
@@ -84614,9 +84778,9 @@ $.fn([
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var Tk = 8;
-if (Tk !== 8) throw Error(`noisePaints: MAX (${Tk}) out of sync with MAX_COLOR_STOPS (8)`);
-var Ek = $.fn([
+var Gk = 8;
+if (Gk !== 8) throw Error(`noisePaints: MAX (${Gk}) out of sync with MAX_COLOR_STOPS (8)`);
+var Kk = $.fn([
 	I,
 	I,
 	I,
@@ -85036,14 +85200,14 @@ $.fn([
 	R,
 	R,
 	R,
-	pd(R, Tk),
-	pd(R, Tk / 4),
-	pd(L, Tk)
+	pd(R, Gk),
+	pd(R, Gk / 4),
+	pd(L, Gk)
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l) => {
 	"use gpu";
-	let u = i.x, d = i.y, f = i.z, p = i.w, m = a.x, h = a.y, g = a.z, _ = a.w, v = o.y, y = o.z, b = o.w, x = Ek(e, t, n, r, o.x), S = x.x, C = x.y, w = x.z, T = x.w, E = __tsover_mul(p, .07), ee = __tsover_add(__tsover_mul(m, .08), 8e-4), te = K(__tsover_sub(f, 1), 1), ne = L(0, 0, 0), re = P(0), ie = __tsover_mul(__tsover_mul(S, OC), d), ae = __tsover_add(__tsover_mul(S, 8), __tsover_mul(v, 2)), oe = __tsover_add(__tsover_mul(S, g), y), se = N(Vh(f));
+	let u = i.x, d = i.y, f = i.z, p = i.w, m = a.x, h = a.y, g = a.z, _ = a.w, v = o.y, y = o.z, b = o.w, x = Kk(e, t, n, r, o.x), S = x.x, C = x.y, w = x.z, T = x.w, E = __tsover_mul(p, .07), ee = __tsover_add(__tsover_mul(m, .08), 8e-4), te = K(__tsover_sub(f, 1), 1), ne = L(0, 0, 0), re = P(0), ie = __tsover_mul(__tsover_mul(S, OC), d), ae = __tsover_add(__tsover_mul(S, 8), __tsover_mul(v, 2)), oe = __tsover_add(__tsover_mul(S, g), y), se = N(Vh(f));
 	for (let e = 0; e < se; e++) {
-		let t = P(e), n = __tsover_div(t, te), r = __tsover_mul(t, .9), i = __tsover_mul(v, __tsover_add(__tsover_mul(n, .6), .7)), a = __tsover_add(Y(__tsover_add(__tsover_add(ie, i), r)), __tsover_mul(Y(__tsover_add(__tsover_sub(__tsover_mul(ie, 2.1), __tsover_mul(i, .7)), r)), .5)), o = __tsover_mul(__tsover_mul(a, u), .06), d = __tsover_mul(__tsover_sub(n, .5), h), f = __tsover_mul(__tsover_add(d, o), w), p = z(__tsover_sub(C, f)), m = __tsover_sub(1, X(E, __tsover_add(E, ee), p)), g = __tsover_add(__tsover_mul(Y(__tsover_add(ae, t)), .15), .85), y = __tsover_add(oe, __tsover_mul(n, _)), x = xk(__tsover_sub(1, z(__tsover_sub(__tsover_mul(W(__tsover_mul(y, .5)), 2), 1))), s, c, l, b).conv, S = __tsover_mul(m, g);
+		let t = P(e), n = __tsover_div(t, te), r = __tsover_mul(t, .9), i = __tsover_mul(v, __tsover_add(__tsover_mul(n, .6), .7)), a = __tsover_add(Y(__tsover_add(__tsover_add(ie, i), r)), __tsover_mul(Y(__tsover_add(__tsover_sub(__tsover_mul(ie, 2.1), __tsover_mul(i, .7)), r)), .5)), o = __tsover_mul(__tsover_mul(a, u), .06), d = __tsover_mul(__tsover_sub(n, .5), h), f = __tsover_mul(__tsover_add(d, o), w), p = z(__tsover_sub(C, f)), m = __tsover_sub(1, X(E, __tsover_add(E, ee), p)), g = __tsover_add(__tsover_mul(Y(__tsover_add(ae, t)), .15), .85), y = __tsover_add(oe, __tsover_mul(n, _)), x = Vk(__tsover_sub(1, z(__tsover_sub(__tsover_mul(W(__tsover_mul(y, .5)), 2), 1))), s, c, l, b).conv, S = __tsover_mul(m, g);
 		ne = ne.add(x.mul(S)), re = __tsover_add(re, S);
 	}
 	return R(ne.div(K(re, 1e-4)), B(__tsover_mul(re, T), 0, 1));
@@ -85759,7 +85923,7 @@ $.fn([
 		]]
 	},
 	externals: {
-		ribbonPathFrame: () => Ek,
+		ribbonPathFrame: () => Kk,
 		"std.max": () => K,
 		"d.vec3f": () => L,
 		"d.f32": () => P,
@@ -85770,7 +85934,7 @@ $.fn([
 		"std.abs": () => z,
 		"std.smoothstep": () => X,
 		"std.fract": () => W,
-		gradientStopsInSpace: () => xk,
+		gradientStopsInSpace: () => Vk,
 		"std.clamp": () => B,
 		"d.vec4f": () => R
 	}
@@ -85981,13 +86145,13 @@ $.fn([
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var Dk = 1e-5, Ok = $.fn([
+var qk = 1e-5, Jk = $.fn([
 	I,
 	I,
 	I
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = __tsover_sub(e.x, t.x), i = __tsover_sub(e.y, t.y), a = __tsover_sub(n.x, t.x), o = __tsover_sub(n.y, t.y), s = K(G(I(a, o)), P(Dk)), c = __tsover_div(__tsover_add(__tsover_mul(r, a), __tsover_mul(i, o)), s), l = K(K(-c, __tsover_sub(c, s)), P(0)), u = B(__tsover_div(c, s), P(0), P(1)), d = G(I(__tsover_sub(r, __tsover_mul(a, u)), __tsover_sub(i, __tsover_mul(o, u))));
+	let r = __tsover_sub(e.x, t.x), i = __tsover_sub(e.y, t.y), a = __tsover_sub(n.x, t.x), o = __tsover_sub(n.y, t.y), s = K(G(I(a, o)), P(qk)), c = __tsover_div(__tsover_add(__tsover_mul(r, a), __tsover_mul(i, o)), s), l = K(K(-c, __tsover_sub(c, s)), P(0)), u = B(__tsover_div(c, s), P(0), P(1)), d = G(I(__tsover_sub(r, __tsover_mul(a, u)), __tsover_sub(i, __tsover_mul(o, u))));
 	return L(c, Z(K(__tsover_sub(__tsover_mul(d, d), __tsover_mul(l, l)), P(0))), s);
 }), {
 	v: 2,
@@ -86259,7 +86423,7 @@ var Dk = 1e-5, Ok = $.fn([
 		"std.length": () => G,
 		"d.vec2f": () => I,
 		"d.f32": () => P,
-		EPS: () => Dk,
+		EPS: () => qk,
 		"std.clamp": () => B,
 		"std.sqrt": () => Z,
 		"d.vec3f": () => L
@@ -86278,7 +86442,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l) => {
 	"use gpu";
-	let u = Iw(t), d = Ok(Bw(e, t), Uw(n, u), Uw(r, u)), f = d.x, p = d.y, m = d.z, h = __tsover_mul(i, .5), g = __tsover_sub(f, __tsover_mul(m, .5)), _ = __tsover_mul(m, .5), v = K(o, P(Dk)), y = __tsover_add(v, s), b = K(U(__tsover_add(__tsover_div(__tsover_add(m, s), y), .5)), P(1)), x = __tsover_div(m, K(__tsover_add(__tsover_mul(b, v), __tsover_mul(__tsover_sub(b, 1), s)), P(Dk))), S = __tsover_mul(v, x), C = __tsover_mul(y, x), w = B(U(__tsover_div(f, C)), P(0), __tsover_sub(b, 1)), T = __tsover_sub(f, __tsover_add(__tsover_mul(w, C), __tsover_mul(S, .5))), E = K(__tsover_sub(__tsover_mul(S, .5), h), P(0)), ee = __tsover_mul(S, .5), te = K(__tsover_add(i, s), P(Dk)), ne = K(U(__tsover_add(__tsover_div(m, te), .5)), P(1)), re = __tsover_div(m, ne), ie = B(U(__tsover_add(__tsover_div(f, re), .5)), P(0), ne), ae = __tsover_sub(f, __tsover_mul(ie, re)), oe = a >= .5, se = a >= 1.5, ce = Q(g, Q(T, ae, se), oe), le = Q(_, Q(E, P(0), se), oe), ue = Q(_, Q(ee, h, se), oe), de = Q(c, l, ce > 0), fe = __tsover_sub(G(I(K(__tsover_sub(z(ce), le), P(0)), p)), h), pe = __tsover_sub(z(ce), ue), me = __tsover_sub(p, h), he = Q(__tsover_add(G(I(K(pe, P(0)), K(me, P(0)))), q(K(pe, me), P(0))), fe, de >= .5), ge = __tsover_div(1, t.y);
+	let u = Iw(t), d = Jk(Bw(e, t), Uw(n, u), Uw(r, u)), f = d.x, p = d.y, m = d.z, h = __tsover_mul(i, .5), g = __tsover_sub(f, __tsover_mul(m, .5)), _ = __tsover_mul(m, .5), v = K(o, P(qk)), y = __tsover_add(v, s), b = K(U(__tsover_add(__tsover_div(__tsover_add(m, s), y), .5)), P(1)), x = __tsover_div(m, K(__tsover_add(__tsover_mul(b, v), __tsover_mul(__tsover_sub(b, 1), s)), P(qk))), S = __tsover_mul(v, x), C = __tsover_mul(y, x), w = B(U(__tsover_div(f, C)), P(0), __tsover_sub(b, 1)), T = __tsover_sub(f, __tsover_add(__tsover_mul(w, C), __tsover_mul(S, .5))), E = K(__tsover_sub(__tsover_mul(S, .5), h), P(0)), ee = __tsover_mul(S, .5), te = K(__tsover_add(i, s), P(qk)), ne = K(U(__tsover_add(__tsover_div(m, te), .5)), P(1)), re = __tsover_div(m, ne), ie = B(U(__tsover_add(__tsover_div(f, re), .5)), P(0), ne), ae = __tsover_sub(f, __tsover_mul(ie, re)), oe = a >= .5, se = a >= 1.5, ce = Q(g, Q(T, ae, se), oe), le = Q(_, Q(E, P(0), se), oe), ue = Q(_, Q(ee, h, se), oe), de = Q(c, l, ce > 0), fe = __tsover_sub(G(I(K(__tsover_sub(z(ce), le), P(0)), p)), h), pe = __tsover_sub(z(ce), ue), me = __tsover_sub(p, h), he = Q(__tsover_add(G(I(K(pe, P(0)), K(me, P(0)))), q(K(pe, me), P(0))), fe, de >= .5), ge = __tsover_div(1, t.y);
 	return __tsover_sub(1, X(-ge, ge, he));
 }), {
 	v: 2,
@@ -87007,10 +87171,10 @@ $.fn([
 		"geom.aspectOf": () => Iw,
 		"geom.aspectCorrectedUV": () => Bw,
 		"geom.aspectCentrePosition": () => Uw,
-		segmentArcPerp: () => Ok,
+		segmentArcPerp: () => Jk,
 		"std.max": () => K,
 		"d.f32": () => P,
-		EPS: () => Dk,
+		EPS: () => qk,
 		"std.floor": () => U,
 		"std.clamp": () => B,
 		"std.select": () => Q,
@@ -87244,7 +87408,7 @@ $.fn([
 		"std.smoothstep": () => X
 	}
 }) && e.f)({}));
-var kk = $.fn([P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var Yk = $.fn([P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return L(__tsover_add(__tsover_mul(V(__tsover_mul(OC, e)), .5), .5), __tsover_add(__tsover_mul(V(__tsover_mul(OC, __tsover_sub(e, .333))), .5), .5), __tsover_add(__tsover_mul(V(__tsover_mul(OC, __tsover_sub(e, .666))), .5), .5));
 }), {
@@ -87337,7 +87501,7 @@ var kk = $.fn([P], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /
 		"std.cos": () => V,
 		TAU_FULL: () => OC
 	}
-}) && e.f)({})), Ak = Vu({
+}) && e.f)({})), Xk = Vu({
 	aspect: P,
 	lightPos: I,
 	flareAxis: I,
@@ -87352,10 +87516,10 @@ $.fn([
 	I,
 	P,
 	P
-], Ak)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
+], Xk)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
 	let o = Iw(t), s = I(r.x, __tsover_sub(1, r.y)), c = I(__tsover_sub(.5, s.x), __tsover_sub(.5, s.y)), l = __tsover_add(__tsover_add(__tsover_add(__tsover_mul(Y(__tsover_mul(n, 3.7)), .04), __tsover_mul(Y(__tsover_mul(n, 7.3)), .03)), __tsover_mul(Y(__tsover_mul(n, 13.1)), .02)), .97), u = K(__tsover_mul(z(__tsover_sub(s.x, .5)), 2), __tsover_mul(z(__tsover_sub(s.y, .5)), 2)), d = __tsover_sub(1, __tsover_mul(a, .5)), f = J(1, __tsover_sub(1, X(d, 1, u)), a), p = __tsover_mul(__tsover_mul(i, f), l), m = I(__tsover_mul(__tsover_sub(e.x, s.x), o), __tsover_sub(e.y, s.y));
-	return Ak({
+	return Xk({
 		aspect: o,
 		lightPos: s,
 		flareAxis: c,
@@ -87705,7 +87869,7 @@ $.fn([
 		"std.smoothstep": () => X,
 		"std.length": () => G,
 		"std.atan2": () => sh,
-		FlareFrame: () => Ak
+		FlareFrame: () => Xk
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -88484,7 +88648,7 @@ $.fn([
 	P
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = sh(t.y, __tsover_mul(t.x, n)), c = __tsover_add(__tsover_mul(s, .5), __tsover_mul(r, .06)), l = __tsover_add(e, c), u = MT(l, __tsover_div(a, 2), 3.5), d = __tsover_mul(MT(__tsover_add(l, .25), __tsover_div(a, 2), 7), .4), f = __tsover_div(1, __tsover_add(1, __tsover_mul(__tsover_mul(i, i), 60))), p = kk(__tsover_add(__tsover_div(l, OC), .5));
+	let s = sh(t.y, __tsover_mul(t.x, n)), c = __tsover_add(__tsover_mul(s, .5), __tsover_mul(r, .06)), l = __tsover_add(e, c), u = MT(l, __tsover_div(a, 2), 3.5), d = __tsover_mul(MT(__tsover_add(l, .25), __tsover_div(a, 2), 7), .4), f = __tsover_div(1, __tsover_add(1, __tsover_mul(__tsover_mul(i, i), 60))), p = Yk(__tsover_add(__tsover_div(l, OC), .5));
 	return J(L(1, .97, .92), p, .12).mul(__tsover_mul(__tsover_mul(__tsover_add(u, d), f), o));
 }), {
 	v: 2,
@@ -88713,7 +88877,7 @@ $.fn([
 	externals: {
 		"std.atan2": () => sh,
 		"lightfields.angularCosineSpikes": () => MT,
-		lensFlareSpectral: () => kk,
+		lensFlareSpectral: () => Yk,
 		TAU_FULL: () => OC,
 		"std.mix": () => J,
 		"d.vec3f": () => L
@@ -90274,7 +90438,7 @@ $.fn([
 		"std.mix": () => J
 	}
 }) && e.f)({}));
-var jk = Math.sin(.785), Mk = Math.cos(.785), Nk = Math.sin(-.785), Pk = Math.cos(-.785), Fk = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+var Zk = Math.sin(.785), Qk = Math.cos(.785), $k = Math.sin(-.785), eA = Math.cos(-.785), tA = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return cw(e);
 }), {
@@ -90292,9 +90456,9 @@ var jk = Math.sin(.785), Mk = Math.cos(.785), Nk = Math.sin(-.785), Pk = Math.co
 		]]]]
 	},
 	externals: { "noise.hash12": () => cw }
-}) && e.f)({})), Ik = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})), nA = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = U(e), n = W(e), r = n.mul(n).mul(n.mul(-2).add(3)), i = Fk(t), a = Fk(I(__tsover_add(t.x, 1), t.y)), o = Fk(I(t.x, __tsover_add(t.y, 1))), s = Fk(I(__tsover_add(t.x, 1), __tsover_add(t.y, 1)));
+	let t = U(e), n = W(e), r = n.mul(n).mul(n.mul(-2).add(3)), i = tA(t), a = tA(I(__tsover_add(t.x, 1), t.y)), o = tA(I(t.x, __tsover_add(t.y, 1))), s = tA(I(__tsover_add(t.x, 1), __tsover_add(t.y, 1)));
 	return J(J(i, a, r.x), J(o, s, r.x), r.y);
 }), {
 	v: 2,
@@ -90498,7 +90662,7 @@ var jk = Math.sin(.785), Mk = Math.cos(.785), Nk = Math.sin(-.785), Pk = Math.co
 	externals: {
 		"std.floor": () => U,
 		"std.fract": () => W,
-		chalkHash21: () => Fk,
+		chalkHash21: () => tA,
 		"d.vec2f": () => I,
 		"std.mix": () => J
 	}
@@ -90664,7 +90828,7 @@ $.fn([R], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: { "d.vec2f": () => I }
 }) && e.f)({}));
-var Lk = $.fn([
+var rA = $.fn([
 	I,
 	P,
 	P,
@@ -90810,7 +90974,7 @@ $.fn([
 	R
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = e.x, l = e.y, u = e.z, d = e.w, f = t.x, p = t.y, m = t.z, h = t.w, g = i.x, _ = i.y, v = a.x, y = a.y, b = a.z, x = a.w, S = __tsover_add(__tsover_add(__tsover_add(__tsover_sub(__tsover_sub(-c, __tsover_mul(d, 2)), p), u), __tsover_mul(f, 2)), h), C = __tsover_add(__tsover_add(__tsover_add(__tsover_sub(__tsover_sub(-c, __tsover_mul(l, 2)), u), p), __tsover_mul(m, 2)), h), w = Z(__tsover_add(__tsover_mul(S, S), __tsover_mul(C, C))), T = J(P(1), .08, v), E = X(__tsover_mul(T, .4), T, w), ee = __tsover_sub(1, g), te = n.mul(r), ne = __tsover_mul(K(K(Lk(te, y, ee, jk, Mk, .22), Lk(te, y, ee, Nk, Pk, .5)), Lk(te, y, ee, 0, 1, .78)), b), re = J(__tsover_sub(1, x), P(1), Ik(te.mul(.5))), ie = B(__tsover_mul(K(E, ne), re), 0, 1), ae = __tsover_mul(__tsover_sub(Ik(te.mul(.9)), .5), .04);
+	let c = e.x, l = e.y, u = e.z, d = e.w, f = t.x, p = t.y, m = t.z, h = t.w, g = i.x, _ = i.y, v = a.x, y = a.y, b = a.z, x = a.w, S = __tsover_add(__tsover_add(__tsover_add(__tsover_sub(__tsover_sub(-c, __tsover_mul(d, 2)), p), u), __tsover_mul(f, 2)), h), C = __tsover_add(__tsover_add(__tsover_add(__tsover_sub(__tsover_sub(-c, __tsover_mul(l, 2)), u), p), __tsover_mul(m, 2)), h), w = Z(__tsover_add(__tsover_mul(S, S), __tsover_mul(C, C))), T = J(P(1), .08, v), E = X(__tsover_mul(T, .4), T, w), ee = __tsover_sub(1, g), te = n.mul(r), ne = __tsover_mul(K(K(rA(te, y, ee, Zk, Qk, .22), rA(te, y, ee, $k, eA, .5)), rA(te, y, ee, 0, 1, .78)), b), re = J(__tsover_sub(1, x), P(1), nA(te.mul(.5))), ie = B(__tsover_mul(K(E, ne), re), 0, 1), ae = __tsover_mul(__tsover_sub(nA(te.mul(.9)), .5), .04);
 	return R(J(o.xyz.add(ae), s.xyz, L(ie)), _);
 }), {
 	v: 2,
@@ -91332,18 +91496,18 @@ $.fn([
 		"d.f32": () => P,
 		"std.smoothstep": () => X,
 		"std.max": () => K,
-		chalkHatchLine: () => Lk,
-		SIN_045: () => jk,
-		COS_045: () => Mk,
-		SIN_N45: () => Nk,
-		COS_N45: () => Pk,
-		chalkVnoise: () => Ik,
+		chalkHatchLine: () => rA,
+		SIN_045: () => Zk,
+		COS_045: () => Qk,
+		SIN_N45: () => $k,
+		COS_N45: () => eA,
+		chalkVnoise: () => nA,
 		"std.clamp": () => B,
 		"d.vec3f": () => L,
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var Rk = 1080, zk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var iA = 1080, aA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	cellCenter: I,
 	cellUV: I,
 	isOutside: P
@@ -91353,10 +91517,10 @@ $.fn([
 	I,
 	P,
 	P
-], zk)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
+], aA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = __tsover_div(t.y, Rk), a = __tsover_mul(n, i), o = I(__tsover_div(t.x, a), __tsover_div(t.y, a)), s = I(__tsover_mul(e.x, o.x), __tsover_mul(e.y, o.y)), c = U(s), l = W(s), u = __tsover_sub(l.x, .5), d = __tsover_sub(l.y, .5), f = I(__tsover_add(__tsover_div(u, r), .5), __tsover_add(__tsover_div(d, r), .5)), p = __tsover_mul(r, .5), m = Q(P(0), P(1), z(u) > p || z(d) > p);
-	return zk({
+	let i = __tsover_div(t.y, iA), a = __tsover_mul(n, i), o = I(__tsover_div(t.x, a), __tsover_div(t.y, a)), s = I(__tsover_mul(e.x, o.x), __tsover_mul(e.y, o.y)), c = U(s), l = W(s), u = __tsover_sub(l.x, .5), d = __tsover_sub(l.y, .5), f = I(__tsover_add(__tsover_div(u, r), .5), __tsover_add(__tsover_div(d, r), .5)), p = __tsover_mul(r, .5), m = Q(P(0), P(1), z(u) > p || z(d) > p);
+	return aA({
 		cellCenter: I(__tsover_div(__tsover_add(c.x, .5), o.x), __tsover_div(__tsover_add(c.y, .5), o.y)),
 		cellUV: f,
 		isOutside: m
@@ -91656,14 +91820,14 @@ $.fn([
 		]]
 	},
 	externals: {
-		REFERENCE_HEIGHT: () => Rk,
+		REFERENCE_HEIGHT: () => iA,
 		"d.vec2f": () => I,
 		"std.floor": () => U,
 		"std.fract": () => W,
 		"std.select": () => Q,
 		"d.f32": () => P,
 		"std.abs": () => z,
-		AsciiGrid: () => zk
+		AsciiGrid: () => aA
 	}
 }) && e.f)({})).$name("asciiGrid"), $.fn([
 	L,
@@ -92526,7 +92690,7 @@ $.fn([
 	},
 	externals: {}
 }) && e.f)({}));
-var Bk = $.fn([
+var oA = $.fn([
 	P,
 	P,
 	P,
@@ -92681,13 +92845,13 @@ $.fn([
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var Vk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var sA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	tangent: L,
 	bitangent: L
-}), "TangentFrame"), Hk = $.fn([L, L], Vk)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}), "TangentFrame"), cA = $.fn([L, L], sA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = Fh(t.sub(e.mul(H(e, t))));
-	return Vk({
+	return sA({
 		tangent: n,
 		bitangent: L(__tsover_sub(__tsover_mul(e.y, n.z), __tsover_mul(e.z, n.y)), __tsover_sub(__tsover_mul(e.z, n.x), __tsover_mul(e.x, n.z)), __tsover_sub(__tsover_mul(e.x, n.y), __tsover_mul(e.y, n.x)))
 	});
@@ -92852,9 +93016,9 @@ var Vk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 		"std.normalize": () => Fh,
 		"std.dot": () => H,
 		"d.vec3f": () => L,
-		TangentFrame: () => Vk
+		TangentFrame: () => sA
 	}
-}) && e.f)({})), Uk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+}) && e.f)({})), lA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	normal: L,
 	tangent: L,
 	light: L,
@@ -92862,9 +93026,9 @@ var Vk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	alphaAlong: P,
 	alphaAcross: P
 }), "WardSpecularInput");
-$.fn([Uk], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+$.fn([lA], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = Hk(e.normal, e.tangent), n = Fh(e.light.sub(e.view)), r = H(n, t.tangent), i = H(n, t.bitangent), a = B(z(H(n, e.normal)), 1e-4, 1), o = K(e.alphaAlong, 1e-4), s = K(e.alphaAcross, 1e-4), c = __tsover_div(__tsover_add(__tsover_mul(__tsover_div(r, o), __tsover_div(r, o)), __tsover_mul(__tsover_div(i, s), __tsover_div(i, s))), __tsover_mul(__tsover_add(a, 1), .5));
+	let t = cA(e.normal, e.tangent), n = Fh(e.light.sub(e.view)), r = H(n, t.tangent), i = H(n, t.bitangent), a = B(z(H(n, e.normal)), 1e-4, 1), o = K(e.alphaAlong, 1e-4), s = K(e.alphaAcross, 1e-4), c = __tsover_div(__tsover_add(__tsover_mul(__tsover_div(r, o), __tsover_div(r, o)), __tsover_mul(__tsover_div(i, s), __tsover_div(i, s))), __tsover_mul(__tsover_add(a, 1), .5));
 	return vh(__tsover_mul(c, -1));
 }), {
 	v: 2,
@@ -93066,7 +93230,7 @@ $.fn([Uk], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PUR
 		]]
 	},
 	externals: {
-		orthonormalTangentFrame: () => Hk,
+		orthonormalTangentFrame: () => cA,
 		"std.normalize": () => Fh,
 		"std.dot": () => H,
 		"std.clamp": () => B,
@@ -93197,7 +93361,7 @@ $.fn([Uk], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PUR
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	return X(0, 1, Bk(e, K(__tsover_mul(t, .5), .001), n, 1.5));
+	return X(0, 1, oA(e, K(__tsover_mul(t, .5), .001), n, 1.5));
 }), {
 	v: 2,
 	name: void 0,
@@ -93251,10 +93415,10 @@ $.fn([Uk], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PUR
 	externals: {
 		"std.max": () => K,
 		"std.smoothstep": () => X,
-		insideMask: () => Bk
+		insideMask: () => oA
 	}
 }) && e.f)({}));
-var Wk = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var uA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	L,
 	H: L
 }), "KeyLight");
@@ -93262,10 +93426,10 @@ $.fn([
 	P,
 	P,
 	P
-], Wk)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
+], uA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = Fh(L(e, t, n));
-	return Wk({
+	return uA({
 		L: r,
 		H: Fh(r.add(L(0, 0, -1)))
 	});
@@ -93347,7 +93511,7 @@ $.fn([
 	externals: {
 		"std.normalize": () => Fh,
 		"d.vec3f": () => L,
-		KeyLight: () => Wk
+		KeyLight: () => uA
 	}
 }) && e.f)({})), $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
@@ -94459,27 +94623,27 @@ $.fn([
 		"std.length": () => G
 	}
 }) && e.f)({}));
-var Gk = /* @__PURE__ */ new Map(), Kk = /* @__PURE__ */ new Set();
-function qk(e) {
-	return Gk.get(e) ?? null;
+var dA = /* @__PURE__ */ new Map(), fA = /* @__PURE__ */ new Set();
+function pA(e) {
+	return dA.get(e) ?? null;
 }
-function Jk(e) {
-	return Kk.add(e), () => {
-		Kk.delete(e);
+function mA(e) {
+	return fA.add(e), () => {
+		fA.delete(e);
 	};
 }
-var Yk = /* @__PURE__ */ Ji({
-	accumulateInstances: () => iA,
-	formatFloat: () => sD,
-	gridPlacement: () => $k,
-	instanceHueShift: () => rA,
-	instanceVariation: () => nA,
-	linePlacement: () => tA,
-	placementField: () => Qk,
-	radialPlacement: () => eA,
-	sourceRect: () => Zk
-}), Xk = Math.PI;
-function Zk(e, t, n) {
+var hA = /* @__PURE__ */ Ji({
+	accumulateInstances: () => wA,
+	formatFloat: () => DD,
+	gridPlacement: () => yA,
+	instanceHueShift: () => CA,
+	instanceVariation: () => SA,
+	linePlacement: () => xA,
+	placementField: () => vA,
+	radialPlacement: () => bA,
+	sourceRect: () => _A
+}), gA = Math.PI;
+function _A(e, t, n) {
 	let { p: r, L: i } = e;
 	return [
 		`let ${r}_cropL = ${n.left};`,
@@ -94494,7 +94658,7 @@ function Zk(e, t, n) {
 		`let ${r}_srcHhSq = ${r}_srcHh;`
 	];
 }
-function Qk(e, t) {
+function vA(e, t) {
 	let { p: n, L: r } = e;
 	return [
 		`let ${n}_fieldCenterSq = vec2f((${t.cx}) * ${n}_aspect, ${t.cy});`,
@@ -94502,7 +94666,7 @@ function Qk(e, t) {
 		`let ${n}_fieldHh = max(${t.hh}, ${r(1e-6)});`
 	];
 }
-function $k(e, t) {
+function yA(e, t) {
 	return {
 		requested: () => `(${e.columns} * ${e.rows})`,
 		body: (n) => {
@@ -94534,30 +94698,30 @@ function $k(e, t) {
 		}
 	};
 }
-function eA(e, t) {
+function bA(e, t) {
 	return {
 		requested: () => t.count,
 		body: (n) => {
 			let { p: r, L: i } = n;
 			return [
 				`let ${r}_cSq = ${e};`,
-				`let ${r}_sweep = ${t.sweep} * ${i(Xk / 180)};`,
-				`let ${r}_start = ${t.startAngle} * ${i(Xk / 180)};`,
+				`let ${r}_sweep = ${t.sweep} * ${i(gA / 180)};`,
+				`let ${r}_start = ${t.startAngle} * ${i(gA / 180)};`,
 				`let ${r}_ang = ${r}_start + ${r}_sweep * (${r}_j / ${r}_totalN) + ${r}_phase * ${r}_sweep;`,
 				`${r}_pos = ${r}_cSq + vec2f(cos(${r}_ang), sin(${r}_ang)) * ${t.radius};`,
-				`${r}_layoutRot = select(0.0, ${r}_ang + ${i(Xk / 2)}, ${t.faceCenter} > 0.0);`
+				`${r}_layoutRot = select(0.0, ${r}_ang + ${i(gA / 2)}, ${t.faceCenter} > 0.0);`
 			];
 		}
 	};
 }
-function tA(e, t) {
+function xA(e, t) {
 	return {
 		requested: () => t.count,
 		body: (n) => {
 			let { p: r, L: i } = n;
 			return [
 				`let ${r}_cSq = ${e};`,
-				`let ${r}_dirRad = ${t.direction} * ${i(Xk / 180)};`,
+				`let ${r}_dirRad = ${t.direction} * ${i(gA / 180)};`,
 				`let ${r}_dir = vec2f(cos(${r}_dirRad), sin(${r}_dirRad));`,
 				`let ${r}_tArg = ${r}_j + ${r}_phase;`,
 				`let ${r}_t = ${r}_tArg - ${r}_totalN * floor(${r}_tArg / ${r}_totalN);`,
@@ -94566,7 +94730,7 @@ function tA(e, t) {
 		}
 	};
 }
-function nA(e, t) {
+function SA(e, t) {
 	let { p: n, L: r } = e, i = (e) => `fract(sin((${n}_hashBase + ${r(e)}) * 78.233) * 43758.5453)`;
 	return [
 		`let ${n}_hashBase = ${n}_j + ${n}_seed * 7.0;`,
@@ -94576,12 +94740,12 @@ function nA(e, t) {
 		`let ${n}_h4 = ${i(13.21)};`,
 		`let ${n}_h5 = ${i(17.65)};`,
 		`let ${n}_scale = max(pow(${t.scale}, ${n}_j) * (1.0 + ${t.jitterScale} * (${n}_h3 - 0.5)), ${r(1e-4)});`,
-		`let ${n}_rot = ${n}_layoutRot + ${t.rotation} * ${n}_j + ${t.jitterRotation} * (${n}_h4 - 0.5) * ${r(Xk * 2)};`,
+		`let ${n}_rot = ${n}_layoutRot + ${t.rotation} * ${n}_j + ${t.jitterRotation} * (${n}_h4 - 0.5) * ${r(gA * 2)};`,
 		`let ${n}_instOpacity = pow(${t.opacity}, ${n}_j) * (1.0 - ${t.jitterOpacity} * ${n}_h5);`,
 		`${n}_pos = ${n}_pos + vec2f((${n}_h1 - 0.5) * ${n}_fieldHwSq, (${n}_h2 - 0.5) * ${n}_fieldHh) * ${t.jitterPosition};`
 	];
 }
-function rA(e, t) {
+function CA(e, t) {
 	let { p: n, L: r } = e;
 	return [
 		`let ${n}_hueAngle = ${t} * ${n}_j;`,
@@ -94595,7 +94759,7 @@ function rA(e, t) {
 		`${n}_rgb = vec3f(${n}_src.r * ${n}_mA + ${n}_src.g * ${n}_mB + ${n}_src.b * ${n}_mC, ${n}_src.r * ${n}_mC + ${n}_src.g * ${n}_mA + ${n}_src.b * ${n}_mB, ${n}_src.r * ${n}_mB + ${n}_src.g * ${n}_mC + ${n}_src.b * ${n}_mA);`
 	];
 }
-function iA(e, t) {
+function wA(e, t) {
 	let { p: n } = e, r = [];
 	r.push(`let ${n}_totalN = min(max(${t.placement.requested()}, 1.0), 64.0);`), r.push(`var ${n}_accum = vec4f(0.0, 0.0, 0.0, 0.0);`), r.push(`var ${n}_cellFitInv = 1.0;`);
 	let i = [];
@@ -94607,16 +94771,16 @@ function iA(e, t) {
 	for (let e of i) r.push(`  ${e}`);
 	return r.push("}"), r;
 }
-function aA() {
+function TA() {
 	if (typeof window > "u") return !1;
 	let e = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches), t = Math.max(window.innerWidth || 0, window.innerHeight || 0);
 	return e && t > 0 && t <= 1366;
 }
-function oA() {
-	return aA() ? 1.5 : 2;
+function EA() {
+	return TA() ? 1.5 : 2;
 }
-aA();
-var sA = "rgba32float", cA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+TA();
+var DA = "rgba32float", OA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	dt: P,
 	trackersF: P,
 	agility: P,
@@ -94626,8 +94790,8 @@ var sA = "rgba32float", cA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ??
 }), "TrackParams");
 $.bindGroupLayout({
 	src: { texture: Cd(P) },
-	grid: { storageTexture: Ad(sA, "write-only") },
-	params: { uniform: cA }
+	grid: { storageTexture: Ad(DA, "write-only") },
+	params: { uniform: OA }
 }), $.bindGroupLayout({
 	src: { texture: Cd(P) },
 	featGrid: {
@@ -94638,9 +94802,9 @@ $.bindGroupLayout({
 		texture: Cd(P),
 		sampleType: "unfilterable-float"
 	},
-	next: { storageTexture: Ad(sA, "write-only") },
-	present: { storageTexture: Ad(sA, "write-only") },
-	params: { uniform: cA }
+	next: { storageTexture: Ad(DA, "write-only") },
+	present: { storageTexture: Ad(DA, "write-only") },
+	params: { uniform: OA }
 }), $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	return W(__tsover_mul(Y(e), 43758.5453123));
@@ -94672,7 +94836,7 @@ $.bindGroupLayout({
 		"std.sin": () => Y
 	}
 }) && e.f)({}));
-function lA(e = {}) {
+function kA(e = {}) {
 	let t = e.smoothing ?? .2, n = e.teleportGuard ?? .25, r = e.minDrag ?? 6e-4, i = e.initialX ?? .5, a = e.initialY ?? .5, o = 0, s = 0, c = !1, l = !1;
 	return { update(e, u) {
 		let d = e?.seen === !1;
@@ -94698,8 +94862,8 @@ function lA(e = {}) {
 		};
 	} };
 }
-var uA = 3, dA = Math.exp(-(uA * uA)), fA = 1 / (1 - dA), pA = .004, mA = "rgba16float";
-function hA(e) {
+var AA = 3, jA = Math.exp(-(AA * AA)), MA = 1 / (1 - jA), NA = .004, PA = "rgba16float";
+function FA(e) {
 	return $.bindGroupLayout({
 		readBuf: {
 			storage: pd(P, e),
@@ -94720,29 +94884,29 @@ function hA(e) {
 		}), "uniform") }
 	});
 }
-function gA(e) {
+function IA(e) {
 	return $.bindGroupLayout({
 		srcBuf: {
 			storage: pd(P, e),
 			access: "readonly"
 		},
-		dispTex: { storageTexture: Ad(mA, "write-only") }
+		dispTex: { storageTexture: Ad(PA, "write-only") }
 	});
 }
-var _A = /* @__PURE__ */ new Map();
-function vA(e) {
-	let t = _A.get(e);
+var LA = /* @__PURE__ */ new Map();
+function RA(e) {
+	let t = LA.get(e);
 	if (t) return t;
-	let n = e * e, r = e - 1, i = hA(n), a = gA(n), o = {
+	let n = e * e, r = e - 1, i = FA(n), a = IA(n), o = {
 		resolution: e,
 		propagateLayout: i,
 		gradientLayout: a,
 		propagateKernel: $.fn([M, M])(/* @__PURE__ */ ((t) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(t.f = ((t, n) => {
 			"use gpu";
 			if (t > M(0) && t < M(r) && n > M(0) && n < M(r)) {
-				let r = i.$.params, a = M(e), o = __tsover_add(__tsover_mul(n, a), t), s = i.$.readBuf[__tsover_sub(o, M(1))], c = i.$.readBuf[__tsover_add(o, M(1))], l = i.$.readBuf[__tsover_sub(o, a)], u = i.$.readBuf[__tsover_add(o, a)], d = __tsover_mul(__tsover_add(__tsover_add(__tsover_add(s, c), l), u), .5), f = i.$.writeBuf[o], p = __tsover_sub(1, __tsover_mul(r.damping, pA)), m = __tsover_mul(__tsover_sub(d, f), p), h = __tsover_div(__tsover_add(P(t), .5), P(e)), g = __tsover_div(__tsover_add(P(n), .5), P(e)), _ = Q(__tsover_sub(h, r.cursorX), __tsover_mul(__tsover_sub(h, r.cursorX), r.aspect), r.aspect >= 1), v = Q(__tsover_div(__tsover_sub(g, r.cursorY), r.aspect), __tsover_sub(g, r.cursorY), r.aspect >= 1), y = __tsover_add(__tsover_mul(_, _), __tsover_mul(v, v)), b = __tsover_mul(r.radius, 3);
+				let r = i.$.params, a = M(e), o = __tsover_add(__tsover_mul(n, a), t), s = i.$.readBuf[__tsover_sub(o, M(1))], c = i.$.readBuf[__tsover_add(o, M(1))], l = i.$.readBuf[__tsover_sub(o, a)], u = i.$.readBuf[__tsover_add(o, a)], d = __tsover_mul(__tsover_add(__tsover_add(__tsover_add(s, c), l), u), .5), f = i.$.writeBuf[o], p = __tsover_sub(1, __tsover_mul(r.damping, NA)), m = __tsover_mul(__tsover_sub(d, f), p), h = __tsover_div(__tsover_add(P(t), .5), P(e)), g = __tsover_div(__tsover_add(P(n), .5), P(e)), _ = Q(__tsover_sub(h, r.cursorX), __tsover_mul(__tsover_sub(h, r.cursorX), r.aspect), r.aspect >= 1), v = Q(__tsover_div(__tsover_sub(g, r.cursorY), r.aspect), __tsover_sub(g, r.cursorY), r.aspect >= 1), y = __tsover_add(__tsover_mul(_, _), __tsover_mul(v, v)), b = __tsover_mul(r.radius, 3);
 				if (y < __tsover_mul(b, b) && r.cursorSpeed > .01) {
-					let e = __tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(y, __tsover_mul(r.radius, r.radius)), -1)), dA), fA);
+					let e = __tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(y, __tsover_mul(r.radius, r.radius)), -1)), jA), MA);
 					m = __tsover_sub(m, __tsover_mul(__tsover_mul(__tsover_mul(e, r.cursorSpeed), r.dt), 3));
 				}
 				i.$.writeBuf[o] = m;
@@ -95333,12 +95497,12 @@ function vA(e) {
 				gridMax: () => r,
 				propagateLayout: () => i,
 				resolution: () => e,
-				DAMPING_SCALE: () => pA,
+				DAMPING_SCALE: () => NA,
 				"d.f32": () => P,
 				"std.select": () => Q,
 				"std.exp": () => vh,
-				BRUSH_EDGE: () => dA,
-				BRUSH_EDGE_GAIN: () => fA
+				BRUSH_EDGE: () => jA,
+				BRUSH_EDGE_GAIN: () => MA
 			}
 		}) && t.f)({})).$name(`waveFieldPropagate_${e}`),
 		gradientKernel: $.fn([M, M])(/* @__PURE__ */ ((t) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(t.f = ((t, n) => {
@@ -95607,14 +95771,14 @@ function vA(e) {
 			}
 		}) && t.f)({})).$name(`waveFieldGradient_${e}`)
 	};
-	return _A.set(e, o), o;
+	return LA.set(e, o), o;
 }
-function yA(e, t) {
+function zA(e, t) {
 	let { gpu: n, registerComputeTexture: r, getCpuValue: i, onCleanup: a, onResize: o, dimensions: s } = e, c = n?.root;
 	if (!c) return null;
-	let { resolution: l, dampingProp: u, radiusProp: d, radiusScale: f, speedMax: p, teleportGuard: m = "on" } = t, { propagateLayout: h, gradientLayout: g, propagateKernel: _, gradientKernel: v } = vA(l), y = l * l, b = jO(c, P, y), x = jO(c, P, y), S = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(c.createTexture({
+	let { resolution: l, dampingProp: u, radiusProp: d, radiusScale: f, speedMax: p, teleportGuard: m = "on" } = t, { propagateLayout: h, gradientLayout: g, propagateKernel: _, gradientKernel: v } = RA(l), y = l * l, b = ZO(c, P, y), x = ZO(c, P, y), S = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(c.createTexture({
 		size: [l, l],
-		format: mA
+		format: PA
 	}).$usage("storage", "sampled"), "dispTex");
 	a(() => S.destroy());
 	let C = r(S), w = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(c.createUniform(Vu({
@@ -95629,14 +95793,14 @@ function yA(e, t) {
 	o(({ width: e, height: t }) => {
 		T = Math.max(1, Math.round(e)), E = Math.max(1, Math.round(t));
 	});
-	let ee = [l, l], te = AO(b, x), ne = te.groups((e, t) => c.createBindGroup(h, {
+	let ee = [l, l], te = XO(b, x), ne = te.groups((e, t) => c.createBindGroup(h, {
 		readBuf: e,
 		writeBuf: t,
 		params: w.buffer
 	})), re = te.perSide((e) => c.createBindGroup(g, {
 		srcBuf: e,
 		dispTex: S
-	})), ie = OO(c, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+	})), ie = JO(c, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 		"use gpu";
 		_(e, t);
 	}), {
@@ -95657,7 +95821,7 @@ function yA(e, t) {
 			]]]
 		},
 		externals: { propagateKernel: () => _ }
-	}) && e.f)({}), { size: ee }), ae = OO(c, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+	}) && e.f)({}), { size: ee }), ae = JO(c, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 		"use gpu";
 		v(e, t);
 	}), {
@@ -95678,13 +95842,13 @@ function yA(e, t) {
 			]]]
 		},
 		externals: { gradientKernel: () => v }
-	}) && e.f)({}), { size: ee }), oe = lA(m === "off" ? { teleportGuard: Infinity } : {}), se = Date.now();
+	}) && e.f)({}), { size: ee }), oe = kA(m === "off" ? { teleportGuard: Infinity } : {}), se = Date.now();
 	return {
 		displacement: C,
 		getComputeNodes: (e) => {
 			let t = e, n = Date.now(), r = Math.min(t.deltaTime ?? 0, .016), a = Math.max(1, t.dimensions?.width ?? T) / Math.max(1, t.dimensions?.height ?? E), o = i(u) ?? 10, s = (i(d) ?? .5) * f, c = oe.update(t.pointer, r), l = Math.min(Math.sqrt(c.velX * c.velX + c.velY * c.velY), p);
 			l > .01 && (se = n);
-			let m = 1 - o * pA, h = m >= 1 ? Infinity : Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(m, .001)) * 16.67);
+			let m = 1 - o * NA, h = m >= 1 ? Infinity : Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(m, .001)) * 16.67);
 			if (n - se > h) return null;
 			w.write({
 				cursorX: c.x,
@@ -96642,18 +96806,18 @@ $.fn([
 		"std.select": () => Q
 	}
 }) && e.f)({}));
-var bA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var BA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	cell: I,
 	local: I,
 	grid: I
-}), "CellGrid"), xA = $.fn([
+}), "CellGrid"), VA = $.fn([
 	I,
 	P,
 	P
-], bA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
+], BA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = __tsover_div(1, K(n, .001)), i = K(__tsover_div(r, t), 1), a = __tsover_mul(e.x, r), o = __tsover_mul(e.y, i);
-	return bA({
+	return BA({
 		cell: I(U(a), U(o)),
 		local: I(W(a), W(o)),
 		grid: I(r, i)
@@ -96774,7 +96938,7 @@ var bA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	},
 	externals: {
 		"std.max": () => K,
-		CellGrid: () => bA,
+		CellGrid: () => BA,
 		"d.vec2f": () => I,
 		"std.floor": () => U,
 		"std.fract": () => W
@@ -96945,7 +97109,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = xA(e, t, n);
+	let r = VA(e, t, n);
 	return __tsover_add(z(__tsover_sub(r.local.x, .5)), z(__tsover_sub(r.local.y, .5)));
 }), {
 	v: 2,
@@ -97019,7 +97183,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]]]
 	},
 	externals: {
-		cellGrid: () => xA,
+		cellGrid: () => VA,
 		"std.abs": () => z
 	}
 }) && e.f)({})), $.fn([
@@ -97028,7 +97192,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = xA(e, t, n), i = __tsover_mul(W(__tsover_mul(__tsover_add(r.cell.x, r.cell.y), .5)), 2), a = __tsover_mul(__tsover_add(__tsover_div(r.cell.x, r.grid.x), __tsover_div(r.cell.y, r.grid.y)), .5);
+	let r = VA(e, t, n), i = __tsover_mul(W(__tsover_mul(__tsover_add(r.cell.x, r.cell.y), .5)), 2), a = __tsover_mul(__tsover_add(__tsover_div(r.cell.x, r.grid.x), __tsover_div(r.cell.y, r.grid.y)), .5);
 	return B(__tsover_add(__tsover_mul(.5, i), __tsover_mul(.5, a)), 0, 1);
 }), {
 	v: 2,
@@ -97186,7 +97350,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		cellGrid: () => xA,
+		cellGrid: () => VA,
 		"std.fract": () => W,
 		"std.clamp": () => B
 	}
@@ -97196,7 +97360,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	return cw(xA(e, t, n).cell);
+	return cw(VA(e, t, n).cell);
 }), {
 	v: 2,
 	name: void 0,
@@ -97235,7 +97399,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		hash12: () => cw,
-		cellGrid: () => xA
+		cellGrid: () => VA
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -97489,45 +97653,45 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"std.clamp": () => B
 	}
 }) && e.f)({}));
-var SA = /* @__PURE__ */ new Float32Array(1), CA = new Int32Array(SA.buffer);
-function wA(e) {
-	SA[0] = Math.max(-65504, Math.min(65504, e));
-	let t = CA[0], n = t >> 16 & 32768, r = t >> 12 & 2047, i = t >> 23 & 255;
+var HA = /* @__PURE__ */ new Float32Array(1), UA = new Int32Array(HA.buffer);
+function WA(e) {
+	HA[0] = Math.max(-65504, Math.min(65504, e));
+	let t = UA[0], n = t >> 16 & 32768, r = t >> 12 & 2047, i = t >> 23 & 255;
 	return i < 103 ? n : i > 142 ? (n |= 31744, n |= (i === 255 ? 0 : 1) && t & 8388607, n) : i < 113 ? (r |= 2048, n |= (r >> 114 - i) + (r >> 113 - i & 1), n) : (n |= i - 112 << 10 | r >> 1, n += r & 1, n);
 }
-var TA = /* @__PURE__ */ Ji({
-	ANALYTIC_SDF_EXTRA_FIELDS: () => nj,
-	APERTURE_TO_HALFANGLE: () => $A,
+var GA = /* @__PURE__ */ Ji({
+	ANALYTIC_SDF_EXTRA_FIELDS: () => Sj,
+	APERTURE_TO_HALFANGLE: () => yj,
 	SVG_SDF_SIZE: () => 512,
-	ShapeMask: () => KA,
-	analyticSubPropValues: () => rj,
-	arcSdf: () => HA,
-	buildAnalyticSdfFn: () => ej,
-	circleSdf: () => AA,
-	createAnalyticSdfSampler: () => tj,
-	createSdfDataTexture: () => XA,
-	createSvgSdfSampler: () => ZA,
-	createSvgSdfSamplerWithGradients: () => QA,
-	crescentSdf: () => zA,
-	crossSdf: () => FA,
-	driveAnalyticSubProps: () => aj,
-	ellipseSdf: () => LA,
-	fillStrokeColor: () => JA,
-	flowerSdf: () => MA,
-	heartSdf: () => VA,
-	loadSdfFromUrl: () => YA,
-	parallelogramSdf: () => WA,
-	parseShapeConfigValue: () => ij,
-	polygonSdf: () => jA,
-	ringSdf: () => PA,
-	roundedRectSdf: () => IA,
-	shapeLocalCoords: () => GA,
-	starSdf: () => NA,
-	strokeMaskFromSdf: () => qA,
-	teardropSdf: () => UA,
-	trapezoidSdf: () => BA,
-	vesicaSdf: () => RA
-}), EA = 3.141592653589793, DA = 6.283185307179586, OA = .35355339059327373, kA = .017453292519943295, AA = $.fn([
+	ShapeMask: () => fj,
+	analyticSubPropValues: () => Cj,
+	arcSdf: () => cj,
+	buildAnalyticSdfFn: () => bj,
+	circleSdf: () => XA,
+	createAnalyticSdfSampler: () => xj,
+	createSdfDataTexture: () => gj,
+	createSvgSdfSampler: () => _j,
+	createSvgSdfSamplerWithGradients: () => vj,
+	crescentSdf: () => aj,
+	crossSdf: () => tj,
+	driveAnalyticSubProps: () => Tj,
+	ellipseSdf: () => rj,
+	fillStrokeColor: () => mj,
+	flowerSdf: () => QA,
+	heartSdf: () => sj,
+	loadSdfFromUrl: () => hj,
+	parallelogramSdf: () => uj,
+	parseShapeConfigValue: () => wj,
+	polygonSdf: () => ZA,
+	ringSdf: () => ej,
+	roundedRectSdf: () => nj,
+	shapeLocalCoords: () => dj,
+	starSdf: () => $A,
+	strokeMaskFromSdf: () => pj,
+	teardropSdf: () => lj,
+	trapezoidSdf: () => oj,
+	vesicaSdf: () => ij
+}), KA = 3.141592653589793, qA = 6.283185307179586, JA = .35355339059327373, YA = .017453292519943295, XA = $.fn([
 	P,
 	P,
 	P
@@ -97579,14 +97743,14 @@ var TA = /* @__PURE__ */ Ji({
 		]]]]
 	},
 	externals: { "std.sqrt": () => Z }
-}) && e.f)({})), jA = $.fn([
+}) && e.f)({})), ZA = $.fn([
 	P,
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), a = sh(t, e), o = __tsover_div(DA, r), s = U(__tsover_add(__tsover_div(a, o), .5)), c = __tsover_sub(a, __tsover_mul(s, o));
+	let i = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), a = sh(t, e), o = __tsover_div(qA, r), s = U(__tsover_add(__tsover_div(a, o), .5)), c = __tsover_sub(a, __tsover_mul(s, o));
 	return __tsover_sub(__tsover_mul(i, V(c)), n);
 }), {
 	v: 2,
@@ -97708,11 +97872,11 @@ var TA = /* @__PURE__ */ Ji({
 	externals: {
 		"std.sqrt": () => Z,
 		"std.atan2": () => sh,
-		TWO_PI: () => DA,
+		TWO_PI: () => qA,
 		"std.floor": () => U,
 		"std.cos": () => V
 	}
-}) && e.f)({})), MA = $.fn([
+}) && e.f)({})), QA = $.fn([
 	P,
 	P,
 	P,
@@ -97720,7 +97884,7 @@ var TA = /* @__PURE__ */ Ji({
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = sh(t, e), o = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), s = __tsover_mul(n, i), c = __tsover_div(__tsover_mul(a, r), DA), l = __tsover_sub(c, U(c)), u = z(__tsover_sub(__tsover_mul(l, 2), 1)), d = __tsover_add(s, __tsover_mul(__tsover_sub(n, s), u));
+	let a = sh(t, e), o = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), s = __tsover_mul(n, i), c = __tsover_div(__tsover_mul(a, r), qA), l = __tsover_sub(c, U(c)), u = z(__tsover_sub(__tsover_mul(l, 2), 1)), d = __tsover_add(s, __tsover_mul(__tsover_sub(n, s), u));
 	return __tsover_sub(o, d);
 }), {
 	v: 2,
@@ -97871,11 +98035,11 @@ var TA = /* @__PURE__ */ Ji({
 	externals: {
 		"std.atan2": () => sh,
 		"std.sqrt": () => Z,
-		TWO_PI: () => DA,
+		TWO_PI: () => qA,
 		"std.floor": () => U,
 		"std.abs": () => z
 	}
-}) && e.f)({})), NA = $.fn([
+}) && e.f)({})), $A = $.fn([
 	P,
 	P,
 	P,
@@ -97883,7 +98047,7 @@ var TA = /* @__PURE__ */ Ji({
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = __tsover_mul(n, i), o = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), s = sh(t, e), c = __tsover_div(DA, r), l = U(__tsover_add(__tsover_div(s, c), .5)), u = __tsover_sub(s, __tsover_mul(l, c)), d = z(__tsover_mul(o, Y(u))), f = __tsover_mul(o, V(u)), p = __tsover_div(EA, r), m = Y(p), h = V(p), g = __tsover_mul(a, m), _ = __tsover_sub(__tsover_mul(a, h), n), v = d, y = __tsover_sub(f, n), b = __tsover_add(__tsover_mul(v, g), __tsover_mul(y, _)), x = __tsover_add(__tsover_mul(g, g), __tsover_mul(_, _)), S = B(__tsover_div(b, x), 0, 1), C = __tsover_sub(d, __tsover_mul(g, S)), w = __tsover_sub(f, __tsover_add(n, __tsover_mul(_, S))), T = Z(__tsover_add(__tsover_mul(C, C), __tsover_mul(w, w))), E = __tsover_sub(__tsover_mul(g, y), __tsover_mul(_, v));
+	let a = __tsover_mul(n, i), o = Z(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t))), s = sh(t, e), c = __tsover_div(qA, r), l = U(__tsover_add(__tsover_div(s, c), .5)), u = __tsover_sub(s, __tsover_mul(l, c)), d = z(__tsover_mul(o, Y(u))), f = __tsover_mul(o, V(u)), p = __tsover_div(KA, r), m = Y(p), h = V(p), g = __tsover_mul(a, m), _ = __tsover_sub(__tsover_mul(a, h), n), v = d, y = __tsover_sub(f, n), b = __tsover_add(__tsover_mul(v, g), __tsover_mul(y, _)), x = __tsover_add(__tsover_mul(g, g), __tsover_mul(_, _)), S = B(__tsover_div(b, x), 0, 1), C = __tsover_sub(d, __tsover_mul(g, S)), w = __tsover_sub(f, __tsover_add(n, __tsover_mul(_, S))), T = Z(__tsover_add(__tsover_mul(C, C), __tsover_mul(w, w))), E = __tsover_sub(__tsover_mul(g, y), __tsover_mul(_, v));
 	return __tsover_mul(T, Wh(E));
 }), {
 	v: 2,
@@ -98251,16 +98415,16 @@ var TA = /* @__PURE__ */ Ji({
 	externals: {
 		"std.sqrt": () => Z,
 		"std.atan2": () => sh,
-		TWO_PI: () => DA,
+		TWO_PI: () => qA,
 		"std.floor": () => U,
 		"std.abs": () => z,
 		"std.sin": () => Y,
 		"std.cos": () => V,
-		PI: () => EA,
+		PI: () => KA,
 		"std.clamp": () => B,
 		"std.sign": () => Wh
 	}
-}) && e.f)({})), PA = $.fn([
+}) && e.f)({})), ej = $.fn([
 	P,
 	P,
 	P,
@@ -98334,7 +98498,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.abs": () => z
 	}
-}) && e.f)({})), FA = $.fn([
+}) && e.f)({})), tj = $.fn([
 	P,
 	P,
 	P,
@@ -98444,7 +98608,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.max": () => K,
 		"std.min": () => q
 	}
-}) && e.f)({})), IA = $.fn([
+}) && e.f)({})), nj = $.fn([
 	P,
 	P,
 	P,
@@ -98593,7 +98757,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.min": () => q
 	}
-}) && e.f)({})), LA = $.fn([
+}) && e.f)({})), rj = $.fn([
 	P,
 	P,
 	P,
@@ -98690,7 +98854,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.min": () => q
 	}
-}) && e.f)({})), RA = $.fn([
+}) && e.f)({})), ij = $.fn([
 	P,
 	P,
 	P,
@@ -98893,7 +99057,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.max": () => K,
 		"std.select": () => Q
 	}
-}) && e.f)({})), zA = $.fn([
+}) && e.f)({})), aj = $.fn([
 	P,
 	P,
 	P,
@@ -99237,7 +99401,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.select": () => Q
 	}
-}) && e.f)({})), BA = $.fn([
+}) && e.f)({})), oj = $.fn([
 	P,
 	P,
 	P,
@@ -99598,13 +99762,13 @@ var TA = /* @__PURE__ */ Ji({
 		"d.f32": () => P,
 		"std.sqrt": () => Z
 	}
-}) && e.f)({})), VA = $.fn([
+}) && e.f)({})), sj = $.fn([
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
-	let r = __tsover_div(n, .75), i = __tsover_div(z(e), r), a = __tsover_add(__tsover_div(__tsover_mul(t, -1), r), .6), o = __tsover_sub(i, .25), s = __tsover_sub(a, .75), c = __tsover_sub(Z(__tsover_add(__tsover_mul(o, o), __tsover_mul(s, s))), OA), l = __tsover_sub(a, 1), u = __tsover_add(__tsover_mul(i, i), __tsover_mul(l, l)), d = __tsover_mul(K(__tsover_add(i, a), 0), .5), f = __tsover_sub(i, d), p = __tsover_sub(a, d), m = __tsover_add(__tsover_mul(f, f), __tsover_mul(p, p)), h = __tsover_mul(Z(q(u, m)), Wh(__tsover_sub(i, a)));
+	let r = __tsover_div(n, .75), i = __tsover_div(z(e), r), a = __tsover_add(__tsover_div(__tsover_mul(t, -1), r), .6), o = __tsover_sub(i, .25), s = __tsover_sub(a, .75), c = __tsover_sub(Z(__tsover_add(__tsover_mul(o, o), __tsover_mul(s, s))), JA), l = __tsover_sub(a, 1), u = __tsover_add(__tsover_mul(i, i), __tsover_mul(l, l)), d = __tsover_mul(K(__tsover_add(i, a), 0), .5), f = __tsover_sub(i, d), p = __tsover_sub(a, d), m = __tsover_add(__tsover_mul(f, f), __tsover_mul(p, p)), h = __tsover_mul(Z(q(u, m)), Wh(__tsover_sub(i, a)));
 	return __tsover_mul(Q(h, c, __tsover_add(i, a) > 1), r);
 }), {
 	v: 2,
@@ -99867,13 +100031,13 @@ var TA = /* @__PURE__ */ Ji({
 	externals: {
 		"std.abs": () => z,
 		"std.sqrt": () => Z,
-		SQRT2_OVER_4: () => OA,
+		SQRT2_OVER_4: () => JA,
 		"std.max": () => K,
 		"std.min": () => q,
 		"std.sign": () => Wh,
 		"std.select": () => Q
 	}
-}) && e.f)({})), HA = $.fn([
+}) && e.f)({})), cj = $.fn([
 	P,
 	P,
 	P,
@@ -100083,7 +100247,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.max": () => K,
 		"std.sign": () => Wh
 	}
-}) && e.f)({})), UA = $.fn([
+}) && e.f)({})), lj = $.fn([
 	P,
 	P,
 	P,
@@ -100357,7 +100521,7 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.select": () => Q
 	}
-}) && e.f)({})), WA = $.fn([
+}) && e.f)({})), uj = $.fn([
 	P,
 	P,
 	P,
@@ -100800,14 +100964,14 @@ var TA = /* @__PURE__ */ Ji({
 		"std.sqrt": () => Z,
 		"std.sign": () => Wh
 	}
-}) && e.f)({})), GA = $.fn([
+}) && e.f)({})), dj = $.fn([
 	I,
 	P,
 	I,
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = I(__tsover_mul(n.x, r), n.y), a = I(__tsover_mul(e.x, r), __tsover_sub(1, e.y)), o = __tsover_sub(i.x, a.x), s = __tsover_sub(i.y, a.y), c = __tsover_mul(t, kA), l = V(c), u = Y(c);
+	let i = I(__tsover_mul(n.x, r), n.y), a = I(__tsover_mul(e.x, r), __tsover_sub(1, e.y)), o = __tsover_sub(i.x, a.x), s = __tsover_sub(i.y, a.y), c = __tsover_mul(t, YA), l = V(c), u = Y(c);
 	return I(__tsover_add(__tsover_mul(o, l), __tsover_mul(s, u)), __tsover_sub(__tsover_mul(s, l), __tsover_mul(o, u)));
 }), {
 	v: 2,
@@ -100994,22 +101158,22 @@ var TA = /* @__PURE__ */ Ji({
 	},
 	externals: {
 		"d.vec2f": () => I,
-		DEG_TO_RAD: () => kA,
+		DEG_TO_RAD: () => YA,
 		"std.cos": () => V,
 		"std.sin": () => Y
 	}
-}) && e.f)({})), KA = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+}) && e.f)({})), fj = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	overallMask: P,
 	strokeBlend: P
-}), "ShapeMask"), qA = $.fn([
+}), "ShapeMask"), pj = $.fn([
 	P,
 	P,
 	P,
 	P
-], KA)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
+], fj)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
 	let i = n > 0, a = r >= 1.5, o = r >= .5, s = __tsover_mul(n, .5), c = __tsover_mul(n, -1), l = __tsover_mul(s, -1), u = Q(Q(P(0), l, o), c, a), d = Q(Q(n, s, o), P(0), a), f = __tsover_sub(1, X(__tsover_sub(d, t), d, e)), p = X(__tsover_sub(u, t), u, e);
-	return KA({
+	return fj({
 		overallMask: f,
 		strokeBlend: Q(P(0), p, i)
 	});
@@ -101226,18 +101390,18 @@ var TA = /* @__PURE__ */ Ji({
 		"std.select": () => Q,
 		"d.f32": () => P,
 		"std.smoothstep": () => X,
-		ShapeMask: () => KA
+		ShapeMask: () => fj
 	}
 }) && e.f)({}));
-function JA(e, t, n, r) {
-	let i = fD(dE[r] ?? uE, "mixColors", [
+function mj(e, t, n, r) {
+	let i = MD(dE[r] ?? uE, "mixColors", [
 		t,
 		n,
 		e.member("strokeBlend")
 	]);
-	return pD(i.member("rgb"), i.member("a").mul(e.member("overallMask")));
+	return ND(i.member("rgb"), i.member("a").mul(e.member("overallMask")));
 }
-async function YA(e, t) {
+async function hj(e, t) {
 	let n = await fetch(e, { mode: "cors" });
 	if (!n.ok) throw Error(`SDF fetch failed: HTTP ${n.status}`);
 	let r = await n.arrayBuffer(), i = 262144;
@@ -101249,8 +101413,8 @@ async function YA(e, t) {
 		for (let r = 0; r < n; r++) t[r] = e[r];
 	} else throw Error(`SDF binary has unexpected size (${r.byteLength} bytes); expected ${i * 2} (compact) or ${i * 4} (legacy). The URL may point to a non-SDF file (e.g. the raw SVG).`);
 }
-function XA(e, t) {
-	let n = 262144, r = new Float32Array(n).fill(.5), i = new Uint16Array(n), a = wA(.5);
+function gj(e, t) {
+	let n = 262144, r = new Float32Array(n).fill(.5), i = new Uint16Array(n), a = WA(.5);
 	for (let e = 0; e < n; e++) i[e] = a;
 	let o = e.createDataTexture({
 		width: 512,
@@ -101261,8 +101425,8 @@ function XA(e, t) {
 	});
 	e.onCleanup(() => o.destroy());
 	let c = !1, l = 0;
-	return t && YA(t, r).then(() => {
-		for (let e = 0; e < n; e++) i[e] = wA(r[e]);
+	return t && hj(t, r).then(() => {
+		for (let e = 0; e < n; e++) i[e] = WA(r[e]);
 		c = !0;
 	}).catch((e) => s("[SDF] Failed to load SDF texture:", e)), e.onBeforeRender(() => {
 		c && (c = !1, o.write(i), l++);
@@ -101272,12 +101436,12 @@ function XA(e, t) {
 		getVersion: () => l
 	};
 }
-function ZA(e, t) {
-	let { kitTexture: n } = XA(e, t);
+function _j(e, t) {
+	let { kitTexture: n } = gj(e, t);
 	return (e) => n.sampleLevel(e);
 }
-function QA(e, t) {
-	let n = 262144, r = new Float32Array(n).fill(.5), i = new Uint16Array(n * 4), a = wA(.5), o = wA(1);
+function vj(e, t) {
+	let n = 262144, r = new Float32Array(n).fill(.5), i = new Uint16Array(n * 4), a = WA(.5), o = WA(1);
 	for (let e = 0; e < n; e++) i[e * 4] = a, i[e * 4 + 3] = o;
 	let c = e.createMediaTexture({
 		width: 512,
@@ -101292,10 +101456,10 @@ function QA(e, t) {
 	}, u = .01, d = u * 512, f = () => {
 		for (let e = 0; e < 512; e++) for (let t = 0; t < 512; t++) {
 			let n = e * 512 + t, a = r[n], o = (l(t + d, e) - a) / u, s = (l(t, e + d) - a) / u;
-			i[n * 4] = wA(a), i[n * 4 + 1] = wA(o), i[n * 4 + 2] = wA(s);
+			i[n * 4] = WA(a), i[n * 4 + 1] = WA(o), i[n * 4 + 2] = WA(s);
 		}
 	}, p = !1;
-	t && YA(t, r).then(() => {
+	t && hj(t, r).then(() => {
 		f(), p = !0;
 	}).catch((e) => s("[SDF] Failed to load SDF texture:", e)), e.onBeforeRender(() => {
 		p && (p = !1, c.write(i));
@@ -101303,8 +101467,8 @@ function QA(e, t) {
 	let m = e.registerMediaTexture(() => c.texture);
 	return (e) => m.sampleLevel(e);
 }
-var $A = .008726646259971648;
-function ej(e) {
+var yj = .008726646259971648;
+function bj(e) {
 	return $.fn([
 		I,
 		P,
@@ -101317,8 +101481,8 @@ function ej(e) {
 		P
 	], R)(/* @__PURE__ */ ((t) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(t.f = ((t, n, r, i, a, o, s, c, l) => {
 		"use gpu";
-		let u = __tsover_sub(t.x, .5), d = __tsover_sub(t.y, .5), f = __tsover_mul(o, kA), p = V(f), m = Y(f), h = __tsover_add(__tsover_mul(u, p), __tsover_mul(d, m)), g = __tsover_sub(__tsover_mul(d, p), __tsover_mul(u, m)), _ = P(0);
-		return _ = e === "polygonSDF" ? J(jA(h, g, n, r), AA(h, g, n), i) : e === "flowerSDF" ? MA(h, g, n, r, a) : e === "ringSDF" ? PA(h, g, n, a) : e === "crossSDF" ? FA(h, g, n, a, i) : e === "starSDF" ? NA(h, g, n, r, a) : e === "roundedRectSDF" ? IA(h, g, n, s, i) : e === "ellipseSDF" ? LA(h, g, n, s) : e === "vesicaSDF" ? RA(h, g, n, a) : e === "crescentSDF" ? zA(h, g, n, a, c) : e === "trapezoidSDF" ? BA(h, g, a, n, s) : e === "heartSDF" ? VA(h, g, n) : e === "arcSDF" ? HA(h, g, n, __tsover_mul(l, .008726646259971648)) : e === "teardropSDF" ? UA(h, g, n, s) : e === "parallelogramSDF" ? WA(h, g, n, s, c) : AA(h, g, n), R(_, 0, 0, 1);
+		let u = __tsover_sub(t.x, .5), d = __tsover_sub(t.y, .5), f = __tsover_mul(o, YA), p = V(f), m = Y(f), h = __tsover_add(__tsover_mul(u, p), __tsover_mul(d, m)), g = __tsover_sub(__tsover_mul(d, p), __tsover_mul(u, m)), _ = P(0);
+		return _ = e === "polygonSDF" ? J(ZA(h, g, n, r), XA(h, g, n), i) : e === "flowerSDF" ? QA(h, g, n, r, a) : e === "ringSDF" ? ej(h, g, n, a) : e === "crossSDF" ? tj(h, g, n, a, i) : e === "starSDF" ? $A(h, g, n, r, a) : e === "roundedRectSDF" ? nj(h, g, n, s, i) : e === "ellipseSDF" ? rj(h, g, n, s) : e === "vesicaSDF" ? ij(h, g, n, a) : e === "crescentSDF" ? aj(h, g, n, a, c) : e === "trapezoidSDF" ? oj(h, g, a, n, s) : e === "heartSDF" ? sj(h, g, n) : e === "arcSDF" ? cj(h, g, n, __tsover_mul(l, .008726646259971648)) : e === "teardropSDF" ? lj(h, g, n, s) : e === "parallelogramSDF" ? uj(h, g, n, s, c) : XA(h, g, n), R(_, 0, 0, 1);
 	}), {
 		v: 2,
 		name: void 0,
@@ -101857,35 +102021,35 @@ function ej(e) {
 			]]
 		},
 		externals: {
-			DEG_TO_RAD: () => kA,
+			DEG_TO_RAD: () => YA,
 			"std.cos": () => V,
 			"std.sin": () => Y,
 			"d.f32": () => P,
 			shapeType: () => e,
 			"std.mix": () => J,
-			polygonSdf: () => jA,
-			circleSdf: () => AA,
-			flowerSdf: () => MA,
-			ringSdf: () => PA,
-			crossSdf: () => FA,
-			starSdf: () => NA,
-			roundedRectSdf: () => IA,
-			ellipseSdf: () => LA,
-			vesicaSdf: () => RA,
-			crescentSdf: () => zA,
-			trapezoidSdf: () => BA,
-			heartSdf: () => VA,
-			arcSdf: () => HA,
+			polygonSdf: () => ZA,
+			circleSdf: () => XA,
+			flowerSdf: () => QA,
+			ringSdf: () => ej,
+			crossSdf: () => tj,
+			starSdf: () => $A,
+			roundedRectSdf: () => nj,
+			ellipseSdf: () => rj,
+			vesicaSdf: () => ij,
+			crescentSdf: () => aj,
+			trapezoidSdf: () => oj,
+			heartSdf: () => sj,
+			arcSdf: () => cj,
 			APERTURE_TO_HALFANGLE: () => .008726646259971648,
-			teardropSdf: () => UA,
-			parallelogramSdf: () => WA,
+			teardropSdf: () => lj,
+			parallelogramSdf: () => uj,
 			"d.vec4f": () => R
 		}
 	}) && t.f)({})).$name(`analyticSdf_${e}`);
 }
-function tj(e, t, n = "none") {
-	let r = t.radius ?? dD(0), i = t.sides ?? dD(0), a = t.rounding ?? dD(0), o = t.innerRatio ?? dD(0), s = t.rotation ?? dD(0), c = t.height ?? dD(0), l = t.offset ?? dD(0), u = t.aperture ?? dD(0), d = ej(e);
-	return (t) => fD(d, `analyticSdf_${e}`, [
+function xj(e, t, n = "none") {
+	let r = t.radius ?? jD(0), i = t.sides ?? jD(0), a = t.rounding ?? jD(0), o = t.innerRatio ?? jD(0), s = t.rotation ?? jD(0), c = t.height ?? jD(0), l = t.offset ?? jD(0), u = t.aperture ?? jD(0), d = bj(e);
+	return (t) => MD(d, `analyticSdf_${e}`, [
 		t,
 		r,
 		i,
@@ -101897,7 +102061,7 @@ function tj(e, t, n = "none") {
 		u
 	]);
 }
-var nj = {
+var Sj = {
 	_saRadius: {
 		schema: P,
 		initial: .35
@@ -101931,7 +102095,7 @@ var nj = {
 		initial: 270
 	}
 };
-function rj(e) {
+function Cj(e) {
 	let t = (e, t) => typeof e == "number" ? e : t;
 	return {
 		radius: t(e.radius, t(e.width, t(e.bottomWidth, .35))),
@@ -101944,7 +102108,7 @@ function rj(e) {
 		aperture: t(e.aperture, 270)
 	};
 }
-function ij(e) {
+function wj(e) {
 	if (e && typeof e == "object") return e;
 	if (typeof e == "string") try {
 		return JSON.parse(e);
@@ -101953,9 +102117,9 @@ function ij(e) {
 	}
 	return {};
 }
-function aj(e, t) {
-	let n = "", r = ij(t()), i = () => {
-		let t = rj(r);
+function Tj(e, t) {
+	let n = "", r = wj(t()), i = () => {
+		let t = Cj(r);
 		e.setExtraField("_saRadius", t.radius), e.setExtraField("_saSides", t.sides), e.setExtraField("_saRounding", t.rounding), e.setExtraField("_saInnerRatio", t.innerRatio), e.setExtraField("_saRotation", t.rotation), e.setExtraField("_saHeight", t.height), e.setExtraField("_saOffset", t.offset), e.setExtraField("_saAperture", t.aperture);
 	};
 	e.onBeforeRender(() => {
@@ -101983,20 +102147,20 @@ function aj(e, t) {
 		aperture: a._saAperture
 	};
 }
-var oj = 512, sj = {}, cj = /* @__PURE__ */ new Set(), lj = {};
-function uj(e, t) {
-	return e ? e in sj ? sj[e] : (t && (lj[e] ??= []).push(t), cj.has(e) || (cj.add(e), dj(e)), null) : null;
+var Ej = 512, Dj = {}, Oj = /* @__PURE__ */ new Set(), kj = {};
+function Aj(e, t) {
+	return e ? e in Dj ? Dj[e] : (t && (kj[e] ??= []).push(t), Oj.has(e) || (Oj.add(e), jj(e)), null) : null;
 }
-async function dj(e) {
+async function jj(e) {
 	try {
 		let t = await fetch(e, { mode: "cors" });
 		if (!t.ok) {
-			sj[e] = null;
+			Dj[e] = null;
 			return;
 		}
-		let n = await t.arrayBuffer(), r = oj * oj;
+		let n = await t.arrayBuffer(), r = Ej * Ej;
 		if (n.byteLength !== r * 2 && n.byteLength !== r * 4) {
-			sj[e] = null;
+			Dj[e] = null;
 			return;
 		}
 		let i = n.byteLength === r * 2 ? (() => {
@@ -102005,63 +102169,63 @@ async function dj(e) {
 		})() : (() => {
 			let e = new Float32Array(n);
 			return (t) => e[t];
-		})(), a = oj, o = oj, s = -1, c = -1;
-		for (let e = 0; e < oj; e++) {
-			let t = e * oj;
-			for (let n = 0; n < oj; n++) i(t + n) < 0 && (n < a && (a = n), n > s && (s = n), e < o && (o = e), e > c && (c = e));
+		})(), a = Ej, o = Ej, s = -1, c = -1;
+		for (let e = 0; e < Ej; e++) {
+			let t = e * Ej;
+			for (let n = 0; n < Ej; n++) i(t + n) < 0 && (n < a && (a = n), n > s && (s = n), e < o && (o = e), e > c && (c = e));
 		}
-		sj[e] = s < 0 ? null : {
-			hwf: (s - a + 1) / oj / 2,
-			hhf: (c - o + 1) / oj / 2
+		Dj[e] = s < 0 ? null : {
+			hwf: (s - a + 1) / Ej / 2,
+			hhf: (c - o + 1) / Ej / 2
 		};
 	} catch {
-		sj[e] = null;
+		Dj[e] = null;
 	} finally {
-		cj.delete(e);
-		let t = lj[e];
+		Oj.delete(e);
+		let t = kj[e];
 		if (t) {
-			delete lj[e];
+			delete kj[e];
 			for (let e of t) e();
 		}
 	}
 }
-function fj(e) {
-	return !!e && e in sj;
+function Mj(e) {
+	return !!e && e in Dj;
 }
-var pj = 1 / 60;
-function mj(e, t, n, r, i, a) {
+var Nj = 1 / 60;
+function Pj(e, t, n, r, i, a) {
 	if (r === 0 && i === 0) return [n, 0];
-	let o = 200 * .01 ** r, s = 2 * Math.sqrt(o) * (1 - i * .85), c = a > pj ? Math.ceil(a / pj) : 1, l = a / c, u = e, d = t;
+	let o = 200 * .01 ** r, s = 2 * Math.sqrt(o) * (1 - i * .85), c = a > Nj ? Math.ceil(a / Nj) : 1, l = a / c, u = e, d = t;
 	for (let e = 0; e < c; e++) {
 		let e = o * (n - u);
 		d += (e - s * d) * l, u += d * l;
 	}
 	return [u, d];
 }
-function hj(e) {
+function Fj(e) {
 	let t = 7.5625, n = 2.75;
 	return e < 1 / n ? t * e * e : e < 2 / n ? (e -= 1.5 / n, t * e * e + .75) : e < 2.5 / n ? (e -= 2.25 / n, t * e * e + .9375) : (e -= 2.625 / n, t * e * e + .984375);
 }
-function gj(e, t) {
+function Ij(e, t) {
 	switch (t) {
 		case "linear": return e;
 		case "quad": return e < .5 ? 2 * e * e : 1 - (-2 * e + 2) ** 2 / 2;
 		case "expo": return e === 0 ? 0 : e === 1 ? 1 : e < .5 ? 2 ** (20 * e - 10) / 2 : (2 - 2 ** (-20 * e + 10)) / 2;
-		case "bounce": return hj(e);
+		case "bounce": return Fj(e);
 		default: return (1 - Math.cos(Math.PI * e)) / 2;
 	}
 }
-function _j(e, t, n) {
+function Lj(e, t, n) {
 	let r = n.pixelRatio || 1, i = Math.max(1, Math.floor(n.maxTextureDim / r) - 1), a = Math.min(e, n.viewportWidth, i), o = Math.min(t, n.viewportHeight, i), s = Math.min(a / e, o / t, 1);
 	return {
 		width: Math.max(1, Math.round(e * s)),
 		height: Math.max(1, Math.round(t * s))
 	};
 }
-function vj(e, t, n, r) {
+function Rj(e, t, n, r) {
 	return e == null ? t + n : (r - e) / 1e3;
 }
-function yj(e, t) {
+function zj(e, t) {
 	let { lastRenderTime: n, isVisible: r, forceFullFrameRate: i, minInterval: a = 0 } = t, o = n > 0 ? (e - n) / 1e3 : .016;
 	if (n > 0) {
 		let t = e - n;
@@ -102075,7 +102239,7 @@ function yj(e, t) {
 		deltaTime: Math.min(o, .1)
 	};
 }
-async function bj(e) {
+async function Bj(e) {
 	try {
 		let t = e.device?.queue;
 		if (t && typeof t.onSubmittedWorkDone == "function") {
@@ -102085,10 +102249,10 @@ async function bj(e) {
 	} catch {}
 	await new Promise((e) => setTimeout(e, 16));
 }
-function xj(e) {
+function Vj(e) {
 	e.updateDrivers(), e.ensureComposition() && (e.beforeRender(), e.flush(), e.render() !== !1 && e.markReady(), e.afterRender());
 }
-function Sj(e) {
+function Hj(e) {
 	let t = null, n = (e) => typeof requestAnimationFrame == "function" ? requestAnimationFrame(e) : setTimeout(() => e(performance.now()), 16), r = (e) => {
 		typeof cancelAnimationFrame == "function" ? cancelAnimationFrame(e) : clearTimeout(e);
 	}, i = (r) => {
@@ -102106,7 +102270,7 @@ function Sj(e) {
 		}
 	};
 }
-var Cj = [
+var Uj = [
 	"sphere3D",
 	"cube3D",
 	"torus3D",
@@ -102128,20 +102292,20 @@ var Cj = [
 	"blob3D",
 	"gyroscope3D"
 ];
-function wj(e) {
-	return Cj.includes(e);
+function Wj(e) {
+	return Uj.includes(e);
 }
-function Tj(e) {
+function Gj(e) {
 	return e === "svgExtrude3D";
 }
-var Ej = {
+var Kj = {
 	depth: .12,
 	bevel: .02,
 	rotX: 15,
 	rotY: 30,
 	rotZ: 0
 };
-function Dj(e, t) {
+function qj(e, t) {
 	if (typeof e == "number") return e;
 	if (e && typeof e == "object" && (e.type === "auto-animate" || e.type === "mouse")) {
 		let n = typeof e.outputMin == "number" ? e.outputMin : t, r = typeof e.outputMax == "number" ? e.outputMax : t;
@@ -102149,7 +102313,7 @@ function Dj(e, t) {
 	}
 	return t;
 }
-var Oj = {
+var Jj = {
 	sphere3D: {
 		radius: .35,
 		rotX: 0,
@@ -102310,8 +102474,8 @@ var Oj = {
 		rotZ: 0
 	}
 };
-function kj(e) {
-	let t = Oj[e.type] ?? {}, n = (n, r = .3) => Dj(e[n], t[n] ?? r);
+function Yj(e) {
+	let t = Jj[e.type] ?? {}, n = (n, r = .3) => qj(e[n], t[n] ?? r);
 	switch (e.type) {
 		case "cube3D": return Math.hypot(n("sizeX"), n("sizeY"), n("sizeZ")) + n("rounding", 0);
 		case "torus3D": return n("radius") + n("tube");
@@ -102334,29 +102498,29 @@ function kj(e) {
 		default: return n("radius", .35);
 	}
 }
-var Aj = /* @__PURE__ */ new Map();
-function jj(e) {
+var Xj = /* @__PURE__ */ new Map();
+function Zj(e) {
 	if (typeof e != "string") return e ?? null;
-	if (Aj.has(e)) return Aj.get(e);
+	if (Xj.has(e)) return Xj.get(e);
 	let t = null;
 	try {
 		t = JSON.parse(e);
 	} catch {
 		t = null;
 	}
-	return Aj.size >= 64 && Aj.clear(), Aj.set(e, t), t;
+	return Xj.size >= 64 && Xj.clear(), Xj.set(e, t), t;
 }
-function Mj(e) {
+function Qj(e) {
 	if (e.shapeSdfUrl) {
-		let t = e._shapeBounds ?? uj(e.shapeSdfUrl), n = t && typeof t.hwf == "number" && typeof t.hhf == "number" ? {
+		let t = e._shapeBounds ?? Aj(e.shapeSdfUrl), n = t && typeof t.hwf == "number" && typeof t.hhf == "number" ? {
 			hwf: t.hwf,
 			hhf: t.hhf
 		} : {
 			hwf: .5,
 			hhf: .5
 		}, r = e.shapeType;
-		if (typeof r == "string" && Tj(r)) {
-			let t = jj(e.shape) ?? {}, r = (e) => Dj(t[e], Ej[e] ?? 0), i = Math.hypot(n.hwf, n.hhf, r("depth") * .5) + r("bevel") + .02;
+		if (typeof r == "string" && Gj(r)) {
+			let t = Zj(e.shape) ?? {}, r = (e) => qj(t[e], Kj[e] ?? 0), i = Math.hypot(n.hwf, n.hhf, r("depth") * .5) + r("bevel") + .02;
 			return {
 				hwf: i,
 				hhf: i
@@ -102364,13 +102528,13 @@ function Mj(e) {
 		}
 		return n;
 	}
-	let t = jj(e.shape);
+	let t = Zj(e.shape);
 	if (!t || typeof t != "object") return {
 		hwf: .5,
 		hhf: .5
 	};
-	if (typeof t.type == "string" && wj(t.type)) {
-		let e = kj(t);
+	if (typeof t.type == "string" && Wj(t.type)) {
+		let e = Yj(t);
 		return {
 			hwf: e,
 			hhf: e
@@ -102421,7 +102585,7 @@ function Mj(e) {
 		};
 	}
 }
-function Nj(e, t) {
+function $j(e, t) {
 	if (e) return e;
 	let n = t;
 	if (typeof t == "string") try {
@@ -102435,82 +102599,82 @@ function Nj(e, t) {
 	}
 	return "circleSDF";
 }
-var Pj = /* @__PURE__ */ Ji({
+var eM = /* @__PURE__ */ Ji({
 	HELIX_TURNS: () => 3,
 	MAX_METABALLS: () => 8,
-	MarchParams: () => kM,
-	RotStruct: () => bM,
-	SHAPE3D_DEFAULTS: () => qj,
-	SHAPE3D_TYPES: () => Lj,
-	SVG3D_DEFAULTS: () => Hj,
-	SVG3D_TYPES: () => zj,
-	SampleParams: () => MM,
-	VOLUMETRIC_FIELD_EXTRA_FIELDS: () => LM,
-	VOLUMETRIC_FIELD_FORMAT: () => wM,
-	VOLUMETRIC_FIELD_RES: () => TM,
+	MarchParams: () => YM,
+	RotStruct: () => BM,
+	SHAPE3D_DEFAULTS: () => pM,
+	SHAPE3D_TYPES: () => rM,
+	SVG3D_DEFAULTS: () => cM,
+	SVG3D_TYPES: () => aM,
+	SampleParams: () => QM,
+	VOLUMETRIC_FIELD_EXTRA_FIELDS: () => rN,
+	VOLUMETRIC_FIELD_FORMAT: () => WM,
+	VOLUMETRIC_FIELD_RES: () => GM,
 	VOLUMETRIC_FIELD_RES_MOBILE: () => 768,
-	boxFaceUV: () => $M,
-	buildFieldSampleGraph: () => NM,
-	buildFieldSampleGraphArgs: () => IM,
-	buildRaymarchedField: () => CM,
-	buildRaymarchedFieldFn: () => SM,
-	buildVolumetricFieldKernel: () => jM,
-	buildVolumetricFieldSampler: () => RM,
-	capsuleSurfaceUV: () => tN,
-	createAnalytic2dExtrudeSetup: () => WM,
-	createAnalytic3dSdfSetup: () => HM,
-	createSvg3dSdfSetup: () => UM,
-	createVolumetricFieldCompute: () => PM,
-	createVolumetricFieldComputeNode: () => GM,
-	eulerRotatePacked: () => qM,
-	is3dShapeType: () => Rj,
-	isMobileGpuViewport: () => aA,
-	isSvg3dShapeType: () => Bj,
-	isVolumetricShapeType: () => Vj,
-	makeVolumetricFieldLayout: () => AM,
-	makeVolumetricSvgFieldLayout: () => FM,
-	mobiusSurfaceUV: () => rN,
-	packedParamExtraFields: () => oN,
-	paramBoxSdf: () => QM,
-	paramCapsuleSdf: () => eN,
-	paramMobiusSdf: () => nN,
-	paramSphereSdf: () => JM,
-	paramTorusSdf: () => XM,
-	paramTwistedRibbonSdf: () => iN,
-	resolveActiveFieldRes: () => OM,
-	resolveShapeFieldSampler: () => zM,
-	resolveShapeSubProp: () => Gj,
-	resolveVolumetricFieldRes: () => EM,
-	rotateVec3: () => xM,
-	rotateVecCpu: () => Yj,
-	sdBicone: () => oM,
-	sdCappedCone: () => nM,
-	sdCapsule: () => tM,
-	sdCutSphere: () => hM,
-	sdDodecahedron: () => mM,
-	sdEllipsoid: () => aM,
-	sdFlatBand: () => vM,
-	sdGem: () => lM,
-	sdGyroscope: () => yM,
-	sdHelix: () => uM,
-	sdHexPrism: () => iM,
-	sdLink: () => sM,
-	sdMetaballs: () => pM,
-	sdOctahedron: () => $j,
-	sdPyramid: () => rM,
-	sdRibbon: () => gM,
-	sdRoundBox: () => Zj,
-	sdRoundCylinder: () => eM,
-	sdSphere: () => Xj,
-	sdTorus: () => Qj,
-	sdWobbleBlob: () => _M,
-	shape3dBoundingRadius: () => Jj,
-	shapeSubPropMax: () => Kj,
-	smin: () => cM,
-	sphereSurfaceUV: () => YM,
-	torusSurfaceUV: () => ZM,
-	twistedRibbonSurfaceUV: () => aN
-}), Fj = 3.141592653589793, Ij = 6.283185307179586, Lj = [
+	boxFaceUV: () => yN,
+	buildFieldSampleGraph: () => $M,
+	buildFieldSampleGraphArgs: () => nN,
+	buildRaymarchedField: () => UM,
+	buildRaymarchedFieldFn: () => HM,
+	buildVolumetricFieldKernel: () => ZM,
+	buildVolumetricFieldSampler: () => iN,
+	capsuleSurfaceUV: () => xN,
+	createAnalytic2dExtrudeSetup: () => uN,
+	createAnalytic3dSdfSetup: () => cN,
+	createSvg3dSdfSetup: () => lN,
+	createVolumetricFieldCompute: () => eN,
+	createVolumetricFieldComputeNode: () => dN,
+	eulerRotatePacked: () => pN,
+	is3dShapeType: () => iM,
+	isMobileGpuViewport: () => TA,
+	isSvg3dShapeType: () => oM,
+	isVolumetricShapeType: () => sM,
+	makeVolumetricFieldLayout: () => XM,
+	makeVolumetricSvgFieldLayout: () => tN,
+	mobiusSurfaceUV: () => CN,
+	packedParamExtraFields: () => EN,
+	paramBoxSdf: () => vN,
+	paramCapsuleSdf: () => bN,
+	paramMobiusSdf: () => SN,
+	paramSphereSdf: () => mN,
+	paramTorusSdf: () => gN,
+	paramTwistedRibbonSdf: () => wN,
+	resolveActiveFieldRes: () => JM,
+	resolveShapeFieldSampler: () => aN,
+	resolveShapeSubProp: () => dM,
+	resolveVolumetricFieldRes: () => KM,
+	rotateVec3: () => VM,
+	rotateVecCpu: () => hM,
+	sdBicone: () => EM,
+	sdCappedCone: () => SM,
+	sdCapsule: () => xM,
+	sdCutSphere: () => FM,
+	sdDodecahedron: () => PM,
+	sdEllipsoid: () => TM,
+	sdFlatBand: () => RM,
+	sdGem: () => kM,
+	sdGyroscope: () => zM,
+	sdHelix: () => AM,
+	sdHexPrism: () => wM,
+	sdLink: () => DM,
+	sdMetaballs: () => NM,
+	sdOctahedron: () => yM,
+	sdPyramid: () => CM,
+	sdRibbon: () => IM,
+	sdRoundBox: () => _M,
+	sdRoundCylinder: () => bM,
+	sdSphere: () => gM,
+	sdTorus: () => vM,
+	sdWobbleBlob: () => LM,
+	shape3dBoundingRadius: () => mM,
+	shapeSubPropMax: () => fM,
+	smin: () => OM,
+	sphereSurfaceUV: () => hN,
+	torusSurfaceUV: () => _N,
+	twistedRibbonSurfaceUV: () => TN
+}), tM = 3.141592653589793, nM = 6.283185307179586, rM = [
 	"sphere3D",
 	"cube3D",
 	"torus3D",
@@ -102532,39 +102696,39 @@ var Pj = /* @__PURE__ */ Ji({
 	"blob3D",
 	"gyroscope3D"
 ];
-function Rj(e) {
-	return Lj.includes(e);
+function iM(e) {
+	return rM.includes(e);
 }
-var zj = ["svgExtrude3D"];
-function Bj(e) {
+var aM = ["svgExtrude3D"];
+function oM(e) {
 	return e === "svgExtrude3D";
 }
-function Vj(e) {
-	return Rj(e) || Bj(e);
+function sM(e) {
+	return iM(e) || oM(e);
 }
-var Hj = {
+var cM = {
 	depth: .12,
 	bevel: .02,
 	rotX: 15,
 	rotY: 30,
 	rotZ: 0
-}, Uj = (e) => {
+}, lM = (e) => {
 	let t = 7.5625, n = 2.75;
 	return e < 1 / n ? t * e * e : e < 2 / n ? (e -= 1.5 / n, t * e * e + .75) : e < 2.5 / n ? (e -= 2.25 / n, t * e * e + .9375) : (e -= 2.625 / n, t * e * e + .984375);
-}, Wj = (e, t) => {
+}, uM = (e, t) => {
 	switch (t) {
 		case "linear": return e;
 		case "quad": return e < .5 ? 2 * e * e : 1 - (-2 * e + 2) ** 2 / 2;
 		case "expo": return e === 0 ? 0 : e === 1 ? 1 : e < .5 ? 2 ** (20 * e - 10) / 2 : (2 - 2 ** (-20 * e + 10)) / 2;
-		case "bounce": return Uj(e);
+		case "bounce": return lM(e);
 		default: return (1 - Math.cos(Math.PI * e)) / 2;
 	}
 };
-function Gj(e, t, n, r) {
+function dM(e, t, n, r) {
 	if (typeof e == "number") return e;
 	if (e && typeof e == "object") {
 		if (e.type === "auto-animate") {
-			let r = (n.elapsed * (e.speed ?? 1) * .2 % 1 + 1) % 1, i = Wj(e.mode === "loop" ? r : r < .5 ? r * 2 : (1 - r) * 2, e.easing ?? e.waveform ?? "sine"), a = typeof e.outputMin == "number" ? e.outputMin : t;
+			let r = (n.elapsed * (e.speed ?? 1) * .2 % 1 + 1) % 1, i = uM(e.mode === "loop" ? r : r < .5 ? r * 2 : (1 - r) * 2, e.easing ?? e.waveform ?? "sine"), a = typeof e.outputMin == "number" ? e.outputMin : t;
 			return a + i * ((typeof e.outputMax == "number" ? e.outputMax : t) - a);
 		}
 		if (e.type === "mouse") {
@@ -102573,7 +102737,7 @@ function Gj(e, t, n, r) {
 				current: i,
 				velocity: 0
 			}, n.springs.set(r, a));
-			let [o, s] = mj(a.current, a.velocity, i, e.smoothing ?? 0, e.momentum ?? 0, n.deltaTime);
+			let [o, s] = Pj(a.current, a.velocity, i, e.smoothing ?? 0, e.momentum ?? 0, n.deltaTime);
 			a.current = o, a.velocity = s;
 			let c = Math.max(.001, o), l = typeof e.outputMin == "number" ? e.outputMin : t, u = typeof e.outputMax == "number" ? e.outputMax : t;
 			return l + c ** +(2 ** (-(e.curve ?? 0) * 2)) * (u - l);
@@ -102581,7 +102745,7 @@ function Gj(e, t, n, r) {
 	}
 	return t;
 }
-function Kj(e, t) {
+function fM(e, t) {
 	if (typeof e == "number") return e;
 	if (e && typeof e == "object" && (e.type === "auto-animate" || e.type === "mouse")) {
 		let n = typeof e.outputMin == "number" ? e.outputMin : t, r = typeof e.outputMax == "number" ? e.outputMax : t;
@@ -102589,7 +102753,7 @@ function Kj(e, t) {
 	}
 	return t;
 }
-var qj = {
+var pM = {
 	sphere3D: {
 		radius: .35,
 		rotX: 0,
@@ -102750,8 +102914,8 @@ var qj = {
 		rotZ: 0
 	}
 };
-function Jj(e) {
-	let t = qj[e.type] ?? {}, n = (n, r = .3) => Kj(e[n], t[n] ?? r);
+function mM(e) {
+	let t = pM[e.type] ?? {}, n = (n, r = .3) => fM(e[n], t[n] ?? r);
 	switch (e.type) {
 		case "cube3D": return Math.hypot(n("sizeX"), n("sizeY"), n("sizeZ")) + n("rounding", 0);
 		case "torus3D": return n("radius") + n("tube");
@@ -102774,7 +102938,7 @@ function Jj(e) {
 		default: return n("radius", .35);
 	}
 }
-function Yj(e, t, n, r) {
+function hM(e, t, n, r) {
 	let i = e * r.cy + n * r.sy, a = -e * r.sy + n * r.cy, o = t * r.cx - a * r.sx, s = t * r.sx + a * r.cx;
 	return {
 		x: i * r.cz - o * r.sz,
@@ -102782,7 +102946,7 @@ function Yj(e, t, n, r) {
 		z: s
 	};
 }
-var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var gM = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return __tsover_sub(G(e), t);
 }), {
@@ -102808,7 +102972,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]]]
 	},
 	externals: { "std.length": () => G }
-}) && e.f)({})), Zj = $.fn([
+}) && e.f)({})), _M = $.fn([
 	L,
 	P,
 	P,
@@ -102980,7 +103144,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.max": () => K,
 		"std.min": () => q
 	}
-}) && e.f)({})), Qj = $.fn([
+}) && e.f)({})), vM = $.fn([
 	L,
 	P,
 	P
@@ -103054,7 +103218,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), $j = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), yM = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return __tsover_mul(__tsover_sub(__tsover_add(__tsover_add(z(e.x), z(e.y)), z(e.z)), t), .57735027);
 }), {
@@ -103115,7 +103279,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]]]
 	},
 	externals: { "std.abs": () => z }
-}) && e.f)({})), eM = $.fn([
+}) && e.f)({})), bM = $.fn([
 	L,
 	P,
 	P,
@@ -103255,7 +103419,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.min": () => q,
 		"std.max": () => K
 	}
-}) && e.f)({})), tM = $.fn([
+}) && e.f)({})), xM = $.fn([
 	L,
 	P,
 	P
@@ -103347,7 +103511,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.length": () => G,
 		"d.vec3f": () => L
 	}
-}) && e.f)({})), nM = $.fn([
+}) && e.f)({})), SM = $.fn([
 	L,
 	P,
 	P,
@@ -103701,7 +103865,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"d.f32": () => P,
 		"std.sqrt": () => Z
 	}
-}) && e.f)({})), rM = $.fn([
+}) && e.f)({})), CM = $.fn([
 	L,
 	P,
 	P
@@ -103885,7 +104049,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.abs": () => z,
 		"std.max": () => K
 	}
-}) && e.f)({})), iM = $.fn([
+}) && e.f)({})), wM = $.fn([
 	L,
 	P,
 	P
@@ -104181,7 +104345,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), aM = $.fn([
+}) && e.f)({})), TM = $.fn([
 	L,
 	P,
 	P,
@@ -104343,7 +104507,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"d.vec3f": () => L,
 		"std.max": () => K
 	}
-}) && e.f)({})), oM = $.fn([
+}) && e.f)({})), EM = $.fn([
 	L,
 	P,
 	P
@@ -104595,7 +104759,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.sqrt": () => Z,
 		"std.sign": () => Wh
 	}
-}) && e.f)({})), sM = $.fn([
+}) && e.f)({})), DM = $.fn([
 	L,
 	P,
 	P,
@@ -104697,7 +104861,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), cM = $.fn([
+}) && e.f)({})), OM = $.fn([
 	P,
 	P,
 	P
@@ -104789,14 +104953,14 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.clamp": () => B,
 		"std.mix": () => J
 	}
-}) && e.f)({})), lM = $.fn([
+}) && e.f)({})), kM = $.fn([
 	L,
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = oM(e, t, n), a = G(I(e.x, e.z)), o = sh(e.z, e.x), s = __tsover_div(Ij, r), c = U(__tsover_add(__tsover_div(o, s), .5)), l = __tsover_sub(o, __tsover_mul(c, s)), u = __tsover_mul(t, V(__tsover_div(Fj, r)));
+	let i = EM(e, t, n), a = G(I(e.x, e.z)), o = sh(e.z, e.x), s = __tsover_div(nM, r), c = U(__tsover_add(__tsover_div(o, s), .5)), l = __tsover_sub(o, __tsover_mul(c, s)), u = __tsover_mul(t, V(__tsover_div(tM, r)));
 	return K(K(i, __tsover_sub(__tsover_mul(a, V(l)), u)), __tsover_sub(e.y, __tsover_mul(n, .45)));
 }), {
 	v: 2,
@@ -104990,17 +105154,17 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]
 	},
 	externals: {
-		sdBicone: () => oM,
+		sdBicone: () => EM,
 		"std.length": () => G,
 		"d.vec2f": () => I,
 		"std.atan2": () => sh,
-		TWO_PI: () => Ij,
+		TWO_PI: () => nM,
 		"std.floor": () => U,
 		"std.cos": () => V,
-		PI: () => Fj,
+		PI: () => tM,
 		"std.max": () => K
 	}
-}) && e.f)({})), uM = $.fn([
+}) && e.f)({})), AM = $.fn([
 	L,
 	P,
 	P,
@@ -105008,7 +105172,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = sh(e.z, e.x), o = U(__tsover_add(__tsover_sub(__tsover_div(e.y, r), __tsover_div(a, Ij)), .5)), s = __tsover_add(a, __tsover_mul(Ij, o)), c = __tsover_mul(t, V(s)), l = __tsover_div(__tsover_mul(r, s), Ij), u = __tsover_mul(t, Y(s));
+	let a = sh(e.z, e.x), o = U(__tsover_add(__tsover_sub(__tsover_div(e.y, r), __tsover_div(a, nM)), .5)), s = __tsover_add(a, __tsover_mul(nM, o)), c = __tsover_mul(t, V(s)), l = __tsover_div(__tsover_mul(r, s), nM), u = __tsover_mul(t, Y(s));
 	return K(__tsover_sub(G(L(__tsover_sub(e.x, c), __tsover_sub(e.y, l), __tsover_sub(e.z, u))), n), __tsover_sub(z(e.y), __tsover_mul(__tsover_mul(r, i), .5)));
 }), {
 	v: 2,
@@ -105232,7 +105396,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	externals: {
 		"std.atan2": () => sh,
 		"std.floor": () => U,
-		TWO_PI: () => Ij,
+		TWO_PI: () => nM,
 		"std.cos": () => V,
 		"std.sin": () => Y,
 		"std.length": () => G,
@@ -105240,7 +105404,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.abs": () => z,
 		"std.max": () => K
 	}
-}) && e.f)({})), dM = pd(L, 8), fM = 8, pM = $.fn([
+}) && e.f)({})), jM = pd(L, 8), MM = 8, NM = $.fn([
 	L,
 	L,
 	L,
@@ -105254,10 +105418,10 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u) => {
 	"use gpu";
-	let d = dM();
+	let d = jM();
 	d[0] = L(t), d[1] = L(n), d[2] = L(r), d[3] = L(i), d[4] = L(a), d[5] = L(o), d[6] = L(s), d[7] = L(c);
 	let f = __tsover_sub(G(e.sub(d[0])), l);
-	for (let t = 1; t < fM; t++) f = cM(f, __tsover_sub(G(e.sub(d[t])), l), u);
+	for (let t = 1; t < MM; t++) f = OM(f, __tsover_sub(G(e.sub(d[t])), l), u);
 	return f;
 }), {
 	v: 2,
@@ -105515,13 +105679,13 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		]]
 	},
 	externals: {
-		MetaballArray: () => dM,
+		MetaballArray: () => jM,
 		"d.vec3f": () => L,
 		"std.length": () => G,
-		METABALL_COUNT: () => fM,
-		smin: () => cM
+		METABALL_COUNT: () => MM,
+		smin: () => OM
 	}
-}) && e.f)({})), mM = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), PM = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = L(z(e.x), z(e.y), z(e.z)), r = H(n, L(0, .5257311, .8506508)), i = H(n, L(.8506508, 0, .5257311)), a = H(n, L(.5257311, .8506508, 0));
 	return __tsover_sub(K(K(r, i), a), t);
@@ -105647,7 +105811,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.dot": () => H,
 		"std.max": () => K
 	}
-}) && e.f)({})), hM = $.fn([
+}) && e.f)({})), FM = $.fn([
 	L,
 	P,
 	P
@@ -105893,7 +106057,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"d.vec2f": () => I,
 		"std.select": () => Q
 	}
-}) && e.f)({})), gM = $.fn([
+}) && e.f)({})), IM = $.fn([
 	L,
 	P,
 	P,
@@ -106287,7 +106451,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.max": () => K,
 		"std.min": () => q
 	}
-}) && e.f)({})), _M = $.fn([
+}) && e.f)({})), LM = $.fn([
 	L,
 	P,
 	P,
@@ -106492,7 +106656,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.sin": () => Y,
 		"std.length": () => G
 	}
-}) && e.f)({})), vM = $.fn([
+}) && e.f)({})), RM = $.fn([
 	P,
 	P,
 	P,
@@ -106631,7 +106795,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.max": () => K,
 		"std.min": () => q
 	}
-}) && e.f)({})), yM = $.fn([
+}) && e.f)({})), zM = $.fn([
 	L,
 	P,
 	P,
@@ -106646,7 +106810,7 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u, d) => {
 	"use gpu";
-	let f = __tsover_mul(n, .5), p = __tsover_mul(r, .5), m = __tsover_sub(G(e), a), h = __tsover_add(__tsover_mul(e.y, o), __tsover_mul(e.z, s)), g = __tsover_sub(__tsover_mul(e.z, o), __tsover_mul(e.y, s)), _ = vM(G(I(e.x, g)), h, t, p, f, i), v = __tsover_sub(__tsover_mul(e.x, c), __tsover_mul(e.z, l)), y = __tsover_add(__tsover_mul(e.z, c), __tsover_mul(e.x, l)), b = vM(G(I(v, e.y)), y, __tsover_mul(t, .78), p, f, i), x = __tsover_add(__tsover_mul(e.x, u), __tsover_mul(e.y, d)), S = vM(G(I(__tsover_sub(__tsover_mul(e.y, u), __tsover_mul(e.x, d)), e.z)), x, __tsover_mul(t, .56), p, f, i);
+	let f = __tsover_mul(n, .5), p = __tsover_mul(r, .5), m = __tsover_sub(G(e), a), h = __tsover_add(__tsover_mul(e.y, o), __tsover_mul(e.z, s)), g = __tsover_sub(__tsover_mul(e.z, o), __tsover_mul(e.y, s)), _ = RM(G(I(e.x, g)), h, t, p, f, i), v = __tsover_sub(__tsover_mul(e.x, c), __tsover_mul(e.z, l)), y = __tsover_add(__tsover_mul(e.z, c), __tsover_mul(e.x, l)), b = RM(G(I(v, e.y)), y, __tsover_mul(t, .78), p, f, i), x = __tsover_add(__tsover_mul(e.x, u), __tsover_mul(e.y, d)), S = RM(G(I(__tsover_sub(__tsover_mul(e.y, u), __tsover_mul(e.x, d)), e.z)), x, __tsover_mul(t, .56), p, f, i);
 	return q(q(m, _), q(b, S));
 }), {
 	v: 2,
@@ -107016,18 +107180,18 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	},
 	externals: {
 		"std.length": () => G,
-		sdFlatBand: () => vM,
+		sdFlatBand: () => RM,
 		"d.vec2f": () => I,
 		"std.min": () => q
 	}
-}) && e.f)({})), bM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+}) && e.f)({})), BM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	cx: P,
 	sx: P,
 	cy: P,
 	sy: P,
 	cz: P,
 	sz: P
-}), "RotStruct"), xM = $.fn([L, bM], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}), "RotStruct"), VM = $.fn([L, BM], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_add(__tsover_mul(e.x, t.cy), __tsover_mul(e.z, t.sy)), r = __tsover_sub(__tsover_mul(e.z, t.cy), __tsover_mul(e.x, t.sy)), i = __tsover_sub(__tsover_mul(e.y, t.cx), __tsover_mul(r, t.sx)), a = __tsover_add(__tsover_mul(e.y, t.sx), __tsover_mul(r, t.cx));
 	return L(__tsover_sub(__tsover_mul(n, t.cz), __tsover_mul(i, t.sz)), __tsover_add(__tsover_mul(n, t.sz), __tsover_mul(i, t.cz)), a);
@@ -107248,15 +107412,15 @@ var Xj = $.fn([L, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 	},
 	externals: { "d.vec3f": () => L }
 }) && e.f)({}));
-function SM(e, t = "none", n = "span") {
-	let r = aA() ? 64 : 96, i = aA() ? 224 : 384, a = aA() ? 140 : 220;
+function HM(e, t = "none", n = "span") {
+	let r = TA() ? 64 : 96, i = TA() ? 224 : 384, a = TA() ? 140 : 220;
 	return $.fn([
 		I,
-		bM,
+		BM,
 		P
 	], R)(/* @__PURE__ */ ((o) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(o.f = ((o, s, c) => {
 		"use gpu";
-		let l = L(__tsover_sub(o.x, .5), __tsover_sub(.5, o.y), -1.2), u = L(0, 0, 1), d = xM(l, s), f = xM(u, s), p = N(B(__tsover_mul(c, P(a)), P(r), P(i))), m = H(d, f), h = Z(K(__tsover_sub(H(d, d), __tsover_mul(m, m)), 0)), g = Z(K(__tsover_sub(__tsover_mul(c, c), __tsover_mul(h, h)), 0)), _ = K(__tsover_sub(__tsover_mul(m, -1), g), 0), v = __tsover_add(__tsover_add(__tsover_mul(m, -1), g), .01), y = _, b = _, x = P(10), S = P(0);
+		let l = L(__tsover_sub(o.x, .5), __tsover_sub(.5, o.y), -1.2), u = L(0, 0, 1), d = VM(l, s), f = VM(u, s), p = N(B(__tsover_mul(c, P(a)), P(r), P(i))), m = H(d, f), h = Z(K(__tsover_sub(H(d, d), __tsover_mul(m, m)), 0)), g = Z(K(__tsover_sub(__tsover_mul(c, c), __tsover_mul(h, h)), 0)), _ = K(__tsover_sub(__tsover_mul(m, -1), g), 0), v = __tsover_add(__tsover_add(__tsover_mul(m, -1), g), .01), y = _, b = _, x = P(10), S = P(0);
 		for (let t = 0; t < p; t++) {
 			let t = e(d.add(f.mul(y)));
 			if (x = q(x, t), t < 0) {
@@ -108884,7 +109048,7 @@ function SM(e, t = "none", n = "span") {
 		},
 		externals: {
 			"d.vec3f": () => L,
-			rotateVec3: () => xM,
+			rotateVec3: () => VM,
 			"d.i32": () => N,
 			"std.clamp": () => B,
 			"d.f32": () => P,
@@ -108905,14 +109069,14 @@ function SM(e, t = "none", n = "span") {
 		}
 	}) && o.f)({})).$name("raymarchedField");
 }
-function CM(e, t = "none", n = "span") {
-	return SM(e, t, n);
+function UM(e, t = "none", n = "span") {
+	return HM(e, t, n);
 }
-var wM = "rgba32float", TM = 1536;
-function EM() {
-	return aA() ? 768 : TM;
+var WM = "rgba32float", GM = 1536;
+function KM() {
+	return TA() ? 768 : GM;
 }
-var DM = [
+var qM = [
 	256,
 	320,
 	384,
@@ -108924,10 +109088,10 @@ var DM = [
 	1280,
 	1536
 ];
-function OM(e, t, n, r, i, a) {
+function JM(e, t, n, r, i, a) {
 	if (!(r > 0) || !(n > 0)) return i;
-	let o = aA() ? .5 : 1, s = Math.max(e, t) * n * r * o, c = i;
-	for (let e of DM) {
+	let o = TA() ? .5 : 1, s = Math.max(e, t) * n * r * o, c = i;
+	for (let e of qM) {
 		if (e > i) break;
 		if (e >= s) {
 			c = e;
@@ -108936,8 +109100,8 @@ function OM(e, t, n, r, i, a) {
 	}
 	return a > 0 && c < a && s > a * .78 && (c = Math.min(a, i)), c;
 }
-var kM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
-	rot: Kd(16, qd(32, bM)),
+var YM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+	rot: Kd(16, qd(32, BM)),
 	rBound: P,
 	spanX: P,
 	spanY: P,
@@ -108957,16 +109121,16 @@ var kM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	mb6: L,
 	mb7: L
 }), "MarchParams");
-function AM() {
+function XM() {
 	return {
 		layout: /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-			field: { storageTexture: Ad(wM, "write-only") },
-			params: { uniform: kM }
+			field: { storageTexture: Ad(WM, "write-only") },
+			params: { uniform: YM }
 		}), "layout"),
-		MarchParams: kM
+		MarchParams: YM
 	};
 }
-function jM(e, t) {
+function ZM(e, t) {
 	return $.fn([M, M])(/* @__PURE__ */ ((n) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(n.f = ((n, r) => {
 		"use gpu";
 		let i = e.$.params, a = P(i.activeRes), o = t(I(__tsover_add(i.originX, __tsover_mul(__tsover_div(__tsover_add(P(n), .5), a), i.spanX)), __tsover_add(i.originY, __tsover_mul(__tsover_div(__tsover_add(P(r), .5), a), i.spanY))), i.rot, i.rBound);
@@ -109136,7 +109300,7 @@ function jM(e, t) {
 		}
 	}) && n.f)({})).$name("volumetricFieldMarch");
 }
-var MM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var QM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	originX: P,
 	originY: P,
 	spanX: P,
@@ -109144,13 +109308,13 @@ var MM = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	activeResF: P,
 	rBound: P
 }), "SampleParams");
-function NM() {
+function $M() {
 	let e = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 		field: {
 			texture: Cd(P),
 			sampleType: "unfilterable-float"
 		},
-		params: { uniform: MM }
+		params: { uniform: QM }
 	}), "sampleLayout"), t = $.fn([P, P], R)(/* @__PURE__ */ ((t) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(t.f = ((t, n) => {
 		"use gpu";
 		let r = __tsover_sub(e.$.params.activeResF, 1), i = M(B(t, P(0), r)), a = M(B(n, P(0), r));
@@ -111369,20 +111533,20 @@ function NM() {
 				"d.vec4f": () => R
 			}
 		}) && n.f)({})).$name("fieldSampleFast"),
-		SampleParams: MM
+		SampleParams: QM
 	};
 }
-function PM(e, t, n, r, i = {}) {
-	let a = EM(), o = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createTexture({
+function eN(e, t, n, r, i = {}) {
+	let a = KM(), o = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createTexture({
 		size: [a, a],
-		format: wM
-	}).$usage("storage", "sampled"), "fieldTexture"), s = i.paramsUniform ?? e.createUniform(kM);
+		format: WM
+	}).$usage("storage", "sampled"), "fieldTexture"), s = i.paramsUniform ?? e.createUniform(YM);
 	r(() => o.destroy());
 	let c = e.createBindGroup(t, {
 		field: o,
 		params: s.buffer,
 		...i.sdfSourceTexture ? { sdfSource: i.sdfSourceTexture } : {}
-	}), l = OO(e, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+	}), l = JO(e, /* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 		"use gpu";
 		n(e, t);
 	}), {
@@ -111421,17 +111585,17 @@ function PM(e, t, n, r, i = {}) {
 		}
 	};
 }
-function FM() {
+function tN() {
 	return {
 		layout: /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-			field: { storageTexture: Ad(wM, "write-only") },
-			params: { uniform: kM },
+			field: { storageTexture: Ad(WM, "write-only") },
+			params: { uniform: YM },
 			sdfSource: { texture: Cd(P) }
 		}), "layout"),
-		MarchParams: kM
+		MarchParams: YM
 	};
 }
-function IM() {
+function nN() {
 	return {
 		fieldSampleArg: $.fn([
 			I,
@@ -117294,7 +117458,7 @@ function IM() {
 		}) && e.f)({})).$name("fieldTexelSpan")
 	};
 }
-var LM = {
+var rN = {
 	_vfOriginX: {
 		schema: P,
 		initial: 0
@@ -117320,8 +117484,8 @@ var LM = {
 		initial: .6
 	}
 };
-function RM(e, t) {
-	let { fieldSampleArg: n, fieldSampleGradArg: r, fieldSampleFastArg: i, fieldSampleTexelArg: a, texelSpanFn: o } = IM(), s = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.accessor(), "acc"), c = (e) => [
+function iN(e, t) {
+	let { fieldSampleArg: n, fieldSampleGradArg: r, fieldSampleFastArg: i, fieldSampleTexelArg: a, texelSpanFn: o } = nN(), s = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.accessor(), "acc"), c = (e) => [
 		e,
 		s,
 		t.originX,
@@ -117332,21 +117496,21 @@ function RM(e, t) {
 		t.rBound
 	];
 	return {
-		volumetricFieldSampler: (e) => fD(n, "vfSample", c(e)),
-		volumetricFieldSamplerGrad: (e) => fD(r, "vfSampleGrad", c(e)),
-		volumetricFieldSamplerFast: (e) => fD(i, "vfSampleFast", c(e)),
-		volumetricFieldSamplerTexel: (e) => fD(a, "vfSampleTexel", c(e)),
-		volumetricFieldTexelSpan: fD(o, "vfTexelSpan", [
+		volumetricFieldSampler: (e) => MD(n, "vfSample", c(e)),
+		volumetricFieldSamplerGrad: (e) => MD(r, "vfSampleGrad", c(e)),
+		volumetricFieldSamplerFast: (e) => MD(i, "vfSampleFast", c(e)),
+		volumetricFieldSamplerTexel: (e) => MD(a, "vfSampleTexel", c(e)),
+		volumetricFieldTexelSpan: MD(o, "vfTexelSpan", [
 			t.spanX,
 			t.spanY,
 			t.activeResF
 		])
 	};
 }
-function zM(e, t = {}) {
+function aN(e, t = {}) {
 	let { patternMode: n = "none", gradSampler: r = "fast", bakedGradients: i = "none" } = t, { computeOutputs: a, uniforms: o, propValues: s, getCpuValue: c } = e, l = a?.volumetricFieldTexture;
 	if (l) {
-		let e = RM(l, {
+		let e = iN(l, {
 			originX: o._vfOriginX,
 			originY: o._vfOriginY,
 			spanX: o._vfSpanX,
@@ -117364,26 +117528,26 @@ function zM(e, t = {}) {
 	}
 	let u = s.shapeSdfUrl || "", d = s.shapeType || "";
 	if (u) {
-		let t = i === "all", n = t ? QA(e, u) : ZA(e, u);
+		let t = i === "all", n = t ? vj(e, u) : _j(e, u);
 		return {
 			sampler: n,
 			gradSampler: n,
 			texelSampler: n,
-			volumetric: Vj(d),
+			volumetric: sM(d),
 			bakedGradients: t
 		};
 	}
-	let f = Nj(d, c("shape")), p = tj(f, aj(e, () => c("shape")), n);
+	let f = $j(d, c("shape")), p = xj(f, Tj(e, () => c("shape")), n);
 	return {
 		sampler: p,
 		gradSampler: p,
 		texelSampler: p,
-		volumetric: Rj(f),
+		volumetric: iM(f),
 		bakedGradients: !1
 	};
 }
-var BM = Math.PI / 180;
-function VM(e) {
+var oN = Math.PI / 180;
+function sN(e) {
 	if (e && typeof e == "object") return e;
 	if (typeof e == "string") try {
 		return JSON.parse(e);
@@ -117392,11 +117556,11 @@ function VM(e) {
 	}
 	return {};
 }
-function HM(e, t, n, r, i = {}) {
-	let a = qj[t] ?? qj.sphere3D, o = i.extraPad ?? (() => 0), { layout: s } = AM(), c = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createUniform(kM), "marchParamsBuffer"), l = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+function cN(e, t, n, r, i = {}) {
+	let a = pM[t] ?? pM.sphere3D, o = i.extraPad ?? (() => 0), { layout: s } = XM(), c = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createUniform(YM), "marchParamsBuffer"), l = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 		"use gpu";
 		let n = s.$.params;
-		return t === "cube3D" ? Zj(e, n.pA, n.pB, n.pC, n.pD) : t === "torus3D" ? Qj(e, n.pA, n.pB) : t === "octahedron3D" ? $j(e, n.pA) : t === "cylinder3D" ? eM(e, n.pA, n.pB, n.pD) : t === "capsule3D" ? tM(e, n.pA, n.pB) : t === "cone3D" ? nM(e, n.pA, n.pC, n.pB) : t === "pyramid3D" ? rM(e, n.pA, n.pB) : t === "prism3D" ? iM(e, n.pA, n.pB) : t === "ellipsoid3D" ? aM(e, n.pA, n.pB, n.pC) : t === "diamond3D" ? oM(e, n.pA, n.pB) : t === "link3D" ? sM(e, n.pB, n.pA, n.pC) : t === "gem3D" ? lM(e, n.pA, n.pB, n.pC) : t === "helix3D" ? uM(e, n.pA, n.pB, n.pC, P(3)) : t === "metaballs3D" ? pM(e, n.mb0, n.mb1, n.mb2, n.mb3, n.mb4, n.mb5, n.mb6, n.mb7, n.pA, n.pD) : t === "dodecahedron3D" ? mM(e, n.pA) : t === "hemisphere3D" ? hM(e, n.pA, n.pB) : t === "ribbon3D" ? gM(e, n.pA, n.pB, n.pC, n.mb0.x, n.mb0.y, n.mb0.z, n.mb1.x, n.mb1.y, n.mb1.z, n.mb2.x) : t === "blob3D" ? _M(e, n.pA, n.mb0.x, n.mb0.y, n.mb0.z, n.mb1.x, n.mb2.x) : t === "gyroscope3D" ? yM(e, n.pA, n.pB, n.pD, n.mb3.x, n.pC, n.mb0.x, n.mb0.y, n.mb1.x, n.mb1.y, n.mb2.x, n.mb2.y) : Xj(e, n.pA);
+		return t === "cube3D" ? _M(e, n.pA, n.pB, n.pC, n.pD) : t === "torus3D" ? vM(e, n.pA, n.pB) : t === "octahedron3D" ? yM(e, n.pA) : t === "cylinder3D" ? bM(e, n.pA, n.pB, n.pD) : t === "capsule3D" ? xM(e, n.pA, n.pB) : t === "cone3D" ? SM(e, n.pA, n.pC, n.pB) : t === "pyramid3D" ? CM(e, n.pA, n.pB) : t === "prism3D" ? wM(e, n.pA, n.pB) : t === "ellipsoid3D" ? TM(e, n.pA, n.pB, n.pC) : t === "diamond3D" ? EM(e, n.pA, n.pB) : t === "link3D" ? DM(e, n.pB, n.pA, n.pC) : t === "gem3D" ? kM(e, n.pA, n.pB, n.pC) : t === "helix3D" ? AM(e, n.pA, n.pB, n.pC, P(3)) : t === "metaballs3D" ? NM(e, n.mb0, n.mb1, n.mb2, n.mb3, n.mb4, n.mb5, n.mb6, n.mb7, n.pA, n.pD) : t === "dodecahedron3D" ? PM(e, n.pA) : t === "hemisphere3D" ? FM(e, n.pA, n.pB) : t === "ribbon3D" ? IM(e, n.pA, n.pB, n.pC, n.mb0.x, n.mb0.y, n.mb0.z, n.mb1.x, n.mb1.y, n.mb1.z, n.mb2.x) : t === "blob3D" ? LM(e, n.pA, n.mb0.x, n.mb0.y, n.mb0.z, n.mb1.x, n.mb2.x) : t === "gyroscope3D" ? zM(e, n.pA, n.pB, n.pD, n.mb3.x, n.pC, n.mb0.x, n.mb0.y, n.mb1.x, n.mb1.y, n.mb2.x, n.mb2.y) : gM(e, n.pA);
 	}), {
 		v: 2,
 		name: void 0,
@@ -118174,30 +118338,30 @@ function HM(e, t, n, r, i = {}) {
 		externals: {
 			layout: () => s,
 			shapeType: () => t,
-			sdRoundBox: () => Zj,
-			sdTorus: () => Qj,
-			sdOctahedron: () => $j,
-			sdRoundCylinder: () => eM,
-			sdCapsule: () => tM,
-			sdCappedCone: () => nM,
-			sdPyramid: () => rM,
-			sdHexPrism: () => iM,
-			sdEllipsoid: () => aM,
-			sdBicone: () => oM,
-			sdLink: () => sM,
-			sdGem: () => lM,
-			sdHelix: () => uM,
+			sdRoundBox: () => _M,
+			sdTorus: () => vM,
+			sdOctahedron: () => yM,
+			sdRoundCylinder: () => bM,
+			sdCapsule: () => xM,
+			sdCappedCone: () => SM,
+			sdPyramid: () => CM,
+			sdHexPrism: () => wM,
+			sdEllipsoid: () => TM,
+			sdBicone: () => EM,
+			sdLink: () => DM,
+			sdGem: () => kM,
+			sdHelix: () => AM,
 			"d.f32": () => P,
 			HELIX_TURNS: () => 3,
-			sdMetaballs: () => pM,
-			sdDodecahedron: () => mM,
-			sdCutSphere: () => hM,
-			sdRibbon: () => gM,
-			sdWobbleBlob: () => _M,
-			sdGyroscope: () => yM,
-			sdSphere: () => Xj
+			sdMetaballs: () => NM,
+			sdDodecahedron: () => PM,
+			sdCutSphere: () => FM,
+			sdRibbon: () => IM,
+			sdWobbleBlob: () => LM,
+			sdGyroscope: () => zM,
+			sdSphere: () => gM
 		}
-	}) && e.f)({})), u = 0, d = "", f = n, p = /* @__PURE__ */ new Map(), m = .35, h = .3, g = .3, _ = 0, v = .6, y = 1, b = 0, x = 1, S = 0, C = 1, w = 0, T = 1, E = 1, ee = 0, te = 0, ne = EM(), re = Array.from({ length: 8 }, () => [
+	}) && e.f)({})), u = 0, d = "", f = n, p = /* @__PURE__ */ new Map(), m = .35, h = .3, g = .3, _ = 0, v = .6, y = 1, b = 0, x = 1, S = 0, C = 1, w = 0, T = 1, E = 1, ee = 0, te = 0, ne = KM(), re = Array.from({ length: 8 }, () => [
 		0,
 		0,
 		0
@@ -118247,7 +118411,7 @@ function HM(e, t, n, r, i = {}) {
 			pointerX: e?.pointer?.x ?? .5,
 			pointerY: e?.pointer?.y ?? .5,
 			springs: p
-		}, c = (e) => Gj(f[e], a[e] ?? 0, s, e);
+		}, c = (e) => dM(f[e], a[e] ?? 0, s, e);
 		h = .3, g = .3, _ = 0;
 		for (let e = 0; e < re.length; e++) re[e] = [
 			0,
@@ -118301,7 +118465,7 @@ function HM(e, t, n, r, i = {}) {
 						];
 						continue;
 					}
-					let i = Ij / e * r, a = i + n, o = .75 + .25 * Math.sin(n * 1.3 + r * 1.7);
+					let i = nM / e * r, a = i + n, o = .75 + .25 * Math.sin(n * 1.3 + r * 1.7);
 					re[r] = [
 						t * Math.cos(a) * o,
 						t * .6 * Math.sin(n * .9 + i * 1.5),
@@ -118315,7 +118479,7 @@ function HM(e, t, n, r, i = {}) {
 				break;
 			case "ribbon3D": {
 				m = c("width"), h = c("thickness"), g = c("length");
-				let e = u * c("speed"), t = c("wave") * (.8 + .2 * Math.sin(e * .9)), n = c("waveFrequency"), r = c("twist") * BM / Math.max(g * 2, .01);
+				let e = u * c("speed"), t = c("wave") * (.8 + .2 * Math.sin(e * .9)), n = c("waveFrequency"), r = c("twist") * oN / Math.max(g * 2, .01);
 				re[0] = [
 					t,
 					n,
@@ -118375,11 +118539,11 @@ function HM(e, t, n, r, i = {}) {
 			}
 			default: m = c("radius");
 		}
-		v = Jj({
+		v = mM({
 			...f,
 			type: t
 		}) + .02 + o();
-		let l = c("rotX") * BM, ne = c("rotY") * BM, ae = c("rotZ") * BM;
+		let l = c("rotX") * oN, ne = c("rotY") * oN, ae = c("rotZ") * oN;
 		y = Math.cos(l), b = Math.sin(l), x = Math.cos(ne), S = Math.sin(ne), C = Math.cos(ae), w = Math.sin(ae);
 		let oe = v + .05;
 		T = oe * 2, E = oe * 2, ee = .5 - oe, te = .5 - oe, ie();
@@ -118413,8 +118577,8 @@ function HM(e, t, n, r, i = {}) {
 		getGeometryKey: se
 	};
 }
-function UM(e, t, n, r = {}) {
-	let i = e.gpu.root, a = r.extraPad ?? (() => 0), { texture: o, getVersion: s } = XA(e, t), { layout: c } = FM(), l = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(i.createUniform(kM), "marchParamsBuffer"), u = P(512), d = P(511), f = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+function lN(e, t, n, r = {}) {
+	let i = e.gpu.root, a = r.extraPad ?? (() => 0), { texture: o, getVersion: s } = gj(e, t), { layout: c } = tN(), l = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(i.createUniform(YM), "marchParamsBuffer"), u = P(512), d = P(511), f = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 		"use gpu";
 		let t = c.$.params, n = t.pA, r = t.pB, i = __tsover_sub(__tsover_mul(__tsover_add(e.x, .5), u), .5), a = __tsover_sub(__tsover_mul(__tsover_sub(.5, e.y), u), .5), o = U(i), s = U(a), l = __tsover_sub(i, o), f = __tsover_sub(a, s), p = M(B(o, P(0), d)), m = M(B(__tsover_add(o, 1), P(0), d)), h = M(B(s, P(0), d)), g = M(B(__tsover_add(s, 1), P(0), d)), _ = YS(c.$.sdfSource, jp(p, h), 0).r, v = YS(c.$.sdfSource, jp(m, h), 0).r, y = YS(c.$.sdfSource, jp(p, g), 0).r, b = YS(c.$.sdfSource, jp(m, g), 0).r, x = J(J(_, v, l), J(y, b, l), f), S = __tsover_add(x, r), C = __tsover_add(__tsover_sub(z(e.z), n), r), w = q(K(S, C), P(0)), T = G(I(K(S, P(0)), K(C, P(0))));
 		return __tsover_sub(__tsover_add(w, T), r);
@@ -118892,7 +119056,7 @@ function UM(e, t, n, r = {}) {
 			"std.length": () => G,
 			"d.vec2f": () => I
 		}
-	}) && e.f)({})), p = 0, m = "", h = VM(n()), g = /* @__PURE__ */ new Map(), _ = .06, v = .02, y = .75, b = 1, x = 0, S = 1, C = 0, w = 1, T = 0, E = 1, ee = 1, te = 0, ne = 0, re = EM(), ie = () => {
+	}) && e.f)({})), p = 0, m = "", h = sN(n()), g = /* @__PURE__ */ new Map(), _ = .06, v = .02, y = .75, b = 1, x = 0, S = 1, C = 0, w = 1, T = 0, E = 1, ee = 1, te = 0, ne = 0, re = KM(), ie = () => {
 		l.write({
 			rot: {
 				cx: b,
@@ -118938,11 +119102,11 @@ function UM(e, t, n, r = {}) {
 			pointerX: e?.pointer?.x ?? .5,
 			pointerY: e?.pointer?.y ?? .5,
 			springs: g
-		}, s = (e) => Gj(h[e], Hj[e] ?? 0, o, e);
+		}, s = (e) => dM(h[e], cM[e] ?? 0, o, e);
 		_ = Math.max(.001, s("depth") * .5), v = Math.min(Math.max(0, s("bevel")), _);
-		let c = uj(t), l = c ? Math.min(.5, c.hwf + .02) : .5, u = c ? Math.min(.5, c.hhf + .02) : .5, d = a();
+		let c = Aj(t), l = c ? Math.min(.5, c.hwf + .02) : .5, u = c ? Math.min(.5, c.hhf + .02) : .5, d = a();
 		y = Math.hypot(l, u, _) + v + .03 + d;
-		let f = s("rotX") * BM, re = s("rotY") * BM, ae = s("rotZ") * BM;
+		let f = s("rotX") * oN, re = s("rotY") * oN, ae = s("rotZ") * oN;
 		b = Math.cos(f), x = Math.sin(f), S = Math.cos(re), C = Math.sin(re), w = Math.cos(ae), T = Math.sin(ae);
 		let oe = {
 			cx: b,
@@ -118951,7 +119115,7 @@ function UM(e, t, n, r = {}) {
 			sy: C,
 			cz: w,
 			sz: T
-		}, se = Yj(1, 0, 0, oe), ce = Yj(0, 1, 0, oe), le = v + .03 + d, ue = Math.abs(se.x) * l + Math.abs(se.y) * u + Math.abs(se.z) * _ + le, de = Math.abs(ce.x) * l + Math.abs(ce.y) * u + Math.abs(ce.z) * _ + le, fe = ue + .05, pe = de + .05;
+		}, se = hM(1, 0, 0, oe), ce = hM(0, 1, 0, oe), le = v + .03 + d, ue = Math.abs(se.x) * l + Math.abs(se.y) * u + Math.abs(se.z) * _ + le, de = Math.abs(ce.x) * l + Math.abs(ce.y) * u + Math.abs(ce.z) * _ + le, fe = ue + .05, pe = de + .05;
 		E = fe * 2, ee = pe * 2, te = .5 - fe, ne = .5 - pe, ie();
 	};
 	ae();
@@ -118984,8 +119148,8 @@ function UM(e, t, n, r = {}) {
 		getGeometryKey: se
 	};
 }
-function WM(e, t, n, r, i = {}) {
-	let a = i.extraPad ?? (() => 0), { layout: o } = AM(), s = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createUniform(kM), "marchParamsBuffer"), c = ej(t), l = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+function uN(e, t, n, r, i = {}) {
+	let a = i.extraPad ?? (() => 0), { layout: o } = XM(), s = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(e.createUniform(YM), "marchParamsBuffer"), c = bj(t), l = $.fn([L], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 		"use gpu";
 		let t = o.$.params, n = c(I(__tsover_add(e.x, .5), __tsover_sub(.5, e.y)), t.pA, t.pB, t.pC, t.pD, t.mb0.x, t.mb0.y, t.mb0.z, t.mb1.x).x, r = __tsover_sub(z(e.z), t.mb1.y), i = q(K(n, r), P(0)), a = G(I(K(n, P(0)), K(r, P(0))));
 		return __tsover_add(i, a);
@@ -119199,7 +119363,7 @@ function WM(e, t, n, r, i = {}) {
 			"d.f32": () => P,
 			"std.length": () => G
 		}
-	}) && e.f)({})), u = "", d = VM(n()), f = rj(d), p = .06, m = .6, h = 1, g = 1, _ = 0, v = 0, y = EM(), b = () => {
+	}) && e.f)({})), u = "", d = sN(n()), f = Cj(d), p = .06, m = .6, h = 1, g = 1, _ = 0, v = 0, y = KM(), b = () => {
 		s.write({
 			rot: {
 				cx: 1,
@@ -119237,8 +119401,8 @@ function WM(e, t, n, r, i = {}) {
 				d = JSON.parse(e);
 			} catch {}
 		}
-		f = rj(d), p = Math.max(.001, r());
-		let { hwf: t, hhf: i } = Mj({ shape: {
+		f = Cj(d), p = Math.max(.001, r());
+		let { hwf: t, hhf: i } = Qj({ shape: {
 			...d,
 			radius: f.radius,
 			height: f.height
@@ -119276,15 +119440,15 @@ function WM(e, t, n, r, i = {}) {
 		getGeometryKey: C
 	};
 }
-function GM(e, t, n = "none", r = "span") {
+function dN(e, t, n = "none", r = "span") {
 	let i = e.gpu?.root;
 	if (!i) return null;
-	let a = VM(t()), o = e.getCpuValue("shapeSdfUrl") || "", s = e.getCpuValue("shapeType") || a.type || "", c = null;
-	if (o && Bj(s) ? c = UM(e, o, t) : !o && Rj(s) && (c = HM(i, s, a, t)), !c) return null;
-	let l = SM(c.sdfFn, n, r), u = jM(c.layout, l), d = PM(i, c.layout, u, e.onCleanup, {
+	let a = sN(t()), o = e.getCpuValue("shapeSdfUrl") || "", s = e.getCpuValue("shapeType") || a.type || "", c = null;
+	if (o && oM(s) ? c = lN(e, o, t) : !o && iM(s) && (c = cN(i, s, a, t)), !c) return null;
+	let l = HM(c.sdfFn, n, r), u = ZM(c.layout, l), d = eN(i, c.layout, u, e.onCleanup, {
 		paramsUniform: c.marchParamsBuffer,
 		sdfSourceTexture: c.sdfSourceTexture
-	}), f = e.registerComputeTexture(d.fieldTexture), p = d.maxRes, m = "", h = aA() ? 2 : 1, g = 0, _ = {
+	}), f = e.registerComputeTexture(d.fieldTexture), p = d.maxRes, m = "", h = TA() ? 2 : 1, g = 0, _ = {
 		originX: 0,
 		originY: 0,
 		spanX: 1,
@@ -119297,7 +119461,7 @@ function GM(e, t, n = "none", r = "span") {
 		getComputeNodes: (t) => {
 			c.update(t);
 			let n = c.getFootprint(), r = e.getCpuValue("scale") ?? 1, i = e.dimensions.height;
-			p = OM(n.spanX, n.spanY, r, i, d.maxRes, p);
+			p = JM(n.spanX, n.spanY, r, i, d.maxRes, p);
 			let a = `${c.getStateKey()},${p}`;
 			return a === m || (g++, h > 1 && g % h !== 0) ? null : (m = a, c.setActiveRes(p), e.setExtraField("_vfOriginX", n.originX), e.setExtraField("_vfOriginY", n.originY), e.setExtraField("_vfSpanX", n.spanX), e.setExtraField("_vfSpanY", n.spanY), e.setExtraField("_vfActiveRes", p), e.setExtraField("_vfRBound", n.rBound), _.originX = n.originX, _.originY = n.originY, _.spanX = n.spanX, _.spanY = n.spanY, _.activeRes = p, _.rBound = n.rBound, [() => d.dispatch(p)]);
 		},
@@ -119305,7 +119469,7 @@ function GM(e, t, n = "none", r = "span") {
 		getFieldDomain: () => ({ ..._ })
 	};
 }
-var KM = .08, qM = $.fn([
+var fN = .08, pN = $.fn([
 	L,
 	R,
 	R
@@ -119583,7 +119747,7 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: { "d.vec3f": () => L }
-}) && e.f)({})).$name("eulerRotatePacked"), JM = $.fn([
+}) && e.f)({})).$name("eulerRotatePacked"), mN = $.fn([
 	L,
 	R,
 	R,
@@ -119591,7 +119755,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	return __tsover_sub(G(qM(e, t, n)), n.z);
+	return __tsover_sub(G(pN(e, t, n)), n.z);
 }), {
 	v: 2,
 	name: void 0,
@@ -119643,9 +119807,9 @@ var KM = .08, qM = $.fn([
 	},
 	externals: {
 		"std.length": () => G,
-		eulerRotatePacked: () => qM
+		eulerRotatePacked: () => pN
 	}
-}) && e.f)({})).$name("paramSphereSdf"), YM = $.fn([
+}) && e.f)({})).$name("paramSphereSdf"), hN = $.fn([
 	L,
 	L,
 	R,
@@ -119654,7 +119818,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = Fh(qM(e, n, r));
+	let o = Fh(pN(e, n, r));
 	return I(__tsover_add(__tsover_div(sh(o.z, o.x), 6.283185307179586), .5), __tsover_mul(__tsover_add(o.y, 1), .5));
 }), {
 	v: 2,
@@ -119746,11 +119910,11 @@ var KM = .08, qM = $.fn([
 	},
 	externals: {
 		"std.normalize": () => Fh,
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"d.vec2f": () => I,
 		"std.atan2": () => sh
 	}
-}) && e.f)({})).$name("sphereSurfaceUV"), XM = $.fn([
+}) && e.f)({})).$name("sphereSurfaceUV"), gN = $.fn([
 	L,
 	R,
 	R,
@@ -119758,7 +119922,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = qM(e, t, n), o = I(__tsover_sub(G(I(a.x, a.z)), n.z), a.y);
+	let a = pN(e, t, n), o = I(__tsover_sub(G(I(a.x, a.z)), n.z), a.y);
 	return __tsover_sub(G(o), n.w);
 }), {
 	v: 2,
@@ -119855,11 +120019,11 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"d.vec2f": () => I,
 		"std.length": () => G
 	}
-}) && e.f)({})).$name("paramTorusSdf"), ZM = $.fn([
+}) && e.f)({})).$name("paramTorusSdf"), _N = $.fn([
 	L,
 	L,
 	R,
@@ -119868,7 +120032,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = qM(e, n, r), s = __tsover_add(__tsover_div(sh(o.z, o.x), 6.283185307179586), .5), c = __tsover_sub(G(I(o.x, o.z)), r.z);
+	let o = pN(e, n, r), s = __tsover_add(__tsover_div(sh(o.z, o.x), 6.283185307179586), .5), c = __tsover_sub(G(I(o.x, o.z)), r.z);
 	return I(s, __tsover_add(__tsover_div(sh(o.y, c), 6.283185307179586), .5));
 }), {
 	v: 2,
@@ -119997,12 +120161,12 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.atan2": () => sh,
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})).$name("torusSurfaceUV"), QM = $.fn([
+}) && e.f)({})).$name("torusSurfaceUV"), vN = $.fn([
 	L,
 	R,
 	R,
@@ -120010,7 +120174,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = qM(e, t, n), o = r.y, s = __tsover_add(__tsover_sub(z(a.x), n.z), o), c = __tsover_add(__tsover_sub(z(a.y), n.w), o), l = __tsover_add(__tsover_sub(z(a.z), r.x), o), u = G(L(K(s, P(0)), K(c, P(0)), K(l, P(0)))), d = q(K(s, K(c, l)), P(0));
+	let a = pN(e, t, n), o = r.y, s = __tsover_add(__tsover_sub(z(a.x), n.z), o), c = __tsover_add(__tsover_sub(z(a.y), n.w), o), l = __tsover_add(__tsover_sub(z(a.z), r.x), o), u = G(L(K(s, P(0)), K(c, P(0)), K(l, P(0)))), d = q(K(s, K(c, l)), P(0));
 	return __tsover_sub(__tsover_add(u, d), o);
 }), {
 	v: 2,
@@ -120218,7 +120382,7 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.abs": () => z,
 		"std.length": () => G,
 		"d.vec3f": () => L,
@@ -120226,7 +120390,7 @@ var KM = .08, qM = $.fn([
 		"d.f32": () => P,
 		"std.min": () => q
 	}
-}) && e.f)({})).$name("paramBoxSdf"), $M = $.fn([
+}) && e.f)({})).$name("paramBoxSdf"), yN = $.fn([
 	L,
 	L,
 	R,
@@ -120235,7 +120399,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = qM(e, n, r), s = qM(t, n, r), c = L(z(s.x), z(s.y), z(s.z)), l = r.z, u = r.w, d = i.x, f = __tsover_div(.5, K(u, d)), p = __tsover_div(.5, K(l, d)), m = __tsover_div(.5, K(l, u)), h = I(__tsover_add(__tsover_mul(o.z, f), .5), __tsover_add(__tsover_mul(o.y, f), .5)), g = I(__tsover_add(__tsover_mul(o.x, p), .5), __tsover_add(__tsover_mul(o.z, p), .5)), _ = I(__tsover_add(__tsover_mul(o.x, m), .5), __tsover_add(__tsover_mul(o.y, m), .5)), v = Q(_, h, c.x > c.z);
+	let o = pN(e, n, r), s = pN(t, n, r), c = L(z(s.x), z(s.y), z(s.z)), l = r.z, u = r.w, d = i.x, f = __tsover_div(.5, K(u, d)), p = __tsover_div(.5, K(l, d)), m = __tsover_div(.5, K(l, u)), h = I(__tsover_add(__tsover_mul(o.z, f), .5), __tsover_add(__tsover_mul(o.y, f), .5)), g = I(__tsover_add(__tsover_mul(o.x, p), .5), __tsover_add(__tsover_mul(o.z, p), .5)), _ = I(__tsover_add(__tsover_mul(o.x, m), .5), __tsover_add(__tsover_mul(o.y, m), .5)), v = Q(_, h, c.x > c.z);
 	return Q(Q(_, g, c.y > c.z), v, c.x > c.y);
 }), {
 	v: 2,
@@ -120588,14 +120752,14 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"d.vec3f": () => L,
 		"std.abs": () => z,
 		"std.max": () => K,
 		"d.vec2f": () => I,
 		"std.select": () => Q
 	}
-}) && e.f)({})).$name("boxFaceUV"), eN = $.fn([
+}) && e.f)({})).$name("boxFaceUV"), bN = $.fn([
 	L,
 	R,
 	R,
@@ -120603,7 +120767,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = qM(e, t, n), o = n.z, s = n.w, c = B(a.y, __tsover_mul(s, -1), s);
+	let a = pN(e, t, n), o = n.z, s = n.w, c = B(a.y, __tsover_mul(s, -1), s);
 	return __tsover_sub(G(L(a.x, __tsover_sub(a.y, c), a.z)), o);
 }), {
 	v: 2,
@@ -120727,12 +120891,12 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.clamp": () => B,
 		"std.length": () => G,
 		"d.vec3f": () => L
 	}
-}) && e.f)({})).$name("paramCapsuleSdf"), tN = $.fn([
+}) && e.f)({})).$name("paramCapsuleSdf"), xN = $.fn([
 	L,
 	L,
 	R,
@@ -120741,7 +120905,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = qM(e, n, r), s = __tsover_add(__tsover_div(sh(o.z, o.x), 6.283185307179586), .5), c = __tsover_add(r.w, r.z);
+	let o = pN(e, n, r), s = __tsover_add(__tsover_div(sh(o.z, o.x), 6.283185307179586), .5), c = __tsover_add(r.w, r.z);
 	return I(s, B(__tsover_add(__tsover_mul(__tsover_div(o.y, c), .5), .5), 0, 1));
 }), {
 	v: 2,
@@ -120867,12 +121031,12 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.atan2": () => sh,
 		"d.vec2f": () => I,
 		"std.clamp": () => B
 	}
-}) && e.f)({})).$name("capsuleSurfaceUV"), nN = $.fn([
+}) && e.f)({})).$name("capsuleSurfaceUV"), SN = $.fn([
 	L,
 	R,
 	R,
@@ -120880,7 +121044,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = qM(e, t, n), o = n.z, s = n.w, c = r.x, l = sh(a.z, a.x), u = L(__tsover_mul(V(l), o), 0, __tsover_mul(Y(l), o)), d = L(__tsover_sub(a.x, u.x), __tsover_sub(a.y, u.y), __tsover_sub(a.z, u.z)), f = __tsover_mul(l, .5), p = L(__tsover_mul(V(l), V(f)), Y(f), __tsover_mul(Y(l), V(f))), m = H(d, p), h = K(__tsover_sub(z(m), s), P(0)), g = L(__tsover_sub(d.x, __tsover_mul(p.x, m)), __tsover_sub(d.y, __tsover_mul(p.y, m)), __tsover_sub(d.z, __tsover_mul(p.z, m)));
+	let a = pN(e, t, n), o = n.z, s = n.w, c = r.x, l = sh(a.z, a.x), u = L(__tsover_mul(V(l), o), 0, __tsover_mul(Y(l), o)), d = L(__tsover_sub(a.x, u.x), __tsover_sub(a.y, u.y), __tsover_sub(a.z, u.z)), f = __tsover_mul(l, .5), p = L(__tsover_mul(V(l), V(f)), Y(f), __tsover_mul(Y(l), V(f))), m = H(d, p), h = K(__tsover_sub(z(m), s), P(0)), g = L(__tsover_sub(d.x, __tsover_mul(p.x, m)), __tsover_sub(d.y, __tsover_mul(p.y, m)), __tsover_sub(d.z, __tsover_mul(p.z, m)));
 	return __tsover_sub(G(I(h, G(g))), c);
 }), {
 	v: 2,
@@ -121221,7 +121385,7 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.atan2": () => sh,
 		"d.vec3f": () => L,
 		"std.cos": () => V,
@@ -121233,7 +121397,7 @@ var KM = .08, qM = $.fn([
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})).$name("paramMobiusSdf"), rN = $.fn([
+}) && e.f)({})).$name("paramMobiusSdf"), CN = $.fn([
 	L,
 	L,
 	R,
@@ -121242,7 +121406,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = qM(e, n, r), s = r.z, c = r.w, l = sh(o.z, o.x), u = L(__tsover_mul(V(l), s), 0, __tsover_mul(Y(l), s)), d = L(__tsover_sub(o.x, u.x), __tsover_sub(o.y, u.y), __tsover_sub(o.z, u.z)), f = __tsover_mul(l, .5), p = H(d, L(__tsover_mul(V(l), V(f)), Y(f), __tsover_mul(Y(l), V(f))));
+	let o = pN(e, n, r), s = r.z, c = r.w, l = sh(o.z, o.x), u = L(__tsover_mul(V(l), s), 0, __tsover_mul(Y(l), s)), d = L(__tsover_sub(o.x, u.x), __tsover_sub(o.y, u.y), __tsover_sub(o.z, u.z)), f = __tsover_mul(l, .5), p = H(d, L(__tsover_mul(V(l), V(f)), Y(f), __tsover_mul(Y(l), V(f))));
 	return I(__tsover_add(__tsover_div(l, 6.283185307179586), .5), __tsover_add(__tsover_mul(__tsover_div(p, c), .5), .5));
 }), {
 	v: 2,
@@ -121501,7 +121665,7 @@ var KM = .08, qM = $.fn([
 		]]
 	},
 	externals: {
-		eulerRotatePacked: () => qM,
+		eulerRotatePacked: () => pN,
 		"std.atan2": () => sh,
 		"d.vec3f": () => L,
 		"std.cos": () => V,
@@ -121509,7 +121673,7 @@ var KM = .08, qM = $.fn([
 		"std.dot": () => H,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})).$name("mobiusSurfaceUV"), iN = $.fn([
+}) && e.f)({})).$name("mobiusSurfaceUV"), wN = $.fn([
 	L,
 	R,
 	R,
@@ -121517,7 +121681,7 @@ var KM = .08, qM = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = t.x, o = t.y, s = t.z, c = n.x, l = n.y, u = n.z, d = V(a), f = Y(a), p = __tsover_add(__tsover_mul(e.x, d), __tsover_mul(e.y, f)), m = __tsover_add(__tsover_mul(__tsover_mul(e.x, f), -1), __tsover_mul(e.y, d)), h = __tsover_add(__tsover_add(__tsover_mul(p, o), l), __tsover_mul(i, KM)), g = V(h), _ = Y(h), v = __tsover_add(__tsover_mul(m, g), __tsover_mul(e.z, _)), y = __tsover_add(__tsover_mul(__tsover_mul(m, _), -1), __tsover_mul(e.z, g)), b = K(__tsover_sub(z(v), s), P(0));
+	let a = t.x, o = t.y, s = t.z, c = n.x, l = n.y, u = n.z, d = V(a), f = Y(a), p = __tsover_add(__tsover_mul(e.x, d), __tsover_mul(e.y, f)), m = __tsover_add(__tsover_mul(__tsover_mul(e.x, f), -1), __tsover_mul(e.y, d)), h = __tsover_add(__tsover_add(__tsover_mul(p, o), l), __tsover_mul(i, fN)), g = V(h), _ = Y(h), v = __tsover_add(__tsover_mul(m, g), __tsover_mul(e.z, _)), y = __tsover_add(__tsover_mul(__tsover_mul(m, _), -1), __tsover_mul(e.z, g)), b = K(__tsover_sub(z(v), s), P(0));
 	return __tsover_div(__tsover_sub(G(I(b, y)), c), u);
 }), {
 	v: 2,
@@ -121829,14 +121993,14 @@ var KM = .08, qM = $.fn([
 	externals: {
 		"std.cos": () => V,
 		"std.sin": () => Y,
-		TWISTED_RIBBON_TWIST_RATE: () => KM,
+		TWISTED_RIBBON_TWIST_RATE: () => fN,
 		"std.max": () => K,
 		"std.abs": () => z,
 		"d.f32": () => P,
 		"std.length": () => G,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})).$name("paramTwistedRibbonSdf"), aN = $.fn([
+}) && e.f)({})).$name("paramTwistedRibbonSdf"), TN = $.fn([
 	L,
 	L,
 	R,
@@ -121845,7 +122009,7 @@ var KM = .08, qM = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = n.x, s = n.y, c = n.z, l = n.w, u = r.y, d = V(o), f = Y(o), p = __tsover_add(__tsover_mul(e.x, d), __tsover_mul(e.y, f)), m = __tsover_add(__tsover_mul(__tsover_mul(e.x, f), -1), __tsover_mul(e.y, d)), h = __tsover_add(__tsover_add(__tsover_mul(p, s), u), __tsover_mul(a, KM)), g = V(h), _ = Y(h), v = K(q(__tsover_add(__tsover_mul(m, g), __tsover_mul(e.z, _)), c), __tsover_mul(c, -1));
+	let o = n.x, s = n.y, c = n.z, l = n.w, u = r.y, d = V(o), f = Y(o), p = __tsover_add(__tsover_mul(e.x, d), __tsover_mul(e.y, f)), m = __tsover_add(__tsover_mul(__tsover_mul(e.x, f), -1), __tsover_mul(e.y, d)), h = __tsover_add(__tsover_add(__tsover_mul(p, s), u), __tsover_mul(a, fN)), g = V(h), _ = Y(h), v = K(q(__tsover_add(__tsover_mul(m, g), __tsover_mul(e.z, _)), c), __tsover_mul(c, -1));
 	return I(__tsover_add(__tsover_mul(p, .15), .5), __tsover_add(__tsover_div(v, l), .5));
 }), {
 	v: 2,
@@ -122125,13 +122289,13 @@ var KM = .08, qM = $.fn([
 	externals: {
 		"std.cos": () => V,
 		"std.sin": () => Y,
-		TWISTED_RIBBON_TWIST_RATE: () => KM,
+		TWISTED_RIBBON_TWIST_RATE: () => fN,
 		"std.max": () => K,
 		"std.min": () => q,
 		"d.vec2f": () => I
 	}
 }) && e.f)({})).$name("twistedRibbonSurfaceUV");
-function oN(e, t) {
+function EN(e, t) {
 	let n = {};
 	return t.forEach((t, r) => {
 		n[`${e}${r}`] = {
@@ -122140,11 +122304,11 @@ function oN(e, t) {
 		};
 	}), n;
 }
-var sN = aA() ? 128 : 192;
-Math.ceil(sN / 4) * sN * sN;
-var cN = aA() ? 512 : 1024, lN = 2.39996323, uN = .27;
+var DN = TA() ? 128 : 192;
+Math.ceil(DN / 4) * DN * DN;
+var ON = TA() ? 512 : 1024, kN = 2.39996323, AN = .27;
 Vu({
-	cam: Kd(16, qd(32, bM)),
+	cam: Kd(16, qd(32, BM)),
 	lightDir: L,
 	voxelSize: P,
 	lightT1: L,
@@ -122156,14 +122320,14 @@ Vu({
 	gridN: P,
 	gridW: P
 });
-var dN = $.fn([
+var jN = $.fn([
 	Cd(P),
 	P,
 	P,
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
-	let i = P(__tsover_sub(cN, 1)), a = U(t), o = U(n), s = __tsover_sub(t, a), c = __tsover_sub(n, o), l = M(B(a, P(0), i)), u = M(B(__tsover_add(a, 1), P(0), i)), d = M(B(o, P(0), i)), f = M(B(__tsover_add(o, 1), P(0), i)), p = Q(P(0), P(1), YS(e, jp(l, d), 0).r < r), m = Q(P(0), P(1), YS(e, jp(u, d), 0).r < r), h = Q(P(0), P(1), YS(e, jp(l, f), 0).r < r), g = Q(P(0), P(1), YS(e, jp(u, f), 0).r < r);
+	let i = P(__tsover_sub(ON, 1)), a = U(t), o = U(n), s = __tsover_sub(t, a), c = __tsover_sub(n, o), l = M(B(a, P(0), i)), u = M(B(__tsover_add(a, 1), P(0), i)), d = M(B(o, P(0), i)), f = M(B(__tsover_add(o, 1), P(0), i)), p = Q(P(0), P(1), YS(e, jp(l, d), 0).r < r), m = Q(P(0), P(1), YS(e, jp(u, d), 0).r < r), h = Q(P(0), P(1), YS(e, jp(l, f), 0).r < r), g = Q(P(0), P(1), YS(e, jp(u, f), 0).r < r);
 	return J(J(p, m, s), J(h, g, s), c);
 }), {
 	v: 2,
@@ -122531,7 +122695,7 @@ var dN = $.fn([
 	},
 	externals: {
 		"d.f32": () => P,
-		VOXEL_SHADOW_RES: () => cN,
+		VOXEL_SHADOW_RES: () => ON,
 		"std.floor": () => U,
 		"d.u32": () => M,
 		"std.clamp": () => B,
@@ -122552,19 +122716,19 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
-	let c = P(cN), l = __tsover_div(__tsover_mul(a, 2), c), u = H(t, r), d = H(t, i), f = __tsover_sub(a, H(t, n)), p = __tsover_sub(__tsover_mul(__tsover_add(__tsover_mul(__tsover_div(u, a), .5), .5), c), .5), m = __tsover_sub(__tsover_mul(__tsover_add(__tsover_mul(__tsover_div(d, a), .5), .5), c), .5), h = __tsover_sub(f, __tsover_add(__tsover_mul(s, .05), __tsover_mul(l, 2))), g = P(0);
-	if (o < .001) g = dN(e, p, m, h);
+	let c = P(ON), l = __tsover_div(__tsover_mul(a, 2), c), u = H(t, r), d = H(t, i), f = __tsover_sub(a, H(t, n)), p = __tsover_sub(__tsover_mul(__tsover_add(__tsover_mul(__tsover_div(u, a), .5), .5), c), .5), m = __tsover_sub(__tsover_mul(__tsover_add(__tsover_mul(__tsover_div(d, a), .5), .5), c), .5), h = __tsover_sub(f, __tsover_add(__tsover_mul(s, .05), __tsover_mul(l, 2))), g = P(0);
+	if (o < .001) g = jN(e, p, m, h);
 	else {
-		let t = __tsover_mul(o, uN), n = K(__tsover_div(q(__tsover_mul(a, t), __tsover_mul(a, .25)), l), 1), r = P(0), i = P(0);
+		let t = __tsover_mul(o, AN), n = K(__tsover_div(q(__tsover_mul(a, t), __tsover_mul(a, .25)), l), 1), r = P(0), i = P(0);
 		for (let t = 0; t < 8; t++) {
-			let a = __tsover_mul(Z(__tsover_div(__tsover_add(P(t), .5), 8)), n), o = __tsover_mul(P(t), lN), s = B(__tsover_add(p, __tsover_mul(V(o), a)), P(0), __tsover_sub(c, 1)), l = B(__tsover_add(m, __tsover_mul(Y(o), a)), P(0), __tsover_sub(c, 1)), u = YS(e, jp(M(s), M(l)), 0).r;
+			let a = __tsover_mul(Z(__tsover_div(__tsover_add(P(t), .5), 8)), n), o = __tsover_mul(P(t), kN), s = B(__tsover_add(p, __tsover_mul(V(o), a)), P(0), __tsover_sub(c, 1)), l = B(__tsover_add(m, __tsover_mul(Y(o), a)), P(0), __tsover_sub(c, 1)), u = YS(e, jp(M(s), M(l)), 0).r;
 			u < h && (r = __tsover_add(r, u), i = __tsover_add(i, 1));
 		}
 		if (i > .5) {
 			let a = __tsover_div(r, i), o = B(__tsover_div(__tsover_mul(__tsover_sub(f, a), t), l), 1, n), s = P(0);
 			for (let t = 0; t < 12; t++) {
-				let n = __tsover_mul(Z(__tsover_div(__tsover_add(P(t), .5), 12)), o), r = __tsover_add(__tsover_mul(P(t), lN), .7);
-				s = __tsover_add(s, dN(e, __tsover_add(p, __tsover_mul(V(r), n)), __tsover_add(m, __tsover_mul(Y(r), n)), h));
+				let n = __tsover_mul(Z(__tsover_div(__tsover_add(P(t), .5), 12)), o), r = __tsover_add(__tsover_mul(P(t), kN), .7);
+				s = __tsover_add(s, jN(e, __tsover_add(p, __tsover_mul(V(r), n)), __tsover_add(m, __tsover_mul(Y(r), n)), h));
 			}
 			g = __tsover_div(s, 12);
 		}
@@ -123225,14 +123389,14 @@ $.fn([
 	},
 	externals: {
 		"d.f32": () => P,
-		VOXEL_SHADOW_RES: () => cN,
+		VOXEL_SHADOW_RES: () => ON,
 		"std.dot": () => H,
-		shadowCompare: () => dN,
-		SOFT_TAN: () => uN,
+		shadowCompare: () => jN,
+		SOFT_TAN: () => AN,
 		"std.max": () => K,
 		"std.min": () => q,
 		"std.sqrt": () => Z,
-		GOLDEN_ANGLE: () => lN,
+		GOLDEN_ANGLE: () => kN,
 		"std.clamp": () => B,
 		"std.cos": () => V,
 		"std.sin": () => Y,
@@ -123241,7 +123405,7 @@ $.fn([
 		"d.u32": () => M
 	}
 }) && e.f)({})).$name("voxelShadowLookup");
-var fN = $.fn([
+var MN = $.fn([
 	L,
 	L,
 	L,
@@ -123957,11 +124121,11 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = fN(e, t, n, r), o = P(-1);
+	let a = MN(e, t, n, r), o = P(-1);
 	if (a >= 0) {
 		let s = a, c = P(0);
 		for (let o = 0; o < 8; o++) {
-			let o = Zj(e.add(t.mul(s)).sub(n), r, r, r, i);
+			let o = _M(e.add(t.mul(s)).sub(n), r, r, r, i);
 			if (o < __tsover_mul(r, .004)) {
 				c = P(1);
 				break;
@@ -124201,9 +124365,9 @@ $.fn([
 		]]
 	},
 	externals: {
-		voxelRayBox: () => fN,
+		voxelRayBox: () => MN,
 		"d.f32": () => P,
-		sdRoundBox: () => Zj,
+		sdRoundBox: () => _M,
 		"std.select": () => Q
 	}
 }) && e.f)({})).$name("voxelRayRoundedBox"), $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
@@ -124302,27 +124466,27 @@ $.fn([
 		"d.f32": () => P
 	}
 }) && e.f)({}));
-var pN = /* @__PURE__ */ Ji({
-	BLUR_DISK: () => vN,
-	GlassLensUVs: () => CN,
-	applyGlassEffect: () => jN,
-	glassBlurOffset: () => TN,
-	glassBorderHighlight: () => DN,
-	glassComposite: () => AN,
-	glassFresnelRim: () => kN,
-	glassGradient: () => xN,
-	glassLensUVs: () => wN,
-	glassRefrStrength: () => SN,
-	glassSpecular: () => ON,
-	glassTint: () => EN,
-	offsetUV: () => bN,
-	sdfSpaceUV: () => yN
-}), mN = .017453292519943295, hN = .4472135954999579, gN = 2.3999632297286535, _N = 9, vN = [];
-for (let e = 0; e < _N; e++) {
-	let t = e * gN, n = Math.sqrt(e / _N);
-	vN.push([Math.cos(t) * n, Math.sin(t) * n]);
+var NN = /* @__PURE__ */ Ji({
+	BLUR_DISK: () => RN,
+	GlassLensUVs: () => UN,
+	applyGlassEffect: () => ZN,
+	glassBlurOffset: () => GN,
+	glassBorderHighlight: () => qN,
+	glassComposite: () => XN,
+	glassFresnelRim: () => YN,
+	glassGradient: () => VN,
+	glassLensUVs: () => WN,
+	glassRefrStrength: () => HN,
+	glassSpecular: () => JN,
+	glassTint: () => KN,
+	offsetUV: () => BN,
+	sdfSpaceUV: () => zN
+}), PN = .017453292519943295, FN = .4472135954999579, IN = 2.3999632297286535, LN = 9, RN = [];
+for (let e = 0; e < LN; e++) {
+	let t = e * IN, n = Math.sqrt(e / LN);
+	RN.push([Math.cos(t) * n, Math.sin(t) * n]);
 }
-var yN = $.fn([
+var zN = $.fn([
 	I,
 	P,
 	P,
@@ -124330,7 +124494,7 @@ var yN = $.fn([
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i) => {
 	"use gpu";
-	let a = e.x, o = __tsover_sub(1, e.y), s = __tsover_mul(__tsover_sub(r.x, a), i), c = __tsover_sub(r.y, o), l = __tsover_mul(n, mN), u = V(l), d = Y(l), f = __tsover_add(__tsover_mul(s, u), __tsover_mul(c, d)), p = __tsover_sub(__tsover_mul(c, u), __tsover_mul(s, d));
+	let a = e.x, o = __tsover_sub(1, e.y), s = __tsover_mul(__tsover_sub(r.x, a), i), c = __tsover_sub(r.y, o), l = __tsover_mul(n, PN), u = V(l), d = Y(l), f = __tsover_add(__tsover_mul(s, u), __tsover_mul(c, d)), p = __tsover_sub(__tsover_mul(c, u), __tsover_mul(s, d));
 	return I(__tsover_add(__tsover_div(f, t), .5), __tsover_add(__tsover_div(p, t), .5));
 }), {
 	v: 2,
@@ -124511,12 +124675,12 @@ var yN = $.fn([
 		]]
 	},
 	externals: {
-		DEG_TO_RAD: () => mN,
+		DEG_TO_RAD: () => PN,
 		"std.cos": () => V,
 		"std.sin": () => Y,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), bN = $.fn([
+}) && e.f)({})), BN = $.fn([
 	I,
 	P,
 	P
@@ -124566,7 +124730,7 @@ var yN = $.fn([
 		]]]]
 	},
 	externals: { "d.vec2f": () => I }
-}) && e.f)({})), xN = $.fn([
+}) && e.f)({})), VN = $.fn([
 	P,
 	P,
 	P
@@ -124623,7 +124787,7 @@ var yN = $.fn([
 		]]]]
 	},
 	externals: { "d.vec2f": () => I }
-}) && e.f)({})), SN = $.fn([
+}) && e.f)({})), HN = $.fn([
 	P,
 	P,
 	P
@@ -124746,11 +124910,11 @@ var yN = $.fn([
 		"std.smoothstep": () => X,
 		"std.select": () => Q
 	}
-}) && e.f)({})), CN = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+}) && e.f)({})), UN = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	lensUV: I,
 	rUV: I,
 	bUV: I
-}), "GlassLensUVs"), wN = $.fn([
+}), "GlassLensUVs"), WN = $.fn([
 	I,
 	I,
 	P,
@@ -124763,10 +124927,10 @@ var yN = $.fn([
 	P,
 	P,
 	P
-], CN)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u, d) => {
+], UN)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u, d) => {
 	"use gpu";
-	let f = SN(__tsover_div(n, r), c, d), p = __tsover_mul(o, .15), m = K(Z(__tsover_add(__tsover_mul(i, i), __tsover_mul(a, a))), 1e-4), h = q(P(1), __tsover_div(12, m)), g = __tsover_div(__tsover_mul(__tsover_mul(__tsover_mul(__tsover_mul(i, h), -1), p), f), u), _ = __tsover_mul(__tsover_mul(__tsover_mul(__tsover_mul(a, h), -1), p), f), v = t.x, y = __tsover_sub(1, t.y), b = __tsover_add(v, __tsover_div(__tsover_sub(e.x, v), s)), x = __tsover_add(y, __tsover_div(__tsover_sub(e.y, y), s)), S = __tsover_add(b, g), C = __tsover_add(x, _), w = __tsover_mul(l, .06), T = __tsover_mul(g, w), E = __tsover_mul(_, w);
-	return CN({
+	let f = HN(__tsover_div(n, r), c, d), p = __tsover_mul(o, .15), m = K(Z(__tsover_add(__tsover_mul(i, i), __tsover_mul(a, a))), 1e-4), h = q(P(1), __tsover_div(12, m)), g = __tsover_div(__tsover_mul(__tsover_mul(__tsover_mul(__tsover_mul(i, h), -1), p), f), u), _ = __tsover_mul(__tsover_mul(__tsover_mul(__tsover_mul(a, h), -1), p), f), v = t.x, y = __tsover_sub(1, t.y), b = __tsover_add(v, __tsover_div(__tsover_sub(e.x, v), s)), x = __tsover_add(y, __tsover_div(__tsover_sub(e.y, y), s)), S = __tsover_add(b, g), C = __tsover_add(x, _), w = __tsover_mul(l, .06), T = __tsover_mul(g, w), E = __tsover_mul(_, w);
+	return UN({
 		lensUV: I(S, C),
 		rUV: I(__tsover_add(S, T), __tsover_add(C, E)),
 		bUV: I(__tsover_sub(S, T), __tsover_sub(C, E))
@@ -125133,15 +125297,15 @@ var yN = $.fn([
 		]]
 	},
 	externals: {
-		glassRefrStrength: () => SN,
+		glassRefrStrength: () => HN,
 		"std.max": () => K,
 		"std.sqrt": () => Z,
 		"std.min": () => q,
 		"d.f32": () => P,
-		GlassLensUVs: () => CN,
+		GlassLensUVs: () => UN,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), TN = $.fn([
+}) && e.f)({})), GN = $.fn([
 	I,
 	P,
 	P,
@@ -125216,7 +125380,7 @@ var yN = $.fn([
 		]]]]
 	},
 	externals: { "d.vec2f": () => I }
-}) && e.f)({})), EN = $.fn([
+}) && e.f)({})), KN = $.fn([
 	L,
 	L,
 	P,
@@ -125359,7 +125523,7 @@ var yN = $.fn([
 		"std.select": () => Q,
 		"d.f32": () => P
 	}
-}) && e.f)({})), DN = $.fn([
+}) && e.f)({})), qN = $.fn([
 	P,
 	P,
 	P,
@@ -125369,7 +125533,7 @@ var yN = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = K(__tsover_mul(t, .5), .001), c = K(__tsover_mul(s, .0625), __tsover_mul(n, 1.5)), l = __tsover_sub(e, n), u = __tsover_sub(B(__tsover_div(__tsover_mul(l, -1), c), 0, 1), B(__tsover_div(__tsover_mul(e, -1), c), 0, 1)), d = V(__tsover_mul(a, mN)), f = Y(__tsover_mul(a, mN)), p = __tsover_add(__tsover_mul(r, d), __tsover_mul(i, f)), m = B(__tsover_add(__tsover_mul(p, .5), .5), 0, 1);
+	let s = K(__tsover_mul(t, .5), .001), c = K(__tsover_mul(s, .0625), __tsover_mul(n, 1.5)), l = __tsover_sub(e, n), u = __tsover_sub(B(__tsover_div(__tsover_mul(l, -1), c), 0, 1), B(__tsover_div(__tsover_mul(e, -1), c), 0, 1)), d = V(__tsover_mul(a, PN)), f = Y(__tsover_mul(a, PN)), p = __tsover_add(__tsover_mul(r, d), __tsover_mul(i, f)), m = B(__tsover_add(__tsover_mul(p, .5), .5), 0, 1);
 	return __tsover_mul(__tsover_mul(u, m), o);
 }), {
 	v: 2,
@@ -125591,10 +125755,10 @@ var yN = $.fn([
 		"std.max": () => K,
 		"std.clamp": () => B,
 		"std.cos": () => V,
-		DEG_TO_RAD: () => mN,
+		DEG_TO_RAD: () => PN,
 		"std.sin": () => Y
 	}
-}) && e.f)({})), ON = $.fn([
+}) && e.f)({})), JN = $.fn([
 	P,
 	P,
 	P,
@@ -125603,7 +125767,7 @@ var yN = $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = V(__tsover_mul(n, mN)), s = Y(__tsover_mul(n, mN)), c = P(2), l = Z(__tsover_add(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t)), __tsover_mul(c, c))), u = __tsover_div(e, l), d = __tsover_div(t, l), f = __tsover_div(c, l), p = __tsover_add(__tsover_add(__tsover_mul(u, __tsover_mul(o, hN)), __tsover_mul(d, __tsover_mul(s, hN))), __tsover_mul(f, __tsover_mul(2, hN))), m = bh(__tsover_sub(8, __tsover_mul(i, 7)));
+	let o = V(__tsover_mul(n, PN)), s = Y(__tsover_mul(n, PN)), c = P(2), l = Z(__tsover_add(__tsover_add(__tsover_mul(e, e), __tsover_mul(t, t)), __tsover_mul(c, c))), u = __tsover_div(e, l), d = __tsover_div(t, l), f = __tsover_div(c, l), p = __tsover_add(__tsover_add(__tsover_mul(u, __tsover_mul(o, FN)), __tsover_mul(d, __tsover_mul(s, FN))), __tsover_mul(f, __tsover_mul(2, FN))), m = bh(__tsover_sub(8, __tsover_mul(i, 7)));
 	return __tsover_mul(__tsover_mul(Lh(B(p, 0, 1), m), r), a);
 }), {
 	v: 2,
@@ -125828,16 +125992,16 @@ var yN = $.fn([
 	},
 	externals: {
 		"std.cos": () => V,
-		DEG_TO_RAD: () => mN,
+		DEG_TO_RAD: () => PN,
 		"std.sin": () => Y,
 		"d.f32": () => P,
 		"std.sqrt": () => Z,
-		INV_HLEN_GLASS: () => hN,
+		INV_HLEN_GLASS: () => FN,
 		"std.exp2": () => bh,
 		"std.pow": () => Lh,
 		"std.clamp": () => B
 	}
-}) && e.f)({})), kN = $.fn([
+}) && e.f)({})), YN = $.fn([
 	P,
 	P,
 	P,
@@ -126068,7 +126232,7 @@ var yN = $.fn([
 		"std.max": () => K,
 		"std.select": () => Q
 	}
-}) && e.f)({})), AN = $.fn([
+}) && e.f)({})), XN = $.fn([
 	R,
 	R,
 	P,
@@ -126092,7 +126256,7 @@ var yN = $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u, d, f, p, m, h, g, _, v, y, b) => {
 	"use gpu";
-	let x = K(__tsover_mul(s, .5), .001), S = __tsover_div(1, o.y), C = __tsover_div(n, r), w = K(__tsover_mul(x, .03125), __tsover_mul(S, 1.5)), T = B(__tsover_div(__tsover_mul(C, -1), w), 0, 1), E = SN(C, h, b), ee = DN(C, s, S, i, a, c, l), te = EN(L(t.x, t.y, t.z), g, _, v), ne = ON(i, a, c, l, d, E), re = kN(C, i, a, f, m, T, b), ie = R(__tsover_add(__tsover_add(__tsover_add(te.x, __tsover_mul(u.x, ee)), __tsover_mul(u.x, ne)), __tsover_mul(p.x, re)), __tsover_add(__tsover_add(__tsover_add(te.y, __tsover_mul(u.y, ee)), __tsover_mul(u.y, ne)), __tsover_mul(p.y, re)), __tsover_add(__tsover_add(__tsover_add(te.z, __tsover_mul(u.z, ee)), __tsover_mul(u.z, ne)), __tsover_mul(p.z, re)), __tsover_add(t.w, ee)), ae = X(0, 1, T), oe = J(e, ie, ae), se = Q(P(1), ae, y > .5);
+	let x = K(__tsover_mul(s, .5), .001), S = __tsover_div(1, o.y), C = __tsover_div(n, r), w = K(__tsover_mul(x, .03125), __tsover_mul(S, 1.5)), T = B(__tsover_div(__tsover_mul(C, -1), w), 0, 1), E = HN(C, h, b), ee = qN(C, s, S, i, a, c, l), te = KN(L(t.x, t.y, t.z), g, _, v), ne = JN(i, a, c, l, d, E), re = YN(C, i, a, f, m, T, b), ie = R(__tsover_add(__tsover_add(__tsover_add(te.x, __tsover_mul(u.x, ee)), __tsover_mul(u.x, ne)), __tsover_mul(p.x, re)), __tsover_add(__tsover_add(__tsover_add(te.y, __tsover_mul(u.y, ee)), __tsover_mul(u.y, ne)), __tsover_mul(p.y, re)), __tsover_add(__tsover_add(__tsover_add(te.z, __tsover_mul(u.z, ee)), __tsover_mul(u.z, ne)), __tsover_mul(p.z, re)), __tsover_add(t.w, ee)), ae = X(0, 1, T), oe = J(e, ie, ae), se = Q(P(1), ae, y > .5);
 	return R(oe.x, oe.y, oe.z, __tsover_mul(oe.w, se));
 }), {
 	v: 2,
@@ -126636,12 +126800,12 @@ var yN = $.fn([
 	externals: {
 		"std.max": () => K,
 		"std.clamp": () => B,
-		glassRefrStrength: () => SN,
-		glassBorderHighlight: () => DN,
+		glassRefrStrength: () => HN,
+		glassBorderHighlight: () => qN,
 		"d.vec3f": () => L,
-		glassTint: () => EN,
-		glassSpecular: () => ON,
-		glassFresnelRim: () => kN,
+		glassTint: () => KN,
+		glassSpecular: () => JN,
+		glassFresnelRim: () => YN,
 		"d.vec4f": () => R,
 		"std.smoothstep": () => X,
 		"std.mix": () => J,
@@ -126649,32 +126813,32 @@ var yN = $.fn([
 		"d.f32": () => P
 	}
 }) && e.f)({}));
-function jN(e, t, n, r, i) {
-	let { uniforms: a, propValues: o, ctx: s } = e, c = i?.volumetric ?? !1, l = i?.bakedGradients ?? !1, u = dD(+!!c), d = gD(fD(yN, "sdfSpaceUV", [
+function ZN(e, t, n, r, i) {
+	let { uniforms: a, propValues: o, ctx: s } = e, c = i?.volumetric ?? !1, l = i?.bakedGradients ?? !1, u = jD(+!!c), d = ID(MD(zN, "sdfSpaceUV", [
 		a.center,
 		a.scale,
 		a.rotation,
 		s.uv,
 		s.aspect
-	]), "glassSdfUV"), f = gD(t(d), "glassSurf"), p = f.member("r"), m, h;
+	]), "glassSdfUV"), f = ID(t(d), "glassSurf"), p = f.member("r"), m, h;
 	if (l) m = f.member("g"), h = f.member("b");
 	else {
-		let e = t(fD(bN, "offsetUV", [
+		let e = t(MD(BN, "offsetUV", [
 			d,
-			dD(.01),
-			dD(0)
-		])), n = t(fD(bN, "offsetUV", [
+			jD(.01),
+			jD(0)
+		])), n = t(MD(BN, "offsetUV", [
 			d,
-			dD(0),
-			dD(.01)
-		])), r = gD(fD(xN, "glassGradient", [
+			jD(0),
+			jD(.01)
+		])), r = ID(MD(VN, "glassGradient", [
 			p,
 			e.member("r"),
 			n.member("r")
 		]), "glassGrad");
 		m = r.member("x"), h = r.member("y");
 	}
-	let g = gD(fD(wN, "glassLensUVs", [
+	let g = ID(MD(WN, "glassLensUVs", [
 		s.uv,
 		a.center,
 		p,
@@ -126687,27 +126851,27 @@ function jN(e, t, n, r, i) {
 		a.aberration,
 		s.aspect,
 		u
-	]), "glassLens"), _ = g.member("lensUV"), v = g.member("rUV"), y = g.member("bUV"), b = o.blur, x = typeof b != "number" || b > 0, S = o.aberration, C = typeof S != "number" || S > 0, w = (e, t, n, r) => e.sample(t.add(fD(TN, "glassBlurOffset", [
+	]), "glassLens"), _ = g.member("lensUV"), v = g.member("rUV"), y = g.member("bUV"), b = o.blur, x = typeof b != "number" || b > 0, S = o.aberration, C = typeof S != "number" || S > 0, w = (e, t, n, r) => e.sample(t.add(MD(GN, "glassBlurOffset", [
 		s.viewportSize,
 		a.blur,
-		dD(n),
-		dD(r)
+		jD(n),
+		jD(r)
 	]))), T = (e, t) => {
-		let n = w(e, t, vN[0][0], vN[0][1]);
-		for (let r = 1; r < vN.length; r++) n = n.add(w(e, t, vN[r][0], vN[r][1]));
-		return n.mul(1 / _N);
+		let n = w(e, t, RN[0][0], RN[0][1]);
+		for (let r = 1; r < RN.length; r++) n = n.add(w(e, t, RN[r][0], RN[r][1]));
+		return n.mul(1 / LN);
 	}, E;
-	if (r && x) E = C ? pD(r.sample(v).member("r"), r.sample(_).member("g"), r.sample(y).member("b"), r.sample(_).member("a")) : r.sample(_);
+	if (r && x) E = C ? ND(r.sample(v).member("r"), r.sample(_).member("g"), r.sample(y).member("b"), r.sample(_).member("a")) : r.sample(_);
 	else if (!x && !C) E = n.sample(_);
-	else if (!x && C) E = pD(n.sample(v).member("r"), n.sample(_).member("g"), n.sample(y).member("b"), n.sample(_).member("a"));
+	else if (!x && C) E = ND(n.sample(v).member("r"), n.sample(_).member("g"), n.sample(y).member("b"), n.sample(_).member("a"));
 	else if (x && !C) E = T(n, _);
 	else {
 		let e = T(n, v), t = T(n, _), r = T(n, y);
-		E = pD(e.member("r"), t.member("g"), r.member("b"), t.member("a"));
+		E = ND(e.member("r"), t.member("g"), r.member("b"), t.member("a"));
 	}
-	let ee = fD(DE, "unpremultiplyAlpha", [E]);
-	return fD(AN, "glassComposite", [
-		fD(DE, "unpremultiplyAlpha", [n.sample(s.uv)]),
+	let ee = MD(DE, "unpremultiplyAlpha", [E]);
+	return MD(XN, "glassComposite", [
+		MD(DE, "unpremultiplyAlpha", [n.sample(s.uv)]),
 		ee,
 		p,
 		a.scale,
@@ -128979,7 +129143,7 @@ $.fn([I, I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	},
 	externals: { "d.vec3f": () => L }
 }) && e.f)({})).$name("agentApplyCameraRowsT");
-var MN = Vu({
+var QN = Vu({
 	x0: M,
 	x1: M,
 	y0: M,
@@ -128987,10 +129151,10 @@ var MN = Vu({
 	fx: P,
 	fy: P
 }).$name("AgentBilinearFrame");
-$.fn([I, I], MN)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+$.fn([I, I], QN)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_sub(__tsover_mul(e.x, t.x), .5), r = __tsover_sub(__tsover_mul(e.y, t.y), .5), i = U(n), a = U(r);
-	return MN({
+	return QN({
 		x0: M(B(i, P(0), __tsover_sub(t.x, 1))),
 		x1: M(B(__tsover_add(i, 1), P(0), __tsover_sub(t.x, 1))),
 		y0: M(B(a, P(0), __tsover_sub(t.y, 1))),
@@ -129210,13 +129374,13 @@ $.fn([I, I], MN)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__
 	},
 	externals: {
 		"std.floor": () => U,
-		BilinearFrame: () => MN,
+		BilinearFrame: () => QN,
 		"d.u32": () => M,
 		"std.clamp": () => B,
 		"d.f32": () => P
 	}
 }) && e.f)({})).$name("agentBilinearTexelFrame");
-var NN = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var $N = $.fn([I, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = H(e, e);
 	return vh(__tsover_mul(__tsover_div(n, K(t, 1e-5)), -1));
@@ -129276,7 +129440,7 @@ $.fn([
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = K(G(e), 1e-4);
-	return e.div(r).mul(__tsover_mul(NN(e, t), n));
+	return e.div(r).mul(__tsover_mul($N(e, t), n));
 }), {
 	v: 2,
 	name: void 0,
@@ -129337,11 +129501,11 @@ $.fn([
 	externals: {
 		"std.max": () => K,
 		"std.length": () => G,
-		cursorFalloff: () => NN
+		cursorFalloff: () => $N
 	}
 }) && e.f)({})).$name("agentCursorMagnet");
-var PN = (e) => e, FN = (e) => e;
-function IN(e) {
+var eP = (e) => e, tP = (e) => e;
+function nP(e) {
 	let t = e?.ui;
 	return !t || t.type !== "list" || !t.item || typeof t.maxItems != "number" ? null : {
 		item: t.item,
@@ -129350,12 +129514,12 @@ function IN(e) {
 		itemLabel: t.itemLabel
 	};
 }
-var LN = (e, t) => `${e}_${t}`, RN = (e) => `${e}Count`;
-function zN(e) {
+var rP = (e, t) => `${e}_${t}`, iP = (e) => `${e}Count`;
+function aP(e) {
 	return !!e && typeof e == "object" && e.type === "mouse-position";
 }
-var BN = (e, t, n) => `${e}.${t}.${n}`;
-function VN(e) {
+var oP = (e, t, n) => `${e}.${t}.${n}`;
+function sP(e) {
 	let t = /^([^.]+)\.(\d+)\.([^.]+)$/.exec(e);
 	return t ? {
 		prop: t[1],
@@ -129363,20 +129527,20 @@ function VN(e) {
 		field: t[3]
 	} : null;
 }
-function HN(e, t, n) {
+function cP(e, t, n) {
 	return (Array.isArray(e) ? e.slice(0, t.maxItems) : []).map((e, r) => {
 		let i = e && typeof e == "object" ? e : {}, a = {};
 		for (let [e, o] of Object.entries(t.item)) {
 			let t = i[e] === void 0 || i[e] === null ? o.default : i[e];
-			a[e] = UN(o.kind, t, r, e, n);
+			a[e] = lP(o.kind, t, r, e, n);
 		}
 		return a;
 	});
 }
-function UN(e, t, n, r, i) {
+function lP(e, t, n, r, i) {
 	switch (e) {
 		case "position": {
-			if (zN(t)) return i.drivenPosition?.(n, r, t) || {
+			if (aP(t)) return i.drivenPosition?.(n, r, t) || {
 				x: typeof t.x == "number" ? t.x : t.originX ?? .5,
 				y: 1 - (typeof t.y == "number" ? t.y : t.originY ?? .5)
 			};
@@ -129391,7 +129555,7 @@ function UN(e, t, n, r, i) {
 		default: return typeof t == "number" ? t : 0;
 	}
 }
-function WN(e) {
+function uP(e) {
 	return typeof e == "number" ? [
 		e,
 		0,
@@ -129404,12 +129568,12 @@ function WN(e) {
 		0
 	];
 }
-function GN(e, t) {
+function dP(e, t) {
 	let n = {};
 	for (let r of Object.keys(t.item)) {
 		let i = Array(t.maxItems * 4).fill(0);
 		for (let n = 0; n < Math.min(e.length, t.maxItems); n++) {
-			let t = WN(e[n][r]);
+			let t = uP(e[n][r]);
 			i[n * 4] = t[0], i[n * 4 + 1] = t[1], i[n * 4 + 2] = t[2], i[n * 4 + 3] = t[3];
 		}
 		n[r] = i;
@@ -129419,19 +129583,19 @@ function GN(e, t) {
 		fields: n
 	};
 }
-function KN(e, t) {
-	return Array.isArray(e) ? e.some((e) => e && typeof e == "object" && Object.entries(t.item).some(([t, n]) => n.kind === "position" && zN(e[t]))) : !1;
+function fP(e, t) {
+	return Array.isArray(e) ? e.some((e) => e && typeof e == "object" && Object.entries(t.item).some(([t, n]) => n.kind === "position" && aP(e[t]))) : !1;
 }
-var qN = "p3-linear";
-function JN(e) {
-	qN = e;
+var pP = "p3-linear";
+function mP(e) {
+	pP = e;
 	try {
 		Bi(e);
 	} catch {}
 }
-function YN(e) {
+function hP(e) {
 	try {
-		let t = new Li(e), n = qN === "srgb" ? "srgb-linear" : "p3-linear", r = t.to(n).coords, i = Number(t.alpha);
+		let t = new Li(e), n = pP === "srgb" ? "srgb-linear" : "p3-linear", r = t.to(n).coords, i = Number(t.alpha);
 		return {
 			r: Number.isFinite(r?.[0]) ? r[0] : 0,
 			g: Number.isFinite(r?.[1]) ? r[1] : 0,
@@ -129447,12 +129611,12 @@ function YN(e) {
 		};
 	}
 }
-function XN(e) {
-	let { r: t, g: n, b: r, a: i } = YN(e);
+function gP(e) {
+	let { r: t, g: n, b: r, a: i } = hP(e);
 	return R(t, n, r, i);
 }
-function ZN(e) {
-	let t = XN(e);
+function _P(e) {
+	let t = gP(e);
 	return [
 		t.x,
 		t.y,
@@ -129460,7 +129624,7 @@ function ZN(e) {
 		t.w
 	];
 }
-function QN(e, t) {
+function vP(e, t) {
 	if (typeof e == "number") return e;
 	if (typeof e == "object" && e) return e.value;
 	let n = e.toLowerCase().trim();
@@ -129475,31 +129639,48 @@ function QN(e, t) {
 	}
 	return console.warn(`Invalid position value: ${e}. Defaulting to center.`), .5;
 }
-function $N(e) {
+function yP(e) {
 	let t = .5, n = .5;
 	if (typeof e == "string") {
 		let r = e.toLowerCase().trim().split(/\s+/);
 		r.includes("left") ? t = 0 : r.includes("right") ? t = 1 : (r.includes("center") || r.length === 1 && (r[0] === "top" || r[0] === "bottom")) && (t = .5), r.includes("top") ? n = 0 : r.includes("bottom") ? n = 1 : (r.includes("center") || r.length === 1 && (r[0] === "left" || r[0] === "right")) && (n = .5), r.length === 1 && r[0] === "center" && (t = .5, n = .5);
-	} else typeof e == "object" && e ? (t = QN(e.x, !1), n = QN(e.y, !0)) : console.warn(`Invalid position value provided: ${e}. Defaulting to center.`);
+	} else typeof e == "object" && e ? (t = vP(e.x, !1), n = vP(e.y, !0)) : console.warn(`Invalid position value provided: ${e}. Defaulting to center.`);
 	return I(t, 1 - n);
 }
-function eP(e) {
-	if (e) return e === Hi ? XN : e === Ui ? $N : e === PN ? PN : e === FN ? FN : e;
+function bP(e) {
+	if (e) return e === Hi ? gP : e === Ui ? yP : e === eP ? eP : e === tP ? tP : e;
 }
-function tP(e) {
-	return typeof e == "object" && !!e && typeof e.value == "number" && (e.unit === "px" || e.unit === "uv");
-}
-function nP(e) {
+var xP = /* @__PURE__ */ new Set([
+	"canvas-height",
+	"half-canvas-height",
+	"canvas-width",
+	"count-canvas-height"
+]);
+function SP(e) {
 	if (!e) return;
 	let t;
 	for (let [n, r] of Object.entries(e)) {
 		let e = r?.ui?.dimensional;
-		(e === "canvas-height" || e === "half-canvas-height" || e === "canvas-width" || e === "count-canvas-height") && (t ??= /* @__PURE__ */ new Map()).set(n, e);
+		if (e && xP.has(e)) {
+			let i = r.ui?.dimensionalAxis ?? (e === "canvas-width" ? "x" : "none");
+			(t ??= /* @__PURE__ */ new Map()).set(n, {
+				conversion: e,
+				axis: i
+			});
+		}
 	}
 	return t;
 }
-function rP(e, t) {
-	let n = e?.propBindings, r = /* @__PURE__ */ new Set(), i = /* @__PURE__ */ new Map();
+var CP = (e) => typeof e == "string" ? {
+	conversion: e,
+	axis: e === "canvas-width" ? "x" : "none"
+} : e;
+function wP(e, t) {
+	let n = e?.width?.prop === t, r = e?.height?.prop === t;
+	return n && !r ? "x" : r && !n ? "y" : "none";
+}
+function TP(e, t) {
+	let n = e?.propBindings, r = /* @__PURE__ */ new Set(), i = /* @__PURE__ */ new Map(), a = /* @__PURE__ */ new Map();
 	if (n) for (let e of [
 		"x",
 		"y",
@@ -129507,23 +129688,35 @@ function rP(e, t) {
 		"height"
 	]) {
 		let t = n[e];
-		t && (t.as === "position-x" || t.as === "position-y" ? r.add(t.prop) : (t.as === "canvas-height" || t.as === "half-canvas-height") && i.set(t.prop, t.as));
+		t && (t.as === "position-x" || t.as === "position-y" ? r.add(t.prop) : (t.as === "canvas-height" || t.as === "half-canvas-height") && (i.set(t.prop, t.as), a.set(t.prop, wP(n, t.prop))));
 	}
-	if (t) for (let [e, n] of t) i.set(e, n);
+	if (t) for (let [e, n] of t) {
+		let t = CP(n);
+		i.set(e, t.conversion), a.set(e, t.axis);
+	}
 	return r.size > 0 || i.size > 0 ? {
 		positionProps: r,
-		sizeProps: i
+		sizeProps: i,
+		sizeAxes: a
 	} : null;
 }
-var iP = (e) => ({
+var EP = (e) => ({
 	ox: e.includes("left") ? "start" : e.includes("right") ? "end" : "center",
 	oy: e.includes("top") ? "start" : e.includes("bottom") ? "end" : "center"
-}), aP = (e, t, n) => t === "start" ? e + n : t === "end" ? e - n : e;
-function oP(e, t, n, r) {
-	let i = (e, t) => tP(e) ? e.unit === "px" ? e.value : e.value * t : typeof e == "number" ? e * t : 0;
-	return e.as === "canvas-height" ? i(t, r) : e.as === "half-canvas-height" ? i(t, 2 * r) : e.as === "canvas-width" ? i(t, n) : 0;
+}), DP = (e, t, n) => t === "start" ? e + n : t === "end" ? e - n : e;
+function OP(e, t, n, r, i) {
+	if (typeof e == "number") return Number.isFinite(e) ? e * t : null;
+	let a = rD(e);
+	return a ? a.unit === "uv" ? a.value * t : pD(a, n, {
+		canvasWidth: r,
+		canvasHeight: i
+	}) : null;
 }
-function sP(e, t, n, r) {
+function kP(e, t, n, r, i = "none") {
+	let a = e.as === "canvas-height" ? r : e.as === "half-canvas-height" ? 2 * r : e.as === "canvas-width" ? n : 0;
+	return a === 0 ? 0 : OP(t, a, i, n, r) ?? 0;
+}
+function AP(e, t, n, r) {
 	if (e?.computeBounds) {
 		let i = e.computeBounds(t, n, r);
 		return {
@@ -129532,54 +129725,64 @@ function sP(e, t, n, r) {
 		};
 	}
 	let i = e?.propBindings, a = 0, o = 0;
-	return i?.width && n > 0 && (a = oP(i.width, t[i.width.prop], n, r) / (2 * n)), i?.height && r > 0 && (o = oP(i.height, t[i.height.prop], n, r) / (2 * r)), {
+	return i?.width && n > 0 && (a = kP(i.width, t[i.width.prop], n, r, wP(i, i.width.prop)) / (2 * n)), i?.height && r > 0 && (o = kP(i.height, t[i.height.prop], n, r, wP(i, i.height.prop)) / (2 * r)), {
 		hwx: a,
 		hhy: o
 	};
 }
-function cP(e, t, n, r) {
-	let i;
-	if (tP(e)) {
-		if (e.unit === "px") {
-			let r = t > 0 ? e.value / t : 0;
-			i = n === "end" ? 1 - r : n === "center" ? .5 + r : r;
-		} else i = e.value;
-	} else if (typeof e == "number") i = e;
+function jP(e, t, n, r, i, a, o) {
+	let s, c = rD(e);
+	if (c && c.unit !== "uv") {
+		let e = pD(c, i, {
+			canvasWidth: a,
+			canvasHeight: o
+		}) ?? 0, r = t > 0 ? e / t : 0;
+		s = n === "end" ? 1 - r : n === "center" ? .5 + r : r;
+	} else if (c) s = c.value;
+	else if (typeof e == "number") s = e;
 	else return e;
-	return aP(i, n, r);
+	return DP(s, n, r);
 }
-function lP(e, t, n, r) {
-	return e.unit === "px" ? t === "canvas-width" ? n > 0 ? e.value / n : e.value : r <= 0 ? e.value : t === "count-canvas-height" ? e.value > 0 ? r / e.value : e.value : t === "canvas-height" ? e.value / r : e.value / (2 * r) : e.value;
+function MP(e, t, n, r, i, a) {
+	if (t.unit === "uv") return t.value;
+	let o = pD(t, r, {
+		canvasWidth: i,
+		canvasHeight: a
+	});
+	if (o == null) fD(`"${t.unit}" isn't supported on "${e}" — % only works on props tied to an axis (x, y, width, height). Using the default instead.`);
+	else return n === "canvas-width" ? i > 0 ? o / i : t.value : a <= 0 ? t.value : n === "count-canvas-height" ? o > 0 ? a / o : t.value : n === "canvas-height" ? o / a : o / (2 * a);
 }
-function uP(e, t, n, r, i, a, o, s) {
-	let c = rP(e, o);
+function NP(e, t, n, r, i, a, o, s) {
+	let c = TP(e, o);
 	if (!c) return n;
-	let { ox: l, oy: u } = iP(r);
+	let { ox: l, oy: u } = EP(r);
 	if (c.positionProps.has(t)) return !n || typeof n != "object" ? n : {
 		...n,
-		x: cP(n.x, i, l, s?.hwx ?? 0),
-		y: cP(n.y, a, u, s?.hhy ?? 0)
+		x: jP(n.x, i, l, s?.hwx ?? 0, "x", i, a),
+		y: jP(n.y, a, u, s?.hhy ?? 0, "y", i, a)
 	};
 	let d = c.sizeProps.get(t);
-	return d && tP(n) ? lP(n, d, i, a) : n;
+	if (!d) return n;
+	let f = rD(n);
+	return f ? MP(t, f, d, c.sizeAxes.get(t) ?? "none", i, a) : n;
 }
-function dP(e, t, n) {
-	let r = rP(e, n);
+function PP(e, t, n) {
+	let r = TP(e, n);
 	return r ? r.positionProps.has(t) || r.sizeProps.has(t) : !1;
 }
-function fP(e) {
+function FP(e) {
 	let { body: t, build: n, args: r, compose: i, identity: a, missingChildMessage: o, setup: s, ...c } = e;
 	if (!t && !n) throw Error(`definePointwiseFilter(${e.name}): needs a body or a build`);
 	let l = (e) => {
-		if (!e.childNode) return o && console.error(o), _D;
+		if (!e.childNode) return o && console.error(o), LD;
 		let c = e;
-		if (pP(a, c)) return c.childNode;
+		if (IP(a, c)) return c.childNode;
 		s?.(c);
 		let l;
 		if (n) l = n(c);
 		else {
 			let { fn: e, hint: n } = typeof t == "function" ? t(c.propValues) : t;
-			l = fD(e, n, [c.childNode, ...r?.(c) ?? []]);
+			l = MD(e, n, [c.childNode, ...r?.(c) ?? []]);
 		}
 		return i ? i(l, c) : l;
 	};
@@ -129589,24 +129792,24 @@ function fP(e) {
 		fragment: l
 	};
 }
-function pP(e, t) {
+function IP(e, t) {
 	if (!e) return !1;
 	for (let n of e.props) if (t.getMapInfo?.(n)) return !1;
 	return e.when(t.propValues);
 }
-function mP(e) {
+function LP(e) {
 	let { build: t, resultAlpha: n, identity: r, missingChildMessage: i, setup: a, ...o } = e, s = (e) => {
-		if (!e.childNode) return i && console.error(i), _D;
-		let o = e.convertToTexture(e.childNode), s = (e) => fD(DE, "unpremultiplyAlpha", [o.sample(e)]), c = {
+		if (!e.childNode) return i && console.error(i), LD;
+		let o = e.convertToTexture(e.childNode), s = (e) => MD(DE, "unpremultiplyAlpha", [o.sample(e)]), c = {
 			...e,
 			childNode: e.childNode,
 			texture: o,
 			sampleStraight: s
 		};
-		if (pP(r, e)) return s(e.ctx.uv);
+		if (IP(r, e)) return s(e.ctx.uv);
 		a?.(c);
 		let l = t(c);
-		return n === "straight" ? l : fD(DE, "unpremultiplyAlpha", [l]);
+		return n === "straight" ? l : MD(DE, "unpremultiplyAlpha", [l]);
 	};
 	return {
 		...o,
@@ -129615,27 +129818,27 @@ function mP(e) {
 		fragment: s
 	};
 }
-function hP(e) {
+function RP(e) {
 	return "uv" in e ? e : { uv: e };
 }
-function gP(e, t = {}) {
+function zP(e, t = {}) {
 	let n = typeof e == "function" ? e : () => e, r = t.edges ?? "prop", i = (e) => r === "none" ? null : typeof r == "number" ? r : e.edges ?? 0;
 	return {
 		fragment: (e) => {
 			let { childNode: r, ctx: a, convertToTexture: o, propValues: s } = e;
-			if (!r) return t.requireChildMessage && console.error(t.requireChildMessage), _D;
-			let c = o(r), l = i(s), u = hP(n(e).map(a.uv, a.aspect)), d = l === null ? c.sample(u.uv) : t.resample === "bilinear" ? GD(u.uv, (e) => c.sample(e), l) : KD(c, u.uv, l);
-			return fD(DE, "unpremultiplyAlpha", [u.coverage ? pD(d.member("rgb"), d.member("a").mul(u.coverage)) : d]);
+			if (!r) return t.requireChildMessage && console.error(t.requireChildMessage), LD;
+			let c = o(r), l = i(s), u = RP(n(e).map(a.uv, a.aspect)), d = l === null ? c.sample(u.uv) : t.resample === "bilinear" ? dO(u.uv, (e) => c.sample(e), l) : fO(c, u.uv, l);
+			return MD(DE, "unpremultiplyAlpha", [u.coverage ? ND(d.member("rgb"), d.member("a").mul(u.coverage)) : d]);
 		},
 		uvRemap: (e) => {
 			if (t.uvRemapIdentityWhen?.(e)) return {
 				uv: e.uv,
 				mask: e.mask
 			};
-			let r = i(e.propValues), a = hP(n(e).map(e.uv, e.aspect)), o = r === null ? {
+			let r = i(e.propValues), a = RP(n(e).map(e.uv, e.aspect)), o = r === null ? {
 				uv: a.uv,
 				mask: e.mask
-			} : WD(a.uv, e.mask, r);
+			} : uO(a.uv, e.mask, r);
 			return a.coverage ? {
 				uv: o.uv,
 				mask: o.mask.mul(a.coverage)
@@ -129643,7 +129846,7 @@ function gP(e, t = {}) {
 		}
 	};
 }
-function _P(e, t) {
+function BP(e, t) {
 	let n = {
 		type: "position",
 		label: t?.label ?? "Center",
@@ -129659,7 +129862,7 @@ function _P(e, t) {
 		ui: n
 	};
 }
-function vP() {
+function VP() {
 	return {
 		default: "center",
 		description: "Reference edge the center position is measured from (center default). Lets you pin the shape relative to a corner or the canvas centre.",
@@ -129670,7 +129873,7 @@ function vP() {
 		}
 	};
 }
-function yP(e) {
+function HP(e) {
 	return {
 		softness: {
 			default: 0,
@@ -129732,7 +129935,7 @@ function yP(e) {
 		}
 	};
 }
-function bP(e) {
+function UP(e) {
 	return {
 		default: "linear",
 		transform: Ki,
@@ -129746,7 +129949,7 @@ function bP(e) {
 		}
 	};
 }
-function xP(e) {
+function WP(e) {
 	return {
 		default: 0,
 		description: e,
@@ -129760,7 +129963,7 @@ function xP(e) {
 		}
 	};
 }
-function SP(e) {
+function GP(e) {
 	return {
 		default: "#ffffff",
 		transform: Hi,
@@ -129772,7 +129975,7 @@ function SP(e) {
 		}
 	};
 }
-function CP(e, t) {
+function KP(e, t) {
 	if (e.custom) return e.custom;
 	let n = e.size.as ?? "half-canvas-height", r = {
 		x: {
@@ -129797,7 +130000,7 @@ function CP(e, t) {
 		as: "degrees"
 	}), { propBindings: r };
 }
-function wP(e, t, n) {
+function qP(e, t, n) {
 	if (!t) return e;
 	let r = Object.keys(e).filter((e) => !t.includes(e)), i = t.filter((t) => !(t in e));
 	if (r.length || i.length) throw Error(`defineSdfShapeShader(${n}): propOrder must list every prop exactly once (missing: ${r.join(", ") || "none"}; unknown: ${i.join(", ") || "none"})`);
@@ -129805,21 +130008,21 @@ function wP(e, t, n) {
 	for (let n of t) a[n] = e[n];
 	return a;
 }
-function TP(e) {
-	let t = e.rotatable !== !1, n = yP(e.stroke), r = {
-		origin: vP(),
-		color: SP(e.colorDescription),
-		center: _P(e.centerDescription, {
+function JP(e) {
+	let t = e.rotatable !== !1, n = HP(e.stroke), r = {
+		origin: VP(),
+		color: GP(e.colorDescription),
+		center: BP(e.centerDescription, {
 			units: ["%", "px"],
 			...e.centerLabel ? { label: e.centerLabel } : {}
 		}),
 		...e.shapeProps,
-		...t ? { rotation: xP(e.rotationDescription ?? "Rotation in degrees") } : {},
+		...t ? { rotation: WP(e.rotationDescription ?? "Rotation in degrees") } : {},
 		softness: n.softness,
 		strokeThickness: n.strokeThickness,
 		strokeColor: n.strokeColor,
 		strokePosition: n.strokePosition,
-		colorSpace: bP(e.colorSpaceDescription ? { description: e.colorSpaceDescription } : void 0),
+		colorSpace: UP(e.colorSpaceDescription ? { description: e.colorSpaceDescription } : void 0),
 		...e.propOverrides
 	};
 	return {
@@ -129827,22 +130030,22 @@ function TP(e) {
 		category: e.category ?? "Shapes",
 		description: e.description,
 		acceptsUVContext: !0,
-		boundingBoxDeclaration: CP(e.bounds, t),
-		props: wP(r, e.propOrder, e.name),
+		boundingBoxDeclaration: KP(e.bounds, t),
+		props: qP(r, e.propOrder, e.name),
 		fragment: (t) => {
 			let { uniforms: n, ctx: r, propValues: i } = t, a = t.uvContext ?? r.uv, o = i.colorSpace ?? 0;
-			return JA(gD(EP(e, n, a, r.aspect), "shapeMask"), n.color, n.strokeColor, o);
+			return mj(ID(YP(e, n, a, r.aspect), "shapeMask"), n.color, n.strokeColor, o);
 		}
 	};
 }
-function EP(e, t, n, r) {
-	let i = t.rotation ?? uD("0f"), a = gD(fD(GA, "shapeLocalCoords", [
+function YP(e, t, n, r) {
+	let i = t.rotation ?? AD("0f"), a = ID(MD(dj, "shapeLocalCoords", [
 		t.center,
 		i,
 		n,
 		r
 	]), "shapeLocal");
-	return fD(qA, "strokeMaskFromSdf", [
+	return MD(pj, "strokeMaskFromSdf", [
 		e.distance({
 			x: a.member("x"),
 			y: a.member("y")
@@ -129856,7 +130059,7 @@ function EP(e, t, n, r) {
 		t.strokePosition
 	]);
 }
-var DP = class e {
+var XP = class e {
 	constructor(e) {
 		this.node = e;
 	}
@@ -129868,49 +130071,49 @@ var DP = class e {
 		});
 	}
 };
-function OP(e, t) {
+function ZP(e, t) {
 	let n = t.uniforms[e.name];
 	if (!n) throw Error(`std: effect binds unknown prop '${e.name}'`);
 	return n;
 }
-function kP(e, t) {
-	let n = e instanceof DP ? e.node : e;
+function QP(e, t) {
+	let n = e instanceof XP ? e.node : e;
 	switch (n.kind) {
-		case "prop": return OP(n, t);
-		case "mul": return kP(n.a, t).mul(kP(n.b, t));
+		case "prop": return ZP(n, t);
+		case "mul": return QP(n.a, t).mul(QP(n.b, t));
 		case "radialMask":
 			if (!t.ctx) throw Error("std: radialMask needs a fragment host (warp slots have no ctx)");
-			return fD(vT, "radialFalloffMask", [
+			return MD(vT, "radialFalloffMask", [
 				t.ctx.uv,
 				t.ctx.aspect,
-				OP(n.center, t),
-				OP(n.radius, t),
-				OP(n.falloff, t)
+				ZP(n.center, t),
+				ZP(n.radius, t),
+				ZP(n.falloff, t)
 			]);
 		case "signal": return n.build(t);
 	}
 }
-function AP(e, t) {
-	if (typeof e == "number") return dD(e);
-	if (e instanceof DP) return kP(e, t);
+function $P(e, t) {
+	if (typeof e == "number") return jD(e);
+	if (e instanceof XP) return QP(e, t);
 	switch (e.kind) {
-		case "prop": return OP(e, t);
+		case "prop": return ZP(e, t);
 		case "ctx":
 			if (!t.ctx) throw Error(`std: ctx.${e.name} needs a fragment host (warp slots have no ctx)`);
 			return t.ctx[e.name];
-		default: return kP(e, t);
+		default: return QP(e, t);
 	}
 }
-function jP(e, t, n) {
-	let r = {}, i = e.boundingBoxDeclaration, a = nP(e.props), o = MP(e.props, t);
+function eF(e, t, n) {
+	let r = {}, i = e.boundingBoxDeclaration, a = SP(e.props), o = tF(e.props, t);
 	for (let [n, s] of Object.entries(e.props)) {
 		let e = s.transform;
-		if (e === PN) {
-			NP(r, n, s, t[n], o);
+		if (e === eP) {
+			nF(r, n, s, t[n], o);
 			continue;
 		}
-		if (e === FN) {
-			PP(r, n, s, t[n]);
+		if (e === tP) {
+			rF(r, n, s, t[n]);
 			continue;
 		}
 		let c = t[n], l = c;
@@ -129920,7 +130123,7 @@ function jP(e, t, n) {
 			default: s.default,
 			hasTransform: !!e
 		}), 0);
-		let u = eP(e), d = dP(i, n, a), f = !u && !d && (typeof l == "string" || typeof l == "object" && !!l && !Array.isArray(l));
+		let u = bP(e), d = PP(i, n, a), f = !u && !d && (typeof l == "string" || typeof l == "object" && !!l && !Array.isArray(l));
 		r[n] = {
 			value: l,
 			transform: u,
@@ -129935,18 +130138,18 @@ function jP(e, t, n) {
 	}
 	return r;
 }
-function MP(e, t) {
+function tF(e, t) {
 	for (let [n, r] of Object.entries(e)) if (r.transform === Ki) {
 		let e = t[n] ?? r.default;
 		return typeof e == "string" ? Ki(e) : 0;
 	}
 	return 0;
 }
-function NP(e, t, n, r, i) {
-	let a = r ?? null, o = yk(a, ZN), s = bk(o.colors, o.stopCount, i);
+function nF(e, t, n, r, i) {
+	let a = r ?? null, o = zk(a, _P), s = Bk(o.colors, o.stopCount, i);
 	e[t] = {
 		value: a,
-		transform: PN,
+		transform: eP,
 		cpu: !0,
 		compileTime: n.compileTime || !1,
 		...n.compileTimeWhen ? {
@@ -129967,31 +130170,31 @@ function NP(e, t, n, r, i) {
 		schema: P
 	};
 }
-function PP(e, t, n, r) {
-	let i = IN(n);
+function rF(e, t, n, r) {
+	let i = nP(n);
 	if (!i) {
 		console.error(`[Shaders] List prop "${t}" has no item spec in its ui config`);
 		return;
 	}
-	let a = HN(r ?? n.default, i, { color: ZN }), o = GN(a, i);
+	let a = cP(r ?? n.default, i, { color: _P }), o = dP(a, i);
 	e[t] = {
 		value: a,
-		transform: FN,
+		transform: tP,
 		cpu: !0,
 		compileTime: n.compileTime || !1,
 		_rawList: r ?? n.default,
 		_listSpec: i
 	};
-	for (let [n, r] of Object.entries(o.fields)) e[LN(t, n)] = {
+	for (let [n, r] of Object.entries(o.fields)) e[rP(t, n)] = {
 		value: r,
 		schema: pd(R, i.maxItems)
 	};
-	e[RN(t)] = {
+	e[iP(t)] = {
 		value: o.count,
 		schema: P
 	};
 }
-var FP = Vu({
+var iF = Vu({
 	x0: N,
 	x1: N,
 	y0: N,
@@ -130002,10 +130205,10 @@ $.fn([
 	P,
 	P,
 	P
-], FP)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
+], iF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
 	let i = K(n, 1e-5), a = N(U(__tsover_mul(__tsover_div(e.x, i), r))), o = N(U(__tsover_mul(e.y, r))), s = N(lh(__tsover_div(__tsover_mul(t, r), i))), c = N(lh(__tsover_mul(t, r))), l = __tsover_sub(N(r), 1);
-	return FP({
+	return iF({
 		x0: K(__tsover_sub(a, s), 0),
 		x1: q(__tsover_add(a, s), l),
 		y0: K(__tsover_sub(o, c), 0),
@@ -130200,17 +130403,17 @@ $.fn([
 		"d.i32": () => N,
 		"std.floor": () => U,
 		"std.ceil": () => lh,
-		SplatWindow: () => FP,
+		SplatWindow: () => iF,
 		"std.min": () => q
 	}
 }) && e.f)({})).$name("worldSplatWindow"), $.fn([
 	I,
 	N,
 	Ap
-], FP)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
+], iF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = N(U(e.x)), i = N(U(e.y));
-	return FP({
+	return iF({
 		x0: K(__tsover_sub(r, t), 0),
 		x1: q(__tsover_add(r, t), n.x),
 		y0: K(__tsover_sub(i, t), 0),
@@ -130328,7 +130531,7 @@ $.fn([
 	externals: {
 		"d.i32": () => N,
 		"std.floor": () => U,
-		SplatWindow: () => FP,
+		SplatWindow: () => iF,
 		"std.max": () => K,
 		"std.min": () => q
 	}
@@ -130477,7 +130680,7 @@ $.fn([
 		"std.max": () => K
 	}
 }) && e.f)({})).$name("integrateSemiImplicitEuler");
-var IP = Math.exp(-1), LP = 1 / (1 - IP), RP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var aF = Math.exp(-1), oF = 1 / (1 - aF), sF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return vh(__tsover_mul(__tsover_div(e, t), -1));
 }), {
@@ -130512,9 +130715,9 @@ var IP = Math.exp(-1), LP = 1 / (1 - IP), RP = $.fn([P, P], P)(/* @__PURE__ */ (
 		]]]]
 	},
 	externals: { "std.exp": () => vh }
-}) && e.f)({})), zP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), cF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	return B(__tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(e, t), -1)), IP), LP), P(0), P(1));
+	return B(__tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(e, t), -1)), aF), oF), P(0), P(1));
 }), {
 	v: 2,
 	name: void 0,
@@ -130575,8 +130778,8 @@ var IP = Math.exp(-1), LP = 1 / (1 - IP), RP = $.fn([P, P], P)(/* @__PURE__ */ (
 	externals: {
 		"std.clamp": () => B,
 		"std.exp": () => vh,
-		EDGE: () => IP,
-		INV_EDGE: () => LP,
+		EDGE: () => aF,
+		INV_EDGE: () => oF,
 		"d.f32": () => P
 	}
 }) && e.f)({}));
@@ -130587,7 +130790,7 @@ $.fn([
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = _u(e, t);
-	return RP(H(r, r), n);
+	return sF(H(r, r), n);
 }), {
 	v: 2,
 	name: void 0,
@@ -130626,7 +130829,7 @@ $.fn([
 	},
 	externals: {
 		"std.sub": () => _u,
-		gaussianBrushSq: () => RP,
+		gaussianBrushSq: () => sF,
 		"std.dot": () => H
 	}
 }) && e.f)({})), $.fn([
@@ -130636,7 +130839,7 @@ $.fn([
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = _u(e, t);
-	return zP(H(r, r), n);
+	return cF(H(r, r), n);
 }), {
 	v: 2,
 	name: void 0,
@@ -130675,11 +130878,11 @@ $.fn([
 	},
 	externals: {
 		"std.sub": () => _u,
-		gaussianBrushShiftedSq: () => zP,
+		gaussianBrushShiftedSq: () => cF,
 		"std.dot": () => H
 	}
 }) && e.f)({}));
-var BP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var lF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return cw(I(e, t));
 }), {
@@ -130707,10 +130910,10 @@ var BP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"noise.hash12": () => cw,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), VP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), uF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = U(e), r = U(t), i = W(e), a = W(t), o = __tsover_mul(__tsover_mul(i, i), __tsover_sub(3, __tsover_mul(i, 2))), s = __tsover_mul(__tsover_mul(a, a), __tsover_sub(3, __tsover_mul(a, 2)));
-	return J(J(BP(n, r), BP(__tsover_add(n, 1), r), o), J(BP(n, __tsover_add(r, 1)), BP(__tsover_add(n, 1), __tsover_add(r, 1)), o), s);
+	return J(J(lF(n, r), lF(__tsover_add(n, 1), r), o), J(lF(n, __tsover_add(r, 1)), lF(__tsover_add(n, 1), __tsover_add(r, 1)), o), s);
 }), {
 	v: 2,
 	name: void 0,
@@ -130876,12 +131079,12 @@ var BP = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.floor": () => U,
 		"std.fract": () => W,
 		"std.mix": () => J,
-		valueHash: () => BP
+		valueHash: () => lF
 	}
 }) && e.f)({}));
 $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	return __tsover_add(__tsover_add(__tsover_mul(VP(e, t), .5), __tsover_mul(VP(__tsover_add(__tsover_mul(e, 2), 5.37), __tsover_add(__tsover_mul(t, 2), 9.13)), .3)), __tsover_mul(VP(__tsover_add(__tsover_mul(e, 4), 1.79), __tsover_add(__tsover_mul(t, 4), 3.51)), .2));
+	return __tsover_add(__tsover_add(__tsover_mul(uF(e, t), .5), __tsover_mul(uF(__tsover_add(__tsover_mul(e, 2), 5.37), __tsover_add(__tsover_mul(t, 2), 9.13)), .3)), __tsover_mul(uF(__tsover_add(__tsover_mul(e, 4), 1.79), __tsover_add(__tsover_mul(t, 4), 3.51)), .2));
 }), {
 	v: 2,
 	name: void 0,
@@ -130972,7 +131175,7 @@ $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 			]
 		]]]]
 	},
-	externals: { valueNoise2D: () => VP }
+	externals: { valueNoise2D: () => uF }
 }) && e.f)({})), $.fn([
 	P,
 	P,
@@ -131256,9 +131459,9 @@ $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	vfSpanY: P,
 	vfActiveRes: P
 });
-var HP = 65536, UP = .96;
-UP >= 1 || Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(UP, .001)) * 16.67);
-var WP = "rgba16float", GP = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var dF = 65536, fF = .96;
+fF >= 1 || Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(fF, .001)) * 16.67);
+var pF = "rgba16float", mF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	amp: P,
 	freq: P,
 	seed: P,
@@ -131292,26 +131495,26 @@ var WP = "rgba16float", GP = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ??
 }), "HeightFieldParams");
 $.bindGroupLayout({
 	readSrc: {
-		storage: pd(P, HP),
+		storage: pd(P, dF),
 		access: "readonly"
 	},
 	writeBuf: {
-		storage: pd(P, HP),
+		storage: pd(P, dF),
 		access: "mutable"
 	},
 	readBuf: {
-		storage: pd(P, HP),
+		storage: pd(P, dF),
 		access: "mutable"
 	},
-	params: { uniform: GP }
+	params: { uniform: mF }
 }), $.bindGroupLayout({
 	readBuf: {
-		storage: pd(P, HP),
+		storage: pd(P, dF),
 		access: "readonly"
 	},
-	params: { uniform: GP },
-	uvMaskTex: { storageTexture: Ad(WP, "write-only") },
-	litTex: { storageTexture: Ad(WP, "write-only") }
+	params: { uniform: mF },
+	uvMaskTex: { storageTexture: Ad(pF, "write-only") },
+	litTex: { storageTexture: Ad(pF, "write-only") }
 }), $.fn([
 	R,
 	R,
@@ -131508,7 +131711,7 @@ $.bindGroupLayout({
 		"colorMixing.hslToRgb": () => nE
 	}
 }) && e.f)({})).$name("hueRotateTurns");
-var KP = [
+var hF = [
 	16,
 	11,
 	10,
@@ -131573,7 +131776,7 @@ var KP = [
 	100,
 	103,
 	99
-], qP = [
+], gF = [
 	17,
 	18,
 	24,
@@ -131638,9 +131841,9 @@ var KP = [
 	99,
 	99,
 	99
-], JP = [];
-for (let e = 0; e < 8; e++) for (let t = 0; t < 8; t++) JP[e * 8 + t] = Math.cos((2 * e + 1) * t * Math.PI / 16);
-$.const(pd(P, 64), JP), $.const(pd(P, 64), KP), $.const(pd(P, 64), qP), $.fn([
+], _F = [];
+for (let e = 0; e < 8; e++) for (let t = 0; t < 8; t++) _F[e * 8 + t] = Math.cos((2 * e + 1) * t * Math.PI / 16);
+$.const(pd(P, 64), _F), $.const(pd(P, 64), hF), $.const(pd(P, 64), gF), $.fn([
 	R,
 	R,
 	R,
@@ -132144,12 +132347,12 @@ $.const(pd(P, 64), JP), $.const(pd(P, 64), KP), $.const(pd(P, 64), qP), $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({})).$name("flowDirectionColor");
-var YP = {
+var vF = {
 	name: "Root",
 	props: {},
-	fragment: ({ childNode: e }) => e ?? uD("vec4f(0.0, 0.0, 0.0, 0.0)")
+	fragment: ({ childNode: e }) => e ?? AD("vec4f(0.0, 0.0, 0.0, 0.0)")
 };
-function XP(e, t, n = "_animTime") {
+function yF(e, t, n = "_animTime") {
 	let r = e.props.member(n);
 	if (t) {
 		let n = e.uniforms[t];
@@ -132157,15 +132360,15 @@ function XP(e, t, n = "_animTime") {
 	}
 	return r;
 }
-var ZP = class {
+var bF = class {
 	kind = "wgsl";
 	spec;
 	identifiers;
 	fns = /* @__PURE__ */ new Map();
 	constructor(e) {
 		if (typeof e.body != "string" || e.body.trim() === "") throw Error("wgsl: the body must be a non-empty WGSL string");
-		if (!/\breturn\b/.test(nF(e.body))) throw Error("wgsl: the body must `return` a vec4f color");
-		this.spec = e, this.identifiers = rF(e.body);
+		if (!/\breturn\b/.test(TF(e.body))) throw Error("wgsl: the body must `return` a vec4f color");
+		this.spec = e, this.identifiers = EF(e.body);
 	}
 	get samplesChild() {
 		return this.identifiers.has("childTexture");
@@ -132175,42 +132378,42 @@ var ZP = class {
 		return n || (n = t(), this.fns.set(e, n)), n;
 	}
 };
-function QP(e) {
-	return e instanceof ZP;
+function xF(e) {
+	return e instanceof bF;
 }
-function $P(e, ...t) {
-	if (typeof e == "string") return new ZP({ body: e });
-	if (eF(e)) {
+function SF(e, ...t) {
+	if (typeof e == "string") return new bF({ body: e });
+	if (CF(e)) {
 		let n = "";
 		return e.forEach((e, r) => {
-			n += e, r < t.length && (n += tF(t[r]));
-		}), new ZP({ body: n });
+			n += e, r < t.length && (n += wF(t[r]));
+		}), new bF({ body: n });
 	}
-	return new ZP(e);
+	return new bF(e);
 }
-function eF(e) {
+function CF(e) {
 	return Array.isArray(e) && "raw" in e;
 }
-function tF(e) {
-	if (e instanceof ZP) throw Error("wgsl: a body cannot be spliced into another body");
+function wF(e) {
+	if (e instanceof bF) throw Error("wgsl: a body cannot be spliced into another body");
 	return String(e);
 }
-function nF(e) {
+function TF(e) {
 	return e.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, " ");
 }
-function rF(e) {
+function EF(e) {
 	let t = /* @__PURE__ */ new Set(), n = /* @__PURE__ */ RegExp("(?<![\\w.])[A-Za-z_][A-Za-z0-9_]*", "g");
-	for (let r of nF(e).matchAll(n)) t.add(r[0]);
+	for (let r of TF(e).matchAll(n)) t.add(r[0]);
 	return t;
 }
-function iF(e) {
+function DF(e) {
 	let t = e.transform;
 	if (t === Hi) return "vec4f";
 	if (t === Ui) return "vec2f";
-	if (t === PN || t === FN) return null;
+	if (t === eP || t === tP) return null;
 	let n = e.default;
-	if (tP(n)) return "f32";
-	let r = eP(t);
+	if (tD(n)) return "f32";
+	let r = bP(t);
 	if (!r && (typeof n == "string" || typeof n == "object" && n && !Array.isArray(n))) return null;
 	let i = n;
 	if (r) try {
@@ -132226,19 +132429,19 @@ function iF(e) {
 		default: return null;
 	}
 }
-var aF = {
+var OF = {
 	f32: P,
 	vec2f: I,
 	vec3f: L,
 	vec4f: R,
 	"texture_2d<f32>": Cd(P),
 	sampler: Ld()
-}, oF = /* @__PURE__ */ new Set([
+}, kF = /* @__PURE__ */ new Set([
 	"viewport",
 	"child",
 	"childTexture",
 	"childSampler"
-]), sF = {
+]), AF = {
 	uv: "vec2f",
 	aspect: "f32",
 	time: "f32",
@@ -132246,23 +132449,23 @@ var aF = {
 	logicalViewportSize: "vec2f",
 	pointer: "vec2f"
 };
-function cF(e) {
+function jF(e) {
 	return /^[A-Za-z_][A-Za-z0-9_]*$/.test(e) ? e : e.replace(/[^A-Za-z0-9_]/g, "_");
 }
-function lF(e, t, n) {
-	let r = cF(e.spec.name ?? uF(n.name) + dF(t)), i = fF(t, n), o = pF(e.spec.inputs ?? {}, n.props), s = /* @__PURE__ */ new Map();
+function MF(e, t, n) {
+	let r = jF(e.spec.name ?? NF(n.name) + PF(t)), i = FF(t, n), o = IF(e.spec.inputs ?? {}, n.props), s = /* @__PURE__ */ new Map();
 	for (let t of i) e.identifiers.has(t.name) && s.set(t.name, t);
 	for (let e of o) s.set(e.name, e);
-	let c = [...s.values()], l = `(${c.map((e) => `${cF(e.name)}: ${e.type}`).join(", ")}) -> vec4f`, u = c.map((e) => `${e.name}:${e.type}`).join(",");
-	return (t) => (a(), t.noteCustomWgsl?.(), fD(e.fnFor(u, () => (/* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.fn(c.map((e) => aF[e.type]), R), "shell"))(`${l} {\n${e.spec.body}\n}`)), r, c.map((e) => e.value(t))));
+	let c = [...s.values()], l = `(${c.map((e) => `${jF(e.name)}: ${e.type}`).join(", ")}) -> vec4f`, u = c.map((e) => `${e.name}:${e.type}`).join(",");
+	return (t) => (a(), t.noteCustomWgsl?.(), MD(e.fnFor(u, () => (/* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.fn(c.map((e) => OF[e.type]), R), "shell"))(`${l} {\n${e.spec.body}\n}`)), r, c.map((e) => e.value(t))));
 }
-function uF(e) {
+function NF(e) {
 	return e ? e[0].toLowerCase() + e.slice(1) : "custom";
 }
-function dF(e) {
+function PF(e) {
 	return e === "generator" ? "Paint" : "Filter";
 }
-function fF(e, t) {
+function FF(e, t) {
 	let n = [], r = e === "generator";
 	n.push({
 		name: "uv",
@@ -132271,7 +132474,7 @@ function fF(e, t) {
 	}), n.push({
 		name: "time",
 		type: "f32",
-		value: (e) => t.animatedTime ? XP(e) : e.ctx.time
+		value: (e) => t.animatedTime ? yF(e) : e.ctx.time
 	}), n.push({
 		name: "aspect",
 		type: "f32",
@@ -132295,11 +132498,11 @@ function fF(e, t) {
 	}), n.push({
 		name: "childSampler",
 		type: "sampler",
-		value: () => uD("samp.$.linearClamp")
+		value: () => AD("samp.$.linearClamp")
 	}));
 	for (let [e, r] of Object.entries(t.props)) {
-		if (sF[e] || oF.has(e)) continue;
-		let t = iF(r);
+		if (AF[e] || kF.has(e)) continue;
+		let t = DF(r);
 		if (!t) continue;
 		let i = r.transform === Ui;
 		n.push({
@@ -132308,38 +132511,38 @@ function fF(e, t) {
 			value: (t) => {
 				let n = t.uniforms[e];
 				if (!n) throw Error(`wgsl: prop '${e}' has no GPU uniform (is it CPU-only?)`);
-				return i ? new iD((e) => `vec2f(${n.member("x")._emit(e)}, 1.0 - ${n.member("y")._emit(e)})`) : n;
+				return i ? new wD((e) => `vec2f(${n.member("x")._emit(e)}, 1.0 - ${n.member("y")._emit(e)})`) : n;
 			}
 		});
 	}
 	return n;
 }
-function pF(e, t) {
+function IF(e, t) {
 	let n = [];
 	for (let [r, i] of Object.entries(e)) {
-		let e = typeof i == "object" && !!i && "value" in i && "type" in i, a = e ? i.value : i, o = mF(a, t), s = e ? i.type : o;
+		let e = typeof i == "object" && !!i && "value" in i && "type" in i, a = e ? i.value : i, o = LF(a, t), s = e ? i.type : o;
 		if (e && s !== o) throw Error(`wgsl: input '${r}' is declared ${s} but its source is ${o}`);
 		n.push({
 			name: r,
 			type: s,
-			value: (e) => typeof a == "number" ? dD(a) : AP(a, e)
+			value: (e) => typeof a == "number" ? jD(a) : $P(a, e)
 		});
 	}
 	return n;
 }
-function mF(e, t) {
-	if (typeof e == "number" || e instanceof DP) return "f32";
-	if (e.kind === "ctx") return sF[e.name] ?? "f32";
+function LF(e, t) {
+	if (typeof e == "number" || e instanceof XP) return "f32";
+	if (e.kind === "ctx") return AF[e.name] ?? "f32";
 	if (e.kind === "prop") {
 		let n = t[e.name];
 		if (!n) throw Error(`wgsl: input binds unknown prop '${e.name}'`);
-		let r = iF(n);
+		let r = DF(n);
 		if (!r) throw Error(`wgsl: prop '${e.name}' is CPU-only and cannot be bound as a WGSL parameter`);
 		return r;
 	}
 	return "f32";
 }
-function hF(e) {
+function RF(e) {
 	let t = {};
 	for (let n of Object.keys(e)) {
 		let { recompile: r, ...i } = e[n], a = { ...i };
@@ -132351,7 +132554,7 @@ function hF(e) {
 	}
 	return t;
 }
-function gF(e, t) {
+function zF(e, t) {
 	switch (e.kind) {
 		case "isZero":
 		case "isValue": {
@@ -132362,7 +132565,7 @@ function gF(e, t) {
 			};
 		}
 		case "allOf": {
-			let n = e.rules.map((e) => gF(e, t));
+			let n = e.rules.map((e) => zF(e, t));
 			return {
 				props: [...new Set(n.flatMap((e) => e.props))],
 				when: (e) => n.every((t) => t.when(e))
@@ -132374,82 +132577,82 @@ function gF(e, t) {
 		};
 	}
 }
-function _F(e, t) {
+function BF(e, t) {
 	if (!e) return;
 	let n = {};
 	for (let [e, r] of Object.entries(t)) n[e] = r.default;
-	return gF(e, n);
+	return zF(e, n);
 }
-function vF(e) {
+function VF(e) {
 	let { role: t, species: n, effect: r, identityWhen: i, missingChildMessage: a, props: o, ...s } = e, c = {
 		...s,
-		props: hF(o),
-		identity: _F(i, o),
+		props: RF(o),
+		identity: BF(i, o),
 		missingChildMessage: a
 	};
 	if (r.kind === "tintToward") {
 		let { color: e, amount: t } = r;
-		return fP({
+		return FP({
 			...c,
 			body: {
 				fn: CE,
 				hint: "mixToward"
 			},
-			args: (n) => [OP(e, n), kP(t, n)]
+			args: (n) => [ZP(e, n), QP(t, n)]
 		});
 	}
-	if (QP(r)) return fP({
+	if (xF(r)) return FP({
 		...c,
-		build: lF(r, "pointwise", yF(e))
+		build: MF(r, "pointwise", HF(e))
 	});
 	let { kind: l, ...u } = r;
-	return fP({
+	return FP({
 		...c,
 		...u
 	});
 }
-function yF(e) {
+function HF(e) {
 	return {
 		name: e.name,
 		props: e.props,
 		animatedTime: e.animatedTime
 	};
 }
-function bF(e) {
+function UF(e) {
 	let { role: t, species: n, effect: r, identityWhen: i, missingChildMessage: a, props: o, ...s } = e;
-	if (r.kind === "displaceBy") return xF(e);
-	if (QP(r)) return mP({
+	if (r.kind === "displaceBy") return WF(e);
+	if (xF(r)) return LP({
 		...s,
-		props: hF(o),
-		identity: _F(i, o),
+		props: RF(o),
+		identity: BF(i, o),
 		missingChildMessage: a,
-		build: lF(r, "gather", yF(e)),
+		build: MF(r, "gather", HF(e)),
 		resultAlpha: r.spec.alpha ?? "premultiplied"
 	});
 	let { kind: c, ...l } = r;
-	return mP({
+	return LP({
 		...s,
-		props: hF(o),
-		identity: _F(i, o),
+		props: RF(o),
+		identity: BF(i, o),
 		missingChildMessage: a,
 		...l
 	});
 }
-function xF(e) {
-	let { role: t, species: n, effect: r, identityWhen: i, missingChildMessage: a, props: o, ...s } = e, c = r, l = _F(i, o), u = c.field.sim.config, d = c.field.output, f = u.step.find((e) => e.kind === "op.wave"), p = u.step.find((e) => e.kind === "op.splat");
+function WF(e) {
+	let { role: t, species: n, effect: r, identityWhen: i, missingChildMessage: a, props: o, ...s } = e, c = r, l = BF(i, o), u = c.field.sim.config, d = c.field.output, f = u.step.find((e) => e.kind === "op.wave"), p = u.step.find((e) => e.kind === "op.splat");
 	if (!f || !p || u.step.length !== 2) throw Error(`std: simulate.grid currently implements exactly [op.wave, op.splat] (got: ${u.step.map((e) => e.kind).join(", ")})`);
 	if (u.history !== 2) throw Error(`std: op.wave reads t−1 and t−2 — declare history: 2 (got ${u.history})`);
 	if (u.derive[d]?.kind !== "op.gradient") throw Error(`std: displaceBy consumes a vector field — derive '${d}' must be op.gradient()`);
 	if (u.rest && u.rest.settlesWhen !== "derived-from-damping") throw Error("std: simulate.grid rest supports settlesWhen: 'derived-from-damping' only");
 	return {
 		...s,
-		props: hF(o),
+		props: RF(o),
 		requiresRTT: !0,
 		requiresChild: !0,
 		usesPointer: p.at.kind === "pointer",
 		compute: (e) => {
 			if (!e.childNode) return null;
-			let t = yA(e, {
+			let t = zA(e, {
 				resolution: u.resolution,
 				dampingProp: f.damping.name,
 				radiusProp: p.radius.name,
@@ -132464,27 +132667,27 @@ function xF(e) {
 		},
 		fragment: (e) => {
 			let { childNode: t, ctx: n, computeOutputs: r, propValues: i, convertToTexture: a } = e;
-			if (!t) return _D;
+			if (!t) return LD;
 			let o = a(t);
-			if (pP(l, e)) return fD(DE, "unpremultiplyAlpha", [o.sample(n.uv)]);
-			let s = i[c.edges.name] ?? 0, u = r?.[d], f = u ? u.sample(n.uv, "linearClamp").member("xy") : uD("vec2f(0.0, 0.0)"), p = fD(JD, "chromaticDisplaceUVs", [
+			if (IP(l, e)) return MD(DE, "unpremultiplyAlpha", [o.sample(n.uv)]);
+			let s = i[c.edges.name] ?? 0, u = r?.[d], f = u ? u.sample(n.uv, "linearClamp").member("xy") : AD("vec2f(0.0, 0.0)"), p = MD(mO, "chromaticDisplaceUVs", [
 				n.uv,
 				f,
-				OP(c.strength, e),
-				OP(c.chromatic, e)
-			]), m = (e) => o.sample(e), h = GD(p.member("rUV"), m, s), g = GD(p.member("gUV"), m, s), _ = GD(p.member("bUV"), m, s);
-			return fD(DE, "unpremultiplyAlpha", [pD(h.member("r"), g.member("g"), _.member("b"), g.member("a"))]);
+				ZP(c.strength, e),
+				ZP(c.chromatic, e)
+			]), m = (e) => o.sample(e), h = dO(p.member("rUV"), m, s), g = dO(p.member("gUV"), m, s), _ = dO(p.member("bUV"), m, s);
+			return MD(DE, "unpremultiplyAlpha", [ND(h.member("r"), g.member("g"), _.member("b"), g.member("a"))]);
 		}
 	};
 }
-function SF(e) {
+function GF(e) {
 	let { role: t, map: n, edges: r, resample: i, uvRemapIdentityWhen: a, missingChildMessage: o, props: s, ...c } = e;
 	return {
 		...c,
-		props: hF(s),
+		props: RF(s),
 		requiresRTT: !0,
 		requiresChild: !0,
-		...gP(n, {
+		...zP(n, {
 			edges: r,
 			resample: i,
 			uvRemapIdentityWhen: a,
@@ -132492,46 +132695,46 @@ function SF(e) {
 		})
 	};
 }
-function CF(e) {
+function KF(e) {
 	let { role: t, name: n, description: r, category: i, shape: a } = e;
-	return TP({
+	return JP({
 		name: n,
 		description: r,
 		category: i,
 		...a
 	});
 }
-function wF(e) {
+function qF(e) {
 	let { role: t, paint: n, props: r, ...i } = e;
-	return QP(n) ? {
+	return xF(n) ? {
 		acceptsUVContext: !0,
 		...i,
-		props: hF(r),
-		fragment: lF(n, "generator", yF(e))
+		props: RF(r),
+		fragment: MF(n, "generator", HF(e))
 	} : {
 		...i,
-		props: hF(r),
+		props: RF(r),
 		fragment: n
 	};
 }
-function TF(e) {
+function JF(e) {
 	let { role: t, species: n, gpu: r, props: i, ...a } = e;
 	return {
 		...a,
-		props: hF(i),
+		props: RF(i),
 		fragment: r.fragment,
 		...r.uvRemap ? { uvRemap: r.uvRemap } : {}
 	};
 }
-function EF(e) {
+function YF(e) {
 	let t = [], n = e.paint, r = e.effect;
-	for (let e of [n, r]) QP(e) && t.push(e.spec.body, DF(e.spec.inputs ?? {}), e.spec.alpha ?? "");
+	for (let e of [n, r]) xF(e) && t.push(e.spec.body, XF(e.spec.inputs ?? {}), e.spec.alpha ?? "");
 	if (t.length === 0) return;
 	let i = 2166136261;
 	for (let e of t.join("\0")) i ^= e.charCodeAt(0), i = Math.imul(i, 16777619) >>> 0;
 	return i.toString(16);
 }
-function DF(e) {
+function XF(e) {
 	let t = (e) => {
 		if (typeof e != "object" || !e) return String(e);
 		let n = e;
@@ -132542,13 +132745,13 @@ function DF(e) {
 			case "radialMask": return `radialMask(${n.center?.name},${n.radius?.name},${n.falloff?.name})`;
 			default: return n.kind;
 		}
-	}, n = (e) => typeof e == "number" ? `n:${e}` : e instanceof DP ? `s:${t(e.node)}` : t(e);
+	}, n = (e) => typeof e == "number" ? `n:${e}` : e instanceof XP ? `s:${t(e.node)}` : t(e);
 	return Object.keys(e).sort().map((t) => {
 		let r = e[t];
 		return typeof r == "object" && r && "value" in r && "type" in r ? `${t}=${n(r.value)}:${r.type}` : `${t}=${n(r)}`;
 	}).join(",");
 }
-var OF = /* @__PURE__ */ new Set([
+var ZF = /* @__PURE__ */ new Set([
 	"blendMode",
 	"opacity",
 	"visible",
@@ -132564,70 +132767,70 @@ var OF = /* @__PURE__ */ new Set([
 	"ref",
 	"key",
 	"src"
-]), kF = /* @__PURE__ */ new Set(["_animTime", "_opacity"]), AF = [
+]), QF = /* @__PURE__ */ new Set(["_animTime", "_opacity"]), $F = [
 	"_pad",
 	"_bbox_",
 	"_map_",
 	"_childBounds_",
 	"_animTime_"
-], jF = /^[A-Za-z_][A-Za-z0-9_]*$/;
-function MF(e, t) {
+], eI = /^[A-Za-z_][A-Za-z0-9_]*$/;
+function tI(e, t) {
 	for (let n of Object.keys(t)) {
-		if (!jF.test(n)) throw Error(`defineShader("${e}"): prop '${n}' is not a valid identifier (letters, digits and _ only, not starting with a digit)`);
-		if (OF.has(n)) throw Error(`defineShader("${e}"): '${n}' is a layer prop every component already has (blend mode, opacity, layout, …) — rename the shader prop`);
-		if (kF.has(n) || AF.some((e) => n.startsWith(e))) throw Error(`defineShader("${e}"): '${n}' collides with a field the renderer manages itself — rename the shader prop`);
+		if (!eI.test(n)) throw Error(`defineShader("${e}"): prop '${n}' is not a valid identifier (letters, digits and _ only, not starting with a digit)`);
+		if (ZF.has(n)) throw Error(`defineShader("${e}"): '${n}' is a layer prop every component already has (blend mode, opacity, layout, …) — rename the shader prop`);
+		if (QF.has(n) || $F.some((e) => n.startsWith(e))) throw Error(`defineShader("${e}"): '${n}' collides with a field the renderer manages itself — rename the shader prop`);
 	}
 }
-function NF(e) {
-	"props" in e && e.props && MF(e.name, e.props);
-	let t = LF(e), n = EF(e);
+function nI(e) {
+	"props" in e && e.props && tI(e.name, e.props);
+	let t = oI(e), n = YF(e);
 	return n ? {
 		...t,
 		revision: n
 	} : t;
 }
-function PF(e) {
+function rI(e) {
 	let t = "shape" in e ? "shape" : "map" in e ? "warp" : "gpu" in e ? "custom" : "paint" in e ? "generator" : "effect" in e ? "filter" : null, n = String(e.name ?? "?");
 	if (!t) throw Error(`defineShader("${n}"): give it a GPU half — paint: (generator), effect: (filter), map: (warp), shape: (shape) or gpu: (custom)`);
 	let r = e.role;
-	if (r && t !== "custom" && r !== t) throw Error(`defineShader("${n}"): role '${r}' contradicts its ${FF[t]} field (a ${t})`);
+	if (r && t !== "custom" && r !== t) throw Error(`defineShader("${n}"): role '${r}' contradicts its ${iI[t]} field (a ${t})`);
 	return t;
 }
-var FF = {
+var iI = {
 	shape: "shape:",
 	warp: "map:",
 	custom: "gpu:",
 	generator: "paint:",
 	filter: "effect:"
 };
-function IF(e) {
+function aI(e) {
 	let { effect: t, species: n } = e;
-	if (QP(t)) return n ?? (t.samplesChild ? "gather" : "pointwise");
+	if (xF(t)) return n ?? (t.samplesChild ? "gather" : "pointwise");
 	let r = t.kind === "gather" || t.kind === "displaceBy" ? "gather" : "pointwise";
 	if (n && n !== r) throw Error(`defineShader("${e.name}"): species '${n}' contradicts its '${t.kind}' effect (${r})`);
 	return r;
 }
-function LF(e) {
-	switch (PF(e)) {
-		case "shape": return CF(e);
-		case "warp": return SF(e);
-		case "custom": return TF(e);
-		case "generator": return wF(e);
+function oI(e) {
+	switch (rI(e)) {
+		case "shape": return KF(e);
+		case "warp": return GF(e);
+		case "custom": return JF(e);
+		case "generator": return qF(e);
 		case "filter": {
 			let t = e;
-			return IF(t) === "gather" ? bF({
+			return aI(t) === "gather" ? UF({
 				...t,
 				species: "gather"
-			}) : vF({
+			}) : VF({
 				...t,
 				species: "pointwise"
 			});
 		}
 	}
 }
-var RF = NF, zF = Math.fround;
-zF(MC), zF(OC), zF(4294967295);
-var { sdfSpaceUV: BF, offsetUV: VF } = pN, { ANALYTIC_SDF_EXTRA_FIELDS: HF } = TA, { createVolumetricFieldComputeNode: UF, resolveShapeFieldSampler: WF, VOLUMETRIC_FIELD_EXTRA_FIELDS: GF } = Pj, { sdfSpaceUV: KF } = pN, qF = "rgba16float", JF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var sI = nI, cI = Math.fround;
+cI(MC), cI(OC), cI(4294967295);
+var { sdfSpaceUV: lI, offsetUV: uI } = NN, { ANALYTIC_SDF_EXTRA_FIELDS: dI } = GA, { createVolumetricFieldComputeNode: fI, resolveShapeFieldSampler: pI, VOLUMETRIC_FIELD_EXTRA_FIELDS: mI } = eM, { sdfSpaceUV: hI } = NN, gI = "rgba16float", _I = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	center: I,
 	lightPos: pd(R, 8),
 	lightColor: pd(R, 8),
@@ -132657,24 +132860,24 @@ var { sdfSpaceUV: BF, offsetUV: VF } = pN, { ANALYTIC_SDF_EXTRA_FIELDS: HF } = T
 	vfSpanY: P,
 	vfActiveRes: P,
 	vfRBound: P
-}), "IrradianceParams"), YF = { storageTexture: Ad(qF, "write-only") };
+}), "IrradianceParams"), vI = { storageTexture: Ad(gI, "write-only") };
 $.bindGroupLayout({
-	params: { uniform: JF },
-	outTex: YF
+	params: { uniform: _I },
+	outTex: vI
 });
-var XF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-	params: { uniform: JF },
-	outTex: YF,
+var yI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+	params: { uniform: _I },
+	outTex: vI,
 	sdfSource: { texture: Cd(P) },
 	samp: { sampler: "filtering" }
-}), "irradianceSvgLayout"), ZF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-	params: { uniform: JF },
-	outTex: YF,
+}), "irradianceSvgLayout"), bI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+	params: { uniform: _I },
+	outTex: vI,
 	silhouetteTex: { texture: Cd(P) },
 	samp: { sampler: "filtering" }
-}), "irradianceFieldLayout"), QF = 1e3, $F = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}), "irradianceFieldLayout"), xI = 1e3, SI = $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	return K(q(e, QF), __tsover_mul(QF, -1));
+	return K(q(e, xI), __tsover_mul(xI, -1));
 }), {
 	v: 2,
 	name: void 0,
@@ -132705,9 +132908,9 @@ var XF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindG
 	externals: {
 		"std.max": () => K,
 		"std.min": () => q,
-		FAR: () => QF
+		FAR: () => xI
 	}
-}) && e.f)({})).$name("irradianceSane"), eI = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
+}) && e.f)({})).$name("irradianceSane"), CI = $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
 	let t = B(e, I(0, 0), I(1, 1));
 	return G(e.sub(t));
@@ -132761,8 +132964,8 @@ var XF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindG
 }) && e.f)({})).$name("irradianceBeyondSquare");
 $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = qS(XF.$.sdfSource, XF.$.samp, e, P(0)).x, n = eI(e);
-	return $F(Q(t, K(n, __tsover_sub(t, n)), n > 0));
+	let t = qS(yI.$.sdfSource, yI.$.samp, e, P(0)).x, n = CI(e);
+	return SI(Q(t, K(n, __tsover_sub(t, n)), n > 0));
 }), {
 	v: 2,
 	name: void 0,
@@ -132850,17 +133053,17 @@ $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		"std.textureSampleLevel": () => qS,
-		irradianceSvgLayout: () => XF,
+		irradianceSvgLayout: () => yI,
 		"d.f32": () => P,
-		beyondSquare: () => eI,
-		sane: () => $F,
+		beyondSquare: () => CI,
+		sane: () => SI,
 		"std.select": () => Q,
 		"std.max": () => K
 	}
 }) && e.f)({})).$name("irradianceSvgField"), $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = ZF.$.params, n = B(e.x, t.vfOriginX, __tsover_add(t.vfOriginX, t.vfSpanX)), r = B(e.y, t.vfOriginY, __tsover_add(t.vfOriginY, t.vfSpanY)), i = G(I(__tsover_sub(e.x, n), __tsover_sub(e.y, r))), a = __tsover_sub(G(I(__tsover_sub(e.x, .5), __tsover_sub(e.y, .5))), t.vfRBound), o = I(__tsover_div(__tsover_sub(n, t.vfOriginX), t.vfSpanX), __tsover_div(__tsover_sub(r, t.vfOriginY), t.vfSpanY)), s = qS(ZF.$.silhouetteTex, ZF.$.samp, o, P(0)), c = __tsover_mul(s.z, s.w);
-	return $F(Q(c, K(K(i, a), __tsover_sub(c, i)), i > 0));
+	let t = bI.$.params, n = B(e.x, t.vfOriginX, __tsover_add(t.vfOriginX, t.vfSpanX)), r = B(e.y, t.vfOriginY, __tsover_add(t.vfOriginY, t.vfSpanY)), i = G(I(__tsover_sub(e.x, n), __tsover_sub(e.y, r))), a = __tsover_sub(G(I(__tsover_sub(e.x, .5), __tsover_sub(e.y, .5))), t.vfRBound), o = I(__tsover_div(__tsover_sub(n, t.vfOriginX), t.vfSpanX), __tsover_div(__tsover_sub(r, t.vfOriginY), t.vfSpanY)), s = qS(bI.$.silhouetteTex, bI.$.samp, o, P(0)), c = __tsover_mul(s.z, s.w);
+	return SI(Q(c, K(K(i, a), __tsover_sub(c, i)), i > 0));
 }), {
 	v: 2,
 	name: void 0,
@@ -133158,18 +133361,18 @@ $.fn([I], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		irradianceFieldLayout: () => ZF,
+		irradianceFieldLayout: () => bI,
 		"std.clamp": () => B,
 		"std.length": () => G,
 		"d.vec2f": () => I,
 		"std.textureSampleLevel": () => qS,
 		"d.f32": () => P,
 		"std.max": () => K,
-		sane: () => $F,
+		sane: () => SI,
 		"std.select": () => Q
 	}
 }) && e.f)({})).$name("irradianceVolumetricField");
-var tI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var wI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	vfOriginX: P,
 	vfOriginY: P,
 	vfSpanX: P,
@@ -133178,20 +133381,20 @@ var tI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	vfRBound: P,
 	res: P,
 	step: P
-}), "SilhouetteParams"), nI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-	params: { uniform: tI },
+}), "SilhouetteParams"), TI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+	params: { uniform: wI },
 	fieldTex: {
 		texture: Cd(P),
 		sampleType: "unfilterable-float"
 	},
-	out: YF
-}), "silhouetteSeedLayout"), rI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
-	params: { uniform: tI },
+	out: vI
+}), "silhouetteSeedLayout"), EI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+	params: { uniform: wI },
 	src: { texture: Cd(P) },
-	out: YF
-}), "silhouetteStepLayout"), { fieldSampleFastArg: iI } = IM(), aI = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+	out: vI
+}), "silhouetteStepLayout"), { fieldSampleFastArg: DI } = nN(), OI = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	let n = nI.$.params, r = iI(I(__tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(e, .5), n.res), n.vfSpanX)), __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(t, .5), n.res), n.vfSpanY))), nI.$.fieldTex, n.vfOriginX, n.vfOriginY, n.vfSpanX, n.vfSpanY, n.vfActiveRes, n.vfRBound).x;
+	let n = TI.$.params, r = DI(I(__tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(e, .5), n.res), n.vfSpanX)), __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(t, .5), n.res), n.vfSpanY))), TI.$.fieldTex, n.vfOriginX, n.vfOriginY, n.vfSpanX, n.vfSpanY, n.vfActiveRes, n.vfRBound).x;
 	return Q(P(1), P(-1), r < 0);
 }), {
 	v: 2,
@@ -133374,17 +133577,17 @@ var tI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 		]]
 	},
 	externals: {
-		silhouetteSeedLayout: () => nI,
+		silhouetteSeedLayout: () => TI,
 		"d.vec2f": () => I,
-		fieldSampleFastArg: () => iI,
+		fieldSampleFastArg: () => DI,
 		"std.select": () => Q,
 		"d.f32": () => P
 	}
 }) && e.f)({})).$name("silhouetteInside");
 $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	let n = nI.$.params, r = P(e), i = P(t), a = aI(r, i), o = __tsover_sub(n.res, 1), s = aI(K(__tsover_sub(r, 1), 0), i), c = aI(q(__tsover_add(r, 1), o), i), l = aI(r, K(__tsover_sub(i, 1), 0)), u = aI(r, q(__tsover_add(i, 1), o)), d = s !== a || c !== a || l !== a || u !== a, f = __tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(r, .5), n.res), n.vfSpanX)), p = __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(i, .5), n.res), n.vfSpanY)), m = Q(R(-1, -1, 6e4, a), R(f, p, 0, a), d);
-	ZS(nI.$.out, jp(e, t), m);
+	let n = TI.$.params, r = P(e), i = P(t), a = OI(r, i), o = __tsover_sub(n.res, 1), s = OI(K(__tsover_sub(r, 1), 0), i), c = OI(q(__tsover_add(r, 1), o), i), l = OI(r, K(__tsover_sub(i, 1), 0)), u = OI(r, q(__tsover_add(i, 1), o)), d = s !== a || c !== a || l !== a || u !== a, f = __tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(r, .5), n.res), n.vfSpanX)), p = __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(i, .5), n.res), n.vfSpanY)), m = Q(R(-1, -1, 6e4, a), R(f, p, 0, a), d);
+	ZS(TI.$.out, jp(e, t), m);
 }), {
 	v: 2,
 	name: void 0,
@@ -133700,9 +133903,9 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		silhouetteSeedLayout: () => nI,
+		silhouetteSeedLayout: () => TI,
 		"d.f32": () => P,
-		silhouetteInside: () => aI,
+		silhouetteInside: () => OI,
 		"std.max": () => K,
 		"std.min": () => q,
 		"std.select": () => Q,
@@ -133712,15 +133915,15 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	}
 }) && e.f)({})).$name("silhouetteSeed"), $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	let n = rI.$.params, r = P(e), i = P(t), a = I(__tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(r, .5), n.res), n.vfSpanX)), __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(i, .5), n.res), n.vfSpanY))), o = YS(rI.$.src, jp(e, t), 0), s = R(o), c = __tsover_sub(n.res, 1);
+	let n = EI.$.params, r = P(e), i = P(t), a = I(__tsover_add(n.vfOriginX, __tsover_mul(__tsover_div(__tsover_add(r, .5), n.res), n.vfSpanX)), __tsover_add(n.vfOriginY, __tsover_mul(__tsover_div(__tsover_add(i, .5), n.res), n.vfSpanY))), o = YS(EI.$.src, jp(e, t), 0), s = R(o), c = __tsover_sub(n.res, 1);
 	for (let e = -1; e <= 1; e++) for (let t = -1; t <= 1; t++) {
-		let o = B(__tsover_add(r, __tsover_mul(P(t), n.step)), 0, c), l = B(__tsover_add(i, __tsover_mul(P(e), n.step)), 0, c), u = YS(rI.$.src, jp(M(o), M(l)), 0);
+		let o = B(__tsover_add(r, __tsover_mul(P(t), n.step)), 0, c), l = B(__tsover_add(i, __tsover_mul(P(e), n.step)), 0, c), u = YS(EI.$.src, jp(M(o), M(l)), 0);
 		if (u.x >= 0) {
 			let e = G(u.xy.sub(a));
 			e < s.z && (s = R(u.x, u.y, e, s.w));
 		}
 	}
-	ZS(rI.$.out, jp(e, t), R(s.x, s.y, s.z, o.w));
+	ZS(EI.$.out, jp(e, t), R(s.x, s.y, s.z, o.w));
 }), {
 	v: 2,
 	name: void 0,
@@ -134150,7 +134353,7 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]
 	},
 	externals: {
-		silhouetteStepLayout: () => rI,
+		silhouetteStepLayout: () => EI,
 		"d.f32": () => P,
 		"d.vec2f": () => I,
 		"std.textureLoad": () => YS,
@@ -134162,16 +134365,16 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"std.textureStore": () => ZS
 	}
 }) && e.f)({})).$name("silhouetteStep");
-var oI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({ weight: P }), "AccumulateParams"), sI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+var kI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({ weight: P }), "AccumulateParams"), AI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 	sample: { texture: Cd(P) },
 	prev: { texture: Cd(P) },
-	out: YF,
-	params: { uniform: oI }
+	out: vI,
+	params: { uniform: kI }
 }), "accumulateLayout");
 $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	let n = jp(e, t), r = YS(sI.$.sample, n, 0), i = YS(sI.$.prev, n, 0), a = sI.$.params.weight;
-	ZS(sI.$.out, n, Q(i.add(r.sub(i).mul(a)), r, a >= 1));
+	let n = jp(e, t), r = YS(AI.$.sample, n, 0), i = YS(AI.$.prev, n, 0), a = AI.$.params.weight;
+	ZS(AI.$.out, n, Q(i.add(r.sub(i).mul(a)), r, a >= 1));
 }), {
 	v: 2,
 	name: void 0,
@@ -134311,19 +134514,19 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	externals: {
 		"d.vec2u": () => jp,
 		"std.textureLoad": () => YS,
-		accumulateLayout: () => sI,
+		accumulateLayout: () => AI,
 		"std.textureStore": () => ZS,
 		"std.select": () => Q
 	}
 }) && e.f)({})).$name("irradianceAccumulate");
-var cI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+var jI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 	src: { texture: Cd(P) },
-	out: YF
+	out: vI
 }), "copyLayout");
 $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = jp(e, t);
-	ZS(cI.$.out, n, YS(cI.$.src, n, 0));
+	ZS(jI.$.out, n, YS(jI.$.src, n, 0));
 }), {
 	v: 2,
 	name: void 0,
@@ -134380,11 +134583,11 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	externals: {
 		"d.vec2u": () => jp,
 		"std.textureStore": () => ZS,
-		copyLayout: () => cI,
+		copyLayout: () => jI,
 		"std.textureLoad": () => YS
 	}
 }) && e.f)({})).$name("irradianceCopy");
-var { createSdfDataTexture: lI, analyticSubPropValues: uI, parseShapeConfigValue: dI } = TA, { createVolumetricFieldComputeNode: fI } = Pj;
+var { createSdfDataTexture: MI, analyticSubPropValues: NI, parseShapeConfigValue: PI } = GA, { createVolumetricFieldComputeNode: FI } = eM;
 $.fn([I, P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return I(e.x, __tsover_sub(__tsover_mul(t, 2), e.y));
@@ -135149,10 +135352,10 @@ $.fn([I, P], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 		"d.vec2f": () => I
 	}
 }) && e.f)({})).$name("swayUV");
-var pI = kC, mI = .35;
+var II = kC, LI = .35;
 $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e) => {
 	"use gpu";
-	let t = __tsover_mul(.18, e), n = Lh(z(Y(__tsover_mul(t, pI))), 10), r = Lh(z(Y(__tsover_mul(__tsover_sub(t, .15), pI))), 10);
+	let t = __tsover_mul(.18, e), n = Lh(z(Y(__tsover_mul(t, II))), 10), r = Lh(z(Y(__tsover_mul(__tsover_sub(t, .15), II))), 10);
 	return B(__tsover_add(n, __tsover_mul(.6, r)), 0, 1);
 }), {
 	v: 2,
@@ -135247,7 +135450,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"std.pow": () => Lh,
 		"std.abs": () => z,
 		"std.sin": () => Y,
-		TWO_PI: () => pI,
+		TWO_PI: () => II,
 		"std.clamp": () => B
 	}
 }) && e.f)({})), $.fn([
@@ -135264,11 +135467,11 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	P
 ], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s, c, l, u) => {
 	"use gpu";
-	let d = __tsover_add(__tsover_mul(c, 1.2), 131), f = K(__tsover_mul(__tsover_mul(.5, i), mI), .002), p = z(__tsover_add(__tsover_div(e, K(r, .001)), J(f, P(0), a))), m = J(f, __tsover_mul(3, f), a), h = __tsover_div(2, __tsover_mul(n.y, K(r, .001))), g = q(J(m, __tsover_mul(m, -1), a), __tsover_add(m, h)), _ = K(J(m, __tsover_mul(m, -1), a), __tsover_add(m, h)), v = __tsover_sub(1, X(g, _, p));
+	let d = __tsover_add(__tsover_mul(c, 1.2), 131), f = K(__tsover_mul(__tsover_mul(.5, i), LI), .002), p = z(__tsover_add(__tsover_div(e, K(r, .001)), J(f, P(0), a))), m = J(f, __tsover_mul(3, f), a), h = __tsover_div(2, __tsover_mul(n.y, K(r, .001))), g = q(J(m, __tsover_mul(m, -1), a), __tsover_add(m, h)), _ = K(J(m, __tsover_mul(m, -1), a), __tsover_add(m, h)), v = __tsover_sub(1, X(g, _, p));
 	v = Lh(B(v, 0, 1), __tsover_add(1, a));
 	let y = I(__tsover_sub(t.x, .5), __tsover_sub(t.y, .5)).mul(__tsover_add(.5, __tsover_mul(2.5, o))), b = __tsover_mul(.5, d), x = dw(I(__tsover_add(__tsover_mul(y.x, 2.7), b), __tsover_add(__tsover_mul(y.y, 2.7), b))), S = dw(I(__tsover_sub(__tsover_mul(y.x, 3.4), b), __tsover_sub(__tsover_mul(y.y, 3.4), b))), C = __tsover_sub(B(__tsover_mul(3, x), 0, 1), S), w = B(__tsover_add(f, .2), .1, .4), T = Lh(B(__tsover_sub(1, X(__tsover_mul(w, -1), __tsover_add(w, h), p)), 0, 1), 2);
 	C = __tsover_mul(C, T), C = __tsover_mul(__tsover_mul(__tsover_mul(30, C), C), __tsover_mul(__tsover_mul(.5, s), s)), C = __tsover_mul(C, J(P(1), u, l)), v = B(__tsover_add(v, B(C, 0, 1)), 0, 1);
-	let E = __tsover_div(sh(__tsover_sub(t.y, .5), __tsover_sub(t.x, .5)), pI);
+	let E = __tsover_div(sh(__tsover_sub(t.y, .5), __tsover_sub(t.x, .5)), II);
 	return I(v, E);
 }), {
 	v: 2,
@@ -135894,7 +136097,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		"std.max": () => K,
-		BAND_THICKNESS_REF: () => mI,
+		BAND_THICKNESS_REF: () => LI,
 		"std.mix": () => J,
 		"d.f32": () => P,
 		"std.abs": () => z,
@@ -135905,7 +136108,7 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"d.vec2f": () => I,
 		"noise.value12": () => dw,
 		"std.atan2": () => sh,
-		TWO_PI: () => pI
+		TWO_PI: () => II
 	}
 }) && e.f)({})), $.fn([
 	P,
@@ -136610,16 +136813,16 @@ $.fn([P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"std.smoothstep": () => X
 	}
 }) && e.f)({}));
-var hI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var RI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	rgb: L,
 	w: P,
 	ba: P,
 	ac: L,
 	aa: P
 }), "EdgeGlowAccum");
-$.fn([], hI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = (() => {
+$.fn([], RI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = (() => {
 	"use gpu";
-	return hI({
+	return RI({
 		rgb: L(0, 0, 0),
 		w: P(0),
 		ba: P(0),
@@ -136672,7 +136875,7 @@ $.fn([], hI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		]]]]
 	},
 	externals: {
-		EdgeGlowAccum: () => hI,
+		EdgeGlowAccum: () => RI,
 		"d.vec3f": () => L,
 		"d.f32": () => P
 	}
@@ -136734,7 +136937,7 @@ $.fn([], hI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"d.i32": () => N,
 		"d.vec4f": () => R
 	}
-}) && e.f)({})), $.fn([hI, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), $.fn([RI, P], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = __tsover_mul(t, 4), r = J(e.rgb.mul(e.ba), e.ac, L(n)), i = B(J(e.ba, e.aa, n), 0, 1);
 	return R(B(r.div(K(i, 1e-4)), L(0), L(1)), i);
@@ -136879,7 +137082,7 @@ $.fn([], hI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var gI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var zI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	crackIntensity: P,
 	edgeNormal: I,
 	displacedUV: I,
@@ -136894,10 +137097,10 @@ $.fn([
 	P,
 	P,
 	P
-], gI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
+], zI)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o, s) => {
 	"use gpu";
 	let c = I(t, n), l = I(r, i), u = I(a, o), d = e.sub(c), f = G(d), p = G(e.sub(l)), m = G(u), h = __tsover_sub(p, f), g = __tsover_mul(s, .005), _ = __tsover_sub(1, X(0, g, h)), v = X(0, .01, m), y = __tsover_mul(_, v), b = d.div(K(f, 1e-5));
-	return gI({
+	return zI({
 		crackIntensity: y,
 		edgeNormal: I(__tsover_mul(b.y, -1), b.x),
 		displacedUV: e.sub(u),
@@ -137151,7 +137354,7 @@ $.fn([
 		"std.length": () => G,
 		"std.smoothstep": () => X,
 		"std.max": () => K,
-		CrackGeom: () => gI
+		CrackGeom: () => zI
 	}
 }) && e.f)({})), $.fn([
 	I,
@@ -137275,7 +137478,7 @@ $.fn([
 	},
 	externals: {}
 }) && e.f)({}));
-var _I = .3 / Math.hypot(.3, .6), vI = .6 / Math.hypot(.3, .6);
+var BI = .3 / Math.hypot(.3, .6), VI = .6 / Math.hypot(.3, .6);
 $.fn([
 	R,
 	R,
@@ -137286,7 +137489,7 @@ $.fn([
 	P
 ], R)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a, o) => {
 	"use gpu";
-	let s = L(t.x, n.y, r.z), c = e.xyz.mul(__tsover_sub(1, i)).add(s.mul(i)), l = G(a), u = __tsover_div(a.x, __tsover_add(l, .001)), d = __tsover_div(a.y, __tsover_add(l, .001)), f = __tsover_add(__tsover_mul(u, _I), __tsover_mul(d, vI)), p = __tsover_add(1, __tsover_mul(f, o)), m = X(0, .02, l), h = __tsover_add(1, __tsover_mul(__tsover_sub(p, 1), m));
+	let s = L(t.x, n.y, r.z), c = e.xyz.mul(__tsover_sub(1, i)).add(s.mul(i)), l = G(a), u = __tsover_div(a.x, __tsover_add(l, .001)), d = __tsover_div(a.y, __tsover_add(l, .001)), f = __tsover_add(__tsover_mul(u, BI), __tsover_mul(d, VI)), p = __tsover_add(1, __tsover_mul(f, o)), m = X(0, .02, l), h = __tsover_add(1, __tsover_mul(__tsover_sub(p, 1), m));
 	return R(c.mul(h), e.w);
 }), {
 	v: 2,
@@ -137528,13 +137731,13 @@ $.fn([
 	externals: {
 		"d.vec3f": () => L,
 		"std.length": () => G,
-		SHARD_LIGHT_DIR_X: () => _I,
-		SHARD_LIGHT_DIR_Y: () => vI,
+		SHARD_LIGHT_DIR_X: () => BI,
+		SHARD_LIGHT_DIR_Y: () => VI,
 		"std.smoothstep": () => X,
 		"d.vec4f": () => R
 	}
 }) && e.f)({}));
-var { formatFloat: yI } = Yk;
+var { formatFloat: HI } = hA;
 $.fn([
 	I,
 	P,
@@ -137652,10 +137855,10 @@ $.fn([
 		"std.sin": () => Y
 	}
 }) && e.f)({}));
-var bI = "rgba16float", xI = 16384;
+var UI = "rgba16float", WI = 16384;
 $.bindGroupLayout({
 	buffer: {
-		storage: pd(R, xI),
+		storage: pd(R, WI),
 		access: "mutable"
 	},
 	params: { uniform: /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
@@ -137671,18 +137874,18 @@ $.bindGroupLayout({
 	}), "uniform") }
 }), $.bindGroupLayout({
 	buffer: {
-		storage: pd(R, xI),
+		storage: pd(R, WI),
 		access: "readonly"
 	},
-	dispTex: { storageTexture: Ad(bI, "write-only") }
+	dispTex: { storageTexture: Ad(UI, "write-only") }
 });
-var SI = 64, CI = SI * SI, wI = SI - 1, TI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+var GI = 64, KI = GI * GI, qI = GI - 1, JI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 	readBuf: {
-		storage: pd(R, CI),
+		storage: pd(R, KI),
 		access: "readonly"
 	},
 	writeBuf: {
-		storage: pd(R, CI),
+		storage: pd(R, KI),
 		access: "mutable"
 	},
 	params: { uniform: /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
@@ -137698,28 +137901,28 @@ var SI = 64, CI = SI * SI, wI = SI - 1, TI = /* @__PURE__ */ (globalThis.__TYPEG
 		radius: P,
 		aspect: P
 	}), "uniform") }
-}), "latticeLayout"), EI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
+}), "latticeLayout"), YI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))($.bindGroupLayout({
 	srcBuf: {
-		storage: pd(R, CI),
+		storage: pd(R, KI),
 		access: "readonly"
 	},
-	dispTex: { storageTexture: Ad(bI, "write-only") }
+	dispTex: { storageTexture: Ad(UI, "write-only") }
 }), "latticeOutputLayout");
 $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	if (e > M(0) && e < M(wI) && t > M(0) && t < M(wI)) {
-		let n = TI.$.params, r = M(SI), i = __tsover_add(__tsover_mul(t, r), e), a = TI.$.readBuf[i], o = a.x, s = a.y, c = a.z, l = a.w, u = TI.$.readBuf[__tsover_sub(i, M(1))], d = TI.$.readBuf[__tsover_add(i, M(1))], f = TI.$.readBuf[__tsover_sub(i, r)], p = TI.$.readBuf[__tsover_add(i, r)], m = TI.$.readBuf[__tsover_sub(__tsover_sub(i, r), M(1))], h = TI.$.readBuf[__tsover_add(__tsover_sub(i, r), M(1))], g = TI.$.readBuf[__tsover_sub(__tsover_add(i, r), M(1))], _ = TI.$.readBuf[__tsover_add(__tsover_add(i, r), M(1))], v = __tsover_mul(n.stiffness, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(u.x, o), __tsover_sub(d.x, o)), __tsover_sub(f.x, o)), __tsover_sub(p.x, o))), y = __tsover_mul(n.stiffness, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(u.y, s), __tsover_sub(d.y, s)), __tsover_sub(f.y, s)), __tsover_sub(p.y, s))), b = __tsover_mul(n.stiffness, .35);
+	if (e > M(0) && e < M(qI) && t > M(0) && t < M(qI)) {
+		let n = JI.$.params, r = M(GI), i = __tsover_add(__tsover_mul(t, r), e), a = JI.$.readBuf[i], o = a.x, s = a.y, c = a.z, l = a.w, u = JI.$.readBuf[__tsover_sub(i, M(1))], d = JI.$.readBuf[__tsover_add(i, M(1))], f = JI.$.readBuf[__tsover_sub(i, r)], p = JI.$.readBuf[__tsover_add(i, r)], m = JI.$.readBuf[__tsover_sub(__tsover_sub(i, r), M(1))], h = JI.$.readBuf[__tsover_add(__tsover_sub(i, r), M(1))], g = JI.$.readBuf[__tsover_sub(__tsover_add(i, r), M(1))], _ = JI.$.readBuf[__tsover_add(__tsover_add(i, r), M(1))], v = __tsover_mul(n.stiffness, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(u.x, o), __tsover_sub(d.x, o)), __tsover_sub(f.x, o)), __tsover_sub(p.x, o))), y = __tsover_mul(n.stiffness, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(u.y, s), __tsover_sub(d.y, s)), __tsover_sub(f.y, s)), __tsover_sub(p.y, s))), b = __tsover_mul(n.stiffness, .35);
 		v = __tsover_add(v, __tsover_mul(b, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(m.x, o), __tsover_sub(h.x, o)), __tsover_sub(g.x, o)), __tsover_sub(_.x, o)))), y = __tsover_add(y, __tsover_mul(b, __tsover_add(__tsover_add(__tsover_add(__tsover_sub(m.y, s), __tsover_sub(h.y, s)), __tsover_sub(g.y, s)), __tsover_sub(_.y, s)))), v = __tsover_sub(v, __tsover_mul(__tsover_mul(n.stiffness, .1), o)), y = __tsover_sub(y, __tsover_mul(__tsover_mul(n.stiffness, .1), s));
 		let x = __tsover_add(__tsover_mul(c, n.dampFactor), __tsover_mul(v, n.subDt)), S = __tsover_add(__tsover_mul(l, n.dampFactor), __tsover_mul(y, n.subDt));
 		if (n.clampedSpeed > .01) {
-			let r = __tsover_div(__tsover_add(P(e), .5), P(SI)), i = __tsover_div(__tsover_add(P(t), .5), P(SI)), a = Q(__tsover_sub(r, n.cursorX), __tsover_mul(__tsover_sub(r, n.cursorX), n.aspect), n.aspect >= 1), o = Q(__tsover_div(__tsover_sub(i, n.cursorY), n.aspect), __tsover_sub(i, n.cursorY), n.aspect >= 1), s = __tsover_add(__tsover_mul(a, a), __tsover_mul(o, o)), c = __tsover_mul(n.radius, 3);
+			let r = __tsover_div(__tsover_add(P(e), .5), P(GI)), i = __tsover_div(__tsover_add(P(t), .5), P(GI)), a = Q(__tsover_sub(r, n.cursorX), __tsover_mul(__tsover_sub(r, n.cursorX), n.aspect), n.aspect >= 1), o = Q(__tsover_div(__tsover_sub(i, n.cursorY), n.aspect), __tsover_sub(i, n.cursorY), n.aspect >= 1), s = __tsover_add(__tsover_mul(a, a), __tsover_mul(o, o)), c = __tsover_mul(n.radius, 3);
 			if (s < __tsover_mul(c, c)) {
 				let e = vh(__tsover_mul(__tsover_div(s, __tsover_mul(n.radius, n.radius)), -1)), t = __tsover_mul(__tsover_mul(__tsover_mul(e, n.clampedSpeed), n.dt), 2);
 				x = __tsover_add(x, __tsover_mul(n.dirX, t)), S = __tsover_add(S, __tsover_mul(n.dirY, t));
 			}
 		}
 		let C = B(__tsover_add(o, __tsover_mul(x, n.subDt)), -.5, .5), w = B(__tsover_add(s, __tsover_mul(S, n.subDt)), -.5, .5);
-		TI.$.writeBuf[i] = R(C, w, x, S);
+		JI.$.writeBuf[i] = R(C, w, x, S);
 	}
 }), {
 	v: 2,
@@ -138888,9 +139091,9 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		"d.u32": () => M,
-		LATTICE_MAX: () => wI,
-		latticeLayout: () => TI,
-		LATTICE_GRID: () => SI,
+		LATTICE_MAX: () => qI,
+		latticeLayout: () => JI,
+		LATTICE_GRID: () => GI,
 		"d.f32": () => P,
 		"std.select": () => Q,
 		"std.exp": () => vh,
@@ -138899,8 +139102,8 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	}
 }) && e.f)({})).$name("springLatticeStep"), $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	let n = __tsover_add(__tsover_mul(t, M(SI)), e), r = EI.$.srcBuf[n];
-	ZS(EI.$.dispTex, jp(e, t), R(r.x, r.y, 0, 1));
+	let n = __tsover_add(__tsover_mul(t, M(GI)), e), r = YI.$.srcBuf[n];
+	ZS(YI.$.dispTex, jp(e, t), R(r.x, r.y, 0, 1));
 }), {
 	v: 2,
 	name: void 0,
@@ -138991,14 +139194,14 @@ $.fn([M, M])(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE
 	},
 	externals: {
 		"d.u32": () => M,
-		LATTICE_GRID: () => SI,
-		latticeOutputLayout: () => EI,
+		LATTICE_GRID: () => GI,
+		latticeOutputLayout: () => YI,
 		"std.textureStore": () => ZS,
 		"d.vec2u": () => jp,
 		"d.vec4f": () => R
 	}
 }) && e.f)({})).$name("springLatticeOutput");
-var DI = EC;
+var XI = EC;
 $.fn([
 	I,
 	P,
@@ -139008,7 +139211,7 @@ $.fn([
 	P
 ], L)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = I(__tsover_mul(e.x, t), e.y), s = I(__tsover_mul(n.x, t), __tsover_sub(1, n.y)), c = __tsover_sub(o.x, s.x), l = __tsover_sub(o.y, s.y), u = __tsover_mul(r, DI), d = V(u), f = Y(u), p = __tsover_add(__tsover_mul(c, d), __tsover_mul(l, f)), m = __tsover_sub(__tsover_mul(l, d), __tsover_mul(c, f)), h = __tsover_add(__tsover_div(p, __tsover_mul(i, 2)), .5), g = __tsover_add(__tsover_div(m, __tsover_mul(a, 2)), .5);
+	let o = I(__tsover_mul(e.x, t), e.y), s = I(__tsover_mul(n.x, t), __tsover_sub(1, n.y)), c = __tsover_sub(o.x, s.x), l = __tsover_sub(o.y, s.y), u = __tsover_mul(r, XI), d = V(u), f = Y(u), p = __tsover_add(__tsover_mul(c, d), __tsover_mul(l, f)), m = __tsover_sub(__tsover_mul(l, d), __tsover_mul(c, f)), h = __tsover_add(__tsover_div(p, __tsover_mul(i, 2)), .5), g = __tsover_add(__tsover_div(m, __tsover_mul(a, 2)), .5);
 	return L(h, g, __tsover_mul(__tsover_mul(__tsover_mul(Zh(0, h), Zh(h, 1)), Zh(0, g)), Zh(g, 1)));
 }), {
 	v: 2,
@@ -139283,14 +139486,14 @@ $.fn([
 	},
 	externals: {
 		"d.vec2f": () => I,
-		OBF_DEG_TO_RAD: () => DI,
+		OBF_DEG_TO_RAD: () => XI,
 		"std.cos": () => V,
 		"std.sin": () => Y,
 		"std.step": () => Zh,
 		"d.vec3f": () => L
 	}
 }) && e.f)({}));
-var OI = OC, kI = EC;
+var ZI = OC, QI = EC;
 $.fn([
 	I,
 	P,
@@ -139300,7 +139503,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = __tsover_mul(t, kI), s = V(o), c = Y(o), l = __tsover_add(__tsover_mul(e.x, __tsover_mul(c, -1)), __tsover_mul(e.y, s)), u = V(__tsover_add(__tsover_mul(__tsover_mul(l, n), OI), r)), d = J(-1.15, 1.15, B(i, 0, 1));
+	let o = __tsover_mul(t, QI), s = V(o), c = Y(o), l = __tsover_add(__tsover_mul(e.x, __tsover_mul(c, -1)), __tsover_mul(e.y, s)), u = V(__tsover_add(__tsover_mul(__tsover_mul(l, n), ZI), r)), d = J(-1.15, 1.15, B(i, 0, 1));
 	return X(__tsover_sub(d, a), __tsover_add(d, a), u);
 }), {
 	v: 2,
@@ -139474,10 +139677,10 @@ $.fn([
 		]]
 	},
 	externals: {
-		HP_DEG_TO_RAD: () => kI,
+		HP_DEG_TO_RAD: () => QI,
 		"std.cos": () => V,
 		"std.sin": () => Y,
-		HP_TAU: () => OI,
+		HP_TAU: () => ZI,
 		"std.mix": () => J,
 		"std.clamp": () => B,
 		"std.smoothstep": () => X
@@ -139491,7 +139694,7 @@ $.fn([
 	P
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r, i, a) => {
 	"use gpu";
-	let o = e.sub(t), s = G(o), c = sh(o.y, o.x), l = V(__tsover_add(__tsover_mul(__tsover_sub(__tsover_mul(s, n), __tsover_mul(c, __tsover_div(1, OI))), OI), r)), u = J(-1.15, 1.15, B(i, 0, 1));
+	let o = e.sub(t), s = G(o), c = sh(o.y, o.x), l = V(__tsover_add(__tsover_mul(__tsover_sub(__tsover_mul(s, n), __tsover_mul(c, __tsover_div(1, ZI))), ZI), r)), u = J(-1.15, 1.15, B(i, 0, 1));
 	return X(__tsover_sub(u, a), __tsover_add(u, a), l);
 }), {
 	v: 2,
@@ -139656,7 +139859,7 @@ $.fn([
 	externals: {
 		"std.length": () => G,
 		"std.atan2": () => sh,
-		HP_TAU: () => OI,
+		HP_TAU: () => ZI,
 		"std.cos": () => V,
 		"std.mix": () => J,
 		"std.clamp": () => B,
@@ -140058,9 +140261,8 @@ $.fn([
 		"std.sqrt": () => Z
 	}
 }) && e.f)({})).$name("shapeFieldExtrudeZ");
-//#endregion
-//#region node_modules/.pnpm/shaders@4.0.4_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/shaderRegistry-C-P5WvzF.js
-var AI = () => void 0, jI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(mS({
+// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/shaderRegistry-CICZOQmw.js
+var $I = () => void 0, eL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(mS({
 	in: { vertexIndex: kp.vertexIndex },
 	out: {
 		pos: kp.position,
@@ -140073,12 +140275,12 @@ var AI = () => void 0, jI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? 
   return Out(vec4f(pos[in.vertexIndex], 0, 1), uv[in.vertexIndex]);
 }`, "fullScreenTriangle");
 oo.disable("external-omitted");
-var MI = ["float32-filterable", "timestamp-query"], NI = /* @__PURE__ */ new WeakMap(), PI = /* @__PURE__ */ new WeakMap(), FI = /* @__PURE__ */ new WeakSet(), II = null, LI = /* @__PURE__ */ new WeakSet();
-async function RI(e = {}) {
-	if (e.device && !FI.has(e.device)) {
-		let t = e.device, n = NI.get(t);
-		n || (n = $.initFromDevice({ device: t }), NI.set(t, n));
-		let r = HI(n, e.onDeviceLost);
+var tL = ["float32-filterable", "timestamp-query"], nL = /* @__PURE__ */ new WeakMap(), rL = /* @__PURE__ */ new WeakMap(), iL = /* @__PURE__ */ new WeakSet(), aL = null, oL = /* @__PURE__ */ new WeakSet();
+async function sL(e = {}) {
+	if (e.device && !iL.has(e.device)) {
+		let t = e.device, n = nL.get(t);
+		n || (n = $.initFromDevice({ device: t }), nL.set(t, n));
+		let r = dL(n, e.onDeviceLost);
 		return {
 			root: n,
 			device: t,
@@ -140088,7 +140290,7 @@ async function RI(e = {}) {
 		};
 	}
 	e.device && s("[gpu] injected GPU device was lost — falling back to the shared default device");
-	let t = await zI(), n = HI(t.root, e.onDeviceLost);
+	let t = await cL(), n = dL(t.root, e.onDeviceLost);
 	return {
 		root: t.root,
 		device: t.device,
@@ -140097,57 +140299,57 @@ async function RI(e = {}) {
 		release: n
 	};
 }
-async function zI() {
+async function cL() {
 	for (;;) {
-		let e = II;
+		let e = aL;
 		if (!e) break;
 		let t = await e.catch(() => null);
-		if (t && !LI.has(e) && !FI.has(t.device)) return t;
-		II === e && (II = null);
+		if (t && !oL.has(e) && !iL.has(t.device)) return t;
+		aL === e && (aL = null);
 	}
-	let e = BI();
-	II = e;
+	let e = lL();
+	aL = e;
 	try {
 		return await e;
 	} catch (t) {
-		throw II === e && (II = null), t;
+		throw aL === e && (aL = null), t;
 	}
 }
-async function BI() {
+async function lL() {
 	if (typeof navigator > "u" || !navigator.gpu) throw new e("unsupported", "[gpu] WebGPU is not available in this environment (navigator.gpu is undefined).");
 	let t;
 	try {
 		t = await $.init({
 			adapter: { powerPreference: "high-performance" },
-			device: { optionalFeatures: MI }
+			device: { optionalFeatures: tL }
 		});
 	} catch (t) {
 		let n = await d();
 		throw new e(n.supported ? "no-device" : n.reason ?? "init-failed", void 0, { cause: t });
 	}
 	if (!t.device) throw new e("no-device", "[gpu] adapter returned no device.");
-	return NI.set(t.device, t), {
+	return nL.set(t.device, t), {
 		root: t,
 		device: t.device,
 		createdDevice: !0
 	};
 }
-function VI(e, t, n = {}) {
+function uL(e, t, n = {}) {
 	return e.configureContext({
 		canvas: t,
 		alphaMode: "premultiplied",
 		...n
 	});
 }
-function HI(e, t) {
-	let n = e.device, r = PI.get(n);
-	if (r || (r = /* @__PURE__ */ new Set(), PI.set(n, r), e.device.lost.then((e) => {
-		if (FI.add(n), e.reason !== "destroyed") for (let t of [...PI.get(n) ?? []]) t(e);
+function dL(e, t) {
+	let n = e.device, r = rL.get(n);
+	if (r || (r = /* @__PURE__ */ new Set(), rL.set(n, r), e.device.lost.then((e) => {
+		if (iL.add(n), e.reason !== "destroyed") for (let t of [...rL.get(n) ?? []]) t(e);
 	})), !t) return () => {};
 	let i = r;
 	return i.add(t), () => i.delete(t);
 }
-function UI() {
+function fL() {
 	let e = {
 		value: 0,
 		advance(t, n) {
@@ -140156,12 +140358,12 @@ function UI() {
 	};
 	return e;
 }
-var WI = /* @__PURE__ */ new WeakMap();
-function GI(e) {
-	let t = WI.get(e);
-	return t || (t = UI(), WI.set(e, t)), t;
+var pL = /* @__PURE__ */ new WeakMap();
+function mL(e) {
+	let t = pL.get(e);
+	return t || (t = fL(), pL.set(e, t)), t;
 }
-var KI = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var hL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	time: P,
 	viewportSize: I,
 	logicalViewportSize: I,
@@ -140218,12 +140420,12 @@ $.fn([I, I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	},
 	externals: {}
 }) && e.f)({}));
-function qI(e) {
+function gL(e) {
 	let t = 2166136261, n = e.join("");
 	for (let e = 0; e < n.length; e++) t ^= n.charCodeAt(e), t = Math.imul(t, 16777619);
 	return `${(t >>> 0).toString(16).padStart(8, "0")}:${n.length}`;
 }
-function JI(e = {}) {
+function _L(e = {}) {
 	let t = e.maxSize ?? 4, n = e.dispose, r = /* @__PURE__ */ new Map(), i = 0, a = null, o = null;
 	function s(e) {
 		e.lastUsed = ++i;
@@ -140278,20 +140480,20 @@ function JI(e = {}) {
 		}
 	};
 }
-var YI = "passManager";
-function XI(e, t) {
-	let { textureManager: n, dispatcher: r } = t, i = t.canvasFormat ?? ZI(), a = t.rttFormat ?? "rgba16float", o = e.device?.limits?.maxSampledTexturesPerShaderStage, l = t.maxSampledTextures ?? (typeof o == "number" && o > 0 ? o : 16), u = t.fullScreenTriangle ?? jI, d = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Set(), p = null;
+var vL = "passManager";
+function yL(e, t) {
+	let { textureManager: n, dispatcher: r } = t, i = t.canvasFormat ?? bL(), a = t.rttFormat ?? "rgba16float", o = e.device?.limits?.maxSampledTexturesPerShaderStage, l = t.maxSampledTextures ?? (typeof o == "number" && o > 0 ? o : 16), u = t.fullScreenTriangle ?? eL, d = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Set(), p = null;
 	function m() {
 		let t = n.samplers;
 		try {
-			return e.createBindGroup(cD, {
+			return e.createBindGroup(OD, {
 				linearClamp: t.linearClamp,
 				nearestClamp: t.nearestClamp,
 				linearRepeat: t.linearRepeat,
 				nearestRepeat: t.nearestRepeat
 			});
 		} catch (e) {
-			c(`[${YI}] failed to build sampler bind group:`, e);
+			c(`[${vL}] failed to build sampler bind group:`, e);
 			return;
 		}
 	}
@@ -140317,16 +140519,16 @@ function XI(e, t) {
 		for (let e of t.reads) {
 			let i = d.get(e), a = n?.[e], o = i ?? a;
 			if (!o) {
-				c(`[${YI}] pass "${t.entry}" reads unknown texture "${e}"`);
+				c(`[${vL}] pass "${t.entry}" reads unknown texture "${e}"`);
 				return;
 			}
 			r[e] = o.texture;
 		}
-		t.reads.length > l && s(`[${YI}] pass samples ${t.reads.length} textures (> device limit ~${l}); composition may fail on this device.`);
+		t.reads.length > l && s(`[${vL}] pass samples ${t.reads.length} textures (> device limit ~${l}); composition may fail on this device.`);
 		try {
 			return e.createBindGroup(t.textureLayout, r);
 		} catch (e) {
-			c(`[${YI}] failed to build texture bind group:`, e);
+			c(`[${vL}] failed to build texture bind group:`, e);
 			return;
 		}
 	}
@@ -140343,7 +140545,7 @@ function XI(e, t) {
 		if (i.length === 1) {
 			let e = r.get(i[0]);
 			if (!e) {
-				c(`[${YI}] external read "${i[0]}" has no registered source`);
+				c(`[${vL}] external read "${i[0]}" has no registered source`);
 				return;
 			}
 			return n.createExternalTextureBinding({
@@ -140420,7 +140622,7 @@ function XI(e, t) {
 		if (e.textureBindGroup && (n = n.with(e.textureBindGroup)), e.fragment.usesSamplers && p?.samplerBindGroup && (n = n.with(p.samplerBindGroup)), e.fragment.externalReads.length > 0) {
 			let t = e.externalBinding?.update() ?? null;
 			if (!t) {
-				e.externalSkipLogged ||= (s(`[${YI}] external texture not ready — skipping pass (${e.fragment.externalReads.join(", ")})`), !0);
+				e.externalSkipLogged ||= (s(`[${vL}] external texture not ready — skipping pass (${e.fragment.externalReads.join(", ")})`), !0);
 				return;
 			}
 			n = n.with(t);
@@ -140477,13 +140679,13 @@ function XI(e, t) {
 		}
 	};
 }
-function ZI() {
+function bL() {
 	return typeof navigator < "u" && navigator.gpu ? navigator.gpu.getPreferredCanvasFormat() : "bgra8unorm";
 }
-function QI(e) {
+function xL(e) {
 	return `${e}-srgb`;
 }
-function $I(e) {
+function SL(e) {
 	let t = /* @__PURE__ */ new Set();
 	function n(t, ...n) {
 		return e.createTexture.call(e, t).$usage(...n);
@@ -140537,7 +140739,7 @@ function $I(e) {
 				return e.unwrap(n);
 			},
 			createSrgbView() {
-				if (o) return e.unwrap(n).createView({ format: QI(a) });
+				if (o) return e.unwrap(n).createView({ format: xL(a) });
 			},
 			generateMipmaps() {
 				n.generateMipmaps?.();
@@ -140553,7 +140755,7 @@ function $I(e) {
 		return c(n({
 			size: [t, r],
 			format: o,
-			...i ? { viewFormats: [QI(o)] } : {},
+			...i ? { viewFormats: [xL(o)] } : {},
 			...a ? { mipLevelCount: a } : {}
 		}, "sampled", "render"), t, r, o, i);
 	}
@@ -140645,22 +140847,22 @@ function $I(e) {
 		}
 	};
 }
-function eL(e, t) {
-	let n = AI(e)?.definition?.naturalSizeKey;
+function CL(e, t) {
+	let n = $I(e)?.definition?.naturalSizeKey;
 	if (!n) return null;
 	if ("fixed" in n) return n.fixed || null;
 	let r = t[n.fromProp];
 	return typeof r == "string" && r ? r : null;
 }
-function tL(e, t, n) {
+function wL(e, t, n) {
 	if (!e || typeof e != "object") return null;
-	let r = (e, t) => !e || typeof e != "object" || typeof e.value != "number" ? null : e.unit === "px" ? e.value : e.value * t, i = r(e.width, t), a = r(e.height, n);
+	let r = (e, r, i) => e == null || typeof e == "object" && typeof e.value != "number" ? null : mD(e, r, t, n) * i, i = r(e.width, "x", t), a = r(e.height, "y", n);
 	return i != null && a != null && i > 0 && a > 0 ? {
 		widthPx: i,
 		heightPx: a
 	} : null;
 }
-function nL(e, t, n) {
+function TL(e, t, n) {
 	let { type: r, decl: i, props: a, boundingBox: o } = e;
 	if (!(t > 0) || !(n > 0) || e.requiresChild) return null;
 	if (i?.computeBounds) {
@@ -140672,17 +140874,17 @@ function nL(e, t, n) {
 	}
 	let s = i?.propBindings;
 	if (s?.width && s?.height) {
-		let e = oP(s.width, a[s.width.prop], t, n), r = oP(s.height, a[s.height.prop], t, n);
+		let e = kP(s.width, a[s.width.prop], t, n, wP(s, s.width.prop)), r = kP(s.height, a[s.height.prop], t, n, wP(s, s.height.prop));
 		return e > 0 && r > 0 ? {
 			widthPx: e,
 			heightPx: r
 		} : null;
 	}
-	let c = tL(o, t, n);
+	let c = wL(o, t, n);
 	if (c) return c;
-	let l = eL(r, a);
+	let l = CL(r, a);
 	if (l) {
-		let e = qk(l);
+		let e = pA(l);
 		if (e) return {
 			widthPx: e.width,
 			heightPx: e.height
@@ -140690,24 +140892,30 @@ function nL(e, t, n) {
 	}
 	return null;
 }
-function rL(e, t) {
-	return e == null ? 0 : typeof e == "number" ? e : e.unit === "px" ? e.value : e.value * t;
+function EL(e, t, n, r) {
+	if (e == null) return 0;
+	if (typeof e == "number") return e;
+	let i = rD(e);
+	return i ? i.unit === "uv" ? i.value * (t === "y" ? r : n) : pD(i, t, {
+		canvasWidth: n,
+		canvasHeight: r
+	}) ?? 0 : 0;
 }
-function iL(e, t, n) {
+function DL(e, t, n) {
 	return !e || e.mode !== "column" && e.mode !== "row" ? null : {
 		mode: e.mode,
-		gapPx: Math.max(0, rL(e.gap, e.mode === "column" ? n : t)),
+		gapPx: Math.max(0, EL(e.gap, e.mode === "column" ? "y" : "x", t, n)),
 		align: e.align ?? "center",
 		anchor: e.anchor ?? "center",
 		anchorOffsetX: e.anchorOffset?.x ?? 0,
 		anchorOffsetY: e.anchorOffset?.y ?? 0
 	};
 }
-var aL = (e) => ({
+var OL = (e) => ({
 	ox: e.includes("left") ? "start" : e.includes("right") ? "end" : "center",
 	oy: e.includes("top") ? "start" : e.includes("bottom") ? "end" : "center"
-}), oL = (e, t, n, r) => e === "start" ? r : e === "end" ? n - t - r : (n - t) / 2 + r;
-function sL(e, t) {
+}), kL = (e, t, n, r) => e === "start" ? r : e === "end" ? n - t - r : (n - t) / 2 + r;
+function AL(e, t) {
 	let n = 0, r = 0;
 	for (let i of t) {
 		let t = e.mode === "column" ? i.size.heightPx : i.size.widthPx, a = e.mode === "column" ? i.size.widthPx : i.size.heightPx;
@@ -140721,10 +140929,10 @@ function sL(e, t) {
 		heightPx: r
 	};
 }
-function cL(e, t, n, r) {
+function jL(e, t, n, r) {
 	let i = /* @__PURE__ */ new Map();
 	if (t.length === 0) return i;
-	let a = sL(e, t), { ox: o, oy: s } = aL(e.anchor), c = oL(o, a.widthPx, n, e.anchorOffsetX), l = oL(s, a.heightPx, r, e.anchorOffsetY), u = (t, n) => e.align === "start" ? 0 : e.align === "end" ? n - t : (n - t) / 2, d = 0;
+	let a = AL(e, t), { ox: o, oy: s } = OL(e.anchor), c = kL(o, a.widthPx, n, e.anchorOffsetX), l = kL(s, a.heightPx, r, e.anchorOffsetY), u = (t, n) => e.align === "start" ? 0 : e.align === "end" ? n - t : (n - t) / 2, d = 0;
 	for (let n of t) if (e.mode === "column") {
 		let t = c + u(n.size.widthPx, a.widthPx) + n.size.widthPx / 2, r = l + d + n.size.heightPx / 2;
 		i.set(n.id, {
@@ -140740,13 +140948,13 @@ function cL(e, t, n, r) {
 	}
 	return i;
 }
-function lL(e, t, n) {
-	let r = iL(e.layout, t, n);
+function ML(e, t, n) {
+	let r = DL(e.layout, t, n);
 	if (r) {
-		let i = uL(e, t, n);
-		return i.length === 0 ? null : sL(r, i);
+		let i = NL(e, t, n);
+		return i.length === 0 ? null : AL(r, i);
 	}
-	return nL({
+	return TL({
 		type: e.componentName,
 		decl: e.decl,
 		props: e.props,
@@ -140755,11 +140963,11 @@ function lL(e, t, n) {
 		availableWidthPx: t
 	}, t, n);
 }
-function uL(e, t, n) {
+function NL(e, t, n) {
 	let r = [];
 	for (let i of e.children) {
 		if (i.visible === !1 || i.absolute) continue;
-		let e = lL(i, t, n);
+		let e = ML(i, t, n);
 		e && r.push({
 			id: i.id,
 			size: e,
@@ -140768,7 +140976,7 @@ function uL(e, t, n) {
 	}
 	return r;
 }
-function dL(e, t, n) {
+function PL(e, t, n) {
 	if (!e.decl?.computeBounds) return {
 		x: 0,
 		y: 0
@@ -140779,10 +140987,10 @@ function dL(e, t, n) {
 		y: r.centerYPx - a * n
 	};
 }
-function fL(e, t, n, r, i, a, o, s) {
-	let c = iL(e.layout, i, a);
+function FL(e, t, n, r, i, a, o, s) {
+	let c = DL(e.layout, i, a);
 	if (c) {
-		pL(e, c, i, a, o, {
+		IL(e, c, i, a, o, {
 			centerXPx: n,
 			centerYPx: r
 		}, s);
@@ -140791,7 +140999,7 @@ function fL(e, t, n, r, i, a, o, s) {
 	let l = e.decl?.propBindings?.x?.prop ?? e.decl?.propBindings?.y?.prop;
 	if (l) {
 		if (!e.positionDriven) {
-			let t = dL(e, i, a);
+			let t = PL(e, i, a);
 			o.push({
 				kind: "position",
 				id: e.id,
@@ -140811,12 +141019,12 @@ function fL(e, t, n, r, i, a, o, s) {
 		heightPx: t.heightPx
 	});
 }
-function pL(e, t, n, r, i, a, o, s) {
-	let c = s ?? uL(e, n, r);
+function IL(e, t, n, r, i, a, o, s) {
+	let c = s ?? NL(e, n, r);
 	if (c.length === 0) return;
 	let l = t;
 	if (a) {
-		let e = sL(t, c);
+		let e = AL(t, c);
 		l = {
 			...t,
 			anchor: "top-left",
@@ -140825,26 +141033,26 @@ function pL(e, t, n, r, i, a, o, s) {
 		};
 	}
 	if (o) {
-		let t = sL(l, c), { ox: i, oy: a } = aL(l.anchor);
+		let t = AL(l, c), { ox: i, oy: a } = OL(l.anchor);
 		o.set(e.id, {
-			leftPx: oL(i, t.widthPx, n, l.anchorOffsetX),
-			topPx: oL(a, t.heightPx, r, l.anchorOffsetY),
+			leftPx: kL(i, t.widthPx, n, l.anchorOffsetX),
+			topPx: kL(a, t.heightPx, r, l.anchorOffsetY),
 			widthPx: t.widthPx,
 			heightPx: t.heightPx
 		});
 	}
-	let u = cL(l, c, n, r);
+	let u = jL(l, c, n, r);
 	for (let e of c) {
 		let t = u.get(e.id);
-		t && fL(e.view, e.size, t.centerXPx, t.centerYPx, n, r, i, o);
+		t && FL(e.view, e.size, t.centerXPx, t.centerYPx, n, r, i, o);
 	}
 }
-function mL(e, t, n, r) {
+function LL(e, t, n, r) {
 	let i = [], a = (e) => {
-		let o = iL(e.layout, t, n);
+		let o = DL(e.layout, t, n);
 		if (o) {
-			let s = uL(e, t, n);
-			pL(e, o, t, n, i, void 0, r, s);
+			let s = NL(e, t, n);
+			IL(e, o, t, n, i, void 0, r, s);
 			let c = new Set(s.map((e) => e.id));
 			for (let t of e.children) t.visible !== !1 && (c.has(t.id) || a(t));
 		} else for (let t of e.children) t.visible !== !1 && a(t);
@@ -140852,7 +141060,7 @@ function mL(e, t, n, r) {
 	for (let t of e) t.visible !== !1 && a(t);
 	return i;
 }
-var hL = class {
+var RL = class {
 	frameTimesMs = [];
 	frameTimesIndex = 0;
 	frameTimesCount = 0;
@@ -141001,7 +141209,7 @@ var hL = class {
 	reset() {
 		this.frameTimesMs.length = 0, this.frameTimesIndex = 0, this.frameTimesCount = 0, this.frameIntervals.length = 0, this.frameIntervalsIndex = 0, this.frameIntervalsCount = 0, this.lastFrameTimestamp = 0, this.jankFrameCount = 0, this.totalFrameCount = 0, this.memorySnapshots.length = 0, this.memorySnapshotIndex = 0, this.sortBuffer.length = 0, this.lastCpuTime = null, this.lastGpuTime = null;
 	}
-}, gL = 32, _L = 5, vL = (() => {
+}, zL = 32, BL = 5, VL = (() => {
 	let e = 0, t = /* @__PURE__ */ new Set(), n = (e, n) => {
 		t.forEach((t) => {
 			try {
@@ -141017,7 +141225,7 @@ var hL = class {
 		};
 	} };
 })();
-function yL(e) {
+function HL(e) {
 	if (!e) return !1;
 	let t = e;
 	if (typeof e == "string") try {
@@ -141032,11 +141240,11 @@ function yL(e) {
 	}
 	return !1;
 }
-function bL() {
-	let e = null, n = null, r = null, i = null, a = null, s = null, l = !1, u = !1, d = !1, f = null, p = /* @__PURE__ */ new Map(), g = null, _ = /* @__PURE__ */ new Map(), v = [], y = [], b = JI({
+function UL() {
+	let e = null, n = null, r = null, i = null, a = null, s = null, l = !1, u = !1, d = !1, f = null, p = /* @__PURE__ */ new Map(), g = null, _ = /* @__PURE__ */ new Map(), v = [], y = [], b = _L({
 		maxSize: 4,
-		dispose: (e) => qt(e)
-	}), x = /* @__PURE__ */ new Set(), S = null, C = null, w = !0, T = 0, E = 0, ee = 0, te = 0, ne = 1, re = 8192, ie = 0, ae = 0, oe = !1, se = () => ee || T || 1, ce = () => te || E || 1, le = !0, ue = !1, de = !1, fe = 0, pe = 0, me = 0, he = null, ge = null, _e = !1, ve = -10, ye = -10, be = !1, xe = !1, Se = null, Ce = !1, we = null, Te = null, Ee = null, De = null, Oe = null, ke = null, Ae = !1, je = "p3-linear", Me = "linear", Ne = !1, Pe = null, Fe = null, Ie = !1, Le = !1, Re = null, ze = !1, Be = null, Ve = null, He = !1, Ue = null, We = null, Ge = 0, Ke = 0, qe = new hL(), Je = {
+		dispose: (e) => Yt(e)
+	}), x = /* @__PURE__ */ new Set(), S = null, C = null, w = !0, T = 0, E = 0, ee = 0, te = 0, ne = 1, re = 8192, ie = 0, ae = 0, oe = !1, se = () => ee || T || 1, ce = () => te || E || 1, le = !0, ue = !1, de = !1, fe = 0, pe = 0, me = 0, he = null, ge = null, _e = !1, ve = -10, ye = -10, be = !1, xe = !1, Se = null, Ce = !1, we = null, Te = null, Ee = null, De = null, Oe = null, ke = null, Ae = !1, je = "p3-linear", Me = "linear", Ne = !1, Pe = null, Fe = null, Ie = !1, Le = !1, Re = null, ze = !1, Be = null, Ve = null, He = !1, Ue = null, We = null, Ge = 0, Ke = 0, qe = new RL(), Je = {
 		deltaTime: 0,
 		pointer: {
 			x: -10,
@@ -141048,7 +141256,7 @@ function bL() {
 			width: 0,
 			height: 0
 		}
-	}, Ye = Sj((e) => hn(e)), Xe = (e) => e.replace(/[^a-zA-Z0-9_]/g, "_"), Ze = (e) => {
+	}, Ye = Hj((e) => _n(e)), Xe = (e) => e.replace(/[^a-zA-Z0-9_]/g, "_"), Ze = (e) => {
 		let t = _.get(e);
 		if (!t) return [];
 		let n = [];
@@ -141067,31 +141275,47 @@ function bL() {
 		if (!n) return;
 		let r = {};
 		for (let [t, n] of Object.entries(e.uniforms)) r[t] = n._rawDimensional === void 0 ? n.value : n._rawDimensional;
-		return tt(e, r.shapeSdfUrl), sP(n, r, se(), ce());
+		return tt(e, r.shapeSdfUrl), AP(n, r, se(), ce());
 	}, et = /* @__PURE__ */ new WeakMap(), tt = (e, t) => {
-		if (typeof t != "string" || !t || fj(t)) return;
+		if (typeof t != "string" || !t || Mj(t)) return;
 		let n = et.get(e) ?? /* @__PURE__ */ new Set();
-		et.set(e, n), !n.has(t) && (n.add(t), uj(t, () => {
-			n.delete(t), p.get(e.id) === e && (nt(e), pt() && ft(), Xt());
+		et.set(e, n), !n.has(t) && (n.add(t), Aj(t, () => {
+			n.delete(t), p.get(e.id) === e && (nt(e), ht() && mt(), Qt());
 		}));
 	}, nt = (e) => {
-		let t = e.boundingBoxDeclaration, n = e.extraDimProps, r = rP(t, n);
+		let t = e.boundingBoxDeclaration, n = e.extraDimProps, r = TP(t, n);
 		if (!r) return;
 		let i = e.uniforms.origin?.value ?? "center", a = $e(e, i), o = [...r.positionProps, ...r.sizeProps.keys()];
-		for (let r of o) {
-			let o = e.uniforms[r];
-			if (!o || o._rawDimensional === void 0) continue;
-			let s = uP(t, r, o._rawDimensional, i, se(), ce(), n, a);
-			o.value = s, Dt(e, r, s);
+		for (let t of o) {
+			let n = e.uniforms[t];
+			if (!n || n._rawDimensional === void 0) continue;
+			let r = rt(e, t, n._rawDimensional, i, a);
+			n.value = r, kt(e, t, r);
 		}
-	}, rt = (e, t, n) => {
-		if (typeof n == "number") return n;
-		let r = e.uniforms.origin?.value ?? "center", i = uP(e.boundingBoxDeclaration, t, n, r, se(), ce(), e.extraDimProps);
-		return typeof i == "number" ? i : n?.value ?? 0;
+	}, rt = (e, t, n, r, i) => {
+		let a = NP(e.boundingBoxDeclaration, t, n, r, se(), ce(), e.extraDimProps, i);
+		return a === void 0 ? e.definition.props?.[t]?.default : a;
 	}, it = () => {
-		let { width: e, height: t } = Ut();
+		uD();
+		let e = !1;
+		for (let t of p.values()) {
+			if (lt(t) && gD(t.metadata.boundingBox)) {
+				let n = ct(t);
+				if (n) for (let [e, r] of Object.entries(n)) At(t, `_bbox_${e}`, r);
+				e = !0;
+			}
+			let n = TP(t.boundingBoxDeclaration, t.extraDimProps);
+			n && [...n.positionProps, ...n.sizeProps.keys()].some((e) => iD(t.uniforms[e]?._rawDimensional)) && (nt(t), e = !0);
+		}
+		e && (ht() && mt(), Qt());
+	}, at = (e, t, n) => {
+		if (typeof n == "number") return n;
+		let r = rt(e, t, n, e.uniforms.origin?.value ?? "center", void 0);
+		return typeof r == "number" ? r : n?.value ?? 0;
+	}, ot = () => {
+		let { width: e, height: t } = Gt();
 		return e / Math.max(1, t);
-	}, at = (e) => {
+	}, st = (e) => {
 		let t = e.metadata.transform;
 		return {
 			offsetX: t?.offsetX ?? 0,
@@ -141100,12 +141324,12 @@ function bL() {
 			scale: t?.scale ?? 1,
 			anchorX: t?.anchorX ?? .5,
 			anchorY: t?.anchorY ?? .5,
-			aspectRatio: it()
+			aspectRatio: ot()
 		};
-	}, ot = (e) => {
+	}, ct = (e) => {
 		let t = e.metadata.boundingBox;
 		if (!t) return null;
-		let n = $E(t, se(), ce());
+		let n = bD(t, se(), ce());
 		return {
 			centerX: n.centerX,
 			centerY: n.centerY,
@@ -141113,14 +141337,14 @@ function bL() {
 			halfHeight: n.halfHeightUV,
 			cornerRadius: n.cornerRadiusUV,
 			rotation: n.rotation,
-			aspectRatio: it()
+			aspectRatio: ot()
 		};
-	}, st = (e) => !!e.metadata.boundingBox && !!e.boundingBoxDeclaration && !rD(e.metadata.boundingBox), ct = (e) => {
+	}, lt = (e) => !!e.metadata.boundingBox && !!e.boundingBoxDeclaration && !_D(e.metadata.boundingBox), ut = (e) => {
 		let t = e.boundingBoxDeclaration;
 		if (!t || !e.uniforms || !t.computeBounds && !t.propBindings) return null;
 		let n = {};
 		for (let [t, r] of Object.entries(e.uniforms)) n[t] = r._rawDimensional === void 0 ? r.value : r._rawDimensional;
-		let r = sP(t, n, se(), ce());
+		let r = AP(t, n, se(), ce());
 		if (r.hwx <= 0 && r.hhy <= 0) return null;
 		let i = .5, a = .5, o = t.propBindings?.x?.prop ?? t.propBindings?.y?.prop, s = o ? e.uniforms[o]?.value : void 0;
 		if (s && typeof s.x == "number" && typeof s.y == "number" && (i = s.x, a = s.y), o) {
@@ -141136,31 +141360,31 @@ function bL() {
 			halfWidth: r.hwx,
 			halfHeight: r.hhy
 		};
-	}, lt = (e) => {
+	}, dt = (e) => {
 		if (!e.definition.wantsBoundsParams) return null;
 		let t = Ze(e.id).sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder);
 		for (let e of t) {
 			if (e.metadata.visible === !1) continue;
-			if (st(e)) return null;
-			let t = ct(e);
+			if (lt(e)) return null;
+			let t = ut(e);
 			if (t) return t;
 		}
 		return null;
-	}, ut = () => {
+	}, ft = () => {
 		for (let e of p.values()) {
 			if (!e.definition.wantsBoundsParams) continue;
-			let t = lt(e);
-			t && (Ot(e, "_childBounds_centerX", t.centerX), Ot(e, "_childBounds_centerY", t.centerY), Ot(e, "_childBounds_halfWidth", t.halfWidth), Ot(e, "_childBounds_halfHeight", t.halfHeight));
+			let t = dt(e);
+			t && (At(e, "_childBounds_centerX", t.centerX), At(e, "_childBounds_centerY", t.centerY), At(e, "_childBounds_halfWidth", t.halfWidth), At(e, "_childBounds_halfHeight", t.halfHeight));
 		}
-	}, dt = !1, ft = () => {
-		dt = !0, Xt();
-	}, pt = () => {
+	}, pt = !1, mt = () => {
+		pt = !0, Qt();
+	}, ht = () => {
 		for (let e of p.values()) {
 			let t = e.metadata.flow?.mode;
 			if (t === "column" || t === "row") return !0;
 		}
 		return !1;
-	}, mt = (e) => {
+	}, gt = (e) => {
 		let t = {};
 		for (let [n, r] of Object.entries(e.uniforms)) t[n] = r._rawDimensional === void 0 ? r.value : r._rawDimensional;
 		let n = e.boundingBoxDeclaration?.propBindings?.x?.prop ?? e.boundingBoxDeclaration?.propBindings?.y?.prop, r = n ? e.uniforms[n]?.value : void 0, i = !(!n || r?.type !== "mouse-position" && !e.metadata.maps?.[n]);
@@ -141175,19 +141399,19 @@ function bL() {
 			props: t,
 			boundingBox: e.metadata.boundingBox,
 			positionDriven: i,
-			children: Ze(e.id).sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder).map(mt)
+			children: Ze(e.id).sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder).map(gt)
 		};
-	}, ht = () => {
-		if (!pt()) {
-			dt = !1;
+	}, _t = () => {
+		if (!ht()) {
+			pt = !1;
 			return;
 		}
 		let e = se(), t = ce();
 		if (e <= 1 || t <= 1) return;
-		dt = !1;
+		pt = !1;
 		let n = [];
-		for (let e of p.values()) e.parentId === null && n.push(mt(e));
-		let r = mL(n, e, t);
+		for (let e of p.values()) e.parentId === null && n.push(gt(e));
+		let r = LL(n, e, t);
 		for (let e of r) {
 			let t = p.get(e.id);
 			if (t) {
@@ -141199,9 +141423,9 @@ function bL() {
 						x: e.value.x,
 						y: e.value.y
 					} : e.value;
-					n.value = i, Dt(t, e.prop, i);
+					n.value = i, kt(t, e.prop, i);
 				} else {
-					let n = st(t);
+					let n = lt(t);
 					if (t.metadata.boundingBox = {
 						x: {
 							value: e.xPx,
@@ -141223,25 +141447,25 @@ function bL() {
 						rotation: t.metadata.boundingBox?.rotation ?? 0,
 						...t.metadata.boundingBox?.cornerRadius ? { cornerRadius: t.metadata.boundingBox.cornerRadius } : {},
 						...t.metadata.boundingBox?.lockAspect === void 0 ? {} : { lockAspect: t.metadata.boundingBox.lockAspect }
-					}, !n && st(t)) Yt();
+					}, !n && lt(t)) Zt();
 					else {
-						let e = ot(t);
-						if (e) for (let [n, r] of Object.entries(e)) Ot(t, `_bbox_${n}`, r);
+						let e = ct(t);
+						if (e) for (let [n, r] of Object.entries(e)) At(t, `_bbox_${n}`, r);
 					}
 				}
 			}
 		}
-	}, gt = () => {
-		dt && ht();
-	}, _t = null, vt = () => {
-		pt() && ft();
-	}, yt = () => {
-		_t ||= Jk(() => {
-			pt() && ft();
-		}), typeof document < "u" && document.fonts?.addEventListener && document.fonts.addEventListener("loadingdone", vt);
+	}, vt = () => {
+		pt && _t();
+	}, yt = null, bt = () => {
+		ht() && mt();
+	}, xt = () => {
+		yt ||= mA(() => {
+			ht() && mt();
+		}), typeof document < "u" && document.fonts?.addEventListener && document.fonts.addEventListener("loadingdone", bt);
 	};
-	yt();
-	let bt = (e) => ZE(e.metadata.transform), xt = (e, t, n) => {
+	xt();
+	let St = (e) => vD(e.metadata.transform), Ct = (e, t, n) => {
 		let r = e.mapValues[t] ?? {
 			inputMin: 0,
 			inputMax: 1,
@@ -141251,16 +141475,16 @@ function bL() {
 		};
 		if (n.type === "map") {
 			let i = n;
-			r.inputMin = i.inputMin, r.inputMax = i.inputMax, r.outputMin = rt(e, t, i.outputMin), r.outputMax = rt(e, t, i.outputMax), r.curve = i.curve ?? 0;
+			r.inputMin = i.inputMin, r.inputMax = i.inputMax, r.outputMin = at(e, t, i.outputMin), r.outputMax = at(e, t, i.outputMax), r.curve = i.curve ?? 0;
 		} else if (n.type === "mouse") {
 			let i = n;
-			r.outputMin = rt(e, t, i.outputMin), r.outputMax = rt(e, t, i.outputMax), r.curve = i.curve ?? 0;
+			r.outputMin = at(e, t, i.outputMin), r.outputMax = at(e, t, i.outputMax), r.curve = i.curve ?? 0;
 		} else if (n.type === "auto-animate") {
 			let i = n;
-			r.outputMin = rt(e, t, i.outputMin), r.outputMax = rt(e, t, i.outputMax);
+			r.outputMin = at(e, t, i.outputMin), r.outputMax = at(e, t, i.outputMax);
 		}
 		return e.mapValues[t] = r, r;
-	}, St = (e, t, n) => {
+	}, wt = (e, t, n) => {
 		let r = e.mouseDriverState[t];
 		if (r) return r;
 		if (n.type === "mouse-position") {
@@ -141280,13 +141504,13 @@ function bL() {
 			pointerSnapped: xe
 		};
 		return e.mouseDriverState[t] = r, r;
-	}, Ct = (e) => {
+	}, Tt = (e) => {
 		let t = e.metadata.maps;
-		if (t) for (let [n, r] of Object.entries(t)) n in e.uniforms && (r.type === "map" ? xt(e, n, r) : r.type === "mouse-position" ? St(e, n, r) : r.type === "mouse" ? (St(e, n, r), xt(e, n, r)) : r.type === "auto-animate" && (e.autoAnimateState[n] || (e.autoAnimateState[n] = {}), xt(e, n, r)));
-	}, wt = (e) => {
+		if (t) for (let [n, r] of Object.entries(t)) n in e.uniforms && (r.type === "map" ? Ct(e, n, r) : r.type === "mouse-position" ? wt(e, n, r) : r.type === "mouse" ? (wt(e, n, r), Ct(e, n, r)) : r.type === "auto-animate" && (e.autoAnimateState[n] || (e.autoAnimateState[n] = {}), Ct(e, n, r)));
+	}, Et = (e) => {
 		let t = e.definition.animatedTime;
 		return (t ? e.uniforms[t.speed] : void 0) ?? e;
-	}, Tt = (e, t) => e.uniforms[t] ?? e, Et = (e) => {
+	}, Dt = (e, t) => e.uniforms[t] ?? e, Ot = (e) => {
 		let t = [];
 		for (let [n, r] of Object.entries(e.uniforms)) t.push({
 			name: n,
@@ -141302,11 +141526,11 @@ function bL() {
 		}), e.definition.animatedTime && t.push({
 			name: "_animTime",
 			schema: P,
-			initial: GI(wt(e)).value
+			initial: mL(Et(e)).value
 		}), e.definition.extraAnimatedTimes) for (let [n, r] of Object.entries(e.definition.extraAnimatedTimes)) t.push({
 			name: `_animTime_${n}`,
 			schema: P,
-			initial: GI(Tt(e, r)).value
+			initial: mL(Dt(e, r)).value
 		});
 		let n = e.definition.extraFields;
 		if (n) for (let [e, r] of Object.entries(n)) t.push({
@@ -141314,16 +141538,16 @@ function bL() {
 			schema: r.schema,
 			initial: r.initial
 		});
-		if (bt(e)) {
-			let n = at(e);
+		if (St(e)) {
+			let n = st(e);
 			for (let [e, r] of Object.entries(n)) t.push({
 				name: `_xform_${e}`,
 				schema: P,
 				initial: r
 			});
 		}
-		if (st(e)) {
-			let n = ot(e);
+		if (lt(e)) {
+			let n = ct(e);
 			if (n) for (let [e, r] of Object.entries(n)) t.push({
 				name: `_bbox_${e}`,
 				schema: P,
@@ -141331,7 +141555,7 @@ function bL() {
 			});
 		}
 		if (e.definition.wantsBoundsParams) {
-			let n = lt(e) ?? {
+			let n = dt(e) ?? {
 				centerX: .5,
 				centerY: .5,
 				halfWidth: .5,
@@ -141345,7 +141569,7 @@ function bL() {
 		}
 		let r = e.metadata.maps;
 		if (r) {
-			Ct(e);
+			Tt(e);
 			for (let [n, i] of Object.entries(r)) if (n in e.uniforms) {
 				if (i.type === "map") {
 					let r = e.mapValues[n];
@@ -141395,43 +141619,43 @@ function bL() {
 			}
 		}
 		return t;
-	}, Dt = (e, t, n) => {
-		let r = e._liveHandles?.[t];
-		r && (Pe?.(je), TC(r, n));
-	}, Ot = (e, t, n) => {
-		let r = e._liveHandles?.[t];
-		r instanceof bC && (r.value = n);
 	}, kt = (e, t, n) => {
 		let r = e._liveHandles?.[t];
+		r && (Pe?.(je), TC(r, n));
+	}, At = (e, t, n) => {
+		let r = e._liveHandles?.[t];
+		r instanceof bC && (r.value = n);
+	}, jt = (e, t, n) => {
+		let r = e._liveHandles?.[t];
 		r instanceof bC ? r.value = n : r instanceof xC && Array.isArray(n) && (r.array = n);
-	}, At = (e) => {
+	}, Mt = (e) => {
 		for (let t of Object.values(e.uniforms)) if (t.transform === Ki) {
 			let e = t.value;
 			if (typeof e == "string") return Ki(e);
 			if (typeof e == "number") return e;
 		}
 		return 0;
-	}, jt = (e) => {
+	}, Nt = (e) => {
 		if (!e.uniforms.convertedColorsArray) return;
 		let t = null;
-		for (let n of Object.values(e.uniforms)) if (n.transform === PN) {
+		for (let n of Object.values(e.uniforms)) if (n.transform === eP) {
 			t = n.value ?? null;
 			break;
 		}
-		let n = yk(t, ZN), r = bk(n.colors, n.stopCount, At(e)), i = (t, n) => {
+		let n = zk(t, _P), r = Bk(n.colors, n.stopCount, Mt(e)), i = (t, n) => {
 			let r = e.uniforms[t];
-			r && (r.value = n), Dt(e, t, n);
+			r && (r.value = n), kt(e, t, n);
 		};
 		i("colorsArray", n.colors), i("positionsArray", n.positions), i("convertedColorsArray", r), i("stopCount", n.stopCount);
-	}, Mt = (e, t) => {
+	}, Pt = (e, t) => {
 		let n = e.uniforms[t], r = n?._listSpec;
 		if (!n || !r) return;
-		let i = n._rawList, a = /* @__PURE__ */ new Set(), o = HN(i, r, {
-			color: ZN,
+		let i = n._rawList, a = /* @__PURE__ */ new Set(), o = cP(i, r, {
+			color: _P,
 			drivenPosition: (n, r, i) => {
-				let o = BN(t, n, r);
+				let o = oP(t, n, r);
 				a.add(o);
-				let s = St(e, o, i);
+				let s = wt(e, o, i);
 				return s.liveX !== void 0 && s.liveY !== void 0 ? {
 					x: s.liveX,
 					y: 1 - s.liveY
@@ -141439,45 +141663,45 @@ function bL() {
 			}
 		});
 		for (let n of Object.keys(e.mouseDriverState)) {
-			let r = VN(n);
+			let r = sP(n);
 			r && r.prop === t && !a.has(n) && delete e.mouseDriverState[n];
 		}
-		n.value = o, Dt(e, t, o);
-		let s = GN(o, r), c = (t, n) => {
+		n.value = o, kt(e, t, o);
+		let s = dP(o, r), c = (t, n) => {
 			let r = e.uniforms[t];
-			r && (r.value = n), Dt(e, t, n);
+			r && (r.value = n), kt(e, t, n);
 		};
-		for (let [e, n] of Object.entries(s.fields)) c(LN(t, e), n);
-		c(RN(t), s.count);
-	}, Nt = (e, t) => {
+		for (let [e, n] of Object.entries(s.fields)) c(rP(t, e), n);
+		c(iP(t), s.count);
+	}, Ft = (e, t) => {
 		let n = e.metadata.maps?.[t];
 		if (n) return n;
-		let r = VN(t);
+		let r = sP(t);
 		if (!r) return;
 		let i = e.uniforms[r.prop]?._rawList, a = (Array.isArray(i) ? i[r.index] : void 0)?.[r.field];
-		return zN(a) ? a : void 0;
-	}, Pt = (e) => Object.values(e.uniforms).some((e) => e._listSpec && KN(e._rawList, e._listSpec)), Ft = (e) => {
-		if (Ot(e, "_opacity", e.metadata.opacity ?? 1), e.definition.animatedTime && Ot(e, "_animTime", GI(wt(e)).value), e.definition.extraAnimatedTimes) for (let [t, n] of Object.entries(e.definition.extraAnimatedTimes)) Ot(e, `_animTime_${t}`, GI(Tt(e, n)).value);
-		if (bt(e)) for (let [t, n] of Object.entries(at(e))) Ot(e, `_xform_${t}`, n);
-		if (st(e)) {
-			let t = ot(e);
-			if (t) for (let [n, r] of Object.entries(t)) Ot(e, `_bbox_${n}`, r);
+		return aP(a) ? a : void 0;
+	}, It = (e) => Object.values(e.uniforms).some((e) => e._listSpec && fP(e._rawList, e._listSpec)), Lt = (e) => {
+		if (At(e, "_opacity", e.metadata.opacity ?? 1), e.definition.animatedTime && At(e, "_animTime", mL(Et(e)).value), e.definition.extraAnimatedTimes) for (let [t, n] of Object.entries(e.definition.extraAnimatedTimes)) At(e, `_animTime_${t}`, mL(Dt(e, n)).value);
+		if (St(e)) for (let [t, n] of Object.entries(st(e))) At(e, `_xform_${t}`, n);
+		if (lt(e)) {
+			let t = ct(e);
+			if (t) for (let [n, r] of Object.entries(t)) At(e, `_bbox_${n}`, r);
 		}
 		let t = e.metadata.maps;
 		if (t) {
 			for (let [n, r] of Object.entries(t)) if (r.type === "map" && e.mapValues[n]) {
 				let t = e.mapValues[n];
-				Ot(e, `_map_${n}_inputMin`, t.inputMin), Ot(e, `_map_${n}_inputMax`, t.inputMax), Ot(e, `_map_${n}_outputMin`, t.outputMin), Ot(e, `_map_${n}_outputMax`, t.outputMax), Ot(e, `_map_${n}_curve`, t.curve);
+				At(e, `_map_${n}_inputMin`, t.inputMin), At(e, `_map_${n}_inputMax`, t.inputMax), At(e, `_map_${n}_outputMin`, t.outputMin), At(e, `_map_${n}_outputMax`, t.outputMax), At(e, `_map_${n}_curve`, t.curve);
 			}
 		}
-	}, It = (e, t) => {
+	}, Rt = (e, t) => {
 		let n = {};
 		for (let r of Object.keys(e.uniforms)) {
 			let e = t[r];
 			e && (n[r] = e);
 		}
 		return n;
-	}, Lt = (e) => {
+	}, zt = (e) => {
 		let t = {};
 		for (let [n, r] of Object.entries(e.uniforms)) t[n] = {
 			accessorPath: "",
@@ -141485,7 +141709,7 @@ function bL() {
 			value: r.value
 		};
 		return t;
-	}, Rt = (e, t) => ({
+	}, Bt = (e, t) => ({
 		id: e.id,
 		customId: e.metadata.id,
 		componentName: e.componentName,
@@ -141494,8 +141718,8 @@ function bL() {
 		metadata: e.metadata,
 		handles: t,
 		domCanvas: e.domCanvas
-	}), zt = (e, t) => {
-		let n = /* @__PURE__ */ new Map(), r = (n) => Rt(n, e && t ? It(n, t.get(n.id) ?? {}) : Lt(n)), i = (e) => {
+	}), Vt = (e, t) => {
+		let n = /* @__PURE__ */ new Map(), r = (n) => Bt(n, e && t ? Rt(n, t.get(n.id) ?? {}) : zt(n)), i = (e) => {
 			let t = n.get(e);
 			if (t) return t;
 			let i = p.get(e);
@@ -141513,19 +141737,19 @@ function bL() {
 				layout: e?.layout
 			}
 		};
-	}, Bt = () => ({
+	}, Ht = () => ({
 		toneMapping: Me,
 		flipY: !1,
 		premultiplyAlpha: !0,
 		canvas: s ?? void 0,
-		dimensions: Ut(),
+		dimensions: Gt(),
 		gpu: n ? {
 			device: n.device,
 			root: n
 		} : void 0,
 		writeExtraField: (e, t, n) => {
 			let r = p.get(e);
-			r && kt(r, t, n);
+			r && jt(r, t, n);
 		},
 		createMediaTexture: (e) => {
 			if (!i) throw Error("[gpu] createMediaTexture before init");
@@ -141538,7 +141762,7 @@ function bL() {
 		resolveMapWindow: (e, t) => {
 			let n = p.get(e), r = n?.metadata.maps?.[t];
 			if (!n || !r || r.type !== "map") return;
-			let i = xt(n, t, r);
+			let i = Ct(n, t, r);
 			return {
 				inputMin: i.inputMin,
 				inputMax: i.inputMax,
@@ -141569,7 +141793,7 @@ function bL() {
 				}
 			}
 		}
-	}), Vt = () => {
+	}), Ut = () => {
 		let e = [];
 		for (let [t, n] of p) {
 			let r = n.metadata;
@@ -141590,19 +141814,19 @@ function bL() {
 			}
 		}
 		return e;
-	}, Ht = () => g ? qI([...jD(zt(null, null), Bt()), ...Vt()]) : null, Ut = () => ({
+	}, Wt = () => g ? gL([...ZD(Vt(null, null), Ht()), ...Ut()]) : null, Gt = () => ({
 		width: Math.max(1, Math.round(T * ne)),
 		height: Math.max(1, Math.round(E * ne))
-	}), Wt = (e) => {
+	}), Kt = (e) => {
 		let t = {};
 		for (let n of e.textures) n.kind !== "rtt" && n.resource && (t[n.key] = n.resource);
 		return t;
-	}, Gt = (e) => {
+	}, qt = (e) => {
 		if (!n || !i || !a) throw Error("[gpu] buildComposition before init");
-		let t = wC(n, { systemSchema: KI }), r = /* @__PURE__ */ new Map();
-		for (let [e, n] of p) r.set(e, t.defineNode(e, Et(n)));
+		let t = wC(n, { systemSchema: hL }), r = /* @__PURE__ */ new Map();
+		for (let [e, n] of p) r.set(e, t.defineNode(e, Ot(n)));
 		t.defineSystem(), t.finalize();
-		let o = wD(zt(t, r), Bt()), s = XI(n, {
+		let o = WD(Vt(t, r), Ht()), s = yL(n, {
 			textureManager: i,
 			dispatcher: a
 		}), c = {
@@ -141616,16 +141840,16 @@ function bL() {
 		}, l = o.usesCustomWgsl ? n.device : void 0;
 		l && l.pushErrorScope("validation");
 		try {
-			s.setComposition(o, t.bindGroup, Ut(), Wt(o));
+			s.setComposition(o, t.bindGroup, Gt(), Kt(o));
 		} finally {
 			l && l.popErrorScope().then((e) => {
-				e && !c.broken && Kt(c, e.message);
+				e && !c.broken && Jt(c, e.message);
 			}).catch(() => {});
 		}
 		return x.add(c), c;
-	}, Kt = (e, t) => {
+	}, Jt = (e, t) => {
 		e.broken = t, o("[gpu] a shader in this composition failed GPU validation — it will not draw until it changes. If you are writing a wgsl`…` body, the message below points at the line:\n" + t);
-	}, qt = (e) => {
+	}, Yt = (e) => {
 		try {
 			for (let t of e.ir.onCleanup) t();
 		} catch (e) {
@@ -141642,7 +141866,7 @@ function bL() {
 			c("[gpu] store destroy error:", e);
 		}
 		x.delete(e), S === e && (S = null);
-	}, Jt = (e) => {
+	}, Xt = (e) => {
 		let t = !1;
 		for (let [n, r] of e.handlesById) {
 			let e = p.get(n);
@@ -141651,20 +141875,20 @@ function bL() {
 		if (e !== S || t) {
 			if (!e.fresh) {
 				for (let e of p.values()) {
-					for (let [t, n] of Object.entries(e.uniforms)) Dt(e, t, n.value);
-					Ct(e), Ft(e);
+					for (let [t, n] of Object.entries(e.uniforms)) kt(e, t, n.value);
+					Tt(e), Lt(e);
 				}
 				e.store.writeAll();
 			}
 			e.fresh = !1, S = e, !Ie && e.ir.composedNodeIds.size > 0 && (Le = !0);
 		}
-	}, Yt = () => {
-		w = !0, pt() && (dt = !0), Xt();
-	}, Xt = () => {
+	}, Zt = () => {
+		w = !0, ht() && (pt = !0), Qt();
+	}, Qt = () => {
 		Be || _e || Ye.running || ge === null && typeof requestAnimationFrame == "function" && (ge = requestAnimationFrame((e) => {
-			ge = null, hn(e);
+			ge = null, _n(e);
 		}));
-	}, Zt = (e, t, n, r, i = {}, a, o) => {
+	}, $t = (e, t, n, r, i = {}, a, o) => {
 		if (Be) return;
 		if (t === null) {
 			let t = v.findIndex((t) => t.id === e);
@@ -141672,7 +141896,7 @@ function bL() {
 				v.splice(t, 1), y = y.filter((t) => t.id !== e);
 				return;
 			}
-			tn(e);
+			rn(e);
 			return;
 		}
 		if (!a) {
@@ -141715,7 +141939,7 @@ function bL() {
 			boundingBox: r?.boundingBox,
 			flow: r?.flow,
 			absolute: r?.absolute
-		}, l = a.boundingBoxDeclaration, u = a.props ? nP(a.props) : void 0, f = {
+		}, l = a.boundingBoxDeclaration, u = a.props ? SP(a.props) : void 0, f = {
 			id: e,
 			componentName: a.name || "Unknown",
 			parentId: n,
@@ -141739,25 +141963,25 @@ function bL() {
 			_liveHandles: null
 		};
 		if (l || u) {
-			let e = rP(l, u);
+			let e = TP(l, u);
 			if (e) {
 				let t = i.origin?.value ?? "center", n = $e(f, t);
 				for (let r of [...e.positionProps, ...e.sizeProps.keys()]) {
 					let e = i[r];
-					e && (e._rawDimensional === void 0 && (e._rawDimensional = e.value), e.value = uP(l, r, e._rawDimensional, t, se(), ce(), u, n));
+					e && (e._rawDimensional === void 0 && (e._rawDimensional = e.value), e.value = rt(f, r, e._rawDimensional, t, n));
 				}
 			}
 		}
 		for (let e of Object.values(i)) e.compileTimeWhen && e._lastCompiledValue === void 0 && (e._lastCompiledValue = e.value);
 		p.set(e, f), n === null && (g = e);
 		let m = _.get(n) || /* @__PURE__ */ new Set();
-		m.add(e), _.set(n, m), On(), Yt(), pt() && ft();
-	}, Qt = (e) => {
+		m.add(e), _.set(n, m), An(), Zt(), ht() && mt();
+	}, en = (e) => {
 		v.some((t) => t.id === e.id) && y.push(e);
-	}, $t = (e, t, n) => {
+	}, tn = (e, t, n) => {
 		let r = p.get(e);
 		if (!r) {
-			Qt({
+			en({
 				id: e,
 				kind: "uniform",
 				name: t,
@@ -141768,34 +141992,34 @@ function bL() {
 		let i = r.uniforms[t];
 		if (!i) return;
 		let a = r.boundingBoxDeclaration, o = r.extraDimProps;
-		if ((a || o) && dP(a, t, o)) {
+		if ((a || o) && PP(a, t, o)) {
 			i._rawDimensional = n;
-			let e = r.uniforms.origin?.value ?? "center", s = $e(r, e);
-			n = uP(a, t, n, e, se(), ce(), o, s);
+			let e = r.uniforms.origin?.value ?? "center", a = $e(r, e);
+			n = rt(r, t, n, e, a);
 		}
-		if (i.transform === FN) i._rawList = n, Mt(r, t), On(), Xt();
+		if (i.transform === tP) i._rawList = n, Pt(r, t), An(), Qt();
 		else {
-			if (i.value = n, Dt(r, t, n), (i.transform === PN || i.transform === Ki) && jt(r), t === "origin" && a) nt(r);
+			if (i.value = n, kt(r, t, n), (i.transform === eP || i.transform === Ki) && Nt(r), t === "origin" && a) nt(r);
 			else if (a && (r.uniforms.origin?.value ?? "center") !== "center") {
-				let e = rP(a, o), n = !!a.computeBounds || (e?.sizeProps.has(t) ?? !1), i = e?.positionProps.has(t) ?? !1;
+				let e = TP(a, o), n = !!a.computeBounds || (e?.sizeProps.has(t) ?? !1), i = e?.positionProps.has(t) ?? !1;
 				n && !i && nt(r);
 			}
-			if (t === "shape" && On(), pt() && ft(), i.compileTime) Yt();
+			if (t === "shape" && An(), ht() && mt(), i.compileTime) Zt();
 			else {
 				if (i.compileTimeWhen) {
 					let e = i._lastCompiledValue;
 					if (i.compileTimeWhen(e, n)) {
-						i._lastCompiledValue = n, Yt();
+						i._lastCompiledValue = n, Zt();
 						return;
 					}
 				}
-				Xt();
+				Qt();
 			}
 		}
-	}, en = (e, t) => {
+	}, nn = (e, t) => {
 		let n = p.get(e);
 		if (!n) {
-			Qt({
+			en({
 				id: e,
 				kind: "metadata",
 				metadata: t
@@ -141805,7 +142029,7 @@ function bL() {
 		let r = !1;
 		if (t.blendMode !== void 0 && n.metadata.blendMode !== t.blendMode && (n.metadata.blendMode = t.blendMode, r = !0), t.opacity !== void 0 && n.metadata.opacity !== t.opacity) {
 			let e = n.metadata.opacity ?? 1, i = t.opacity;
-			n.metadata.opacity = i, Ot(n, "_opacity", i), e >= 1 != i >= 1 && (r = !0);
+			n.metadata.opacity = i, At(n, "_opacity", i), e >= 1 != i >= 1 && (r = !0);
 		}
 		if (t.renderOrder !== void 0 && n.metadata.renderOrder !== t.renderOrder && (n.metadata.renderOrder = t.renderOrder, r = !0), "visible" in t) {
 			let e = t.visible !== !1;
@@ -141817,7 +142041,7 @@ function bL() {
 		}
 		if ("mask" in t && (n.metadata.mask?.source !== t.mask?.source || n.metadata.mask?.type !== t.mask?.type) && (n.metadata.mask = t.mask, r = !0), "maps" in t && JSON.stringify(n.metadata.maps) !== JSON.stringify(t.maps)) {
 			let e = n.metadata.maps, i = t.maps;
-			if (n.metadata.maps = i, On(), (() => {
+			if (n.metadata.maps = i, An(), (() => {
 				if (!e || !i) return !0;
 				let t = Object.keys(e), n = Object.keys(i);
 				if (t.length !== n.length || !t.every((e) => e in i)) return !0;
@@ -141834,8 +142058,8 @@ function bL() {
 				if (e && i) for (let t of Object.keys(e)) t in i && e[t].type !== i[t].type && (delete n.mouseDriverState[t], delete n.autoAnimateState[t], delete n.mapValues[t]);
 				r = !0;
 			} else if (i) for (let [e, t] of Object.entries(i)) {
-				let r = xt(n, e, t);
-				t.type === "map" && (Ot(n, `_map_${e}_inputMin`, r.inputMin), Ot(n, `_map_${e}_inputMax`, r.inputMax), Ot(n, `_map_${e}_outputMin`, r.outputMin), Ot(n, `_map_${e}_outputMax`, r.outputMax), Ot(n, `_map_${e}_curve`, r.curve));
+				let r = Ct(n, e, t);
+				t.type === "map" && (At(n, `_map_${e}_inputMin`, r.inputMin), At(n, `_map_${e}_inputMax`, r.inputMax), At(n, `_map_${e}_outputMin`, r.outputMin), At(n, `_map_${e}_outputMax`, r.outputMax), At(n, `_map_${e}_curve`, r.curve));
 			}
 		}
 		if (t.transform !== void 0) {
@@ -141847,20 +142071,20 @@ function bL() {
 				anchorX: t.transform.anchorX ?? e?.anchorX ?? .5,
 				anchorY: t.transform.anchorY ?? e?.anchorY ?? .5,
 				edges: t.transform.edges ?? e?.edges ?? "transparent"
-			}, a = bt(n);
+			}, a = St(n);
 			n.metadata.transform = i;
-			let o = ZE(i);
+			let o = vD(i);
 			if (a !== o || e && e.edges !== i.edges) r = !0;
-			else if (o) for (let [e, t] of Object.entries(at(n))) Ot(n, `_xform_${e}`, t);
+			else if (o) for (let [e, t] of Object.entries(st(n))) At(n, `_xform_${e}`, t);
 		}
 		if (t.boundingBox !== void 0 && t.boundingBox !== null && n.boundingBoxDeclaration !== void 0) {
-			let e = st(n);
+			let e = lt(n);
 			n.metadata.boundingBox = t.boundingBox;
-			let i = st(n);
+			let i = lt(n);
 			if (e !== i) r = !0;
 			else if (i) {
-				let e = ot(n);
-				if (e) for (let [t, r] of Object.entries(e)) Ot(n, `_bbox_${t}`, r);
+				let e = ct(n);
+				if (e) for (let [t, r] of Object.entries(e)) At(n, `_bbox_${t}`, r);
 			}
 		} else t.boundingBox === null && n.metadata.boundingBox !== void 0 && (n.metadata.boundingBox = void 0, r = !0);
 		if ("flow" in t && JSON.stringify(n.metadata.flow) !== JSON.stringify(t.flow)) {
@@ -141873,45 +142097,45 @@ function bL() {
 				};
 				t(e);
 			}
-			ft();
+			mt();
 		}
-		"absolute" in t && n.metadata.absolute !== t.absolute && (n.metadata.absolute = t.absolute, t.absolute && nt(n), ft()), pt() && ft(), r ? Yt() : Xt();
-	}, tn = (e) => {
+		"absolute" in t && n.metadata.absolute !== t.absolute && (n.metadata.absolute = t.absolute, t.absolute && nt(n), mt()), ht() && mt(), r ? Zt() : Qt();
+	}, rn = (e) => {
 		let t = p.get(e);
 		if (!t) return;
-		for (let t of Ze(e)) tn(t.id);
+		for (let t of Ze(e)) rn(t.id);
 		g === e && (g = null);
 		let n = _.get(t.parentId);
-		n && (n.delete(e), n.size === 0 && _.delete(t.parentId)), p.delete(e), On(), Yt(), pt() && ft();
-	}, nn = () => {
+		n && (n.delete(e), n.size === 0 && _.delete(t.parentId)), p.delete(e), An(), Zt(), ht() && mt();
+	}, an = () => {
 		let e = Je.deltaTime;
-		me = _e ? me + e : vj(he, me, e, performance.now());
+		me = _e ? me + e : Rj(he, me, e, performance.now());
 		for (let t of p.values()) {
 			let n = t.metadata.maps ?? {};
 			for (let n in t.mouseDriverState) {
-				let r = t.mouseDriverState[n], i = Nt(t, n);
+				let r = t.mouseDriverState[n], i = Ft(t, n);
 				if (i) {
 					if (i.type === "mouse-position") {
 						let a = i.smoothing ?? 0, o = i.momentum ?? 0, s = i.x === void 0 || i.x === "mouse", c = i.y === void 0 || i.y === "mouse";
 						!r.pointerSnapped && xe && (r.pointerSnapped = !0, s && (r.currentX = ve, r.velocityX = 0), c && (r.currentY = ye, r.velocityY = 0));
 						let l, u;
 						if (s) {
-							let [t, n] = mj(r.currentX, r.velocityX, ve, a, o, e);
+							let [t, n] = Pj(r.currentX, r.velocityX, ve, a, o, e);
 							r.currentX = t, r.velocityX = n, l = t;
 						} else l = i.x, r.velocityX = 0;
 						if (c) {
-							let [t, n] = mj(r.currentY, r.velocityY, ye, a, o, e);
+							let [t, n] = Pj(r.currentY, r.velocityY, ye, a, o, e);
 							r.currentY = t, r.velocityY = n, u = t;
 						} else u = i.y, r.velocityY = 0;
 						let d = i.reach ?? 1, f = i.originX ?? .5, p = i.originY ?? .5, m = i.invertX ? -1 : 1, h = i.invertY ? -1 : 1, g = f + m * (l - f) * d, _ = p + h * (u - p) * d, v = g, y = _, b = t.metadata.boundingBox;
-						if (b && t.boundingBoxDeclaration?.supportsResizeFit && st(t)) {
-							let e = $E(b, se(), ce()), t = nD(g, _, {
+						if (b && t.boundingBoxDeclaration?.supportsResizeFit && lt(t)) {
+							let e = bD(b, se(), ce()), t = CD(g, _, {
 								centerX: e.centerX,
 								centerY: e.centerY,
 								halfWidthUV: e.halfWidthUV,
 								halfHeightUV: e.halfHeightUV,
 								rotationDeg: e.rotation,
-								aspectRatio: it()
+								aspectRatio: ot()
 							});
 							v = t.x, y = t.y;
 						}
@@ -141921,60 +142145,60 @@ function bL() {
 					} else if (i.type === "mouse") {
 						let a = i.smoothing ?? 0, o = i.momentum ?? 0, s = i.axis === "x" ? ve : ye;
 						!r.pointerSnapped && xe && (r.pointerSnapped = !0, r.currentX = Math.max(.001, s), r.velocityX = 0);
-						let [c, l] = mj(r.currentX, r.velocityX, s, a, o, e);
+						let [c, l] = Pj(r.currentX, r.velocityX, s, a, o, e);
 						r.currentX = c, r.velocityX = l;
 						let u = Math.max(.001, c), d = t.mapValues[n], f = d ? d.outputMin + (d.outputMax - d.outputMin) * u ** 2 ** (-d.curve * 2) : u;
-						r.liveScalar = f, Ot(t, `_smoothed_${n}`, f);
+						r.liveScalar = f, At(t, `_smoothed_${n}`, f);
 					}
 				}
 			}
-			for (let [e, n] of Object.entries(t.uniforms)) n._listSpec && KN(n._rawList, n._listSpec) && Mt(t, e);
+			for (let [e, n] of Object.entries(t.uniforms)) n._listSpec && fP(n._rawList, n._listSpec) && Pt(t, e);
 			for (let e in t.autoAnimateState) {
 				let r = n[e];
 				if (!r || r.type !== "auto-animate") continue;
 				let i = me * (r.speed ?? 1) * .2, a, o = r.easing ?? r.waveform ?? "sine";
-				if (r.mode === "loop") a = gj((i % 1 + 1) % 1, o);
+				if (r.mode === "loop") a = Ij((i % 1 + 1) % 1, o);
 				else {
 					let e = (i % 1 + 1) % 1;
-					a = gj(e < .5 ? e * 2 : (1 - e) * 2, o);
+					a = Ij(e < .5 ? e * 2 : (1 - e) * 2, o);
 				}
-				let s = t.mapValues[e], c = s ? s.outputMin : rt(t, e, r.outputMin), l = s ? s.outputMax : rt(t, e, r.outputMax), u = c + a * (l - c), d = t.uniforms[e];
+				let s = t.mapValues[e], c = s ? s.outputMin : at(t, e, r.outputMin), l = s ? s.outputMax : at(t, e, r.outputMax), u = c + a * (l - c), d = t.uniforms[e];
 				if (d?.compileTimeWhen) {
 					let e = d._lastCompiledValue;
-					d.compileTimeWhen(e, u) && (d._lastCompiledValue = u, Yt());
+					d.compileTimeWhen(e, u) && (d._lastCompiledValue = u, Zt());
 				}
-				Ot(t, `_smoothed_${e}`, u);
+				At(t, `_smoothed_${e}`, u);
 			}
 		}
-	}, rn = () => {
+	}, on = () => {
 		let e = Je.deltaTime;
 		for (let t of p.values()) {
 			let n = t.definition.animatedTime;
 			if (n) {
-				let r = t.uniforms[n.speed], i = r && Number(r.value) || 0, a = GI(wt(t));
-				a.advance(e, i), Ot(t, "_animTime", a.value);
+				let r = t.uniforms[n.speed], i = r && Number(r.value) || 0, a = mL(Et(t));
+				a.advance(e, i), At(t, "_animTime", a.value);
 			}
 			let r = t.definition.extraAnimatedTimes;
 			if (r) for (let [n, i] of Object.entries(r)) {
-				let r = t.uniforms[i], a = r && Number(r.value) || 0, o = GI(Tt(t, i));
-				o.advance(e, a), Ot(t, `_animTime_${n}`, o.value);
+				let r = t.uniforms[i], a = r && Number(r.value) || 0, o = mL(Dt(t, i));
+				o.advance(e, a), At(t, `_animTime_${n}`, o.value);
 			}
 		}
-	}, an = (e, t) => _j(e, t, {
+	}, sn = (e, t) => Lj(e, t, {
 		maxTextureDim: re,
 		pixelRatio: ne,
 		viewportWidth: typeof window < "u" ? window.innerWidth : e,
 		viewportHeight: typeof window < "u" ? window.innerHeight : t
-	}), on = () => {
+	}), cn = () => {
 		let e = (typeof window < "u" ? window.devicePixelRatio : 1) || 1;
-		return Math.min(e, oA());
-	}, sn = (e, t, n, r) => {
+		return Math.min(e, EA());
+	}, ln = (e, t, n, r) => {
 		if (oe && e === T && t === E && n === ee && r === te) {
-			let { width: e, height: t } = Ut();
+			let { width: e, height: t } = Gt();
 			if (!s || s.width === e && s.height === t) return;
 		}
-		T = e, E = t, ee = n, te = r, oe || (oe = !0, p.size > 0 && Yt());
-		let { width: i, height: a } = Ut();
+		T = e, E = t, ee = n, te = r, oe || (oe = !0, p.size > 0 && Zt());
+		let { width: i, height: a } = Gt();
 		s && (s.width = i, s.height = a);
 		let o = !1;
 		for (let e of x) e.passManager.resize(i, a) && (o = !0);
@@ -141987,15 +142211,15 @@ function bL() {
 			c("[gpu] composition onResize error:", e);
 		}
 		for (let e of p.values()) {
-			if (bt(e) && Ot(e, "_xform_aspectRatio", it()), st(e)) {
-				let t = ot(e);
-				if (t) for (let [n, r] of Object.entries(t)) Ot(e, `_bbox_${n}`, r);
+			if (St(e) && At(e, "_xform_aspectRatio", ot()), lt(e)) {
+				let t = ct(e);
+				if (t) for (let [n, r] of Object.entries(t)) At(e, `_bbox_${n}`, r);
 			}
 			nt(e);
 		}
-		if (ht(), o) for (let e of x) fn(e.store), e.store.flush(), e.passManager.repaintRtt();
-		_e || (fe = 0, hn());
-	}, cn = (e, t) => {
+		if (_t(), o) for (let e of x) mn(e.store), e.store.flush(), e.passManager.repaintRtt();
+		_e || (fe = 0, _n());
+	}, un = (e, t) => {
 		e <= 0 || t <= 0 || (e !== ie || t !== ae) && (ie = e, ae = t, ke = {
 			width: e,
 			height: t
@@ -142003,10 +142227,10 @@ function bL() {
 			if (Ae = !1, !ke) return;
 			let e = ke;
 			ke = null;
-			let { width: t, height: n } = an(e.width, e.height);
-			sn(t, n, e.width, e.height);
+			let { width: t, height: n } = sn(e.width, e.height);
+			ln(t, n, e.width, e.height);
 		})));
-	}, ln = (e) => {
+	}, dn = (e) => {
 		let t = e[0];
 		if (!t) return;
 		let n, r;
@@ -142014,28 +142238,28 @@ function bL() {
 			let e = Array.isArray(t.contentBoxSize) ? t.contentBoxSize[0] : t.contentBoxSize;
 			e ? (n = Math.round(e.inlineSize), r = Math.round(e.blockSize)) : (n = Math.round(t.contentRect.width), r = Math.round(t.contentRect.height));
 		} else n = Math.round(t.contentRect.width), r = Math.round(t.contentRect.height);
-		n !== 0 && r !== 0 && cn(n, r);
-	}, un = (e) => {
+		n !== 0 && r !== 0 && un(n, r);
+	}, fn = (e) => {
 		let t = e[0];
 		t && (ue = t.isIntersecting);
-	}, dn = () => l && !!n && !!r && T > 0 && E > 0, fn = (e) => {
-		let t = e.systemHandles, { width: n, height: r } = Ut(), i = on(), a = (e, n) => {
+	}, pn = () => l && !!n && !!r && T > 0 && E > 0, mn = (e) => {
+		let t = e.systemHandles, { width: n, height: r } = Gt(), i = cn(), a = (e, n) => {
 			let r = t[e];
 			r instanceof bC && (r.value = n);
 		};
 		a("time", me), a("viewportSize", [n, r]), a("logicalViewportSize", [se() * i, ce() * i]), a("aspect", n / Math.max(1, r)), a("pointer", [ve, ye]), a("pointerActive", +!!be);
-	}, pn = (e) => {
+	}, hn = (e) => {
 		for (let t of e) try {
 			t(Je);
 		} catch (e) {
 			c("[gpu] render callback error:", e);
 		}
-	}, mn = (e, t) => {
-		if (Be || !dn()) return;
+	}, gn = (e, t) => {
+		if (Be || !pn()) return;
 		let i = performance.now(), a = t ?? i, o;
 		if (e !== void 0) o = e;
 		else {
-			let e = yj(a, {
+			let e = zj(a, {
 				lastRenderTime: fe,
 				isVisible: ue,
 				forceFullFrameRate: de,
@@ -142049,14 +142273,14 @@ function bL() {
 		Je.deltaTime = o, Je.pointer.x = s ? ve : .5, Je.pointer.y = s ? ye : .5, Je.pointer.seen = xe, Je.pointerActive = be, Je.dimensions.width = T, Je.dimensions.height = E;
 		let c = null, l = null;
 		try {
-			xj({
+			Vj({
 				updateDrivers: () => {
-					nn(), rn(), ut(), gt();
+					an(), on(), ft(), vt();
 				},
-				ensureComposition: () => ((w || C === null) && (C = Ht(), w = !1), C !== null && (c = b.getOrBuild(C, () => Gt(C)), Jt(c), !!S)),
-				beforeRender: () => pn(S.ir.onBeforeRender),
+				ensureComposition: () => ((w || C === null) && (C = Wt(), w = !1), C !== null && (c = b.getOrBuild(C, () => qt(C)), Xt(c), !!S)),
+				beforeRender: () => hn(S.ir.onBeforeRender),
 				flush: () => {
-					fn(S.store), S.store.flush();
+					mn(S.store), S.store.flush();
 				},
 				render: () => {
 					if (Ne && performance.mark("shader-gpu-start"), l = b.renderValue ?? c, l?.broken) return !1;
@@ -142066,7 +142290,7 @@ function bL() {
 						e?.passManager.render(r, Je, () => S?.store.flush());
 					} finally {
 						t && e && (e.validationFrames--, t.popErrorScope().then((t) => {
-							t && !e.broken && Kt(e, t.message);
+							t && !e.broken && Jt(e, t.message);
 						}).catch(() => {}));
 					}
 					if (Ne) {
@@ -142081,10 +142305,10 @@ function bL() {
 				markReady: () => {
 					b.markReady(C), Le && !Ie && (Ie = !0, Le = !1, Fe && queueMicrotask(Fe));
 				},
-				afterRender: () => pn((l ?? S).ir.onAfterRender)
+				afterRender: () => hn((l ?? S).ir.onAfterRender)
 			}), Ke = 0;
 		} catch (e) {
-			jn(e);
+			Nn(e);
 			return;
 		}
 		if (Ne) {
@@ -142096,19 +142320,19 @@ function bL() {
 			} catch {}
 		}
 		qe.recordFrame(performance.now() - i);
-	}, hn = (e) => mn(void 0, e), gn = async (e) => {
+	}, _n = (e) => gn(void 0, e), vn = async (e) => {
 		if (Be) return;
-		if (!dn()) throw Error("Renderer is not ready");
+		if (!pn()) throw Error("Renderer is not ready");
 		let t = Ye.running;
-		t && yn(), fe = 0, mn(_e ? 0 : void 0), n && e?.waitForGpu !== !1 && await bj(n), t && vn();
-	}, _n = async (e, t) => {
+		t && xn(), fe = 0, gn(_e ? 0 : void 0), n && e?.waitForGpu !== !1 && await Bj(n), t && bn();
+	}, yn = async (e, t) => {
 		if (!Number.isFinite(e)) throw TypeError(`[gpu] renderSyntheticFrame: deltaSeconds must be a finite number, got ${e}`);
-		mn(e), n && t?.waitForGpu !== !1 && await bj(n);
-	}, vn = () => {
+		gn(e), n && t?.waitForGpu !== !1 && await Bj(n);
+	}, bn = () => {
 		Be || _e || Ye.running || !le || (qe.setRendering(!0), Ye.start());
-	}, yn = () => {
+	}, xn = () => {
 		Ye.running && (Ye.stop(), qe.setRendering(!1));
-	}, bn = (e) => {
+	}, Sn = (e) => {
 		if (!s) return;
 		Se = s.getBoundingClientRect();
 		let t, n;
@@ -142117,26 +142341,26 @@ function bL() {
 			t = e.touches[0].clientX, n = e.touches[0].clientY;
 		} else t = e.clientX, n = e.clientY;
 		ve = (t - Se.left) / Se.width, ye = (n - Se.top) / Se.height, xe = !0;
-	}, xn = (e) => {
-		l && s && (bn(e), be = !0, Xt());
-	}, Sn = (e) => {
-		l && s && (bn(e), be = !0, Xt());
-	}, Cn = () => {
-		l && (be = !1, Xt());
-	}, wn = () => {
-		l && (be = !1, Xt());
-	}, Tn = (e, t) => {
+	}, Cn = (e) => {
+		l && s && (Sn(e), be = !0, Qt());
+	}, wn = (e) => {
+		l && s && (Sn(e), be = !0, Qt());
+	}, Tn = () => {
+		l && (be = !1, Qt());
+	}, En = () => {
+		l && (be = !1, Qt());
+	}, Dn = (e, t) => {
 		if (!l || !s) return !1;
 		let n = s.getBoundingClientRect();
 		return n.width === 0 || n.height === 0 ? !1 : e >= n.left && e <= n.right && t >= n.top && t <= n.bottom;
-	}, En = (e) => {
-		e.button === 0 && Tn(e.clientX, e.clientY) && (be = !0, bn(e), Xt());
-	}, Dn = (e) => {
-		e.touches.length !== 0 && Tn(e.touches[0].clientX, e.touches[0].clientY) && (be = !0, bn(e), Xt());
-	}, On = () => {
+	}, On = (e) => {
+		e.button === 0 && Dn(e.clientX, e.clientY) && (be = !0, Sn(e), Qt());
+	}, kn = (e) => {
+		e.touches.length !== 0 && Dn(e.touches[0].clientX, e.touches[0].clientY) && (be = !0, Sn(e), Qt());
+	}, An = () => {
 		let e = !1;
 		for (let t of p.values()) {
-			if (t.usesPointer || yL(t.uniforms?.shape?.value) || Pt(t)) {
+			if (t.usesPointer || HL(t.uniforms?.shape?.value) || It(t)) {
 				e = !0;
 				break;
 			}
@@ -142151,27 +142375,27 @@ function bL() {
 				if (e) break;
 			}
 		}
-		e && !Ce ? (Ce = !0, !we && s && (we = vL.register({
-			onMouseMove: xn,
-			onTouchMove: Sn,
-			onMouseDown: En,
-			onTouchStart: Dn,
-			onMouseUp: Cn,
-			onTouchEnd: wn
+		e && !Ce ? (Ce = !0, !we && s && (we = VL.register({
+			onMouseMove: Cn,
+			onTouchMove: wn,
+			onMouseDown: On,
+			onTouchStart: kn,
+			onMouseUp: Tn,
+			onTouchEnd: En
 		}))) : !e && Ce && (Ce = !1, we &&= (we(), null));
-	}, kn = () => {
+	}, jn = () => {
 		if (v.length === 0) return;
 		let e = [...v];
 		v = [];
-		for (let t of e) Zt(t.id, t.definition.fragment, t.parentId, t.metadata, t.uniforms, t.definition, t.domCanvas);
+		for (let t of e) $t(t.id, t.definition.fragment, t.parentId, t.metadata, t.uniforms, t.definition, t.domCanvas);
 		let t = y;
 		y = [];
-		for (let e of t) e.kind === "uniform" ? $t(e.id, e.name, e.value) : en(e.id, e.metadata);
-	}, An = (e, t) => {
+		for (let e of t) e.kind === "uniform" ? tn(e.id, e.name, e.value) : nn(e.id, e.metadata);
+	}, Mn = (e, t) => {
 		if (!Be) {
 			Be = e, m(e), c(`[gpu] renderer stopped (${e}):`, t);
 			try {
-				In();
+				Rn();
 			} catch (e) {
 				c("[gpu] cleanup during failure threw:", e);
 			}
@@ -142187,26 +142411,26 @@ function bL() {
 				});
 			}
 		}
-	}, jn = (e) => {
-		t(e) ? An(e.reason, e) : (Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= _L && An("render-failed", e));
-	}, Mn = (e) => {
-		e && typeof e.addEventListener == "function" && (Nn(), Ue = e, We = (e) => {
+	}, Nn = (e) => {
+		t(e) ? Mn(e.reason, e) : (Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= BL && Mn("render-failed", e));
+	}, Pn = (e) => {
+		e && typeof e.addEventListener == "function" && (Fn(), Ue = e, We = (e) => {
 			try {
 				e.preventDefault();
 			} catch {}
 			let t = e.error;
-			o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError ? An("out-of-memory", t) : typeof GPUInternalError < "u" && t instanceof GPUInternalError ? An("gpu-error", t) : (Ge++, Ge >= gL && An("gpu-error", t));
+			o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError ? Mn("out-of-memory", t) : typeof GPUInternalError < "u" && t instanceof GPUInternalError ? Mn("gpu-error", t) : (Ge++, Ge >= zL && Mn("gpu-error", t));
 		}, e.addEventListener("uncapturederror", We));
-	}, Nn = () => {
+	}, Fn = () => {
 		if (Ue && We) try {
 			Ue.removeEventListener("uncapturederror", We);
 		} catch {}
 		Ue = null, We = null;
-	}, Pn = (e) => {
+	}, In = (e) => {
 		if (!ze) {
 			ze = !0;
 			try {
-				yn();
+				xn();
 			} catch {}
 			if (Re) {
 				let t = Re;
@@ -142217,32 +142441,32 @@ function bL() {
 						c("[gpu] onDeviceLost callback threw:", e);
 					}
 				});
-			} else An("device-lost", e);
+			} else Mn("device-lost", e);
 		}
-	}, Fn = async (o) => {
+	}, Ln = async (o) => {
 		if (o.context !== void 0) throw Error("[gpu] initialize({ context }) is not supported — this renderer is WebGPU-only. Remove the WebGL `context` option.");
 		if (Be) return;
 		let c = h();
 		if (c) {
-			An(c);
+			Mn(c);
 			return;
 		}
 		if (l || u) return;
 		let { canvas: p, resizeTarget: m, enablePerformanceTracking: g = !1, colorSpace: _ = "p3-linear", toneMapping: v = "linear", gpu: y, forceFullFrameRate: b = !1, observeElement: x = !0, timeOrigin: S } = o;
-		S != null && (he = S), Ne = g, de = b, je = _, Me = v, yt(), u = !0, f = new AbortController();
+		S != null && (he = S), Ne = g, de = b, je = _, Me = v, xt(), u = !0, f = new AbortController();
 		let C = f;
 		try {
-			if (Pe = JN, Pe(_), C.signal.aborted || (s = p, e = await RI({
+			if (Pe = mP, Pe(_), C.signal.aborted || (s = p, e = await sL({
 				device: y?.device,
 				adapter: y?.adapter,
-				onDeviceLost: (e) => Pn(e.message || e.reason || "unknown")
+				onDeviceLost: (e) => In(e.message || e.reason || "unknown")
 			}), C.signal.aborted)) return;
-			n = e.root, Mn(n.device), ne = on();
+			n = e.root, Pn(n.device), ne = cn();
 			let t = n.device.limits?.maxTextureDimension2D;
-			typeof t == "number" && t > 0 && (re = t), i = $I(n), a = kO(n), typeof window < "u" && (De = () => In(), window.addEventListener("beforeunload", De), Oe = () => {
-				if (ie > 0 && ae > 0) {
+			typeof t == "number" && t > 0 && (re = t), i = SL(n), a = YO(n), typeof window < "u" && (De = () => Rn(), window.addEventListener("beforeunload", De), Oe = () => {
+				if (it(), ie > 0 && ae > 0) {
 					let e = ie, t = ae;
-					ie = 0, ae = 0, cn(e, t);
+					ie = 0, ae = 0, un(e, t);
 				}
 			}, window.addEventListener("resize", Oe, { passive: !0 }));
 			let o = p.getBoundingClientRect();
@@ -142250,34 +142474,34 @@ function bL() {
 			let c = o.width > 0 ? o.width : p.width, u = o.height > 0 ? o.height : p.height, f = Math.round(c), h = Math.round(u);
 			if (f > 0 && h > 0) {
 				ie = f, ae = h;
-				let { width: e, height: t } = an(f, h);
+				let { width: e, height: t } = sn(f, h);
 				T = e, E = t, ee = f, te = h, oe = !0;
-				let { width: n, height: r } = Ut();
+				let { width: n, height: r } = Gt();
 				p.width = n, p.height = r;
 			} else oe = !1;
-			if (r = VI(n, p), x && typeof ResizeObserver < "u") {
+			if (r = uL(n, p), x && typeof ResizeObserver < "u") {
 				let e = m ?? p.parentElement;
-				e ? (Te = new ResizeObserver(ln), Te.observe(e)) : console.warn("[gpu] no element available for resize observation — use resize() manually"), typeof IntersectionObserver < "u" && (Ee = new IntersectionObserver(un, {
+				e ? (Te = new ResizeObserver(dn), Te.observe(e)) : console.warn("[gpu] no element available for resize observation — use resize() manually"), typeof IntersectionObserver < "u" && (Ee = new IntersectionObserver(fn, {
 					threshold: 0,
 					rootMargin: "128px"
 				}), Ee.observe(p));
 			}
 			if (C.signal.aborted) return;
-			l = !0, d = !0, kn(), T > 0 && E > 0 && hn(), le && vn();
+			l = !0, d = !0, jn(), T > 0 && E > 0 && _n(), le && bn();
 		} catch (e) {
 			let n = t(e) ? e.reason : "init-failed";
-			u = !1, f === C && (f = null), An(n, e);
+			u = !1, f === C && (f = null), Mn(n, e);
 			return;
 		} finally {
 			u = !1, f === C && (f = null);
 		}
-	}, In = () => {
-		f && f.abort(), Te &&= (Te.disconnect(), null), Ee &&= (Ee.disconnect(), null), we &&= (we(), null), De && typeof window < "u" && (window.removeEventListener("beforeunload", De), De = null), Oe && typeof window < "u" && (window.removeEventListener("resize", Oe), Oe = null), ge !== null && typeof cancelAnimationFrame == "function" && (cancelAnimationFrame(ge), ge = null), yn(), Nn(), _t?.(), _t = null, typeof document < "u" && document.fonts?.removeEventListener && document.fonts.removeEventListener("loadingdone", vt);
+	}, Rn = () => {
+		f && f.abort(), Te &&= (Te.disconnect(), null), Ee &&= (Ee.disconnect(), null), we &&= (we(), null), De && typeof window < "u" && (window.removeEventListener("beforeunload", De), De = null), Oe && typeof window < "u" && (window.removeEventListener("resize", Oe), Oe = null), ge !== null && typeof cancelAnimationFrame == "function" && (cancelAnimationFrame(ge), ge = null), xn(), Fn(), yt?.(), yt = null, typeof document < "u" && document.fonts?.removeEventListener && document.fonts.removeEventListener("loadingdone", bt);
 		try {
 			e?.release?.();
 		} catch {}
 		b.clear();
-		for (let e of [...x]) qt(e);
+		for (let e of [...x]) Yt(e);
 		S = null;
 		try {
 			i?.destroy();
@@ -142288,20 +142512,20 @@ function bL() {
 		p.clear(), g = null, _.clear(), v = [], y = [], d = !1, ke = null, Ae = !1, s = null, r = null, i = null, a = null, n = null, e = null, l = !1, u = !1, oe = !1, f = null, T = 0, E = 0, ee = 0, te = 0, C = null, w = !0, ue = !1, le = !0, _e = !1, ve = -10, ye = -10, be = !1, xe = !1, Ce = !1, Fe = null, Ie = !1, Le = !1, Re = null, ze = !1, Ge = 0, Ke = 0;
 	};
 	return {
-		initialize: Fn,
-		cleanup: In,
-		registerNode: Zt,
-		removeNode: tn,
-		updateUniformValue: $t,
-		updateNodeMetadata: en,
+		initialize: Ln,
+		cleanup: Rn,
+		registerNode: $t,
+		removeNode: rn,
+		updateUniformValue: tn,
+		updateNodeMetadata: nn,
 		isInitialized: () => l,
 		resize: (e, t) => {
-			n && cn(e, t);
+			n && un(e, t);
 		},
-		startAnimation: vn,
-		stopAnimation: yn,
-		renderAndWait: gn,
-		renderSyntheticFrame: _n,
+		startAnimation: bn,
+		stopAnimation: xn,
+		renderAndWait: vn,
+		renderSyntheticFrame: yn,
 		getPerformanceStats: () => {
 			let e = Math.max(0, p.size - 1), t = S ? S.ir.rttPasses.length : 0;
 			qe.updateNodeCounts(e, t);
@@ -142343,19 +142567,19 @@ function bL() {
 		beginRecordingResolution: (e, t, r) => {
 			if (!n || e <= 0 || t <= 0) return () => {};
 			let i = ne, a = T, o = E, s = ee, c = te, l = ie, u = ae;
-			return ne = r, sn(e, t, e, t), () => {
-				n && (ne = i, sn(a, o, s, c), ie = l, ae = u);
+			return ne = r, ln(e, t, e, t), () => {
+				n && (ne = i, ln(a, o, s, c), ie = l, ae = u);
 			};
 		},
 		setResolutionScale: (e) => {
 			if (!n) return;
-			let t = Math.max(.05, Math.min(e, 1)), r = Math.max(.01, on() * t);
+			let t = Math.max(.05, Math.min(e, 1)), r = Math.max(.01, cn() * t);
 			if (Math.abs(ne - r) < .001) return;
 			ne = r;
 			let i = ee || T, a = te || E;
 			if (i <= 0 || a <= 0) return;
-			let { width: o, height: s } = an(i, a);
-			sn(o, s, i, a);
+			let { width: o, height: s } = sn(i, a);
+			ln(o, s, i, a);
 		},
 		setFrameRateCap: (e) => {
 			pe = e && e > 0 ? 1e3 / Math.max(e, 10) - 1 : 0;
@@ -142366,11 +142590,11 @@ function bL() {
 		setFrameLocked: (e) => {
 			let t = _e;
 			if (_e = e, e && !t) {
-				yn(), ge !== null && typeof cancelAnimationFrame == "function" && (cancelAnimationFrame(ge), ge = null), me = 0;
+				xn(), ge !== null && typeof cancelAnimationFrame == "function" && (cancelAnimationFrame(ge), ge = null), me = 0;
 				for (let e of p.values()) {
-					e.definition.animatedTime && (GI(wt(e)).value = 0, Ot(e, "_animTime", 0));
+					e.definition.animatedTime && (mL(Et(e)).value = 0, At(e, "_animTime", 0));
 					let t = e.definition.extraAnimatedTimes;
-					if (t) for (let [n, r] of Object.entries(t)) GI(Tt(e, r)).value = 0, Ot(e, `_animTime_${n}`, 0);
+					if (t) for (let [n, r] of Object.entries(t)) mL(Dt(e, r)).value = 0, At(e, `_animTime_${n}`, 0);
 				}
 			}
 		},
@@ -142395,29 +142619,29 @@ function bL() {
 		},
 		getFailureReason: () => Be,
 		__testing: {
-			needsTransformation: ZE,
+			needsTransformation: vD,
 			findChildNodes: Ze,
 			buildFieldInits: (e) => {
 				let t = p.get(e);
-				return t ? Et(t) : null;
+				return t ? Ot(t) : null;
 			},
 			ensureDriverState: (e) => {
 				let t = p.get(e);
-				t && Ct(t);
+				t && Tt(t);
 			},
 			stepMouseDrivers: (e) => {
-				Je.deltaTime = e, nn();
+				Je.deltaTime = e, an();
 			},
 			stepAnimatedTime: (e) => {
-				Je.deltaTime = e, rn();
+				Je.deltaTime = e, on();
 			},
 			getAnimatedTimeValue: (e) => {
 				let t = p.get(e);
-				return t?.definition.animatedTime ? GI(wt(t)).value : null;
+				return t?.definition.animatedTime ? mL(Et(t)).value : null;
 			},
 			writeExtraField: (e, t, n) => {
 				let r = p.get(e);
-				r && kt(r, t, n);
+				r && jt(r, t, n);
 			},
 			readExtraField: (e, t) => {
 				let n = p.get(e)?._liveHandles?.[t];
@@ -142443,20 +142667,20 @@ function bL() {
 				animating: Ye.running,
 				mouseListenersNeeded: Ce
 			}),
-			computeStructuralHash: Ht,
+			computeStructuralHash: Wt,
 			isStructuralDirty: () => w,
 			clearStructuralDirty: () => {
 				w = !1;
 			},
+			reresolveViewportUnits: () => it(),
 			setTestReady: (e) => {
-				l = !0, d = !0, e && (T = e.width, E = e.height, ee = e.width, te = e.height, oe = !0), kn();
+				l = !0, d = !0, e && (T = e.width, E = e.height, ee = e.width, te = e.height, oe = !0), jn();
 			}
 		}
 	};
 }
-//#endregion
-//#region design/air/light-renderer.mjs
-var xL = RF({
+// design/air/light-renderer.mjs
+var WL = sI({
 	name: "AirLight",
 	props: {
 		base: {
@@ -142475,7 +142699,7 @@ var xL = RF({
 		arrival: { default: 1 },
 		dark: { default: 0 }
 	},
-	paint: $P`
+	paint: SF`
     let x = uv.x - 0.5;
     let response = (aim - 0.5) * 0.08;
     let edgeBack = 0.43 + 0.32 * x * x + 0.19 * x + (1.0 - arrival) * 0.12 + response;
@@ -142501,12 +142725,12 @@ var xL = RF({
     return vec4f(color, 1.0);
   `
 });
-async function SL(e, t, n, r) {
+async function GL(e, t, n, r) {
 	let i = await navigator.gpu.requestAdapter({ powerPreference: "low-power" });
 	if (r.throwIfAborted(), !i) throw Error("no-adapter");
 	let a = await i.requestDevice();
 	r.aborted && (a.destroy(), r.throwIfAborted());
-	let o = bL(), s = !1, c = () => {
+	let o = UL(), s = !1, c = () => {
 		s || (s = !0, r.removeEventListener("abort", c), o.cleanup(), a.destroy());
 	};
 	r.addEventListener("abort", c, { once: !0 });
@@ -142521,11 +142745,11 @@ async function SL(e, t, n, r) {
 			enablePerformanceTracking: !1,
 			colorSpace: "srgb",
 			toneMapping: "linear"
-		}), r.throwIfAborted(), o.getFailureReason() || (o.setResolutionScale(Math.min(1, 1.5 / (window.devicePixelRatio || 1))), o.registerNode("air-root", YP.fragment, null, null, {}, YP), o.registerNode("air-light", xL.fragment, "air-root", { renderOrder: 0 }, jP(xL, {
+		}), r.throwIfAborted(), o.getFailureReason() || (o.setResolutionScale(Math.min(1, 1.5 / (window.devicePixelRatio || 1))), o.registerNode("air-root", vF.fragment, null, null, {}, vF), o.registerNode("air-light", WL.fragment, "air-root", { renderOrder: 0 }, eF(WL, {
 			...t,
 			aim: .5,
 			arrival: 1
-		}, "air-light"), xL), await o.renderAndWait({ waitForGpu: !0 }), r.throwIfAborted(), o.getFailureReason())) throw Error(o.getFailureReason());
+		}, "air-light"), WL), await o.renderAndWait({ waitForGpu: !0 }), r.throwIfAborted(), o.getFailureReason())) throw Error(o.getFailureReason());
 		return {
 			async draw(e, t = !1) {
 				if (!s) {
@@ -142542,5 +142766,4 @@ async function SL(e, t, n, r) {
 		throw s ? o.cleanup() : c(), e;
 	}
 }
-//#endregion
-export { SL as createAirLightRenderer };
+export { GL as createAirLightRenderer };

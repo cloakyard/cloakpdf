@@ -1,6 +1,6 @@
 Air light study — locally bundled third-party software
 
-shaders 4.0.4 (MIT)
+shaders 4.0.5 (MIT)
 MIT License
 
 Copyright (c) 2026 Shader Effects Inc.

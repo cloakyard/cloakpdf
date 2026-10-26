@@ -6,7 +6,7 @@ date: 2026-10-26
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 7d42c4bc5ca00b398dcdfd5f01fc12264c02ded19c03068ec6a6894161ba9103
+family-contract-sha256: a320d10433dd8790bf49b917d998dad6912574eb341d07c1b0915b5eefee576b
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
@@ -1051,7 +1051,7 @@ performance approval.
   pending initialization. Reduced motion, Save-Data, unavailable WebGPU, and
   reported memory/core counts of 4 or fewer use the static artwork. These browser
   hints supplement, rather than replace, real-device performance validation.
-- Bundle Shaders locally, pinned to 4.0.4 for this candidate, with no telemetry,
+- Bundle Shaders locally, pinned to 4.0.5 for this candidate, with no telemetry,
   hosted presets or remote assets. The lazy study bundle is approximately 369 kB
   gzip, with a 400 kB build ceiling. This is a measured study budget, not an
   approved production payload. Preserve dependency licenses and asset hashes.
