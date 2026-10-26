@@ -68,6 +68,7 @@ else {
     "motion.mjs",
     "artwork.mjs",
     "artwork.d.mts",
+    "update-notice.tsx",
     "colour.mjs",
     "colour.d.mts",
     "light-controller.mjs",

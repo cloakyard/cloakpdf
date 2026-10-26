@@ -17,10 +17,10 @@ export function PublicFooter({ onPrivacy }: { onPrivacy?: () => void }) {
       <nav aria-label="Footer navigation">
         {onPrivacy ? (
           <button type="button" onClick={onPrivacy}>
-            Privacy policy
+            Privacy
           </button>
         ) : (
-          <a href={`${import.meta.env.BASE_URL}?view=privacy`}>Privacy policy</a>
+          <a href={`${import.meta.env.BASE_URL}?view=privacy`}>Privacy</a>
         )}
         <a href="https://github.com/cloakyard/cloakpdf" target="_blank" rel="noopener noreferrer">
           Source

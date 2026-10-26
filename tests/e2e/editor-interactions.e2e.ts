@@ -668,7 +668,7 @@ async function main(): Promise<void> {
     await page.waitForSelector(dateTrigger);
     // A fresh production profile may show the cache notice over this lower
     // field. Dismiss it as a user would before interacting with the picker.
-    const cacheNotice = await page.$('button[aria-label="Dismiss cache status"]');
+    const cacheNotice = await page.$('button[aria-label="Dismiss offline status"]');
     if (cacheNotice) await cacheNotice.click();
     await page.click(dateTrigger);
     const controlledId = await page.$eval(dateTrigger, (button) =>

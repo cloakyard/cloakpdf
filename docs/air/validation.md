@@ -2514,3 +2514,21 @@ Air 1.0.6 removes blue hyperlink text, including hover, and specifies neutral
 inline/directional treatments. See [scope and evidence](neutral-links-2026-10-19.md).
 
 Neutral hyperlink release verified: main `f863471`, Cloudflare `eb28ae8d` at 100%; 132 matching production files and 116 live link-state / 34 keyboard checks pass. See the neutral-link audit and production evidence.
+
+## Footer and PWA consistency — 2026-10-26
+
+Air 1.2.3 removes footer height/content exceptions and uses the pinned common PWA
+notice presentation. The four refreshed sites have matching 109px desktop/laptop
+and 219px phone footers at the reviewed 16px-root widths. Header order/destinations,
+neutral hyperlinks, reading/recovery shells and enlarged text remain covered.
+PDF/Resume share update/offline/busy wording, geometry and controls; worker activation
+and work safety remain product-owned. No PWA is invented for Yard/Drop's website.
+
+Evidence: `evidence/consistency-2026-10-26/`. Family: 1,152 Chrome/Firefox layouts;
+PWA comparison: 240 layouts with 30 exact screenshot pairs; PDF 44 real-worker
+deferred-update layouts plus output/cross-tab/race checks; Resume 384 PWA/recovery
+layouts plus production lifecycle tests. All applicable builds, static/design/dead-code
+checks and feature suites pass. IMG is audit-only, with isolated portable maintenance;
+its legacy footer/PWA remains pending with its parked redesign. Existing device,
+Compact beta/node-forge, official-runtime and Resume export-intermittency follow-ups
+remain open. See the central consistency audit for initial failures and deployment.

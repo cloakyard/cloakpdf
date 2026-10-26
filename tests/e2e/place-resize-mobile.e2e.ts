@@ -170,7 +170,7 @@ async function main() {
     );
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
-    const toast = await page.$('[aria-label="Dismiss cache status"]');
+    const toast = await page.$('[aria-label="Dismiss offline status"]');
     if (toast) await toast.click();
     const bb = await pageBox(page);
     const pageAspect = bb.width / bb.height;

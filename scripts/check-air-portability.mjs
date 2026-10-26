@@ -117,6 +117,23 @@ try {
   checks.push("altered motion module rejected");
   await writeFile(motionPath, motion);
 
+  const withoutNotice = structuredClone(manifest);
+  delete withoutNotice.studyAssets["update-notice.tsx"];
+  await writeFile(resolve(fixture, manifestPath), JSON.stringify(withoutNotice));
+  const missingNotice = verify();
+  assert.notEqual(missingNotice.status, 0);
+  assert.match(missingNotice.stderr, /Missing Air study asset hash: update-notice\.tsx/);
+  checks.push("missing shared update notice rejected");
+  await writeFile(resolve(fixture, manifestPath), manifestText);
+  const noticePath = resolve(fixture, "docs/air/update-notice.tsx");
+  const notice = await readFile(noticePath, "utf8");
+  await writeFile(noticePath, `${notice}\n// Deliberate shared-notice drift.\n`);
+  const noticeDrift = verify();
+  assert.notEqual(noticeDrift.status, 0);
+  assert.match(noticeDrift.stderr, /Air study asset drift: update-notice\.tsx/);
+  checks.push("altered shared update notice rejected");
+  await writeFile(noticePath, notice);
+
   const colourPath = resolve(fixture, "docs/air/colour.mjs");
   const colour = await readFile(colourPath, "utf8");
   await writeFile(colourPath, `${colour}\n// Deliberate colour-math drift.\n`);

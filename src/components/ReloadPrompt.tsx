@@ -1,106 +1,10 @@
-// ReloadPrompt.tsx — PWA service-worker update banner. Shown when a new
-// SW version is available, or briefly when the app first becomes
-// installable with its core interface cached.
-//
-// A compact operational surface at the bottom-right (bottom-center on
-// mobile), with an "Update" button when needRefresh and a self-dismissing
-// cache-status toast on first install.
-
-import { RefreshCw, ShieldCheck, X } from "lucide-react";
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+/** PWA lifecycle; presentation is the pinned family notice. */
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+import { AirUpdateNotice } from "../../docs/air/update-notice.tsx";
 
 const UPDATE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 const RELOAD_FALLBACK_MS = 1500;
-
-type ReloadNoticeVariant = "update" | "offline";
-
-interface ReloadNoticeProps {
-  variant: ReloadNoticeVariant;
-  updating?: boolean;
-  deferred?: boolean;
-  onClose: () => void;
-  onUpdate: () => void;
-}
-
-export function ReloadNotice({
-  variant,
-  updating = false,
-  deferred = false,
-  onClose,
-  onUpdate,
-}: ReloadNoticeProps) {
-  const descriptionId = useId();
-  const isUpdate = variant === "update";
-  const Icon = isUpdate ? RefreshCw : ShieldCheck;
-  const eyebrow = isUpdate ? "System update" : "Offline support";
-  const title = isUpdate ? "Update CloakPDF" : "Core app cached";
-  const body = isUpdate
-    ? deferred
-      ? "A newer build is ready. Save or download your work, then return home to update."
-      : "A newer build is ready. Update now to apply the latest fixes."
-    : "The core interface is cached. AI models and OCR data may still require a connection.";
-  const announcement = updating ? "Updating CloakPDF…" : `${title}. ${body}`;
-
-  return (
-    <>
-      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-        {announcement}
-      </span>
-      <div className="pdf-toast" aria-busy={updating}>
-        <div className="pdf-toast-body">
-          <div>
-            <p className="pdf-toast-eyebrow">
-              <Icon size={16} aria-hidden="true" />
-              {eyebrow}
-            </p>
-            <p className="pdf-toast-title">{updating ? "Applying update…" : title}</p>
-            <p id={descriptionId} className="pdf-toast-description">
-              {body}
-            </p>
-          </div>
-          {!isUpdate && (
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Dismiss cache status"
-              className="air-icon-button air-button--quiet"
-            >
-              <X size={16} aria-hidden="true" />
-            </button>
-          )}
-        </div>
-        {isUpdate && (
-          <div className="pdf-toast-actions">
-            <button type="button" onClick={onClose} disabled={updating} className="air-button">
-              Later
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (!updating && !deferred) onUpdate();
-              }}
-              aria-disabled={updating || deferred || undefined}
-              aria-describedby={descriptionId}
-              aria-busy={updating}
-              className="air-button air-button--primary"
-            >
-              <RefreshCw size={16} aria-hidden="true" />
-              <span className="air-action-labels">
-                <span data-active={!updating || undefined} aria-hidden={updating}>
-                  Update now
-                </span>
-                <span data-active={updating || undefined} aria-hidden={!updating}>
-                  Updating…
-                </span>
-              </span>
-            </button>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
 
 export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean }) {
   // Stash the SW update interval + the live registration so the unmount
@@ -116,6 +20,7 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
   const reloadTimerRef = useRef<number | undefined>(undefined);
   const [updating, setUpdating] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // SW callbacks are registered once. Read the committed route when they fire,
   // including when another tab activates the waiting worker.
@@ -163,7 +68,7 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
   } = useRegisterSW({
     onNeedReload() {
       // An update in another tab must never discard this tab's work. Only a
-      // local explicit Update now can reload, and only while outside a task.
+      // local explicit update can reload, and only while outside a task.
       setNeedRefresh(true);
       finishUpdate();
     },
@@ -216,21 +121,24 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
   }, [needRefresh, setOfflineReady]);
 
   useEffect(() => {
-    if (!offlineReady || needRefresh) return;
+    if (!offlineReady || needRefresh || paused) return;
     const id = setTimeout(close, 4000);
     return () => clearTimeout(id);
-  }, [offlineReady, needRefresh, close]);
+  }, [offlineReady, needRefresh, paused, close]);
 
   const show = offlineReady || (needRefresh && !dismissed);
   return show ? (
-    <div className="pdf-toast-host">
-      <ReloadNotice
-        variant={needRefresh ? "update" : "offline"}
-        updating={updating}
-        deferred={deferUpdate}
-        onClose={close}
-        onUpdate={handleUpdate}
-      />
-    </div>
+    <AirUpdateNotice
+      state={needRefresh ? (updating ? "updating" : "update") : "offline"}
+      detail={
+        needRefresh && deferUpdate
+          ? "Save or download your work, then return home to update."
+          : undefined
+      }
+      blocked={deferUpdate}
+      onClose={close}
+      onUpdate={handleUpdate}
+      onPause={setPaused}
+    />
   ) : null;
 }

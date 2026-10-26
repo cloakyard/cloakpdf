@@ -94,7 +94,7 @@ try {
         await (await page.waitForSelector('input[type="file"]')).uploadFile(fixture);
         await page.waitForSelector('img[alt="Page 1"]');
         const notice = await page.$(
-          '.pdf-toast button[aria-label="Dismiss cache status"], .pdf-toast-actions > button:first-child',
+          '.air-update-panel button[aria-label="Dismiss offline status"], .air-update-actions > button:first-child',
         );
         if (notice) await notice.click();
         if (touch) {

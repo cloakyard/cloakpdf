@@ -673,72 +673,13 @@ body:has(.pdf-site) {
   background: var(--air-page);
 }
 
-.pdf-toast-host {
-  font: 400 var(--air-text-body)/1.5 var(--air-font);
+.pdf-workspace {
   position: fixed;
-  inset-inline-end: var(--air-space-16);
-  inset-block-end: max(var(--air-space-16), env(safe-area-inset-bottom));
-  z-index: var(--air-z-toast);
-  max-inline-size: calc(100% - 32px);
-  animation: pdf-toast-arrive var(--air-motion-popover) var(--air-ease-out) both;
-}
-.pdf-toast {
-  inline-size: 24rem;
-  max-inline-size: 100%;
-  border: 1px solid var(--air-line);
-  border-radius: var(--air-radius-panel);
-  background: var(--air-surface);
-  color: var(--air-ink);
-  box-shadow: var(--air-shadow-surface);
-  font: 400 var(--air-text-body)/1.5 var(--air-font);
-  overflow-wrap: anywhere;
-}
-.pdf-toast-body {
+  inset: 0;
+  z-index: var(--air-z-editor);
   display: flex;
-  align-items: start;
-  gap: var(--air-space-12);
-  padding: var(--air-space-16);
-}
-.pdf-toast-body > div {
-  flex: 1;
-  min-inline-size: 0;
-}
-.pdf-toast-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: var(--air-space-8);
-  color: var(--air-ink-secondary);
-  font-size: var(--air-text-label);
-}
-.pdf-toast-title {
-  margin-block: var(--air-space-8) var(--air-space-4);
-  font-weight: 500;
-}
-.pdf-toast-description {
-  color: var(--air-ink-secondary);
-}
-.pdf-toast-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: end;
-  gap: var(--air-space-8);
-  padding: 0 var(--air-space-16) var(--air-space-16);
-}
-@keyframes pdf-toast-arrive {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pdf-toast-host {
-    font: 400 var(--air-text-body)/1.5 var(--air-font);
-    animation: none;
-  }
+  flex-direction: column;
+  height: 100dvh;
 }
 
 .pdf-utility {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.2.2",
+  "contractVersion": "1.2.3",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -25,9 +25,10 @@
       "evidence": [
         "docs/air/evidence/recovery-page-2026-10-19.json",
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
-        "evidence/public-shell-2026-10-26/checks.json.gz"
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Build-owned shared Air recovery replaces retired public/404.html. All 66 Chromium layouts pass. Physical/assistive acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
+      "notes": "Build-owned shared Air recovery replaces retired public/404.html. All 66 Chromium layouts pass. Physical/assistive acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "artwork/og.html",
@@ -89,9 +90,10 @@
         "docs/air/evidence/constructors-2026-10-13.json",
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",
         "docs/air/evidence/pwa-update-2026-10-19.json",
-        "evidence/public-shell-2026-10-26/checks.json.gz"
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Registry/lifecycle checkpoint: standalone navigation has a derived standalone-only identity; editor search/preselection and constructor file handoff remain separate live routes. All seven standalone components remain lazy; no redundant standaloneOnly filter remains. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Registry/lifecycle checkpoint: standalone navigation has a derived standalone-only identity; editor search/preselection and constructor file handoff remain separate live routes. All seven standalone components remain lazy; no redundant standaloneOnly filter remains. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "src/components/ActionButton.tsx",
@@ -176,7 +178,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AiConsentModal.tsx",
@@ -220,7 +222,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AiModelDetailsModal.tsx",
@@ -298,7 +300,7 @@
         "docs/air/evidence/ai-setup-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air setup/tier controls implemented. Real loading/warm return/partial-cache/tier swap pass. Dialog frames/interiors and Ask PDF chat have subsequent implementation/evidence checkpoints. Physical touch/assistive speech remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/AlertBox.tsx",
@@ -417,7 +419,7 @@
         "docs/air/evidence/ai-modals-2026-10-14.json",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/components/ColorPicker.tsx",
@@ -605,7 +607,7 @@
         "1366x768",
         "1440x900",
         "1920x1080",
-        "320\u20131920px; 17 widths/heights; light/dark; 16/32px root font",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
         "native Chrome 200%"
       ],
       "evidence": [
@@ -982,9 +984,12 @@
         "light",
         "dark"
       ],
-      "viewports": ["320\u20131920px", "16px and 32px root", "Chrome", "Firefox"],
-      "evidence": ["evidence/public-shell-2026-10-26/checks.json.gz"],
-      "notes": "Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
+      "viewports": ["320–1920px", "16px and 32px root", "Chrome", "Firefox"],
+      "evidence": [
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "evidence/consistency-2026-10-26/checks.json.gz"
+      ],
+      "notes": "Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "src/components/ReloadPrompt.tsx",
@@ -1020,9 +1025,10 @@
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/evidence/pwa-update-2026-10-19.json"
+        "docs/air/evidence/pwa-update-2026-10-19.json",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open."
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "src/components/SegmentedControl.tsx",
@@ -1392,9 +1398,10 @@
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/preview-recovery-2026-10-14.json",
         "docs/air/evidence/editor-recovery-2026-10-15.json",
-        "docs/air/evidence/foundation-2026-10-19.json"
+        "docs/air/evidence/foundation-2026-10-19.json",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations. Foundation checkpoint: editor root uses canonical Air layer/surface/ink; 141 recovery captures confirm processing stays above the editor and root typography uses the system stack."
+      "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations. Foundation checkpoint: editor root uses canonical Air layer/surface/ink; 141 recovery captures confirm processing stays above the editor and root typography uses the system stack. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "src/editor/EditorToolStage.tsx",
@@ -1983,7 +1990,7 @@
         "pending privacy marks / forced colours / reduced motion / enlarged text"
       ],
       "viewports": [
-        "320\u20131920px: all 11 required viewport classes, light/dark",
+        "320–1920px: all 11 required viewport classes, light/dark",
         "200% root text at 320/390/1440px",
         "Native Safari and Firefox with actual Firefox 200% zoom"
       ],
@@ -2078,7 +2085,7 @@
         "empty/default; populated; nested; reordered; removed/restored; invalid title/page; detecting; no-match; failed/retry; cancelled/stale; contents/pending-overlay protection; applied/undo; mobile Done/Cancel"
       ],
       "viewports": [
-        "all 11 required sizes \u00d7 light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
+        "all 11 required sizes × light/dark; coarse/fine; 200% root text; Firefox actual 200% browser zoom; Safari"
       ],
       "evidence": ["docs/air/validation.md", "docs/air/evidence/bookmarks-2026-10-15.json"],
       "notes": "Air rows/shared select, explicit target validation, byte-scoped drafts, cancellable detection, overlay protection and promised mobile apply. Applied drafts retire; failed validation keeps pending Apply for retry. Physical touch/software keyboard, OS IME and assistive speech remain unverified."
@@ -2644,7 +2651,7 @@
         "rotated/cropped/scaled pages, font descenders, transformed corners, long excerpt"
       ],
       "viewports": [
-        "13 sizes (11 required plus 767/769 breakpoint neighbors) \u00d7 light/dark \u00d7 selection/action regions",
+        "13 sizes (11 required plus 767/769 breakpoint neighbors) × light/dark × selection/action regions",
         "320/768/1440 at 200% root text, both themes",
         "coarse targets >=44px, forced colours/reduced motion",
         "Safari native application/Undo; Firefox actual 200% zoom"
@@ -2826,7 +2833,7 @@
       "airImplemented": true,
       "validated": false,
       "states": ["baseline default/empty; available selected and disabled states"],
-      "viewports": ["1440\u00d7900 light fine", "390\u00d7844 dark coarse"],
+      "viewports": ["1440×900 light fine", "390×844 dark coarse"],
       "evidence": [
         "docs/air/editor-audit.md",
         "docs/air/editor-panel-audit.json",
@@ -2949,7 +2956,7 @@
         "1366x768",
         "1440x900",
         "1920x1080",
-        "320\u20131920px; 17 widths/heights; light/dark; 16/32px root font",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
         "native Chrome 200%"
       ],
       "evidence": [
@@ -2978,7 +2985,7 @@
         "200% text and browser zoom"
       ],
       "viewports": [
-        "320\u20131920px; 17 widths/heights; light/dark; 16/32px root font",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
         "native Chrome 200%"
       ],
       "evidence": ["evidence/product-artwork-2026-10-25/"],
@@ -3132,7 +3139,7 @@
         "docs/air/validation.md",
         "docs/air/evidence/ai-acceptance-2026-10-19.json"
       ],
-      "notes": "Air conversation, composer, measured indexing, page links and explicit recovery implemented. 448 deterministic layout cases and real-model integration pass; Safari/Firefox keyboard and actual 200% zoom inspected. Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
+      "notes": "Air conversation, composer, measured indexing, page links and explicit recovery implemented. 448 deterministic layout cases and real-model integration pass; Safari/Firefox keyboard and actual 200% zoom inspected. Physical touch/software keyboard, real OS IME and assistive speech acceptance remain open. Final software matrix: both shipped tiers × both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
     {
       "path": "src/standalone/ComparePdf.tsx",
@@ -3415,7 +3422,7 @@
         "1366x768",
         "1440x900",
         "1920x1080",
-        "320\u20131920px; 17 widths/heights; light/dark; 16/32px root font",
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
         "native Chrome 200%"
       ],
       "evidence": [
@@ -3436,9 +3443,10 @@
         "evidence/product-artwork-2026-10-25/",
         "docs/air/evidence/family-comparison-2026-10-25/",
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
-        "evidence/public-shell-2026-10-26/checks.json.gz"
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. 2026-10-25: Public family comparison: native in-flow compact header, canonical icon/gap, section tracking and privacy cadence corrected. Chrome/Firefox 160 local layouts plus Safari spot review pass; 461 units, 16 smoke suites, 66 recovery and 68 artwork layouts pass. Existing physical/assistive gates remain open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
+      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. 2026-10-25: Public family comparison: native in-flow compact header, canonical icon/gap, section tracking and privacy cadence corrected. Chrome/Firefox 160 local layouts plus Safari spot review pass; 461 units, 16 smoke suites, 66 recovery and 68 artwork layouts pass. Existing physical/assistive gates remain open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
     {
       "path": "src/styles/air.css",
@@ -3480,14 +3488,15 @@
         "1025x768"
       ],
       "evidence": [
-        "docs/air/validation.md \u2014 refinement 02 candidate",
+        "docs/air/validation.md — refinement 02 candidate",
         "docs/air/components.html",
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
         "docs/air/neutral-links-2026-10-19.md",
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
-        "evidence/public-shell-2026-10-26/checks.json.gz"
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "evidence/consistency-2026-10-26/checks.json.gz"
       ],
-      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
+      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     }
   ]
 }

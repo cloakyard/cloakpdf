@@ -1576,8 +1576,7 @@ textarea.air-field {
   border-block-start: 1px solid var(--air-line);
   font-size: var(--air-text-label);
 }
-.air-page-footer,
-.air-page-footer-row {
+.air-page-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1585,16 +1584,35 @@ textarea.air-field {
   gap: 16px 32px;
 }
 .air-page-footer {
+  container: air-footer / inline-size;
   padding-block: 32px;
   border-block-start: 1px solid var(--air-line);
   color: var(--air-ink-muted);
   font-size: var(--air-text-body);
 }
+.air-page-identity {
+  flex: 0 0 16rem;
+  max-inline-size: 100%;
+}
 .air-page-identity > span {
   display: block;
 }
 .air-page-footer nav {
-  align-items: center;
+  display: grid;
+  flex: 0 0 28rem;
+  max-inline-size: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+}
+@container air-footer (width <= calc(44rem + 32px)) {
+  .air-page-footer nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container air-footer (width < 14rem) {
+  .air-page-footer nav {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .air-page-footer p {
   margin: 0;
@@ -1874,6 +1892,78 @@ input.air-colour-brightness {
 }
 @container (max-width: 22rem) {
   .air-page-header .air-page-brand span {
+    display: none;
+  }
+}
+
+/* In-flow app status reserves space instead of covering working controls. */
+.air-update {
+  flex: none;
+  max-block-size: 45dvh;
+  overflow: auto;
+  scroll-padding-block: 6px;
+  overscroll-behavior: contain;
+  padding: 12px var(--air-gutter);
+  background: var(--air-page);
+  color: var(--air-ink);
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.air-update-panel {
+  max-inline-size: var(--air-page-max);
+  margin-inline: auto;
+  padding: 16px;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+  box-shadow: var(--air-shadow-surface);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.air-update-panel > svg {
+  flex: none;
+  align-self: start;
+  margin-block-start: 2px;
+}
+.air-update[data-state="error"] .air-update-panel > svg {
+  color: var(--air-danger);
+}
+.air-update-copy {
+  flex: 1 1 16rem;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.air-update h2 {
+  margin: 0;
+  font: 500 var(--air-text-body)/1.5 var(--air-font);
+}
+.air-update p {
+  margin: 4px 0 0;
+  color: var(--air-ink-secondary);
+}
+.air-update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.air-update .air-action-labels > span {
+  white-space: normal;
+}
+.air-update :is(button, button:active) {
+  transition: none;
+  animation: none;
+  transform: none;
+}
+.air-update button:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: 3px;
+}
+@media print {
+  .air-update {
     display: none;
   }
 }

@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.2
+version: 1.2.3
 status: approved
 date: 2026-10-26
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 3fad21f9bf319d5d1303d42dc0eb05f9a26d4652c1224ffdacd8a8252b728d32
+family-contract-sha256: f86a7a09b4f70d6250dc84ddfdd79fc139f245452faf41970d6886a1b0fcc387
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.2 — shared public navigation and footer content** · Direction: **Air** · Updated: **2026-10-26**
+Version: **1.2.3 — matching footer rhythm and PWA notices** · Direction: **Air** · Updated: **2026-10-26**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -757,16 +757,19 @@ Public shell content follows the same recipe across the family:
   then **Built by Sumit Sahoo**, with the author name linked and underlined. Use
   `air-page-identity` for the two lines. Keep the version in the same text style;
   static recovery pages derive it from the same package version as the application.
-- Footer navigation: **Privacy policy → Source → MIT license → Cloakyard**.
-  Source and License target the product's repository and its main-branch LICENSE;
-  the family destination keeps ArrowUpRight. Use `Footer navigation` as its name.
-  An existing product action such as Download may precede this common sequence.
-  Preserve real policy content and existing link opening behavior. Recovery policy
-  links must open the actual policy, not silently substitute a summary section.
-- The Cloakyard directory keeps its product-links row, copyright identity and
-  **Privacy → Source → MIT license** sequence. Privacy points to its existing
-  principles; do not invent a separate policy or add a redundant family self-link.
-  Its identity/navigation row uses `air-page-footer-row`.
+- Footer navigation has exactly four destinations: **Privacy → Source → MIT license
+  → Cloakyard**. Source and License target the product repository and main-branch
+  LICENSE. The family destination keeps ArrowUpRight. Use `Footer navigation` as
+  its landmark. Privacy opens the actual policy; the directory points to its
+  existing principles and uses **All apps** (`#tools`) in the fourth slot.
+- Keep the footer one identity group plus one navigation group. Product directories,
+  repeated Download actions and marketing copy belong in the main page, not an
+  additional footer row. Preserve the directory copyright and existing app versions.
+- The shared footer reserves the same 16rem identity and 28rem navigation bases,
+  with four equal navigation tracks; compact containers use two tracks, then one
+  at enlarged text when needed. At equal viewport/font/input settings all adopted
+  footers have the same natural height. Do not force a fixed height or hide overflow.
+  Validate cross-product bounding boxes, including reading and recovery pages.
 - Reading and recovery pages retain the same identity, credit, labels, order and
   destinations. Recovery-specific reporting links belong with recovery actions.
   Editor toolbars remain functional variants; do not add marketing navigation to
@@ -961,6 +964,30 @@ Public shell content follows the same recipe across the family:
   keyboards require an expanded editing/preview mode instead of clipped controls.
 - Opening, replacing, editing, undoing, cancelling, saving/exporting, and returning
   must have consistent feedback. Destructive actions require confirmation or undo.
+
+### PWA update and offline notices
+
+- Use the pinned `update-notice.tsx` presentation and `air-update` shell. Products
+  own service-worker registration, work protection and activation; do not duplicate
+  the visual markup, labels or notice CSS. Sites without a service worker (Yard and
+  Drop website) do not show fabricated update/offline notices.
+- Place the same opaque, 18px-radius panel in normal flow above the public header
+  or editor. Reserve space so no editor/modal commands are covered. Use 16px panel
+  padding, 20px leading icon, 14px/500 heading, 14px/1.5 copy and 8px action gaps.
+  Constrain the status region to 45dvh with reachable scrollable controls.
+- Shared titles: **Update available**, **Updating…**, **Update paused**, **Core app
+  cached**. Standard copy is shared; only blocked/error instructions may vary to
+  explain actual work protection. Never imply all optional assets are cached.
+- Update actions are **Later** and **Update and reload**; busy **Updating…**, failed
+  **Try again**. Do not add a second dismissal control or a redundant eyebrow/icon
+  in the action. Offline status has one **Dismiss offline status** icon button.
+- Announce status politely and errors assertively; arrival never steals focus.
+  Keep focused busy actions reachable and restore prior connected focus on dismiss.
+  Pause offline auto-dismiss while hovered/focused. Pending updates do not expire.
+  Preserve each app's draft/save/task deferral and same-tab update consent.
+- Compare actual update/offline panels across PWA products, including text, geometry,
+  buttons, themes, enlarged text and narrow/short layouts. Exercise real worker
+  activation, cross-tab updates and work preservation separately from visual checks.
 
 ### Overlays
 
@@ -1590,7 +1617,7 @@ journeys across all apps; it is not inferred from the pilot alone.
   CSS, original mark and real capture. Validate shipped metadata against image bytes;
   include static HTML/artwork in the surface inventory alongside React sources.
 
-- PWA Update now is deferred while an editor or standalone workspace is open.
+- PWA Update and reload is deferred while an editor or standalone workspace is open.
   Explain saving/downloading and returning home; keep Later available and restore
   update availability on return home. A worker activated by another tab must not
   reload this tab's work. Recheck the current route before the delayed reload so a

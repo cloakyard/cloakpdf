@@ -200,11 +200,11 @@ try {
           if (state === "overview") {
             if (mobile) {
               const cacheNotice = await page.$(
-                '.pdf-toast button[aria-label="Dismiss cache status"], .pdf-toast-actions > button:first-child',
+                '.air-update-panel button[aria-label="Dismiss offline status"], .air-update-actions > button:first-child',
               );
               if (cacheNotice) {
                 await cacheNotice.click();
-                await page.waitForSelector(".pdf-toast", { hidden: true });
+                await page.waitForSelector(".air-update-panel", { hidden: true });
               }
               await page.locator('[aria-label="Open tools"]').click();
               await page.locator('[aria-label="Organize"]').click();

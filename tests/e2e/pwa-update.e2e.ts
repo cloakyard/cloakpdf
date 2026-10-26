@@ -67,21 +67,21 @@ try {
   });
   await page.goto(base);
   await page.evaluate(() => navigator.serviceWorker.ready);
-  await page.waitForSelector('[aria-label="Dismiss cache status"]');
-  await page.waitForSelector(".pdf-toast-host", { hidden: true });
+  await page.waitForSelector('[aria-label="Dismiss offline status"]');
+  await page.waitForSelector(".air-update", { hidden: true });
   // Auto-dismissed first-install feedback must not hide future home updates.
   revision++;
   await page.evaluate(async () => (await navigator.serviceWorker.ready).update());
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   assert.notEqual(
-    await page.$eval(".pdf-toast-actions button:last-child", (n) =>
+    await page.$eval(".air-update-actions button:last-child", (n) =>
       n.getAttribute("aria-disabled"),
     ),
     "true",
   );
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle2" }),
-    page.click(".pdf-toast-actions button:last-child"),
+    page.click(".air-update-actions button:last-child"),
   ]);
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
   const source = resolve(output, "update-review.pdf");
@@ -97,15 +97,15 @@ try {
   await page.type("#metadata-title", "Saved after deferred update");
   revision++;
   await page.evaluate(async () => (await navigator.serviceWorker.ready).update());
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   assert.equal(
-    await page.$eval(".pdf-toast-actions button:last-child", (n) =>
+    await page.$eval(".air-update-actions button:last-child", (n) =>
       n.getAttribute("aria-disabled"),
     ),
     "true",
   );
-  await page.click(".pdf-toast-actions button:last-child");
-  await page.focus(".pdf-toast-actions button:last-child");
+  await page.click(".air-update-actions button:last-child");
+  await page.focus(".air-update-actions button:last-child");
   await page.keyboard.press("Enter");
   await new Promise((r) => setTimeout(r, 1700));
   assert.equal(
@@ -137,7 +137,7 @@ try {
         const result = await page.evaluate(async (font) => {
           document.documentElement.style.fontSize = `${font}px`;
           await document.fonts.ready;
-          const toast = document.querySelector<HTMLElement>(".pdf-toast")!;
+          const toast = document.querySelector<HTMLElement>(".air-update-panel")!;
           const rect = toast.getBoundingClientRect();
           const buttons = [...toast.querySelectorAll("button")];
           const ranges = [...toast.querySelectorAll("p, button")].flatMap((n) => {
@@ -189,11 +189,11 @@ try {
       { name: "forced-colors", value: "active" },
     ],
   });
-  await page.focus(".pdf-toast-actions button:last-child");
+  await page.focus(".air-update-actions button:last-child");
   await page.screenshot({ path: resolve(output, "deferred-forced-colours.png") });
   await cdp.send("Emulation.setEmulatedMedia", { features: [] });
   await page.click("button::-p-text(Later)");
-  await page.waitForSelector(".pdf-toast-host", { hidden: true });
+  await page.waitForSelector(".air-update", { hidden: true });
   await page.click("button::-p-text(Save metadata)");
   await page.waitForFunction(() =>
     document.querySelector("#metadata-save-status")?.textContent?.includes("Metadata saved"),
@@ -227,10 +227,10 @@ try {
   // A second home tab activates the same waiting worker. This working tab stays put.
   const other = await browser.newPage();
   await other.goto(base);
-  await other.waitForSelector(".pdf-toast-actions button:last-child");
+  await other.waitForSelector(".air-update-actions button:last-child");
   await Promise.all([
     other.waitForNavigation({ waitUntil: "networkidle2" }),
-    other.click(".pdf-toast-actions button:last-child"),
+    other.click(".air-update-actions button:last-child"),
   ]);
   await new Promise((r) => setTimeout(r, 1700));
   assert.equal(
@@ -239,16 +239,16 @@ try {
   );
   await other.close();
   await page.click('[aria-label="Back to home"]');
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   assert.notEqual(
-    await page.$eval(".pdf-toast-actions button:last-child", (n) =>
+    await page.$eval(".air-update-actions button:last-child", (n) =>
       n.getAttribute("aria-disabled"),
     ),
     "true",
   );
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle2" }),
-    page.click(".pdf-toast-actions button:last-child"),
+    page.click(".air-update-actions button:last-child"),
   ]);
   await page.waitForSelector("#toolkit");
   // Standalone inputs retain their files while an update waits.
@@ -258,25 +258,25 @@ try {
   await page.waitForSelector('[aria-label="Files to combine"] [role="listitem"]');
   revision++;
   await page.evaluate(async () => (await navigator.serviceWorker.ready).update());
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   assert.equal(
-    await page.$eval(".pdf-toast-actions button:last-child", (n) =>
+    await page.$eval(".air-update-actions button:last-child", (n) =>
       n.getAttribute("aria-disabled"),
     ),
     "true",
   );
-  await page.click(".pdf-toast-actions button:last-child");
+  await page.click(".air-update-actions button:last-child");
   await new Promise((r) => setTimeout(r, 1700));
   assert.ok(await page.$('[aria-label="Files to combine"] [role="listitem"]'));
   assert.ok(await page.$("body::-p-text(update-review.pdf)"));
   await page.click("button::-p-text(Later)");
   await page.click('[aria-label="Back to home"]');
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   // A route handoff racing an accepted update must also prevent the delayed reload.
   const sourceBytes = [...(await readFile(source))];
   await page.evaluate((bytes) => {
     const update = [...document.querySelectorAll("button")].find((n) =>
-      n.textContent?.includes("Update now"),
+      n.textContent?.includes("Update and reload"),
     )!;
     update.click();
     window.dispatchEvent(
@@ -294,10 +294,10 @@ try {
     "Original title",
   );
   await page.click('[aria-label="Back to home"]');
-  await page.waitForSelector(".pdf-toast-actions button:last-child", { visible: true });
+  await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle2" }),
-    page.click(".pdf-toast-actions button:last-child"),
+    page.click(".air-update-actions button:last-child"),
   ]);
   assert.deepEqual(errors, []);
   await writeFile(
