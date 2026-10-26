@@ -210,12 +210,12 @@ export function App() {
   // adapt to the available viewport without requesting an orientation lock.
   if (view.kind === "editor") {
     return (
-      <>
+      <div className="pdf-workspace">
+        <ReloadPrompt deferUpdate />
         <Suspense fallback={<EditorLoadingFallback />}>
           <EditorView initialFile={view.file} initialTool={view.tool ?? null} onExit={goHome} />
         </Suspense>
-        <ReloadPrompt deferUpdate />
-      </>
+      </div>
     );
   }
 
@@ -224,14 +224,14 @@ export function App() {
   const viewKey = view.kind === "tool" ? `tool:${view.toolId}` : view.kind;
 
   return (
-    <>
+    <div className="pdf-app">
+      <ReloadPrompt deferUpdate={view.kind === "tool"} />
       <Layout onHome={goHome} showBack={showBack} onPrivacy={handlePrivacy}>
         <div key={viewKey}>
           <ViewContent view={view} onSelectTool={handleSelectTool} onOpenEditor={openEditor} />
         </div>
       </Layout>
-      <ReloadPrompt deferUpdate={view.kind === "tool"} />
-    </>
+    </div>
   );
 }
 

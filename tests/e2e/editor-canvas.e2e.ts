@@ -57,8 +57,8 @@ try {
   await (await page.$('input[type="file"]'))!.uploadFile(file);
   await page.waitForSelector(stage);
   await page
-    .waitForSelector('[aria-label="Dismiss cache status"]', { timeout: 10000 })
-    .then(() => page.click('[aria-label="Dismiss cache status"]'))
+    .waitForSelector('[aria-label="Dismiss offline status"]', { timeout: 10000 })
+    .then(() => page.click('[aria-label="Dismiss offline status"]'))
     .catch(() => {});
   await page.click('[aria-label="Annotate"]');
   await clickText("Rectangle");
