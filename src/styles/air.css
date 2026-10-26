@@ -1283,6 +1283,12 @@ textarea.air-field {
 .air-page-skip:focus {
   transform: none;
 }
+/* Match public chrome rendering without changing document/editor typography. */
+.air-page-header,
+.air-page-footer {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 .air-page-header {
   min-block-size: var(--air-header);
   display: flex;
@@ -1570,15 +1576,25 @@ textarea.air-field {
   border-block-start: 1px solid var(--air-line);
   font-size: var(--air-text-label);
 }
-.air-page-footer {
+.air-page-footer,
+.air-page-footer-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px 32px;
+}
+.air-page-footer {
   padding-block: 32px;
   border-block-start: 1px solid var(--air-line);
   color: var(--air-ink-muted);
   font-size: var(--air-text-body);
+}
+.air-page-identity > span {
+  display: block;
+}
+.air-page-footer nav {
+  align-items: center;
 }
 .air-page-footer p {
   margin: 0;

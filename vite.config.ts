@@ -11,6 +11,8 @@ declare const process: { env: Record<string, string | undefined> };
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8")) as {
   version: string;
 };
+// Keep the standalone recovery footer on the same version as the application.
+process.env.VITE_APP_VERSION = pkg.version;
 const appBasePath = process.env.VITE_APP_BASE_PATH || "/";
 
 // pdfjs-dist v6 fetches WASM image decoders (jbig2 / openjpeg / qcms, plus JS

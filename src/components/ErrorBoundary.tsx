@@ -1,11 +1,11 @@
 import { AlertTriangle, ArrowUpRight, Check, Copy, RefreshCw } from "lucide-react";
 import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
+import { PublicFooter } from "./PublicFooter.tsx";
+
 declare const __APP_VERSION__: string;
 
 const REPO_URL = "https://github.com/cloakyard/cloakpdf";
-const CLOAKYARD_URL = "https://cloakyard.com";
-const AUTHOR_URL = "https://github.com/sumitsahoo";
 
 interface Props {
   children: ReactNode;
@@ -105,7 +105,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </button>
           <nav className="air-page-nav" aria-label="Primary navigation">
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              Source <ArrowUpRight size={14} aria-hidden="true" />
+              Source <ArrowUpRight size={16} aria-hidden="true" />
             </a>
           </nav>
         </header>
@@ -187,17 +187,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
           </div>
         </main>
-        <footer className="air-page-width air-page-footer pdf-footer">
-          <p>
-            Part of <a href={CLOAKYARD_URL}>Cloakyard</a>. Made by{" "}
-            <a href={AUTHOR_URL}>Sumit Sahoo</a>.
-          </p>
-          <nav aria-label="Footer">
-            <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
-              MIT license
-            </a>
-          </nav>
-        </footer>
+        <PublicFooter />
       </div>
     );
   }
