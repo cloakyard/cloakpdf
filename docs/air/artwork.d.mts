@@ -10,4 +10,4 @@ export function mountAirArtwork(
     settle: () => void;
     control?: HTMLButtonElement | null;
   },
-): { destroy(): void };
+): { finish(): void; destroy(): void };

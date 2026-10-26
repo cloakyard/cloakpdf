@@ -83,6 +83,7 @@ textarea.editor-inline-text {
   }
 }
 .pdf-site {
+  container-type: inline-size;
   min-block-size: 100svh;
   display: flex;
   flex-direction: column;
@@ -439,31 +440,12 @@ textarea.editor-inline-text {
   margin-block-start: var(--air-space-16);
   margin-inline-start: -16px;
 }
-.pdf-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.pdf-footer,
+.pdf-footer nav {
   align-items: center;
-  gap: var(--air-space-24);
-  padding-block: var(--air-space-32);
-}
-.pdf-footer p {
-  margin: 0;
-  font-size: var(--air-text-body);
 }
 .pdf-footer p + p {
   color: var(--air-ink-secondary);
-  font-size: var(--air-text-label);
-}
-.pdf-footer p a {
-  display: inline;
-  min-block-size: 0;
-  font-size: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.pdf-footer nav {
-  align-items: center;
 }
 .pdf-version {
   color: var(--air-ink-muted);

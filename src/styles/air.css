@@ -1,4 +1,4 @@
-/* Cloakyard Air 1.1.0 — portable family foundations and opt-in component shells.
+/* Cloakyard Air 1.2.0 — portable family foundations and opt-in component shells.
  * Source: cloakyard/design/air/air.css. Never override --air-* in product styles.
  * Document templates, image pixels and PDF content keep their own styles. */
 :root {
@@ -1243,6 +1243,7 @@ textarea.air-field {
 
 /* Standalone reading and recovery pages. Output documents never use this root. */
 .air-page {
+  container-type: inline-size;
   margin: 0;
   background: var(--air-page);
   color: var(--air-ink);
@@ -1283,7 +1284,7 @@ textarea.air-field {
   transform: none;
 }
 .air-page-header {
-  min-block-size: 72px;
+  min-block-size: var(--air-header);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -1296,9 +1297,11 @@ textarea.air-field {
   align-items: center;
   gap: 12px;
   min-block-size: 44px;
+  min-inline-size: 44px;
+  color: var(--air-ink);
   text-decoration: none;
-  font-size: 1.125rem;
-  font-weight: 500;
+  font: 500 1.125rem/1.5 var(--air-font);
+  letter-spacing: -0.03em;
 }
 .air-page-mark {
   display: block;
@@ -1313,16 +1316,29 @@ textarea.air-field {
   gap: 8px 24px;
   min-inline-size: 0;
 }
-.air-page-nav a,
-.air-page-footer a {
+.air-page-nav :where(a:not(.air-button), button:not(.air-button)),
+.air-page-footer :where(a:not(.air-button, .air-page-brand), button:not(.air-button)) {
   position: relative;
   display: inline-flex;
   align-items: center;
   min-block-size: 44px;
-  padding-block: 8px;
+  min-inline-size: 44px;
+  gap: 8px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
   text-decoration: none;
-  font-size: var(--air-text-body);
+  font: 500 var(--air-text-body)/1.5 var(--air-font);
   color: var(--air-ink-secondary);
+  transition: none;
+  cursor: pointer;
+}
+.air-page-nav svg,
+.air-page-footer nav svg {
+  inline-size: 16px;
+  block-size: 16px;
+  flex: none;
+  stroke-width: 1.6;
 }
 .air-page-nav [aria-current="page"] {
   color: var(--air-ink);
@@ -1565,15 +1581,27 @@ textarea.air-field {
   font-size: var(--air-text-body);
 }
 .air-page-footer p {
-  margin: 8px 0;
+  margin: 0;
+  font: 400 var(--air-text-body)/1.5 var(--air-font);
+}
+.air-page-footer p a {
+  display: inline;
+  min-block-size: 0;
+  min-inline-size: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 @media (hover: hover) and (pointer: fine) {
-  .air-page-nav a:hover,
-  .air-page-footer a:hover,
+  .air-page-nav :where(a, button):hover,
+  .air-page-footer :where(a, button):not(.air-page-brand):hover,
   .air-contents a:hover {
     color: var(--air-ink);
     text-decoration: underline;
-    text-underline-offset: 4px;
+    text-underline-offset: 3px;
   }
 }
 @media (max-width: 60rem) {
@@ -1604,10 +1632,6 @@ textarea.air-field {
   }
   .air-page-intro {
     padding-block: 40px;
-  }
-  .air-page-nav,
-  .air-page-footer nav {
-    gap: 8px 20px;
   }
   .air-page h1 br {
     display: none;
@@ -1818,5 +1842,22 @@ input.air-colour-brightness {
   input.air-colour-brightness {
     appearance: auto;
     background-image: none !important;
+  }
+}
+
+/* Content-driven public gutters also follow enlarged root text. */
+@container (max-width: 60rem) {
+  .air-page-width {
+    padding-inline: 24px;
+  }
+}
+@container (max-width: 40rem) {
+  .air-page-width {
+    padding-inline: 16px;
+  }
+}
+@container (max-width: 22rem) {
+  .air-page-header .air-page-brand span {
+    display: none;
   }
 }

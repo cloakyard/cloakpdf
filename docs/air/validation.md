@@ -1,5 +1,18 @@
 # Air validation record
 
+## 2026-10-26 — Storyline and family chrome
+
+Adopted Air 1.2.0 shared public footer and content-driven gutters. Recovery uses
+the same angled destination cues and compact brand treatment. Corrected enlarged
+text alignment; PDF tools, approved page unveiling and output logic are unchanged.
+Lint/types/dead-code, 461 units, all 16 smoke suites, build/asset limits, 68 artwork
+layouts, 20 isolated portability checks and the family Chrome/Firefox shell matrix
+pass. Home/recovery: 120 link states / 32 keyboard checks; privacy: 64 / 16. Rendered
+desktop/laptop/phone light/dark inspected. Existing accepted Compact long-document
+limitation and physical/assistive gates remain open. Local only.
+
+Evidence: `docs/air/evidence/storyline-family-2026-10-26/`.
+
 ## 2026-10-25 — family public-page conformance
 
 Aligned compact navigation with the native in-flow Air Menu, retaining Editor,

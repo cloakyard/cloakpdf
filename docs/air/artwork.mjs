@@ -132,6 +132,12 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
   control?.addEventListener("click", toggle);
   sync();
   return {
+    finish() {
+      if (destroyed) return;
+      cancel();
+      complete = true;
+      sync();
+    },
     destroy() {
       destroyed = true;
       cancel();

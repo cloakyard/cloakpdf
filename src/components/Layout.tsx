@@ -115,7 +115,7 @@ export function Layout({
           </p>
         </div>
         <nav aria-label="Footer">
-          <button className="air-button air-button--quiet" type="button" onClick={onPrivacy}>
+          <button type="button" onClick={onPrivacy}>
             Privacy policy
           </button>
           <a
