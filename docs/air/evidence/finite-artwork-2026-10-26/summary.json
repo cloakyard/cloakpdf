@@ -1,0 +1,53 @@
+{
+  "contract": "1.2.1",
+  "request": "Remove landing Play/Pause/Replay controls",
+  "localValidation": [
+    {
+      "name": "drop-artwork",
+      "status": 0,
+      "seconds": 15.4
+    },
+    {
+      "name": "resume-artwork",
+      "status": 0,
+      "seconds": 10.5
+    },
+    {
+      "name": "pdf-artwork",
+      "status": 0,
+      "seconds": 7.6
+    },
+    {
+      "name": "family-chrome",
+      "status": 0,
+      "seconds": 36.2
+    },
+    {
+      "name": "family-firefox-light",
+      "status": 0,
+      "seconds": 16.2
+    },
+    {
+      "name": "family-firefox-dark",
+      "status": 0,
+      "seconds": 16.1
+    },
+    {
+      "name": "drop-site",
+      "status": 0,
+      "seconds": 38.3
+    },
+    {
+      "name": "pdf-smoke",
+      "status": 0,
+      "seconds": 271.0
+    }
+  ],
+  "featureTests": {
+    "cloakpdf": 461,
+    "cloakresume": 373
+  },
+  "familyLayouts": 1104,
+  "visualReview": "Drop and Resume: 390/1280/1440 light/dark; assembled file forms and Resume arrival; retained family chrome",
+  "remaining": "Physical/assistive/device gates and previously documented product exceptions remain open. This is not full-device acceptance."
+}

@@ -8,6 +8,5 @@ export function mountAirArtwork(
   options: {
     run: (animate: (steps: ArtworkStep[]) => Promise<void>) => Promise<void>;
     settle: () => void;
-    control?: HTMLButtonElement | null;
   },
 ): { finish(): void; destroy(): void };

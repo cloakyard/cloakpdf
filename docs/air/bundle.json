@@ -1,10 +1,10 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.1",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "a320d10433dd8790bf49b917d998dad6912574eb341d07c1b0915b5eefee576b"
+    "contractSha256": "58c563852cb37d8e729719311e857d96492023d96c1491b6203396173e459124"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
@@ -16,8 +16,8 @@
     "collections.html": "9140c5fab9c29614c5ca73687b81b45f54ec2c42d95db4b96232bbad31a9fce0",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "9ed84c388b39cff2f3ebed3f04c4e99d5951023838b659498d51ce0952a179b0",
-    "artwork.mjs": "641adf0aeb29e8bc53254619f7deed29276548f2019377980d8237a972a4ec59",
-    "artwork.d.mts": "59e90c51b5365a1d6e9d14b63e25e66f129420fcabb001075d4088c48eccdd6a",
+    "artwork.mjs": "c476562d7a094f9592b874e078787e147afbed696c4cba38276fab4be0faba82",
+    "artwork.d.mts": "a5638e0399776647ac1ed883a2026fa94e6515d47cd6054eb63ef27184cbf30f",
     "colour.mjs": "4116d6738bddaeeb4992f00bdcd53851fea29e50da7d607be798e2224ff54751",
     "colour.d.mts": "99f8ef26c936a4501463e2890c97bdc5bc8b4ae17a73e985facd19a081681396",
     "light-controller.mjs": "2743c8a375e4fd520563272f1e62876330fbf84e5636acd0a3dc1011a6ebc95f",
