@@ -39,7 +39,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/components/PagePreviewNav.tsx`        | app-surface         | Done         | Done               | Pending    |
 | `src/components/PrivacyPolicy.tsx`         | app-surface         | Done         | Done               | Pending    |
 | `src/components/ProgressBar.tsx`           | app-surface         | Done         | Done               | Pending    |
-| `src/components/PublicFooter.tsx`          | app-surface         | Pending      | Pending            | Pending    |
+| `src/components/PublicFooter.tsx`          | app-surface         | Done         | Done               | Done       |
 | `src/components/ReloadPrompt.tsx`          | app-surface         | Done         | Done               | Pending    |
 | `src/components/SegmentedControl.tsx`      | app-surface         | Done         | Done               | Pending    |
 | `src/components/Select.tsx`                | app-surface         | Done         | Done               | Pending    |
