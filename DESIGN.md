@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.0
+version: 1.2.1
 status: approved
 date: 2026-10-26
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: a320d10433dd8790bf49b917d998dad6912574eb341d07c1b0915b5eefee576b
+family-contract-sha256: 58c563852cb37d8e729719311e857d96492023d96c1491b6203396173e459124
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.0 — storyline and family chrome** · Direction: **Air** · Updated: **2026-10-26**
+Version: **1.2.1 — automatic finite landing artwork** · Direction: **Air** · Updated: **2026-10-26**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -701,15 +701,16 @@ An accurate product screenshot may remain in the following feature section.
   keeping their stacking order. The front page and real dropzone stay anchored.
   Settle open after one unveiling; do not loop, reorder, or animate file intake.
 - **Drop:** square teal pixels descend into file, package, disc and archive forms.
-  Each form holds before dispersing downward and assembling the next. Use 850ms
-  pixel arrivals, a 50ms bottom-to-top row stagger, 480ms dispersal and a 1,500ms
-  hold. Use shared spatial/exit curves and linear descent with a gentle landing.
-  Keep a visible, keyboard/touch-accessible Air pause/resume action for repetition.
+  Show FILE, PKG, ISO and ZIP once, then keep the final form still. Use 600ms
+  arrivals, an 8ms bottom-to-top row stagger plus at most 29ms scatter, 160ms
+  dispersal with at most 48ms stagger and a 300ms hold between forms. The complete
+  sequence stays under five seconds (4,776ms maximum active timeline). Use shared
+  spatial/exit curves and linear descent with a gentle landing; never loop.
   These are illustrative file types, never a simulated real transfer or progress bar.
 - **Resume:** a green career path with three milestones gathers into the spine of
   one white résumé over 3,400ms with the shared spatial curve. Keep the paper's
   name and content illustrative; do not imply automatic writing or hiring results.
-  Run once, retain visible Pause/Play/Replay and a complete static résumé fallback.
+  Run once and settle into a complete static résumé. No playback controls.
   The headline and real Start blank/sample/import/restore actions never move.
 - Artwork uses only the product's existing `light-{app}` colour, neutral planes
   and truthful paper/image colours. The UI's focus, links and controls retain Air.
@@ -718,8 +719,11 @@ An accurate product screenshot may remain in the following feature section.
   theme, alongside the existing `paper-accent`; surrounding controls use live themes.
 - Static artwork renders without the animation module. Reduced motion, forced
   colours and constrained/save-data visits do not start decorative motion.
-  Live preference changes settle immediately. Pause offscreen and hidden; user
-  pause survives visibility changes. Cancel animations/listeners on departure.
+  Live preference changes settle immediately. Suspend offscreen and hidden; resume
+  the same finite sequence on return. Cancel animations/listeners on departure.
+- Landing artwork has no visible Play, Pause or Replay controls. Each automatic
+  arrival finishes within five seconds and remains still; returning visibility
+  or removing a motion restriction must not restart a completed sequence.
 - Keep the action usable before, during and after motion. Reserve the artwork's
   layout space, contain only its moving marks, and shrink ornamental space first
   in short landscape. Text and controls reflow at enlarged sizes. No fake upload,
@@ -1038,9 +1042,9 @@ performance approval.
 - One optional Air light effect on a landing page, never in an active workspace.
   Code is local/lazy; use the approved Shaders library only if it improves the
   chosen light treatment. A static CSS/image fallback must render first.
-- Pause offscreen, hidden, reduced-motion, and constrained-device effects. An
-  autonomous loop longer than five seconds needs a visible pause/stop control.
-  Prefer one short entrance or deliberate pointer response. Content and actions
+- Suspend offscreen/hidden effects and settle reduced-motion/constrained visits.
+  Landing artwork uses one entrance of at most five seconds or deliberate pointer
+  response, with no autonomous loop or playback controls. Content and actions
   never depend on GPU support or successful effect loading.
 - The reference's light follows a mass 1 / stiffness 100 / damping 10 spring,
   confined to the middle 70% of the artwork. It settles within 1.8s after the last

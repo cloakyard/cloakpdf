@@ -1,5 +1,5 @@
 /** Shared lifecycle for small, local landing illustrations. No rendering dependency. */
-export function mountAirArtwork(root, { run, settle, control = null }) {
+export function mountAirArtwork(root, { run, settle }) {
   const doc = root.ownerDocument;
   const win = doc.defaultView;
   const reduced = win.matchMedia("(prefers-reduced-motion: reduce)");
@@ -8,7 +8,6 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
   const active = new Set();
   let visible = false;
   let pageHidden = false;
-  let paused = false;
   let started = false;
   let complete = false;
   let destroyed = false;
@@ -26,7 +25,7 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
   function suspension() {
     if (doc.hidden || pageHidden) return "hidden";
     if (!visible) return "offscreen";
-    return paused ? "paused" : null;
+    return null;
   }
   function cancel() {
     revision++;
@@ -68,7 +67,6 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
       cancel();
       complete = true;
       root.dataset.artState = "static";
-      if (control) control.hidden = true;
     }
   }
   function sync() {
@@ -78,16 +76,7 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
       if (started) complete = true;
       cancel();
       root.dataset.artState = blocked;
-      if (control) control.hidden = true;
       return;
-    }
-    if (control) {
-      control.hidden = false;
-      control.textContent = complete
-        ? "Replay animation"
-        : paused
-          ? "Play animation"
-          : "Pause animation";
     }
     if (complete) {
       root.dataset.artState = "complete";
@@ -97,13 +86,6 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
     const suspended = suspension();
     active.forEach((animation) => (suspended ? animation.pause() : animation.play()));
     root.dataset.artState = suspended ?? "playing";
-  }
-  function toggle() {
-    if (complete) {
-      complete = false;
-      paused = false;
-    } else paused = !paused;
-    sync();
   }
   function hide() {
     pageHidden = true;
@@ -129,7 +111,6 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
   doc.addEventListener("visibilitychange", sync);
   win.addEventListener("pagehide", hide);
   win.addEventListener("pageshow", show);
-  control?.addEventListener("click", toggle);
   sync();
   return {
     finish() {
@@ -148,8 +129,6 @@ export function mountAirArtwork(root, { run, settle, control = null }) {
       doc.removeEventListener("visibilitychange", sync);
       win.removeEventListener("pagehide", hide);
       win.removeEventListener("pageshow", show);
-      control?.removeEventListener("click", toggle);
-      if (control) control.hidden = true;
       root.dataset.artState = "destroyed";
     },
   };

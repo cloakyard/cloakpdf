@@ -1,5 +1,16 @@
 # Air validation record
 
+## 2026-10-26 — Automatic landing artwork without playback controls
+
+Adopts the smaller shared artwork lifecycle; the existing page unveiling and immediate upload behavior are preserved. 461 unit tests, all 16 production smoke suites and 68 artwork layouts pass. The existing Compact beta and node-forge release exceptions are unchanged.
+
+Air 1.2.1 requires automatic finite landing artwork without Play/Pause/Replay.
+Hidden/offscreen suspension and reduced-motion/static fallbacks remain. Shared
+Chrome/Firefox checks pass 1,104 layouts. Applicable checks, build, dead-code,
+design and portable-bundle checks pass. See `evidence/finite-artwork-2026-10-26/`.
+Physical/assistive/device and earlier product acceptance remain open. Deployment
+is tracked by the family release ledger after passing dev → main PRs.
+
 ## 2026-10-26 — Full web cleanup audit
 
 Audited all web imports/exports, dependencies, custom styles, public assets and
