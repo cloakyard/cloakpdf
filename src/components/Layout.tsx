@@ -2,7 +2,7 @@
 import { ArrowUpRight, ChevronDown, ChevronLeft } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 
-declare const __APP_VERSION__: string;
+import { PublicFooter } from "./PublicFooter.tsx";
 export function Layout({
   children,
   onHome,
@@ -105,31 +105,7 @@ export function Layout({
       <main id="main" tabIndex={-1} className={showBack ? "air-page-width pdf-main" : "pdf-main"}>
         {children}
       </main>
-      <footer className="air-page-width air-page-footer pdf-footer">
-        <div>
-          <p>
-            CloakPDF <span className="pdf-version">v{__APP_VERSION__}</span>
-          </p>
-          <p>
-            Made for your files. Part of <a href="https://cloakyard.com">Cloakyard</a>.
-          </p>
-        </div>
-        <nav aria-label="Footer">
-          <button type="button" onClick={onPrivacy}>
-            Privacy policy
-          </button>
-          <a
-            href="https://github.com/cloakyard/cloakpdf/blob/main/LICENSE"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            MIT license
-          </a>
-          <a href="https://github.com/sumitsahoo" target="_blank" rel="noopener noreferrer">
-            Sumit Sahoo
-          </a>
-        </nav>
-      </footer>
+      <PublicFooter onPrivacy={onPrivacy} />
     </div>
   );
 }

@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.1
+version: 1.2.2
 status: approved
 date: 2026-10-26
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 58c563852cb37d8e729719311e857d96492023d96c1491b6203396173e459124
+family-contract-sha256: 3fad21f9bf319d5d1303d42dc0eb05f9a26d4652c1224ffdacd8a8252b728d32
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.1 — automatic finite landing artwork** · Direction: **Air** · Updated: **2026-10-26**
+Version: **1.2.2 — shared public navigation and footer content** · Direction: **Air** · Updated: **2026-10-26**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -740,10 +740,37 @@ only arrange destinations and content: 36px marks; 12px mark/wordmark gap;
 1.125rem/500 wordmarks with −.03em tracking; 72px wide/at least 64px narrow
 headers; 44px brand and navigation targets; 14px-relative/500 navigation, 16px
 icons and 8px icon gaps. Footers use 32px block padding, one top rule, 14px-relative
-neutral copy, 8px/24px navigation gaps and 16px/32px group gaps. Inline credit links
-inherit copy and its persistent underline. Footer product directories may add an
-unboxed row; destinations and copyright/version wording remain product-specific.
-Do not use a separate mark size or wordmark scale on a reading/recovery route.
+neutral copy, 8px/24px navigation gaps and 16px/32px group gaps. Public headers and
+footers normalize macOS font smoothing to antialiased/grayscale; document output
+keeps its existing rendering. Inline credit links
+inherit copy and its persistent underline. Do not use a separate mark size or
+wordmark scale on a reading/recovery route.
+
+Public shell content follows the same recipe across the family:
+
+- Header: product home identity, task/section destinations in their meaningful
+  product order, then **Source** with ArrowUpRight linking to that product's exact
+  repository. Desktop and compact navigation repeat identical labels, destinations,
+  order and new-tab behavior. Use `Primary navigation` as the landmark name.
+  Recovery pages may reduce task navigation to **Home**, followed by **Source**.
+- Footer identity: product name (and the existing app version, where applicable),
+  then **Built by Sumit Sahoo**, with the author name linked and underlined. Use
+  `air-page-identity` for the two lines. Keep the version in the same text style;
+  static recovery pages derive it from the same package version as the application.
+- Footer navigation: **Privacy policy → Source → MIT license → Cloakyard**.
+  Source and License target the product's repository and its main-branch LICENSE;
+  the family destination keeps ArrowUpRight. Use `Footer navigation` as its name.
+  An existing product action such as Download may precede this common sequence.
+  Preserve real policy content and existing link opening behavior. Recovery policy
+  links must open the actual policy, not silently substitute a summary section.
+- The Cloakyard directory keeps its product-links row, copyright identity and
+  **Privacy → Source → MIT license** sequence. Privacy points to its existing
+  principles; do not invent a separate policy or add a redundant family self-link.
+  Its identity/navigation row uses `air-page-footer-row`.
+- Reading and recovery pages retain the same identity, credit, labels, order and
+  destinations. Recovery-specific reporting links belong with recovery actions.
+  Editor toolbars remain functional variants; do not add marketing navigation to
+  editing workspaces. Validate actual content and destinations as well as geometry.
 
 - Hyperlinks with a directional cue use the angled Lucide ArrowUpRight shape
   (or its matching static SVG): Source, product/family destinations and reading

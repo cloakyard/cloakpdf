@@ -135,7 +135,9 @@ type View =
  * state (e.g. search) doesn't bubble up unnecessarily.
  */
 export function App() {
-  const [view, setView] = useState<View>({ kind: "home" });
+  const [view, setView] = useState<View>(() => ({
+    kind: new URLSearchParams(location.search).get("view") === "privacy" ? "privacy" : "home",
+  }));
   const previousView = useRef(view);
   useEffect(() => {
     if (previousView.current === view) return;
@@ -149,6 +151,11 @@ export function App() {
   // synchronously in the click/event path (before paint — no post-render scroll
   // jump) instead of as a [view] effect that also re-ran on same-view setView.
   const navigate = useCallback((next: View) => {
+    if (new URLSearchParams(location.search).get("view") === "privacy" && next.kind !== "privacy") {
+      const url = new URL(location.href);
+      url.searchParams.delete("view");
+      history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }
     setView(next);
     window.scrollTo(0, 0);
   }, []);

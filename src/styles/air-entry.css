@@ -440,18 +440,6 @@ textarea.editor-inline-text {
   margin-block-start: var(--air-space-16);
   margin-inline-start: -16px;
 }
-.pdf-footer,
-.pdf-footer nav {
-  align-items: center;
-}
-.pdf-footer p + p {
-  color: var(--air-ink-secondary);
-}
-.pdf-version {
-  color: var(--air-ink-muted);
-  font-size: var(--air-text-meta);
-  margin-inline-start: var(--air-space-8);
-}
 .pdf-encrypted {
   display: flex;
   align-items: start;
@@ -588,9 +576,6 @@ textarea.editor-inline-text {
   }
   .pdf-privacy-summary {
     padding-block: var(--air-space-32) var(--air-space-48);
-  }
-  .pdf-footer nav {
-    gap: var(--air-space-8) var(--air-space-16);
   }
   .pdf-policy {
     padding-block: var(--air-space-32);

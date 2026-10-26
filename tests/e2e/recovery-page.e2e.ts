@@ -60,7 +60,7 @@ try {
                 .map((r) => ({ text: node.textContent, x: r.x, right: r.right }));
             });
             const targets = [
-              ...document.querySelectorAll<HTMLElement>("header a, main a, footer a"),
+              ...document.querySelectorAll<HTMLElement>("header a, main a, footer nav a"),
             ];
             return {
               overflow: document.documentElement.scrollWidth > innerWidth,
@@ -73,6 +73,9 @@ try {
                     (matchMedia("(pointer: coarse)").matches ? 43.5 : 39.5),
                 )
                 .map((n) => n.textContent),
+              creditUnderlined: getComputedStyle(
+                document.querySelector(".air-page-identity a")!,
+              ).textDecorationLine.includes("underline"),
               background: getComputedStyle(document.body).backgroundColor,
               path: document.querySelector("#requested-path")?.textContent,
               pathHidden: document.querySelector("#requested-path")?.parentElement?.hidden,
@@ -85,6 +88,11 @@ try {
           assert.equal(result.overflow, false, JSON.stringify({ width, height, root, result }));
           assert.deepEqual(result.bounds, [], JSON.stringify({ width, height, root, result }));
           assert.deepEqual(result.smallTargets, []);
+          assert.equal(
+            result.creditUnderlined,
+            true,
+            "Inline author link keeps its text affordance",
+          );
           assert.equal(
             result.background,
             theme === "light" ? "rgb(250, 251, 252)" : "rgb(16, 18, 22)",
