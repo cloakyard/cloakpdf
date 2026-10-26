@@ -1,0 +1,30 @@
+{
+  "running": null,
+  "results": [
+    {
+      "name": "quality-short",
+      "status": 0,
+      "seconds": 54.2,
+      "sha256": "daee4841b053038e0106e5b972dbd2feaace0cf196a857d9a25a6d872d9e2619"
+    },
+    {
+      "name": "quality-long",
+      "status": 0,
+      "seconds": 66.9,
+      "sha256": "7899e3070b4f76f4bcf8cf7b0cdad9b27ffbfe053ee954cea6a7ca1dd4ecc3eb"
+    },
+    {
+      "name": "compact-short",
+      "status": 0,
+      "seconds": 54.1,
+      "sha256": "62bbb5f511e4eac2b98662556b91ec84c1acdab1d4a5b7ec7b342e8d308b01bb"
+    },
+    {
+      "name": "compact-long",
+      "status": 1,
+      "seconds": 53.4,
+      "sha256": "ea3b43c382cf1c03e42e3717335d7559723022f52390b93e4ad42966efe0c712"
+    }
+  ],
+  "knownException": "Compact beta long-document missing-facts assertion fails, as previously accepted by the user on 2026-10-21. Quality passes both fixtures; Compact short passes. No model/retrieval/assertion change. Raw document logs remain private outside Git."
+}

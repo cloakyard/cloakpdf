@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.0.6
+version: 1.2.0
 status: approved
-date: 2026-10-19
+date: 2026-10-26
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: e7c8a4bcfbc5af9d852a9ec15a38649c9bdaa052e3392db3ff9fd52cd91193af
+family-contract-sha256: a320d10433dd8790bf49b917d998dad6912574eb341d07c1b0915b5eefee576b
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.0.6 — neutral hyperlinks** · Direction: **Air** · Updated: **2026-10-19**
+Version: **1.2.0 — storyline and family chrome** · Direction: **Air** · Updated: **2026-10-26**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -125,7 +125,8 @@ quiet blue indicator. It does not depend on a framework's default component skin
   Selected segments use the same neutral surface and a small blue marker.
 - Focus outlines and selection use shared blue; hyperlinks use neutral ink. Logo colours may remain;
   they never tint the whole app or create a rainbow of tool categories.
-- The landing signature is a low-contrast light horizon: two offset, softly lit
+- A landing may express its product through the material artwork defined below.
+  The existing low-contrast light horizon remains a family option: two offset, softly lit
   planes echo the family mark's overlapping geometry. It occupies the space below
   hero copy and above product entries. Its light follows the app mark, using the
   primary gradient stop in light mode and the highlight stop in dark mode. Text
@@ -687,7 +688,58 @@ The family home is a product directory. Each card says what the app does, its
 platform, and how to open it. KERR is a text exploration link with brief context;
 no screenshot, simulation, orbital illustration, animated preview, or embedded app.
 
+### Product landing artwork
+
+The approved extension keeps Air's header, typography, spacing, neutral links,
+controls and surrounding surfaces. One contained composition between the promise
+and primary entry gives an app its own identity. It replaces that landing's horizon;
+do not stack multiple decorative effects or use an app screenshot as the hero hook.
+An accurate product screenshot may remain in the following feature section.
+
+- **PDF:** five white pages start as a compact stack. The four rear sheets spread
+  left and right over 2,200ms with the shared spatial curve and 60ms stagger,
+  keeping their stacking order. The front page and real dropzone stay anchored.
+  Settle open after one unveiling; do not loop, reorder, or animate file intake.
+- **Drop:** square teal pixels descend into file, package, disc and archive forms.
+  Each form holds before dispersing downward and assembling the next. Use 850ms
+  pixel arrivals, a 50ms bottom-to-top row stagger, 480ms dispersal and a 1,500ms
+  hold. Use shared spatial/exit curves and linear descent with a gentle landing.
+  Keep a visible, keyboard/touch-accessible Air pause/resume action for repetition.
+  These are illustrative file types, never a simulated real transfer or progress bar.
+- **Resume:** a green career path with three milestones gathers into the spine of
+  one white résumé over 3,400ms with the shared spatial curve. Keep the paper's
+  name and content illustrative; do not imply automatic writing or hiring results.
+  Run once, retain visible Pause/Play/Replay and a complete static résumé fallback.
+  The headline and real Start blank/sample/import/restore actions never move.
+- Artwork uses only the product's existing `light-{app}` colour, neutral planes
+  and truthful paper/image colours. The UI's focus, links and controls retain Air.
+  Document lettering inside decorative paper is artwork, not a new UI font.
+  White paper uses the fixed light `paper-ink` and `paper-line` tokens in either
+  theme, alongside the existing `paper-accent`; surrounding controls use live themes.
+- Static artwork renders without the animation module. Reduced motion, forced
+  colours and constrained/save-data visits do not start decorative motion.
+  Live preference changes settle immediately. Pause offscreen and hidden; user
+  pause survives visibility changes. Cancel animations/listeners on departure.
+- Keep the action usable before, during and after motion. Reserve the artwork's
+  layout space, contain only its moving marks, and shrink ornamental space first
+  in short landscape. Text and controls reflow at enlarged sizes. No fake upload,
+  automatic file access, moving headline, or animation-dependent navigation.
+- Use local transform/opacity animation with no new graphics/runtime dependency
+  when it can express the approved material. Remove superseded production shader
+  wrappers, styles, build artifacts and checks; preserve canonical reference assets
+  still used by other products. Adopt new motifs only after their own visual review.
+
 ### Landing navigation and text resilience
+
+The portable `air-page-*` shells own public header/footer geometry. Product classes
+only arrange destinations and content: 36px marks; 12px mark/wordmark gap;
+1.125rem/500 wordmarks with −.03em tracking; 72px wide/at least 64px narrow
+headers; 44px brand and navigation targets; 14px-relative/500 navigation, 16px
+icons and 8px icon gaps. Footers use 32px block padding, one top rule, 14px-relative
+neutral copy, 8px/24px navigation gaps and 16px/32px group gaps. Inline credit links
+inherit copy and its persistent underline. Footer product directories may add an
+unboxed row; destinations and copyright/version wording remain product-specific.
+Do not use a separate mark size or wordmark scale on a reading/recovery route.
 
 - Hyperlinks with a directional cue use the angled Lucide ArrowUpRight shape
   (or its matching static SVG): Source, product/family destinations and reading
@@ -999,7 +1051,7 @@ performance approval.
   pending initialization. Reduced motion, Save-Data, unavailable WebGPU, and
   reported memory/core counts of 4 or fewer use the static artwork. These browser
   hints supplement, rather than replace, real-device performance validation.
-- Bundle Shaders locally, pinned to 4.0.4 for this candidate, with no telemetry,
+- Bundle Shaders locally, pinned to 4.0.5 for this candidate, with no telemetry,
   hosted presets or remote assets. The lazy study bundle is approximately 369 kB
   gzip, with a 400 kB build ceiling. This is a measured study budget, not an
   approved production payload. Preserve dependency licenses and asset hashes.
@@ -1514,8 +1566,8 @@ journeys across all apps; it is not inferred from the pilot alone.
   new editor handoff remains safe. First-install cache feedback must not suppress
   later update notices. Validate with real waiting-worker/two-tab tests and output.
 
-- The landing mounts the canonical finite Air horizon with static SVG first paint.
-  Keep the shader lazy, below 350 kB gzip, licensed and outside service-worker
-  precache. Reduced motion, forced colours, Save-Data, constrained or unsupported
-  devices retain static content. Stop at rest and release GPU resources offscreen,
-  hidden, and on every editor/standalone/privacy departure. No editor decoration.
+- The landing unveils four rear paper sheets to either side of an anchored front
+  sheet, once, using the portable artwork lifecycle. Keep their stacking order and
+  the real PDF dropzone fixed throughout. Static/reduced-motion visits show the
+  opened stack. Pause offscreen/hidden and cancel on workspace/privacy departure.
+  This replaces the landing shader; no editor decoration or animation dependency.

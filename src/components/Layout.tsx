@@ -1,6 +1,6 @@
 /** Air shell shared by the entry, reading and standalone routes. */
-import { ArrowUpRight, ChevronLeft } from "lucide-react";
-import type { ReactNode } from "react";
+import { ArrowUpRight, ChevronDown, ChevronLeft } from "lucide-react";
+import { useRef, type ReactNode } from "react";
 
 declare const __APP_VERSION__: string;
 export function Layout({
@@ -14,50 +14,94 @@ export function Layout({
   showBack?: boolean;
   onPrivacy: () => void;
 }) {
+  const disclosure = useRef<HTMLDetailsElement>(null);
+  const links = (
+    <>
+      {!showBack && (
+        <>
+          <a href="#workbench">Editor</a>
+          <a href="#toolkit">Tools</a>
+        </>
+      )}
+      <a
+        href="https://github.com/cloakyard/cloakpdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="View CloakPDF source on GitHub"
+      >
+        Source <ArrowUpRight size={16} aria-hidden="true" />
+      </a>
+    </>
+  );
   return (
     <div className="pdf-site">
       <a href="#main" className="air-button air-button--primary air-page-skip">
         Skip to main content
       </a>
-      <header className="air-page-width air-page-header pdf-header">
-        <div className="pdf-brand-group">
-          {showBack && (
+      <div className="pdf-header-shell">
+        <header className="air-page-width air-page-header pdf-header">
+          <div className="pdf-brand-group">
+            {showBack && (
+              <button
+                type="button"
+                className="air-icon-button air-button--quiet"
+                onClick={onHome}
+                aria-label="Back to home"
+              >
+                <ChevronLeft size={20} aria-hidden="true" />
+              </button>
+            )}
             <button
               type="button"
-              className="air-icon-button air-button--quiet"
               onClick={onHome}
-              aria-label="Back to home"
+              aria-label="CloakPDF home"
+              className="air-page-brand pdf-brand"
             >
-              <ChevronLeft size={20} aria-hidden="true" />
+              <img
+                src="/cloakpdf-mark.svg"
+                alt=""
+                width="36"
+                height="36"
+                className="air-page-mark"
+              />
+              <span translate="no">CloakPDF</span>
             </button>
-          )}
-          <button
-            type="button"
-            onClick={onHome}
-            aria-label="CloakPDF home"
-            className="air-page-brand pdf-brand"
+          </div>
+          <nav className="air-page-nav pdf-desktop-nav" aria-label="Primary navigation">
+            {links}
+          </nav>
+          <details
+            className="pdf-mobile-nav"
+            ref={disclosure}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && disclosure.current?.open) {
+                disclosure.current.open = false;
+                disclosure.current.querySelector("summary")?.focus();
+                event.preventDefault();
+              }
+            }}
           >
-            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
-            <span translate="no">CloakPDF</span>
-          </button>
-        </div>
-        <nav className="air-page-nav" aria-label="Primary navigation">
-          {!showBack && (
-            <>
-              <a href="#workbench">Editor</a>
-              <a href="#toolkit">Tools</a>
-            </>
-          )}
-          <a
-            href="https://github.com/cloakyard/cloakpdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="View CloakPDF source on GitHub"
-          >
-            Source <ArrowUpRight size={14} aria-hidden="true" />
-          </a>
-        </nav>
-      </header>
+            <summary className="air-button air-button--quiet">
+              Menu <ChevronDown size={16} aria-hidden="true" />
+            </summary>
+            <nav
+              className="air-page-nav"
+              aria-label="Primary navigation"
+              onClick={(event) => {
+                const anchor = (event.target as Element).closest("a");
+                if (!anchor || !disclosure.current) return;
+                disclosure.current.open = false;
+                disclosure.current.querySelector("summary")?.focus({ preventScroll: true });
+                const href = anchor.getAttribute("href");
+                if (href?.startsWith("#"))
+                  document.getElementById(href.slice(1))?.focus({ preventScroll: true });
+              }}
+            >
+              {links}
+            </nav>
+          </details>
+        </header>
+      </div>
       <main id="main" tabIndex={-1} className={showBack ? "air-page-width pdf-main" : "pdf-main"}>
         {children}
       </main>
@@ -71,7 +115,7 @@ export function Layout({
           </p>
         </div>
         <nav aria-label="Footer">
-          <button className="air-button air-button--quiet" type="button" onClick={onPrivacy}>
+          <button type="button" onClick={onPrivacy}>
             Privacy policy
           </button>
           <a

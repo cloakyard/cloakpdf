@@ -1,0 +1,5 @@
+{
+  "identical": true,
+  "files": 131,
+  "reason": "Rebuild after documentation and formatting preserves every tested production byte."
+}

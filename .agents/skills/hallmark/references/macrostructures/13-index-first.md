@@ -1,23 +1,21 @@
 ## 13 · Index-First
 
-The page IS a list of links. No hero image, no narrative flow. Pure navigation as design.
+The page is a list of links. No hero image, no narrative flow. Navigation as design.
 
-- **Heading:** one short paragraph at the top introducing the index, no display type.
-- **Body:** vertical list of categorised links; sometimes a sidebar of filters.
-- **Divider:** hairline rules between rows; or zero rules with paper-colour bands.
-- **Button:** the links themselves are the buttons.
-- **Image:** none, or tiny favicons by each entry.
+- **Heading:** a short head at the hero size naming the index (*Everything published here, newest first*) and one line; the index starts on the first screen.
+- **Body:** a vertical list of categorised links; a filter row above it or a disclosure, never a sidebar by default.
+- **Divider:** hairline rules between rows, or no rules and bands of paper.
+- **Button:** the links are the buttons.
+- **Image:** none, or one photograph of the collection itself, and a small mark by each entry.
 - **Reveal:** none.
 
-Reach for it for documentation hubs, knowledge bases, archive front pages, design system entries, link-in-bio pages with substance.
+Reach for it for documentation hubs, knowledge bases, archive front pages, design-system entries, link pages with substance.
 
-Avoid for marketing pages. Index-First is for browsing audiences; selling needs structure.
+Avoid for a hard sell (a launch, a checkout). Index-First serves a browsing audience; a personal site that offers its owner's time is fine.
 
-Reference: Are.na's homepage feel, archive sites, documentation indices.
+Compositions: Rows at full width (`layout.md` § 5).
 
-**Sample opening lines** (imitate the *specificity* — Index-First openings are headers for what's below, sometimes nothing more than a label):
-> *"Selected work · 2018 — 2026."* — date range, no preamble
-> *"Things Become Other Things · Lightness above weightiness."* — craigmod.com — two phrases joined by a divider
-> *"Writer + Photographer."* — craigmod.com — three words, summarises the whole site
-
----
+**Sample opening lines** (headers for what sits below, sometimes no more than a line):
+> *"Selected work, 2018 to 2026."* A date range, no preamble.
+> *"Everything published here, newest first."* Names the sort and the scope.
+> *"Writer and photographer."* Three words that summarise the whole site.

@@ -1,32 +1,21 @@
-## 10 · Specimen *(no longer the default)*
+## 10 · Specimen
 
-Numbered left-margin labels, huge serif display, asymmetric column spans, hairline rules, typographic-only CTA, generous whitespace. Editorial / type-foundry energy.
+Large serif display, asymmetric column spans, hairline rules, a typographic CTA, generous whitespace. The voice of a foundry, a journal or a press.
 
-- **Heading:** left-margin number + label (`01 — HELLO.`) beside a large serif phrase.
-- **Body:** asymmetric spans — narrow label column / wide content column.
+- **Heading:** a large serif phrase, standing alone. When the run is genuinely ordinal the figure is generated on the heading itself (`<ol>` with `counter()`); a number typed beside or above it is an eyebrow (54).
+- **Body:** asymmetric spans: a narrow marginalia column (captions, dates, sidenotes) beside a wide content column.
 - **Divider:** hairline rules between sections.
-- **Button:** typographic link with arrow ("Open your studio →"); no box, no fill.
-- **Image:** none, or a hand-drawn SVG accent in the wide left margin.
+- **Button:** a typographic link carrying a verb ("Open your studio"); no box, no fill, no arrow (63).
+- **Image:** none, or one photograph of the face in print (a poster, a sign, a book spread) from the library or the user.
 - **Reveal:** fade-up stagger on first load.
 
-Reach for it ONLY when the brief is explicitly editorial, type-foundry, journal, or "specimen sheet". Otherwise pick something else.
+Reach for it when the prompt is about type, publishing or writing (a foundry, a journal, a press, a specimen sheet), or the user names it; the editorial genre alone does not qualify. On any other prompt pick another shape: this is the field's most-copied look, and a vague prompt that lands here has not been read.
 
-**Banned as a default.** If the brief is vague and you've defaulted here, restart.
+Avoid for product pages that need a demo; Specimen has nowhere to put one.
 
-Reference: type foundry homepages (Klim, Pangram Pangram, Production Type), some editorial portfolios.
+Compositions: Rows and a Statement (`layout.md` § 5); the action is a typographic link.
 
-**Sample opening lines** (imitate the *specificity* — Specimen openings are foundry-voice, treating type as material culture):
-> *"A thing well made."* — klim.co.nz — refusal of the verb, treats design as material
-> *"Type, set with care."* — Hallmark Specimen — three words, a colon implied
-> *"Creative direction, design and type for culture since 2003."* — apracticeforeverydaylife.com — date-anchored, names verticals
-
-```html
-<header class="specimen">
-  <p class="num-label">01 — HELLO.</p>
-  <h1 class="serif-xxl">A quiet <em>instrument.</em></h1>
-  <p class="lede narrow">…</p>
-  <a class="link">Open your studio →</a>
-</header>
-```
-
----
+**Sample opening lines** (foundry voice, treating type as material culture):
+> *"A quiet instrument."* Refusal of the verb.
+> *"Type, set with care."* Three words.
+> *"Set by hand, since 2003."* Date-anchored, names the method.

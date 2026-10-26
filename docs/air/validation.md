@@ -1,5 +1,83 @@
 # Air validation record
 
+## 2026-10-26 — Full web cleanup audit
+
+Audited all web imports/exports, dependencies, custom styles, public assets and
+build/generator/test entry points. Restricted Tailwind to shipped `src/` and root
+HTML: removed 17,993 bytes of generated CSS (2,711 bytes at gzip level 9) that came
+from non-product examples. Preserved both Air font mappings because preflight
+uses them, all document font files, supported icons and every tool/output path.
+No unused graph issues or asset deletions; no dependency change.
+
+Lint/types/dead-code, 461 units, the complete 16-suite production smoke command,
+build/deployment asset limits and 20 portability checks pass. All 12 PDF landing/editor
+before/after captures match exactly. The final family audit passes 552 Chrome
+layouts with zero deviations or browser errors; desktop/laptop/phone light/dark
+rendered review passes. Evidence: `docs/air/evidence/code-cleanup-2026-10-26/`.
+Physical/assistive and existing product follow-ups remain open. Local only.
+
+## 2026-10-26 — Storyline and family chrome
+
+Adopted Air 1.2.0 shared public footer and content-driven gutters. Recovery uses
+the same angled destination cues and compact brand treatment. Corrected enlarged
+text alignment; PDF tools, approved page unveiling and output logic are unchanged.
+Lint/types/dead-code, 461 units, all 16 smoke suites, build/asset limits, 68 artwork
+layouts, 20 isolated portability checks and the family Chrome/Firefox shell matrix
+pass. Home/recovery: 120 link states / 32 keyboard checks; privacy: 64 / 16. Rendered
+desktop/laptop/phone light/dark inspected. Existing accepted Compact long-document
+limitation and physical/assistive gates remain open. Local only.
+
+Evidence: `docs/air/evidence/storyline-family-2026-10-26/`.
+
+## 2026-10-25 — family public-page conformance
+
+Aligned compact navigation with the native in-flow Air Menu, retaining Editor,
+Tools, Source, Escape/focus return and existing home/privacy navigation. Corrected
+Source icon/gap, section-heading tracking and privacy 16px/1.6/48px cadence.
+No document/output logic or artwork behavior changed; no dependency added.
+
+Passing: lint/types/dead-code, 461 units, production build/asset limits, all 16
+smoke suites with synthetic demo fixtures, 66 Workers recovery layouts, 68 artwork
+layouts/file-entry/lifecycle checks, 132 link states and 34 keyboard checks.
+PDF contributes 160 Chrome/Firefox layouts to the 480-layout family comparison.
+Desktop/laptop/mobile light/dark and native Safari home/privacy/enlarged-menu
+captures were visually reviewed. Zero final comparison deviations/browser errors.
+Evidence: [family comparison](evidence/family-comparison-2026-10-25/).
+Air stays at 1.1.0. Physical/assistive acceptance and the existing Compact long-
+document limitation remain open. No push/deployment; Resume concept stays separate.
+
+## 2026-10-25 — page unveiling and immediate PDF entry
+
+Implemented the approved five-page composition. Four rear sheets unveil left/right
+once over 2,200ms with 60ms stagger; the front sheet, stacking order and real file
+entry stay fixed. No file selection waits for motion. The compact entry retains
+native file selection, drag feedback, editor handoff and neutral hover. White paper
+uses canonical fixed light ink/line tokens in both themes. Reduced/forced,
+Save-Data, constrained and unsupported profiles remain static; offscreen/hidden
+motion pauses, and SPA workspace departure cancels effects and listeners.
+
+Passing checks: `vp check`, `pnpm check:dead`, 461 unit tests, production build and
+asset limits; all 16 `test:e2e:smoke` suites using `E2E_DEMO_FIXTURES=1` (real editor,
+constructors, exports, mobile, search, modals, recovery, navigation and canvas);
+68 artwork layouts/fallback/lifecycle checks; neutral links across 120 layout/state
+and 36 keyboard checks; Air contract and 20 isolated portability checks. Native
+Chrome 200% zoom preserves the entry and has no horizontal overflow. Desktop,
+laptop and mobile light/dark captures were visually inspected. Physical-device,
+assistive and final family cross-browser acceptance remain separate release gates.
+The documented Compact long-document AI limitation is unchanged; no model code
+or output algorithm changed. A lingering Chrome helper pipe after navigation
+tests is now explicitly released after browser shutdown.
+
+Cleanup: removed `AirHorizon.tsx`, its CSS, shader build/license emitter, obsolete
+precache exclusion and GPU-only test. Kept portable reference assets used by the
+family gallery. Build contains no shader chunk or shader precache. Existing real
+editor PWA/README/OG captures remain accurate. No dependencies added.
+
+Evidence: [artwork, features, links, payload and captures](evidence/product-artwork-2026-10-25/).
+The CLI also refreshed seven project skills; vendored skill scripts and their
+Claude symlinks are excluded from application lint/format, preserving upstream bytes.
+No push or deployment in this piece.
+
 ## 2026-10-11 — portable contract and inventory
 
 `vp check`, `pnpm check:dead`, 355/355 unit tests and production build/asset limits pass.

@@ -1,0 +1,353 @@
+{
+  "records": [
+    {
+      "key": "cloakresume-landing-390-light",
+      "before": "1ef7b00949fbfd3528094b8f0188ef5e81c1933992ef9bc0d745a59288342fb8",
+      "after": "1ef7b00949fbfd3528094b8f0188ef5e81c1933992ef9bc0d745a59288342fb8",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-390-light",
+      "before": "33206fffd7b5d09f3767133a93cf41e7f307ddd2c981ccbaeb379e85f6003a24",
+      "after": "33206fffd7b5d09f3767133a93cf41e7f307ddd2c981ccbaeb379e85f6003a24",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-landing-390-dark",
+      "before": "24ab332f771478da0bd2f3bd74083d930e6334bb627833a6e13a46f7012f7d59",
+      "after": "24ab332f771478da0bd2f3bd74083d930e6334bb627833a6e13a46f7012f7d59",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-390-dark",
+      "before": "9f88e0c42ae2340c7381fdba32190abe147913387846aaf987f6667070193ef0",
+      "after": "9f88e0c42ae2340c7381fdba32190abe147913387846aaf987f6667070193ef0",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-landing-1280-light",
+      "before": "283ae5df1229bc296fdcaebb5a40293fd2478f92b213a958f055e4fe566db2c4",
+      "after": "283ae5df1229bc296fdcaebb5a40293fd2478f92b213a958f055e4fe566db2c4",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-1280-light",
+      "before": "d94811c54795247f11642692cbca7b2245e04df7967b1213f074bb485845f01c",
+      "after": "d94811c54795247f11642692cbca7b2245e04df7967b1213f074bb485845f01c",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-landing-1280-dark",
+      "before": "8c6b69ff192f8c0d599c90ad6b46dfefcf3bcc572d486136893f59a632f18a96",
+      "after": "8c6b69ff192f8c0d599c90ad6b46dfefcf3bcc572d486136893f59a632f18a96",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-1280-dark",
+      "before": "30c0d04765b919ed75cde4f21960e2af41e310647ee05472270183396465dd51",
+      "after": "30c0d04765b919ed75cde4f21960e2af41e310647ee05472270183396465dd51",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-landing-1440-light",
+      "before": "0868b70f8fe4aab404a8d011277a3edbdac6e8199537b8f40ca64205596a08ec",
+      "after": "0868b70f8fe4aab404a8d011277a3edbdac6e8199537b8f40ca64205596a08ec",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-1440-light",
+      "before": "e5f06da5bdb0a49abd2689c5dde074572709c3ca3d4827605700b9db74fa042d",
+      "after": "e5f06da5bdb0a49abd2689c5dde074572709c3ca3d4827605700b9db74fa042d",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-landing-1440-dark",
+      "before": "6a14bf843d458d38761de067c50e1ed2cc645be3b1c4abde269fb2f843f73f4d",
+      "after": "6a14bf843d458d38761de067c50e1ed2cc645be3b1c4abde269fb2f843f73f4d",
+      "equal": true
+    },
+    {
+      "key": "cloakresume-editor-1440-dark",
+      "before": "4187695fd7d218a13ed1b7396b9ac2d23218dc44927bf1a509c68915d823563f",
+      "after": "4187695fd7d218a13ed1b7396b9ac2d23218dc44927bf1a509c68915d823563f",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-390-light",
+      "before": "14547d042bc3f6a179a541f9680a64c0b7388a86f0991d6b79de2686157f8611",
+      "after": "14547d042bc3f6a179a541f9680a64c0b7388a86f0991d6b79de2686157f8611",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-390-light",
+      "before": "49a2562c4f6ef503669138f31d2701b566619dedc6784a0d18a1f7e57a385980",
+      "after": "49a2562c4f6ef503669138f31d2701b566619dedc6784a0d18a1f7e57a385980",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-390-dark",
+      "before": "5a9f4ebd90f0063f6e391c28a84d2314702957c306c04024e1e46a1a36c80bbc",
+      "after": "5a9f4ebd90f0063f6e391c28a84d2314702957c306c04024e1e46a1a36c80bbc",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-390-dark",
+      "before": "b440648b2e3bd5f234f87611c8a681877d1538b42bfbb3ecbee3ee809c16dad2",
+      "after": "b440648b2e3bd5f234f87611c8a681877d1538b42bfbb3ecbee3ee809c16dad2",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1280-light",
+      "before": "5dc22f26b3e746586a9e5dad479435e1570ed6adf0a95e571c5f1f37fe03e99f",
+      "after": "5dc22f26b3e746586a9e5dad479435e1570ed6adf0a95e571c5f1f37fe03e99f",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1280-light",
+      "before": "285de8ed2d23df7cf6897231de044c01ae55bd3cad1870508ddb1f6be861d7ca",
+      "after": "285de8ed2d23df7cf6897231de044c01ae55bd3cad1870508ddb1f6be861d7ca",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1280-dark",
+      "before": "f5a35593149749d857f02e5eb06b321fbb687c443c088804ec42d7c23c2c0268",
+      "after": "f5a35593149749d857f02e5eb06b321fbb687c443c088804ec42d7c23c2c0268",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1280-dark",
+      "before": "5b2b21a8facf348025d3a7de5a4ea5b5ce64cd0f419a9c1e670feb32be631c7f",
+      "after": "5b2b21a8facf348025d3a7de5a4ea5b5ce64cd0f419a9c1e670feb32be631c7f",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1440-light",
+      "before": "108daea8d3ed0bf58bd16d5a8cad4aaca9d733ef13d41e5d98e66a1687af9e8b",
+      "after": "108daea8d3ed0bf58bd16d5a8cad4aaca9d733ef13d41e5d98e66a1687af9e8b",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1440-light",
+      "before": "a266deaf6cf6c1940311957e8138d68611afcb2ecb8107df43ad390c9b995c02",
+      "after": "a266deaf6cf6c1940311957e8138d68611afcb2ecb8107df43ad390c9b995c02",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1440-dark",
+      "before": "949cd1a187abe4ab421f0f282f22797f11af2c3c2a7f4f86435168c405b03216",
+      "after": "949cd1a187abe4ab421f0f282f22797f11af2c3c2a7f4f86435168c405b03216",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1440-dark",
+      "before": "89b267a1c994f2532307630711cef85cd89b90d819732f00546d5bc902eedd5c",
+      "after": "89b267a1c994f2532307630711cef85cd89b90d819732f00546d5bc902eedd5c",
+      "equal": true
+    },
+    {
+      "key": "output-classic-sidebar-a4",
+      "before": "a0ff47862527d75aefce96f8e3355834103d15412fed26f759a6a0035b171032",
+      "after": "a0ff47862527d75aefce96f8e3355834103d15412fed26f759a6a0035b171032",
+      "equal": true
+    },
+    {
+      "key": "output-classic-sidebar-letter",
+      "before": "580baf2dd425be462da365cb29251eae2039d8790cb33ce3f665bce202463c96",
+      "after": "580baf2dd425be462da365cb29251eae2039d8790cb33ce3f665bce202463c96",
+      "equal": true
+    },
+    {
+      "key": "output-classic-impact-a4",
+      "before": "f501fbf2d3ebf7fb01deaf68c2859e0b5b098e031f57f5a46961ae82460890da",
+      "after": "f501fbf2d3ebf7fb01deaf68c2859e0b5b098e031f57f5a46961ae82460890da",
+      "equal": true
+    },
+    {
+      "key": "output-classic-impact-letter",
+      "before": "80c5c79963f1aab380bb102a38635c6b4b60ef6487abbe0f58dfe12ba2be6801",
+      "after": "80c5c79963f1aab380bb102a38635c6b4b60ef6487abbe0f58dfe12ba2be6801",
+      "equal": true
+    },
+    {
+      "key": "output-ledger-a4",
+      "before": "8140497284fd2a20447b6ce0b1479a508e91d4c03bced4e2210f69fa68c4c0f4",
+      "after": "8140497284fd2a20447b6ce0b1479a508e91d4c03bced4e2210f69fa68c4c0f4",
+      "equal": true
+    },
+    {
+      "key": "output-ledger-letter",
+      "before": "2a4a38ee84d13b4606481b3d22193cdaa3d6cdb52b6802474e92b3b4957f2c58",
+      "after": "2a4a38ee84d13b4606481b3d22193cdaa3d6cdb52b6802474e92b3b4957f2c58",
+      "equal": true
+    },
+    {
+      "key": "output-executive-serif-a4",
+      "before": "13d2ec2947cb479fd516b503ca56797dfdf657d7b271f4fd26d2228bd532d389",
+      "after": "13d2ec2947cb479fd516b503ca56797dfdf657d7b271f4fd26d2228bd532d389",
+      "equal": true
+    },
+    {
+      "key": "output-executive-serif-letter",
+      "before": "aa983e72a6e8910d4bfc0ef874caeda9641f88f8278bd01c8a30507981634b6a",
+      "after": "aa983e72a6e8910d4bfc0ef874caeda9641f88f8278bd01c8a30507981634b6a",
+      "equal": true
+    },
+    {
+      "key": "output-monograph-a4",
+      "before": "eb8af6401c247890c0893934a506c7dcd312cfcad39af3f15fa09a4eaa41d7f3",
+      "after": "eb8af6401c247890c0893934a506c7dcd312cfcad39af3f15fa09a4eaa41d7f3",
+      "equal": true
+    },
+    {
+      "key": "output-monograph-letter",
+      "before": "ac3db26f9b4c4020850b108f3ab62243028794d21e3ed1de928a91eacd98d1a7",
+      "after": "ac3db26f9b4c4020850b108f3ab62243028794d21e3ed1de928a91eacd98d1a7",
+      "equal": true
+    },
+    {
+      "key": "output-ats-professional-a4",
+      "before": "5992904b6508f2646a28d191b25db76ac06fb6109f61a041e8bf203c74638b3a",
+      "after": "5992904b6508f2646a28d191b25db76ac06fb6109f61a041e8bf203c74638b3a",
+      "equal": true
+    },
+    {
+      "key": "output-ats-professional-letter",
+      "before": "1cfcebb1d4e5df3efd6b9fd6beba7c8922b0bbad33764338108055a672a74104",
+      "after": "1cfcebb1d4e5df3efd6b9fd6beba7c8922b0bbad33764338108055a672a74104",
+      "equal": true
+    },
+    {
+      "key": "output-ats-plain-a4",
+      "before": "e52732fa49ed65b8b25a833ced94fa8e32ef58d55f6a762e0041c63796468ff8",
+      "after": "e52732fa49ed65b8b25a833ced94fa8e32ef58d55f6a762e0041c63796468ff8",
+      "equal": true
+    },
+    {
+      "key": "output-ats-plain-letter",
+      "before": "9cca3cf606bf6b03dcb2544e691375fcd298c0eeebee9357e25a1cb63b469492",
+      "after": "9cca3cf606bf6b03dcb2544e691375fcd298c0eeebee9357e25a1cb63b469492",
+      "equal": true
+    },
+    {
+      "key": "output-modern-minimal-a4",
+      "before": "0ea9727f536b29323c92026ef2c75d08839d98bb7fbd331226dc0fe9d5a436c4",
+      "after": "0ea9727f536b29323c92026ef2c75d08839d98bb7fbd331226dc0fe9d5a436c4",
+      "equal": true
+    },
+    {
+      "key": "output-modern-minimal-letter",
+      "before": "fb56a0c94ae67320f5ce1c6e303a9e68cfd7c8d96511e22587a9bcaa57529e2d",
+      "after": "fb56a0c94ae67320f5ce1c6e303a9e68cfd7c8d96511e22587a9bcaa57529e2d",
+      "equal": true
+    },
+    {
+      "key": "output-aurora-a4",
+      "before": "e3865bedb5a9ddde4caaf3b2f2fb4aeee1f2b835385dd6ba67f9d37a0ae347b8",
+      "after": "e3865bedb5a9ddde4caaf3b2f2fb4aeee1f2b835385dd6ba67f9d37a0ae347b8",
+      "equal": true
+    },
+    {
+      "key": "output-aurora-letter",
+      "before": "99daae2a008b2afe5586be9760a43bdb79edf873cdb52d63ef7751869730fa8c",
+      "after": "99daae2a008b2afe5586be9760a43bdb79edf873cdb52d63ef7751869730fa8c",
+      "equal": true
+    },
+    {
+      "key": "output-prism-a4",
+      "before": "e7bc8f8c1f56c945d0b64c247210275116d419dc17e87b76b6e9a443ef614271",
+      "after": "e7bc8f8c1f56c945d0b64c247210275116d419dc17e87b76b6e9a443ef614271",
+      "equal": true
+    },
+    {
+      "key": "output-prism-letter",
+      "before": "d2847ea0bd70afaa3cb728ca1ee2c87051296f601714ee32ea687e0a8ab1eaad",
+      "after": "d2847ea0bd70afaa3cb728ca1ee2c87051296f601714ee32ea687e0a8ab1eaad",
+      "equal": true
+    },
+    {
+      "key": "output-horizon-a4",
+      "before": "31ff96fcde5406d892661d1027b48da990c2e7764da479f6aedfc430eb577648",
+      "after": "31ff96fcde5406d892661d1027b48da990c2e7764da479f6aedfc430eb577648",
+      "equal": true
+    },
+    {
+      "key": "output-horizon-letter",
+      "before": "63dcc76ae155403f75fbbe695d08a55a16fdcfe9b1cc2d3490d6b23854af5507",
+      "after": "63dcc76ae155403f75fbbe695d08a55a16fdcfe9b1cc2d3490d6b23854af5507",
+      "equal": true
+    },
+    {
+      "key": "output-minimalist-a4",
+      "before": "414c9df91ab381a9f74585e0a97dc81e5a5fcec5108ad4b229dd9cc6c0186159",
+      "after": "414c9df91ab381a9f74585e0a97dc81e5a5fcec5108ad4b229dd9cc6c0186159",
+      "equal": true
+    },
+    {
+      "key": "output-minimalist-letter",
+      "before": "97241c844d9e2cc8f6814ad55ee099671f991d8771c0600963c33247bde58007",
+      "after": "97241c844d9e2cc8f6814ad55ee099671f991d8771c0600963c33247bde58007",
+      "equal": true
+    },
+    {
+      "key": "output-compact-timeline-a4",
+      "before": "ecec7b631e3144141f4b6b24b101b9da79659d9ef5d8dc0420aee7fecb274276",
+      "after": "ecec7b631e3144141f4b6b24b101b9da79659d9ef5d8dc0420aee7fecb274276",
+      "equal": true
+    },
+    {
+      "key": "output-compact-timeline-letter",
+      "before": "08c8a13f0d3881a36a017e8d3ad098d04eb13cb4610a1740c74ab9341807c333",
+      "after": "08c8a13f0d3881a36a017e8d3ad098d04eb13cb4610a1740c74ab9341807c333",
+      "equal": true
+    },
+    {
+      "key": "output-typographic-a4",
+      "before": "09befbea1f22377d3adda49010ca9fa7bdf0b35e53edb90e0d47c73e76f248c6",
+      "after": "09befbea1f22377d3adda49010ca9fa7bdf0b35e53edb90e0d47c73e76f248c6",
+      "equal": true
+    },
+    {
+      "key": "output-typographic-letter",
+      "before": "ac18774401c9f028387c77c5b1cfabe9199a0a233f956fa354c8b59d39a1a81a",
+      "after": "ac18774401c9f028387c77c5b1cfabe9199a0a233f956fa354c8b59d39a1a81a",
+      "equal": true
+    },
+    {
+      "key": "output-bauhaus-a4",
+      "before": "616e163fe567a3d23c5bd4e53f7087b8c1c3cf4fc019d7874e46525e388d5034",
+      "after": "616e163fe567a3d23c5bd4e53f7087b8c1c3cf4fc019d7874e46525e388d5034",
+      "equal": true
+    },
+    {
+      "key": "output-bauhaus-letter",
+      "before": "a6551e6aaf3ab4f6c896794b530a29f2a3f85a61577b43d76c667fc0737adfbd",
+      "after": "a6551e6aaf3ab4f6c896794b530a29f2a3f85a61577b43d76c667fc0737adfbd",
+      "equal": true
+    },
+    {
+      "key": "output-gradient-header-a4",
+      "before": "b1f19517231ced1f4859f2370b5500ecc57aa0b1c008324d821e17459f938cab",
+      "after": "b1f19517231ced1f4859f2370b5500ecc57aa0b1c008324d821e17459f938cab",
+      "equal": true
+    },
+    {
+      "key": "output-gradient-header-letter",
+      "before": "138925408f2e0583eafdb26cf87f5910e63cbf919a48746457cbee9e714e319e",
+      "after": "138925408f2e0583eafdb26cf87f5910e63cbf919a48746457cbee9e714e319e",
+      "equal": true
+    },
+    {
+      "key": "output-academic-a4",
+      "before": "a2822f2a6d6f8ae991d0c6c9299ed7fc3be00eaa36b4710efba19f9a8942b12c",
+      "after": "a2822f2a6d6f8ae991d0c6c9299ed7fc3be00eaa36b4710efba19f9a8942b12c",
+      "equal": true
+    },
+    {
+      "key": "output-academic-letter",
+      "before": "051d768a736a87c91c0dcebc5550b62b122ccceb20cea00636aa23658d9577df",
+      "after": "051d768a736a87c91c0dcebc5550b62b122ccceb20cea00636aa23658d9577df",
+      "equal": true
+    }
+  ],
+  "errors": []
+}

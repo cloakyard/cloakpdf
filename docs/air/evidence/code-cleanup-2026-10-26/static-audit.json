@@ -1,0 +1,12 @@
+{
+  "sourceFiles": 171,
+  "trackedAssets": 56,
+  "assetCandidates": [],
+  "singleOccurrenceTokens": ["--font-mono", "--font-sans"],
+  "singleOccurrenceKeyframes": [],
+  "review": {
+    "assetCandidates": "none",
+    "singleOccurrenceTokens": "Tailwind font mappings are consumed by preflight; retain",
+    "singleOccurrenceKeyframes": "none"
+  }
+}

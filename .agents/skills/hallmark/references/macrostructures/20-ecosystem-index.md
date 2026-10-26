@@ -1,23 +1,19 @@
 ## 20 · Ecosystem Index
 
-Multiple discovery surfaces — featured / latest / by category / by people. The platform's value is emergence and browsing, not declaration.
+Multiple discovery surfaces: featured, latest, by category, by people. The platform's value is browsing, not declaration.
 
-- **Heading:** brief positioning paragraph; no display.
-- **Body:** several horizontal rails or grids — each surfacing a different cut of the platform's content.
-- **Divider:** rail-titled bands.
-- **Button:** "See more →" at each rail's edge; rarely a global CTA.
-- **Image:** thumbnails everywhere; the page is dense imagery.
+- **Heading:** a prompt positioning line; no display.
+- **Body:** several horizontal rails or grids, each surfacing a different cut of the platform's content.
+- **Divider:** each rail opens with its own `<h2>`, never a label band; a hairline or a change of paper between rails.
+- **Button:** a link at each rail's edge carrying a verb ("See all templates"); rarely a global CTA, so the fold's one visible action is the first rail's link (44b).
+- **Image:** thumbnails throughout; the page is dense imagery, all of it the platform's real content.
 - **Reveal:** none.
 
-Reach for it for community platforms, content marketplaces, design-asset stores, any UGC/curated catalogue front page.
+Reach for it for community platforms, content marketplaces, asset stores, any curated catalogue front page.
 
-Avoid for single-product pages. Ecosystem needs multiple things to surface.
+Avoid for single-product pages. Ecosystem needs several things to surface.
 
-Reference: Are.na, Figma Community, Behance.
-
-**Sample opening lines** (imitate the *specificity* — Ecosystem Index openings are surface labels, dated, with a count):
-> *"Featured · Latest · By category."* — three discovery surfaces named, divided
-> *"What's on this week · Editor's pick · The whole catalogue."* — names cadence, curation, breadth
-> *"A toolkit for assembling new worlds from the scraps of the old."* — are.na — second-position copy that breaks template
-
----
+**Sample opening lines** (rail headings, dated, with a count):
+> *"Featured this week."* Then *"Latest."* Then *"By category."* Three rail headings, each on its own line.
+> *"What is on this week, the editor's pick, and the whole catalogue."* Names cadence, curation and breadth in one sentence.
+> *"Made by the people who use it, sorted by the people who read it."* Second-position copy that breaks the template.

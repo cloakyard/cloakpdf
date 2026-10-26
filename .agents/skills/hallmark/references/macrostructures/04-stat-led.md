@@ -1,34 +1,21 @@
 ## 04 · Stat-Led
 
-The hero is a giant number — a metric, a count, a percentage. Everything that follows supports or qualifies it. Data is the narrative.
+The hero is a figure the user gave, with the line that says what it means. Everything that follows supports or qualifies it. Data is the narrative.
 
-- **Heading:** a large numeric display (8–12 rem, tabular figures) **paired with a worded headline** — the figure is the biggest element, but it is *never the hero's only words*. State what the number means right beside or beneath it as a real headline, not a tiny label. Read the figure and its words together (*"4 seconds. From the alert link to the slow span."*).
-- **Body:** sections each anchored by a supporting stat or chart.
-- **Divider:** hairline rules between stat blocks; tabular-nums everywhere.
-- **Button:** outlined chip aligned beneath the qualifier.
-- **Image:** charts and small data-viz; no photography.
-- **Reveal:** number-tick on the hero figure — counter from 0 to target over ~500 ms.
+- **Heading:** a large numeric display at graphic scale (`craft.md` § 7, tabular figures) paired with a worded headline. The figure is the biggest element and never the hero's only words: say what it means beside or beneath it as a real headline, not a small label. Read them together: *"Four seconds. From the alert link to the slow span."*
+- **Body:** sections each anchored by a supporting figure or chart.
+- **Divider:** hairline rules between figure blocks; `tabular-nums` everywhere.
+- **Button:** an outlined chip beneath the qualifier, labelled with a verb ("Read the report").
+- **Image:** charts and data-viz per [`../data-viz.md`](../data-viz.md); product photographs only in the slots the user asked for.
+- **Reveal:** number-tick on the hero figure, from 0 to the target over `--dur-long`, legal only because the figure is real; the markup holds the final figure, so it reads with scripting off and under reduced motion (62).
 
-Reach for it when the brief is "we have proof in numbers" — enterprise/B2B, fundraising platforms, climate or impact pages.
+Reach for it when the prompt says "we have proof in numbers": enterprise and B2B, fundraising, climate and impact pages.
 
-Avoid for products without a defensible single metric. A fake big number is worse than no number.
+Avoid when the user has not given a number. Every figure on this page is the user's, with its unit and its source (46a); a bare figure with no worded line fails 46b. A fake big number is worse than no number.
 
-**The hero header always contains words.** The lead figure never stands alone as the headline — pair it with a worded line that completes it. A bare number as the dominant hero text fails slop-test gate 46.
+Compositions: Figures for the supporting row, Rows for the qualifiers (`layout.md` § 5).
 
-Reference: Ahrefs, Stripe Sessions stat blocks, climate-impact dashboards, venture firm portfolio pages.
-
-**Sample opening lines** (imitate the *specificity*, not the wording — the number does the work):
-> *"+47% · faster · decide late."* — italicised number, three-word qualifier
-> *"4 seconds. From the alert link to the slow span."* — pairs the number with what it bought
-> *"434 total posts. New CSS you feel like you could use today."* — adam argyle, nerdy.dev — the count grounds the page in real volume
-
-```html
-<section class="stat-hero">
-  <div class="figure tnum">99.97<span class="unit">%</span></div>
-  <p class="qualifier">uptime across 2026, measured externally.</p>
-  <a class="cta-outline">Read the report →</a>
-</section>
-<section class="supporting-stats">…</section>
-```
-
----
+**Sample opening lines** (the number is the user's; imitate how the words complete it):
+> *"Four seconds. From the alert link to the slow span."* The figure, then what it bought (Tracejam).
+> *"[the user's count] posts. New CSS you could use today."* A count grounds the page in real volume.
+> *"[the user's rate] faster, so the team can decide late."* A rate, then the behaviour it allows.

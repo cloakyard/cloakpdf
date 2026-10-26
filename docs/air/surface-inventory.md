@@ -29,7 +29,7 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/components/DateTimeInput.tsx`         | app-surface         | Done         | Done               | Pending    |
 | `src/components/EncryptedPdfNotice.tsx`    | app-surface         | Done         | Done               | Pending    |
 | `src/components/ErrorBoundary.tsx`         | app-surface         | Done         | Done               | Pending    |
-| `src/components/FileDropZone.tsx`          | app-surface         | Done         | Done               | Pending    |
+| `src/components/FileDropZone.tsx`          | app-surface         | Done         | Done               | Done       |
 | `src/components/FileInfoBar.tsx`           | app-surface         | Done         | Done               | Pending    |
 | `src/components/FileQueue.tsx`             | app-surface         | Done         | Done               | Pending    |
 | `src/components/Layout.tsx`                | app-surface         | Done         | Done               | Pending    |
@@ -94,8 +94,8 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/editor/registry.tsx`                  | app-surface         | Done         | Done               | Pending    |
 | `src/editor/stage.tsx`                     | app-surface         | Done         | Done               | Pending    |
 | `src/fonts.css`                            | output-preservation | Done         | Done               | Pending    |
-| `src/home/AirHorizon.tsx`                  | app-surface         | Done         | Done               | Pending    |
-| `src/home/HomeScreen.tsx`                  | app-surface         | Done         | Done               | Pending    |
+| `src/home/HomeScreen.tsx`                  | app-surface         | Done         | Done               | Done       |
+| `src/home/PageStack.tsx`                   | app-surface         | Done         | Done               | Done       |
 | `src/home/ToolEntry.tsx`                   | app-surface         | Done         | Done               | Pending    |
 | `src/index.css`                            | app-surface         | Done         | Done               | Pending    |
 | `src/main.tsx`                             | app-surface         | Done         | Done               | Pending    |
@@ -106,5 +106,5 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/standalone/ImagesToPdf.tsx`           | app-surface         | Done         | Done               | Pending    |
 | `src/standalone/MergePdf.tsx`              | app-surface         | Done         | Done               | Pending    |
 | `src/standalone/PdfPassword.tsx`           | app-surface         | Done         | Done               | Pending    |
-| `src/styles/air-entry.css`                 | app-surface         | Done         | Done               | Pending    |
+| `src/styles/air-entry.css`                 | app-surface         | Done         | Done               | Done       |
 | `src/styles/air.css`                       | app-surface         | Done         | Done               | Pending    |

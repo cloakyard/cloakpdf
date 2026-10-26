@@ -9,6 +9,7 @@
  * Run: node --experimental-strip-types tests/e2e/responsive-motion.e2e.ts
  */
 
+import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Browser, Page } from "puppeteer-core";
@@ -180,14 +181,33 @@ async function auditHome(page: Page, viewport: ViewportCase) {
     }
   }
   if (!viewport.touch) {
+    const rest = await page.$eval(
+      ".pdf-file-drop",
+      (element) => getComputedStyle(element).backgroundColor,
+    );
     await page.hover(".pdf-file-drop");
     await new Promise((done) => setTimeout(done, 200));
-    const icon = await page.$eval(
-      ".pdf-file-icon",
-      (element) => getComputedStyle(element).transform,
+    const hover = await page.$eval(
+      ".pdf-file-drop",
+      (element) => getComputedStyle(element).backgroundColor,
     );
-    if (icon === "none" || isIdentityTransform(icon))
-      fail(`${viewport.name}: file target feedback did not engage.`);
+    if (hover === rest) fail(`${viewport.name}: neutral file target feedback did not engage.`);
+    await page.$eval(".pdf-file-drop", (element) => {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(
+        new File(["PDF feedback probe"], "probe.pdf", { type: "application/pdf" }),
+      );
+      element.dispatchEvent(new DragEvent("dragover", { bubbles: true, dataTransfer }));
+    });
+    await page.waitForSelector(".pdf-file-drop[data-dragging]");
+    assert.equal(
+      await page.$eval(".pdf-file-drop .air-file-invitation", (el) => el.textContent),
+      "Release to open",
+    );
+    await page.$eval(".pdf-file-drop", (el) =>
+      el.dispatchEvent(new DragEvent("dragleave", { bubbles: true })),
+    );
+    await page.waitForFunction(() => !document.querySelector(".pdf-file-drop[data-dragging]"));
   }
 }
 
@@ -335,19 +355,19 @@ async function auditReducedMotion(page: Page) {
     const status = getComputedStyle(
       document.querySelector('.pdf-entry-note [role="status"]') as Element,
     );
-    const icon = getComputedStyle(document.querySelector(".pdf-file-icon") as Element);
+    const artwork = document.querySelector(".pdf-page-stack") as HTMLElement;
     return {
       reduced: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       statusAnimation: status.animationName,
-      iconTransition: icon.transitionDuration,
-      iconTransform: icon.transform,
+      artworkState: artwork.dataset.artState,
+      artworkAnimations: artwork.getAnimations({ subtree: true }).length,
     };
   });
   if (
     !home.reduced ||
     home.statusAnimation !== "none" ||
-    home.iconTransition !== "0s" ||
-    home.iconTransform !== "none"
+    home.artworkState !== "reduced" ||
+    home.artworkAnimations !== 0
   ) {
     fail("Reduced-motion home retained decorative animation.");
   }

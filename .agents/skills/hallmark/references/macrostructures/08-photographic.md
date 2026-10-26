@@ -1,34 +1,21 @@
 ## 08 · Photographic
 
-A single huge image dominates each fold. Text is small annotation, not headline. The design says *look* before it says *read*.
+Huge photographs lead the page. Text is small annotation, not headline. The design says look before it says read.
 
-- **Heading:** small caption near a corner of the image; never centered display.
-- **Body:** full-bleed image bands alternating with narrow text bands.
-- **Divider:** the image edge IS the divider; no rules.
-- **Button:** typographic link tucked under the caption.
-- **Image:** the whole point — full-bleed, edge to edge, often a single photo per fold.
-- **Reveal:** no spatial motion; let the photographs do the work.
+- **Heading:** small: the headline and its one sentence sit on a paper plate at the image's base, and a caption near a corner carries a fact in the body face; never a centred display.
+- **Body:** full-bleed photograph bands alternating with sections the theme's material carries alone (its Range: a menu as rows, the hours as a table, a statement), so photographs cover up to about 45% of the page below the hero and never lead two sections in a row (83).
+- **Divider:** the image edge is the divider; no rules.
+- **Button:** a typographic link on the plate, under the sentence, carrying a verb; it is the fold's one visible action (44b).
+- **Image:** the whole point: full-bleed, edge to edge, from the user; library photographs in slots until theirs arrive (`imagery.md` § 2).
+- **Reveal:** no spatial motion; the photographs do the work.
 
-Reach for it for fashion, hospitality, photography portfolios, lifestyle e-commerce, any brand whose product is a *feeling*.
+Reach for it for fashion, hospitality, photography portfolios, lifestyle commerce, any brand whose product is a feeling.
 
-Avoid without real photography. AI-generated stock undoes the macrostructure.
+Avoid when the subject has nothing to photograph.
 
-Reference: Aimé Leon Dore, Mr Porter editorial, Stüssy lookbooks.
+Compositions: the Poster hero (`layout.md` § 6) and full-bleed Showcases (§ 5).
 
-**Sample opening lines** (imitate the *specificity* — captions for photographs are dates, places, plate numbers — not marketing):
-> *"Plate 47 · scored before the proof."* — Maple Street Bread (test 03) — a number, a moment in the process
-> *"Spring, 2026."* — Atelier-style — two words, full stop
-> *"From the working archive."* — gives the photograph provenance without explaining it
-
-```html
-<section class="photo-fold">
-  <img class="bleed" src="hero.jpg" />
-  <p class="caption">Spring, 2026.</p>
-</section>
-<section class="text-fold">
-  <p class="lede">…</p>
-</section>
-<section class="photo-fold">…</section>
-```
-
----
+**Sample opening lines** (captions are dates, places and plate numbers, not marketing):
+> *"Plate 47, scored before the proof."* A number and a moment in the process (Maple Street Bread).
+> *"Spring, 2026."* Two words, full stop.
+> *"From the working archive."* Gives the photograph provenance without explaining it.

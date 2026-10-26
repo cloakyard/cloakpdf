@@ -7,7 +7,7 @@ allowBuilds:
 # Dependency overrides are read from this workspace file. `vite` maps to the
 # Vite+ core drop-in; Vitest is the real package bundled by Vite+.
 # The rest pin transitive deps past known advisories:
-#   - serialize-javascript >=7.0.3  (XSS, GHSA-76p7-773f-r4q5)
+#   - serialize-javascript >=7.1.4  (XSS, GHSA-m5mm-p8h7-m29v)
 #   - form-data >=4.0.6             (unsafe boundary, GHSA-hmw2-7cc7-3qxx)
 #   - adm-zip >=0.6.0               (path traversal, GHSA-xcpc-8h2w-3j85;
 #     transitive via onnxruntime-node → @huggingface/transformers, Node-only —
@@ -21,11 +21,11 @@ allowBuilds:
 #   - brace-expansion >=5.0.9        (unbounded expansion DoS,
 #     GHSA-mh99-v99m-4gvg)
 overrides:
-  serialize-javascript: ">=7.0.3"
+  serialize-javascript: ">=7.1.4"
   form-data: ">=4.0.6"
   adm-zip: ">=0.6.0"
   glob: ">=13.0.6"
-  global-agent: ">=4.1.3"
+  global-agent: ">=4.1.6"
   sharp: "^0.35.5"
   brace-expansion: ">=5.0.9"
   vite@*: "catalog:"
@@ -39,13 +39,14 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
-  vite-plus: 1.3.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
+  vite-plus: 1.4.0
 minimumReleaseAgeExclude:
-  - "@langchain/core@1.2.20"
+  - "@langchain/core@1.3.0"
   - "@pdfme/pdf-lib@6.2.8"
-  - framer-motion@14.5.0
+  - framer-motion@14.6.0
   - lucide-react@1.61.0
-  - motion-dom@14.5.0
-  - motion@14.5.0
-  - puppeteer-core@25.15.0
+  - motion-dom@14.6.0
+  - motion@14.6.0
+  - puppeteer-core@25.16.0
+  - serialize-javascript@7.1.4

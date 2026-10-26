@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FileDropZone } from "../components/FileDropZone.tsx";
-import { AirHorizon } from "./AirHorizon.tsx";
+import { PageStack } from "./PageStack.tsx";
 import { ToolEntry } from "./ToolEntry.tsx";
 import { categories, HOME_CARD_TOOLS, type ToolId } from "../config/tool-registry.ts";
 import { EDITOR_TOOLS } from "../editor/tools.ts";
@@ -219,10 +219,8 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
             Edit, organise, sign, and make it yours. A complete PDF toolkit that keeps your
             documents on your device.
           </p>
-          <a className="air-button air-button--quiet" href="#toolkit">
-            Explore the tools <ArrowRight size={16} aria-hidden="true" />
-          </a>
         </div>
+        <PageStack />
         <div id="workbench" className="pdf-entry" tabIndex={-1}>
           <FileDropZone
             accept="application/pdf,.pdf"
@@ -234,8 +232,10 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
           <p className="pdf-entry-note">
             <ConnectionStatus /> <span>No account needed.</span>
           </p>
+          <a className="air-button air-button--quiet" href="#toolkit">
+            Explore the tools <ArrowRight size={16} aria-hidden="true" />
+          </a>
         </div>
-        <AirHorizon />
       </section>
 
       <section

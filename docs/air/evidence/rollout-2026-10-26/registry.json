@@ -1,0 +1,344 @@
+{
+  "checkedAt": "2026-10-26T07:17:52.403Z",
+  "source": "https://registry.npmjs.org/",
+  "scope": "Family registry inventory, including read-only IMG package metadata; apply compatible upgrades only to the four release websites and their tooling. IMG and native release artifacts are not upgraded or deployed.",
+  "packages": {
+    "@astrojs/check": {
+      "version": "0.9.12",
+      "source": "https://registry.npmjs.org/@astrojs/check/latest",
+      "peerDependencies": {
+        "typescript": "^5.0.0 || ^6.0.0"
+      }
+    },
+    "@fontsource-variable/geist": {
+      "version": "5.3.0",
+      "source": "https://registry.npmjs.org/@fontsource-variable/geist/latest"
+    },
+    "@fontsource/instrument-serif": {
+      "version": "5.3.0",
+      "source": "https://registry.npmjs.org/@fontsource/instrument-serif/latest"
+    },
+    "@fontsource/lora": {
+      "version": "5.3.0",
+      "source": "https://registry.npmjs.org/@fontsource/lora/latest"
+    },
+    "@fontsource/jetbrains-mono": {
+      "version": "5.3.0",
+      "source": "https://registry.npmjs.org/@fontsource/jetbrains-mono/latest"
+    },
+    "@base-ui/react": {
+      "version": "1.9.0",
+      "source": "https://registry.npmjs.org/@base-ui/react/latest"
+    },
+    "@fontsource/archivo": {
+      "version": "5.3.0",
+      "source": "https://registry.npmjs.org/@fontsource/archivo/latest"
+    },
+    "@astrojs/sitemap": {
+      "version": "3.7.4",
+      "source": "https://registry.npmjs.org/@astrojs/sitemap/latest"
+    },
+    "@langchain/langgraph": {
+      "version": "1.5.2",
+      "source": "https://registry.npmjs.org/@langchain/langgraph/latest"
+    },
+    "@jsquash/avif": {
+      "version": "2.1.1",
+      "source": "https://registry.npmjs.org/@jsquash/avif/latest"
+    },
+    "@mediapipe/tasks-vision": {
+      "version": "1.1.1",
+      "source": "https://registry.npmjs.org/@mediapipe/tasks-vision/latest"
+    },
+    "@napi-rs/canvas": {
+      "version": "1.0.13",
+      "source": "https://registry.npmjs.org/@napi-rs/canvas/latest"
+    },
+    "@huggingface/transformers": {
+      "version": "4.3.1",
+      "source": "https://registry.npmjs.org/@huggingface/transformers/latest"
+    },
+    "@llamaindex/liteparse-wasm": {
+      "version": "2.17.0",
+      "source": "https://registry.npmjs.org/@llamaindex/liteparse-wasm/latest"
+    },
+    "@langchain/core": {
+      "version": "1.3.0",
+      "source": "https://registry.npmjs.org/@langchain/core/latest"
+    },
+    "@pdf-lib/fontkit": {
+      "version": "1.1.1",
+      "source": "https://registry.npmjs.org/@pdf-lib/fontkit/latest"
+    },
+    "@tailwindcss/vite": {
+      "version": "4.3.3",
+      "source": "https://registry.npmjs.org/@tailwindcss/vite/latest"
+    },
+    "@pdfme/pdf-lib": {
+      "version": "6.2.8",
+      "source": "https://registry.npmjs.org/@pdfme/pdf-lib/latest"
+    },
+    "@types/node": {
+      "version": "26.6.5",
+      "source": "https://registry.npmjs.org/@types/node/latest"
+    },
+    "@testing-library/react": {
+      "version": "16.3.3",
+      "source": "https://registry.npmjs.org/@testing-library/react/latest"
+    },
+    "@testing-library/user-event": {
+      "version": "14.6.8",
+      "source": "https://registry.npmjs.org/@testing-library/user-event/latest"
+    },
+    "@testing-library/jest-dom": {
+      "version": "7.0.1",
+      "source": "https://registry.npmjs.org/@testing-library/jest-dom/latest"
+    },
+    "@types/node-forge": {
+      "version": "1.3.14",
+      "source": "https://registry.npmjs.org/@types/node-forge/latest"
+    },
+    "astro": {
+      "version": "7.4.2",
+      "source": "https://registry.npmjs.org/astro/latest"
+    },
+    "brace-expansion": {
+      "version": "5.0.12",
+      "source": "https://registry.npmjs.org/brace-expansion/latest"
+    },
+    "adm-zip": {
+      "version": "0.6.1",
+      "source": "https://registry.npmjs.org/adm-zip/latest"
+    },
+    "@types/react": {
+      "version": "19.3.0",
+      "source": "https://registry.npmjs.org/@types/react/latest"
+    },
+    "fabric": {
+      "version": "7.4.0",
+      "source": "https://registry.npmjs.org/fabric/latest"
+    },
+    "@voidzero-dev/vite-plus-core": {
+      "version": "1.4.0",
+      "source": "https://registry.npmjs.org/@voidzero-dev/vite-plus-core/latest"
+    },
+    "@vite-pwa/assets-generator": {
+      "version": "2.0.0",
+      "source": "https://registry.npmjs.org/@vite-pwa/assets-generator/latest"
+    },
+    "@vitejs/plugin-react": {
+      "version": "6.1.2",
+      "source": "https://registry.npmjs.org/@vitejs/plugin-react/latest"
+    },
+    "jsdom": {
+      "version": "30.1.3",
+      "source": "https://registry.npmjs.org/jsdom/latest"
+    },
+    "@types/react-dom": {
+      "version": "19.3.0",
+      "source": "https://registry.npmjs.org/@types/react-dom/latest"
+    },
+    "fast-uri": {
+      "version": "4.2.3",
+      "source": "https://registry.npmjs.org/fast-uri/latest"
+    },
+    "glob": {
+      "version": "13.0.6",
+      "source": "https://registry.npmjs.org/glob/latest"
+    },
+    "global-agent": {
+      "version": "4.1.6",
+      "source": "https://registry.npmjs.org/global-agent/latest"
+    },
+    "harper.js": {
+      "version": "2.13.0",
+      "source": "https://registry.npmjs.org/harper.js/latest"
+    },
+    "form-data": {
+      "version": "4.0.6",
+      "source": "https://registry.npmjs.org/form-data/latest"
+    },
+    "html2canvas-pro": {
+      "version": "2.5.2",
+      "source": "https://registry.npmjs.org/html2canvas-pro/latest"
+    },
+    "jspdf": {
+      "version": "4.2.1",
+      "source": "https://registry.npmjs.org/jspdf/latest"
+    },
+    "pnpm": {
+      "version": "12.15.0",
+      "source": "https://registry.npmjs.org/pnpm/latest"
+    },
+    "knip": {
+      "version": "6.43.0",
+      "source": "https://registry.npmjs.org/knip/latest"
+    },
+    "motion": {
+      "version": "14.6.0",
+      "source": "https://registry.npmjs.org/motion/latest"
+    },
+    "node-forge": {
+      "version": "1.4.0",
+      "source": "https://registry.npmjs.org/node-forge/latest"
+    },
+    "lucide-react": {
+      "version": "1.61.0",
+      "source": "https://registry.npmjs.org/lucide-react/latest"
+    },
+    "pdfjs-dist": {
+      "version": "6.4.299",
+      "source": "https://registry.npmjs.org/pdfjs-dist/latest"
+    },
+    "npm": {
+      "version": "12.2.1",
+      "source": "https://registry.npmjs.org/npm/latest"
+    },
+    "onnxruntime-node": {
+      "version": "1.30.0",
+      "source": "https://registry.npmjs.org/onnxruntime-node/latest"
+    },
+    "puppeteer-core": {
+      "version": "25.16.0",
+      "source": "https://registry.npmjs.org/puppeteer-core/latest"
+    },
+    "react-dom": {
+      "version": "19.3.1",
+      "source": "https://registry.npmjs.org/react-dom/latest"
+    },
+    "react-markdown": {
+      "version": "10.1.0",
+      "source": "https://registry.npmjs.org/react-markdown/latest"
+    },
+    "remark-gfm": {
+      "version": "4.0.1",
+      "source": "https://registry.npmjs.org/remark-gfm/latest"
+    },
+    "react": {
+      "version": "19.3.1",
+      "source": "https://registry.npmjs.org/react/latest"
+    },
+    "serialize-javascript": {
+      "version": "7.1.4",
+      "source": "https://registry.npmjs.org/serialize-javascript/latest"
+    },
+    "shaders": {
+      "version": "4.0.5",
+      "source": "https://registry.npmjs.org/shaders/latest"
+    },
+    "tailwindcss": {
+      "version": "4.3.3",
+      "source": "https://registry.npmjs.org/tailwindcss/latest"
+    },
+    "sharp": {
+      "version": "0.35.5",
+      "source": "https://registry.npmjs.org/sharp/latest"
+    },
+    "tesseract.js": {
+      "version": "7.0.0",
+      "source": "https://registry.npmjs.org/tesseract.js/latest"
+    },
+    "typescript": {
+      "version": "7.0.2",
+      "source": "https://registry.npmjs.org/typescript/latest"
+    },
+    "workbox-window": {
+      "version": "7.4.1",
+      "source": "https://registry.npmjs.org/workbox-window/latest"
+    },
+    "vite-plugin-pwa": {
+      "version": "2.0.0",
+      "source": "https://registry.npmjs.org/vite-plugin-pwa/latest"
+    },
+    "vite-plus": {
+      "version": "1.4.0",
+      "source": "https://registry.npmjs.org/vite-plus/latest"
+    },
+    "wrangler": {
+      "version": "4.152.0",
+      "source": "https://registry.npmjs.org/wrangler/latest"
+    }
+  },
+  "changedSincePriorRollout": [
+    {
+      "name": "@astrojs/check",
+      "before": "0.9.11",
+      "after": "0.9.12"
+    },
+    {
+      "name": "@langchain/core",
+      "before": "1.2.20",
+      "after": "1.3.0"
+    },
+    {
+      "name": "@langchain/langgraph",
+      "before": "1.5.1",
+      "after": "1.5.2"
+    },
+    {
+      "name": "@llamaindex/liteparse-wasm",
+      "before": "2.16.0",
+      "after": "2.17.0"
+    },
+    {
+      "name": "@voidzero-dev/vite-plus-core",
+      "before": "1.3.0",
+      "after": "1.4.0"
+    },
+    {
+      "name": "astro",
+      "before": "7.4.1",
+      "after": "7.4.2"
+    },
+    {
+      "name": "global-agent",
+      "before": "4.1.3",
+      "after": "4.1.6"
+    },
+    {
+      "name": "knip",
+      "before": "6.42.1",
+      "after": "6.43.0"
+    },
+    {
+      "name": "motion",
+      "before": "14.5.0",
+      "after": "14.6.0"
+    },
+    {
+      "name": "npm",
+      "before": "12.2.0",
+      "after": "12.2.1"
+    },
+    {
+      "name": "pnpm",
+      "before": "12.14.0",
+      "after": "12.15.0"
+    },
+    {
+      "name": "puppeteer-core",
+      "before": "25.15.0",
+      "after": "25.16.0"
+    },
+    {
+      "name": "serialize-javascript",
+      "before": "7.1.2",
+      "after": "7.1.4"
+    },
+    {
+      "name": "shaders",
+      "before": "4.0.4",
+      "after": "4.0.5"
+    },
+    {
+      "name": "vite-plus",
+      "before": "1.3.0",
+      "after": "1.4.0"
+    },
+    {
+      "name": "wrangler",
+      "before": "4.151.3",
+      "after": "4.152.0"
+    }
+  ]
+}

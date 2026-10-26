@@ -1,0 +1,9 @@
+{
+  "productionBranch": "main",
+  "productionCommand": "npx wrangler deploy",
+  "nonProductionCommand": "npx wrangler versions upload",
+  "buildCommand": "pnpm run build",
+  "root": "/",
+  "verified": "2026-10-26",
+  "yardCorrection": "Existing configuration verified without changes."
+}
