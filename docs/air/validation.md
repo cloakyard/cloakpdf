@@ -1,5 +1,21 @@
 # Air validation record
 
+## 2026-10-26 — Full web cleanup audit
+
+Audited all web imports/exports, dependencies, custom styles, public assets and
+build/generator/test entry points. Restricted Tailwind to shipped `src/` and root
+HTML: removed 17,993 bytes of generated CSS (2,711 bytes at gzip level 9) that came
+from non-product examples. Preserved both Air font mappings because preflight
+uses them, all document font files, supported icons and every tool/output path.
+No unused graph issues or asset deletions; no dependency change.
+
+Lint/types/dead-code, 461 units, the complete 16-suite production smoke command,
+build/deployment asset limits and 20 portability checks pass. All 12 PDF landing/editor
+before/after captures match exactly. The final family audit passes 552 Chrome
+layouts with zero deviations or browser errors; desktop/laptop/phone light/dark
+rendered review passes. Evidence: `docs/air/evidence/code-cleanup-2026-10-26/`.
+Physical/assistive and existing product follow-ups remain open. Local only.
+
 ## 2026-10-26 — Storyline and family chrome
 
 Adopted Air 1.2.0 shared public footer and content-driven gutters. Recovery uses

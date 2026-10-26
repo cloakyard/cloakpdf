@@ -1,0 +1,77 @@
+{
+  "records": [
+    {
+      "key": "cloakpdf-landing-390-light",
+      "before": "14547d042bc3f6a179a541f9680a64c0b7388a86f0991d6b79de2686157f8611",
+      "after": "14547d042bc3f6a179a541f9680a64c0b7388a86f0991d6b79de2686157f8611",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-390-light",
+      "before": "49a2562c4f6ef503669138f31d2701b566619dedc6784a0d18a1f7e57a385980",
+      "after": "49a2562c4f6ef503669138f31d2701b566619dedc6784a0d18a1f7e57a385980",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-390-dark",
+      "before": "5a9f4ebd90f0063f6e391c28a84d2314702957c306c04024e1e46a1a36c80bbc",
+      "after": "5a9f4ebd90f0063f6e391c28a84d2314702957c306c04024e1e46a1a36c80bbc",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-390-dark",
+      "before": "b440648b2e3bd5f234f87611c8a681877d1538b42bfbb3ecbee3ee809c16dad2",
+      "after": "b440648b2e3bd5f234f87611c8a681877d1538b42bfbb3ecbee3ee809c16dad2",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1280-light",
+      "before": "5dc22f26b3e746586a9e5dad479435e1570ed6adf0a95e571c5f1f37fe03e99f",
+      "after": "5dc22f26b3e746586a9e5dad479435e1570ed6adf0a95e571c5f1f37fe03e99f",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1280-light",
+      "before": "285de8ed2d23df7cf6897231de044c01ae55bd3cad1870508ddb1f6be861d7ca",
+      "after": "285de8ed2d23df7cf6897231de044c01ae55bd3cad1870508ddb1f6be861d7ca",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1280-dark",
+      "before": "f5a35593149749d857f02e5eb06b321fbb687c443c088804ec42d7c23c2c0268",
+      "after": "f5a35593149749d857f02e5eb06b321fbb687c443c088804ec42d7c23c2c0268",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1280-dark",
+      "before": "5b2b21a8facf348025d3a7de5a4ea5b5ce64cd0f419a9c1e670feb32be631c7f",
+      "after": "5b2b21a8facf348025d3a7de5a4ea5b5ce64cd0f419a9c1e670feb32be631c7f",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1440-light",
+      "before": "108daea8d3ed0bf58bd16d5a8cad4aaca9d733ef13d41e5d98e66a1687af9e8b",
+      "after": "108daea8d3ed0bf58bd16d5a8cad4aaca9d733ef13d41e5d98e66a1687af9e8b",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1440-light",
+      "before": "a266deaf6cf6c1940311957e8138d68611afcb2ecb8107df43ad390c9b995c02",
+      "after": "a266deaf6cf6c1940311957e8138d68611afcb2ecb8107df43ad390c9b995c02",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-landing-1440-dark",
+      "before": "949cd1a187abe4ab421f0f282f22797f11af2c3c2a7f4f86435168c405b03216",
+      "after": "949cd1a187abe4ab421f0f282f22797f11af2c3c2a7f4f86435168c405b03216",
+      "equal": true
+    },
+    {
+      "key": "cloakpdf-editor-1440-dark",
+      "before": "89b267a1c994f2532307630711cef85cd89b90d819732f00546d5bc902eedd5c",
+      "after": "89b267a1c994f2532307630711cef85cd89b90d819732f00546d5bc902eedd5c",
+      "equal": true
+    }
+  ],
+  "errors": []
+}

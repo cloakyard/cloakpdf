@@ -1,5 +1,8 @@
 /* Product foundations inherit Air; document fonts remain output data. */
-@import "tailwindcss";
+/* Only shipped markup may generate utilities; audit/test examples are not UI. */
+@import "tailwindcss" source(none);
+@source "./";
+@source "../*.html";
 @import "./fonts.css";
 
 @theme inline {
