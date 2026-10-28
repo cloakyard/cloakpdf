@@ -21,6 +21,9 @@ allowBuilds:
 #   - brace-expansion >=5.0.9        (unbounded expansion DoS,
 #     GHSA-mh99-v99m-4gvg)
 overrides:
+  # Pinned node-resolve patch clones its fixed defaults with Node structuredClone.
+  # Remove this override and patch when upstream drops deepmerge (GHSA-gcqx-w48m-w2h4).
+  "@rollup/plugin-node-resolve@16.0.3>deepmerge": "-"
   serialize-javascript: ">=7.1.4"
   form-data: ">=4.0.6"
   adm-zip: ">=0.6.0"
@@ -50,3 +53,5 @@ minimumReleaseAgeExclude:
   - motion@14.6.0
   - puppeteer-core@25.16.0
   - serialize-javascript@7.1.4
+patchedDependencies:
+  "@rollup/plugin-node-resolve@16.0.3": patches/@rollup__plugin-node-resolve@16.0.3.patch

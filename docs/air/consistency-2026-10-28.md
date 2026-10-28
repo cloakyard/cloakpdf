@@ -17,3 +17,16 @@ Deployment is tracked separately from these pre-merge acceptance results.
 
 Full product, physical/assistive/hardware and existing output/security acceptance
 items remain open. This audit does not mark those surfaces fully validated.
+
+## Build dependency follow-up
+
+The 2026-10-28 CI scan surfaced GHSA-gcqx-w48m-w2h4 in deepmerge 4.3.1, a
+transitive Workbox build dependency with no patched release. Its sole consumer
+clones fixed resolver defaults. A version-pinned CJS/ESM patch uses Node's native
+structuredClone; a scoped pnpm override removes the unused dependency. See
+[patch rationale and removal condition](../../patches/README.md). No advisory
+suppression or replacement library was added. Frozen install, both resolver
+entry points, unchanged frozen defaults, full build and exact pre/post output
+hashes pass. OSV passes with only any separately approved existing exception.
+
+All 130 public application/service-worker files remain byte-identical to the verified Air candidate.
