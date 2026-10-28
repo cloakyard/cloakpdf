@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.3
+version: 1.2.4
 status: approved
-date: 2026-10-26
+date: 2026-10-28
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: f86a7a09b4f70d6250dc84ddfdd79fc139f245452faf41970d6886a1b0fcc387
+family-contract-sha256: c640798a8d45ff8440eb3b101ed260207624ed5eb2e9b9a5a9269b50bc6f8d91
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.3 — matching footer rhythm and PWA notices** · Direction: **Air** · Updated: **2026-10-26**
+Version: **1.2.4 — production motion and compact navigation** · Direction: **Air** · Updated: **2026-10-28**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -808,8 +808,14 @@ Public shell content follows the same recipe across the family:
 - Keep every destination available at every width. A compact header uses a native,
   in-flow disclosure; its links expand below the brand row without covering the
   page. Opening changes layout immediately, with no animated text/reflow. The
-  reference uses a 40rem content boundary so larger text enters compact mode
-  earlier. Use a 44×44px minimum brand/summary target independently of pointer type.
+  family uses the same 40rem container boundary (compact at or below it), so larger
+  text enters compact mode earlier. Inside the disclosure, the shared header shell
+  owns one grid of links with no row gap, 12px top margin, a 1px rule and 8px top
+  padding. Each link has 8px block/12px inline padding, at least 44px height and
+  left-aligned content with the normal 8px icon gap. Compare menu mode and row
+  geometry across apps; product link counts may change the open height.
+  The summary chevron points up while open and down while closed, changing
+  immediately. Use a 44×44px minimum brand/summary target independently of pointer type.
 - Below 22rem of content width, use the family mark with the complete accessible
   home-link name. Do not fragment the wordmark across lines. The mark and chevron
   render without JavaScript. Native Enter/Space activation and Tab order work;
@@ -1069,6 +1075,10 @@ performance approval.
 - Shared motion: pointer press 120ms; hover arrow 160ms; occasional popover ceiling 180ms; dialog 240ms;
   exit 160ms. Ease-out `cubic-bezier(0.23, 1, 0.32, 1)`; reversible spatial motion
   `cubic-bezier(0.77, 0, 0.175, 1)`. Sheet easing: `cubic-bezier(0.32, 0.72, 0, 1)`. No per-app timing scale.
+- CSS time tokens may serialize in seconds or milliseconds after production
+  optimization. JavaScript must convert both units to milliseconds before passing
+  them to WAAPI or using a deadline. Verify the actual production effect duration,
+  not only its playing/complete states; the landing light arrival remains 900ms.
 - A completion acknowledgement may settle from 8px/0.90 scale over 240ms, once.
   A landing entry may use a single 900ms light arrival. These are the moments for
   playful character. Avoid bouncing controls, moving text, repeated reveals and

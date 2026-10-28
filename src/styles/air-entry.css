@@ -546,9 +546,6 @@ textarea.editor-inline-text {
   .pdf-header {
     gap: var(--air-space-8);
   }
-  .pdf-header .air-page-nav {
-    gap: var(--air-space-16);
-  }
   .pdf-hero,
   .pdf-toolkit-head,
   .pdf-category,
@@ -614,19 +611,8 @@ textarea.editor-inline-text {
   .pdf-mobile-nav summary::-webkit-details-marker {
     display: none;
   }
-  .pdf-mobile-nav[open] summary svg {
-    rotate: 180deg;
-  }
   .pdf-mobile-nav nav {
     pointer-events: auto;
-    display: grid;
-    gap: 0;
-    margin-block-start: var(--air-space-12);
-    border-block-start: 1px solid var(--air-line);
-    padding-block-start: var(--air-space-8);
-  }
-  .pdf-mobile-nav nav a {
-    padding: var(--air-space-8) var(--air-space-12);
   }
 }
 @container (max-width: 22rem) {

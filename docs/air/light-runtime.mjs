@@ -1,4 +1,6 @@
 /** Shared finite Air light lifecycle. One optional landing enhancement; never an editor effect. */
+import { motionMilliseconds } from "./motion.mjs";
+
 export function mountAirLight(
   field,
   {
@@ -170,7 +172,8 @@ export function mountAirLight(
         : 0;
     arrivalAnimation?.cancel();
     const styles = getComputedStyle(field);
-    const duration = parseFloat(styles.getPropertyValue("--air-motion-arrival")) * (1 - from);
+    const duration =
+      motionMilliseconds(styles.getPropertyValue("--air-motion-arrival")) * (1 - from);
     arrivalDeadline = performance.now() + duration;
     arrivalAnimation = canvas.animate([{ opacity: from }, { opacity: 1 }], {
       duration,

@@ -172,6 +172,7 @@ catalogs:
       version: 1.4.0
 
 overrides:
+  '@rollup/plugin-node-resolve@16.0.3>deepmerge': '-'
   serialize-javascript: '>=7.1.4'
   form-data: '>=4.0.6'
   adm-zip: '>=0.6.0'
@@ -180,6 +181,9 @@ overrides:
   sharp: ^0.35.5
   brace-expansion: '>=5.0.9'
   vite@*: npm:@voidzero-dev/vite-plus-core@1.4.0
+
+patchedDependencies:
+  '@rollup/plugin-node-resolve@16.0.3': be62dc9211d95e5034b7dc50fcd1c89993757756796f2f0b4e9386f191d50e53
 
 importers:
 
@@ -2649,10 +2653,6 @@ packages:
 
   decode-named-character-reference@1.3.0:
     resolution: {integrity: sha512-GtpQYB283KrPp6nRw50q3U9/VfOutZOe103qlN7BPP6Ad27xYnOIWv4lPzo8HCAL+mMZofJ9KEy30fq6MfaK6Q==}
-
-  deepmerge@4.3.1:
-    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
-    engines: {node: '>=0.10.0'}
 
   define-data-property@1.1.4:
     resolution: {integrity: sha512-rBMvIzlpA8v6E+SJZoo++HAYqsLrkg7MSfIinMPFhmkorw7X+dOXVJQs+QT69zGkzMyfDnIMN2Wid1+NbL3T+A==}
@@ -5607,11 +5607,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@rollup/plugin-node-resolve@16.0.3(rollup@4.65.0)':
+  '@rollup/plugin-node-resolve@16.0.3(patch_hash=be62dc9211d95e5034b7dc50fcd1c89993757756796f2f0b4e9386f191d50e53)(rollup@4.65.0)':
     dependencies:
       '@rollup/pluginutils': 5.5.1(rollup@4.65.0)
       '@types/resolve': 1.20.2
-      deepmerge: 4.3.1
       is-module: 1.0.0
       resolve: 1.22.13
     optionalDependencies:
@@ -6310,8 +6309,6 @@ snapshots:
   decode-named-character-reference@1.3.0:
     dependencies:
       character-entities: 2.0.2
-
-  deepmerge@4.3.1: {}
 
   define-data-property@1.1.4:
     dependencies:
@@ -8400,7 +8397,7 @@ snapshots:
       '@babel/preset-env': 7.29.7(@babel/core@7.29.7)
       '@babel/runtime': 7.29.10
       '@rollup/plugin-babel': 6.1.0(@babel/core@7.29.7)(rollup@4.65.0)
-      '@rollup/plugin-node-resolve': 16.0.3(rollup@4.65.0)
+      '@rollup/plugin-node-resolve': 16.0.3(patch_hash=be62dc9211d95e5034b7dc50fcd1c89993757756796f2f0b4e9386f191d50e53)(rollup@4.65.0)
       '@rollup/plugin-replace': 6.0.3(rollup@4.65.0)
       '@rollup/plugin-terser': 1.0.2(rollup@4.65.0)
       '@trickfilm400/rollup-plugin-off-main-thread': 3.0.0-pre1

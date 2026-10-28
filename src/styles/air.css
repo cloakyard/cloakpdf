@@ -1346,6 +1346,20 @@ textarea.air-field {
   flex: none;
   stroke-width: 1.6;
 }
+.air-page-header details[open] summary svg {
+  rotate: 180deg;
+}
+.air-page-header details nav {
+  display: grid;
+  gap: 0;
+  margin-block-start: var(--air-space-12);
+  padding-block-start: var(--air-space-8);
+  border-block-start: 1px solid var(--air-line);
+}
+.air-page-header details nav a {
+  justify-content: flex-start;
+  padding: var(--air-space-8) var(--air-space-12);
+}
 .air-page-nav [aria-current="page"] {
   color: var(--air-ink);
 }
