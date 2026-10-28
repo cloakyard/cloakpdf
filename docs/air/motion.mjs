@@ -6,10 +6,15 @@ const snapshot = (element) => {
   const style = getComputedStyle(element);
   return { opacity: style.opacity, transform: style.transform };
 };
+/** CSS optimizers may serialize a time in seconds; WAAPI always expects milliseconds. */
+export function motionMilliseconds(value) {
+  const time = value.trim();
+  return parseFloat(time) * (time.endsWith("ms") ? 1 : 1000);
+}
 function timing(element, token, sheet = false) {
   const style = getComputedStyle(element);
   return {
-    duration: parseFloat(style.getPropertyValue(`--air-motion-${token}`)),
+    duration: motionMilliseconds(style.getPropertyValue(`--air-motion-${token}`)),
     easing: style.getPropertyValue(sheet ? "--air-ease-sheet" : "--air-ease-out").trim(),
     fill: "both",
   };

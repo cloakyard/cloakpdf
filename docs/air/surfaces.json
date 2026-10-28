@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.2.3",
+  "contractVersion": "1.2.4",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -925,7 +925,11 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/evidence/entry-2026-10-13.json", "docs/air/validation.md"],
+      "evidence": [
+        "docs/air/evidence/entry-2026-10-13.json",
+        "docs/air/validation.md",
+        "docs/air/consistency-2026-10-28.md"
+      ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
     },
     {
@@ -987,7 +991,8 @@
       "viewports": ["320–1920px", "16px and 32px root", "Chrome", "Firefox"],
       "evidence": [
         "evidence/public-shell-2026-10-26/checks.json.gz",
-        "evidence/consistency-2026-10-26/checks.json.gz"
+        "evidence/consistency-2026-10-26/checks.json.gz",
+        "docs/air/consistency-2026-10-28.md"
       ],
       "notes": "Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
@@ -2256,7 +2261,8 @@
       "evidence": [
         "docs/air/evidence/header-footer-2026-10-15.json",
         "tests/e2e/header-footer.e2e.ts",
-        "tests/e2e/page-geometry.e2e.ts"
+        "tests/e2e/page-geometry.e2e.ts",
+        "docs/air/consistency-2026-10-28.md"
       ],
       "notes": "Air grouped six-field editor with explicit token target, shared title/clock snapshot, precise Size/Margin and Skip first page. Validates fit/overlap and preserves byte-owned drafts on failure; awaited Apply/mobile Done, retirement and explicit re-arm. 44 size/theme regions, 12 enlarged-text states, Safari and Firefox 200% reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
@@ -3444,7 +3450,8 @@
         "docs/air/evidence/family-comparison-2026-10-25/",
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
         "evidence/public-shell-2026-10-26/checks.json.gz",
-        "evidence/consistency-2026-10-26/checks.json.gz"
+        "evidence/consistency-2026-10-26/checks.json.gz",
+        "docs/air/consistency-2026-10-28.md"
       ],
       "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. 2026-10-25: Public family comparison: native in-flow compact header, canonical icon/gap, section tracking and privacy cadence corrected. Chrome/Firefox 160 local layouts plus Safari spot review pass; 461 units, 16 smoke suites, 66 recovery and 68 artwork layouts pass. Existing physical/assistive gates remain open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },

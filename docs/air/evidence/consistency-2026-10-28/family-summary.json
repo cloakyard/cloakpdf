@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-28",
+  "contract": "1.2.4",
+  "contractSha256": "c640798a8d45ff8440eb3b101ed260207624ed5eb2e9b9a5a9269b50bc6f8d91",
+  "scope": ["cloakyard", "cloakpdf", "cloakdrop website", "cloakresume"],
+  "img": "Legacy live UI remains open; portable maintenance only, no deployment",
+  "family": {
+    "chrome": 576,
+    "firefoxLight": 288,
+    "firefoxDark": 288,
+    "deviations": 0,
+    "browserErrors": 0
+  },
+  "notices": {
+    "layouts": 264,
+    "captures": 108,
+    "exactPairs": 54
+  },
+  "motion": {
+    "yardProductionGPU": 22,
+    "yardReducedStatic": 12,
+    "pdfLayouts": 68,
+    "dropLayouts": 68,
+    "resumeLayouts": 68,
+    "additionalLiveProfiles": 88,
+    "note": "Initial live Yard duration was 0.9ms and is a failure; corrected candidate is 900ms across all 22 GPU profiles."
+  },
+  "features": {
+    "pdfUnits": 461,
+    "pdfSmokeSuites": 16,
+    "pdfFixtures": "E2E_DEMO_FIXTURES=1",
+    "resumeTests": 373,
+    "resumeSkipped": 0,
+    "resumeAffectedRerun": 28,
+    "resumeEntryLayouts": 335,
+    "resumeJourneys": 14,
+    "dropLayouts": 432,
+    "dropJourneys": 34,
+    "imgIsolatedTests": 470,
+    "runtimeTests": 7,
+    "portabilityChecksPerBundle": 22
+  },
+  "links": {
+    "states": 388,
+    "keyboard": 130
+  },
+  "release": "Pre-merge acceptance evidence; deployment tracked separately in the family audit and associated dev-to-main PR.",
+  "physicalAcceptance": "open"
+}
