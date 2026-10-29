@@ -7,16 +7,17 @@ export function Layout({
   children,
   onHome,
   showBack = false,
-  onPrivacy,
+  privacy = false,
 }: {
   children: ReactNode;
   onHome: () => void;
   showBack?: boolean;
-  onPrivacy: () => void;
+  privacy?: boolean;
 }) {
   const disclosure = useRef<HTMLDetailsElement>(null);
   const links = (
     <>
+      {privacy && <a href={import.meta.env.BASE_URL}>Home</a>}
       {!showBack && (
         <>
           <a href="#workbench">Editor</a>
@@ -41,7 +42,7 @@ export function Layout({
       <div className="pdf-header-shell">
         <header className="air-page-width air-page-header pdf-header">
           <div className="pdf-brand-group">
-            {showBack && (
+            {showBack && !privacy && (
               <button
                 type="button"
                 className="air-icon-button air-button--quiet"
@@ -105,7 +106,7 @@ export function Layout({
       <main id="main" tabIndex={-1} className={showBack ? "air-page-width pdf-main" : "pdf-main"}>
         {children}
       </main>
-      <PublicFooter onPrivacy={onPrivacy} />
+      <PublicFooter privacy={privacy} />
     </div>
   );
 }

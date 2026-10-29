@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.2.4",
+  "contractVersion": "1.2.6",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -928,9 +928,10 @@
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
-        "docs/air/consistency-2026-10-28.md"
+        "docs/air/consistency-2026-10-28.md",
+        "evidence/privacy-2026-10-29/policies.json.gz"
       ],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension."
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Air 1.2.5 public privacy/navigation software audit passes; policy meaning/dates and editor work preserved. Full product/device gates remain separate."
     },
     {
       "path": "src/components/ProgressBar.tsx",
@@ -992,9 +993,11 @@
       "evidence": [
         "evidence/public-shell-2026-10-26/checks.json.gz",
         "evidence/consistency-2026-10-26/checks.json.gz",
-        "docs/air/consistency-2026-10-28.md"
+        "docs/air/consistency-2026-10-28.md",
+        "evidence/privacy-2026-10-29/policies.json.gz",
+        "docs/air/family-2026-10-29.md"
       ],
-      "notes": "Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
+      "notes": "Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.2.5 public privacy/navigation software audit passes; policy meaning/dates and editor work preserved. Full product/device gates remain separate. Air 1.2.6 support link and footer software conformance pass across home/privacy/recovery; full product/device acceptance remains separate."
     },
     {
       "path": "src/components/ReloadPrompt.tsx",
@@ -3501,9 +3504,11 @@
         "docs/air/neutral-links-2026-10-19.md",
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
         "evidence/public-shell-2026-10-26/checks.json.gz",
-        "evidence/consistency-2026-10-26/checks.json.gz"
+        "evidence/consistency-2026-10-26/checks.json.gz",
+        "evidence/privacy-2026-10-29/policies.json.gz",
+        "docs/air/family-2026-10-29.md"
       ],
-      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
+      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.2.5 public privacy/navigation software audit passes; policy meaning/dates and editor work preserved. Full product/device gates remain separate. Air 1.2.6 support link and footer software conformance pass across home/privacy/recovery; full product/device acceptance remains separate."
     }
   ]
 }
