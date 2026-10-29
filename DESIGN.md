@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.6
+version: 1.2.7
 status: approved
 date: 2026-10-29
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: cca05d73510285286151cf0373949263d8b453b78513f4f5f1cf314d3c676823
+family-contract-sha256: 08807997c17914544e6152bbf407087808a24ac27ff64f503c36287f6fda2031
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.6 — family gathering and support** · Direction: **Air** · Updated: **2026-10-29**
+Version: **1.2.7 — portable artwork startup** · Direction: **Air** · Updated: **2026-10-29**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -725,6 +725,12 @@ An accurate product screenshot may remain in the following feature section.
   theme, alongside the existing `paper-accent`; surrounding controls use live themes.
 - Static artwork renders without the animation module. Reduced motion, forced
   colours and constrained/save-data visits do not start decorative motion.
+  For this lightweight transform/opacity artwork, constrained means a reported
+  device memory of 4 GiB or less. Missing memory information is not a restriction.
+  Never gate it on CPU count: WebKit's privacy-rounded four-thread value is not
+  evidence that an iPhone cannot render it. The heavier reference shader retains
+  its separate resource policy. Test artwork with four reported threads and no
+  memory API in WebKit as well as Chrome; do not normalize every test to eight.
   Live preference changes settle immediately. Suspend offscreen and hidden; resume
   the same finite sequence on return. Cancel animations/listeners on departure.
 - Landing artwork has no visible Play, Pause or Replay controls. Each automatic

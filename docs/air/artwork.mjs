@@ -17,8 +17,9 @@ export function mountAirArtwork(root, { run, settle }) {
     if (reduced.matches) return "reduced";
     if (forced.matches) return "forced";
     if (connection?.saveData) return "save-data";
-    if (win.navigator.deviceMemory <= 4 || win.navigator.hardwareConcurrency <= 4)
-      return "constrained";
+    // WebKit rounds CPU counts down to four on many capable iPhones. That
+    // privacy hint cannot decide whether this finite transform/opacity work runs.
+    if (win.navigator.deviceMemory <= 4) return "constrained";
     if (!root.animate || !win.IntersectionObserver) return "unsupported";
     return null;
   }

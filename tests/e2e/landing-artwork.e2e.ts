@@ -94,6 +94,9 @@ try {
     p.on("pageerror", (e) => errors.push(String(e)));
     await p.setViewport({ width: 1440, height: 1000 });
     await p.evaluateOnNewDocument(() => {
+      // Isolate artwork geometry from the asynchronous first-cache notice.
+      // Real worker/update behavior is covered by the dedicated PWA suites.
+      Object.defineProperty(navigator, "serviceWorker", { value: undefined });
       Object.defineProperty(navigator, "hardwareConcurrency", { value: 8, configurable: true });
       Object.defineProperty(navigator, "deviceMemory", { value: 8, configurable: true });
     });
