@@ -6,6 +6,11 @@ export function mountAirArtwork(root, { run, settle }) {
   const forced = win.matchMedia("(forced-colors: active)");
   const connection = win.navigator.connection;
   const replay = root.querySelector(".air-artwork-replay");
+  const pendingStyles = new Set(
+    [...doc.querySelectorAll('link[rel="stylesheet"]')].filter(
+      (link) => !link.sheet && !link.disabled && win.matchMedia(link.media || "all").matches,
+    ),
+  );
   const active = new Set();
   let visible = false;
   let pageHidden = false;
@@ -32,18 +37,27 @@ export function mountAirArtwork(root, { run, settle }) {
     return null;
   }
   function canReplay() {
-    return complete && !destroyed && !failed && !restriction() && !suspension();
+    return (
+      complete && !pendingStyles.size && !destroyed && !failed && !restriction() && !suspension()
+    );
   }
   function setState(state) {
     root.dataset.artState = state;
     if (!replay) return;
     const ready = canReplay();
-    replay.hidden = Boolean(destroyed || failed || restriction());
+    replay.hidden = Boolean(pendingStyles.size || destroyed || failed || restriction());
     replay.setAttribute("aria-disabled", String(!ready));
     replay.tabIndex = ready ? 0 : -1;
   }
   function pointerDown() {
     pointerReady = canReplay();
+  }
+  function stylesheetReady(event) {
+    const link = event.currentTarget;
+    pendingStyles.delete(link);
+    link.removeEventListener("load", stylesheetReady);
+    link.removeEventListener("error", stylesheetReady);
+    sync();
   }
   function keyDown(event) {
     if ((event.key === "Enter" || event.key === " ") && (event.repeat || !canReplay()))
@@ -108,6 +122,10 @@ export function mountAirArtwork(root, { run, settle }) {
       setState(blocked);
       return;
     }
+    if (pendingStyles.size) {
+      setState("loading");
+      return;
+    }
     if (complete) {
       setState("complete");
       return;
@@ -134,6 +152,10 @@ export function mountAirArtwork(root, { run, settle }) {
         { threshold: 0 },
       )
     : null;
+  pendingStyles.forEach((link) => {
+    link.addEventListener("load", stylesheetReady);
+    link.addEventListener("error", stylesheetReady);
+  });
   observer?.observe(root);
   reduced.addEventListener("change", sync);
   forced.addEventListener("change", sync);
@@ -156,6 +178,11 @@ export function mountAirArtwork(root, { run, settle }) {
       destroyed = true;
       cancel();
       observer?.disconnect();
+      pendingStyles.forEach((link) => {
+        link.removeEventListener("load", stylesheetReady);
+        link.removeEventListener("error", stylesheetReady);
+      });
+      pendingStyles.clear();
       reduced.removeEventListener("change", sync);
       forced.removeEventListener("change", sync);
       connection?.removeEventListener?.("change", sync);

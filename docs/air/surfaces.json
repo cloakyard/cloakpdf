@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.3.0",
+  "contractVersion": "1.3.1",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -2995,7 +2995,8 @@
         "explicit click/tap replay after completion",
         "busy press ignored without queue",
         "keyboard replay and inset focus",
-        "static fallback without replay"
+        "static fallback without replay",
+        "delayed stylesheet readiness"
       ],
       "viewports": [
         "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
@@ -3006,7 +3007,7 @@
         "docs/air/safari-startup-2026-10-29.md",
         "docs/air/artwork-replay-2026-10-29.md"
       ],
-      "notes": " Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. Air 1.3.0 replay passes Chrome/WebKit software checks; physical/assistive acceptance remains separate."
+      "notes": " Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. Air 1.3.0 replay passes Chrome/WebKit software checks; physical/assistive acceptance remains separate. Air 1.3.1 waits for CSS before token reads; two-second delayed styles pass in Chrome/WebKit."
     },
     {
       "path": "src/home/ToolEntry.tsx",
