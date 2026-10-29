@@ -69,6 +69,7 @@ else {
     "artwork.mjs",
     "artwork.d.mts",
     "update-notice.tsx",
+    "privacy.tsx",
     "colour.mjs",
     "colour.d.mts",
     "light-controller.mjs",

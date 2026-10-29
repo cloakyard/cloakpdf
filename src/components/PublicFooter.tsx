@@ -2,7 +2,7 @@
 import { ArrowUpRight } from "lucide-react";
 
 declare const __APP_VERSION__: string;
-export function PublicFooter({ onPrivacy }: { onPrivacy?: () => void }) {
+export function PublicFooter({ privacy = false }: { privacy?: boolean }) {
   return (
     <footer className="air-page-width air-page-footer pdf-footer">
       <p className="air-page-identity">
@@ -15,13 +15,12 @@ export function PublicFooter({ onPrivacy }: { onPrivacy?: () => void }) {
         </span>
       </p>
       <nav aria-label="Footer navigation">
-        {onPrivacy ? (
-          <button type="button" onClick={onPrivacy}>
-            Privacy
-          </button>
-        ) : (
-          <a href={`${import.meta.env.BASE_URL}?view=privacy`}>Privacy</a>
-        )}
+        <a
+          href={`${import.meta.env.BASE_URL}?view=privacy`}
+          aria-current={privacy ? "page" : undefined}
+        >
+          Privacy
+        </a>
         <a href="https://github.com/cloakyard/cloakpdf" target="_blank" rel="noopener noreferrer">
           Source
         </a>

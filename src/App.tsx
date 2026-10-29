@@ -179,10 +179,6 @@ export function App() {
     [navigate],
   );
 
-  const handlePrivacy = useCallback(() => {
-    navigate({ kind: "privacy" });
-  }, [navigate]);
-
   // Cross-component deep-link: a tool fires `navigateToTool(id)` and we
   // route to it. Currently used by the encrypted-PDF notice in
   // `usePdfFile` to deep-link into the PDF Password tool.
@@ -226,7 +222,7 @@ export function App() {
   return (
     <div className="pdf-app">
       <ReloadPrompt deferUpdate={view.kind === "tool"} />
-      <Layout onHome={goHome} showBack={showBack} onPrivacy={handlePrivacy}>
+      <Layout onHome={goHome} showBack={showBack} privacy={view.kind === "privacy"}>
         <div key={viewKey}>
           <ViewContent view={view} onSelectTool={handleSelectTool} onOpenEditor={openEditor} />
         </div>

@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.4
+version: 1.2.5
 status: approved
-date: 2026-10-28
+date: 2026-10-29
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: c640798a8d45ff8440eb3b101ed260207624ed5eb2e9b9a5a9269b50bc6f8d91
+family-contract-sha256: e178f7753c6620127895f23e0f4ef350be5d8b154e17465e1d4e41453bb0b193
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.4 — production motion and compact navigation** · Direction: **Air** · Updated: **2026-10-28**
+Version: **1.2.5 — consistent privacy pages** · Direction: **Air** · Updated: **2026-10-29**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -760,8 +760,7 @@ Public shell content follows the same recipe across the family:
 - Footer navigation has exactly four destinations: **Privacy → Source → MIT license
   → Cloakyard**. Source and License target the product repository and main-branch
   LICENSE. The family destination keeps ArrowUpRight. Use `Footer navigation` as
-  its landmark. Privacy opens the actual policy; the directory points to its
-  existing principles and uses **All apps** (`#tools`) in the fourth slot.
+  its landmark. Privacy opens the actual policy; the directory links to its own policy and uses **All apps** (`/#tools`) in the fourth slot.
 - Keep the footer one identity group plus one navigation group. Product directories,
   repeated Download actions and marketing copy belong in the main page, not an
   additional footer row. Preserve the directory copyright and existing app versions.
@@ -835,6 +834,25 @@ Public shell content follows the same recipe across the family:
   wrap at a deliberate word boundary; never reduce its type to hide overflow.
 
 ### Reading and recovery pages
+
+- Public privacy uses the portable `air-policy` recipe in every product: an explicit
+  **Back to {product}** link with ArrowLeft, **{product} · Privacy**, **Privacy policy**,
+  a concise lead, the genuine revision date, then **On this page** and the document.
+  The back link has a real home URL and works on a direct visit without history.
+  Preserve meaningful product navigation and the same family header/footer.
+  The footer marks Privacy with `aria-current="page"` and a neutral 1px underline
+  at 3px offset; its label never turns blue.
+- The shared recipe owns 48px top/64px bottom space (32px top on compact screens),
+  a 32px gap after the return link, 48px before contents/document, a 14rem contents
+  column and 65ch prose with a 64px gap. At 60rem containers or enlarged text the
+  columns stack with 32px separation. Contents use the shared chevron disclosure,
+  neutral links and blue location marker. No numbered technical eyebrows or fact
+  grids above the policy. All section headings use 1.5rem/500 with 48px ruled spacing.
+- Public privacy is a reading page, not a modal. Editors may retain an in-place
+  policy dialog to protect work, using the exact same policy content and existing
+  focus/close safeguards. Returning from public privacy never clears a saved draft.
+- Keep policy facts and dates intact during a visual refresh. Native and website
+  privacy are distinct; a shared layout does not authorize new privacy claims.
 
 - Privacy, help and recovery use the same family mark, navigation, theme, footer
   and controls as the product. They are complete layouts, not unstyled text below
