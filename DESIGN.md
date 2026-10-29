@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.2.7
+version: 1.3.0
 status: approved
 date: 2026-10-29
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 08807997c17914544e6152bbf407087808a24ac27ff64f503c36287f6fda2031
+family-contract-sha256: 6d62642bad78134466bad7527964fb304ad436610bb9b61b6bf1deafd99b70cb
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.2.7 — portable artwork startup** · Direction: **Air** · Updated: **2026-10-29**
+Version: **1.3.0 — deliberate artwork replay** · Direction: **Air** · Updated: **2026-10-29**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -707,10 +707,10 @@ An accurate product screenshot may remain in the following feature section.
   keeping their stacking order. The front page and real dropzone stay anchored.
   Settle open after one unveiling; do not loop, reorder, or animate file intake.
 - **Drop:** square teal pixels descend into file, package, disc and archive forms.
-  Show FILE, PKG, ISO and ZIP once, then keep the final form still. Use 600ms
-  arrivals, an 8ms bottom-to-top row stagger plus at most 29ms scatter, 160ms
-  dispersal with at most 48ms stagger and a 300ms hold between forms. The complete
-  sequence stays under five seconds (4,776ms maximum active timeline). Use shared
+  Show FILE, PKG, ISO and ZIP once per run, then keep the final form still. Use 720ms
+  arrivals, a 3ms bottom-to-top row stagger plus at most 9ms scatter, 180ms
+  dispersal with at most 24ms stagger and a 320ms hold between forms. The complete
+  sequence stays under five seconds (4,764ms maximum active timeline). Use shared
   spatial/exit curves and linear descent with a gentle landing; never loop.
   These are illustrative file types, never a simulated real transfer or progress bar.
 - **Resume:** a green career path with three milestones gathers into the spine of
@@ -733,9 +733,21 @@ An accurate product screenshot may remain in the following feature section.
   memory API in WebKit as well as Chrome; do not normalize every test to eight.
   Live preference changes settle immediately. Suspend offscreen and hidden; resume
   the same finite sequence on return. Cancel animations/listeners on departure.
-- Landing artwork has no visible Play, Pause or Replay controls. Each automatic
-  arrival finishes within five seconds and remains still; returning visibility
-  or removing a motion restriction must not restart a completed sequence.
+- Landing artwork has no separate visible Play, Pause or Replay controls. Each
+  automatic arrival finishes within five seconds and remains still; returning
+  visibility or removing a motion restriction must not restart a completed sequence.
+  After completion, click/tap the artwork itself to replay the same finite sequence.
+  Ignore presses begun before completion and all rapid/repeated activation during a
+  run; never interrupt, queue, or loop. The completed artwork is a native button
+  overlay named “Replay {app} animation”, with Air's inset keyboard focus outline
+  and a pointer cursor when ready; it has no background, border or hover motion.
+  Enter/Space explicitly request the same replay (this is a media-like action,
+  not animation attached to an unrelated keyboard command). Ignore held keys.
+  Preserve focus during a replay, mark the target aria-disabled, and remove it from
+  sequential Tab navigation until settled. Reduced-motion, forced-colour,
+  resource/data restrictions, missing APIs and no-JS visits expose no replay action.
+  Keep illustrative children hidden from assistive technology. The button covers
+  only the reserved artwork, never the real upload, download or editor action.
 - Keep the action usable before, during and after motion. Reserve the artwork's
   layout space, contain only its moving marks, and shrink ornamental space first
   in short landscape. Text and controls reflow at enlarged sizes. No fake upload,

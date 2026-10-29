@@ -149,7 +149,6 @@ textarea.editor-inline-text {
   inline-size: 100%;
   block-size: 240px;
   container-type: inline-size;
-  pointer-events: none;
 }
 .pdf-page-stack-board {
   position: absolute;
