@@ -19,3 +19,15 @@ visual comparison and rollout ledger are in the
 The linked canonical ledger records the individual dev → main PR, live asset/replay
 verification and dev synchronization. Physical iPhone/assistive acceptance and existing
 product/export/security/runtime exceptions remain separate; IMG stays parked.
+
+## Air 1.3.1 cold stylesheet correction
+
+Live verification found a script/stylesheet race: WebKit can run modules before
+external styles arrive, so initial easing-token reads may be empty. The shared
+lifecycle now waits for applicable pending stylesheets, keeps replay hidden while
+loading, and removes load/error listeners when ready or destroyed. Drop reads its
+motion tokens inside each run, after readiness. There is no timer, dependency,
+duplicated easing value or visual restyling. A regression profile holds CSS for
+two seconds and requires actual initial movement, completion and deliberate replay
+in both WebKit and Chrome. See the canonical audit for results and the follow-up
+PR/main deployment; existing hardware/physical acceptance remains separate.
