@@ -60,7 +60,8 @@ try {
             }),
             count: sheets.length,
             state: root.dataset.artState,
-            hidden: root.getAttribute("aria-hidden"),
+            hidden: root.querySelector(".pdf-page-stack-board")!.getAttribute("aria-hidden"),
+            replayHidden: root.querySelector<HTMLButtonElement>(".air-artwork-replay")!.hidden,
             animations: root.getAnimations({ subtree: true }).length,
             paperInk: getComputedStyle(root.querySelector(".pdf-page-stack-front")!).color,
             input: Boolean(document.querySelector("input[type=file]:not(:disabled)")),
@@ -71,6 +72,7 @@ try {
         assert.equal(state.count, 5);
         assert.equal(state.state, "reduced");
         assert.equal(state.hidden, "true");
+        assert.equal(state.replayHidden, true);
         assert.equal(state.animations, 0);
         assert.equal(
           state.paperInk,

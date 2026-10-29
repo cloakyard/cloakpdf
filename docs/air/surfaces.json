@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.2.7",
+  "contractVersion": "1.3.0",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -2991,14 +2991,22 @@
         "file picker/drop and editor handoff",
         "hidden/offscreen cleanup",
         "neutral links/hover",
-        "200% text and browser zoom"
+        "200% text and browser zoom",
+        "explicit click/tap replay after completion",
+        "busy press ignored without queue",
+        "keyboard replay and inset focus",
+        "static fallback without replay"
       ],
       "viewports": [
         "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
         "native Chrome 200%"
       ],
-      "evidence": ["evidence/product-artwork-2026-10-25/", "docs/air/safari-startup-2026-10-29.md"],
-      "notes": " Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
+      "evidence": [
+        "evidence/product-artwork-2026-10-25/",
+        "docs/air/safari-startup-2026-10-29.md",
+        "docs/air/artwork-replay-2026-10-29.md"
+      ],
+      "notes": " Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. Air 1.3.0 replay passes Chrome/WebKit software checks; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/home/ToolEntry.tsx",

@@ -24,7 +24,7 @@ const sheets = [
   },
 ];
 
-/** Decorative pages unveil once; file acquisition never waits for the artwork. */
+/** Illustrative pages unveil once per run; file acquisition never waits for the artwork. */
 export function PageStack() {
   const stack = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -50,8 +50,8 @@ export function PageStack() {
   }, []);
 
   return (
-    <div className="pdf-page-stack" ref={stack} aria-hidden="true">
-      <div className="pdf-page-stack-board">
+    <div className="pdf-page-stack air-artwork" ref={stack}>
+      <div className="pdf-page-stack-board" aria-hidden="true">
         {sheets.map((sheet, index) => (
           <div
             className="pdf-page-stack-sheet pdf-page-stack-rear"
@@ -71,6 +71,12 @@ export function PageStack() {
           <span className="pdf-page-stack-short-rule" />
         </div>
       </div>
+      <button
+        className="air-artwork-replay"
+        type="button"
+        aria-label="Replay CloakPDF animation"
+        hidden
+      />
     </div>
   );
 }

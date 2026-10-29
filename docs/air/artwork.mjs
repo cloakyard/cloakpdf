@@ -5,12 +5,15 @@ export function mountAirArtwork(root, { run, settle }) {
   const reduced = win.matchMedia("(prefers-reduced-motion: reduce)");
   const forced = win.matchMedia("(forced-colors: active)");
   const connection = win.navigator.connection;
+  const replay = root.querySelector(".air-artwork-replay");
   const active = new Set();
   let visible = false;
   let pageHidden = false;
   let started = false;
   let complete = false;
   let destroyed = false;
+  let failed = false;
+  let pointerReady = false;
   let revision = 0;
 
   function restriction() {
@@ -27,6 +30,31 @@ export function mountAirArtwork(root, { run, settle }) {
     if (doc.hidden || pageHidden) return "hidden";
     if (!visible) return "offscreen";
     return null;
+  }
+  function canReplay() {
+    return complete && !destroyed && !failed && !restriction() && !suspension();
+  }
+  function setState(state) {
+    root.dataset.artState = state;
+    if (!replay) return;
+    const ready = canReplay();
+    replay.hidden = Boolean(destroyed || failed || restriction());
+    replay.setAttribute("aria-disabled", String(!ready));
+    replay.tabIndex = ready ? 0 : -1;
+  }
+  function pointerDown() {
+    pointerReady = canReplay();
+  }
+  function keyDown(event) {
+    if ((event.key === "Enter" || event.key === " ") && (event.repeat || !canReplay()))
+      event.preventDefault();
+  }
+  function playAgain(event) {
+    const allowed = canReplay() && (event.detail === 0 || pointerReady);
+    pointerReady = false;
+    if (!allowed) return;
+    complete = false;
+    sync();
   }
   function cancel() {
     revision++;
@@ -67,7 +95,8 @@ export function mountAirArtwork(root, { run, settle }) {
       if (destroyed || current !== revision) return;
       cancel();
       complete = true;
-      root.dataset.artState = "static";
+      failed = true;
+      setState("static");
     }
   }
   function sync() {
@@ -76,17 +105,17 @@ export function mountAirArtwork(root, { run, settle }) {
     if (blocked) {
       if (started) complete = true;
       cancel();
-      root.dataset.artState = blocked;
+      setState(blocked);
       return;
     }
     if (complete) {
-      root.dataset.artState = "complete";
+      setState("complete");
       return;
     }
     if (!started) void begin();
     const suspended = suspension();
     active.forEach((animation) => (suspended ? animation.pause() : animation.play()));
-    root.dataset.artState = suspended ?? "playing";
+    setState(suspended ?? "playing");
   }
   function hide() {
     pageHidden = true;
@@ -112,6 +141,9 @@ export function mountAirArtwork(root, { run, settle }) {
   doc.addEventListener("visibilitychange", sync);
   win.addEventListener("pagehide", hide);
   win.addEventListener("pageshow", show);
+  replay?.addEventListener("pointerdown", pointerDown);
+  replay?.addEventListener("keydown", keyDown);
+  replay?.addEventListener("click", playAgain);
   sync();
   return {
     finish() {
@@ -130,7 +162,10 @@ export function mountAirArtwork(root, { run, settle }) {
       doc.removeEventListener("visibilitychange", sync);
       win.removeEventListener("pagehide", hide);
       win.removeEventListener("pageshow", show);
-      root.dataset.artState = "destroyed";
+      replay?.removeEventListener("pointerdown", pointerDown);
+      replay?.removeEventListener("keydown", keyDown);
+      replay?.removeEventListener("click", playAgain);
+      setState("destroyed");
     },
   };
 }

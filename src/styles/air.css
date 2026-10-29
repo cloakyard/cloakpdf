@@ -2111,3 +2111,37 @@ input.air-colour-brightness {
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
+
+/* The artwork itself is the replay target. Keep its visual composition untouched. */
+.air-artwork {
+  position: relative;
+  isolation: isolate;
+}
+.air-artwork-replay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--air-radius-control);
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+}
+.air-artwork-replay[hidden] {
+  display: none;
+}
+.air-artwork-replay[aria-disabled="false"] {
+  cursor: pointer;
+}
+.air-artwork > .air-artwork-replay:focus-visible {
+  outline: 2px solid var(--air-accent);
+  outline-offset: -3px;
+}
