@@ -1615,12 +1615,12 @@ textarea.air-field {
 }
 .air-page-footer nav {
   display: grid;
-  flex: 0 0 28rem;
+  flex: 0 0 48rem;
   max-inline-size: 100%;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: stretch;
 }
-@container air-footer (width <= calc(44rem + 32px)) {
+@container air-footer (width <= calc(64rem + 32px)) {
   .air-page-footer nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

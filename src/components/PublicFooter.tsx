@@ -34,6 +34,9 @@ export function PublicFooter({ privacy = false }: { privacy?: boolean }) {
         <a href="https://cloakyard.com">
           Cloakyard <ArrowUpRight size={16} aria-hidden="true" />
         </a>
+        <a href="https://ko-fi.com/sumitsahoo21" target="_blank" rel="noopener noreferrer">
+          Buy me a coffee <ArrowUpRight aria-hidden="true" />
+        </a>
       </nav>
     </footer>
   );
