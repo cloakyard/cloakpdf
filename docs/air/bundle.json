@@ -1,10 +1,10 @@
 {
-  "version": "1.2.6",
+  "version": "1.2.7",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "cca05d73510285286151cf0373949263d8b453b78513f4f5f1cf314d3c676823"
+    "contractSha256": "08807997c17914544e6152bbf407087808a24ac27ff64f503c36287f6fda2031"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
@@ -16,7 +16,7 @@
     "collections.html": "1694522516131bbf31485dba7f4e5ff70e6ab190c9dd762196c8913b6a95692e",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "84ebc705c5c2439ad4cc4af26eb45e0bff1341315de756377d5826b3ebe7653a",
-    "artwork.mjs": "c476562d7a094f9592b874e078787e147afbed696c4cba38276fab4be0faba82",
+    "artwork.mjs": "4d919af3271478ba703401d26086c99876f97e2abc872f8599450cde72bbfa0b",
     "artwork.d.mts": "a5638e0399776647ac1ed883a2026fa94e6515d47cd6054eb63ef27184cbf30f",
     "update-notice.tsx": "8ba6164f6e8a2704ca9c3728541592c9875d544dc37bba013b64820c35b20177",
     "privacy.tsx": "012716986f6cc8fa0059e976f7f9bfe615e763de446e7f659675e4098ef27dec",
