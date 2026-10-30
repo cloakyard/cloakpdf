@@ -66,6 +66,8 @@ Everything runs client-side — there is no server to upload to. No accounts, no
 
 ## 🚀 Getting started
 
+[![Launch on PicoRunner](https://picorunner.com/badges/launch.svg)](https://picorunner.com/launch/?repository=https%3A%2F%2Fgithub.com%2Fcloakyard%2Fcloakpdf)
+
 ```bash
 git clone https://github.com/cloakyard/cloakpdf.git
 cd cloakpdf
