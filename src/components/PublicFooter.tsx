@@ -22,14 +22,14 @@ export function PublicFooter({ privacy = false }: { privacy?: boolean }) {
           Privacy
         </a>
         <a href="https://github.com/cloakyard/cloakpdf" target="_blank" rel="noopener noreferrer">
-          Source
+          Source <ArrowUpRight aria-hidden="true" />
         </a>
         <a
           href="https://github.com/cloakyard/cloakpdf/blob/main/LICENSE"
           target="_blank"
           rel="noopener noreferrer"
         >
-          MIT license
+          MIT license <ArrowUpRight aria-hidden="true" />
         </a>
         <a href="https://cloakyard.com">
           Cloakyard <ArrowUpRight size={16} aria-hidden="true" />
