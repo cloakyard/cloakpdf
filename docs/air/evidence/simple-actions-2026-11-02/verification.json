@@ -18,5 +18,19 @@
     "productionSmokeSuites": 16,
     "phoneActionsAndPdfDownloads": 12,
     "metadataRecoveryLayouts": 28
+  },
+  "securityFollowup": {
+    "osv": "No issues; no ignored advisories",
+    "versions": {
+      "node-forge": "1.4.2",
+      "glob": "14.0.3",
+      "minimatch": "11.0.4",
+      "filelist": "2.0.2"
+    },
+    "unitTests": 461,
+    "standaloneWorkflows": 6,
+    "phoneActionJourneys": 12,
+    "temporaryEvidence": "mkdtemp default",
+    "filelistCompatibility": "pass"
   }
 }

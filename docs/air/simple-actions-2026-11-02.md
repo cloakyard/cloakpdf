@@ -45,3 +45,23 @@ outside the scrolling body, rather than requiring a non-clipping sheet.
 Physical iPhone/software-keyboard, OS IME and spoken assistive acceptance remain
 open. The previously documented Compact beta long-document limitation remains
 under the user's existing exception; this UI pass does not claim new AI acceptance.
+
+## Security checks before promotion
+
+The PR scanner found newly published dependency advisories and a predictable
+default temporary directory in the new browser runner. The runner now creates a
+private random directory with `mkdtemp`. PDF adopts node-forge 1.4.2, glob 14.0.3,
+minimatch 11.0.4 and filelist 2.0.2; the latter preserves Jake's FileList API while
+using minimatch's named API. The explicit minimatch release-age exception permits
+this reviewed security fix. The expired-in-four-days node-forge advisory exception
+is removed; OSV reports no issues with no ignored advisories.
+
+The new dependency graph passes format/lint/types, all 461 units, Knip, build,
+asset/manifest and Air checks. All six real standalone workflows pass again,
+including generated/imported PKCS#12 certificates, wrong-password recovery, worker
+cancellation and independent OpenSSL verification. Twelve both-engine phone action
+and actual PDF-download journeys pass again. FileList matching is also checked
+directly. Build-time API changes do not add browser dependencies.
+
+Advisories: [glob](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4),
+[minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249).

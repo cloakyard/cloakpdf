@@ -1,9 +1,12 @@
 // Real phone interactions and exported bytes in Chromium and WebKit.
 import assert from "node:assert/strict";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { PDFDocument } from "@pdfme/pdf-lib";
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
-const out = process.env.AIR_EVIDENCE_DIR || "/tmp/cloakpdf-tool-actions";
+const out =
+  process.env.AIR_EVIDENCE_DIR || (await mkdtemp(join(tmpdir(), "cloakpdf-tool-actions-")));
 await mkdir(out, { recursive: true });
 const source = await PDFDocument.create();
 source.addPage([400, 600]);
