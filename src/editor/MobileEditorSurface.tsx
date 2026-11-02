@@ -1,14 +1,5 @@
 // In-flow working sheet: the document stays mounted while controls expand.
-import {
-  Check,
-  ChevronUp,
-  Grid2x2,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  Search,
-  X,
-} from "lucide-react";
+import { ChevronUp, Grid2x2, RotateCcw, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { ToolControls } from "./ToolControls.tsx";
@@ -71,14 +62,14 @@ export function MobileEditorSurface() {
   const activeTool = useActiveTool();
   const { setActiveTool, setViewMode, cancelCurrentTool, flushPendingApply, reset } =
     useEditorActions();
-  const { pendingApply, canReset } = useEditorRead();
+  const { pendingApply, canReset, busyLabel } = useEditorRead();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
   const [expanded, setExpanded] = useState(false);
   const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
-  const applyDisabled = pendingApply !== null && !pendingApply.ready;
+  const applyDisabled = busyLabel !== null || (pendingApply !== null && !pendingApply.ready);
   // Retain the mounted tool while closed, matching the existing apply lifecycle.
   const viewRef = useRef<SheetView>({ kind: "picker" });
   if (open) viewRef.current = tool ? { kind: "tool", id: tool.id } : { kind: "picker" };
@@ -148,55 +139,15 @@ export function MobileEditorSurface() {
             <h2 ref={headingRef} data-dialog-return-focus="editor-tool-picker" tabIndex={-1}>
               {tool.name}
             </h2>
-            <div className="editor-mobile-sheet__actions">
-              <button
-                type="button"
-                className="air-icon-button air-button--quiet"
-                onClick={() => setExpanded(!expanded)}
-                aria-label={expanded ? "Return to split view" : "Expand controls"}
-                aria-expanded={expanded}
-                title={expanded ? "Return to split view" : "Expand controls"}
-              >
-                {expanded ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
-              </button>
-              <button
-                type="button"
-                className="air-icon-button air-button--quiet"
-                onClick={() => {
-                  close();
-                  void cancelCurrentTool();
-                }}
-                aria-label="Cancel"
-                title="Cancel"
-              >
-                <X aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="air-icon-button air-button--primary"
-                onClick={() => {
-                  if (finishing.current) return;
-                  finishing.current = true;
-                  void flushPendingApply()
-                    .then(() => {
-                      close();
-                      setActiveTool(null);
-                    })
-                    .catch(() => {
-                      // Keep the tool and its values available for retry. The
-                      // operation reports its failure in the editor/panel.
-                    })
-                    .finally(() => {
-                      finishing.current = false;
-                    });
-                }}
-                disabled={applyDisabled}
-                aria-label="Done"
-                title="Done"
-              >
-                <Check aria-hidden="true" />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="air-button air-button--quiet"
+              onClick={() => setExpanded(!expanded)}
+              aria-label={expanded ? "Return to split view" : "Expand controls"}
+              aria-expanded={expanded}
+            >
+              {expanded ? "Split view" : "Expand"}
+            </button>
           </>
         ) : (
           <>
@@ -222,13 +173,13 @@ export function MobileEditorSurface() {
             {open && (
               <button
                 type="button"
-                className="air-icon-button air-button--quiet"
+                className="air-button air-button--quiet"
                 onClick={() => setExpanded(!expanded)}
                 aria-label={expanded ? "Return to split view" : "Expand controls"}
                 aria-expanded={expanded}
                 title={expanded ? "Return to split view" : "Expand controls"}
               >
-                {expanded ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+                {expanded ? "Split view" : "Expand"}
               </button>
             )}
           </>
@@ -345,6 +296,49 @@ export function MobileEditorSurface() {
           </>
         )}
       </div>
+      {tool && (
+        <div className="air-editor-actions" role="group" aria-label="Edit actions">
+          <button
+            type="button"
+            className="air-button"
+            disabled={busyLabel !== null}
+            onClick={() => {
+              if (finishing.current) return;
+              close();
+              void cancelCurrentTool();
+            }}
+            aria-label="Cancel"
+            title="Cancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className={`air-button${pendingApply ? " air-button--primary" : ""}`}
+            onClick={() => {
+              if (finishing.current) return;
+              finishing.current = true;
+              void flushPendingApply()
+                .then(() => {
+                  close();
+                  setActiveTool(null);
+                })
+                .catch(() => {
+                  // Keep the tool and its values available for retry. The
+                  // operation reports its failure in the editor/panel.
+                })
+                .finally(() => {
+                  finishing.current = false;
+                });
+            }}
+            disabled={applyDisabled}
+            aria-label={pendingApply ? "Apply" : "Close"}
+            title={pendingApply ? "Apply" : "Close"}
+          >
+            {pendingApply ? "Apply" : "Close"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

@@ -275,7 +275,9 @@ try {
   await page.waitForFunction(() =>
     document.querySelector(".pdf-attachments-panel")?.textContent?.includes("Couldn't attach"),
   );
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await tool();
   await ready();
   assert.ok(await page.$(".pdf-attachment-selection"));

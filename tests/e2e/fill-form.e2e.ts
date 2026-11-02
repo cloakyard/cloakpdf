@@ -302,11 +302,15 @@ try {
   await settle();
   await field("Full name", "Mobile save");
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForSelector('.pdf-fillform-panel [role="alert"]');
   assert.equal((await values())["Full name"], "Mobile save");
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(await page.evaluate(() => (window as any).airTool), "fill-pdf-form");
   await page.evaluate(() => {
@@ -441,7 +445,7 @@ try {
           "atomic Apply/retry/dedup",
           "editable and flattened real PDF output",
           "Undo/Redo/Cancel",
-          "mobile Done waits",
+          "mobile Apply waits",
           "privacy marks gate",
         ],
       },

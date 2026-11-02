@@ -107,5 +107,5 @@ light/dark, reduced motion and keyboard/touch modes as specified in DESIGN.md.
 | `src/standalone/ImagesToPdf.tsx`           | app-surface         | Done         | Done               | Pending    |
 | `src/standalone/MergePdf.tsx`              | app-surface         | Done         | Done               | Pending    |
 | `src/standalone/PdfPassword.tsx`           | app-surface         | Done         | Done               | Pending    |
-| `src/styles/air-entry.css`                 | app-surface         | Done         | Done               | Done       |
+| `src/styles/air-entry.css`                 | app-surface         | Done         | Done               | Pending    |
 | `src/styles/air.css`                       | app-surface         | Done         | Done               | Pending    |

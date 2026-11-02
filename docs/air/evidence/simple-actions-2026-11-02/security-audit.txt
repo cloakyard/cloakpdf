@@ -1,0 +1,5 @@
+Starting filesystem walk for root: /
+Scanned /Users/sumitsahoo/Developer/cloakpdf/pnpm-lock.yaml file and found 865 packages
+End status: 0 dirs visited, 1 inodes visited, 1 Extract calls, 10.097625ms elapsed, 10.098ms wall time
+
+No issues found

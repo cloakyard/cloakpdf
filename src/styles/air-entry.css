@@ -2228,19 +2228,16 @@ body:has(.pdf-site) {
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 8px 12px;
+  min-height: 56px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--air-line);
 }
 .editor-mobile-sheet__header h2 {
   flex: 1 1 96px;
   min-width: 0;
   margin: 0;
-  font: 600 var(--air-text-body)/1.4 var(--air-font);
+  font: 500 var(--air-text-label)/1.4 var(--air-font);
   overflow-wrap: anywhere;
-}
-.editor-mobile-sheet__actions {
-  display: flex;
-  margin-inline-start: auto;
-  gap: 4px;
 }
 .editor-mobile-sheet__toggle {
   flex: 1;

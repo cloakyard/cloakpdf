@@ -12,8 +12,9 @@ allowBuilds:
 #   - adm-zip >=0.6.0               (path traversal, GHSA-xcpc-8h2w-3j85;
 #     transitive via onnxruntime-node → @huggingface/transformers, Node-only —
 #     never in the browser bundle, but flagged by the CI osv-scanner audit)
-#   - glob >=13                      (glob 11 is deprecated; Workbox supports
-#     the same promise API on the maintained Node 22+ major)
+#   - glob >=14.0.3                  (cancellation bypass, GHSA-3g3m-2fjr-6pw4)
+#   - minimatch >=11.0.4             (pattern amplification, GHSA-g3hv-75wg-m249)
+#     filelist 2 uses the named minimatch API; Jake keeps its FileList API.
 #   - global-agent >=4              (global-agent 3 pulls deprecated boolean;
 #     this Node-only proxy helper keeps the same bootstrap API)
 #   - sharp >=0.35.3                 (libvips memory-safety fixes,
@@ -27,7 +28,9 @@ overrides:
   serialize-javascript: ">=7.1.4"
   form-data: ">=4.0.6"
   adm-zip: ">=0.6.0"
-  glob: ">=13.0.6"
+  glob: "14.0.3"
+  minimatch: "11.0.4"
+  filelist: "2.0.2"
   global-agent: ">=4.1.6"
   sharp: "^0.35.5"
   brace-expansion: ">=5.0.9"
@@ -53,5 +56,6 @@ minimumReleaseAgeExclude:
   - motion@14.6.0
   - puppeteer-core@25.16.0
   - serialize-javascript@7.1.4
+  - minimatch@11.0.4
 patchedDependencies:
   "@rollup/plugin-node-resolve@16.0.3": patches/@rollup__plugin-node-resolve@16.0.3.patch

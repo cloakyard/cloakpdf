@@ -284,11 +284,13 @@ try {
   await settle();
   await clickText("Start another Bates numbering");
   await ready();
-  // Mobile Done waits for output and retains its settings on a real writer failure.
+  // Mobile Apply waits for output and retains its settings on a real writer failure.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(
     () => !(window as any).airRead.busyLabel && !!(window as any).airRead.error,
   );
@@ -299,7 +301,9 @@ try {
     "9999",
   );
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(await page.evaluate(() => (window as any).airTool), "bates-numbering");
   await page.evaluate(() => (window as any).releaseRead());

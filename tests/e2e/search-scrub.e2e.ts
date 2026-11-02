@@ -322,7 +322,7 @@ try {
       .querySelector('.pdf-scrub-panel [role="status"]')
       ?.textContent?.includes("1 item selected"),
   );
-  // Mobile Done keeps the panel on failure and applies once on repeat activation.
+  // Mobile Apply keeps the panel on failure and applies once on repeat activation.
   await page.setViewport({ width: 390, height: 844 });
   await tool("find-act");
   await find("Private");
@@ -331,13 +331,17 @@ try {
     (window as any).failRead = true;
   });
   await clickText("Highlight");
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() =>
     document.querySelector("#find-and-act-status")?.textContent?.includes("Couldn't apply"),
   );
   assert.equal(await page.evaluate(() => (window as any).airTool), "find-act");
   await page.evaluate(() => {
-    const b = document.querySelector<HTMLButtonElement>('button[aria-label="Done"]')!;
+    const b = document.querySelector<HTMLButtonElement>(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    )!;
     b.click();
     b.click();
   });

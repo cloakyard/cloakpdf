@@ -1,0 +1,173 @@
+{
+  "results": [
+    {
+      "engine": "chromium",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "chromium",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "chromium",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "height": 568,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "height": 568,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "height": 844,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 430,
+      "height": 932,
+      "theme": "light",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    },
+    {
+      "engine": "webkit",
+      "width": 430,
+      "height": 932,
+      "theme": "dark",
+      "cancel": true,
+      "applyOnce": true,
+      "undoRedo": true,
+      "close": true,
+      "download": {
+        "title": "Applied title",
+        "pages": 1
+      }
+    }
+  ],
+  "errors": []
+}

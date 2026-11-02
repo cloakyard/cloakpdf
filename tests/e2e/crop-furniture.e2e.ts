@@ -191,7 +191,7 @@ try {
   );
   assert.ok(Number(await page.$eval("#crop-top", (e) => (e as HTMLInputElement).value)) > 0);
 
-  // Failed mobile Done retains fields; concurrent Done awaits one crop and closes only on success.
+  // Failed mobile Apply retains fields; concurrent Done awaits one crop and closes only on success.
   await reset();
   await margin("top", "10");
   await tool("add-bookmarks");
@@ -202,7 +202,9 @@ try {
   await page.evaluate(() => {
     (window as any).failRead = true;
   });
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() =>
     document.querySelector(".pdf-crop-panel")?.textContent?.includes("Couldn't crop"),
   );
@@ -211,7 +213,9 @@ try {
     (window as any).holdRead = true;
     (window as any).releaseRead = null;
   });
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.ok(await page.$(".pdf-crop-panel"));
   await page.evaluate(() => {
@@ -251,12 +255,16 @@ try {
   await page.evaluate(() => {
     (window as any).failRead = true;
   });
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() =>
     document.querySelector(".pdf-furniture-panel")?.textContent?.includes("Couldn't trim"),
   );
   assert.deepEqual(await docBytes(), bytes);
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => (window as any).airTool === null);
   cropped = await PDFDocument.load(new Uint8Array(await docBytes()));
   assert.ok(
@@ -325,7 +333,10 @@ try {
           state.minTarget >= (width <= 1024 ? 43.9 : 39.9),
           JSON.stringify({ id, width, state }),
         );
-        const primary = width < 1024 ? '[aria-label="Done"]' : panel + " .air-button--primary";
+        const primary =
+          width < 1024
+            ? '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])'
+            : panel + " .air-button--primary";
         // Actual layout decides where the primary action lives (landscape may retain desktop chrome).
         const action = (await page.$(panel + " .air-button--primary"))
           ? panel + " .air-button--primary"

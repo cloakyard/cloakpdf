@@ -260,7 +260,7 @@ export function Panel() {
         error: true,
         text: "Couldn't apply these marks. Your matches and selection are unchanged. Try again.",
       });
-      throw error; // The mobile Done action must keep the panel open on failure.
+      throw error; // The mobile Apply action must keep the panel open on failure.
     } finally {
       applying.current = false;
     }

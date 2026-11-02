@@ -30,7 +30,8 @@
     "design:inventory": "node scripts/air-inventory.mjs",
     "design:portability": "node scripts/check-air-portability.mjs",
     "test:e2e:artwork": "node --experimental-strip-types tests/e2e/landing-artwork.e2e.ts",
-    "test:air-links": "node scripts/test-air-links.mjs"
+    "test:air-links": "node scripts/test-air-links.mjs",
+    "test:air-actions": "node scripts/test-air-tool-actions.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",
@@ -41,7 +42,7 @@
     "@pdfme/pdf-lib": "^6.2.8",
     "lucide-react": "^1.61.0",
     "motion": "^14.6.0",
-    "node-forge": "^1.4.0",
+    "node-forge": "^1.4.2",
     "pdfjs-dist": "^6.4.299",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
