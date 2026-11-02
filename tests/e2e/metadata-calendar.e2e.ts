@@ -278,18 +278,22 @@ try {
     await page.$eval("#metadata-title", (n) => (n as HTMLInputElement).value),
     "Replacement properties",
   );
-  // Mobile Done waits, keeps failed drafts and ignores a repeated activation.
+  // Mobile Apply waits, keeps failed drafts and ignores a repeated activation.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await enter("#metadata-title", "Mobile properties");
   await page.evaluate(() => {
     (window as any).failRead = true;
   });
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForSelector('#metadata-save-status[role="alert"]');
   assert.equal(await page.evaluate(() => (window as any).airTool), "metadata");
   await page.evaluate(() => {
-    const b = document.querySelector<HTMLButtonElement>('button[aria-label="Done"]')!;
+    const b = document.querySelector<HTMLButtonElement>(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    )!;
     b.click();
     b.click();
   });
@@ -472,7 +476,7 @@ try {
         realOutput: true,
         clearRetainsXmp: true,
         staleReadDiscarded: true,
-        mobileDoneOnce: true,
+        mobileApplyOnce: true,
         keyboardNestedMenus: true,
         text200: true,
         forcedColours: true,
@@ -483,7 +487,7 @@ try {
     ) + "\n",
   );
   console.log(
-    `PASS metadata output, recovery, drafts, mobile Done, date/time keyboard and ${layouts.length} panel/calendar layouts.`,
+    `PASS metadata output, recovery, drafts, mobile Apply, date/time keyboard and ${layouts.length} panel/calendar layouts.`,
   );
 } catch (error) {
   await page.screenshot({ path: join(output, "metadata-failure.png") });

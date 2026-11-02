@@ -282,16 +282,20 @@ try {
   await field("#stamp-text", "APPROVED");
   await clickText("Box");
   await field("#stamp-fontSize", "24");
-  // Mobile Done awaits actual work, keeps failed input and prevents duplicate saves.
+  // Mobile Apply awaits actual work, keeps failed input and prevents duplicate saves.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !(window as any).airRead.busyLabel);
   assert.equal(await page.evaluate(() => (window as any).airTool), "stamp-pdf");
   assert.deepEqual(await docBytes(), before);
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(await page.evaluate(() => (window as any).airTool), "stamp-pdf");
   await page.evaluate(() => (window as any).releaseRead());

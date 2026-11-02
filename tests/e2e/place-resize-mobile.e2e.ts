@@ -2,7 +2,7 @@
  * Mobile (bottom-sheet) visual verification for the place-then-drag-resize UX:
  * signature and QR placement + corner-resize with touch, at a phone viewport.
  * Confirms the panels read in the half-height sheet, the signature Size slider is
- * gone, placement + resize work, and apply runs via the global ✓. Screenshots to
+ * gone, placement + resize work, and apply runs via the completion action. Screenshots to
  * /tmp for review; fails on any console / page error.
  *
  * Run:  node --experimental-strip-types tests/e2e/place-resize-mobile.e2e.ts
@@ -123,7 +123,10 @@ async function pickTool(page: Page, name: string) {
   }
   await page.waitForSelector(`button[aria-label="${name}"]`, { timeout: 10_000 });
   await page.click(`button[aria-label="${name}"]`);
-  await page.waitForSelector('button[aria-label="Done"]', { timeout: 10_000 });
+  await page.waitForSelector(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    { timeout: 10_000 },
+  );
 }
 async function sheetFraction(page: Page): Promise<number> {
   return page.evaluate(() => {
@@ -216,12 +219,14 @@ async function main() {
     await page.screenshot({ path: join(SHOT_DIR, "m-sig-2-resized.png") });
     console.log("  ✓ mobile signature place + corner-resize (no slider, 50:50 split)");
 
-    await page.click('button[aria-label="Done"]'); // ✓ applies
+    await page.click(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    ); // Apply commits
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 60_000 });
     await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), {
       timeout: 60_000,
     });
-    console.log("  ✓ mobile signature apply (global ✓)");
+    console.log("  ✓ mobile signature apply (completion action)");
 
     // ── QR ───────────────────────────────────────────────────────────────────
     await pickTool(page, "QR / barcode");

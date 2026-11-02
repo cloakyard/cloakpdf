@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.3.2",
+  "contractVersion": "1.3.3",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -1344,9 +1344,10 @@
         "docs/air/evidence/annotate-2026-10-15.json",
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
         "docs/air/validation.md",
-        "docs/air/evidence/registry-lifecycle-2026-10-19.json"
+        "docs/air/evidence/registry-lifecycle-2026-10-19.json",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Provider source audit covers history/checkpoint ownership, destructive marks, measured loading, failed restore/retry, stale file/draft reads and cleanup after exit/StrictMode replay. Deferred moveObject commits reject stale payloads; busy history calls reject synchronously. Unused commit/jumpTo and related history APIs were removed. Active-tool requests reject unknown IDs. Session ownership prevents queued tasks starting after departure and discards late transform results; late preview URLs are released. Physical/assistive acceptance remains open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/editor/EditorShell.tsx",
@@ -1584,9 +1585,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/search-scrub-2026-10-15.json",
-        "docs/air/evidence/editor-wrappers-2026-10-19.json"
+        "docs/air/evidence/editor-wrappers-2026-10-19.json",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Air full-name tool list with one labelled compound search; ranked matches, clear/empty states and immediate transitions. Expand/split preserves mounted document and tool state; Cancel/Done returns focus. Tool panel interiors remain a separate slice. Physical/assistive acceptance remains open. 2026-10-15: promised apply completion keeps mobile tools open on failure and prevents repeat Done; desktop primary actions consume reported promise rejections. Search/Scrub failure and real output verified; other tools returning void retain their existing lifecycle until their interiors are audited. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/editor/OverviewGrid.tsx",
@@ -1852,9 +1854,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/collections-2026-10-14.json",
-        "docs/air/evidence/editor-wrappers-2026-10-19.json"
+        "docs/air/evidence/editor-wrappers-2026-10-19.json",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/editor/ToolControls.tsx",
@@ -2236,8 +2239,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/search-scrub-2026-10-15.json"],
-      "notes": "Air panel migration; byte-owned search, retained query/results/selection, explicit Scrub failure/retry and selected-category readiness. Native Safari and Firefox (actual 200% zoom) reviewed. Physical touch/software keyboard, OS IME and assistive speech remain open. Annotation colours are output data."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/search-scrub-2026-10-15.json",
+        "docs/air/simple-actions-2026-11-02.md"
+      ],
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/editor/panels/HeaderFooterTool.tsx",
@@ -2579,9 +2586,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/collections-2026-10-14.json",
-        "docs/air/evidence/search-scrub-2026-10-15.json"
+        "docs/air/evidence/search-scrub-2026-10-15.json",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open. 2026-10-15: promised apply completion keeps mobile tools open on failure and prevents repeat Done; desktop primary actions consume reported promise rejections. Search/Scrub failure and real output verified; other tools returning void retain their existing lifecycle until their interiors are audited."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/editor/panels/RedactTool.tsx",
@@ -3409,7 +3417,7 @@
       "kind": "app-surface",
       "sourceReviewed": true,
       "airImplemented": true,
-      "validated": true,
+      "validated": false,
       "states": [
         "light",
         "dark",
@@ -3464,9 +3472,10 @@
         "evidence/storyline-family-2026-10-26/chrome.json.gz",
         "evidence/public-shell-2026-10-26/checks.json.gz",
         "evidence/consistency-2026-10-26/checks.json.gz",
-        "docs/air/consistency-2026-10-28.md"
+        "docs/air/consistency-2026-10-28.md",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Air route/utility headers and global recovery/loading implemented. 132 utility header layouts and 88 recovery/loading configurations pass. Copy success/failure, retry focus and reload verified. Tool bodies/editor and physical/assistive acceptance remain separate. Constructor checkpoint: busy intake guarded; compact populated acquisition; standalone orientation gate removed after six landscape entry checks. Full device/assistive acceptance remains open. Extract checkpoint: shared selected-file summary uses Air; removed obsolete cloak-file-info skin and spinner reference. Password changes only status metadata; its option/result body remains pending. Password checkpoint: option/result composition adopts shared fields/choices; page fallback focus excludes Air buttons/icons so their canonical inset focus wins. Password body now implemented; physical/assistive gates remain open. Compare composition and page navigation now reuse Air controls; document paper/difference pixels retain content colours. Navigation checkpoint: Replaced header/rail/mobile picker skins and removed obsolete rail/ledger icon motion selectors; remaining panel/canvas legacy styles have live consumers. Collection checkpoint: shared responsive grid, inspector and page actions; ordinary tool changes are immediate. Replaced grid/inspector/organize skins removed. Page-number checkpoint shares PrecisionField with Stamp and corrects spacing between nested numeric rows. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: processing layer/scrim now use --air-z-recovery and --air-scrim. Recovery and full modal/editor regression pass. 2026-10-19: app logo colour in both GPU and static artwork; 12 theme/viewport cases and both GPU themes pass. Physical GPU/battery acceptance remains open. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance. 2026-10-25: Public family comparison: native in-flow compact header, canonical icon/gap, section tracking and privacy cadence corrected. Chrome/Firefox 160 local layouts plus Safari spot review pass; 461 units, 16 smoke suites, 66 recovery and 68 artwork layouts pass. Existing physical/assistive gates remain open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
       "path": "src/styles/air.css",
@@ -3516,9 +3525,10 @@
         "evidence/public-shell-2026-10-26/checks.json.gz",
         "evidence/consistency-2026-10-26/checks.json.gz",
         "evidence/privacy-2026-10-29/policies.json.gz",
-        "docs/air/family-2026-10-29.md"
+        "docs/air/family-2026-10-29.md",
+        "docs/air/simple-actions-2026-11-02.md"
       ],
-      "notes": "Refinement 02 design candidate. Reference checks recorded; final design review, product import and all real app states remain pending. No product is considered migrated. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.2.5 public privacy/navigation software audit passes; policy meaning/dates and editor work preserved. Full product/device gates remain separate. Air 1.2.6 support link and footer software conformance pass across home/privacy/recovery; full product/device acceptance remains separate."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     }
   ]
 }

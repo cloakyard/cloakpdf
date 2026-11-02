@@ -346,16 +346,20 @@ try {
   await page.evaluate(() => (window as any).airActions.undo());
   await count(3);
   assert.deepEqual(await docBytes(), bytes);
-  // Mobile Done waits, rejects cleanly and can be retried without losing the tool.
+  // Mobile Apply waits, rejects cleanly and can be retried without losing the tool.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !(window as any).airRead.busyLabel);
   assert.equal(await page.evaluate(() => (window as any).airTool), "signature");
   await count(3);
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(await page.evaluate(() => (window as any).airTool), "signature");
   await page.evaluate(() => (window as any).releaseRead());

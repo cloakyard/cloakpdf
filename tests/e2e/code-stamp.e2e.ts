@@ -294,12 +294,14 @@ try {
   );
   await field("New draft");
   assert.equal((await stamps())[0].payload.content, "CASE-0042");
-  // Mobile Done awaits the real write, preserves work on failure, then deduplicates retry.
+  // Mobile Apply awaits the real write, preserves work on failure, then deduplicates retry.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await ready();
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(
     () => !(window as any).airRead.busyLabel && !!(window as any).airRead.error,
   );
@@ -307,7 +309,9 @@ try {
   assert.deepEqual(await docBytes(), qrSaved);
   assert.equal((await stamps()).length, 1);
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(await page.evaluate(() => (window as any).airTool), "qr-stamp");
   await page.evaluate(() => {

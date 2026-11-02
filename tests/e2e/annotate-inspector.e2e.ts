@@ -316,7 +316,9 @@ try {
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await page.evaluate(() => ((window as any).failRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(
     () => !(window as any).airRead.busyLabel && !!(window as any).airRead.error,
   );
@@ -325,7 +327,9 @@ try {
   assert.equal((await selected()).id, text.id);
   assert.equal(await page.evaluate(() => (window as any).airTool), "annotate-pdf");
   await page.evaluate(() => ((window as any).holdRead = true));
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(() => !!(window as any).releaseRead);
   assert.equal(
     await page.$eval(".pdf-annotate-panel fieldset", (e) => (e as HTMLFieldSetElement).disabled),

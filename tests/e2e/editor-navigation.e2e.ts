@@ -245,7 +245,9 @@ try {
   await page.keyboard.press("Tab"); // clear control
   await page.keyboard.press("Tab"); // matching tool
   await page.keyboard.press("Enter");
-  await page.waitForSelector('[aria-label="Done"]');
+  await page.waitForSelector(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   assert.equal(await page.evaluate(() => document.activeElement?.tagName), "H2");
   await page.click('[aria-label="Expand controls"]');
   await page.click('[aria-label="Return to split view"]');

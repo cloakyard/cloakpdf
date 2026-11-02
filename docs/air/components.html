@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=800645fc8638" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=db856085cfef" />
     <style>
       * {
         box-sizing: border-box;
@@ -1476,16 +1476,6 @@
         border-bottom: 1px solid var(--air-line);
         overflow-wrap: anywhere;
       }
-      .numeric-study-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 16px;
-        align-items: center;
-      }
-      .numeric-study-actions .air-help {
-        margin: 0;
-      }
       .component-index {
         display: flex;
         flex-wrap: wrap;
@@ -2850,10 +2840,11 @@
               <p class="air-help air-help--error" id="quality-error" hidden>
                 Enter a whole number from 1 to 100.
               </p>
-              <div class="numeric-study-actions">
-                <button class="air-button" type="submit">Apply quality</button>
-                <p class="air-help" id="quality-committed">Applied study value: 80%.</p>
+              <div class="air-editor-actions" role="group" aria-label="Edit actions">
+                <button class="air-button" type="button" id="quality-cancel">Cancel</button>
+                <button class="air-button air-button--primary" type="submit">Apply</button>
               </div>
+              <p class="air-help" id="quality-committed">Applied study value: 80%.</p>
               <p class="air-help" id="quality-status" role="status" aria-atomic="true">
                 No image is processed.
               </p>
@@ -3127,9 +3118,7 @@
         <p class="dialog-meta">Design preview only. No file will be created.</p>
         <div class="dialog-actions">
           <button class="air-button" value="cancel">Cancel</button
-          ><button class="air-button air-button--primary" value="export">
-            Done <span data-icon="check"></span>
-          </button>
+          ><button class="air-button air-button--primary" value="export">Preview export</button>
         </div>
       </form>
     </dialog>
@@ -3667,7 +3656,7 @@
         inspector.dataset.curve = String(
           currentApp === "img" && a.active === 0 && adjustView === "curve",
         );
-        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}<button class="air-icon-button view-toggle" id="expand-controls" aria-label="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true" ? "Restore split view" : "Expand controls"}" aria-pressed="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true"}">${icon("expand")}</button></div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Precise light, colour and detail.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-done">Done</button></div>`;
+        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}<button class="air-icon-button view-toggle" id="expand-controls" aria-label="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true" ? "Restore split view" : "Expand controls"}" aria-pressed="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true"}">${icon("expand")}</button></div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Precise light, colour and detail.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-preview">Show preview</button></div>`;
         if (currentApp === "img" && a.active === 0 && adjustView === "curve") {
           drawCurve(true);
           if (inspector.querySelector("#mobile-tool").getClientRects().length) {
@@ -3852,7 +3841,7 @@
           button.setAttribute("aria-pressed", String(expanded));
           button.setAttribute("aria-label", expanded ? "Restore split view" : "Expand controls");
         }
-        if (button.id === "panel-done") document.querySelector("#expand-preview").click();
+        if (button.id === "panel-preview") document.querySelector("#expand-preview").click();
         const move = button.dataset.contactUp ?? button.dataset.contactDown;
         if (move !== undefined) {
           const from = Number(move),
@@ -4864,6 +4853,7 @@
       });
       filterTemplates();
 
+      let appliedQuality = 80;
       const qualityStudy = document.querySelector("#reference-quality");
       const qualityStatus = document.querySelector("#quality-status");
       function validateQuality() {
@@ -4872,6 +4862,11 @@
         document.querySelector("#quality-error").hidden = valid;
         return valid;
       }
+      document.querySelector("#quality-cancel").addEventListener("click", () => {
+        qualityStudy.value = String(appliedQuality);
+        validateQuality();
+        qualityStatus.textContent = "Changes cancelled. The applied study value is unchanged.";
+      });
       qualityStudy.addEventListener("blur", validateQuality);
       qualityStudy.addEventListener("input", () => {
         const message = "Quality changed. Apply when you’re ready.";
@@ -4884,6 +4879,7 @@
           qualityStudy.focus();
           return;
         }
+        appliedQuality = qualityStudy.valueAsNumber;
         document.querySelector("#quality-committed").textContent =
           `Applied study value: ${qualityStudy.valueAsNumber}%.`;
         qualityStatus.textContent = "Quality applied to the study. No image was changed.";

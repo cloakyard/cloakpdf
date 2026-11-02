@@ -2145,3 +2145,26 @@ input.air-colour-brightness {
   outline: 2px solid var(--air-accent);
   outline-offset: -3px;
 }
+
+/* One labelled completion region; products own their real edit transactions. */
+.air-editor-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  border-top: 1px solid var(--air-line);
+  background: var(--air-surface);
+}
+.air-editor-actions > button {
+  flex: 1 1 6rem;
+  min-width: 0;
+}
+.air-editor-actions > [role="alert"] {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--air-danger);
+  font: 400 var(--air-text-label)/1.5 var(--air-font);
+}

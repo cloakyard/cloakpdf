@@ -335,7 +335,9 @@ try {
   await settle();
   await enter(title, "Mobile outline");
   await enter(target, "0");
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForFunction(
     () => document.activeElement?.getAttribute("aria-label") === "Target page",
   );
@@ -346,11 +348,17 @@ try {
   await page.evaluate(() => {
     (window as any).failRead = true;
   });
-  await page.locator('[aria-label="Done"]').click();
+  await page
+    .locator(
+      '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+    )
+    .click();
   await page.waitForSelector('.pdf-bookmarks-panel [role="alert"]');
   assert.equal(await page.evaluate(() => (window as any).airTool), "add-bookmarks");
   await page.evaluate(() => {
-    const b = document.querySelector<HTMLButtonElement>('[aria-label="Done"]')!;
+    const b = document.querySelector<HTMLButtonElement>(
+      '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+    )!;
     b.click();
     b.click();
   });
@@ -371,7 +379,9 @@ try {
     "A long chapter title that remains editable without shrinking the surrounding controls",
   );
   await enter(target, "90");
-  await page.click('[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
+  );
   const layouts: unknown[] = [];
   for (const theme of ["light", "dark"]) {
     await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: theme }]);
@@ -542,7 +552,7 @@ try {
     ) + "\n",
   );
   console.log(
-    `PASS bookmark output, validation, retry, cancellation, mobile Done and ${layouts.length} layouts.`,
+    `PASS bookmark output, validation, retry, cancellation, mobile Apply and ${layouts.length} layouts.`,
   );
 } catch (error) {
   console.log(

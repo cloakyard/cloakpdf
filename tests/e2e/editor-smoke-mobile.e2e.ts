@@ -4,15 +4,15 @@
  * Runs at a phone viewport so the editor resolves to the mobile sheet UI and
  * asserts the mobile-specific behaviours that desktop never exercises:
  *   - mobile sheet entry (no desktop rail);
- *   - every tool's PRIMARY Apply is hidden on mobile and the sheet's global ✓
- *     (Done) commits it — exercised across each apply category: WholeDocPanel
+ *   - every tool's PRIMARY Apply is hidden on mobile and the sheet's completion action
+ *     (Apply) commits it — exercised across each apply category: WholeDocPanel
  *     (crop, page numbers), custom canvas (annotate burn), find-and-burn
  *     (find & act), overview board (organize delete), and panel-only (metadata);
- *   - DEFERRED tools (redact) keep their marks when ✓ closes (burn at export);
+ *   - DEFERRED tools (redact) keep their marks when Close closes (burn at export);
  *   - MULTI-ACTION tools keep their own buttons (OCR Extract on mobile,
  *     attachments add/remove);
  *   - a render sweep opens the remaining tools assigned to this mobile suite
- *     and asserts each panel mounts in the sheet with the global ✓/✗ and stays
+ *     and asserts each panel mounts in the sheet with the Cancel / Apply actions and stays
  *     within the 50% half-height sheet; together with editor-features.e2e.ts, all 22 editor
  *     tools are mounted by the combined suites;
  *   - 50:50 split: the open sheet and canvas share the editor column equally;
@@ -118,7 +118,7 @@ async function drawOnPage(
 }
 
 /** Wait until the global busy overlay (portaled, aria-busy) is gone — the mobile
- *  ✓ awaits Apply before closing the tool; follow-up taps wait for completion. */
+ *  Apply awaits the pending operation before closing the tool; follow-up taps wait for completion. */
 async function waitForNoBusy(page: Page, timeout = 60_000): Promise<void> {
   await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), { timeout });
 }
@@ -140,7 +140,10 @@ async function pickTool(page: Page, name: string): Promise<void> {
   }
   await page.waitForSelector(`button[aria-label="${name}"]`, { timeout: 10_000 });
   await page.click(`button[aria-label="${name}"]`);
-  await page.waitForSelector('button[aria-label="Done"]', { timeout: 10_000 }); // tool active
+  await page.waitForSelector(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    { timeout: 10_000 },
+  ); // tool active
 }
 
 /** Sheet height as a fraction of the editor content column it sits in. */
@@ -162,23 +165,30 @@ async function assertHalfSplit(page: Page, where: string): Promise<void> {
     fail(`${where}: sheet should be 50% of the column; got ${(f * 100).toFixed(1)}%.`);
 }
 
-/** Tap the global ✓ (Done) — the mobile Apply — and wait for the work to land. */
-async function tapDone(page: Page): Promise<void> {
-  await page.click('button[aria-label="Done"]');
+/** Tap the labelled completion action — the mobile Apply — and wait for the work to land. */
+async function completeTool(page: Page): Promise<void> {
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 60_000 });
   await waitForNoBusy(page);
 }
 
-/** Whether the global ✓ (Done) is currently disabled (greyed, no actionable apply). */
-async function doneDisabled(page: Page): Promise<boolean> {
-  return page.$eval('button[aria-label="Done"]', (b) => (b as HTMLButtonElement).disabled);
+/** Whether the labelled completion action is currently disabled (greyed, no actionable apply). */
+async function completionDisabled(page: Page): Promise<boolean> {
+  return page.$eval(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    (b) => (b as HTMLButtonElement).disabled,
+  );
 }
 
-/** Wait until the global ✓ becomes enabled (the tool's primary apply is ready). */
-async function waitForDoneEnabled(page: Page, timeout = 5_000): Promise<void> {
+/** Wait until the completion action becomes enabled (the tool's primary apply is ready). */
+async function waitForCompletionEnabled(page: Page, timeout = 5_000): Promise<void> {
   await page.waitForFunction(
     () => {
-      const b = document.querySelector('button[aria-label="Done"]') as HTMLButtonElement | null;
+      const b = document.querySelector(
+        '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+      ) as HTMLButtonElement | null;
       return !!b && !b.disabled;
     },
     { timeout },
@@ -235,19 +245,20 @@ async function main() {
       fail("Mobile tool sheet not rendered at phone width.");
     console.log("  ✓ mobile sheet entry (no desktop rail)");
 
-    // 2. Crop (WholeDocPanel) via the global ✓; per-tool Apply hidden; 50:50.
+    // 2. Crop (WholeDocPanel) via the completion action; per-tool Apply hidden; 50:50.
     await pickTool(page, "Crop");
     await waitForText(page, /area to keep/i, 8_000);
     if (await hasExactText(page, "Crop pages"))
       fail("'Crop pages' Apply must be hidden on mobile.");
-    if (!(await page.$('button[aria-label="Cancel"]'))) fail("Global Cancel (✗) not found.");
-    // Parity with the desktop disabled Apply button: ✓ is greyed until a box is
+    if (!(await page.$('button[aria-label="Cancel"]'))) fail("Cancel not found.");
+    // Parity with the desktop disabled Apply button: Apply is disabled until a box is
     // drawn (crop registers a not-ready primary action), then enables.
-    if (!(await doneDisabled(page)))
-      fail("Crop: global ✓ must be disabled until a crop box is drawn.");
+    if (!(await completionDisabled(page)))
+      fail("Crop: completion action must be disabled until a crop box is drawn.");
     await drawOnPage(page, { x: 0.12, y: 0.1 }, { x: 0.9, y: 0.7 });
     await waitForText(page, /Keeping/i, 8_000);
-    if (await doneDisabled(page)) fail("Crop: global ✓ must enable once a box is drawn.");
+    if (await completionDisabled(page))
+      fail("Crop: completion action must enable once a box is drawn.");
     await assertHalfSplit(page, "crop");
     const pageVisible = await page.evaluate(() => {
       const img = document.querySelector('img[alt="Page 1"]') as HTMLElement | null;
@@ -256,11 +267,11 @@ async function main() {
       return r.height > 0 && r.bottom <= window.innerHeight;
     });
     if (!pageVisible) fail("Canvas page not visible above the tool sheet.");
-    await tapDone(page);
+    await completeTool(page);
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
-    console.log("  ✓ crop via global ✓ (per-tool Apply hidden, 50:50, canvas visible)");
+    console.log("  ✓ crop via completion action (per-tool Apply hidden, 50:50, canvas visible)");
 
-    // 3. Annotate (custom canvas, burns on apply) via the global ✓.
+    // 3. Annotate (custom canvas, burns on apply) via the completion action.
     await pickTool(page, "Annotate");
     await waitForText(page, /TOOL/i, 8_000);
     if (await hasExactText(page, "Apply annotations"))
@@ -289,30 +300,30 @@ async function main() {
     await page.click('button[aria-label^="Custom color"]'); // toggle the popover closed
     await drawOnPage(page, { x: 0.3, y: 0.4 }, { x: 0.7, y: 0.55 });
     await waitForText(page, /\b1 mark\b/, 8_000);
-    await tapDone(page); // ✓ burns the annotation
+    await completeTool(page); // Apply burns the annotation
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
-    console.log("  ✓ annotate burn via global ✓");
+    console.log("  ✓ annotate burn via completion action");
 
-    // 4. Find & Act (search → burn) via the global ✓.
+    // 4. Find & Act (search → burn) via the completion action.
     await pickTool(page, "Find & Act");
     await waitForText(page, /highlight or box/i, 8_000);
     if (!(await clickByText(page, "Highlight"))) fail("Find & Act Highlight mode not found.");
     await page.type('input[placeholder^="Search text"]', "Exam");
     await page.click('button[aria-label="Find matches"]');
     await waitForText(page, /\d+ matches? ·/i, 60_000);
-    await tapDone(page); // ✓ burns the highlights
+    await completeTool(page); // Apply burns the highlights
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
-    console.log("  ✓ find & act burn via global ✓");
+    console.log("  ✓ find & act burn via completion action");
 
-    // 5. Page numbers (WholeDocPanel) via the global ✓.
+    // 5. Page numbers (WholeDocPanel) via the completion action.
     await pickTool(page, "Page numbers");
     await waitForText(page, /Position/i, 8_000);
     if (await hasExactText(page, "Add page numbers"))
       fail("'Add page numbers' must be hidden on mobile.");
-    await tapDone(page);
-    console.log("  ✓ page numbers via global ✓");
+    await completeTool(page);
+    console.log("  ✓ page numbers via completion action");
 
-    // 6. Metadata (panel-only) via the global ✓.
+    // 6. Metadata (panel-only) via the completion action.
     await pickTool(page, "Metadata");
     await waitForText(page, /PDF version/i, 10_000);
     if (await hasExactText(page, "Save metadata"))
@@ -320,31 +331,35 @@ async function main() {
     // "Clear all fields" is a secondary action — must STAY visible on mobile.
     if (!(await hasExactText(page, "Clear all fields")))
       fail("Metadata 'Clear all fields' secondary should stay on mobile.");
-    await tapDone(page);
-    console.log("  ✓ metadata save via global ✓ (secondary action kept)");
+    await completeTool(page);
+    console.log("  ✓ metadata save via completion action (secondary action kept)");
 
-    // 7. Redact (DEFERRED): draw a box → ✓ closes keeping the mark (burns at
+    // 7. Redact (DEFERRED): draw a box → Close closes keeping the mark (burns at
     //    export), reopen proves it persisted, then clear it so it can't burn
     //    into a later apply.
     await pickTool(page, "Redact");
     await waitForText(page, /Detect & add boxes/i, 8_000);
     await drawOnPage(page, { x: 0.25, y: 0.3 }, { x: 0.6, y: 0.45 });
     await waitForText(page, /\d+ redactions?/i, 8_000);
-    await page.click('button[aria-label="Done"]'); // ✓ — no burn, just close
+    await page.click(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    ); // Close — no burn, just close
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     if (!(await page.$('[data-testid="pending-marks"]')))
       fail("Redact: pending-mark count is not visible in the persistent editor header.");
     if ((await page.$eval(".editor-topbar", (n) => n.getBoundingClientRect().height)) !== 64)
       fail("Pending marks must not add another toolbar row.");
     await pickTool(page, "Redact"); // reopen
-    await waitForText(page, /\d+ redactions?/i, 8_000); // mark persisted across ✓
+    await waitForText(page, /\d+ redactions?/i, 8_000); // mark persisted across Close
     if (!(await clickByText(page, "Clear all"))) fail("Redact 'Clear all' not found.");
-    await page.click('button[aria-label="Done"]'); // close with marks cleared
+    await page.click(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    ); // close with marks cleared
     await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
-    console.log("  ✓ redact deferred — mark persists across ✓, no burn");
+    console.log("  ✓ redact deferred — mark persists across Close, no burn");
 
     // 8. Render sweep: open every remaining tool, assert its panel mounts in the
-    //    sheet with the global ✓/✗ and stays at the 50% split, then ✗ close.
+    //    sheet with the Cancel / Apply actions and stays at the 50% split, then ✗ close.
     const sweep = [
       "Select text",
       "Signature",
@@ -360,15 +375,17 @@ async function main() {
       "Attach",
     ];
     for (const name of sweep) {
-      await pickTool(page, name); // also waits for the global ✓ (tool active)
-      if (!(await page.$('button[aria-label="Cancel"]'))) fail(`${name}: global ✗ missing.`);
+      await pickTool(page, name); // also waits for the completion action (tool active)
+      if (!(await page.$('button[aria-label="Cancel"]'))) fail(`${name}: Cancel missing.`);
       await assertHalfSplit(page, name);
       await page.click('button[aria-label="Cancel"]'); // ✗ rolls back + closes
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
-    console.log(`  ✓ render sweep — ${sweep.length} tools mount in the sheet (✓/✗, 50:50)`);
+    console.log(
+      `  ✓ render sweep — ${sweep.length} tools mount in the sheet (labelled actions, 50:50)`,
+    );
 
-    // 9. Organize (overview board) via the global ✓: delete a page, apply.
+    // 9. Organize (overview board) via the completion action: delete a page, apply.
     await pickTool(page, "Organize");
     await page.waitForSelector('button[aria-label="Delete page 1"]', { timeout: 10_000 });
     const pagesBeforeOrganize = await page.$$eval(
@@ -383,8 +400,10 @@ async function main() {
     if (!(await page.$('button[aria-label^="Move page"]')))
       fail("Organize: touch reorder (Up/Down) buttons missing on mobile.");
     await page.click('button[aria-label="Delete page 1"]');
-    await waitForDoneEnabled(page); // ✓ enables once the board is dirty
-    await page.click('button[aria-label="Done"]'); // ✓ applies the page removal
+    await waitForCompletionEnabled(page); // Apply enables once the board is dirty
+    await page.click(
+      '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    ); // Apply applies the page removal
     await waitForNoBusy(page);
     const pagesAfterOrganize = pagesBeforeOrganize - 1;
     await page.waitForSelector(`button[aria-label="Open page ${pagesAfterOrganize}"]`, {
@@ -393,7 +412,7 @@ async function main() {
     if (await page.$(`button[aria-label="Open page ${pagesBeforeOrganize}"]`))
       fail(`Organize did not remove a page on mobile (still ${pagesBeforeOrganize}).`);
     console.log(
-      `  ✓ organize delete + apply via global ✓ (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
+      `  ✓ organize delete + apply via completion action (${pagesBeforeOrganize} → ${pagesAfterOrganize} pages)`,
     );
 
     // 10. OCR enabled on mobile: Extract control renders (engine NOT run), the
@@ -440,7 +459,7 @@ async function main() {
     }
 
     console.log(
-      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the global ✓ (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.",
+      "✓ Mobile editor smoke passed — sheet entry; crop/annotate/find&act/page-numbers/metadata/organize apply via the completion action (per-tool Apply hidden); redact deferred; OCR on mobile; render sweep of 12 more tools; combined editor suites mount all 22 tools; export sheet → Markdown (liteparse native); 50:50 split holds throughout.",
     );
   } catch (e) {
     console.error(`✗ Mobile smoke failed: ${e instanceof Error ? e.message : String(e)}`);

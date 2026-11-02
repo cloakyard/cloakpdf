@@ -382,18 +382,22 @@ try {
   await reset();
   await scan();
 
-  // Mobile Done waits for failure/success and retains its correction route.
+  // Mobile Apply waits for failure/success and retains its correction route.
   await page.setViewport({ width: 390, height: 844 });
   await settle();
   await page.evaluate(() => {
     (window as any).failRead = true;
   });
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await finished();
   await settle();
   assert.equal(await page.evaluate(() => (window as any).airTool), "auto-fill");
   assert.ok(await values());
-  await page.click('button[aria-label="Done"]');
+  await page.click(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+  );
   await finished();
   await settle();
   assert.equal(await page.evaluate(() => (window as any).airTool), null);
@@ -535,7 +539,7 @@ try {
           "profile-fill focus survives completion",
           "apply failure/deduplication/Undo/Redo/Cancel",
           "Undo clears applied success feedback",
-          "mobile Done promise",
+          "mobile Apply promise",
           "real mixed-page PDF text/catalog output",
           "empty/no-text recovery",
         ],

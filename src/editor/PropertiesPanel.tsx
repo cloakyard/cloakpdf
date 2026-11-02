@@ -3,7 +3,7 @@
 // per-tool body. When no tool is selected, the panel shows a short document
 // guidance and a direct path to page organization.
 
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { ToolControls } from "./ToolControls.tsx";
@@ -55,10 +55,10 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
                 document.querySelector<HTMLButtonElement>('[aria-label="Search tools"]')?.focus();
               });
             }}
-            className="air-icon-button air-button--quiet"
+            className="air-button"
             aria-label="Cancel current tool"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            Cancel
           </button>
         )}
       </div>

@@ -4,15 +4,15 @@
 // owns its own primary CTA, since the desktop shell has no global Apply).
 //
 // Mobile: renders NOTHING and instead hands the action to the bottom sheet's
-// global ✓ (Done) button via registerPendingApply — so a phone never shows two
-// Apply buttons (the redundant per-tool one). The ✓ flushes whatever is
+// labelled Apply button via registerPendingApply — so a phone never shows two
+// Apply buttons (the redundant per-tool one). Apply flushes whatever is
 // registered, then closes the tool; when nothing is registered (no work, or a
-// tool that has no single "apply") the ✓ just closes.
+// tool that has no single "apply") the sheet shows Close.
 //
 // Only tools with ONE redundant "apply this tool's work" CTA use this. Tools
 // with several distinct actions keep their own buttons and do NOT use it:
 // OCR (Extract / Make searchable), Attachments (add / remove), Redact & Erase
-// (marks persist and burn at export — the ✓ closes, keeping them).
+// (marks persist and burn at export — Close keeps them).
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";

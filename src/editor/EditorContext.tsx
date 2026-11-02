@@ -62,11 +62,11 @@ export type DocTransform = (
 ) => Promise<{ bytes: Uint8Array; label: string; objects?: CanvasObject[] }>;
 
 /** The active tool's primary "apply" action, surfaced to the mobile sheet's
- *  global ✓. `ready` is false when that apply is currently disabled (no input
- *  yet, or a transform is running) so the ✓ can grey out — matching the
+ *  labelled Apply. `ready` is false when that apply is currently disabled (no input
+ *  yet, or a transform is running) so Apply can be disabled — matching the
  *  desktop Apply button's disabled state. Tools with no single primary apply
  *  (deferred Redact/Erase, multi-action OCR/Attachments) register nothing, so
- *  the ✓ stays enabled and simply closes the tool. */
+ *  the sheet shows Close and retains the existing edit semantics. */
 export interface PendingApply {
   run: () => void | Promise<void>;
   ready: boolean;
@@ -145,7 +145,7 @@ interface ReadValue {
   canRedo: boolean;
   canReset: boolean;
   canCancelCurrentTool: boolean;
-  /** The active tool's primary apply (or null). The mobile sheet's ✓ greys out
+  /** The active tool's primary apply (or null). The mobile sheet's Apply disables
    *  when this is present but `ready` is false. */
   pendingApply: PendingApply | null;
   /** Bumps on every history mutation so consumers re-derive from the doc. */
@@ -696,7 +696,7 @@ export function EditorProvider({
     const prev = pendingApplyRef.current;
     pendingApplyRef.current = action;
     // Re-render only when PRESENCE or READINESS changes — that's all the mobile
-    // ✓ keys off (greys out on !ready, enabled-to-close when nothing registered).
+    // Apply / Close control uses (disabled when unready, Close when unregistered).
     const changed =
       (prev === null) !== (action === null) || (prev?.ready ?? false) !== (action?.ready ?? false);
     if (changed) setPendingApplyVersion((v) => v + 1);

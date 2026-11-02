@@ -115,7 +115,10 @@ async function shootMobile(browser: Browser): Promise<string[]> {
   }
   await page.waitForSelector(`button[aria-label="${TOOL}"]`, { timeout: 10_000 });
   await page.click(`button[aria-label="${TOOL}"]`);
-  await page.waitForSelector('button[aria-label="Done"]', { timeout: 10_000 });
+  await page.waitForSelector(
+    '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
+    { timeout: 10_000 },
+  );
   await wait(500);
   await fillAndShoot(page, `${OUT_DIR}/${NAME}-mobile.png`);
   await page.close();
