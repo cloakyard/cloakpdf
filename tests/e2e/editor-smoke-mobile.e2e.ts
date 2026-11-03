@@ -126,12 +126,16 @@ async function waitForNoBusy(page: Page, timeout = 60_000): Promise<void> {
 /** Open the tool picker (if closed) and pick a tool by its rail/sheet name. */
 async function pickTool(page: Page, name: string): Promise<void> {
   await waitForNoBusy(page);
+  // A real worker can announce offline readiness above the compact toolbar.
+  // Dismiss the notice as a user would before opening the tool picker.
+  if (await page.$(".air-update .air-dismiss"))
+    await page.locator(".air-update .air-dismiss").click();
   // Open the picker; confirm it actually opened (the toggle flips to "Close
   // tools"), retrying once in case the first tap landed mid-transition.
   for (let attempt = 0; attempt < 2; attempt++) {
     const toggle = await page.$('button[aria-label="Open tools"]');
     if (!toggle) break; // already open
-    await toggle.click();
+    await page.locator('button[aria-label="Open tools"]').click();
     const opened = await page
       .waitForSelector('button[aria-label="Close tools"]', { timeout: 3_000 })
       .then(() => true)
@@ -139,7 +143,7 @@ async function pickTool(page: Page, name: string): Promise<void> {
     if (opened) break;
   }
   await page.waitForSelector(`button[aria-label="${name}"]`, { timeout: 10_000 });
-  await page.click(`button[aria-label="${name}"]`);
+  await page.locator(`button[aria-label="${name}"]`).click();
   await page.waitForSelector(
     '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
     { timeout: 10_000 },

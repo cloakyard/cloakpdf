@@ -51,7 +51,7 @@ export function ChatModelPickerModal({
         <ModalCloseButton onClick={onCancel} />
       </header>
 
-      <div className="pdf-dialog__body thin-scrollbar">
+      <div className="pdf-dialog__body air-scroll">
         <ChatModelPicker value={pending} onChange={setPending} initialFocus />
       </div>
 

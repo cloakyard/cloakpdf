@@ -133,6 +133,10 @@ try {
           }
           const result = await page.evaluate(async () => {
             await new Promise(requestAnimationFrame);
+            // Measure the settled layout, after the retained sheet entrance.
+            await Promise.all(
+              document.getAnimations().map((animation) => animation.finished.catch(() => {})),
+            );
             const selectors = [
               ".editor-topbar",
               ".editor-toolrail",
