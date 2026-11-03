@@ -1,9 +1,12 @@
 /** Actual anchored select placement, keyboard selection and Escape across Air layouts. */
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 
-const out = process.env.AIR_EVIDENCE_DIR || "/tmp/cloakpdf-air-selects";
+const out =
+  process.env.AIR_EVIDENCE_DIR || (await mkdtemp(join(tmpdir(), "cloakpdf-air-selects-")));
 await mkdir(out, { recursive: true });
 const rows = [],
   errors = [];
