@@ -116,7 +116,7 @@ export function Select<T extends string>({
     const viewportBottom = viewportTop + vh;
     const viewportRight = viewportLeft + vw;
     const margin = 16;
-    const gap = 4;
+    const gap = 8;
     const spaceBelow = viewportBottom - r.bottom - margin - gap;
     const spaceAbove = r.top - viewportTop - margin - gap;
     const below = spaceBelow >= spaceAbove || spaceBelow >= 240;
