@@ -63,7 +63,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
         )}
       </div>
 
-      <div className="editor-properties__body thin-scrollbar">
+      <div className="editor-properties__body air-scroll">
         <div key={tool?.id ?? "document"}>
           {tool ? (
             <ToolControls />

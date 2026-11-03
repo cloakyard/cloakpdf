@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.5.0",
+  "contractVersion": "1.6.0",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -220,7 +220,8 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/ai-modals-2026-10-14.json",
-        "docs/air/evidence/ai-acceptance-2026-10-19.json"
+        "docs/air/evidence/ai-acceptance-2026-10-19.json",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
@@ -261,7 +262,11 @@
         "640x800",
         "641x800"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-modals-2026-10-14.json"],
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/ai-modals-2026-10-14.json",
+        "docs/air/compact-popups-2026-11-03.md"
+      ],
       "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open."
     },
     {
@@ -417,7 +422,8 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/ai-modals-2026-10-14.json",
-        "docs/air/evidence/ai-acceptance-2026-10-19.json"
+        "docs/air/evidence/ai-acceptance-2026-10-19.json",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Final software matrix: both shipped tiers \u00d7 both original fixtures pass on M2 Max/Chrome/WebGPU; 256 real picker layouts plus 192 synthetic failure/cache layouts. See acceptance.md for inference/fast-path/cache distinctions and unperformed device gates."
     },
@@ -737,7 +743,8 @@
         "docs/air/link-arrows-2026-10-19.md",
         "docs/air/hyperlinks-2026-10-19.md",
         "docs/air/evidence/family-comparison-2026-10-25/",
-        "evidence/public-shell-2026-10-26/checks.json.gz"
+        "evidence/public-shell-2026-10-26/checks.json.gz",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. 2026-10-25: Public family comparison: native in-flow compact header, canonical icon/gap, section tracking and privacy cadence corrected. Chrome/Firefox 160 local layouts plus Safari spot review pass; 461 units, 16 smoke suites, 66 recovery and 68 artwork layouts pass. Existing physical/assistive gates remain open. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates."
     },
@@ -817,7 +824,8 @@
         "docs/air/evidence/palette-2026-10-14.json",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/foundation-2026-10-19.json",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox. Foundation checkpoint: useFocusTrap stack now derives layers from --air-z-dialog directly; nested modal and focus regressions pass after removing the old layer aliases. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -1042,7 +1050,8 @@
         "docs/air/validation.md",
         "docs/air/evidence/pwa-update-2026-10-19.json",
         "evidence/consistency-2026-10-26/checks.json.gz",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -1550,7 +1559,11 @@
         "640x800",
         "641x800"
       ],
-      "evidence": ["docs/air/evidence/export-2026-10-14.json", "docs/air/validation.md"],
+      "evidence": [
+        "docs/air/evidence/export-2026-10-14.json",
+        "docs/air/validation.md",
+        "docs/air/compact-popups-2026-11-03.md"
+      ],
       "notes": "Air interior implemented. 320 theme/viewport/text cases; real outputs for every format/modifier; source/history unchanged; redaction verified across all formats; Safari/Firefox keyboard and 200% zoom pass. Physical/assistive acceptance remains open. No cancellable processing API; preparation is explicitly protected until settlement."
     },
     {
@@ -3095,7 +3108,8 @@
         "docs/air/evidence/extract-2026-10-14.json",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/foundation-2026-10-19.json",
-        "docs/air/neutral-links-2026-10-19.md"
+        "docs/air/neutral-links-2026-10-19.md",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Foundation checkpoint: root typography/surfaces, editor layers, processing scrim and modal stack now consume Air directly. Removed old palette/theme/type/motion utilities and unused UI fonts; live fine-pointer scrollbars and page-cell rendering remain. 70 select layouts, 141 recovery captures and full 25-suite regression pass. Earlier pending legacy notes are superseded by this source audit; physical/assistive acceptance remains open."
     },
@@ -3541,7 +3555,8 @@
         "docs/air/family-2026-10-29.md",
         "docs/air/simple-actions-2026-11-02.md",
         "docs/air/canvas-first-contract-2026-11-03.md",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/compact-popups-2026-11-03.md"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     }

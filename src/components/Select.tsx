@@ -357,7 +357,7 @@ export function Select<T extends string>({
             aria-label={ariaLabel}
             aria-labelledby={ariaLabel ? undefined : id}
             style={menuStyle}
-            className="air-menu air-select-popup pdf-select-popup thin-scrollbar"
+            className="air-menu air-select-popup pdf-select-popup air-scroll"
           >
             {options.map((o, i) => {
               const isSel = o.value === value;

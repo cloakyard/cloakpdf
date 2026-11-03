@@ -19,7 +19,7 @@ describe("AirUpdateNotice", () => {
   it("offers an explicit update with one deferral action", () => {
     const html = render("update");
     expect(html).toContain("Update available");
-    expect(html).toContain("Later");
+    expect(html).toContain("Dismiss update notification");
     expect(html).toContain("Update and reload");
     expect(html).not.toContain('aria-label="Dismiss offline status"');
     expect(html.match(/<button /g)).toHaveLength(2);
@@ -37,7 +37,7 @@ describe("AirUpdateNotice", () => {
     expect(html).toContain("Core app cached");
     expect(html).toContain("Some features may still need a connection.");
     expect(html).toContain('aria-label="Dismiss offline status"');
-    expect(html).not.toContain("Later");
+    expect(html).not.toContain("Dismiss update notification");
     expect(html.match(/<button /g)).toHaveLength(1);
   });
   it("explains how to finish work and keeps deferral available", () => {
@@ -45,6 +45,6 @@ describe("AirUpdateNotice", () => {
     expect(html).toContain("Save or download your work, then return home to update.");
     expect(html.match(/aria-disabled="true"/g)).toHaveLength(1);
     expect(html).toContain("aria-describedby=");
-    expect(html).toContain("Later");
+    expect(html).toContain("Dismiss update notification");
   });
 });

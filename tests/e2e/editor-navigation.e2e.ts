@@ -114,7 +114,7 @@ try {
           if (state === "picker") {
             // First-install production cache feedback can cover the bottom dock.
             const notice = await page.$(
-              '.air-update-panel button[aria-label="Dismiss offline status"], .air-update-actions > button:first-child',
+              '.air-update-panel button[aria-label="Dismiss offline status"], .air-update > .air-update-panel > .air-dismiss',
             );
             if (notice) {
               await notice.click();

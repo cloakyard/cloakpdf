@@ -203,7 +203,7 @@ export function ModalCloseButton({
       disabled={disabled}
       aria-label={label}
       data-dialog-initial-focus={initialFocus ? "true" : undefined}
-      className="air-icon-button air-button--quiet pdf-dialog__close"
+      className="air-icon-button air-button--quiet air-dismiss"
     >
       <X size={18} strokeWidth={1.6} aria-hidden="true" />
     </button>

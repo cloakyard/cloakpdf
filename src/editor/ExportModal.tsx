@@ -294,15 +294,15 @@ export function ExportButton() {
             <h2 id="export-dialog-title" className="pdf-dialog__title">
               Export document
             </h2>
-            <p id="export-dialog-description" className="pdf-dialog__description">
-              {doc
-                ? `${doc.fileName} · ${doc.pageCount} ${doc.pageCount === 1 ? "page" : "pages"}`
-                : "Choose a format for your download."}
-            </p>
           </div>
           <ModalCloseButton onClick={close} label="Close export" disabled={busy} />
         </header>
-        <div className="pdf-dialog__body pdf-export-body">
+        <div className="air-scroll pdf-dialog__body pdf-export-body">
+          <p id="export-dialog-description" className="pdf-dialog__description">
+            {doc
+              ? `${doc.fileName} · ${doc.pageCount} ${doc.pageCount === 1 ? "page" : "pages"}`
+              : "Choose a format for your download."}
+          </p>
           {pendingMarks > 0 && (
             <div className="air-notice air-notice--warning" role="note">
               <AlertTriangle size={18} strokeWidth={1.6} aria-hidden="true" />

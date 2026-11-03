@@ -193,7 +193,7 @@ export function MobileEditorSurface() {
         role="region"
         inert={!open ? true : undefined}
         aria-hidden={!open}
-        className="editor-mobile-sheet__body thin-scrollbar"
+        className="editor-mobile-sheet__body air-scroll"
         aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
       >
         {view.kind === "tool" ? (

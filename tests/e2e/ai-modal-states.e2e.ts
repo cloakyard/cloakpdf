@@ -143,19 +143,33 @@ try {
     "Background released before the exit finished",
   );
   await closed();
+  await page.evaluate(() => {
+    const w = window as any;
+    // Preserve the native method; the probe calls it with the original element as this.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const animate = Element.prototype.animate;
+    w.modalEntryDurations = [];
+    w.restoreAnimationProbe = () => {
+      Element.prototype.animate = animate;
+    };
+    Element.prototype.animate = function (frames, options) {
+      const animation = animate.call(this, frames, options);
+      if (this.closest(".pdf-modal-root"))
+        w.modalEntryDurations.push(animation.effect?.getTiming().duration);
+      return animation;
+    };
+  });
   await page.keyboard.press("Enter"); // restored View details trigger
   await page.waitForSelector(dialog);
-  const keyboardAnimations = await page.evaluate(
-    () =>
-      document
-        .querySelector('[role="dialog"]')!
-        .getAnimations()
-        .filter(
-          (animation) =>
-            animation.playState === "running" && Number(animation.effect?.getTiming().duration) > 0,
-        ).length,
+  const keyboardMotion = await page.evaluate(() => {
+    const w = window as any;
+    w.restoreAnimationProbe();
+    return w.modalEntryDurations as number[];
+  });
+  assert.ok(
+    keyboardMotion.includes(240),
+    `Keyboard entrance did not use Air timing: ${JSON.stringify(keyboardMotion)}`,
   );
-  assert.equal(keyboardAnimations, 0);
   await page.keyboard.press("Escape");
   await closed();
   await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);

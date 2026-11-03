@@ -66,7 +66,7 @@ export function AiConsentModal({
         </div>
         <ModalCloseButton onClick={onCancel} disabled={busy} />
       </header>
-      <div className="pdf-dialog__body pdf-ai-dialog-stack">
+      <div className="air-scroll pdf-dialog__body pdf-ai-dialog-stack">
         {consent ? (
           <>
             <p>
