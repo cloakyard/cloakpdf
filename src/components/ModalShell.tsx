@@ -6,7 +6,7 @@ import { CLOAK_MODAL_OPEN_EVENT } from "../utils/modal-events.ts";
 import { useFocusTrap } from "../utils/useFocusTrap.ts";
 import { AnimatePresence, m, useDialogMotion, useIsPresent, type Variants } from "./motion.tsx";
 
-type MotionState = { immediate: boolean; sheet: boolean };
+type MotionState = { immediate: boolean; sheet: boolean; entry: number; exit: number };
 const easing = [0.23, 1, 0.32, 1] as const;
 const resting = { opacity: 1, transform: "translateY(0px) scale(1)" };
 const pose = ({ sheet }: MotionState) => ({
@@ -18,24 +18,30 @@ const panelMotion: Variants = {
   animate: (state: MotionState) => ({
     ...resting,
     transition: {
-      duration: state.immediate ? 0 : 0.24,
+      duration: state.immediate ? 0 : state.entry,
       ease: state.sheet ? [0.32, 0.72, 0, 1] : easing,
     },
   }),
   exit: (state: MotionState) => ({
     ...pose(state),
-    transition: { duration: state.immediate ? 0 : 0.16, ease: easing },
+    transition: {
+      duration: state.immediate ? 0 : state.exit,
+      ease: state.sheet ? [0.32, 0.72, 0, 1] : easing,
+    },
   }),
 };
 const scrimMotion: Variants = {
   initial: (state: MotionState) => ({ opacity: state.immediate ? 1 : 0 }),
   animate: (state: MotionState) => ({
     opacity: 1,
-    transition: { duration: state.immediate ? 0 : 0.24, ease: easing },
+    transition: { duration: state.immediate ? 0 : state.entry, ease: easing },
   }),
   exit: (state: MotionState) => ({
     opacity: 0,
-    transition: { duration: state.immediate ? 0 : 0.16, ease: easing },
+    transition: {
+      duration: state.immediate ? 0 : state.exit,
+      ease: state.sheet ? [0.32, 0.72, 0, 1] : easing,
+    },
   }),
 };
 type ModalPlacement = "center" | "command";
@@ -61,7 +67,7 @@ export function ModalShell({ open, ...props }: ModalShellProps) {
   const preference = useDialogMotion();
   const motion = {
     ...preference,
-    immediate: props.placement === "command" || preference.immediate,
+    immediate: preference.immediate,
   };
   if (typeof document === "undefined") return null;
   return createPortal(
@@ -83,7 +89,7 @@ function ModalFrame({
   testId,
 }: Omit<ModalShellProps, "open">) {
   const preference = useDialogMotion();
-  const motion = { ...preference, immediate: placement === "command" || preference.immediate };
+  const motion = { ...preference, immediate: preference.immediate };
   const present = useIsPresent();
   const dialogRef = useRef<HTMLDivElement>(null);
   const isTopmost = useFocusTrap(dialogRef, true);
@@ -197,7 +203,7 @@ export function ModalCloseButton({
       disabled={disabled}
       aria-label={label}
       data-dialog-initial-focus={initialFocus ? "true" : undefined}
-      className="air-icon-button pdf-dialog__close"
+      className="air-icon-button air-button--quiet pdf-dialog__close"
     >
       <X size={18} strokeWidth={1.6} aria-hidden="true" />
     </button>

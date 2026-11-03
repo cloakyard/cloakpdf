@@ -1,4 +1,4 @@
-/** Lazy motion and shared input/reduced-motion preferences for Air dialogs. */
+/** Lazy motion and shared reduced-motion preferences for Air dialogs. */
 import {
   AnimatePresence,
   domAnimation,
@@ -9,21 +9,12 @@ import {
   useMotionValue,
   useIsPresent,
 } from "motion/react";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { useMemo, useSyncExternalStore, type ReactNode } from "react";
 
 export { AnimatePresence, m, useMotionValue, useIsPresent };
 export type { Variants };
 
-/** Input modality is shared once, including keyboard dismissal during an entrance. */
-const DialogMotionContext = createContext(true);
+import { motionMilliseconds } from "../../docs/air/motion.mjs";
 
 function useMediaSnapshot(query: string) {
   const store = useMemo(() => {
@@ -40,31 +31,23 @@ function useMediaSnapshot(query: string) {
 }
 
 export function useDialogMotion() {
-  const keyboard = useContext(DialogMotionContext);
   // A dialog can open before a queued media-query change event arrives.
   // Read the current preference/viewport in each consumer's render.
   const reduced = useMediaSnapshot("(prefers-reduced-motion: reduce)");
   const sheet = useMediaSnapshot("(max-width: 640px)");
-  return { immediate: keyboard || reduced, sheet };
+  const style = getComputedStyle(document.documentElement);
+  return {
+    immediate: reduced,
+    sheet,
+    entry: motionMilliseconds(style.getPropertyValue("--air-motion-dialog")) / 1000,
+    exit: motionMilliseconds(style.getPropertyValue("--air-motion-exit")) / 1000,
+  };
 }
 
 export function MotionProvider({ children }: { children: ReactNode }) {
-  const [keyboard, setKeyboard] = useState(true);
-  useEffect(() => {
-    const onKey = () => setKeyboard(true);
-    const onPointer = () => setKeyboard(false);
-    window.addEventListener("keydown", onKey, true);
-    document.addEventListener("pointerdown", onPointer, true);
-    return () => {
-      window.removeEventListener("keydown", onKey, true);
-      document.removeEventListener("pointerdown", onPointer, true);
-    };
-  }, []);
   return (
     <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <DialogMotionContext value={keyboard}>{children}</DialogMotionContext>
-      </MotionConfig>
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </LazyMotion>
   );
 }

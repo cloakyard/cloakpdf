@@ -1,3 +1,4 @@
+import { useAirPresence } from "../../docs/air/presence.tsx";
 /**
  * Custom datetime input that replaces the native `datetime-local` picker
  * with a compact calendar grid popover matching the app's design system.
@@ -138,6 +139,7 @@ export function DateTimeInput({
     contentRef: popoverRef,
   });
 
+  const presence = useAirPresence(open, "popover", { ref: popoverRef, ready: !!popoverStyle });
   const parsed = useMemo(() => parseValue(value), [value]);
 
   // Computed fresh each render — avoids stale "today" if the component lives across midnight
@@ -440,11 +442,13 @@ export function DateTimeInput({
         <span>{displayText || "Not set"}</span>
         <CalendarDays size={16} className="shrink-0" aria-hidden="true" />
       </button>
-      {open &&
+      {presence.mounted &&
         popoverStyle &&
         createPortal(
           <div
             ref={popoverRef}
+            inert={presence.closing}
+            aria-hidden={presence.closing || undefined}
             id={popoverId}
             role="dialog"
             aria-label={`${label} date and time`}

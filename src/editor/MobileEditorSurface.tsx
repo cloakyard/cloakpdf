@@ -1,3 +1,4 @@
+import { useAirPresence } from "../../docs/air/presence.tsx";
 // In-flow working sheet: the document stays mounted while controls expand.
 import { ChevronUp, Grid2x2, RotateCcw, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -69,6 +70,7 @@ export function MobileEditorSurface() {
   const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
+  const presence = useAirPresence(open, "panel");
   const applyDisabled = busyLabel !== null || (pendingApply !== null && !pendingApply.ready);
   // Retain the mounted tool while closed, matching the existing apply lifecycle.
   const viewRef = useRef<SheetView>({ kind: "picker" });
@@ -77,7 +79,7 @@ export function MobileEditorSurface() {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const bodyRef = presence.ref;
   const previousTool = useRef(activeTool);
   useEffect(() => {
     // Reflow may mount this panel while the persistent toolbar owns focus.
@@ -130,8 +132,8 @@ export function MobileEditorSurface() {
       data-testid="mobile-tool-sheet"
       aria-label="Editor tools"
       className="editor-mobile-sheet"
-      data-open={open}
-      data-expanded={open && expanded}
+      data-open={open || presence.mounted}
+      data-expanded={(open || presence.mounted) && expanded}
     >
       <div className="editor-mobile-sheet__header">
         {tool ? (

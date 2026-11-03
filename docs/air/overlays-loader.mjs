@@ -13,7 +13,7 @@ async function load() {
     const url = new URL(
       collections
         ? "./assets/air-collections.js?air=279d61d4b9ff"
-        : "./assets/air-overlays.js?air=e93cc1d363a8",
+        : "./assets/air-overlays.js?air=559254ccfd8a",
       import.meta.url,
     );
     const attempt = attempts++;

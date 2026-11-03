@@ -1,3 +1,4 @@
+import { useAirPresence } from "../../docs/air/presence.tsx";
 /**
  * Air select-only combobox: one field contour, inset icon, and custom menu rows.
  *
@@ -88,6 +89,7 @@ export function Select<T extends string>({
   const selectedIndex = options.findIndex((o) => o.value === value);
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
 
+  const presence = useAirPresence(open, "popover", { ref: listRef, ready: !!menuStyle });
   const firstEnabled = options.findIndex((o) => !o.disabled);
   const lastEnabled = (() => {
     for (let i = options.length - 1; i >= 0; i--) if (!options[i].disabled) return i;
@@ -343,11 +345,13 @@ export function Select<T extends string>({
         </span>
       </button>
 
-      {open &&
+      {presence.mounted &&
         menuStyle &&
         createPortal(
           <ul
             ref={listRef}
+            inert={presence.closing}
+            aria-hidden={presence.closing || undefined}
             id={listId}
             role="listbox"
             aria-label={ariaLabel}

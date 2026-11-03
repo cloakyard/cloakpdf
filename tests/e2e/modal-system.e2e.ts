@@ -183,6 +183,12 @@ async function main() {
     if (initialPaletteFocus !== "Search tools and actions") {
       fail(`Palette initial focus was ${initialPaletteFocus ?? "missing"}.`);
     }
+    // Presence now also applies to keyboard dialogs. Measure targets at their settled size.
+    await page.$eval('[data-testid="command-palette"]', async (surface) => {
+      await Promise.all(
+        surface.getAnimations().map((animation) => animation.finished.catch(() => {})),
+      );
+    });
     const closeSize = await page.$eval('button[aria-label="Close command palette"]', (button) => {
       const rect = button.getBoundingClientRect();
       return { width: rect.width, height: rect.height };

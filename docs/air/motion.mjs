@@ -63,20 +63,23 @@ export function createDialogMotion(dialog) {
       })
       .catch(() => {});
   }
-  // Native Escape dismisses immediately. A stale exit callback cannot close a later dialog.
-  dialog.addEventListener("cancel", reset);
+  const onCancel = (event) => {
+    event.preventDefault();
+    controls.close(event);
+  };
+  dialog.addEventListener("cancel", onCancel);
   dialog.addEventListener("close", reset);
   preference.addEventListener("change", preferenceChanged);
-  return {
-    enter(event) {
+  const controls = {
+    enter(_event) {
       const from = active ? snapshot(dialog) : null;
       cancel();
-      if (immediate(event, preference)) state("open");
+      if (preference.matches) state("open");
       else move(true, from);
     },
-    close(event, value = "cancel") {
+    close(_event, value = "cancel") {
       closingValue = value;
-      if (immediate(event, preference)) {
+      if (preference.matches) {
         cancel();
         dialog.close(value);
         state("closed");
@@ -90,12 +93,13 @@ export function createDialogMotion(dialog) {
     },
     destroy() {
       reset();
-      dialog.removeEventListener("cancel", reset);
+      dialog.removeEventListener("cancel", onCancel);
       dialog.removeEventListener("close", reset);
       preference.removeEventListener("change", preferenceChanged);
       delete dialog.dataset.airMotion;
     },
   };
+  return controls;
 }
 
 export function createCompletionMotion(element) {
