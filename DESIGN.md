@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.3.3
+version: 1.4.0
 status: approved
-date: 2026-11-02
+date: 2026-11-03
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 32aaa6dd8f858548d29309a87c7aae7878ddafb338b2fd0dce9e2d7e6b0b2a35
+family-contract-sha256: 338c39fa591104adaf1354437013378e92ffa19189308f9da28e3d9bd83f2f1f
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.3.3 — clear editor actions** · Direction: **Air** · Updated: **2026-11-02**
+Version: **1.4.0 — canvas-first touch editing** · Direction: **Air** · Updated: **2026-11-03**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -361,11 +361,27 @@ No glass blur behind forms, body copy, tables, or document content.
 
 - Prefer the fewest decisions that accurately describe the task. A transactional
   tool has one visible **Cancel / Apply** pair, in that order: neutral secondary
-  Cancel, monochrome primary Apply. Use text labels, not a tick, X or ambiguous
-  Done. Place the pair in the shared `air-editor-actions` region outside scrolling
+  Cancel, monochrome primary Apply. Use text labels by default; the canvas-first
+  touch composition below permits an explicitly named X / tick pair. Never add an
+  ambiguous Done action. Place the pair in the shared `air-editor-actions` region outside scrolling
   controls on phones/tablets. Never repeat the same commit in the header, panel
   body or canvas. Different operations (such as detecting, printing or downloading)
   retain their descriptive verbs and their real consent/output boundaries.
+- **Canvas-first touch composition:** the approved IMG phone/tablet variant puts
+  one X / tick pair in the fixed tool-panel header beside its title. X means
+  Cancel, tick means Apply; accessible names and keyboard/hover tooltips state
+  those verbs. Use `air-editor-actions--compact`, neutral secondary/monochrome
+  primary materials and 48px targets. Close-only panels retain a labelled Close.
+  Keep errors in the reachable scrolling body, announced and associated with the
+  actions. Never duplicate this pair in the canvas toolbar or panel footer.
+  Reserve at least 40% of the visible editor height for the image viewport;
+  maintain image aspect ratio and scroll only the tool body. Tablet and short
+  landscape may place the inspector beside the photo. Global history/view/export
+  controls form a small opaque floating group on the canvas plane. The compact
+  composition replaces expansion toggles, not real tool transactions. Preserve
+  every navigation/output action, safe-area clearance and keyboard access.
+  This optional composition does not force icon-only actions into document
+  editing or autosaved writing; their labelled actions remain the default.
 - **Apply** accepts the current edit once; **Cancel** restores its entry state.
   Await work, retain failed/invalid drafts for correction and block repeated
   activation. An inspection or output panel with no staged edit uses **Close**;
@@ -610,7 +626,7 @@ same controls in IMG, Resume and future apps.
   detected matches and privacy counts use open rows with labels and aligned actions.
   Preserve user-supplied field-name casing. Empty, detecting, ready, no-match, failed,
   disabled and destructive states need separate examples and recovery paths.
-- **Apply semantics:** a tool with one staged operation has one labelled Apply
+- **Apply semantics:** a tool with one staged operation has one named Apply
   action, including mobile; it is disabled until ready.
   Cancel rolls back the tool's pending transaction. Tools with multiple operations
   keep their distinct actions, and export-time redaction must retain its explicit
@@ -1022,8 +1038,8 @@ Public shell content follows the same recipe across the family:
   gesture must not be the only way to edit or remove a point. Pointer cancellation
   restores the pre-drag state. Small screens can separate adjustments and curves
   into labelled views; changing view preserves every value and allows scrolling
-  outside the plot. Open detailed curves in expanded controls on compact layouts,
-  retaining the preview and a return-to-split action. Use a 224px square compact
+  outside the plot. Open detailed curves in reachable scrolling controls on compact layouts,
+  retaining the preview; a canvas-first inspector does not need an expansion toggle. Use a 224px square compact
   plot (up to 288px in a narrow inspector), with at least 44px point hit areas.
   Never stretch the graph to fill a shallow drawer.
 - Layer rows separate selection from visibility/delete/filter actions; no nested
