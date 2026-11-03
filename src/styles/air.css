@@ -2168,3 +2168,20 @@ input.air-colour-brightness {
   color: var(--air-danger);
   font: 400 var(--air-text-label)/1.5 var(--air-font);
 }
+
+/* Fixed tool-header variant for canvas-first touch editors. */
+.air-editor-actions--compact {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  flex-wrap: nowrap;
+}
+.air-editor-actions.air-editor-actions--compact > button {
+  flex: 0 0 auto;
+  min-inline-size: 48px;
+  min-block-size: 48px;
+}
+.air-editor-actions.air-editor-actions--compact > .air-icon-button {
+  inline-size: 48px;
+  padding: 8px;
+}

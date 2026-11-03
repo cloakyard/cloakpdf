@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-03",
+  "baseline": "753e554046e7101a63cf7dd9b41c26fb9cda7fdc",
+  "contractVersion": "1.4.0",
+  "contractSha256": "338c39fa591104adaf1354437013378e92ffa19189308f9da28e3d9bd83f2f1f",
+  "validation": "Formatting, lint, types, dead-code check, production build and 461 unit tests pass.",
+  "family": {
+    "homeLayouts": 648,
+    "secondaryLayouts": 288,
+    "interactions": 390,
+    "failures": 0,
+    "errors": 0
+  },
+  "referenceJourneys": 8,
+  "scratch": "/tmp/air-img-canvas-2026-11-03",
+  "scope": "Generated portable contract/reference and opt-in CSS only. Native and document/image processing unchanged."
+}
