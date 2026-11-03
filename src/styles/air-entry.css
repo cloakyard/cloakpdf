@@ -2422,6 +2422,9 @@ body:has(.pdf-site) {
   padding: 16px;
   border-block-end: 1px solid var(--air-line);
 }
+.editor-properties__header > .air-button {
+  flex-shrink: 0;
+}
 .editor-properties__title {
   font-size: var(--air-text-body);
   font-weight: 500;

@@ -321,6 +321,30 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
     fail(`${viewport.name}: properties-panel geometry changed during its animation.`);
   }
 
+  if (!shouldUseSheet) {
+    for (const fontSize of [16, 32]) {
+      await page.evaluate((size) => {
+        document.documentElement.style.fontSize = `${size}px`;
+      }, fontSize);
+      const action = await page.$eval('[aria-label="Cancel current tool"]', (button) => {
+        const range = document.createRange();
+        range.selectNodeContents(button);
+        const text = range.getBoundingClientRect();
+        const box = button.getBoundingClientRect();
+        const header = button.parentElement!.getBoundingClientRect();
+        return {
+          lines: text.height / parseFloat(getComputedStyle(button).lineHeight),
+          contained: text.left >= box.left && text.right <= box.right && box.right <= header.right,
+        };
+      });
+      assert(
+        action.lines <= 1.1 && action.contained,
+        `${viewport.name}/${fontSize}px: Cancel must remain a readable, unbroken action`,
+      );
+    }
+    await page.evaluate(() => document.documentElement.style.removeProperty("font-size"));
+  }
+
   // Full-width mobile sheets should translate from the bottom edge rather than
   // scale inward and briefly expose side gutters.
   if (viewport.name === "mobile") {
