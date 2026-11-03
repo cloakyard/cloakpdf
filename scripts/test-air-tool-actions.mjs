@@ -29,6 +29,7 @@ for (const engine of ["chromium", "webkit"]) {
       [320, 568],
       [390, 844],
       [430, 932],
+      [844, 390],
     ]) {
       for (const theme of ["light", "dark"]) {
         const page = await browser.newPage({
@@ -65,6 +66,15 @@ for (const engine of ["chromium", "webkit"]) {
         await page.getByRole("button", { name: "Expand controls", exact: true }).click();
         assert.equal(await title.inputValue(), "Applied title");
         await page.getByRole("button", { name: "Return to split view", exact: true }).click();
+        const split = await sheet.evaluate((element) => {
+          const panel = element.getBoundingClientRect();
+          const column = element.parentElement.getBoundingClientRect();
+          return { panel: panel.height, preview: column.height - panel.height };
+        });
+        assert(
+          height > 500 || Math.abs(split.panel - split.preview) <= 2,
+          "Default tools retain half the column for the preview",
+        );
         for (const name of ["Cancel", "Apply"]) {
           const box = await button(name).boundingBox();
           assert(

@@ -2224,6 +2224,12 @@ body:has(.pdf-site) {
 .editor-mobile-sheet[data-expanded="true"] {
   height: 100%;
 }
+/* Short screens retain the document half; Expand exposes a taller working area. */
+@media (max-height: 500px) {
+  .editor-mobile-sheet[data-open="true"] {
+    min-height: 0;
+  }
+}
 .editor-mobile-sheet__header {
   display: flex;
   flex: 0 0 auto;
