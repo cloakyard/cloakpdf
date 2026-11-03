@@ -199,59 +199,48 @@ function NoticeBody({
           <h2 id={titleId}>{title}</h2>
           <p id={descriptionId}>{body}</p>
         </div>
-        <div className="air-update-actions">
-          {state === "offline" ? (
+        <button
+          type="button"
+          className="air-icon-button air-button--quiet air-dismiss"
+          aria-label={
+            state === "offline" ? "Dismiss offline status" : "Dismiss update notification"
+          }
+          aria-disabled={busy || undefined}
+          onClick={(event) => {
+            event.currentTarget.focus();
+            if (!busy) onClose();
+          }}
+        >
+          <NoticeIcon kind="close" />
+        </button>
+        {state !== "offline" && (
+          <div className="air-update-actions">
             <button
               type="button"
-              className="air-icon-button air-button--quiet"
-              aria-label="Dismiss offline status"
+              className="air-button air-button--primary"
+              aria-label={label}
+              aria-disabled={busy || blocked || undefined}
+              aria-busy={busy || undefined}
+              aria-describedby={descriptionId}
               onClick={(event) => {
                 event.currentTarget.focus();
-                onClose();
+                if (!busy && !blocked) onUpdate();
               }}
             >
-              <NoticeIcon kind="close" />
+              <span className="air-action-labels">
+                {["Update and reload", "Updating…", "Try again"].map((text) => (
+                  <span
+                    key={text}
+                    data-active={label === text || undefined}
+                    aria-hidden={label !== text || undefined}
+                  >
+                    {text}
+                  </span>
+                ))}
+              </span>
             </button>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="air-button air-button--quiet"
-                aria-disabled={busy || undefined}
-                onClick={(event) => {
-                  event.currentTarget.focus();
-                  if (!busy) onClose();
-                }}
-              >
-                Later
-              </button>
-              <button
-                type="button"
-                className="air-button air-button--primary"
-                aria-label={label}
-                aria-disabled={busy || blocked || undefined}
-                aria-busy={busy || undefined}
-                aria-describedby={descriptionId}
-                onClick={(event) => {
-                  event.currentTarget.focus();
-                  if (!busy && !blocked) onUpdate();
-                }}
-              >
-                <span className="air-action-labels">
-                  {["Update and reload", "Updating…", "Try again"].map((text) => (
-                    <span
-                      key={text}
-                      data-active={label === text || undefined}
-                      aria-hidden={label !== text || undefined}
-                    >
-                      {text}
-                    </span>
-                  ))}
-                </span>
-              </button>
-            </>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

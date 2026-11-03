@@ -282,7 +282,7 @@ function CommandPaletteContent({
         </p>
       </div>
 
-      <div ref={listRef} className="pdf-command-results thin-scrollbar">
+      <div ref={listRef} className="pdf-command-results air-scroll">
         <div id="command-palette-listbox" role="listbox" aria-label="Tools and actions">
           {results.map((cmd, i) => {
             const Icon = cmd.Icon;

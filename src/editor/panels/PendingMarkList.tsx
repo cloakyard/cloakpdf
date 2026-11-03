@@ -41,7 +41,7 @@ export function PendingMarkList({ kind }: { kind: "redaction" | "erase" }) {
         </button>
       </div>
       {marks.length ? (
-        <ul ref={listRef} className="thin-scrollbar">
+        <ul ref={listRef} className="air-scroll">
           {marks.map((mark, index) => (
             <li key={mark.id}>
               <button

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=146a3f4c2c56" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=929dd05b7c51" />
     <style>
       * {
         box-sizing: border-box;
@@ -1637,21 +1637,7 @@
         color: var(--air-ink-muted);
         margin-top: 12px;
       }
-      .dialog-close {
-        float: right;
-        border: 0;
-        background: none;
-        color: var(--air-ink-muted);
-        border-radius: var(--air-radius-chip);
-        min-width: 40px;
-        min-height: 40px;
-        display: grid;
-        place-items: center;
-      }
-      .dialog-close svg {
-        width: 18px;
-        height: 18px;
-      }
+      .dialog-close { float: right; }
       @media (hover: hover) and (pointer: fine) {
         .product-entry:hover {
           background: var(--air-surface-soft);
@@ -3162,7 +3148,10 @@
       aria-labelledby="export-title"
       aria-describedby="export-description"
     >
-      <button class="dialog-close" aria-label="Close export">
+      <button
+        class="dialog-close air-icon-button air-button--quiet air-dismiss"
+        aria-label="Close export"
+      >
         <span data-icon="close"></span>
       </button>
       <div class="dialog-kicker">Ready when you are.</div>

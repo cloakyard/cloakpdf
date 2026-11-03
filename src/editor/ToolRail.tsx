@@ -15,7 +15,7 @@ export const ToolRail = memo(function ToolRail({ onOpenPalette }: { onOpenPalett
   }, [activeTool]);
 
   return (
-    <nav aria-label="Editor tools" className="editor-toolrail thin-scrollbar">
+    <nav aria-label="Editor tools" className="editor-toolrail air-scroll">
       <button
         type="button"
         onClick={(event) => {

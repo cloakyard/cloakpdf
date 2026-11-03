@@ -637,6 +637,102 @@ textarea.air-field {
   background: var(--air-success-soft);
   color: var(--air-success);
 }
+/* One quiet dismiss target across dialogs, popovers and app notices. */
+.air-dismiss {
+  flex: none;
+  inline-size: 44px;
+  min-inline-size: 44px;
+  block-size: 44px;
+  min-block-size: 44px;
+  align-self: start;
+}
+.air-dismiss > svg {
+  inline-size: 18px;
+  block-size: 18px;
+  stroke-width: 1.6;
+}
+/* Native scrolling, with a quiet inset thumb rather than a platform track. */
+:where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--air-scroll-thumb, var(--air-ink-muted)) transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+  :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
+    --air-scroll-thumb: transparent;
+  }
+  :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update):is(
+    :hover,
+    :focus-within
+  ) {
+    --air-scroll-thumb: var(--air-ink-muted);
+  }
+}
+@supports selector(::-webkit-scrollbar) {
+  :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  :where(
+    .air-scroll,
+    .air-dialog,
+    .air-modal,
+    .air-menu,
+    .air-popover,
+    .air-update
+  )::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  :where(
+    .air-scroll,
+    .air-dialog,
+    .air-modal,
+    .air-menu,
+    .air-popover,
+    .air-update
+  )::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: var(--air-scroll-thumb, var(--air-ink-muted));
+    background-clip: padding-box;
+  }
+  :where(
+    .air-scroll,
+    .air-dialog,
+    .air-modal,
+    .air-menu,
+    .air-popover,
+    .air-update
+  )::-webkit-scrollbar-track,
+  :where(
+    .air-scroll,
+    .air-dialog,
+    .air-modal,
+    .air-menu,
+    .air-popover,
+    .air-update
+  )::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  :where(
+    .air-scroll,
+    .air-dialog,
+    .air-modal,
+    .air-menu,
+    .air-popover,
+    .air-update
+  )::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
+    --air-scroll-thumb: CanvasText;
+    scrollbar-color: auto;
+  }
+}
+
 .air-dialog {
   box-sizing: border-box;
   width: min(576px, calc(100% - 32px));
@@ -1912,44 +2008,43 @@ input.air-colour-brightness {
   }
 }
 
-/* In-flow app status reserves space instead of covering working controls. */
+/* Non-modal status: never consumes canvas height or rises above a dialog. */
 .air-update {
-  flex: none;
+  position: fixed;
+  z-index: var(--air-z-toast);
+  inset-inline-end: max(16px, env(safe-area-inset-right));
+  inset-block-end: max(16px, env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  inline-size: min(384px, calc(100% - 32px));
   max-block-size: 45dvh;
   overflow: auto;
   scroll-padding-block: 6px;
   overscroll-behavior: contain;
-  padding: 12px var(--air-gutter);
-  background: var(--air-page);
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-panel);
+  background: var(--air-surface);
+  box-shadow: var(--air-shadow-menu);
   color: var(--air-ink);
   font: 400 var(--air-text-body)/1.5 var(--air-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 .air-update-panel {
-  max-inline-size: var(--air-page-max);
-  margin-inline: auto;
-  padding: 16px;
-  border: 1px solid var(--air-line);
-  border-radius: var(--air-radius-panel);
-  background: var(--air-surface);
-  box-shadow: var(--air-shadow-surface);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
+  padding: 12px 16px 16px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 44px;
+  align-items: start;
+  gap: 8px;
 }
 .air-update-panel > svg {
-  flex: none;
-  align-self: start;
-  margin-block-start: 2px;
+  margin-block-start: 12px;
 }
 .air-update[data-state="error"] .air-update-panel > svg {
   color: var(--air-danger);
 }
 .air-update-copy {
-  flex: 1 1 16rem;
   min-inline-size: 0;
+  padding-block-start: 10px;
   overflow-wrap: anywhere;
 }
 .air-update h2 {
@@ -1961,6 +2056,8 @@ input.air-colour-brightness {
   color: var(--air-ink-secondary);
 }
 .air-update-actions {
+  grid-column: 2 / -1;
+  justify-content: flex-end;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

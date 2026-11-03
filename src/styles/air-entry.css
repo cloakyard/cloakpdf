@@ -1370,12 +1370,12 @@ body:has(.pdf-site) {
 }
 .pdf-dialog {
   position: relative;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   width: min(576px, 100%);
   max-height: calc(100dvh - 32px);
-  overflow: auto;
-  overscroll-behavior: contain;
-  scroll-padding-block: 24px;
+  overflow: hidden;
   border: 1px solid var(--air-line);
   border-radius: var(--air-radius-dialog);
   background: var(--air-surface);
@@ -1384,6 +1384,7 @@ body:has(.pdf-site) {
   font: 400 var(--air-text-body)/1.5 var(--air-font);
 }
 .pdf-dialog__header {
+  flex: none;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1402,15 +1403,16 @@ body:has(.pdf-site) {
   font: 400 var(--air-text-body)/1.5 var(--air-font);
   overflow-wrap: anywhere;
 }
-.pdf-dialog__close {
-  min-width: 44px;
-  min-height: 44px;
-}
 .pdf-dialog__body {
+  min-block-size: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 8px;
   min-inline-size: 0;
   padding: 0 24px 24px;
 }
 .pdf-dialog__footer {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

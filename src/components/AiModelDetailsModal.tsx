@@ -111,7 +111,7 @@ export function AiModelDetailsModal({
         </div>
         <ModalCloseButton onClick={dismiss} disabled={Boolean(busy)} initialFocus />
       </header>
-      <div className="pdf-dialog__body pdf-ai-dialog-stack">
+      <div className="air-scroll pdf-dialog__body pdf-ai-dialog-stack">
         <div className="air-notice">
           <MemoryStick size={18} strokeWidth={1.6} aria-hidden="true" />
           <p>

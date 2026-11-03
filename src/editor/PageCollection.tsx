@@ -11,7 +11,7 @@ export function PageCollection({
   children: ReactNode;
 }) {
   return (
-    <div className="editor-page-collection thin-scrollbar">
+    <div className="editor-page-collection air-scroll">
       <ul
         className="editor-page-grid"
         role="list"

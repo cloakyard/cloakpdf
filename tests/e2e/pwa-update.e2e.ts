@@ -137,7 +137,7 @@ try {
         const result = await page.evaluate(async (font) => {
           document.documentElement.style.fontSize = `${font}px`;
           await document.fonts.ready;
-          const toast = document.querySelector<HTMLElement>(".air-update-panel")!;
+          const toast = document.querySelector<HTMLElement>(".air-update")!;
           const rect = toast.getBoundingClientRect();
           const buttons = [...toast.querySelectorAll("button")];
           const ranges = [...toast.querySelectorAll("p, button")].flatMap((n) => {
@@ -192,7 +192,7 @@ try {
   await page.focus(".air-update-actions button:last-child");
   await page.screenshot({ path: resolve(output, "deferred-forced-colours.png") });
   await cdp.send("Emulation.setEmulatedMedia", { features: [] });
-  await page.click("button::-p-text(Later)");
+  await page.click('button[aria-label="Dismiss update notification"]');
   await page.waitForSelector(".air-update", { hidden: true });
   await page.click("button::-p-text(Save metadata)");
   await page.waitForFunction(() =>
@@ -269,7 +269,7 @@ try {
   await new Promise((r) => setTimeout(r, 1700));
   assert.ok(await page.$('[aria-label="Files to combine"] [role="listitem"]'));
   assert.ok(await page.$("body::-p-text(update-review.pdf)"));
-  await page.click("button::-p-text(Later)");
+  await page.click('button[aria-label="Dismiss update notification"]');
   await page.click('[aria-label="Back to home"]');
   await page.waitForSelector(".air-update-actions button:last-child", { visible: true });
   // A route handoff racing an accepted update must also prevent the delayed reload.

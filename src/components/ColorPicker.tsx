@@ -241,7 +241,7 @@ export function ColorPicker({ value, onChange, label = "Color" }: ColorPickerPro
             aria-label="Custom color picker"
             aria-describedby={`${popoverId}-title`}
             style={popoverStyle}
-            className="air-popover pdf-color__popover thin-scrollbar"
+            className="air-popover pdf-color__popover air-scroll"
           >
             <div className="pdf-color__heading">
               <h3 id={`${popoverId}-title`}>{label}</h3>

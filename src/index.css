@@ -44,37 +44,6 @@ body {
   }
 }
 
-/* Internal overflow only; touch keeps the native scrollbar. A reserved gutter
-   prevents layout shifts as fine-pointer hover/focus reveals the thumb. */
-@media (pointer: fine) {
-  .thin-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-  }
-  .thin-scrollbar:hover,
-  .thin-scrollbar:focus-within {
-    scrollbar-color: color-mix(in oklab, var(--air-ink-muted) 35%, transparent) transparent;
-  }
-  .thin-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  .thin-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .thin-scrollbar::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  .thin-scrollbar:hover::-webkit-scrollbar-thumb,
-  .thin-scrollbar:focus-within::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--air-ink-muted) 30%, transparent);
-    background-clip: padding-box;
-  }
-}
-
 /* Skip offscreen page-grid rendering; preserve each measured cell size. */
 .page-cell {
   content-visibility: auto;

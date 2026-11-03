@@ -454,7 +454,7 @@ export function DateTimeInput({
             aria-label={`${label} date and time`}
             aria-describedby={`${popoverId}-help`}
             style={popoverStyle}
-            className="air-popover pdf-date-popover thin-scrollbar"
+            className="air-popover pdf-date-popover air-scroll"
           >
             <div className="pdf-date-heading">
               <h3>{label}</h3>
@@ -502,7 +502,7 @@ export function DateTimeInput({
               </button>
             </div>
             {showYearPicker ? (
-              <div className="pdf-date-years thin-scrollbar" role="group" aria-label="Year">
+              <div className="pdf-date-years air-scroll" role="group" aria-label="Year">
                 {yearList.map((year) => (
                   <button
                     key={year}

@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.5.0
+version: 1.6.0
 status: approved
 date: 2026-11-03
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 1bd600cb99d15652f1f458ef103a416421166939aba06f9dd883ba23522eb15d
+family-contract-sha256: ebcfe4f5ccc2c530fa9676b957664cc1c6e1ad4e7b1612a9771a2e38c89360ca
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.5.0 — coherent surface motion** · Direction: **Air** · Updated: **2026-11-03**
+Version: **1.6.0 — compact notices and quiet scrolling** · Direction: **Air** · Updated: **2026-11-03**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -1074,18 +1074,22 @@ Public shell content follows the same recipe across the family:
 
 - Use the pinned `update-notice.tsx` presentation and `air-update` shell. Products
   own service-worker registration, work protection and activation; do not duplicate
-  the visual markup, labels or notice CSS. Sites without a service worker (Yard and
-  Drop website) do not show fabricated update/offline notices.
-- Place the same opaque, 18px-radius panel in normal flow above the public header
-  or editor. Reserve space so no editor/modal commands are covered. Use 16px panel
-  padding, 20px leading icon, 14px/500 heading, 14px/1.5 copy and 8px action gaps.
-  Constrain the status region to 45dvh with reachable scrollable controls.
+  the visual markup, labels or notice CSS. Sites without a service worker (Yard, Drop website and Roll website) do not show fabricated update/offline notices.
+- Use a compact, fixed bottom-right popup at the toast level, below dialogs. It
+  must not consume editor/canvas height. Width is 384px capped at viewport minus
+  32px; bottom/right clearance is at least 16px plus applicable safe areas. On
+  phones it keeps the same inset, opaque surface and 18px corners, not a full-width
+  banner. Use 16px inline/bottom and 12px top padding, 20px leading icon, 14px/500
+  heading, 14px/1.5 copy and 8px gaps. Cap height at 45dvh; enlarged copy scrolls
+  with all actions keyboard-reachable. Do not elevate notices above modal controls.
 - Shared titles: **Update available**, **Updating…**, **Update paused**, **Core app
   cached**. Standard copy is shared; only blocked/error instructions may vary to
   explain actual work protection. Never imply all optional assets are cached.
-- Update actions are **Later** and **Update and reload**; busy **Updating…**, failed
-  **Try again**. Do not add a second dismissal control or a redundant eyebrow/icon
-  in the action. Offline status has one **Dismiss offline status** icon button.
+- One top-right `air-dismiss` X postpones an update (**Dismiss update notification**)
+  or dismisses cache status (**Dismiss offline status**). Do not duplicate it with
+  Later. The single primary action is **Update and reload**; busy **Updating…**,
+  failed **Try again**. Keep the busy dismissal focusable but inactive; preserve
+  disabled reload and its explanation when work must first be saved.
 - Announce status politely and errors assertively; arrival never steals focus.
   Keep focused busy actions reachable and restore prior connected focus on dismiss.
   Pause offline auto-dismiss while hovered/focused. Pending updates do not expire.
@@ -1101,6 +1105,24 @@ mobile/24px desktop. Maximum height `calc(100dvh - 32px)` with internal body
 scroll and reachable actions. At ≤640px, use the same content in a bottom sheet
 with 20px upper corners and safe-area padding. Large/complex work may use a full
 screen dialog with an explicit close/back. Never hide essential actions on mobile.
+
+Dialog headers align their title and one quiet `air-dismiss` X at the top. The
+shared target is 44×44px for every input mode, with an 18px / 1.6-stroke icon,
+no resting border and neutral hover. Long filenames and detailed explanations
+belong in the scrollable body, not beside a vertically centred close control.
+Keep header and primary footer outside the body's scroll region, including short
+screens; give the body `min-block-size: 0` and `overflow: auto`. Never force a
+scrollbar on fitting content or place the track against the rounded outer frame.
+
+Use the shared `air-scroll` treatment for custom scroll regions, including modal
+bodies and editor panels. Native wheel, touch, keyboard and thumb dragging remain
+available. The track is transparent; the inset thumb is neutral and thin (8px
+WebKit rail, native thin elsewhere), with a stable gutter and no WebKit arrow buttons. Fine-pointer
+hover/focus reveals the thumb; touch and forced-colour modes retain a visible
+indicator. No blanket `scrollbar-width: none`, JS replacement tracks, or global
+skin for the document scrollbar. Check classic non-overlay scrollbars explicitly,
+not only macOS auto-hiding scrollbars. Include overflowing and fitting bodies,
+long filenames, enlarged text, short screens, focus and reachable footer actions.
 
 Z levels: sticky 30; navigation 50; editor 100; toast 150; dialog 200; popover 900;
 system recovery 1000. Preserve nesting/portal correctness; avoid ad-hoc z-indexes.
