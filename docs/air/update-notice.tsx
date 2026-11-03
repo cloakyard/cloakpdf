@@ -45,7 +45,9 @@ SOFTWARE.
 
 */
 /** Shared presentation only; each product owns safe worker activation and draft handling. */
-import { useId, useLayoutEffect, useRef } from "react";
+import { useId, useLayoutEffect, useRef, type RefObject } from "react";
+
+import { useAirPresence } from "./presence.tsx";
 
 function NoticeIcon({ kind }: { kind: "offline" | "update" | "error" | "close" }) {
   const size = kind === "close" ? 18 : 20;
@@ -91,24 +93,36 @@ function NoticeIcon({ kind }: { kind: "offline" | "update" | "error" | "close" }
 
 export type UpdateNoticeState = "offline" | "update" | "updating" | "error";
 
-export function AirUpdateNotice({
-  state,
-  detail,
-  blocked = false,
-  onClose,
-  onUpdate,
-  onPause,
-}: {
+type NoticeProps = {
   state: UpdateNoticeState;
   detail?: string;
   blocked?: boolean;
   onClose: () => void;
   onUpdate: () => void;
   onPause: (paused: boolean) => void;
+};
+export function AirUpdateNotice({ open = true, ...props }: NoticeProps & { open?: boolean }) {
+  const presence = useAirPresence<HTMLElement>(open, "notice");
+  const last = useRef(props);
+  if (open) last.current = props;
+  if (!presence.mounted) return null;
+  return <NoticeBody {...last.current} root={presence.ref} closing={presence.closing} />;
+}
+function NoticeBody({
+  state,
+  detail,
+  blocked = false,
+  onClose,
+  onUpdate,
+  onPause,
+  root,
+  closing,
+}: NoticeProps & {
+  root: RefObject<HTMLElement | null>;
+  closing: boolean;
 }) {
   const titleId = useId();
   const descriptionId = useId();
-  const root = useRef<HTMLElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const busy = state === "updating";
   const title =
@@ -156,6 +170,12 @@ export function AirUpdateNotice({
   return (
     <section
       ref={root}
+      onClickCapture={(event) => {
+        if (closing) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
       className="air-update"
       data-state={state}
       aria-labelledby={titleId}

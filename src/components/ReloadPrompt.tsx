@@ -127,8 +127,9 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
   }, [offlineReady, needRefresh, paused, close]);
 
   const show = offlineReady || (needRefresh && !dismissed);
-  return show ? (
+  return (
     <AirUpdateNotice
+      open={show}
       state={needRefresh ? (updating ? "updating" : "update") : "offline"}
       detail={
         needRefresh && deferUpdate
@@ -140,5 +141,5 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
       onUpdate={handleUpdate}
       onPause={setPaused}
     />
-  ) : null;
+  );
 }

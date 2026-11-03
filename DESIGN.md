@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.4.0
+version: 1.5.0
 status: approved
 date: 2026-11-03
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 338c39fa591104adaf1354437013378e92ffa19189308f9da28e3d9bd83f2f1f
+family-contract-sha256: 1bd600cb99d15652f1f458ef103a416421166939aba06f9dd883ba23522eb15d
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.4.0 — canvas-first touch editing** · Direction: **Air** · Updated: **2026-11-03**
+Version: **1.5.0 — coherent surface motion** · Direction: **Air** · Updated: **2026-11-03**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -503,6 +503,8 @@ a requirement to replace each editor's established panel ordering.
   elevation. At 640px and below it becomes a full-width bottom sheet with safe-area
   padding. Keep 16px viewport clearance above it; never force a minimum body height
   that pushes actions off a short screen. Footer actions wrap at enlarged text.
+- Header dismissal uses the quiet icon button: an 18px X, a clear accessible name,
+  a neutral hover surface and at least a 44px touch target; no resting outline.
 - Scroll stays in the overlay, keyboard-focused content cannot hide behind sticky
   actions, and long names/validation never widen it. Preserve entered values on
   viewport/theme changes. Nested selects use the top layer and close before the
@@ -546,10 +548,12 @@ a requirement to replace each editor's established panel ordering.
   tooltip. Its trigger keeps a meaningful name and works on touch without the hint.
   Expose the visible hint as `role="tooltip"` and connect it with `aria-describedby`;
   verify this association in the rendered adapter instead of assuming a library adds it.
-- These frequently used floating surfaces appear immediately. Reserve motion for
-  occasional dialogs: pointer entry 240ms, exit 160ms, shared curves; keyboard
-  opening/dismissal and reduced motion are immediate. The desktop dialog moves
-  4px/.98; the phone sheet rises from below. Animate transform/opacity only.
+- Floating surfaces enter over 180ms and exit over 160ms, from their trigger
+  with at most 4px/.98 displacement. Dialogs enter over 240ms and exit over
+  160ms; the desktop dialog moves 4px/.98 and the phone sheet rises from below.
+  Pointer, touch and keyboard share this presence motion. Focus and interaction
+  are available immediately; reduced motion settles immediately. Animate only
+  transform/opacity and retain the real surface through dismissal.
 - Menu-to-dialog handoffs must move focus into the dialog without a menu's closing
   callback pulling it away. Form dialogs focus the first field on fine pointers
   and the surface on touch, retain invalid drafts, show nearby error text, and
@@ -577,7 +581,8 @@ a requirement to replace each editor's established panel ordering.
   padding, 8px corners, 40px fine/44px coarse minimum height, and the UI sans family.
 - Selected rows have a neutral surface and blue checkmark at the trailing edge.
   Hover uses `surface-hover`; keyboard focus has a 2px inset blue outline.
-  Selection, opening and dismissal are immediate in frequently used selects.
+  Selection is immediate; the custom picker uses the shared 180ms/160ms presence.
+  Browser-owned native pickers retain their platform motion.
   Disabled choices remain identifiable and cannot be selected.
 - The reference styles native `base-select` pickers so semantics, typeahead,
   keyboard traversal, form values and top-layer placement remain native. Its
@@ -877,7 +882,12 @@ Public shell content follows the same recipe across the family:
 
 - Keep every destination available at every width. A compact header uses a native,
   in-flow disclosure; its links expand below the brand row without covering the
-  page. Opening changes layout immediately, with no animated text/reflow. The
+  page. Opening reserves layout immediately; disclosure contents fade over 180ms,
+  and close over 160ms before releasing their space. Opening visibility must be
+  immediate so newly revealed controls can take focus in the same event turn.
+  Do not tween text or height.
+  Native `::details-content` with discrete visibility preserves no-script behavior;
+  unsupported engines keep native immediate disclosure. The
   family uses the same 40rem container boundary (compact at or below it), so larger
   text enters compact mode earlier. Inside the disclosure, the shared header shell
   owns one grid of links with no row gap, 12px top margin, a 1px rule and 8px top
@@ -1099,8 +1109,10 @@ The parent remains mounted and inactive. Escape dismisses only the top layer;
 safe cancellation returns to the parent draft. Explicit discard closes both and
 returns to the original trigger, or a persistent recovery control if it disappeared.
 Submenus follow the same topmost-first Escape rule. A menu-to-dialog handoff must
-not restore menu focus over the opening dialog. Keyboard and reduced-motion
-handoffs are immediate; never animate routine list navigation or rearrangement.
+not restore menu focus over the opening dialog. A handoff releases the outgoing focus trap before focusing the incoming dialog;
+it may settle the outgoing surface immediately to preserve native file-picker
+activation or prevent competing focus traps. Reduced-motion handoffs are immediate.
+Never animate routine list navigation or rearrangement.
 
 ## 6. Responsive and accessibility contract
 
@@ -1161,7 +1173,7 @@ The reference now demonstrates this custom Shaders composition. Its working
 implementation is review evidence; it does not itself grant visual or production
 performance approval.
 
-- Shared motion: pointer press 120ms; hover arrow 160ms; occasional popover ceiling 180ms; dialog 240ms;
+- Shared motion: pointer press 120ms; hover arrow 160ms; popover/disclosure/notice entry 180ms; dialog 240ms;
   exit 160ms. Ease-out `cubic-bezier(0.23, 1, 0.32, 1)`; reversible spatial motion
   `cubic-bezier(0.77, 0, 0.175, 1)`. Sheet easing: `cubic-bezier(0.32, 0.72, 0, 1)`. No per-app timing scale.
 - CSS time tokens may serialize in seconds or milliseconds after production
@@ -1177,18 +1189,28 @@ performance approval.
   Control colours, selection, focus and appearance changes are immediate. No hover
   lift on touch; a focused keyboard control never acquires decorative hover motion.
 - Dialogs enter from 4px/0.98 over 240ms and exit over 160ms. On phones they rise
-  from the bottom with sheet easing. Keyboard activation and Escape are immediate.
+  from the bottom with sheet easing. Keyboard activation and Escape use the same brief presence motion.
   Focus moves as soon as opened; animation cannot delay access to controls.
-- Shared `motion.mjs` demonstrates native-dialog and completion behaviour. Dialog
+- Shared `presence.mjs` / `presence.tsx` own retained product presence and
+  preference cleanup; Base UI uses the same CSS tokens and lifecycle attributes.
+  No timer-only unmount, per-frame React rendering or new animation dependency.
+  Shared `motion.mjs` demonstrates native-dialog and completion behaviour. Dialog
   exits sample the current composited pose before cancelling an entrance; repeated
   close requests do not restart the exit. Completion replay uses its current pose
-  and remaining duration. A live reduced-motion change settles either immediately.
+  and remaining duration. A live reduced-motion change settles either immediately. Test opening, closing,
+  rapid reversal, unmount, nested dismissal and long/short layouts in both engines.
+  Do not leave a scrim, scroll lock or invisible focusable controls after exit.
 - Rapid repeat actions retarget/cancel the current motion. Never queue entrances,
   restart progress, remount a content stage, or wait for animation to accept input.
-- Frequent tool/section switching and keyboard commands are immediate. Motion
-  explains state or confirms an action; it must never delay editing.
+- Tool/section selection, keyboard commands and editing results update immediately.
+  Opening/closing a working panel uses a 240ms/160ms, 12px edge reveal; keep the
+  persistent document/canvas mounted, its minimum visible area and actual aspect
+  ratio. Retain inert outgoing controls only through exit; they cannot register
+  stale edits or accept a second Apply. Reopening retargets the current pose.
+  Switching already-open sections uses at most a short opacity reveal, never
+  staggered fields, a moving preview, or delayed typing.
 - Animate transform/opacity; scale from 0.98, translate at most 4px for small
-  surfaces; sheets enter from their edge. No layout-property animation or
+  surfaces (12px for in-flow working panels); modal sheets enter from their edge. No layout-property animation or
   `transition: all`. Hover movement is fine-pointer/hover-capable only.
 - Reduced motion removes spatial/decorative movement, preserves immediate state
   and progress, and uses opacity only when useful. Focus never animates.

@@ -1,0 +1,19 @@
+{
+  "scope": "Shared dialog and picker presence, compact tool controls, quiet dialog dismissal and retained PWA notices. Document editing, redaction and export remain unchanged.",
+  "checks": [
+    "461 unit tests",
+    "12 normal-motion phone action journeys and actual PDF downloads",
+    "Modal, responsive motion, keyboard interactions, command palette and export suites",
+    "44 deferred-update layouts and real-worker lifecycle/race checks",
+    "Dead-code, type/build and deployment asset gates"
+  ],
+  "family": {
+    "homeLayouts": 648,
+    "secondaryLayouts": 288,
+    "privacyLayouts": 408,
+    "privacyJourneys": 22,
+    "noticeLayoutsAcrossThreePWAs": 396
+  },
+  "limitations": ["physical iPhone/software keyboard", "OS IME", "spoken assistive acceptance"],
+  "rollout": "pending dev to main PR"
+}

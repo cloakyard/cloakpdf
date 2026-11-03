@@ -122,6 +122,13 @@ async function main() {
     if (!railSearch) fail("Rail Search (palette) button not found.");
     await railSearch.click();
     await page.waitForSelector(PALETTE, { timeout: 5_000 });
+    await page.$eval(PALETTE, async (element) => {
+      await Promise.all(
+        element
+          .getAnimations({ subtree: true })
+          .map((animation) => animation.finished.catch(() => {})),
+      );
+    });
     const paletteMotion = await page.$eval(PALETTE, (element) => {
       const style = getComputedStyle(element);
       return {
@@ -133,7 +140,9 @@ async function main() {
       };
     });
     if (paletteMotion.opacity !== "1" || !paletteMotion.identity || paletteMotion.running !== 0) {
-      fail(`Command palette must open immediately; got ${JSON.stringify(paletteMotion)}.`);
+      fail(
+        `Command palette must settle at its Air resting pose; got ${JSON.stringify(paletteMotion)}.`,
+      );
     }
     const closeSelector = `${PALETTE} button[aria-label="Close command palette"]`;
     await page.waitForFunction(

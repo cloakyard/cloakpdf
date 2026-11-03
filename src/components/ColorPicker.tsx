@@ -1,3 +1,4 @@
+import { useAirPresence } from "../../docs/air/presence.tsx";
 /** Air colour controls. A hue/saturation wheel, brightness and exact hex entry
  * share one non-modal popover across every PDF tool. */
 
@@ -62,6 +63,7 @@ export function ColorPicker({ value, onChange, label = "Color" }: ColorPickerPro
   // but values round-trip through rgbToHex / manual entry as lowercase, so a
   // strict === would never flag a preset as selected.
   const eqHex = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  const presence = useAirPresence(open, "popover", { ref: menuRef, ready: !!popoverStyle });
   const isPreset = colorPresets.some((p) => eqHex(p.hex, value));
 
   // Local HSV preserves meaningful hue even when the visible colour is grey or black.
@@ -226,11 +228,13 @@ export function ColorPicker({ value, onChange, label = "Color" }: ColorPickerPro
           </span>
         </button>
       </div>
-      {open &&
+      {presence.mounted &&
         popoverStyle &&
         createPortal(
           <div
             ref={menuRef}
+            inert={presence.closing}
+            aria-hidden={presence.closing || undefined}
             id={popoverId}
             role="dialog"
             tabIndex={-1}

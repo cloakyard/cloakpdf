@@ -777,13 +777,13 @@ textarea.air-field {
   opacity: 1;
   transform: none;
 }
-.air-modal[data-air-motion="pointer"] {
+:is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"]) {
   transition:
     opacity var(--air-motion-dialog) var(--air-ease-out),
     transform var(--air-motion-dialog) var(--air-ease-out);
 }
-.air-modal[data-air-motion="pointer"][data-starting-style],
-.air-modal[data-air-motion="pointer"][data-ending-style] {
+:is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-starting-style],
+:is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-ending-style] {
   opacity: 0;
   transform: translateY(4px) scale(0.98);
 }
@@ -1160,11 +1160,11 @@ textarea.air-field {
     border-radius: 20px 20px 0 0;
     padding-bottom: max(24px, env(safe-area-inset-bottom));
   }
-  .air-modal[data-air-motion="pointer"] {
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"]) {
     transition-timing-function: var(--air-ease-sheet);
   }
-  .air-modal[data-air-motion="pointer"][data-starting-style],
-  .air-modal[data-air-motion="pointer"][data-ending-style] {
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-starting-style],
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-ending-style] {
     opacity: 1;
     transform: translateY(100%);
   }
@@ -1177,11 +1177,11 @@ textarea.air-field {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .air-modal[data-air-motion="pointer"] {
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"]) {
     transition: none;
   }
-  .air-modal[data-air-motion="pointer"][data-starting-style],
-  .air-modal[data-air-motion="pointer"][data-ending-style] {
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-starting-style],
+  :is(.air-modal, .air-motion-dialog):not([data-air-motion="immediate"])[data-ending-style] {
     opacity: 1;
     transform: none;
   }
@@ -2184,4 +2184,125 @@ input.air-colour-brightness {
 .air-editor-actions.air-editor-actions--compact > .air-icon-button {
   inline-size: 48px;
   padding: 8px;
+}
+
+/* Surface presence. Base UI retains exiting portals; product adapters use presence.mjs. */
+.air-modal-backdrop,
+.air-motion-backdrop {
+  transition: opacity var(--air-motion-dialog) var(--air-ease-out);
+}
+:is(.air-modal-backdrop, .air-motion-backdrop)[data-starting-style],
+:is(.air-modal-backdrop, .air-motion-backdrop)[data-ending-style] {
+  opacity: 0;
+}
+:is(.air-modal-backdrop, .air-motion-backdrop, .air-motion-dialog)[data-ending-style] {
+  transition-duration: var(--air-motion-exit);
+}
+:is(.air-menu, .air-popover, .air-tooltip) {
+  transform-origin: var(--transform-origin, center top);
+  transition:
+    opacity var(--air-motion-popover) var(--air-ease-out),
+    transform var(--air-motion-popover) var(--air-ease-out);
+}
+:is(.air-menu, .air-popover, .air-tooltip):is([data-starting-style], [data-ending-style]) {
+  opacity: 0;
+  transform: translateY(4px) scale(0.98);
+}
+:is(.air-menu, .air-popover, .air-tooltip)[data-side="top"]:is(
+    [data-starting-style],
+    [data-ending-style]
+  ) {
+  transform: translateY(-4px) scale(0.98);
+}
+:is(.air-menu, .air-popover, .air-tooltip)[data-ending-style] {
+  transition-duration: var(--air-motion-exit);
+}
+/* Native disclosure semantics and no-script operation remain intact. No height tween. */
+@supports selector(details::details-content) {
+  details::details-content {
+    opacity: 0;
+    transition:
+      opacity var(--air-motion-exit) var(--air-ease-out),
+      content-visibility var(--air-motion-exit) allow-discrete;
+  }
+  details[open]::details-content {
+    opacity: 1;
+    /* Make newly revealed controls focusable in the opening event turn. */
+    transition-property: opacity;
+    transition-duration: var(--air-motion-popover);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .air-modal,
+    .air-motion-dialog,
+    .air-modal-backdrop,
+    .air-motion-backdrop,
+    .air-menu,
+    .air-popover,
+    .air-tooltip
+  ),
+  details::details-content,
+  details[open]::details-content {
+    transition: none;
+  }
+  :is(.air-motion-dialog, .air-menu, .air-popover, .air-tooltip):is(
+    [data-starting-style],
+    [data-ending-style]
+  ) {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.air-presence-viewport {
+  background: transparent !important;
+}
+.air-presence-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--air-scrim);
+  pointer-events: none;
+}
+[data-air-motion="immediate"] {
+  transition: none !important;
+}
+
+[data-air-presence="closed"] {
+  visibility: hidden;
+}
+.air-popover[data-placement="above"] {
+  transform-origin: left bottom;
+}
+
+/* A conditionally mounted Base UI root can start open without starting-style data.
+   CSS supplies that first pose; the primitive still owns retained exit/focus. */
+@starting-style {
+  .air-motion-dialog:not([data-air-motion="immediate"]) {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  .air-motion-backdrop:not([data-air-motion="immediate"]) {
+    opacity: 0;
+  }
+}
+@media (max-width: 640px) {
+  @starting-style {
+    .air-motion-dialog:not([data-air-motion="immediate"]) {
+      opacity: 1;
+      transform: translateY(100%);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .air-motion-dialog:not([data-air-motion="immediate"]) {
+      opacity: 1;
+      transform: none;
+    }
+    .air-motion-backdrop:not([data-air-motion="immediate"]) {
+      opacity: 1;
+    }
+  }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.4.0",
+  "contractVersion": "1.5.0",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -459,9 +459,10 @@
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/privacy-panels-2026-10-15.json",
-        "docs/air/evidence/colour-wheel-2026-10-15.json"
+        "docs/air/evidence/colour-wheel-2026-10-15.json",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air 1.0.2 wheel/brightness/hex with native precise axes; all nine consumer tools. Exact spectrum/cursor mapping, RGB round-trip, black/grey continuity, external values, invalid hex, pointer capture/cancel and secondary-pointer isolation covered. 22 size/theme views, six text200 views, forced colours/reduced motion; native Safari and Firefox 200%. Physical touch/software keyboard and spoken assistive acceptance remain open."
+      "notes": "Air 1.0.2 wheel/brightness/hex with native precise axes; all nine consumer tools. Exact spectrum/cursor mapping, RGB round-trip, black/grey continuity, external values, invalid hex, pointer capture/cancel and secondary-pointer isolation covered. 22 size/theme views, six text200 views, forced colours/reduced motion; native Safari and Firefox 200%. Physical touch/software keyboard and spoken assistive acceptance remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/components/DateTimeInput.tsx",
@@ -501,8 +502,12 @@
         "1440x900",
         "1920x1080"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/metadata-calendar-2026-10-15.json"],
-      "notes": "Air implementation: open report/fields and complete date/time picker. 28 panel/calendar layouts (22 required plus six narrow-breakpoint neighbors), four pending/error/theme/width pairs, 200% root text, native Safari and Firefox actual 200% zoom. Real metadata, clear/XMP preservation, save/undo, Cancel, stale reads and mobile retry/duplicate Done verified. Physical touch/software keyboard, OS IME and assistive speech remain open."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/metadata-calendar-2026-10-15.json",
+        "docs/air/surface-motion-2026-11-03.md"
+      ],
+      "notes": "Air implementation: open report/fields and complete date/time picker. 28 panel/calendar layouts (22 required plus six narrow-breakpoint neighbors), four pending/error/theme/width pairs, 200% root text, native Safari and Firefox actual 200% zoom. Real metadata, clear/XMP preservation, save/undo, Cancel, stale reads and mobile retry/duplicate Done verified. Physical touch/software keyboard, OS IME and assistive speech remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/components/EncryptedPdfNotice.tsx",
@@ -811,9 +816,10 @@
         "docs/air/evidence/export-2026-10-14.json",
         "docs/air/evidence/palette-2026-10-14.json",
         "docs/air/evidence/navigation-2026-10-14.json",
-        "docs/air/evidence/foundation-2026-10-19.json"
+        "docs/air/evidence/foundation-2026-10-19.json",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox. Foundation checkpoint: useFocusTrap stack now derives layers from --air-z-dialog directly; nested modal and focus regressions pass after removing the old layer aliases."
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox. Foundation checkpoint: useFocusTrap stack now derives layers from --air-z-dialog directly; nested modal and focus regressions pass after removing the old layer aliases. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/components/ModelCard.tsx",
@@ -1035,9 +1041,10 @@
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/pwa-update-2026-10-19.json",
-        "evidence/consistency-2026-10-26/checks.json.gz"
+        "evidence/consistency-2026-10-26/checks.json.gz",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
+      "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/components/SegmentedControl.tsx",
@@ -1115,9 +1122,10 @@
         "docs/air/validation.md",
         "docs/air/evidence/nup-2026-10-14.json",
         "docs/air/evidence/fill-form-2026-10-19.json",
-        "docs/air/evidence/foundation-2026-10-19.json"
+        "docs/air/evidence/foundation-2026-10-19.json",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: full labels wrap, popup width is at least 15rem when space permits and clamped to the viewport; immediate pointer/keyboard opening and arrow state use the canonical Air rule. Removed animation/placement-only state. 70 layouts plus native Safari and Firefox actual 200% pass."
+      "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: full labels wrap, popup width is at least 15rem when space permits and clamped to the viewport; immediate pointer/keyboard opening and arrow state use the canonical Air rule. Removed animation/placement-only state. 70 layouts plus native Safari and Firefox actual 200% pass. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/components/SignaturePad.tsx",
@@ -1280,8 +1288,12 @@
         "640x800",
         "641x800"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/ai-modals-2026-10-14.json"],
-      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open."
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/ai-modals-2026-10-14.json",
+        "docs/air/surface-motion-2026-11-03.md"
+      ],
+      "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/editor/CommandPalette.tsx",
@@ -1586,9 +1598,10 @@
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/search-scrub-2026-10-15.json",
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
-        "docs/air/simple-actions-2026-11-02.md"
+        "docs/air/simple-actions-2026-11-02.md",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
     {
       "path": "src/editor/OverviewGrid.tsx",
@@ -3527,9 +3540,10 @@
         "evidence/privacy-2026-10-29/policies.json.gz",
         "docs/air/family-2026-10-29.md",
         "docs/air/simple-actions-2026-11-02.md",
-        "docs/air/canvas-first-contract-2026-11-03.md"
+        "docs/air/canvas-first-contract-2026-11-03.md",
+        "docs/air/surface-motion-2026-11-03.md"
       ],
-      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
+      "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     }
   ]
 }
