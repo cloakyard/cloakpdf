@@ -198,8 +198,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(ws@8.22.0)
       '@langchain/langgraph':
-        specifier: ^1.5.2
-        version: 1.5.2(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7)
+        specifier: ^1.6.0
+        version: 1.6.0(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7)
       '@llamaindex/liteparse-wasm':
         specifier: ^2.17.0
         version: 2.17.0
@@ -1011,16 +1011,16 @@ packages:
     resolution: {integrity: sha512-ZiS8USsHdO8ZVFh0m8Rs6v2BvqBEvfFicG66zxdF4rGgXSJjk0d0sLnnFZCx3RXPUvP8ybTJgPlNfkJGs1J7BA==}
     engines: {node: '>=20'}
 
-  '@langchain/langgraph-checkpoint@1.2.1':
-    resolution: {integrity: sha512-RD01mi9fYfpIq5fWrW/j2iY7MRUoqKvh1Nj6TMRDBoTGE18E2du75zKDugNxb57N8FWCojaiWGB9Enssnx9Hyg==}
+  '@langchain/langgraph-checkpoint@1.2.2':
+    resolution: {integrity: sha512-KL3nzi7I61ll5nANCQe5RoJ5SqTFrE+si9IK6k7IIj9OrPkIKT/Dz0w8CyJF+K7OEuJfA33HvPrZqfzzW1DXDA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': ^1.1.48
 
-  '@langchain/langgraph-sdk@1.12.7':
-    resolution: {integrity: sha512-+tIY6oVDDt9e3LnDKs4Qqe3nFJSY7amDUofro7me0kZ8QbaJhFViQL0LaX30SQhIaHuCLZYMRIluhuFSOPjF8g==}
+  '@langchain/langgraph-sdk@1.12.9':
+    resolution: {integrity: sha512-A1LkLPVu00dj+9aErXPBLhmFURHtnnRO9KRFST+xAwurqQTa+LxC9ixxF7p+ZMo5P70qMFoaP8Ud2wuZmYD4xw==}
     peerDependencies:
-      '@langchain/core': ^1.1.48
+      '@langchain/core': ^1.2.18
       react: ^18 || ^19
       react-dom: ^18 || ^19
     peerDependenciesMeta:
@@ -1029,8 +1029,8 @@ packages:
       react-dom:
         optional: true
 
-  '@langchain/langgraph@1.5.2':
-    resolution: {integrity: sha512-jfVB9x+FH3CqlOYsYSVyuBoElV/J9pRL2nb7gie9Fb53J6rwNxSjTwxtyH3N8eVbZ94QckuFRxom6KTMlFfMOQ==}
+  '@langchain/langgraph@1.6.0':
+    resolution: {integrity: sha512-7ka7uXNhi9Rxt8LcIJm63+lE3J/MD4tU5TzjiAOcwpLh/2CBe5JKuvFah0MSQnD7onwBcxcEkcaGj9Omfbkxkg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': ^1.1.48
@@ -5203,11 +5203,11 @@ snapshots:
       - openai
       - ws
 
-  '@langchain/langgraph-checkpoint@1.2.1(@langchain/core@1.3.0(ws@8.22.0))':
+  '@langchain/langgraph-checkpoint@1.2.2(@langchain/core@1.3.0(ws@8.22.0))':
     dependencies:
       '@langchain/core': 1.3.0(ws@8.22.0)
 
-  '@langchain/langgraph-sdk@1.12.7(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@langchain/langgraph-sdk@1.12.9(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@langchain/core': 1.3.0(ws@8.22.0)
       '@langchain/protocol': 0.0.20
@@ -5218,11 +5218,11 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@langchain/langgraph@1.5.2(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7)':
+  '@langchain/langgraph@1.6.0(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(zod@4.6.7)':
     dependencies:
       '@langchain/core': 1.3.0(ws@8.22.0)
-      '@langchain/langgraph-checkpoint': 1.2.1(@langchain/core@1.3.0(ws@8.22.0))
-      '@langchain/langgraph-sdk': 1.12.7(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@langchain/langgraph-checkpoint': 1.2.2(@langchain/core@1.3.0(ws@8.22.0))
+      '@langchain/langgraph-sdk': 1.12.9(@langchain/core@1.3.0(ws@8.22.0))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@langchain/protocol': 0.0.20
       '@standard-schema/spec': 1.1.0
       zod: 4.6.7
