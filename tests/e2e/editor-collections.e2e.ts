@@ -153,11 +153,20 @@ try {
         }, root);
         for (const state of ["organize", "overview"]) {
           if (state === "overview") {
-            await page.click(mobile ? '[aria-label="Cancel"]' : '[aria-label="Organize"]');
+            if (await page.$(".air-update .air-dismiss")) {
+              await page.locator(".air-update .air-dismiss").click();
+              await page.waitForSelector(".air-update", { hidden: true });
+            }
+            await page
+              .locator(mobile ? '[aria-label="Cancel"]' : '[aria-label="Organize"]')
+              .click();
             await page.waitForSelector(".editor-page-open");
           }
           const geometry = await page.evaluate(async () => {
             await new Promise(requestAnimationFrame);
+            await Promise.all(
+              document.getAnimations().map((animation) => animation.finished.catch(() => {})),
+            );
             const areas = [
               ...document.querySelectorAll<HTMLElement>(
                 ".editor-page-collection,.editor-page-grid,.editor-properties,.editor-properties__header,.editor-properties__body,.editor-organize-panel,.editor-page-card",

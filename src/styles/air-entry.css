@@ -2238,7 +2238,7 @@ body:has(.pdf-site) {
   flex: 1 1 96px;
   min-width: 0;
   margin: 0;
-  font: 500 var(--air-text-label)/1.4 var(--air-font);
+  font: 500 var(--air-text-body)/1.4 var(--air-font);
   overflow-wrap: anywhere;
 }
 .editor-mobile-sheet__toggle {
@@ -2428,14 +2428,19 @@ body:has(.pdf-site) {
   flex-shrink: 0;
 }
 .editor-properties__title {
-  font-size: var(--air-text-body);
-  font-weight: 500;
+  margin: 0;
+  font: 500 1.25rem/1.25 var(--air-font);
+  letter-spacing: -0.02em;
   overflow-wrap: anywhere;
+}
+.editor-properties[data-compact] .editor-properties__title {
+  font-size: var(--air-text-body);
+  letter-spacing: normal;
 }
 .editor-properties__description {
   margin-block-start: 4px;
   color: var(--air-ink-secondary);
-  font-size: var(--air-text-meta);
+  font-size: var(--air-text-body);
 }
 .editor-properties__body {
   min-block-size: 0;
