@@ -1987,7 +1987,11 @@
         "844x500",
         "844x501"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/navigation-2026-10-14.json"],
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/navigation-2026-10-14.json",
+        "docs/air/tablet-followup-2026-11-09.md"
+      ],
       "notes": "Air 72px labelled rail; enlarged text may grow the rail, full accessible names, neutral selection with 2x16px marker and immediate navigation. Search uses the existing palette. Physical/assistive acceptance remains open."
     },
     {

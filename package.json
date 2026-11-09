@@ -32,7 +32,8 @@
     "test:e2e:artwork": "node --experimental-strip-types tests/e2e/landing-artwork.e2e.ts",
     "test:air-links": "node scripts/test-air-links.mjs",
     "test:air-actions": "node scripts/test-air-tool-actions.mjs",
-    "test:air-selects": "node scripts/test-air-selects.mjs"
+    "test:air-selects": "node scripts/test-air-selects.mjs",
+    "test:air-rail-labels": "node scripts/test-air-rail-labels.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.2",
