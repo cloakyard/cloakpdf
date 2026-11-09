@@ -1,17 +1,14 @@
-<div align="center">
+# CloakPDF
 
-  <p><strong>A fast, private PDF toolkit that runs entirely in your browser.</strong></p>
-  <p>No uploads, no servers, no tracking — your files never leave your device.</p>
+**Your documents. On your device.**
 
-  <p><a href="https://pdf.cloakyard.com/">pdf.cloakyard.com</a></p>
+[Website](https://pdf.cloakyard.com/) · [Source](https://github.com/cloakyard/cloakpdf) · [Support](https://ko-fi.com/sumitsahoo21)
 
-  <p>
+<p align="center">
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT License" /></a>
     <img src="https://img.shields.io/badge/platform-Web%20%7C%20PWA-blue" alt="Platform: Web & PWA" />
     <a href="https://securityscorecards.dev/viewer/?uri=github.com/cloakyard/cloakpdf"><img src="https://api.securityscorecards.dev/projects/github.com/cloakyard/cloakpdf/badge" alt="OpenSSF Scorecard" /></a>
   </p>
-
-</div>
 
 <p align="center">
   <picture>
@@ -20,9 +17,11 @@
   </picture>
 </p>
 
----
+## Overview
 
-## ✨ What it does
+A private PDF editor and toolkit that processes documents in your browser. Open a PDF to edit, annotate, redact and export it, or choose a standalone workflow for multiple files, security or on-device questions.
+
+## Features
 
 Drop a PDF and it opens in a single, canvas-based **editor** — a Photoshop-like workspace for one document at a time. **22 editor tools and 7 standalone utilities** cover everything from a quick tick on a printed form to redaction, OCR, and on-device AI:
 
@@ -41,15 +40,47 @@ A few **standalone tools** cover the jobs the single-PDF editor can't — these 
 - **🔑 Secure & Sign** — add a password & permissions, sign with a certificate, or compare two PDFs
 - **🤖 On-device AI** — _Ask your PDF_: chat with a document using a small model that runs entirely in your browser, no API key or server
 
----
+### On-device AI
 
-## 🛡️ Privacy first
+**Ask your PDF** runs a full retrieval-augmented Q&A pipeline in the browser — the model weights download once from Hugging Face, cache, and work offline after. For the architecture (LangGraph state machine, hybrid retrieval, model choices), see **[docs/local-ai.md](docs/local-ai.md)**.
+
+## Privacy
 
 Everything runs client-side — there is no server to upload to. No accounts, no analytics, no tracking. It's an installable PWA. Cached tools work offline; OCR languages and optional AI models need an initial download. On-device AI needs no API key or inference server.
 
----
+## Getting started
 
-## 🧰 Tech stack
+Open [pdf.cloakyard.com](https://pdf.cloakyard.com/) in a modern browser. Drop a PDF or browse for one, choose a tool, then export. Standalone cards handle multi-file jobs.
+
+The installable PWA caches its core shell after loading. Optional language/model assets require their own initial download; cached availability depends on browser storage.
+
+## Development
+
+Requires Node.js 24 or newer and the Vite+ CLI (`npm install --global vite-plus`).
+
+```bash
+git clone https://github.com/cloakyard/cloakpdf.git
+cd cloakpdf
+vp install
+vp dev       # http://localhost:5173
+```
+
+| Command                     | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `vp dev`                    | Dev server with hot reload                                           |
+| `vp run build`              | Type-check, build and verify deployment assets                       |
+| `vp check`                  | Format, lint, type-check                                             |
+| `pnpm check:dead`           | Audit unused code and dependencies                                   |
+| `vp test run tests/unit`    | Run unit tests                                                       |
+| `pnpm generate-icons`       | Rebuild PWA, touch, and legacy icons from the app-icon SVG           |
+| `pnpm generate-screenshots` | Capture light/dark editor previews from a running production preview |
+| `pnpm generate-og`          | Render the Air social card from local artwork and the editor capture |
+
+### Verification
+
+Run `vp check`, `pnpm check:dead`, `vp test run tests/unit` and `vp run build` before committing. Run the applicable browser suites from [CLAUDE.md](CLAUDE.md) against a production preview. AI inference checks are separate from deterministic dialog-state checks.
+
+### Technology
 
 | Area             | Technology                                                                                                                   |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -62,31 +93,9 @@ Everything runs client-side — there is no server to upload to. No accounts, no
 | On-device AI     | [Transformers.js](https://github.com/huggingface/transformers.js) + [LangGraph](https://langchain-ai.github.io/langgraphjs/) |
 | Deployment       | [Cloudflare Workers](https://workers.cloudflare.com/)                                                                        |
 
----
+## Design and assets
 
-## 🚀 Getting started
-
-```bash
-git clone https://github.com/cloakyard/cloakpdf.git
-cd cloakpdf
-vp install   # needs Node ≥ 24 and `npm i -g vite-plus`
-vp dev       # http://localhost:5173
-```
-
-| Command                     | Description                                                          |
-| --------------------------- | -------------------------------------------------------------------- |
-| `vp dev`                    | Dev server with hot reload                                           |
-| `vp build`                  | Type-check + production build                                        |
-| `vp check`                  | Format, lint, type-check                                             |
-| `pnpm check:dead`           | Audit unused code and dependencies                                   |
-| `vp test`                   | Run unit tests                                                       |
-| `pnpm generate-icons`       | Rebuild PWA, touch, and legacy icons from the app-icon SVG           |
-| `pnpm generate-screenshots` | Capture light/dark editor previews from a running production preview |
-| `pnpm generate-og`          | Render the Air social card from local artwork and the editor capture |
-
----
-
-## 🎨 Brand assets
+[DESIGN.md](DESIGN.md) is the portable Air contract. [Surface coverage](docs/air/surfaces.json) and [validation](docs/air/validation.md) record actual states and remaining acceptance. UI changes use the pinned local Air bundle; document output retains its chosen appearance.
 
 CloakPDF follows the shared Cloakyard mark and installed-app icon contract in
 **[docs/logo-spec.md](docs/logo-spec.md)**. The circular UI mark lives at
@@ -99,16 +108,35 @@ the social composition. See [preview regeneration](docs/og-image.md) for the
 local production server, dimensions and synthetic content. The README selects
 the matching light/dark editor image; install previews also include phone layouts.
 
----
+## Project structure
 
-## 🤖 On-device AI
+```text
+cloakpdf/
+├── src/editor/             # Document workspace, rail and editing tools
+├── src/standalone/         # Multi-file, security and Ask PDF workflows
+├── src/components/         # Shared application controls and overlays
+├── src/styles/             # Pinned Air foundations and product composition
+├── public/                 # Local assets, PWA icons and real editor captures
+├── scripts/                # Asset generation and browser/design checks
+├── tests/                  # Unit, browser and output checks
+├── docs/                   # Architecture, privacy, design and validation records
+└── wrangler.jsonc          # Cloudflare static Worker configuration
+```
 
-**Ask your PDF** runs a full retrieval-augmented Q&A pipeline in the browser — the model weights download once from Hugging Face, cache, and work offline after. For the architecture (LangGraph state machine, hybrid retrieval, model choices), see **[docs/local-ai.md](docs/local-ai.md)**.
+## Deployment and releases
 
----
+The production build is served as static assets by Cloudflare Workers using `wrangler.jsonc`. Run `vp run build` before `vp preview` or a deployment dry run. Work on `dev`, open a PR into `main`, merge only after required checks pass, and update `dev` from `main`.
 
-## 🤝 Contributing & license
+Only the configured main-branch deployment publishes production. Check the exact main commit, hosting result and live assets; a local build does not prove deployment.
 
-Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under the [MIT License](LICENSE).
+## Contributing
 
-<p align="center">Built with ❤️ by <a href="https://github.com/sumitsahoo">Sumit Sahoo</a></p>
+Read [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) and [DESIGN.md](DESIGN.md) before changes. See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution and disclosure guidance. Keep changes bounded, preserve features and output, remove obsolete references, and record actual verification. Compare all applicable views in phone, tablet, laptop and desktop layouts, both themes.
+
+The [family README standard](https://github.com/cloakyard/cloakyard/blob/main/docs/README_STANDARD.md) defines this document's section order. Support the project through [Buy me a coffee](https://ko-fi.com/sumitsahoo21).
+
+## License
+
+Released under the [MIT License](LICENSE). Third-party components retain their own licenses.
+
+Built by [Sumit Sahoo](https://github.com/sumitsahoo), part of [Cloakyard](https://cloakyard.com/).

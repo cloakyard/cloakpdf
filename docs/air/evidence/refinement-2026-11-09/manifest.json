@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-09",
+  "scope": "See local refinement record and canonical per-view ledger for limits.",
+  "receipts": [
+    {
+      "source": "gates.json",
+      "file": "gates.json.gz",
+      "sha256": "87eba3d898297b0a03383fba98f8fc5cd3a86c57df6747377e80797351d62f94"
+    },
+    {
+      "source": "ui-shared.json",
+      "file": "ui-shared.json.gz",
+      "sha256": "fa7bd93d7cab4f77154d6027b7873073808af30ee77695483dc206714dcdcf8c"
+    },
+    {
+      "source": "css-review.json",
+      "file": "css-review.json.gz",
+      "sha256": "68ff93c2c0c6254e46ba985bc321cad0a67166ddaf65b1612e2287376d9b7049"
+    },
+    {
+      "source": "pdf-final.json",
+      "file": "pdf-final.json.gz",
+      "sha256": "2753f5006a6fdc52e589eb758873d85384cd6a1489eebc7ef597dcb67a76a08a"
+    },
+    {
+      "source": "pdf-final-rerun.json",
+      "file": "pdf-final-rerun.json.gz",
+      "sha256": "08e28c55f008786b728a9ddd39eaa982ba68ded5ee7cab88203d6065ccb02356"
+    },
+    {
+      "source": "pdf-copy-final.json",
+      "file": "pdf-copy-final.json.gz",
+      "sha256": "cbd6b4b04d114d83c4166a3ddf204c1ed5a20f30fe8ff69a140c1535cffad796"
+    },
+    {
+      "source": "pdf-standalone/results.json",
+      "file": "pdf-standalone--results.json.gz",
+      "sha256": "4ece3ce55f276faa9f356d40e640e676a2f08725580cc6ef47c951fa408421ab"
+    },
+    {
+      "source": "pdf-ask-ready/results.json",
+      "file": "pdf-ask-ready--results.json.gz",
+      "sha256": "7e9e208ef200596e9deb793aba1a0e2ae385b4c4a70021413362b514b6273841"
+    },
+    {
+      "source": "pdf-copy-feature.log",
+      "file": "pdf-copy-feature.log.gz",
+      "sha256": "d26c1307b90cf24f44363a4151987e53bd27417f343b9994dff62906f78b8689"
+    },
+    {
+      "source": "pdf-ai-states.log",
+      "file": "pdf-ai-states.log.gz",
+      "sha256": "896bd32b340622a0e4ccfc7c7d21fd408a077e61b16971c69045b9e612d9e3f2"
+    },
+    {
+      "source": "pdf-actions.log",
+      "file": "pdf-actions.log.gz",
+      "sha256": "efbac28f979a713eb362c0933c3898fb2a2f21a773716ec425d69b5c65066753"
+    }
+  ]
+}

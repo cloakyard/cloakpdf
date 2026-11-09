@@ -448,7 +448,7 @@ export default function PdfPassword() {
             onClick={() => run()}
             processing={busy}
             disabled={pdfState === "unencrypted" && (!newPassword || !passwordsMatch)}
-            label={pdfState === "unencrypted" ? "Protect & Download" : "Unlock & Download"}
+            label={pdfState === "unencrypted" ? "Protect & download" : "Unlock & download"}
             processingLabel={pdfState === "unencrypted" ? "Protecting…" : "Unlocking…"}
             secondaryLabel={pdfState === "encrypted" ? "Unlock & edit" : undefined}
             onSecondaryClick={pdfState === "encrypted" ? () => run("editor") : undefined}

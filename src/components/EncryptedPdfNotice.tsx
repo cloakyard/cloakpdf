@@ -4,7 +4,7 @@
  *
  * Replaces the file dropzone (and any error alert) so the user lands on
  * actionable copy instead of a raw "No password given" / "EncryptedPDFError"
- * line. The primary CTA deep-links into the PDF Password tool — that's the
+ * line. The primary CTA deep-links into the PDF password tool — that's the
  * one tool in the app that can strip the password — and a secondary
  * "Choose another file" returns the user to the dropzone.
  */
@@ -27,7 +27,7 @@ export function EncryptedPdfNotice({ file, onChangeFile }: EncryptedPdfNoticePro
         <p className="pdf-encrypted-title">This PDF is password-protected</p>
         <p>
           <span>{file.name}</span> ({formatFileSize(file.size)}) is encrypted and can't be processed
-          by this tool. Remove the password first with PDF Password, then come back and open the
+          by this tool. Remove the password first with PDF password, then come back and open the
           unlocked copy.
         </p>
         <div className="pdf-actions">
@@ -36,7 +36,7 @@ export function EncryptedPdfNotice({ file, onChangeFile }: EncryptedPdfNoticePro
             onClick={() => navigateToTool("pdf-password")}
             className="air-button air-button--primary"
           >
-            Open PDF Password
+            Open PDF password
           </button>
           <button type="button" onClick={onChangeFile} className="air-button">
             Choose another file

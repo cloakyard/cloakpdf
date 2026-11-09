@@ -578,7 +578,7 @@ export default function DigitalSignature() {
             onClick={handleSign}
             processing={signing}
             disabled={!identity || certLoading}
-            label="Sign & Download PDF"
+            label="Sign & download PDF"
             processingLabel="Signing…"
           />
           {signing && (

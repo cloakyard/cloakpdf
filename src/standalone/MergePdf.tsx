@@ -92,7 +92,7 @@ export default function MergePdf() {
           onClick={() => runMerge(false)}
           processing={task.processing}
           disabled={checking || queue.displayed.length < 2}
-          label={`Merge ${queue.displayed.length} files & Download`}
+          label={`Merge ${queue.displayed.length} files & download`}
           processingLabel="Merging…"
           secondaryLabel="Merge & edit"
           onSecondaryClick={() => runMerge(true)}
