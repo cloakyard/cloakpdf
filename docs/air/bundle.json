@@ -1,19 +1,19 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "ebcfe4f5ccc2c530fa9676b957664cc1c6e1ad4e7b1612a9771a2e38c89360ca"
+    "contractSha256": "33da13992befe0dcc707978bb702ffcb3e1d2d59dcb9ddec156043d0a0c0c015"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
-    "components.html": "a538b4a936890b2d97274d6904d01f66bafc899f64d41ac9c0cbc4379784f6ae",
-    "reading.html": "2c4b6b5a96b2469376495d480e653bc474e0ad6d3d7f471b1419defb5ba8b6f3",
-    "recovery.html": "e23778de320757ae075010f217c06b1eef0f235df3547b8d0fd3ecd10dd43fb1",
+    "components.html": "20c15690ec9a14671f0917f381b19eadcbc76b20d8b53dd1108e0c7fbd3c1789",
+    "reading.html": "c54515c16c6f7964ff2baefc76ca3275b096a065a914858dbe7497834a9e3aea",
+    "recovery.html": "4c59b9609cde15544f2cd40fa2bbc513914e3a7c10c30d4e6d81e9d9340eb39e",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",
-    "files.html": "31abb141c0020acb2727913eeadc146ef45c9494ef5e911f7600a8b0af877526",
-    "collections.html": "17479e303a1ba88b42693e0886c9ee1e4af9b5a6bcfb70119a4e8c7aedf95dbe",
+    "files.html": "c5400f6ef4bf5df0b0b2466a3b5a1c26f4e025ade0030dd0fbc81b8eddfaae59",
+    "collections.html": "a5a198cd9b9f2e044397877a7ddfc34cf3314af7c517b16d988cf573ffa1b017",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "6c0b76f8a5f3b63b68adf88588552c2a64568899b993fc9913bd84bb3859e1a2",
     "motion.d.mts": "965cc024e7727692d30340b748c65f0a84280d50dc066cbaf13c0a7447614e67",
@@ -26,16 +26,16 @@
     "privacy.tsx": "012716986f6cc8fa0059e976f7f9bfe615e763de446e7f659675e4098ef27dec",
     "colour.mjs": "4116d6738bddaeeb4992f00bdcd53851fea29e50da7d607be798e2224ff54751",
     "colour.d.mts": "99f8ef26c936a4501463e2890c97bdc5bc8b4ae17a73e985facd19a081681396",
-    "light-controller.mjs": "2743c8a375e4fd520563272f1e62876330fbf84e5636acd0a3dc1011a6ebc95f",
+    "light-controller.mjs": "716f0ae862042a39ad42477d054bf364735a9ff7c057b6a4f48f24265793c86e",
     "light-runtime.mjs": "dd8c7416bc6dd485c3b1238cff4419d5a1ee6d656d8672798f7d596a13c013be",
     "light-runtime.d.mts": "dde1dfec3b25560dabe3373a63d2964141ca258f50347d4de2fdac3620493654",
-    "assets/air-light-shader.js": "0b520e6750ae4f2aaa18d85652bdd59d37ea4ee6b3ac0b0cb2c995cf8b574599",
-    "assets/THIRD_PARTY_LICENSES.txt": "c4c6ed0a062cd489b3b35c1011307bd8eebd1c418ca7720bb8e6a9bfde6502cc",
-    "overlays-loader.mjs": "8e0d9aa87614af2e1c40fa75a6c7ed0239b8b33a443e7324656f4ed9e06cf841",
-    "assets/air-overlays.js": "559254ccfd8a6def5b8f233d408360b2793f6939eab843c45831bd23476e87cc",
-    "assets/air-collections.js": "279d61d4b9ff9ee850473d4a2bc269657d5d9a117958e7eb40fb9d1f9fb60d36",
+    "assets/air-light-shader.js": "7ef73ce9096a512e0bef4812caab47daa01fddf738355cdb64280b28c17817d5",
+    "assets/THIRD_PARTY_LICENSES.txt": "987053933235f31d3b1b43f63ed273c0fb5fdc60f28613426c780492e3a22364",
+    "overlays-loader.mjs": "e3fe1baeda86b7a0d12b2abae1d52c5b19ab39945222451152d122b05f024820",
+    "assets/air-overlays.js": "142a144d36e2828226402e8e74fb26df6442f9996e81d2582985e419d2baae08",
+    "assets/air-collections.js": "53df7d7f36b737b83faa2b26ccd370e0577f709edc135c69df417e7c1e003a0b",
     "assets/OVERLAY_LICENSES.txt": "ef78a704ca6d56335461411417b86d80a4e8870500365c25d1ee4c50aa1924ab"
   },
-  "sha256": "929dd05b7c511730743a8e3d9dfe1ce5e5be28a8d47a3e541aa6ce28b6096a4f",
+  "sha256": "249d805013dcdf81b5e59672b09b8148bae26a1701cbfaa8bbdfec741c6ba63c",
   "note": "Pinned family bundle. Runtime migration is tracked separately in surfaces.json."
 }

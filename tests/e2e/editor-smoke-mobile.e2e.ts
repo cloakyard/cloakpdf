@@ -148,6 +148,18 @@ async function pickTool(page: Page, name: string): Promise<void> {
     '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
     { timeout: 10_000 },
   ); // tool active
+  // A lazy panel may initially show Close before its draft/action registration.
+  // Wait for the real data read, not merely the persistent header's first paint.
+  await page.waitForFunction(() => {
+    const body = document.querySelector(".editor-mobile-sheet__body");
+    return (
+      body &&
+      !body.querySelector("[data-tool-panel-loading]") &&
+      ![...body.querySelectorAll('[role="status"]')].some((n) =>
+        /^(Reading|Loading|Preparing)\b/.test(n.textContent?.trim() ?? ""),
+      )
+    );
+  });
 }
 
 /** Sheet height as a fraction of the editor content column it sits in. */
@@ -379,10 +391,15 @@ async function main() {
       "Attach",
     ];
     for (const name of sweep) {
+      console.log(`  → checking ${name}`);
       await pickTool(page, name); // also waits for the completion action (tool active)
-      if (!(await page.$('button[aria-label="Cancel"]'))) fail(`${name}: Cancel missing.`);
+      const canCancel = await page.$('button[aria-label="Cancel"]');
+      if (!canCancel && !(await page.$('button[aria-label="Close"]')))
+        fail(`${name}: Completion missing.`);
       await assertHalfSplit(page, name);
-      await page.click('button[aria-label="Cancel"]'); // ✗ rolls back + closes
+      await page
+        .locator('.air-editor-actions button:is([aria-label="Cancel"],[aria-label="Close"])')
+        .click();
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
     console.log(

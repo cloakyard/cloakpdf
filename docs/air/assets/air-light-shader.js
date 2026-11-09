@@ -1,5 +1,5 @@
-/* Air light / Shaders 4.0.5. Generated; see THIRD_PARTY_LICENSES.txt. */
-// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/support-D3W86vgR.js
+/* Air light / Shaders 4.0.7. Generated; see THIRD_PARTY_LICENSES.txt. */
+// node_modules/.pnpm/shaders@4.0.7_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/support-D3W86vgR.js
 var e = class extends Error {
 	reason;
 	constructor(e, t, n) {
@@ -68,7 +68,7 @@ function m(e) {
 function h() {
 	return p;
 }
-// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
+// node_modules/.pnpm/shaders@4.0.7_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/transformations-P50Uo_Ju.js
 function g(e, t) {
 	let n = e.length;
 	Array.isArray(e[0]) || (e = [e]), Array.isArray(t[0]) || (t = t.map((e) => [e]));
@@ -6615,7 +6615,7 @@ function ad(e) {
 		let s = o !== t;
 		s && (r = !1);
 		let c = cd(a);
-		t += c.size, !i && (!s && c.isContiguous ? n += c.size : (i = !0, r = !1, s || (n += c.longestContiguousPrefix)));
+		t += c.size, i || (!s && c.isContiguous ? n += c.size : (i = !0, r = !1, s || (n += c.longestContiguousPrefix)));
 	}
 	return {
 		isContiguous: r,
@@ -46045,97 +46045,97 @@ function UD(e, t, n, r) {
 	};
 }
 function WD(e, t = {}) {
-	let n = { sampler: OD }, r = [], i = [], a = [], o = [], s = /* @__PURE__ */ new Set(), l = [], u = [], d = [], f = [], p = 0, m = 0, h = 0, g = 0, _ = /* @__PURE__ */ new Set(), v = e.store.layout;
-	v && v.$idx(kD.uniforms), n.uniform = v;
-	let y = (e) => new wD((t) => (v && t.external(v, "uni"), e)), b = (e) => y(`uni.$.uniforms.${e}`), x = (t) => y(e.store.gpuAccessor(t, "uni")), S = {
+	let n = { sampler: OD }, r = [], i = [], a = [], o = [], s = /* @__PURE__ */ new Set(), l = [], u = [], d = [], f = [], p = /* @__PURE__ */ new Map(), m = 0, h = 0, g = 0, _ = 0, v = /* @__PURE__ */ new Set(), y = e.store.layout;
+	y && y.$idx(kD.uniforms), n.uniform = y;
+	let b = (e) => new wD((t) => (y && t.external(y, "uni"), e)), x = (e) => b(`uni.$.uniforms.${e}`), S = (t) => b(e.store.gpuAccessor(t, "uni")), C = {
 		uv: new wD(() => "uv"),
-		time: b("_sys.time"),
-		viewportSize: b("_sys.viewportSize"),
-		logicalViewportSize: b("_sys.logicalViewportSize"),
-		aspect: b("_sys.aspect"),
-		pointer: b("_sys.pointer")
-	}, C = (e) => ({
+		time: x("_sys.time"),
+		viewportSize: x("_sys.viewportSize"),
+		logicalViewportSize: x("_sys.logicalViewportSize"),
+		aspect: x("_sys.aspect"),
+		pointer: x("_sys.pointer")
+	}, w = (e) => ({
 		key: e,
 		sample: (t, n = "linearClamp") => new wD((r) => `textureSample(tex.$.${e}, samp.$.${n}, ${t._emit(r)})`),
 		sampleLevel: (t, n = "linearClamp") => new wD((r) => `textureSampleLevel(tex.$.${e}, samp.$.${n}, ${t._emit(r)}, 0.0)`),
 		accessor: () => new wD(() => `tex.$.${e}`),
 		dimensions: () => new wD(() => `vec2f(textureDimensions(tex.$.${e}))`)
-	}), w = (e) => ({
+	}), T = (e) => ({
 		key: e,
 		sample: (t, n = "linearClamp") => new wD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
 		sampleLevel: (t, n = "linearClamp") => new wD((r) => `textureSampleBaseClampToEdge(ext.$.${e}, samp.$.${n}, ${t._emit(r)})`),
 		accessor: () => new wD(() => `ext.$.${e}`),
 		dimensions: () => new wD(() => `vec2f(textureDimensions(ext.$.${e}))`)
-	}), T = (e) => {
-		let t = `rtt_${p++}`;
+	}), E = (e) => {
+		let t = `rtt_${m++}`;
 		return r.push({
 			key: t,
 			root: e
 		}), i.push({
 			key: t,
 			kind: "rtt"
-		}), C(t);
-	}, E = /* @__PURE__ */ new Map(), ee = (t, n, r) => {
-		let i = `${t.id}:${n}`, a = E.get(i);
+		}), w(t);
+	}, ee = /* @__PURE__ */ new Map(), te = (t, n, r) => {
+		let i = `${t.id}:${n}`, a = ee.get(i);
 		if (a !== void 0) return a;
-		let o = r ? e.resolveCustomId(r) : null, s = o ? T(De(o, /* @__PURE__ */ new Set([t.id]))) : null;
-		return E.set(i, s), s;
-	}, te = /* @__PURE__ */ new Map(), ne = (e) => {
-		let t = te.get(e.id);
+		let o = r ? e.resolveCustomId(r) : null, s = o ? E(Oe(o, /* @__PURE__ */ new Set([t.id]))) : null;
+		return ee.set(i, s), s;
+	}, ne = /* @__PURE__ */ new Map(), re = (e) => {
+		let t = ne.get(e.id);
 		if (t) return t;
 		let n = {}, r = e.metadata.maps;
 		if (r) {
 			let t = {}, i = e.definition.mapSampleUVs;
 			if (i) {
 				let n = {};
-				for (let [t, r] of Object.entries(e.handles)) r.cpu || (n[t] = x(r));
+				for (let [t, r] of Object.entries(e.handles)) r.cpu || (n[t] = S(r));
 				t = i({
 					uniforms: n,
-					ctx: S
+					ctx: C
 				}) ?? {};
 			}
 			for (let [i, a] of Object.entries(r)) {
 				if (!(i in e.handles)) continue;
-				let r = oe(a, e, i, t[i]);
+				let r = se(a, e, i, t[i]);
 				r && (n[i] = r);
 			}
 		}
-		return te.set(e.id, n), n;
-	}, re = (e) => {
+		return ne.set(e.id, n), n;
+	}, ie = (e) => {
 		let t = lC(e.id), n = e.metadata.maps;
-		if (!n || Object.keys(n).length === 0) return b(t);
-		let r = ne(e);
-		return Object.keys(r).length === 0 ? b(t) : new wD((n) => n.memo(`props:${e.id}`, () => {
-			v && n.external(v, "uni");
+		if (!n || Object.keys(n).length === 0) return x(t);
+		let r = re(e);
+		return Object.keys(r).length === 0 ? x(t) : new wD((n) => n.memo(`props:${e.id}`, () => {
+			y && n.external(y, "uni");
 			let e = n.freshLocal(`p_${t}`);
 			n.statement(`var ${e} = uni.$.uniforms.${t};`);
 			for (let [t, i] of Object.entries(r)) n.statement(`${e}.${t} = ${i._emit(n)};`);
 			return e;
 		}));
-	}, ie = (e) => {
+	}, ae = (e) => {
 		let t = {};
 		for (let [n, r] of Object.entries(e.handles)) t[n] = r.value;
 		return t;
-	}, ae = (e) => {
+	}, oe = (e) => {
 		let t = {};
 		lC(e.id);
-		let n = re(e);
+		let n = ie(e);
 		for (let [r, i] of Object.entries(e.handles)) {
 			if (i.cpu) continue;
 			let a = e.metadata.maps;
-			t[r] = a && r in a ? n.member(r) : x(i);
+			t[r] = a && r in a ? n.member(r) : S(i);
 		}
 		let r = e.definition.extraFields;
 		if (r) for (let e of Object.keys(r)) t[e] = n.member(e);
 		return t;
-	}, oe = (e, t, n, r) => {
+	}, se = (e, t, n, r) => {
 		let i = e, a = lC(t.id);
 		if (i.type === "map") {
-			let e = ee(t, n, i.source);
-			return e ? YD(JD(e.sample(r ?? S.uv), i.channel ?? "luminance"), b(`${a}._map_${n}_inputMin`), b(`${a}._map_${n}_inputMax`), b(`${a}._map_${n}_outputMin`), b(`${a}._map_${n}_outputMax`), b(`${a}._map_${n}_curve`)) : null;
+			let e = te(t, n, i.source);
+			return e ? YD(JD(e.sample(r ?? C.uv), i.channel ?? "luminance"), x(`${a}._map_${n}_inputMin`), x(`${a}._map_${n}_inputMax`), x(`${a}._map_${n}_outputMin`), x(`${a}._map_${n}_outputMax`), x(`${a}._map_${n}_curve`)) : null;
 		}
-		return i.type === "mouse-position" || i.type === "mouse" || i.type === "auto-animate" ? b(`${a}._smoothed_${n}`) : null;
-	}, se = (t, n, r, i) => {
+		return i.type === "mouse-position" || i.type === "mouse" || i.type === "auto-animate" ? x(`${a}._smoothed_${n}`) : null;
+	}, ce = (t, n, r, i) => {
 		let a = n.metadata.mask;
 		if (!a?.source) return t;
 		let o = e.resolveCustomId(a.source);
@@ -46143,10 +46143,10 @@ function WD(e, t = {}) {
 		if (r.has(o)) return console.error("[gpu] circular dependency in shader masks."), t;
 		let s = new Set(r);
 		s.add(n.id);
-		let c = De(o, s);
-		return i && (c = T(c).sample(i)), VD(t, c, a.type ?? "alpha");
-	}, ce = (e) => b(`${lC(e.id)}._opacity`), le = (e) => !!e.metadata.boundingBox && !!e.definition.boundingBoxDeclaration && !_D(e.metadata.boundingBox), ue = (e) => e.handles.cutout?.value === 1, de = (e) => !!e.definition.requiresChild, fe = (e) => !!e.definition.blendWithChildren, pe = (e) => le(e) && !e.definition.boundingBoxDeclaration?.boxResamplesContent && de(e) && e.metadata.blendMode === "normal" && !ue(e) && !fe(e), me = () => new wD((e) => `(0.5 / max(${S.viewportSize.member("y")._emit(e)}, 1.0))`), he = (e, t = S.uv) => {
-		let n = lC(e.id), r = (e) => b(`${n}._bbox_${e}`);
+		let c = Oe(o, s);
+		return i && (c = E(c).sample(i)), VD(t, c, a.type ?? "alpha");
+	}, le = (e) => x(`${lC(e.id)}._opacity`), ue = (e) => !!e.metadata.boundingBox && !!e.definition.boundingBoxDeclaration && !_D(e.metadata.boundingBox), de = (e) => e.handles.cutout?.value === 1, fe = (e) => !!e.definition.requiresChild, pe = (e) => !!e.definition.blendWithChildren, me = (e) => ue(e) && !e.definition.boundingBoxDeclaration?.boxResamplesContent && fe(e) && e.metadata.blendMode === "normal" && !de(e) && !pe(e), he = () => new wD((e) => `(0.5 / max(${C.viewportSize.member("y")._emit(e)}, 1.0))`), ge = (e, t = C.uv) => {
+		let n = lC(e.id), r = (e) => x(`${n}._bbox_${e}`);
 		return MD(xD, "bboxClipMask", [
 			t,
 			r("centerX"),
@@ -46156,13 +46156,13 @@ function WD(e, t = {}) {
 			r("cornerRadius"),
 			r("rotation"),
 			r("aspectRatio"),
-			me()
+			he()
 		]);
-	}, ge = (e, t) => {
-		if (!le(t)) return e;
+	}, _e = (e, t) => {
+		if (!ue(t)) return e;
 		if (t.definition.boundingBoxDeclaration?.boxResamplesContent) {
-			let n = lC(t.id), r = (e) => b(`${n}._bbox_${e}`), i = T(e), a = MD(SD, "bboxGenUVContext", [
-				S.uv,
+			let n = lC(t.id), r = (e) => x(`${n}._bbox_${e}`), i = E(e), a = MD(SD, "bboxGenUVContext", [
+				C.uv,
 				r("centerX"),
 				r("centerY"),
 				r("halfWidth"),
@@ -46170,16 +46170,16 @@ function WD(e, t = {}) {
 				r("rotation"),
 				r("aspectRatio")
 			]), o = MD(DE, "unpremultiplyAlpha", [i.sample(a)]);
-			return ND(o.member("rgb"), o.member("a").mul(he(t)));
+			return ND(o.member("rgb"), o.member("a").mul(ge(t)));
 		}
-		let n = he(t);
+		let n = ge(t);
 		return ND(e.member("rgb"), e.member("a").mul(n));
-	}, _e = (e, t) => {
+	}, ve = (e, t) => {
 		let n = t.metadata.transform;
 		if (!n || !vD(n)) return e;
-		let r = lC(t.id), i = T(e), a = (e) => b(`${r}._xform_${e}`);
+		let r = lC(t.id), i = E(e), a = (e) => x(`${r}._xform_${e}`);
 		return dO(MD(yD, "applyUVTransform", [
-			S.uv,
+			C.uv,
 			a("offsetX"),
 			a("offsetY"),
 			a("rotation"),
@@ -46188,16 +46188,16 @@ function WD(e, t = {}) {
 			a("anchorY"),
 			a("aspectRatio")
 		]), (e) => i.sample(e), XD[n.edges] ?? 0);
-	}, ve = (e, t, n) => le(n) ? t !== void 0 && pe(n) ? PD(t, e, he(n)) : ge(e, n) : _e(e, n), ye = (e, t) => pe(t) ? {
+	}, ye = (e, t, n) => ue(n) ? t !== void 0 && me(n) ? PD(t, e, ge(n)) : _e(e, n) : ve(e, n), be = (e, t) => me(t) ? {
 		transformedFragment: e,
-		clipMaskNode: he(t)
+		clipMaskNode: ge(t)
 	} : {
-		transformedFragment: le(t) ? ge(e, t) : _e(e, t),
+		transformedFragment: ue(t) ? _e(e, t) : ve(e, t),
 		clipMaskNode: void 0
-	}, be = (e, t, n, r) => {
-		let i = ce(n), a = fe(n) ? e === void 0 ? PD(LD, t, i) : BD(e, t, "normal", i) : PD(e ?? LD, t, i);
+	}, xe = (e, t, n, r) => {
+		let i = le(n), a = pe(n) ? e === void 0 ? PD(LD, t, i) : BD(e, t, "normal", i) : PD(e ?? LD, t, i);
 		return r === void 0 ? a : PD(e ?? LD, a, r);
-	}, xe = (e, t) => {
+	}, Se = (e, t) => {
 		if (e.definition.compute) try {
 			let n = e.definition.compute(t);
 			if (n) return o.push({
@@ -46208,8 +46208,8 @@ function WD(e, t = {}) {
 		} catch (t) {
 			c(`[gpu] error initializing compute for node ${e.id}:`, t);
 		}
-	}, Se = (e) => {
-		let t = lC(e.id), n = (e) => b(`${t}._bbox_${e}`);
+	}, Ce = (e) => {
+		let t = lC(e.id), n = (e) => x(`${t}._bbox_${e}`);
 		return {
 			centerX: n("centerX"),
 			centerY: n("centerY"),
@@ -46217,21 +46217,21 @@ function WD(e, t = {}) {
 			halfHeight: n("halfHeight"),
 			rotation: n("rotation")
 		};
-	}, Ce = (e) => {
+	}, we = (e) => {
 		let t = e.definition.boundingBoxDeclaration;
 		return !!t && (!!t.computeBounds || !!t.propBindings);
-	}, we = (t) => {
+	}, Te = (t) => {
 		if (!t.definition.wantsBoundsParams) return {};
 		let n = {};
-		le(t) && (n.ownBoundsParams = Se(t));
+		ue(t) && (n.ownBoundsParams = Ce(t));
 		let r = [...e.getChildren(t.id)].sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder);
 		for (let e of r) if (e.metadata.visible !== !1) {
-			if (le(e)) {
-				n.childBoundsParams = Se(e);
+			if (ue(e)) {
+				n.childBoundsParams = Ce(e);
 				break;
 			}
-			if (Ce(e)) {
-				let e = lC(t.id), r = (t) => b(`${e}._childBounds_${t}`);
+			if (we(e)) {
+				let e = lC(t.id), r = (t) => x(`${e}._childBounds_${t}`);
 				n.childBoundsParams = {
 					centerX: r("centerX"),
 					centerY: r("centerY"),
@@ -46243,17 +46243,17 @@ function WD(e, t = {}) {
 			}
 		}
 		return n;
-	}, Te = !1, Ee = (e, n, r = {}) => ({
+	}, Ee = !1, De = (e, n, r = {}) => ({
 		noteCustomWgsl: () => {
-			Te = !0;
+			Ee = !0;
 		},
-		props: re(e),
-		uniforms: ae(e),
-		propValues: ie(e),
+		props: ie(e),
+		uniforms: oe(e),
+		propValues: ae(e),
 		childNode: n,
-		ctx: S,
-		logicalViewportSize: S.logicalViewportSize,
-		convertToTexture: T,
+		ctx: C,
+		logicalViewportSize: C.logicalViewportSize,
+		convertToTexture: E,
 		declareTexture: (e) => {
 			i.some((t) => t.key === e.key) || i.push({
 				key: e.key,
@@ -46262,21 +46262,21 @@ function WD(e, t = {}) {
 			});
 		},
 		registerExternalTexture: (e) => {
-			let t = `video_${h++}`;
+			let t = `video_${g++}`;
 			return a.push({
 				key: t,
 				getSource: e
-			}), w(t);
+			}), T(t);
 		},
 		registerComputeTexture: (e) => {
-			let t = `compute_${m++}`;
+			let t = `compute_${h++}`;
 			i.push({
 				key: t,
 				kind: "compute",
 				resource: { texture: e }
 			});
 			let n = e?.props?.format;
-			return (n === "r32float" || n === "rg32float" || n === "rgba32float") && _.add(t), C(t);
+			return (n === "r32float" || n === "rg32float" || n === "rgba32float") && v.add(t), w(t);
 		},
 		createMediaTexture: (e) => t.createMediaTexture?.(e) ?? (() => {
 			throw Error("[gpu] createMediaTexture unavailable (no TextureManager injected)");
@@ -46285,14 +46285,14 @@ function WD(e, t = {}) {
 			throw Error("[gpu] createDataTexture unavailable (no TextureManager injected)");
 		})(),
 		registerMediaTexture: (e) => {
-			let t = `media_${g++}`;
+			let t = `media_${_++}`;
 			return i.push({
 				key: t,
 				kind: "media",
 				resource: { get texture() {
 					return e();
 				} }
-			}), C(t);
+			}), w(t);
 		},
 		getCpuValue: (n) => {
 			if ((e.metadata.maps?.[n] || n.startsWith("_animTime")) && t.resolveDriverCpuValue) {
@@ -46304,7 +46304,7 @@ function WD(e, t = {}) {
 		getMapInfo: (n) => {
 			let r = e.metadata.maps?.[n];
 			if (!r || r.type !== "map") return null;
-			let i = ee(e, n, r.source);
+			let i = te(e, n, r.source);
 			return i ? {
 				sourceTexture: i,
 				channel: r.channel ?? "luminance",
@@ -46319,9 +46319,10 @@ function WD(e, t = {}) {
 		},
 		getLayerTexture: (t) => {
 			let n = e.handles[t]?.value;
-			return typeof n != "string" || n === "" ? null : ee(e, t, n);
+			return typeof n != "string" || n === "" ? null : te(e, t, n);
 		},
 		setExtraField: (n, r) => t.writeExtraField?.(e.id, n, r),
+		shared: (e, t) => (p.has(e) || p.set(e, t()), p.get(e)),
 		onCleanup: (e) => f.push(e),
 		onBeforeRender: (e) => l.push(e),
 		onAfterRender: (e) => u.push(e),
@@ -46333,52 +46334,52 @@ function WD(e, t = {}) {
 		},
 		gpu: t.gpu,
 		domCanvas: e.domCanvas,
-		...we(e),
+		...Te(e),
 		...r
 	});
-	function De(t, n = /* @__PURE__ */ new Set()) {
+	function Oe(t, n = /* @__PURE__ */ new Set()) {
 		let r = e.getNode(t);
 		if (!r) return LD;
 		let i = e.getChildren(t);
 		if (i.length > 0 && r.definition.providesUVContextViaCompute) {
-			let e = Ge(r, i, n);
+			let e = Ke(r, i, n);
 			if (e !== null) return e;
 		}
 		if (i.length > 0 && r.definition.uvRemap) {
-			let e = Ve(r, i);
+			let e = He(r, i);
 			if (e !== null) return e;
-			let t = We(r, i, n);
+			let t = Ge(r, i, n);
 			if (t !== null) return t;
 		}
 		if (i.length === 0) {
 			s.add(t);
-			let e = Ee(r, void 0, {
-				bboxMask: Ae(r),
-				...ke(r)
+			let e = De(r, void 0, {
+				bboxMask: je(r),
+				...Ae(r)
 			});
-			e.computeOutputs = xe(r, e);
+			e.computeOutputs = Se(r, e);
 			let i = r.definition.fragment(e);
-			return se(le(r) ? ge(i, r) : _e(i, r), r, n);
+			return ce(ue(r) ? _e(i, r) : ve(i, r), r, n);
 		}
-		let a = [...i].sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder), o = He(a, n);
+		let a = [...i].sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder), o = Ue(a, n);
 		if (o !== null) {
-			let e = Ee(r, o, { bboxMask: Ae(r) });
-			e.computeOutputs = xe(r, e);
+			let e = De(r, o, { bboxMask: je(r) });
+			e.computeOutputs = Se(r, e);
 			let t = r.definition.fragment(e);
-			return se(le(r) ? ge(t, r) : _e(t, r), r, n);
+			return ce(ue(r) ? _e(t, r) : ve(t, r), r, n);
 		}
-		let c = Oe(r, a, n);
+		let c = ke(r, a, n);
 		s.add(t);
-		let l = Ee(r, c, { bboxMask: Ae(r) });
-		return l.computeOutputs = xe(r, l), se(ve(r.definition.fragment(l), c, r), r, n);
+		let l = De(r, c, { bboxMask: je(r) });
+		return l.computeOutputs = Se(r, l), ce(ye(r.definition.fragment(l), c, r), r, n);
 	}
-	function Oe(t, n, r) {
+	function ke(t, n, r) {
 		let i;
 		for (let a = 0; a < n.length; a++) {
 			let o = n[a];
 			if (o.metadata.visible === !1) continue;
-			if (i !== void 0 && Me(o)) {
-				let e = Ue(n, a, i, r);
+			if (i !== void 0 && Ne(o)) {
+				let e = We(n, a, i, r);
 				if (e) {
 					i = e.node, a = e.endIndex;
 					continue;
@@ -46386,29 +46387,29 @@ function WD(e, t = {}) {
 			}
 			s.add(o.id);
 			let c = e.getChildren(o.id).length > 0, l, u;
-			if (c) l = De(o.id, r);
+			if (c) l = Oe(o.id, r);
 			else {
 				let e = i;
 				o.definition.requiresRTT && i !== void 0 && (e = BD(LD, i, "normal", jD(1))), o.definition.acceptsOptionalChild && (e = void 0);
-				let t = Ee(o, e, {
-					bboxMask: Ae(o),
-					...ke(o)
+				let t = De(o, e, {
+					bboxMask: je(o),
+					...Ae(o)
 				});
-				t.computeOutputs = xe(o, t);
-				let n = ye(o.definition.fragment(t), o);
-				u = n.clipMaskNode, l = se(n.transformedFragment, o, r);
+				t.computeOutputs = Se(o, t);
+				let n = be(o.definition.fragment(t), o);
+				u = n.clipMaskNode, l = ce(n.transformedFragment, o, r);
 			}
-			if (o.definition.requiresChild && o.metadata.blendMode === "normal" && !c) i = be(i, l, o, u);
+			if (o.definition.requiresChild && o.metadata.blendMode === "normal" && !c) i = xe(i, l, o, u);
 			else {
 				let e = o.metadata.blendMode ?? "normal", n = o.metadata.opacity ?? 1;
-				i = i === void 0 ? t.definition.requiresRTT || n !== 1 ? BD(RD, l, e, ce(o)) : l : BD(i, l, e, ce(o));
+				i = i === void 0 ? t.definition.requiresRTT || n !== 1 ? BD(RD, l, e, le(o)) : l : BD(i, l, e, le(o));
 			}
 		}
 		return i;
 	}
-	function ke(e, t = S.uv) {
-		if (!le(e) || !e.definition.boundingBoxDeclaration?.supportsResizeFit) return {};
-		let n = lC(e.id), r = (e) => b(`${n}._bbox_${e}`);
+	function Ae(e, t = C.uv) {
+		if (!ue(e) || !e.definition.boundingBoxDeclaration?.supportsResizeFit) return {};
+		let n = lC(e.id), r = (e) => x(`${n}._bbox_${e}`);
 		return {
 			uvContext: MD(SD, "bboxGenUVContext", [
 				t,
@@ -46419,31 +46420,31 @@ function WD(e, t = {}) {
 				r("rotation"),
 				r("aspectRatio")
 			]),
-			effectiveViewportSize: ND(r("halfWidth").mul(2).mul(S.viewportSize.member("x")), r("halfHeight").mul(2).mul(S.viewportSize.member("y")), 0, 0).member("xy")
+			effectiveViewportSize: ND(r("halfWidth").mul(2).mul(C.viewportSize.member("x")), r("halfHeight").mul(2).mul(C.viewportSize.member("y")), 0, 0).member("xy")
 		};
 	}
-	function Ae(e) {
-		if (le(e) && e.definition.requiresRTT && !e.definition.boundingBoxDeclaration?.supportsResizeFit) return he(e);
+	function je(e) {
+		if (ue(e) && e.definition.requiresRTT && !e.definition.boundingBoxDeclaration?.supportsResizeFit) return ge(e);
 	}
-	let je = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || le(e), Me = (t) => !!t.definition.uvRemap && e.getChildren(t.id).length === 0 && !je(t);
-	function Ne(e, t, n) {
+	let Me = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || ue(e), Ne = (t) => !!t.definition.uvRemap && e.getChildren(t.id).length === 0 && !Me(t);
+	function Pe(e, t, n) {
 		s.add(e.id);
-		let r = xe(e, Ee(e, void 0));
+		let r = Se(e, De(e, void 0));
 		return e.definition.uvRemap({
 			uv: t,
 			mask: n,
-			uniforms: ae(e),
-			propValues: ie(e),
-			props: re(e),
-			aspect: S.aspect,
+			uniforms: oe(e),
+			propValues: ae(e),
+			props: ie(e),
+			aspect: C.aspect,
 			onBeforeRender: (e) => l.push(e),
 			computeOutputs: r
 		});
 	}
-	function Pe(e) {
-		let t = S.uv, n = jD(1);
+	function Fe(e) {
+		let t = C.uv, n = jD(1);
 		for (let r = e.length - 1; r >= 0; r--) {
-			let i = Ne(e[r], t, n);
+			let i = Pe(e[r], t, n);
 			t = i.uv, n = i.mask;
 		}
 		return {
@@ -46451,105 +46452,105 @@ function WD(e, t = {}) {
 			mask: n
 		};
 	}
-	let Fe = jD(1), Ie = (t, n) => {
+	let Ie = jD(1), Le = (t, n) => {
 		if (n.left-- <= 0 || t.metadata.mask || vD(t.metadata.transform)) return !1;
 		let r = e.getChildren(t.id).filter((e) => e.metadata.visible !== !1);
-		return r.length === 0 ? le(t) && t.definition.boundingBoxDeclaration?.boxResamplesContent ? !1 : !!t.definition.acceptsUVContext && !t.definition.requiresChild : !t.definition.uvRemap || le(t) ? !1 : r.every((e) => Ie(e, n));
+		return r.length === 0 ? ue(t) && t.definition.boundingBoxDeclaration?.boxResamplesContent ? !1 : !!t.definition.acceptsUVContext && !t.definition.requiresChild : !t.definition.uvRemap || ue(t) ? !1 : r.every((e) => Le(e, n));
 	};
-	function Le(e, t, n) {
-		let r = n ?? Fe, i = Ne(e, t, r);
+	function Re(e, t, n) {
+		let r = n ?? Ie, i = Pe(e, t, r);
 		return {
 			uv: i.uv,
 			mask: i.mask === r ? n : i.mask
 		};
 	}
-	let Re = (e, t) => e === void 0 ? t : t === void 0 ? e : e.mul(t);
-	function ze(t, n, r) {
+	let ze = (e, t) => e === void 0 ? t : t === void 0 ? e : e.mul(t);
+	function Be(t, n, r) {
 		let i = e.getChildren(t.id).filter((e) => e.metadata.visible !== !1);
 		if (i.length > 0) {
 			if (!t.definition.uvRemap) return null;
-			let e = Le(t, n, r);
-			return Be(i, ID(e.uv, "foldUV"), e.mask);
+			let e = Re(t, n, r);
+			return Ve(i, ID(e.uv, "foldUV"), e.mask);
 		}
 		if (!t.definition.acceptsUVContext) return null;
 		s.add(t.id);
-		let a = ke(t, n), o = Ee(t, void 0, Object.keys(a).length > 0 ? a : { uvContext: n });
-		o.computeOutputs = xe(t, o);
-		let c = t.definition.fragment(o), l = Re(r, le(t) ? he(t, n) : void 0);
+		let a = Ae(t, n), o = De(t, void 0, Object.keys(a).length > 0 ? a : { uvContext: n });
+		o.computeOutputs = Se(t, o);
+		let c = t.definition.fragment(o), l = ze(r, ue(t) ? ge(t, n) : void 0);
 		if (l === void 0) return c;
 		let u = ID(c, "gen");
 		return ND(u.member("rgb"), u.member("a").mul(l));
 	}
-	function Be(e, t, n) {
+	function Ve(e, t, n) {
 		let r = [...e].sort((e, t) => e.metadata.renderOrder - t.metadata.renderOrder), i;
 		for (let e of r) {
-			let n = ze(e, t, void 0);
+			let n = Be(e, t, void 0);
 			if (n === null) return null;
 			let r = e.metadata.blendMode ?? "normal", a = e.metadata.opacity ?? 1;
-			i = i === void 0 ? r === "normal" && a === 1 ? n : BD(RD, n, r, ce(e)) : BD(i, n, r, ce(e));
+			i = i === void 0 ? r === "normal" && a === 1 ? n : BD(RD, n, r, le(e)) : BD(i, n, r, le(e));
 		}
 		if (i === void 0) return null;
 		if (n === void 0) return i;
 		let a = ID(i, "sibs");
 		return ND(a.member("rgb"), a.member("a").mul(n));
 	}
-	function Ve(e, t) {
-		if (!e.definition.uvRemap || je(e)) return null;
+	function He(e, t) {
+		if (!e.definition.uvRemap || Me(e)) return null;
 		let n = t.filter((e) => e.metadata.visible !== !1);
 		if (n.length === 0) return null;
 		let r = { left: 24 };
-		if (!n.every((e) => Ie(e, r))) return null;
+		if (!n.every((e) => Le(e, r))) return null;
 		s.add(e.id);
-		let { uv: i, mask: a } = Le(e, S.uv, void 0);
-		return Be(n, ID(i, "foldUV"), a);
+		let { uv: i, mask: a } = Re(e, C.uv, void 0);
+		return Ve(n, ID(i, "foldUV"), a);
 	}
-	function He(t, n) {
+	function Ue(t, n) {
 		let r = t.filter((e) => e.metadata.visible !== !1);
 		if (!r.some((e) => !!e.definition.uvRemap) || r.length < 2) return null;
 		let i = r.length;
-		for (let e = r.length - 1; e >= 0 && Me(r[e]); e--) i = e;
+		for (let e = r.length - 1; e >= 0 && Ne(r[e]); e--) i = e;
 		let a = r.slice(i), o = r.slice(0, i);
 		if (a.length === 0 || o.length !== 1) return null;
 		let c = o[0];
-		if (!c.definition.acceptsUVContext || e.getChildren(c.id).length > 0 || je(c)) return null;
+		if (!c.definition.acceptsUVContext || e.getChildren(c.id).length > 0 || Me(c)) return null;
 		s.add(c.id);
 		for (let e of a) s.add(e.id);
-		let { uv: l, mask: u } = Pe(a), d = Ee(c, void 0, { uvContext: l });
-		d.computeOutputs = xe(c, d);
+		let { uv: l, mask: u } = Fe(a), d = De(c, void 0, { uvContext: l });
+		d.computeOutputs = Se(c, d);
 		let f = c.definition.fragment(d);
 		return ND(f.member("rgb"), f.member("a").mul(u));
 	}
-	function Ue(e, t, n, r) {
-		if (!Me(e[t])) return null;
+	function We(e, t, n, r) {
+		if (!Ne(e[t])) return null;
 		let i = [], a = t;
 		for (let n = t; n < e.length; n++) {
 			let t = e[n];
 			if (t.metadata.visible !== !1) {
-				if (!Me(t)) break;
+				if (!Ne(t)) break;
 				i.push(t), a = n;
 			}
 		}
 		if (i.length === 0) return null;
 		for (let e of i) s.add(e.id);
-		let { uv: o, mask: c } = Pe(i), l = T(BD(LD, n, "normal", jD(1))).sample(o);
+		let { uv: o, mask: c } = Fe(i), l = E(BD(LD, n, "normal", jD(1))).sample(o);
 		return {
 			node: ND(l.member("rgb"), l.member("a").mul(c)),
 			endIndex: a
 		};
 	}
-	function We(t, n, r) {
-		if (!t.definition.uvRemap || je(t)) return null;
+	function Ge(t, n, r) {
+		if (!t.definition.uvRemap || Me(t)) return null;
 		let i = [], a = t, o = n, c = null, l = null;
 		for (let t = 0; t < 8; t++) {
 			i.push(a);
 			let t = o.filter((e) => e.metadata.visible !== !1);
 			if (t.length !== 1) return null;
 			let n = t[0], r = e.getChildren(n.id);
-			if (n.definition.acceptsUVContext && r.length === 0 && !je(n)) {
+			if (n.definition.acceptsUVContext && r.length === 0 && !Me(n)) {
 				c = n;
 				break;
 			}
-			if (n.definition.uvRemap && !je(n) && r.length === 1) a = n, o = r;
+			if (n.definition.uvRemap && !Me(n) && r.length === 1) a = n, o = r;
 			else {
 				l = n;
 				break;
@@ -46557,21 +46558,21 @@ function WD(e, t = {}) {
 		}
 		if (!c && !l) return null;
 		for (let e of i) s.add(e.id);
-		let { uv: u, mask: d } = Pe([...i].reverse()), f;
+		let { uv: u, mask: d } = Fe([...i].reverse()), f;
 		if (c) {
 			s.add(c.id);
-			let e = Ee(c, void 0, { uvContext: u });
-			e.computeOutputs = xe(c, e);
+			let e = De(c, void 0, { uvContext: u });
+			e.computeOutputs = Se(c, e);
 			let t = c.definition.fragment(e);
 			f = ND(t.member("rgb"), t.member("a").mul(d));
 		} else {
-			let e = T(BD(RD, De(l.id, r), l.metadata.blendMode ?? "normal", ce(l))).sample(u);
+			let e = E(BD(RD, Oe(l.id, r), l.metadata.blendMode ?? "normal", le(l))).sample(u);
 			f = ND(e.member("rgb"), e.member("a").mul(d));
 		}
-		return se(le(t) ? ge(f, t) : _e(f, t), t, r);
+		return ce(ue(t) ? _e(f, t) : ve(f, t), t, r);
 	}
-	function Ge(t, n, r) {
-		let i = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || le(e);
+	function Ke(t, n, r) {
+		let i = (e) => !!e.metadata.mask || e.metadata.opacity !== void 0 && e.metadata.opacity < 1 || (e.metadata.blendMode ?? "normal") !== "normal" || vD(e.metadata.transform) || ue(e);
 		if (!t.definition.providesUVContextViaCompute || i(t)) return null;
 		let a = [], o = t, c = null, l = n;
 		for (let t = 0; t < 8; t++) {
@@ -46593,27 +46594,27 @@ function WD(e, t = {}) {
 		for (let e of a) s.add(e.id);
 		let u = [], d;
 		for (let e = 0; e < a.length; e++) {
-			let t = a[e], n = Ee(t, void 0, { computeOutputs: d ? { _upstreamUVMap: d } : void 0 }), r = xe(t, n);
+			let t = a[e], n = De(t, void 0, { computeOutputs: d ? { _upstreamUVMap: d } : void 0 }), r = Se(t, n);
 			if (!r || !r.uvMaskMap) return null;
 			n.computeOutputs = r, u.push(n), d = r.uvMaskMap;
 		}
-		let f = d.sample(S.uv), p = ND(f.member("r"), f.member("g"), 0, 0).member("xy"), m = Ee(c, void 0, { uvContext: p });
-		m.computeOutputs = xe(c, m);
+		let f = d.sample(C.uv), p = ND(f.member("r"), f.member("g"), 0, 0).member("xy"), m = De(c, void 0, { uvContext: p });
+		m.computeOutputs = Se(c, m);
 		let h = c.definition.fragment(m);
 		for (let e = a.length - 1; e >= 0; e--) u[e].childNode = h, u[e].uvPropagationActive = !0, h = a[e].definition.fragment(u[e]);
-		return se(le(t) ? ge(h, t) : _e(h, t), t, r);
+		return ce(ue(t) ? _e(h, t) : ve(h, t), t, r);
 	}
-	let Ke = e.rootId ? De(e.rootId) : LD, qe = r.map((e) => {
+	let qe = e.rootId ? Oe(e.rootId) : LD, Je = r.map((e) => {
 		let { body: r, externals: i } = UD(e.root, (e) => e, t.flipY ?? !0, n.uniform);
 		return {
 			textureKey: e.key,
-			fragment: KD(r, i, `rtt_${e.key}`, n.sampler, _)
+			fragment: KD(r, i, `rtt_${e.key}`, n.sampler, v)
 		};
-	}), Je = t.toneMapping ?? "linear", Ye = UD(Ke, (e, n) => GD(e, n, Je, t.premultiplyAlpha ?? !1), t.flipY ?? !0, n.uniform);
+	}), Ye = t.toneMapping ?? "linear", Xe = UD(qe, (e, n) => GD(e, n, Ye, t.premultiplyAlpha ?? !1), t.flipY ?? !0, n.uniform);
 	return {
 		computeSteps: o,
-		rttPasses: qe,
-		finalPass: KD(Ye.body, Ye.externals, "final", n.sampler, _),
+		rttPasses: Je,
+		finalPass: KD(Xe.body, Xe.externals, "final", n.sampler, v),
 		textures: i,
 		externalTextures: a,
 		layouts: {
@@ -46625,7 +46626,7 @@ function WD(e, t = {}) {
 		onResize: d,
 		onCleanup: f,
 		composedNodeIds: s,
-		usesCustomWgsl: Te
+		usesCustomWgsl: Ee
 	};
 }
 function GD(e, t, n, r) {
@@ -129770,64 +129771,106 @@ function PP(e, t, n) {
 	let r = TP(e, n);
 	return r ? r.positionProps.has(t) || r.sizeProps.has(t) : !1;
 }
-function FP(e) {
-	let { body: t, build: n, args: r, compose: i, identity: a, missingChildMessage: o, setup: s, ...c } = e;
-	if (!t && !n) throw Error(`definePointwiseFilter(${e.name}): needs a body or a build`);
-	let l = (e) => {
-		if (!e.childNode) return o && console.error(o), LD;
-		let c = e;
-		if (IP(a, c)) return c.childNode;
-		s?.(c);
-		let l;
-		if (n) l = n(c);
-		else {
-			let { fn: e, hint: n } = typeof t == "function" ? t(c.propValues) : t;
-			l = MD(e, n, [c.childNode, ...r?.(c) ?? []]);
+function FP(e, t, n) {
+	let r = {}, i = e.boundingBoxDeclaration, a = SP(e.props), o = IP(e.props, t);
+	for (let [n, s] of Object.entries(e.props)) {
+		let e = s.transform;
+		if (e === eP) {
+			LP(r, n, s, t[n], o);
+			continue;
 		}
-		return i ? i(l, c) : l;
-	};
-	return {
-		...c,
-		requiresChild: !0,
-		fragment: l
-	};
+		if (e === tP) {
+			RP(r, n, s, t[n]);
+			continue;
+		}
+		let c = t[n], l = c;
+		l ??= s.default, l ??= (console.error(`[Shaders] Uniform "${n}" is null/undefined after fallback. PropConfig:`, {
+			propName: n,
+			initialValue: c,
+			default: s.default,
+			hasTransform: !!e
+		}), 0);
+		let u = bP(e), d = PP(i, n, a), f = !u && !d && (typeof l == "string" || typeof l == "object" && !!l && !Array.isArray(l));
+		r[n] = {
+			value: l,
+			transform: u,
+			compileTime: s.compileTime || !1,
+			...s.compileTimeWhen ? {
+				compileTimeWhen: s.compileTimeWhen,
+				_lastCompiledValue: c ?? s.default
+			} : {},
+			...d ? { _rawDimensional: c } : {},
+			...f ? { cpu: !0 } : {}
+		};
+	}
+	return r;
 }
 function IP(e, t) {
-	if (!e) return !1;
-	for (let n of e.props) if (t.getMapInfo?.(n)) return !1;
-	return e.when(t.propValues);
+	for (let [n, r] of Object.entries(e)) if (r.transform === Ki) {
+		let e = t[n] ?? r.default;
+		return typeof e == "string" ? Ki(e) : 0;
+	}
+	return 0;
 }
-function LP(e) {
-	let { build: t, resultAlpha: n, identity: r, missingChildMessage: i, setup: a, ...o } = e, s = (e) => {
-		if (!e.childNode) return i && console.error(i), LD;
-		let o = e.convertToTexture(e.childNode), s = (e) => MD(DE, "unpremultiplyAlpha", [o.sample(e)]), c = {
-			...e,
-			childNode: e.childNode,
-			texture: o,
-			sampleStraight: s
-		};
-		if (IP(r, e)) return s(e.ctx.uv);
-		a?.(c);
-		let l = t(c);
-		return n === "straight" ? l : MD(DE, "unpremultiplyAlpha", [l]);
-	};
-	return {
-		...o,
-		requiresRTT: !0,
-		requiresChild: !0,
-		fragment: s
+function LP(e, t, n, r, i) {
+	let a = r ?? null, o = zk(a, _P), s = Bk(o.colors, o.stopCount, i);
+	e[t] = {
+		value: a,
+		transform: eP,
+		cpu: !0,
+		compileTime: n.compileTime || !1,
+		...n.compileTimeWhen ? {
+			compileTimeWhen: n.compileTimeWhen,
+			_lastCompiledValue: a ?? n.default
+		} : {}
+	}, e.colorsArray = {
+		value: o.colors,
+		schema: pd(R, 8)
+	}, e.positionsArray = {
+		value: o.positions,
+		schema: pd(R, 2)
+	}, e.convertedColorsArray = {
+		value: s,
+		schema: pd(L, 8)
+	}, e.stopCount = {
+		value: o.stopCount,
+		schema: P
 	};
 }
-function RP(e) {
+function RP(e, t, n, r) {
+	let i = nP(n);
+	if (!i) {
+		console.error(`[Shaders] List prop "${t}" has no item spec in its ui config`);
+		return;
+	}
+	let a = cP(r ?? n.default, i, { color: _P }), o = dP(a, i);
+	e[t] = {
+		value: a,
+		transform: tP,
+		cpu: !0,
+		compileTime: n.compileTime || !1,
+		_rawList: r ?? n.default,
+		_listSpec: i
+	};
+	for (let [n, r] of Object.entries(o.fields)) e[rP(t, n)] = {
+		value: r,
+		schema: pd(R, i.maxItems)
+	};
+	e[iP(t)] = {
+		value: o.count,
+		schema: P
+	};
+}
+function zP(e) {
 	return "uv" in e ? e : { uv: e };
 }
-function zP(e, t = {}) {
+function BP(e, t = {}) {
 	let n = typeof e == "function" ? e : () => e, r = t.edges ?? "prop", i = (e) => r === "none" ? null : typeof r == "number" ? r : e.edges ?? 0;
 	return {
 		fragment: (e) => {
 			let { childNode: r, ctx: a, convertToTexture: o, propValues: s } = e;
 			if (!r) return t.requireChildMessage && console.error(t.requireChildMessage), LD;
-			let c = o(r), l = i(s), u = RP(n(e).map(a.uv, a.aspect)), d = l === null ? c.sample(u.uv) : t.resample === "bilinear" ? dO(u.uv, (e) => c.sample(e), l) : fO(c, u.uv, l);
+			let c = o(r), l = i(s), u = zP(n(e).map(a.uv, a.aspect)), d = l === null ? c.sample(u.uv) : t.resample === "bilinear" ? dO(u.uv, (e) => c.sample(e), l) : fO(c, u.uv, l);
 			return MD(DE, "unpremultiplyAlpha", [u.coverage ? ND(d.member("rgb"), d.member("a").mul(u.coverage)) : d]);
 		},
 		uvRemap: (e) => {
@@ -129835,7 +129878,7 @@ function zP(e, t = {}) {
 				uv: e.uv,
 				mask: e.mask
 			};
-			let r = i(e.propValues), a = RP(n(e).map(e.uv, e.aspect)), o = r === null ? {
+			let r = i(e.propValues), a = zP(n(e).map(e.uv, e.aspect)), o = r === null ? {
 				uv: a.uv,
 				mask: e.mask
 			} : uO(a.uv, e.mask, r);
@@ -129846,7 +129889,7 @@ function zP(e, t = {}) {
 		}
 	};
 }
-function BP(e, t) {
+function VP(e, t) {
 	let n = {
 		type: "position",
 		label: t?.label ?? "Center",
@@ -129862,7 +129905,7 @@ function BP(e, t) {
 		ui: n
 	};
 }
-function VP() {
+function HP() {
 	return {
 		default: "center",
 		description: "Reference edge the center position is measured from (center default). Lets you pin the shape relative to a corner or the canvas centre.",
@@ -129873,7 +129916,7 @@ function VP() {
 		}
 	};
 }
-function HP(e) {
+function UP(e) {
 	return {
 		softness: {
 			default: 0,
@@ -129935,7 +129978,7 @@ function HP(e) {
 		}
 	};
 }
-function UP(e) {
+function WP(e) {
 	return {
 		default: "linear",
 		transform: Ki,
@@ -129949,7 +129992,7 @@ function UP(e) {
 		}
 	};
 }
-function WP(e) {
+function GP(e) {
 	return {
 		default: 0,
 		description: e,
@@ -129963,7 +130006,7 @@ function WP(e) {
 		}
 	};
 }
-function GP(e) {
+function KP(e) {
 	return {
 		default: "#ffffff",
 		transform: Hi,
@@ -129975,7 +130018,7 @@ function GP(e) {
 		}
 	};
 }
-function KP(e, t) {
+function qP(e, t) {
 	if (e.custom) return e.custom;
 	let n = e.size.as ?? "half-canvas-height", r = {
 		x: {
@@ -130000,7 +130043,7 @@ function KP(e, t) {
 		as: "degrees"
 	}), { propBindings: r };
 }
-function qP(e, t, n) {
+function JP(e, t, n) {
 	if (!t) return e;
 	let r = Object.keys(e).filter((e) => !t.includes(e)), i = t.filter((t) => !(t in e));
 	if (r.length || i.length) throw Error(`defineSdfShapeShader(${n}): propOrder must list every prop exactly once (missing: ${r.join(", ") || "none"}; unknown: ${i.join(", ") || "none"})`);
@@ -130008,21 +130051,21 @@ function qP(e, t, n) {
 	for (let n of t) a[n] = e[n];
 	return a;
 }
-function JP(e) {
-	let t = e.rotatable !== !1, n = HP(e.stroke), r = {
-		origin: VP(),
-		color: GP(e.colorDescription),
-		center: BP(e.centerDescription, {
+function YP(e) {
+	let t = e.rotatable !== !1, n = UP(e.stroke), r = {
+		origin: HP(),
+		color: KP(e.colorDescription),
+		center: VP(e.centerDescription, {
 			units: ["%", "px"],
 			...e.centerLabel ? { label: e.centerLabel } : {}
 		}),
 		...e.shapeProps,
-		...t ? { rotation: WP(e.rotationDescription ?? "Rotation in degrees") } : {},
+		...t ? { rotation: GP(e.rotationDescription ?? "Rotation in degrees") } : {},
 		softness: n.softness,
 		strokeThickness: n.strokeThickness,
 		strokeColor: n.strokeColor,
 		strokePosition: n.strokePosition,
-		colorSpace: UP(e.colorSpaceDescription ? { description: e.colorSpaceDescription } : void 0),
+		colorSpace: WP(e.colorSpaceDescription ? { description: e.colorSpaceDescription } : void 0),
 		...e.propOverrides
 	};
 	return {
@@ -130030,15 +130073,15 @@ function JP(e) {
 		category: e.category ?? "Shapes",
 		description: e.description,
 		acceptsUVContext: !0,
-		boundingBoxDeclaration: KP(e.bounds, t),
-		props: qP(r, e.propOrder, e.name),
+		boundingBoxDeclaration: qP(e.bounds, t),
+		props: JP(r, e.propOrder, e.name),
 		fragment: (t) => {
 			let { uniforms: n, ctx: r, propValues: i } = t, a = t.uvContext ?? r.uv, o = i.colorSpace ?? 0;
-			return mj(ID(YP(e, n, a, r.aspect), "shapeMask"), n.color, n.strokeColor, o);
+			return mj(ID(XP(e, n, a, r.aspect), "shapeMask"), n.color, n.strokeColor, o);
 		}
 	};
 }
-function YP(e, t, n, r) {
+function XP(e, t, n, r) {
 	let i = t.rotation ?? AD("0f"), a = ID(MD(dj, "shapeLocalCoords", [
 		t.center,
 		i,
@@ -130059,142 +130102,55 @@ function YP(e, t, n, r) {
 		t.strokePosition
 	]);
 }
-var XP = class e {
-	constructor(e) {
-		this.node = e;
-	}
-	times(t) {
-		return new e({
-			kind: "mul",
-			a: this.node,
-			b: t instanceof e ? t.node : t
-		});
-	}
-};
-function ZP(e, t) {
-	let n = t.uniforms[e.name];
-	if (!n) throw Error(`std: effect binds unknown prop '${e.name}'`);
-	return n;
+function ZP(e) {
+	let { body: t, build: n, args: r, compose: i, identity: a, missingChildMessage: o, setup: s, ...c } = e;
+	if (!t && !n) throw Error(`definePointwiseFilter(${e.name}): needs a body or a build`);
+	let l = (e) => {
+		if (!e.childNode) return o && console.error(o), LD;
+		let c = e;
+		if (QP(a, c)) return c.childNode;
+		s?.(c);
+		let l;
+		if (n) l = n(c);
+		else {
+			let { fn: e, hint: n } = typeof t == "function" ? t(c.propValues) : t;
+			l = MD(e, n, [c.childNode, ...r?.(c) ?? []]);
+		}
+		return i ? i(l, c) : l;
+	};
+	return {
+		...c,
+		requiresChild: !0,
+		fragment: l
+	};
 }
 function QP(e, t) {
-	let n = e instanceof XP ? e.node : e;
-	switch (n.kind) {
-		case "prop": return ZP(n, t);
-		case "mul": return QP(n.a, t).mul(QP(n.b, t));
-		case "radialMask":
-			if (!t.ctx) throw Error("std: radialMask needs a fragment host (warp slots have no ctx)");
-			return MD(vT, "radialFalloffMask", [
-				t.ctx.uv,
-				t.ctx.aspect,
-				ZP(n.center, t),
-				ZP(n.radius, t),
-				ZP(n.falloff, t)
-			]);
-		case "signal": return n.build(t);
-	}
+	if (!e) return !1;
+	for (let n of e.props) if (t.getMapInfo?.(n)) return !1;
+	return e.when(t.propValues);
 }
-function $P(e, t) {
-	if (typeof e == "number") return jD(e);
-	if (e instanceof XP) return QP(e, t);
-	switch (e.kind) {
-		case "prop": return ZP(e, t);
-		case "ctx":
-			if (!t.ctx) throw Error(`std: ctx.${e.name} needs a fragment host (warp slots have no ctx)`);
-			return t.ctx[e.name];
-		default: return QP(e, t);
-	}
-}
-function eF(e, t, n) {
-	let r = {}, i = e.boundingBoxDeclaration, a = SP(e.props), o = tF(e.props, t);
-	for (let [n, s] of Object.entries(e.props)) {
-		let e = s.transform;
-		if (e === eP) {
-			nF(r, n, s, t[n], o);
-			continue;
-		}
-		if (e === tP) {
-			rF(r, n, s, t[n]);
-			continue;
-		}
-		let c = t[n], l = c;
-		l ??= s.default, l ??= (console.error(`[Shaders] Uniform "${n}" is null/undefined after fallback. PropConfig:`, {
-			propName: n,
-			initialValue: c,
-			default: s.default,
-			hasTransform: !!e
-		}), 0);
-		let u = bP(e), d = PP(i, n, a), f = !u && !d && (typeof l == "string" || typeof l == "object" && !!l && !Array.isArray(l));
-		r[n] = {
-			value: l,
-			transform: u,
-			compileTime: s.compileTime || !1,
-			...s.compileTimeWhen ? {
-				compileTimeWhen: s.compileTimeWhen,
-				_lastCompiledValue: c ?? s.default
-			} : {},
-			...d ? { _rawDimensional: c } : {},
-			...f ? { cpu: !0 } : {}
+function $P(e) {
+	let { build: t, resultAlpha: n, identity: r, missingChildMessage: i, setup: a, ...o } = e, s = (e) => {
+		if (!e.childNode) return i && console.error(i), LD;
+		let o = e.convertToTexture(e.childNode), s = (e) => MD(DE, "unpremultiplyAlpha", [o.sample(e)]), c = {
+			...e,
+			childNode: e.childNode,
+			texture: o,
+			sampleStraight: s
 		};
-	}
-	return r;
-}
-function tF(e, t) {
-	for (let [n, r] of Object.entries(e)) if (r.transform === Ki) {
-		let e = t[n] ?? r.default;
-		return typeof e == "string" ? Ki(e) : 0;
-	}
-	return 0;
-}
-function nF(e, t, n, r, i) {
-	let a = r ?? null, o = zk(a, _P), s = Bk(o.colors, o.stopCount, i);
-	e[t] = {
-		value: a,
-		transform: eP,
-		cpu: !0,
-		compileTime: n.compileTime || !1,
-		...n.compileTimeWhen ? {
-			compileTimeWhen: n.compileTimeWhen,
-			_lastCompiledValue: a ?? n.default
-		} : {}
-	}, e.colorsArray = {
-		value: o.colors,
-		schema: pd(R, 8)
-	}, e.positionsArray = {
-		value: o.positions,
-		schema: pd(R, 2)
-	}, e.convertedColorsArray = {
-		value: s,
-		schema: pd(L, 8)
-	}, e.stopCount = {
-		value: o.stopCount,
-		schema: P
+		if (QP(r, e)) return s(e.ctx.uv);
+		a?.(c);
+		let l = t(c);
+		return n === "straight" ? l : MD(DE, "unpremultiplyAlpha", [l]);
+	};
+	return {
+		...o,
+		requiresRTT: !0,
+		requiresChild: !0,
+		fragment: s
 	};
 }
-function rF(e, t, n, r) {
-	let i = nP(n);
-	if (!i) {
-		console.error(`[Shaders] List prop "${t}" has no item spec in its ui config`);
-		return;
-	}
-	let a = cP(r ?? n.default, i, { color: _P }), o = dP(a, i);
-	e[t] = {
-		value: a,
-		transform: tP,
-		cpu: !0,
-		compileTime: n.compileTime || !1,
-		_rawList: r ?? n.default,
-		_listSpec: i
-	};
-	for (let [n, r] of Object.entries(o.fields)) e[rP(t, n)] = {
-		value: r,
-		schema: pd(R, i.maxItems)
-	};
-	e[iP(t)] = {
-		value: o.count,
-		schema: P
-	};
-}
-var iF = Vu({
+var eF = Vu({
 	x0: N,
 	x1: N,
 	y0: N,
@@ -130205,10 +130161,10 @@ $.fn([
 	P,
 	P,
 	P
-], iF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
+], eF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n, r) => {
 	"use gpu";
 	let i = K(n, 1e-5), a = N(U(__tsover_mul(__tsover_div(e.x, i), r))), o = N(U(__tsover_mul(e.y, r))), s = N(lh(__tsover_div(__tsover_mul(t, r), i))), c = N(lh(__tsover_mul(t, r))), l = __tsover_sub(N(r), 1);
-	return iF({
+	return eF({
 		x0: K(__tsover_sub(a, s), 0),
 		x1: q(__tsover_add(a, s), l),
 		y0: K(__tsover_sub(o, c), 0),
@@ -130403,17 +130359,17 @@ $.fn([
 		"d.i32": () => N,
 		"std.floor": () => U,
 		"std.ceil": () => lh,
-		SplatWindow: () => iF,
+		SplatWindow: () => eF,
 		"std.min": () => q
 	}
 }) && e.f)({})).$name("worldSplatWindow"), $.fn([
 	I,
 	N,
 	Ap
-], iF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
+], eF)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = N(U(e.x)), i = N(U(e.y));
-	return iF({
+	return eF({
 		x0: K(__tsover_sub(r, t), 0),
 		x1: q(__tsover_add(r, t), n.x),
 		y0: K(__tsover_sub(i, t), 0),
@@ -130531,7 +130487,7 @@ $.fn([
 	externals: {
 		"d.i32": () => N,
 		"std.floor": () => U,
-		SplatWindow: () => iF,
+		SplatWindow: () => eF,
 		"std.max": () => K,
 		"std.min": () => q
 	}
@@ -130680,7 +130636,7 @@ $.fn([
 		"std.max": () => K
 	}
 }) && e.f)({})).$name("integrateSemiImplicitEuler");
-var aF = Math.exp(-1), oF = 1 / (1 - aF), sF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var tF = Math.exp(-1), nF = 1 / (1 - tF), rF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return vh(__tsover_mul(__tsover_div(e, t), -1));
 }), {
@@ -130715,9 +130671,9 @@ var aF = Math.exp(-1), oF = 1 / (1 - aF), sF = $.fn([P, P], P)(/* @__PURE__ */ (
 		]]]]
 	},
 	externals: { "std.exp": () => vh }
-}) && e.f)({})), cF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), iF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	return B(__tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(e, t), -1)), aF), oF), P(0), P(1));
+	return B(__tsover_mul(__tsover_sub(vh(__tsover_mul(__tsover_div(e, t), -1)), tF), nF), P(0), P(1));
 }), {
 	v: 2,
 	name: void 0,
@@ -130778,8 +130734,8 @@ var aF = Math.exp(-1), oF = 1 / (1 - aF), sF = $.fn([P, P], P)(/* @__PURE__ */ (
 	externals: {
 		"std.clamp": () => B,
 		"std.exp": () => vh,
-		EDGE: () => aF,
-		INV_EDGE: () => oF,
+		EDGE: () => tF,
+		INV_EDGE: () => nF,
 		"d.f32": () => P
 	}
 }) && e.f)({}));
@@ -130790,7 +130746,7 @@ $.fn([
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = _u(e, t);
-	return sF(H(r, r), n);
+	return rF(H(r, r), n);
 }), {
 	v: 2,
 	name: void 0,
@@ -130829,7 +130785,7 @@ $.fn([
 	},
 	externals: {
 		"std.sub": () => _u,
-		gaussianBrushSq: () => sF,
+		gaussianBrushSq: () => rF,
 		"std.dot": () => H
 	}
 }) && e.f)({})), $.fn([
@@ -130839,7 +130795,7 @@ $.fn([
 ], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t, n) => {
 	"use gpu";
 	let r = _u(e, t);
-	return cF(H(r, r), n);
+	return iF(H(r, r), n);
 }), {
 	v: 2,
 	name: void 0,
@@ -130878,11 +130834,11 @@ $.fn([
 	},
 	externals: {
 		"std.sub": () => _u,
-		gaussianBrushShiftedSq: () => cF,
+		gaussianBrushShiftedSq: () => iF,
 		"std.dot": () => H
 	}
 }) && e.f)({}));
-var lF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+var aF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	return cw(I(e, t));
 }), {
@@ -130910,10 +130866,10 @@ var lF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"noise.hash12": () => cw,
 		"d.vec2f": () => I
 	}
-}) && e.f)({})), uF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
+}) && e.f)({})), oF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
 	let n = U(e), r = U(t), i = W(e), a = W(t), o = __tsover_mul(__tsover_mul(i, i), __tsover_sub(3, __tsover_mul(i, 2))), s = __tsover_mul(__tsover_mul(a, a), __tsover_sub(3, __tsover_mul(a, 2)));
-	return J(J(lF(n, r), lF(__tsover_add(n, 1), r), o), J(lF(n, __tsover_add(r, 1)), lF(__tsover_add(n, 1), __tsover_add(r, 1)), o), s);
+	return J(J(aF(n, r), aF(__tsover_add(n, 1), r), o), J(aF(n, __tsover_add(r, 1)), aF(__tsover_add(n, 1), __tsover_add(r, 1)), o), s);
 }), {
 	v: 2,
 	name: void 0,
@@ -131079,12 +131035,12 @@ var lF = $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??
 		"std.floor": () => U,
 		"std.fract": () => W,
 		"std.mix": () => J,
-		valueHash: () => lF
+		valueHash: () => aF
 	}
 }) && e.f)({}));
 $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__PURE__ */ new WeakMap()).set(e.f = ((e, t) => {
 	"use gpu";
-	return __tsover_add(__tsover_add(__tsover_mul(uF(e, t), .5), __tsover_mul(uF(__tsover_add(__tsover_mul(e, 2), 5.37), __tsover_add(__tsover_mul(t, 2), 9.13)), .3)), __tsover_mul(uF(__tsover_add(__tsover_mul(e, 4), 1.79), __tsover_add(__tsover_mul(t, 4), 3.51)), .2));
+	return __tsover_add(__tsover_add(__tsover_mul(oF(e, t), .5), __tsover_mul(oF(__tsover_add(__tsover_mul(e, 2), 5.37), __tsover_add(__tsover_mul(t, 2), 9.13)), .3)), __tsover_mul(oF(__tsover_add(__tsover_mul(e, 4), 1.79), __tsover_add(__tsover_mul(t, 4), 3.51)), .2));
 }), {
 	v: 2,
 	name: void 0,
@@ -131175,7 +131131,7 @@ $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 			]
 		]]]]
 	},
-	externals: { valueNoise2D: () => uF }
+	externals: { valueNoise2D: () => oF }
 }) && e.f)({})), $.fn([
 	P,
 	P,
@@ -131459,9 +131415,9 @@ $.fn([P, P], P)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	vfSpanY: P,
 	vfActiveRes: P
 });
-var dF = 65536, fF = .96;
-fF >= 1 || Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(fF, .001)) * 16.67);
-var pF = "rgba16float", mF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var sF = 65536, cF = .96;
+cF >= 1 || Math.min(3e4, Math.log(1e-6) / Math.log(Math.max(cF, .001)) * 16.67);
+var lF = "rgba16float", uF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	amp: P,
 	freq: P,
 	seed: P,
@@ -131495,26 +131451,26 @@ var pF = "rgba16float", mF = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ??
 }), "HeightFieldParams");
 $.bindGroupLayout({
 	readSrc: {
-		storage: pd(P, dF),
+		storage: pd(P, sF),
 		access: "readonly"
 	},
 	writeBuf: {
-		storage: pd(P, dF),
+		storage: pd(P, sF),
 		access: "mutable"
 	},
 	readBuf: {
-		storage: pd(P, dF),
+		storage: pd(P, sF),
 		access: "mutable"
 	},
-	params: { uniform: mF }
+	params: { uniform: uF }
 }), $.bindGroupLayout({
 	readBuf: {
-		storage: pd(P, dF),
+		storage: pd(P, sF),
 		access: "readonly"
 	},
-	params: { uniform: mF },
-	uvMaskTex: { storageTexture: Ad(pF, "write-only") },
-	litTex: { storageTexture: Ad(pF, "write-only") }
+	params: { uniform: uF },
+	uvMaskTex: { storageTexture: Ad(lF, "write-only") },
+	litTex: { storageTexture: Ad(lF, "write-only") }
 }), $.fn([
 	R,
 	R,
@@ -131711,7 +131667,7 @@ $.bindGroupLayout({
 		"colorMixing.hslToRgb": () => nE
 	}
 }) && e.f)({})).$name("hueRotateTurns");
-var hF = [
+var dF = [
 	16,
 	11,
 	10,
@@ -131776,7 +131732,7 @@ var hF = [
 	100,
 	103,
 	99
-], gF = [
+], fF = [
 	17,
 	18,
 	24,
@@ -131841,9 +131797,9 @@ var hF = [
 	99,
 	99,
 	99
-], _F = [];
-for (let e = 0; e < 8; e++) for (let t = 0; t < 8; t++) _F[e * 8 + t] = Math.cos((2 * e + 1) * t * Math.PI / 16);
-$.const(pd(P, 64), _F), $.const(pd(P, 64), hF), $.const(pd(P, 64), gF), $.fn([
+], pF = [];
+for (let e = 0; e < 8; e++) for (let t = 0; t < 8; t++) pF[e * 8 + t] = Math.cos((2 * e + 1) * t * Math.PI / 16);
+$.const(pd(P, 64), pF), $.const(pd(P, 64), dF), $.const(pd(P, 64), fF), $.fn([
 	R,
 	R,
 	R,
@@ -132347,18 +132303,63 @@ $.const(pd(P, 64), _F), $.const(pd(P, 64), hF), $.const(pd(P, 64), gF), $.fn([
 		"d.vec4f": () => R
 	}
 }) && e.f)({})).$name("flowDirectionColor");
-var vF = {
+var mF = {
 	name: "Root",
 	props: {},
 	fragment: ({ childNode: e }) => e ?? AD("vec4f(0.0, 0.0, 0.0, 0.0)")
 };
-function yF(e, t, n = "_animTime") {
+function hF(e, t, n = "_animTime") {
 	let r = e.props.member(n);
 	if (t) {
 		let n = e.uniforms[t];
 		if (n) return r.add(n);
 	}
 	return r;
+}
+var gF = class e {
+	constructor(e) {
+		this.node = e;
+	}
+	times(t) {
+		return new e({
+			kind: "mul",
+			a: this.node,
+			b: t instanceof e ? t.node : t
+		});
+	}
+};
+function _F(e, t) {
+	let n = t.uniforms[e.name];
+	if (!n) throw Error(`std: effect binds unknown prop '${e.name}'`);
+	return n;
+}
+function vF(e, t) {
+	let n = e instanceof gF ? e.node : e;
+	switch (n.kind) {
+		case "prop": return _F(n, t);
+		case "mul": return vF(n.a, t).mul(vF(n.b, t));
+		case "radialMask":
+			if (!t.ctx) throw Error("std: radialMask needs a fragment host (warp slots have no ctx)");
+			return MD(vT, "radialFalloffMask", [
+				t.ctx.uv,
+				t.ctx.aspect,
+				_F(n.center, t),
+				_F(n.radius, t),
+				_F(n.falloff, t)
+			]);
+		case "signal": return n.build(t);
+	}
+}
+function yF(e, t) {
+	if (typeof e == "number") return jD(e);
+	if (e instanceof gF) return vF(e, t);
+	switch (e.kind) {
+		case "prop": return _F(e, t);
+		case "ctx":
+			if (!t.ctx) throw Error(`std: ctx.${e.name} needs a fragment host (warp slots have no ctx)`);
+			return t.ctx[e.name];
+		default: return vF(e, t);
+	}
 }
 var bF = class {
 	kind = "wgsl";
@@ -132474,7 +132475,7 @@ function FF(e, t) {
 	}), n.push({
 		name: "time",
 		type: "f32",
-		value: (e) => t.animatedTime ? yF(e) : e.ctx.time
+		value: (e) => t.animatedTime ? hF(e) : e.ctx.time
 	}), n.push({
 		name: "aspect",
 		type: "f32",
@@ -132525,13 +132526,13 @@ function IF(e, t) {
 		n.push({
 			name: r,
 			type: s,
-			value: (e) => typeof a == "number" ? jD(a) : $P(a, e)
+			value: (e) => typeof a == "number" ? jD(a) : yF(a, e)
 		});
 	}
 	return n;
 }
 function LF(e, t) {
-	if (typeof e == "number" || e instanceof XP) return "f32";
+	if (typeof e == "number" || e instanceof gF) return "f32";
 	if (e.kind === "ctx") return AF[e.name] ?? "f32";
 	if (e.kind === "prop") {
 		let n = t[e.name];
@@ -132592,21 +132593,21 @@ function VF(e) {
 	};
 	if (r.kind === "tintToward") {
 		let { color: e, amount: t } = r;
-		return FP({
+		return ZP({
 			...c,
 			body: {
 				fn: CE,
 				hint: "mixToward"
 			},
-			args: (n) => [ZP(e, n), QP(t, n)]
+			args: (n) => [_F(e, n), vF(t, n)]
 		});
 	}
-	if (xF(r)) return FP({
+	if (xF(r)) return ZP({
 		...c,
 		build: MF(r, "pointwise", HF(e))
 	});
 	let { kind: l, ...u } = r;
-	return FP({
+	return ZP({
 		...c,
 		...u
 	});
@@ -132621,7 +132622,7 @@ function HF(e) {
 function UF(e) {
 	let { role: t, species: n, effect: r, identityWhen: i, missingChildMessage: a, props: o, ...s } = e;
 	if (r.kind === "displaceBy") return WF(e);
-	if (xF(r)) return LP({
+	if (xF(r)) return $P({
 		...s,
 		props: RF(o),
 		identity: BF(i, o),
@@ -132630,7 +132631,7 @@ function UF(e) {
 		resultAlpha: r.spec.alpha ?? "premultiplied"
 	});
 	let { kind: c, ...l } = r;
-	return LP({
+	return $P({
 		...s,
 		props: RF(o),
 		identity: BF(i, o),
@@ -132669,12 +132670,12 @@ function WF(e) {
 			let { childNode: t, ctx: n, computeOutputs: r, propValues: i, convertToTexture: a } = e;
 			if (!t) return LD;
 			let o = a(t);
-			if (IP(l, e)) return MD(DE, "unpremultiplyAlpha", [o.sample(n.uv)]);
+			if (QP(l, e)) return MD(DE, "unpremultiplyAlpha", [o.sample(n.uv)]);
 			let s = i[c.edges.name] ?? 0, u = r?.[d], f = u ? u.sample(n.uv, "linearClamp").member("xy") : AD("vec2f(0.0, 0.0)"), p = MD(mO, "chromaticDisplaceUVs", [
 				n.uv,
 				f,
-				ZP(c.strength, e),
-				ZP(c.chromatic, e)
+				_F(c.strength, e),
+				_F(c.chromatic, e)
 			]), m = (e) => o.sample(e), h = dO(p.member("rUV"), m, s), g = dO(p.member("gUV"), m, s), _ = dO(p.member("bUV"), m, s);
 			return MD(DE, "unpremultiplyAlpha", [ND(h.member("r"), g.member("g"), _.member("b"), g.member("a"))]);
 		}
@@ -132687,7 +132688,7 @@ function GF(e) {
 		props: RF(s),
 		requiresRTT: !0,
 		requiresChild: !0,
-		...zP(n, {
+		...BP(n, {
 			edges: r,
 			resample: i,
 			uvRemapIdentityWhen: a,
@@ -132697,7 +132698,7 @@ function GF(e) {
 }
 function KF(e) {
 	let { role: t, name: n, description: r, category: i, shape: a } = e;
-	return JP({
+	return YP({
 		name: n,
 		description: r,
 		category: i,
@@ -132745,7 +132746,7 @@ function XF(e) {
 			case "radialMask": return `radialMask(${n.center?.name},${n.radius?.name},${n.falloff?.name})`;
 			default: return n.kind;
 		}
-	}, n = (e) => typeof e == "number" ? `n:${e}` : e instanceof XP ? `s:${t(e.node)}` : t(e);
+	}, n = (e) => typeof e == "number" ? `n:${e}` : e instanceof gF ? `s:${t(e.node)}` : t(e);
 	return Object.keys(e).sort().map((t) => {
 		let r = e[t];
 		return typeof r == "object" && r && "value" in r && "type" in r ? `${t}=${n(r.value)}:${r.type}` : `${t}=${n(r)}`;
@@ -140261,8 +140262,8 @@ $.fn([
 		"std.sqrt": () => Z
 	}
 }) && e.f)({})).$name("shapeFieldExtrudeZ");
-// node_modules/.pnpm/shaders@4.0.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/shaderRegistry-CICZOQmw.js
-var $I = () => void 0, eL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(mS({
+// node_modules/.pnpm/shaders@4.0.7_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/shaders/dist/core/index.js
+var $I = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(mS({
 	in: { vertexIndex: kp.vertexIndex },
 	out: {
 		pos: kp.position,
@@ -140275,12 +140276,12 @@ var $I = () => void 0, eL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? 
   return Out(vec4f(pos[in.vertexIndex], 0, 1), uv[in.vertexIndex]);
 }`, "fullScreenTriangle");
 oo.disable("external-omitted");
-var tL = ["float32-filterable", "timestamp-query"], nL = /* @__PURE__ */ new WeakMap(), rL = /* @__PURE__ */ new WeakMap(), iL = /* @__PURE__ */ new WeakSet(), aL = null, oL = /* @__PURE__ */ new WeakSet();
-async function sL(e = {}) {
-	if (e.device && !iL.has(e.device)) {
-		let t = e.device, n = nL.get(t);
-		n || (n = $.initFromDevice({ device: t }), nL.set(t, n));
-		let r = dL(n, e.onDeviceLost);
+var eL = ["float32-filterable", "timestamp-query"], tL = /* @__PURE__ */ new WeakMap(), nL = /* @__PURE__ */ new WeakMap(), rL = /* @__PURE__ */ new WeakSet(), iL = null, aL = /* @__PURE__ */ new WeakSet();
+async function oL(e = {}) {
+	if (e.device && !rL.has(e.device)) {
+		let t = e.device, n = tL.get(t);
+		n || (n = $.initFromDevice({ device: t }), tL.set(t, n));
+		let r = uL(n, e.onDeviceLost);
 		return {
 			root: n,
 			device: t,
@@ -140290,7 +140291,7 @@ async function sL(e = {}) {
 		};
 	}
 	e.device && s("[gpu] injected GPU device was lost — falling back to the shared default device");
-	let t = await cL(), n = dL(t.root, e.onDeviceLost);
+	let t = await sL(), n = uL(t.root, e.onDeviceLost);
 	return {
 		root: t.root,
 		device: t.device,
@@ -140299,57 +140300,57 @@ async function sL(e = {}) {
 		release: n
 	};
 }
-async function cL() {
+async function sL() {
 	for (;;) {
-		let e = aL;
+		let e = iL;
 		if (!e) break;
 		let t = await e.catch(() => null);
-		if (t && !oL.has(e) && !iL.has(t.device)) return t;
-		aL === e && (aL = null);
+		if (t && !aL.has(e) && !rL.has(t.device)) return t;
+		iL === e && (iL = null);
 	}
-	let e = lL();
-	aL = e;
+	let e = cL();
+	iL = e;
 	try {
 		return await e;
 	} catch (t) {
-		throw aL === e && (aL = null), t;
+		throw iL === e && (iL = null), t;
 	}
 }
-async function lL() {
+async function cL() {
 	if (typeof navigator > "u" || !navigator.gpu) throw new e("unsupported", "[gpu] WebGPU is not available in this environment (navigator.gpu is undefined).");
 	let t;
 	try {
 		t = await $.init({
 			adapter: { powerPreference: "high-performance" },
-			device: { optionalFeatures: tL }
+			device: { optionalFeatures: eL }
 		});
 	} catch (t) {
 		let n = await d();
 		throw new e(n.supported ? "no-device" : n.reason ?? "init-failed", void 0, { cause: t });
 	}
 	if (!t.device) throw new e("no-device", "[gpu] adapter returned no device.");
-	return nL.set(t.device, t), {
+	return tL.set(t.device, t), {
 		root: t,
 		device: t.device,
 		createdDevice: !0
 	};
 }
-function uL(e, t, n = {}) {
+function lL(e, t, n = {}) {
 	return e.configureContext({
 		canvas: t,
 		alphaMode: "premultiplied",
 		...n
 	});
 }
-function dL(e, t) {
-	let n = e.device, r = rL.get(n);
-	if (r || (r = /* @__PURE__ */ new Set(), rL.set(n, r), e.device.lost.then((e) => {
-		if (iL.add(n), e.reason !== "destroyed") for (let t of [...rL.get(n) ?? []]) t(e);
+function uL(e, t) {
+	let n = e.device, r = nL.get(n);
+	if (r || (r = /* @__PURE__ */ new Set(), nL.set(n, r), e.device.lost.then((e) => {
+		if (rL.add(n), e.reason !== "destroyed") for (let t of [...nL.get(n) ?? []]) t(e);
 	})), !t) return () => {};
 	let i = r;
 	return i.add(t), () => i.delete(t);
 }
-function fL() {
+function dL() {
 	let e = {
 		value: 0,
 		advance(t, n) {
@@ -140358,12 +140359,12 @@ function fL() {
 	};
 	return e;
 }
-var pL = /* @__PURE__ */ new WeakMap();
-function mL(e) {
-	let t = pL.get(e);
-	return t || (t = fL(), pL.set(e, t)), t;
+var fL = /* @__PURE__ */ new WeakMap();
+function pL(e) {
+	let t = fL.get(e);
+	return t || (t = dL(), fL.set(e, t)), t;
 }
-var hL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
+var mL = /* @__PURE__ */ (globalThis.__TYPEGPU_AUTONAME__ ?? ((e) => e))(Vu({
 	time: P,
 	viewportSize: I,
 	logicalViewportSize: I,
@@ -140420,12 +140421,12 @@ $.fn([I, I], I)(/* @__PURE__ */ ((e) => (globalThis.__TYPEGPU_META__ ??= /* @__P
 	},
 	externals: {}
 }) && e.f)({}));
-function gL(e) {
+function hL(e) {
 	let t = 2166136261, n = e.join("");
 	for (let e = 0; e < n.length; e++) t ^= n.charCodeAt(e), t = Math.imul(t, 16777619);
 	return `${(t >>> 0).toString(16).padStart(8, "0")}:${n.length}`;
 }
-function _L(e = {}) {
+function gL(e = {}) {
 	let t = e.maxSize ?? 4, n = e.dispose, r = /* @__PURE__ */ new Map(), i = 0, a = null, o = null;
 	function s(e) {
 		e.lastUsed = ++i;
@@ -140480,9 +140481,9 @@ function _L(e = {}) {
 		}
 	};
 }
-var vL = "passManager";
-function yL(e, t) {
-	let { textureManager: n, dispatcher: r } = t, i = t.canvasFormat ?? bL(), a = t.rttFormat ?? "rgba16float", o = e.device?.limits?.maxSampledTexturesPerShaderStage, l = t.maxSampledTextures ?? (typeof o == "number" && o > 0 ? o : 16), u = t.fullScreenTriangle ?? eL, d = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Set(), p = null;
+var _L = "passManager";
+function vL(e, t) {
+	let { textureManager: n, dispatcher: r } = t, i = t.canvasFormat ?? yL(), a = t.rttFormat ?? "rgba16float", o = e.device?.limits?.maxSampledTexturesPerShaderStage, l = t.maxSampledTextures ?? (typeof o == "number" && o > 0 ? o : 16), u = t.fullScreenTriangle ?? $I, d = /* @__PURE__ */ new Map(), f = /* @__PURE__ */ new Set(), p = null;
 	function m() {
 		let t = n.samplers;
 		try {
@@ -140493,7 +140494,7 @@ function yL(e, t) {
 				nearestRepeat: t.nearestRepeat
 			});
 		} catch (e) {
-			c(`[${vL}] failed to build sampler bind group:`, e);
+			c(`[${_L}] failed to build sampler bind group:`, e);
 			return;
 		}
 	}
@@ -140519,16 +140520,16 @@ function yL(e, t) {
 		for (let e of t.reads) {
 			let i = d.get(e), a = n?.[e], o = i ?? a;
 			if (!o) {
-				c(`[${vL}] pass "${t.entry}" reads unknown texture "${e}"`);
+				c(`[${_L}] pass "${t.entry}" reads unknown texture "${e}"`);
 				return;
 			}
 			r[e] = o.texture;
 		}
-		t.reads.length > l && s(`[${vL}] pass samples ${t.reads.length} textures (> device limit ~${l}); composition may fail on this device.`);
+		t.reads.length > l && s(`[${_L}] pass samples ${t.reads.length} textures (> device limit ~${l}); composition may fail on this device.`);
 		try {
 			return e.createBindGroup(t.textureLayout, r);
 		} catch (e) {
-			c(`[${vL}] failed to build texture bind group:`, e);
+			c(`[${_L}] failed to build texture bind group:`, e);
 			return;
 		}
 	}
@@ -140545,7 +140546,7 @@ function yL(e, t) {
 		if (i.length === 1) {
 			let e = r.get(i[0]);
 			if (!e) {
-				c(`[${vL}] external read "${i[0]}" has no registered source`);
+				c(`[${_L}] external read "${i[0]}" has no registered source`);
 				return;
 			}
 			return n.createExternalTextureBinding({
@@ -140622,7 +140623,7 @@ function yL(e, t) {
 		if (e.textureBindGroup && (n = n.with(e.textureBindGroup)), e.fragment.usesSamplers && p?.samplerBindGroup && (n = n.with(p.samplerBindGroup)), e.fragment.externalReads.length > 0) {
 			let t = e.externalBinding?.update() ?? null;
 			if (!t) {
-				e.externalSkipLogged ||= (s(`[${vL}] external texture not ready — skipping pass (${e.fragment.externalReads.join(", ")})`), !0);
+				e.externalSkipLogged ||= (s(`[${_L}] external texture not ready — skipping pass (${e.fragment.externalReads.join(", ")})`), !0);
 				return;
 			}
 			n = n.with(t);
@@ -140679,13 +140680,13 @@ function yL(e, t) {
 		}
 	};
 }
-function bL() {
+function yL() {
 	return typeof navigator < "u" && navigator.gpu ? navigator.gpu.getPreferredCanvasFormat() : "bgra8unorm";
 }
-function xL(e) {
+function bL(e) {
 	return `${e}-srgb`;
 }
-function SL(e) {
+function xL(e) {
 	let t = /* @__PURE__ */ new Set();
 	function n(t, ...n) {
 		return e.createTexture.call(e, t).$usage(...n);
@@ -140739,7 +140740,7 @@ function SL(e) {
 				return e.unwrap(n);
 			},
 			createSrgbView() {
-				if (o) return e.unwrap(n).createView({ format: xL(a) });
+				if (o) return e.unwrap(n).createView({ format: bL(a) });
 			},
 			generateMipmaps() {
 				n.generateMipmaps?.();
@@ -140755,7 +140756,7 @@ function SL(e) {
 		return c(n({
 			size: [t, r],
 			format: o,
-			...i ? { viewFormats: [xL(o)] } : {},
+			...i ? { viewFormats: [bL(o)] } : {},
 			...a ? { mipLevelCount: a } : {}
 		}, "sampled", "render"), t, r, o, i);
 	}
@@ -140847,14 +140848,13 @@ function SL(e) {
 		}
 	};
 }
-function CL(e, t) {
-	let n = $I(e)?.definition?.naturalSizeKey;
-	if (!n) return null;
-	if ("fixed" in n) return n.fixed || null;
-	let r = t[n.fromProp];
-	return typeof r == "string" && r ? r : null;
+function SL(e, t) {
+	if (!e) return null;
+	if ("fixed" in e) return e.fixed || null;
+	let n = t[e.fromProp];
+	return typeof n == "string" && n ? n : null;
 }
-function wL(e, t, n) {
+function CL(e, t, n) {
 	if (!e || typeof e != "object") return null;
 	let r = (e, r, i) => e == null || typeof e == "object" && typeof e.value != "number" ? null : mD(e, r, t, n) * i, i = r(e.width, "x", t), a = r(e.height, "y", n);
 	return i != null && a != null && i > 0 && a > 0 ? {
@@ -140862,29 +140862,29 @@ function wL(e, t, n) {
 		heightPx: a
 	} : null;
 }
-function TL(e, t, n) {
-	let { type: r, decl: i, props: a, boundingBox: o } = e;
+function wL(e, t, n) {
+	let { decl: r, props: i, boundingBox: a } = e;
 	if (!(t > 0) || !(n > 0) || e.requiresChild) return null;
-	if (i?.computeBounds) {
-		let e = i.computeBounds(a, t, n);
+	if (r?.computeBounds) {
+		let e = r.computeBounds(i, t, n);
 		return e.widthPx > 0 && e.heightPx > 0 ? {
 			widthPx: e.widthPx,
 			heightPx: e.heightPx
 		} : null;
 	}
-	let s = i?.propBindings;
-	if (s?.width && s?.height) {
-		let e = kP(s.width, a[s.width.prop], t, n, wP(s, s.width.prop)), r = kP(s.height, a[s.height.prop], t, n, wP(s, s.height.prop));
+	let o = r?.propBindings;
+	if (o?.width && o?.height) {
+		let e = kP(o.width, i[o.width.prop], t, n, wP(o, o.width.prop)), r = kP(o.height, i[o.height.prop], t, n, wP(o, o.height.prop));
 		return e > 0 && r > 0 ? {
 			widthPx: e,
 			heightPx: r
 		} : null;
 	}
-	let c = wL(o, t, n);
-	if (c) return c;
-	let l = CL(r, a);
-	if (l) {
-		let e = pA(l);
+	let s = CL(a, t, n);
+	if (s) return s;
+	let c = SL(e.naturalSizeKey, i);
+	if (c) {
+		let e = pA(c);
 		if (e) return {
 			widthPx: e.width,
 			heightPx: e.height
@@ -140892,7 +140892,7 @@ function TL(e, t, n) {
 	}
 	return null;
 }
-function EL(e, t, n, r) {
+function TL(e, t, n, r) {
 	if (e == null) return 0;
 	if (typeof e == "number") return e;
 	let i = rD(e);
@@ -140901,21 +140901,21 @@ function EL(e, t, n, r) {
 		canvasHeight: r
 	}) ?? 0 : 0;
 }
-function DL(e, t, n) {
+function EL(e, t, n) {
 	return !e || e.mode !== "column" && e.mode !== "row" ? null : {
 		mode: e.mode,
-		gapPx: Math.max(0, EL(e.gap, e.mode === "column" ? "y" : "x", t, n)),
+		gapPx: Math.max(0, TL(e.gap, e.mode === "column" ? "y" : "x", t, n)),
 		align: e.align ?? "center",
 		anchor: e.anchor ?? "center",
 		anchorOffsetX: e.anchorOffset?.x ?? 0,
 		anchorOffsetY: e.anchorOffset?.y ?? 0
 	};
 }
-var OL = (e) => ({
+var DL = (e) => ({
 	ox: e.includes("left") ? "start" : e.includes("right") ? "end" : "center",
 	oy: e.includes("top") ? "start" : e.includes("bottom") ? "end" : "center"
-}), kL = (e, t, n, r) => e === "start" ? r : e === "end" ? n - t - r : (n - t) / 2 + r;
-function AL(e, t) {
+}), OL = (e, t, n, r) => e === "start" ? r : e === "end" ? n - t - r : (n - t) / 2 + r;
+function kL(e, t) {
 	let n = 0, r = 0;
 	for (let i of t) {
 		let t = e.mode === "column" ? i.size.heightPx : i.size.widthPx, a = e.mode === "column" ? i.size.widthPx : i.size.heightPx;
@@ -140929,10 +140929,10 @@ function AL(e, t) {
 		heightPx: r
 	};
 }
-function jL(e, t, n, r) {
+function AL(e, t, n, r) {
 	let i = /* @__PURE__ */ new Map();
 	if (t.length === 0) return i;
-	let a = AL(e, t), { ox: o, oy: s } = OL(e.anchor), c = kL(o, a.widthPx, n, e.anchorOffsetX), l = kL(s, a.heightPx, r, e.anchorOffsetY), u = (t, n) => e.align === "start" ? 0 : e.align === "end" ? n - t : (n - t) / 2, d = 0;
+	let a = kL(e, t), { ox: o, oy: s } = DL(e.anchor), c = OL(o, a.widthPx, n, e.anchorOffsetX), l = OL(s, a.heightPx, r, e.anchorOffsetY), u = (t, n) => e.align === "start" ? 0 : e.align === "end" ? n - t : (n - t) / 2, d = 0;
 	for (let n of t) if (e.mode === "column") {
 		let t = c + u(n.size.widthPx, a.widthPx) + n.size.widthPx / 2, r = l + d + n.size.heightPx / 2;
 		i.set(n.id, {
@@ -140948,26 +140948,27 @@ function jL(e, t, n, r) {
 	}
 	return i;
 }
-function ML(e, t, n) {
-	let r = DL(e.layout, t, n);
+function jL(e, t, n) {
+	let r = EL(e.layout, t, n);
 	if (r) {
-		let i = NL(e, t, n);
-		return i.length === 0 ? null : AL(r, i);
+		let i = ML(e, t, n);
+		return i.length === 0 ? null : kL(r, i);
 	}
-	return TL({
+	return wL({
 		type: e.componentName,
 		decl: e.decl,
+		naturalSizeKey: e.naturalSizeKey,
 		props: e.props,
 		boundingBox: e.boundingBox,
 		requiresChild: e.requiresChild,
 		availableWidthPx: t
 	}, t, n);
 }
-function NL(e, t, n) {
+function ML(e, t, n) {
 	let r = [];
 	for (let i of e.children) {
 		if (i.visible === !1 || i.absolute) continue;
-		let e = ML(i, t, n);
+		let e = jL(i, t, n);
 		e && r.push({
 			id: i.id,
 			size: e,
@@ -140976,7 +140977,7 @@ function NL(e, t, n) {
 	}
 	return r;
 }
-function PL(e, t, n) {
+function NL(e, t, n) {
 	if (!e.decl?.computeBounds) return {
 		x: 0,
 		y: 0
@@ -140987,10 +140988,10 @@ function PL(e, t, n) {
 		y: r.centerYPx - a * n
 	};
 }
-function FL(e, t, n, r, i, a, o, s) {
-	let c = DL(e.layout, i, a);
+function PL(e, t, n, r, i, a, o, s) {
+	let c = EL(e.layout, i, a);
 	if (c) {
-		IL(e, c, i, a, o, {
+		FL(e, c, i, a, o, {
 			centerXPx: n,
 			centerYPx: r
 		}, s);
@@ -140999,7 +141000,7 @@ function FL(e, t, n, r, i, a, o, s) {
 	let l = e.decl?.propBindings?.x?.prop ?? e.decl?.propBindings?.y?.prop;
 	if (l) {
 		if (!e.positionDriven) {
-			let t = PL(e, i, a);
+			let t = NL(e, i, a);
 			o.push({
 				kind: "position",
 				id: e.id,
@@ -141019,12 +141020,12 @@ function FL(e, t, n, r, i, a, o, s) {
 		heightPx: t.heightPx
 	});
 }
-function IL(e, t, n, r, i, a, o, s) {
-	let c = s ?? NL(e, n, r);
+function FL(e, t, n, r, i, a, o, s) {
+	let c = s ?? ML(e, n, r);
 	if (c.length === 0) return;
 	let l = t;
 	if (a) {
-		let e = AL(t, c);
+		let e = kL(t, c);
 		l = {
 			...t,
 			anchor: "top-left",
@@ -141033,26 +141034,26 @@ function IL(e, t, n, r, i, a, o, s) {
 		};
 	}
 	if (o) {
-		let t = AL(l, c), { ox: i, oy: a } = OL(l.anchor);
+		let t = kL(l, c), { ox: i, oy: a } = DL(l.anchor);
 		o.set(e.id, {
-			leftPx: kL(i, t.widthPx, n, l.anchorOffsetX),
-			topPx: kL(a, t.heightPx, r, l.anchorOffsetY),
+			leftPx: OL(i, t.widthPx, n, l.anchorOffsetX),
+			topPx: OL(a, t.heightPx, r, l.anchorOffsetY),
 			widthPx: t.widthPx,
 			heightPx: t.heightPx
 		});
 	}
-	let u = jL(l, c, n, r);
+	let u = AL(l, c, n, r);
 	for (let e of c) {
 		let t = u.get(e.id);
-		t && FL(e.view, e.size, t.centerXPx, t.centerYPx, n, r, i, o);
+		t && PL(e.view, e.size, t.centerXPx, t.centerYPx, n, r, i, o);
 	}
 }
-function LL(e, t, n, r) {
+function IL(e, t, n, r) {
 	let i = [], a = (e) => {
-		let o = DL(e.layout, t, n);
+		let o = EL(e.layout, t, n);
 		if (o) {
-			let s = NL(e, t, n);
-			IL(e, o, t, n, i, void 0, r, s);
+			let s = ML(e, t, n);
+			FL(e, o, t, n, i, void 0, r, s);
 			let c = new Set(s.map((e) => e.id));
 			for (let t of e.children) t.visible !== !1 && (c.has(t.id) || a(t));
 		} else for (let t of e.children) t.visible !== !1 && a(t);
@@ -141060,7 +141061,7 @@ function LL(e, t, n, r) {
 	for (let t of e) t.visible !== !1 && a(t);
 	return i;
 }
-var RL = class {
+var LL = class {
 	frameTimesMs = [];
 	frameTimesIndex = 0;
 	frameTimesCount = 0;
@@ -141209,7 +141210,7 @@ var RL = class {
 	reset() {
 		this.frameTimesMs.length = 0, this.frameTimesIndex = 0, this.frameTimesCount = 0, this.frameIntervals.length = 0, this.frameIntervalsIndex = 0, this.frameIntervalsCount = 0, this.lastFrameTimestamp = 0, this.jankFrameCount = 0, this.totalFrameCount = 0, this.memorySnapshots.length = 0, this.memorySnapshotIndex = 0, this.sortBuffer.length = 0, this.lastCpuTime = null, this.lastGpuTime = null;
 	}
-}, zL = 32, BL = 5, VL = (() => {
+}, RL = 32, zL = 5, BL = (() => {
 	let e = 0, t = /* @__PURE__ */ new Set(), n = (e, n) => {
 		t.forEach((t) => {
 			try {
@@ -141225,7 +141226,7 @@ var RL = class {
 		};
 	} };
 })();
-function HL(e) {
+function VL(e) {
 	if (!e) return !1;
 	let t = e;
 	if (typeof e == "string") try {
@@ -141240,11 +141241,11 @@ function HL(e) {
 	}
 	return !1;
 }
-function UL() {
-	let e = null, n = null, r = null, i = null, a = null, s = null, l = !1, u = !1, d = !1, f = null, p = /* @__PURE__ */ new Map(), g = null, _ = /* @__PURE__ */ new Map(), v = [], y = [], b = _L({
+function HL() {
+	let e = null, n = null, r = null, i = null, a = null, s = null, l = !1, u = !1, d = !1, f = null, p = /* @__PURE__ */ new Map(), g = null, _ = /* @__PURE__ */ new Map(), v = [], y = [], b = gL({
 		maxSize: 4,
 		dispose: (e) => Yt(e)
-	}), x = /* @__PURE__ */ new Set(), S = null, C = null, w = !0, T = 0, E = 0, ee = 0, te = 0, ne = 1, re = 8192, ie = 0, ae = 0, oe = !1, se = () => ee || T || 1, ce = () => te || E || 1, le = !0, ue = !1, de = !1, fe = 0, pe = 0, me = 0, he = null, ge = null, _e = !1, ve = -10, ye = -10, be = !1, xe = !1, Se = null, Ce = !1, we = null, Te = null, Ee = null, De = null, Oe = null, ke = null, Ae = !1, je = "p3-linear", Me = "linear", Ne = !1, Pe = null, Fe = null, Ie = !1, Le = !1, Re = null, ze = !1, Be = null, Ve = null, He = !1, Ue = null, We = null, Ge = 0, Ke = 0, qe = new RL(), Je = {
+	}), x = /* @__PURE__ */ new Set(), S = null, C = null, w = !0, T = 0, E = 0, ee = 0, te = 0, ne = 1, re = 8192, ie = 0, ae = 0, oe = !1, se = () => ee || T || 1, ce = () => te || E || 1, le = !0, ue = !1, de = !1, fe = 0, pe = 0, me = 0, he = null, ge = null, _e = !1, ve = -10, ye = -10, be = !1, xe = !1, Se = null, Ce = !1, we = null, Te = null, Ee = null, De = null, Oe = null, ke = null, Ae = !1, je = "p3-linear", Me = "linear", Ne = !1, Pe = null, Fe = null, Ie = !1, Le = !1, Re = null, ze = !1, Be = null, Ve = null, He = !1, Ue = null, We = null, Ge = 0, Ke = 0, qe = new LL(), Je = {
 		deltaTime: 0,
 		pointer: {
 			x: -10,
@@ -141279,7 +141280,7 @@ function UL() {
 	}, et = /* @__PURE__ */ new WeakMap(), tt = (e, t) => {
 		if (typeof t != "string" || !t || Mj(t)) return;
 		let n = et.get(e) ?? /* @__PURE__ */ new Set();
-		et.set(e, n), !n.has(t) && (n.add(t), Aj(t, () => {
+		et.set(e, n), n.has(t) || (n.add(t), Aj(t, () => {
 			n.delete(t), p.get(e.id) === e && (nt(e), ht() && mt(), Qt());
 		}));
 	}, nt = (e) => {
@@ -141396,6 +141397,7 @@ function UL() {
 			requiresChild: e.requiresChild,
 			layout: e.metadata.flow,
 			decl: e.boundingBoxDeclaration,
+			naturalSizeKey: e.definition.naturalSizeKey,
 			props: t,
 			boundingBox: e.metadata.boundingBox,
 			positionDriven: i,
@@ -141411,7 +141413,7 @@ function UL() {
 		pt = !1;
 		let n = [];
 		for (let e of p.values()) e.parentId === null && n.push(gt(e));
-		let r = LL(n, e, t);
+		let r = IL(n, e, t);
 		for (let e of r) {
 			let t = p.get(e.id);
 			if (t) {
@@ -141526,11 +141528,11 @@ function UL() {
 		}), e.definition.animatedTime && t.push({
 			name: "_animTime",
 			schema: P,
-			initial: mL(Et(e)).value
+			initial: pL(Et(e)).value
 		}), e.definition.extraAnimatedTimes) for (let [n, r] of Object.entries(e.definition.extraAnimatedTimes)) t.push({
 			name: `_animTime_${n}`,
 			schema: P,
-			initial: mL(Dt(e, r)).value
+			initial: pL(Dt(e, r)).value
 		});
 		let n = e.definition.extraFields;
 		if (n) for (let [e, r] of Object.entries(n)) t.push({
@@ -141681,7 +141683,7 @@ function UL() {
 		let i = e.uniforms[r.prop]?._rawList, a = (Array.isArray(i) ? i[r.index] : void 0)?.[r.field];
 		return aP(a) ? a : void 0;
 	}, It = (e) => Object.values(e.uniforms).some((e) => e._listSpec && fP(e._rawList, e._listSpec)), Lt = (e) => {
-		if (At(e, "_opacity", e.metadata.opacity ?? 1), e.definition.animatedTime && At(e, "_animTime", mL(Et(e)).value), e.definition.extraAnimatedTimes) for (let [t, n] of Object.entries(e.definition.extraAnimatedTimes)) At(e, `_animTime_${t}`, mL(Dt(e, n)).value);
+		if (At(e, "_opacity", e.metadata.opacity ?? 1), e.definition.animatedTime && At(e, "_animTime", pL(Et(e)).value), e.definition.extraAnimatedTimes) for (let [t, n] of Object.entries(e.definition.extraAnimatedTimes)) At(e, `_animTime_${t}`, pL(Dt(e, n)).value);
 		if (St(e)) for (let [t, n] of Object.entries(st(e))) At(e, `_xform_${t}`, n);
 		if (lt(e)) {
 			let t = ct(e);
@@ -141814,7 +141816,7 @@ function UL() {
 			}
 		}
 		return e;
-	}, Wt = () => g ? gL([...ZD(Vt(null, null), Ht()), ...Ut()]) : null, Gt = () => ({
+	}, Wt = () => g ? hL([...ZD(Vt(null, null), Ht()), ...Ut()]) : null, Gt = () => ({
 		width: Math.max(1, Math.round(T * ne)),
 		height: Math.max(1, Math.round(E * ne))
 	}), Kt = (e) => {
@@ -141823,10 +141825,10 @@ function UL() {
 		return t;
 	}, qt = (e) => {
 		if (!n || !i || !a) throw Error("[gpu] buildComposition before init");
-		let t = wC(n, { systemSchema: hL }), r = /* @__PURE__ */ new Map();
+		let t = wC(n, { systemSchema: mL }), r = /* @__PURE__ */ new Map();
 		for (let [e, n] of p) r.set(e, t.defineNode(e, Ot(n)));
 		t.defineSystem(), t.finalize();
-		let o = WD(Vt(t, r), Ht()), s = yL(n, {
+		let o = WD(Vt(t, r), Ht()), s = vL(n, {
 			textureManager: i,
 			dispatcher: a
 		}), c = {
@@ -142175,12 +142177,12 @@ function UL() {
 		for (let t of p.values()) {
 			let n = t.definition.animatedTime;
 			if (n) {
-				let r = t.uniforms[n.speed], i = r && Number(r.value) || 0, a = mL(Et(t));
+				let r = t.uniforms[n.speed], i = r && Number(r.value) || 0, a = pL(Et(t));
 				a.advance(e, i), At(t, "_animTime", a.value);
 			}
 			let r = t.definition.extraAnimatedTimes;
 			if (r) for (let [n, i] of Object.entries(r)) {
-				let r = t.uniforms[i], a = r && Number(r.value) || 0, o = mL(Dt(t, i));
+				let r = t.uniforms[i], a = r && Number(r.value) || 0, o = pL(Dt(t, i));
 				o.advance(e, a), At(t, `_animTime_${n}`, o.value);
 			}
 		}
@@ -142360,7 +142362,7 @@ function UL() {
 	}, An = () => {
 		let e = !1;
 		for (let t of p.values()) {
-			if (t.usesPointer || HL(t.uniforms?.shape?.value) || It(t)) {
+			if (t.usesPointer || VL(t.uniforms?.shape?.value) || It(t)) {
 				e = !0;
 				break;
 			}
@@ -142375,7 +142377,7 @@ function UL() {
 				if (e) break;
 			}
 		}
-		e && !Ce ? (Ce = !0, !we && s && (we = VL.register({
+		e && !Ce ? (Ce = !0, !we && s && (we = BL.register({
 			onMouseMove: Cn,
 			onTouchMove: wn,
 			onMouseDown: On,
@@ -142412,14 +142414,14 @@ function UL() {
 			}
 		}
 	}, Nn = (e) => {
-		t(e) ? Mn(e.reason, e) : (Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= BL && Mn("render-failed", e));
+		t(e) ? Mn(e.reason, e) : (Ke++, Ke === 1 && o("[gpu] render error:", e), Ke >= zL && Mn("render-failed", e));
 	}, Pn = (e) => {
 		e && typeof e.addEventListener == "function" && (Fn(), Ue = e, We = (e) => {
 			try {
 				e.preventDefault();
 			} catch {}
 			let t = e.error;
-			o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError ? Mn("out-of-memory", t) : typeof GPUInternalError < "u" && t instanceof GPUInternalError ? Mn("gpu-error", t) : (Ge++, Ge >= zL && Mn("gpu-error", t));
+			o("[gpu] uncaptured device error (a custom WGSL body that fails to compile reports here — read the message for the line):", t), typeof GPUOutOfMemoryError < "u" && t instanceof GPUOutOfMemoryError ? Mn("out-of-memory", t) : typeof GPUInternalError < "u" && t instanceof GPUInternalError ? Mn("gpu-error", t) : (Ge++, Ge >= RL && Mn("gpu-error", t));
 		}, e.addEventListener("uncapturederror", We));
 	}, Fn = () => {
 		if (Ue && We) try {
@@ -142456,14 +142458,14 @@ function UL() {
 		S != null && (he = S), Ne = g, de = b, je = _, Me = v, xt(), u = !0, f = new AbortController();
 		let C = f;
 		try {
-			if (Pe = mP, Pe(_), C.signal.aborted || (s = p, e = await sL({
+			if (Pe = mP, Pe(_), C.signal.aborted || (s = p, e = await oL({
 				device: y?.device,
 				adapter: y?.adapter,
 				onDeviceLost: (e) => In(e.message || e.reason || "unknown")
 			}), C.signal.aborted)) return;
 			n = e.root, Pn(n.device), ne = cn();
 			let t = n.device.limits?.maxTextureDimension2D;
-			typeof t == "number" && t > 0 && (re = t), i = SL(n), a = YO(n), typeof window < "u" && (De = () => Rn(), window.addEventListener("beforeunload", De), Oe = () => {
+			typeof t == "number" && t > 0 && (re = t), i = xL(n), a = YO(n), typeof window < "u" && (De = () => Rn(), window.addEventListener("beforeunload", De), Oe = () => {
 				if (it(), ie > 0 && ae > 0) {
 					let e = ie, t = ae;
 					ie = 0, ae = 0, un(e, t);
@@ -142479,7 +142481,7 @@ function UL() {
 				let { width: n, height: r } = Gt();
 				p.width = n, p.height = r;
 			} else oe = !1;
-			if (r = uL(n, p), x && typeof ResizeObserver < "u") {
+			if (r = lL(n, p), x && typeof ResizeObserver < "u") {
 				let e = m ?? p.parentElement;
 				e ? (Te = new ResizeObserver(dn), Te.observe(e)) : console.warn("[gpu] no element available for resize observation — use resize() manually"), typeof IntersectionObserver < "u" && (Ee = new IntersectionObserver(fn, {
 					threshold: 0,
@@ -142592,9 +142594,9 @@ function UL() {
 			if (_e = e, e && !t) {
 				xn(), ge !== null && typeof cancelAnimationFrame == "function" && (cancelAnimationFrame(ge), ge = null), me = 0;
 				for (let e of p.values()) {
-					e.definition.animatedTime && (mL(Et(e)).value = 0, At(e, "_animTime", 0));
+					e.definition.animatedTime && (pL(Et(e)).value = 0, At(e, "_animTime", 0));
 					let t = e.definition.extraAnimatedTimes;
-					if (t) for (let [n, r] of Object.entries(t)) mL(Dt(e, r)).value = 0, At(e, `_animTime_${n}`, 0);
+					if (t) for (let [n, r] of Object.entries(t)) pL(Dt(e, r)).value = 0, At(e, `_animTime_${n}`, 0);
 				}
 			}
 		},
@@ -142637,7 +142639,7 @@ function UL() {
 			},
 			getAnimatedTimeValue: (e) => {
 				let t = p.get(e);
-				return t?.definition.animatedTime ? mL(Et(t)).value : null;
+				return t?.definition.animatedTime ? pL(Et(t)).value : null;
 			},
 			writeExtraField: (e, t, n) => {
 				let r = p.get(e);
@@ -142680,7 +142682,7 @@ function UL() {
 	};
 }
 // design/air/light-renderer.mjs
-var WL = sI({
+var UL = sI({
 	name: "AirLight",
 	props: {
 		base: {
@@ -142725,12 +142727,12 @@ var WL = sI({
     return vec4f(color, 1.0);
   `
 });
-async function GL(e, t, n, r) {
+async function WL(e, t, n, r) {
 	let i = await navigator.gpu.requestAdapter({ powerPreference: "low-power" });
 	if (r.throwIfAborted(), !i) throw Error("no-adapter");
 	let a = await i.requestDevice();
 	r.aborted && (a.destroy(), r.throwIfAborted());
-	let o = UL(), s = !1, c = () => {
+	let o = HL(), s = !1, c = () => {
 		s || (s = !0, r.removeEventListener("abort", c), o.cleanup(), a.destroy());
 	};
 	r.addEventListener("abort", c, { once: !0 });
@@ -142745,11 +142747,11 @@ async function GL(e, t, n, r) {
 			enablePerformanceTracking: !1,
 			colorSpace: "srgb",
 			toneMapping: "linear"
-		}), r.throwIfAborted(), o.getFailureReason() || (o.setResolutionScale(Math.min(1, 1.5 / (window.devicePixelRatio || 1))), o.registerNode("air-root", vF.fragment, null, null, {}, vF), o.registerNode("air-light", WL.fragment, "air-root", { renderOrder: 0 }, eF(WL, {
+		}), r.throwIfAborted(), o.getFailureReason() || (o.setResolutionScale(Math.min(1, 1.5 / (window.devicePixelRatio || 1))), o.registerNode("air-root", mF.fragment, null, null, {}, mF), o.registerNode("air-light", UL.fragment, "air-root", { renderOrder: 0 }, FP(UL, {
 			...t,
 			aim: .5,
 			arrival: 1
-		}, "air-light"), WL), await o.renderAndWait({ waitForGpu: !0 }), r.throwIfAborted(), o.getFailureReason())) throw Error(o.getFailureReason());
+		}, "air-light"), UL), await o.renderAndWait({ waitForGpu: !0 }), r.throwIfAborted(), o.getFailureReason())) throw Error(o.getFailureReason());
 		return {
 			async draw(e, t = !1) {
 				if (!s) {
@@ -142766,4 +142768,4 @@ async function GL(e, t, n, r) {
 		throw s ? o.cleanup() : c(), e;
 	}
 }
-export { GL as createAirLightRenderer };
+export { WL as createAirLightRenderer };

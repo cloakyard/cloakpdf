@@ -326,17 +326,24 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
       await page.evaluate((size) => {
         document.documentElement.style.fontSize = `${size}px`;
       }, fontSize);
-      const action = await page.$eval('[aria-label="Cancel current tool"]', (button) => {
-        const range = document.createRange();
-        range.selectNodeContents(button);
-        const text = range.getBoundingClientRect();
-        const box = button.getBoundingClientRect();
-        const header = button.parentElement!.getBoundingClientRect();
-        return {
-          lines: text.height / parseFloat(getComputedStyle(button).lineHeight),
-          contained: text.left >= box.left && text.right <= box.right && box.right <= header.right,
-        };
-      });
+      const action = await page.$eval(
+        '[aria-label="Cancel current tool"], .editor-properties [aria-label="Cancel"]',
+        (button) => {
+          const range = document.createRange();
+          range.selectNodeContents(button);
+          const text = range.getBoundingClientRect();
+          const box = button.getBoundingClientRect();
+          const header = button.parentElement!.getBoundingClientRect();
+          return {
+            lines: button.querySelector("svg")
+              ? 1
+              : text.height / parseFloat(getComputedStyle(button).lineHeight),
+            contained: button.querySelector("svg")
+              ? box.width >= 48 && box.height >= 48 && box.right <= header.right
+              : text.left >= box.left && text.right <= box.right && box.right <= header.right,
+          };
+        },
+      );
       assert(
         action.lines <= 1.1 && action.contained,
         `${viewport.name}/${fontSize}px: Cancel must remain a readable, unbroken action`,

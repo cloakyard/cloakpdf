@@ -16468,7 +16468,7 @@ var qu = {
 	setOpen = (e, t) => {
 		t.preventUnmountOnClose = () => {
 			this.set("preventUnmountingOnClose", !0);
-		}, !e && t.trigger == null && this.state.activeTriggerId != null && (t.trigger = this.state.activeTriggerElement ?? void 0), this.context.onOpenChange?.(e, t), !t.isCanceled && (this.state.floatingRootContext.dispatchOpenChange(e, t), this.update(la(this.state, e, t.trigger)));
+		}, !e && t.trigger == null && this.state.activeTriggerId != null && (t.trigger = this.state.activeTriggerElement ?? void 0), this.context.onOpenChange?.(e, t), t.isCanceled || (this.state.floatingRootContext.dispatchOpenChange(e, t), this.update(la(this.state, e, t.trigger)));
 	};
 };
 function Yu(e, t, n, r = !1) {

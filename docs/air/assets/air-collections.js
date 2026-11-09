@@ -15723,7 +15723,7 @@ function yu(e) {
 		N(Ae);
 	}, [Ae, N]), Y(function() {
 		let e = uu(ce.current, W, C, b);
-		e === null && (ue.current = null), !G && ge.set("selectedIndex", e);
+		e === null && (ue.current = null), G || ge.set("selectedIndex", e);
 	}, [
 		b,
 		G,
@@ -15735,7 +15735,7 @@ function yu(e) {
 	});
 	let je = J((e, t) => {
 		let n = t, r = ja(n);
-		s?.(e, n), !t.isCanceled && (e || ve(r()), ne(e), e || t.reason !== "focus-out" && t.reason !== "outside-press" || (A(!0), j(!1), B === "onBlur" && z.commit(W)));
+		s?.(e, n), t.isCanceled || (e || ve(r()), ne(e), e || t.reason !== "focus-out" && t.reason !== "outside-press" || (A(!0), j(!1), B === "onBlur" && z.commit(W)));
 	});
 	y.useImperativeHandle(h, () => ({
 		unmount: xe,
@@ -15748,7 +15748,7 @@ function yu(e) {
 		ge
 	]);
 	let Me = J((e, t) => {
-		i?.(e, t), !t.isCanceled && te(e);
+		i?.(e, t), t.isCanceled || te(e);
 	}), Ne = J((e) => {
 		let t = _u(e.scrollHeight, e.clientHeight), n = vu(e.scrollTop, t), r = n > 0, i = n < t;
 		ge.set("scrollUpArrowVisible", r), ge.set("scrollDownArrowVisible", i);
@@ -16409,7 +16409,7 @@ var ed = /*#__PURE__*/ y.memo(/*#__PURE__*/ y.forwardRef(function(e, t) {
 		},
 		onClick(e) {
 			let t = E.current !== "touch", n = e.nativeEvent.pointerType, r = t && Wn(e.nativeEvent) && (n !== void 0 || b), i = t && !r && !D.current;
-			D.current = !1, !(v || i) && j(e.nativeEvent);
+			D.current = !1, v || i || j(e.nativeEvent);
 		},
 		onPointerEnter(e) {
 			E.current = e.pointerType;
@@ -16697,7 +16697,7 @@ var _d = {
 	setOpen = (e, t) => {
 		t.preventUnmountOnClose = () => {
 			this.set("preventUnmountingOnClose", !0);
-		}, !e && t.trigger == null && this.state.activeTriggerId != null && (t.trigger = this.state.activeTriggerElement ?? void 0), this.context.onOpenChange?.(e, t), !t.isCanceled && (this.state.floatingRootContext.dispatchOpenChange(e, t), this.update(Aa(this.state, e, t.trigger)));
+		}, !e && t.trigger == null && this.state.activeTriggerId != null && (t.trigger = this.state.activeTriggerElement ?? void 0), this.context.onOpenChange?.(e, t), t.isCanceled || (this.state.floatingRootContext.dispatchOpenChange(e, t), this.update(Aa(this.state, e, t.trigger)));
 	};
 };
 function yd(e, t, n, r = !1) {
