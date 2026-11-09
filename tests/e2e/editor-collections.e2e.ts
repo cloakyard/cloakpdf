@@ -349,6 +349,12 @@ try {
           document.activeElement?.getAttribute("aria-label") === "Move page 60 up" &&
           document.activeElement.closest("li")?.getAttribute("aria-label")?.includes("position 59"),
       );
+      // Reordering restores focus and scrolls in the next animation frame.
+      // Wait for that visible outcome, not just React's earlier position update.
+      await page.waitForFunction(() => {
+        const r = document.activeElement!.getBoundingClientRect();
+        return r.top >= 64 && r.bottom <= innerHeight;
+      });
       const visible = await page.evaluate(() => {
         const r = document.activeElement!.getBoundingClientRect();
         return r.top >= 64 && r.bottom <= innerHeight;
