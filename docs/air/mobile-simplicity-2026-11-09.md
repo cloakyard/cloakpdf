@@ -34,5 +34,5 @@ The family canonical-control, privacy/recovery, real-worker notice, native scrol
 finite-artwork and surface-motion matrices also pass across phone/tablet/laptop/
 desktop and both themes. The full portable contract remains bundled here. Family
 receipts are in Cloakyard's `docs/air/evidence/mobile-simplicity-2026-11-09`.
-Deployment is pending the release PR. Physical Windows/iPhone, real software
+The preceding release is deployed through #232; exact-main checks and production verification are recorded in that PR. Physical Windows/iPhone, real software
 keyboards/IME, browser zoom and spoken assistive acceptance remain open.

@@ -546,6 +546,16 @@ textarea.air-field {
   color: var(--air-ink-secondary);
   font-size: var(--air-text-meta);
 }
+/* Geometry-only helpers for custom compositions; shared components own their skin. */
+.air-radius-control {
+  border-radius: var(--air-radius-control);
+}
+.air-radius-chip {
+  border-radius: var(--air-radius-chip);
+}
+.air-radius-panel {
+  border-radius: var(--air-radius-panel);
+}
 .air-panel {
   border: 1px solid var(--air-line);
   border-radius: var(--air-radius-panel);

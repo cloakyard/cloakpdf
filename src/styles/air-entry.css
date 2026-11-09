@@ -3234,7 +3234,13 @@ body:has(.pdf-site) {
 @media (max-width: 360px) {
   .pdf-date-popover {
     max-inline-size: 100vw;
-    border-radius: var(--air-radius-menu) var(--air-radius-menu) 0 0;
+    border-radius: var(--air-radius-dialog) var(--air-radius-dialog) 0 0;
+  }
+  /* Use the full scrollport: the native scrollbar also needs room beside seven
+     44px targets. The rest of the picker keeps its normal 20px padding. */
+  .pdf-date-calendar {
+    width: calc(100% + 40px);
+    margin-inline: -20px;
   }
 }
 
@@ -3487,6 +3493,7 @@ body:has(.pdf-site) {
   margin-block-start: 4px;
 }
 .pdf-precision-range {
+  border-radius: var(--air-radius-control);
   appearance: none;
   display: block;
   background: transparent;
@@ -3525,7 +3532,6 @@ body:has(.pdf-site) {
 .pdf-precision-range:focus-visible {
   outline: 2px solid var(--air-accent);
   outline-offset: 3px;
-  border-radius: var(--air-radius-control);
 }
 .pdf-precision-range:disabled {
   opacity: 0.5;
@@ -3807,6 +3813,7 @@ body:has(.pdf-site) {
   margin-top: 8px;
 }
 .pdf-color__precise summary {
+  border-radius: var(--air-radius-chip);
   display: list-item;
   align-content: center;
   min-height: 44px;
@@ -3817,7 +3824,6 @@ body:has(.pdf-site) {
 .pdf-color__precise summary:focus-visible {
   outline: 2px solid var(--air-accent);
   outline-offset: 2px;
-  border-radius: var(--air-radius-chip);
 }
 
 /* Printed-form answers share the inspector's scrolling region. */

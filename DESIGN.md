@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.0
+version: 1.7.1
 status: approved
 date: 2026-11-09
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 33da13992befe0dcc707978bb702ffcb3e1d2d59dcb9ddec156043d0a0c0c015
+family-contract-sha256: 9f46b7f494fa25eaf189eee8293af0ffde75e83f8c638215e3a56b553588f530
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.0 — simpler compact editors** · Direction: **Air** · Updated: **2026-11-09**
+Version: **1.7.1 — consistent component corners** · Direction: **Air** · Updated: **2026-11-09**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -251,7 +251,29 @@ It never changes author content or exported colours.
 | Field/row interior     | 12–16px; section group gap 24px                   |
 | Reading measure        | 65ch maximum                                      |
 
-Full-bleed app rails may meet an edge without rounded outer corners. Do not nest
+Corner geometry follows the **component role**, including custom controls. Use
+`--air-radius-control` (10px) for buttons, icon actions, fields and selectable model
+choices; `--air-radius-chip` (8px) for text badges, status labels and segment tabs;
+`--air-radius-panel` (18px) for cards, boxed feedback and progress surfaces;
+`--air-radius-menu` (12px) for anchored menus/popovers; and
+`--air-radius-dialog` (20px) for dialogs. A full-width modal sheet has 20px top
+corners and square bottom corners. Attached editor working panels and edge-to-edge
+rails are flush (0px); they are not floating sheets. Do not change these corners
+between light/dark, hover/focus/selected/disabled states or input modes.
+
+Use the component's shared class first. Custom compositions can use the small
+`air-radius-control`, `air-radius-chip` and `air-radius-panel` geometry helpers;
+do not combine them with another radius utility. Framework defaults such as an
+unqualified `rounded` or a pill must not silently choose the control's shape.
+Native checkbox/keycap corners are 4px. Radios, palette swatches, avatars, slider
+thumbs and progress caps retain their functional circular shape. Document/image
+output, miniature paper previews and approved brand artwork are not UI controls.
+A nested clip derives its radius from the outer token minus its actual inset
+(e.g. `calc(var(--air-radius-panel) - 1px)` behind a card's 1px border); never
+introduce an unrelated literal. Compare all four computed corners in real states,
+not just token declarations or landing pages, and record these exceptions.
+
+Full-bleed app rails meet an edge without rounded outer corners. Do not nest
 several padded cards. Use whitespace and modest section dividers inside inspectors.
 Primary action groups contain one dominant action. A 2px focus outline with 3px
 offset uses `accent` and remains visible inside scrolling and clipped containers.
@@ -628,7 +650,8 @@ same controls in IMG, Resume and future apps.
   year list, hour/minute menus and AM/PM controls share panel/menu styling, focus
   return and viewport containment. Preserve the current date restrictions and time
   semantics. Coarse calendars need room for seven 44px columns; use a full-width
-  sheet on a 320px phone with a 4px calendar-grid inset, rather than shrinking cells.
+  sheet on a 320px phone with at most a 4px calendar-grid inset. Reduce that inset
+  when a native scrollbar needs room; keep the seven 44px targets and scrolling.
   The other sheet content keeps the normal gutter. Short screens scroll the body
   while dismissal and completion stay reachable.
 - **Field insertion:** page/date/file-name chips insert at the last active text
