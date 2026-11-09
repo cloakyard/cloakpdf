@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=929dd05b7c51" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=249d805013dc" />
     <style>
       * {
         box-sizing: border-box;
@@ -1637,7 +1637,9 @@
         color: var(--air-ink-muted);
         margin-top: 12px;
       }
-      .dialog-close { float: right; }
+      .dialog-close {
+        float: right;
+      }
       @media (hover: hover) and (pointer: fine) {
         .product-entry:hover {
           background: var(--air-surface-soft);
@@ -1790,8 +1792,9 @@
         .canvas-zoom {
           display: none;
           position: absolute;
-          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
-        right: 12px;
+          arrow:
+            '<path d="M7 7h10v10M7 17 17 7"/>',
+            right: 12px;
           bottom: 12px;
           box-shadow: none;
         }
@@ -1892,9 +1895,7 @@
         .editor-workspace[data-expanded="true"] .inspector {
           display: none;
         }
-        .editor-workspace[data-editing-expanded="true"]:not([data-expanded="true"]) .work-area {
-          grid-template-rows: 112px minmax(0, 1fr);
-        }
+
         .editor-workspace[data-expanded="true"] .paper {
           width: 240px;
           min-width: 240px;
@@ -1960,8 +1961,9 @@
         .family-menu summary {
           position: absolute;
           top: 10px;
-          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
-        right: 16px;
+          arrow:
+            '<path d="M7 7h10v10M7 17 17 7"/>',
+            right: 16px;
           min-height: 44px;
         }
         .family-menu[open] .family-menu-links {
@@ -2009,8 +2011,9 @@
         .product-entry + .product-entry:before {
           display: block;
           left: 8px;
-          arrow: '<path d="M7 7h10v10M7 17 17 7"/>',
-        right: 8px;
+          arrow:
+            '<path d="M7 7h10v10M7 17 17 7"/>',
+            right: 8px;
           top: 0;
           bottom: auto;
           height: 1px;
@@ -3702,15 +3705,9 @@
         inspector.dataset.curve = String(
           currentApp === "img" && a.active === 0 && adjustView === "curve",
         );
-        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}<button class="air-icon-button view-toggle" id="expand-controls" aria-label="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true" ? "Restore split view" : "Expand controls"}" aria-pressed="${document.querySelector(".editor-workspace").dataset.editingExpanded === "true"}">${icon("expand")}</button></div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Precise light, colour and detail.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-preview">Show preview</button></div>`;
+        inspector.innerHTML = `<div class="inspector-content"><div class="inspector-head"><h3>${tool}</h3>${icon(a.tools[a.active][0])}</div><p class="inspector-description">${currentApp === "pdf" && a.active === 1 ? "Draw or choose an image to place on your page." : { pdf: "Mark, shape and refine the details on your page.", img: "Precise light, colour and detail.", resume: "Your story, with room to make it your own." }[currentApp]}</p>${content}</div><div class="panel-actions"><select class="air-field" aria-label="Active tool" id="mobile-tool">${a.tools.map(([, name], i) => `<option value="${i}" ${i === a.active ? "selected" : ""}>${name}</option>`).join("")}</select><button class="air-button" id="panel-preview">Show preview</button></div>`;
         if (currentApp === "img" && a.active === 0 && adjustView === "curve") {
           drawCurve(true);
-          if (inspector.querySelector("#mobile-tool").getClientRects().length) {
-            document.querySelector(".editor-workspace").dataset.editingExpanded = "true";
-            const expand = inspector.querySelector("#expand-controls");
-            expand.setAttribute("aria-label", "Restore split view");
-            expand.setAttribute("aria-pressed", "true");
-          }
         }
         if (currentApp === "img" && a.active === 3) constrainLevels();
         if (currentApp === "pdf" && a.active === 1) restoreSignature();
@@ -3880,13 +3877,7 @@
           signatureDraft.path = "";
           restoreSignature();
         }
-        if (button.id === "expand-controls") {
-          const workspace = document.querySelector(".editor-workspace");
-          const expanded = workspace.dataset.editingExpanded !== "true";
-          workspace.dataset.editingExpanded = String(expanded);
-          button.setAttribute("aria-pressed", String(expanded));
-          button.setAttribute("aria-label", expanded ? "Restore split view" : "Expand controls");
-        }
+
         if (button.id === "panel-preview") document.querySelector("#expand-preview").click();
         const move = button.dataset.contactUp ?? button.dataset.contactDown;
         if (move !== undefined) {
@@ -5089,6 +5080,6 @@
       renderColour();
     </script>
     <script type="module" src="./light-controller.mjs"></script>
-    <script type="module" src="./overlays-loader.mjs?air=8e0d9aa87614"></script>
+    <script type="module" src="./overlays-loader.mjs?air=e3fe1baeda86"></script>
   </body>
 </html>

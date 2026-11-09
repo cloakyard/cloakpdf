@@ -6,6 +6,7 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
+import { ToolCompletion } from "./ToolCompletion.tsx";
 import { ToolControls } from "./ToolControls.tsx";
 import { findEditorTool } from "./tools.ts";
 
@@ -40,14 +41,23 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
       className="editor-properties"
       data-compact={collapsed || undefined}
     >
-      <div className="editor-properties__header">
+      <div className={`editor-properties__header${collapsed ? " air-editor-panel-heading" : ""}`}>
         <div className="min-w-0">
           <h2 id={headingId} ref={headingRef} tabIndex={-1} className="editor-properties__title">
             {tool ? tool.name : "Document"}
           </h2>
-          {tool && <p className="editor-properties__description">{tool.description}</p>}
+          {tool && !collapsed && (
+            <p className="editor-properties__description">{tool.description}</p>
+          )}
         </div>
-        {tool && canCancelCurrentTool && (
+        {tool && collapsed && (
+          <ToolCompletion
+            onClose={() =>
+              document.querySelector<HTMLButtonElement>('[aria-label="Search tools"]')?.focus()
+            }
+          />
+        )}
+        {tool && !collapsed && canCancelCurrentTool && (
           <button
             type="button"
             onClick={() => {
@@ -65,6 +75,7 @@ export function PropertiesPanel({ collapsed = false }: { collapsed?: boolean }) 
 
       <div className="editor-properties__body air-scroll">
         <div key={tool?.id ?? "document"}>
+          {tool && collapsed && <p className="air-help">{tool.description}</p>}
           {tool ? (
             <ToolControls />
           ) : (

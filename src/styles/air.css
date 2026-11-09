@@ -2243,6 +2243,60 @@ input.air-colour-brightness {
   outline-offset: -3px;
 }
 
+/* Compact editors share an unboxed canvas-plane header and named Actions sheet. */
+header.air-editor-header--compact {
+  min-height: 64px;
+  padding: 8px 12px;
+  gap: 4px;
+  border: 0;
+  background: var(--air-surface-soft);
+}
+.air-editor-menu {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+}
+.air-editor-menu__item {
+  inline-size: 100%;
+  justify-content: flex-start;
+  text-align: start;
+  gap: 12px;
+}
+.air-editor-menu__item svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.6;
+}
+.air-editor-menu__context {
+  min-width: 0;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.air-editor-menu__label {
+  font-size: var(--air-text-body);
+  font-weight: 500;
+}
+.air-editor-menu hr {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--air-line);
+  margin: 8px 0;
+}
+.air-editor-menu__zoom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.air-editor-menu__zoom > span {
+  flex: 1 1 6rem;
+}
+.air-editor-panel-heading.air-editor-panel-heading {
+  min-height: 64px;
+  padding: 8px 16px;
+  gap: 8px;
+}
 /* One labelled completion region; products own their real edit transactions. */
 .air-editor-actions {
   display: flex;

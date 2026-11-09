@@ -146,6 +146,20 @@ async function main() {
     // Exercise the served candidate while retaining the real model/index caches.
     await page.setBypassServiceWorker(true);
     page.setDefaultTimeout(60_000);
+    const focusComposer = async () => {
+      // A ready model can precede the dialog’s retained exit. Wait until its
+      // focus ownership ends before sending keys to the editable workspace.
+      await page.waitForFunction(() => {
+        const input = document.querySelector<HTMLTextAreaElement>("#pdf-chat-question");
+        return (
+          input &&
+          !input.disabled &&
+          !input.closest("[inert]") &&
+          !document.querySelector('[role="dialog"][aria-modal="true"]')
+        );
+      });
+      await page.focus("#pdf-chat-question");
+    };
 
     // Seed the chat-tier preference + any RAG feature flags *before*
     // any app script runs so the picker + graph boot with the
@@ -300,7 +314,7 @@ async function main() {
       .waitForFunction(
         () => {
           const buttons = Array.from(document.querySelectorAll("button"));
-          return buttons.some((b) => (b.textContent ?? "").trim().startsWith("Download model"));
+          return buttons.some((b) => b.matches("[data-ai-load-models]") && !b.disabled);
         },
         { timeout: 30_000 },
       )
@@ -308,7 +322,7 @@ async function main() {
     const gateState = await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll("button"));
       const labels = buttons.map((b) => (b.textContent ?? "").trim().slice(0, 60));
-      const dl = buttons.find((b) => (b.textContent ?? "").trim().startsWith("Download model"));
+      const dl = buttons.find((b) => b.matches("[data-ai-load-models]") && !b.disabled);
       const root = document.querySelector("[data-rag-status]") as HTMLElement | null;
       const ragStatus = root?.dataset.ragStatus ?? "(no AskPdf root found)";
       const chatStatus = root?.dataset.ragChatStatus ?? "(no AskPdf root found)";
@@ -328,7 +342,6 @@ async function main() {
     } else {
       console.log("  · gate already past Download (no Download model button found)");
     }
-    const gateClicked = gateState.clicked;
 
     // The consent dialog has its own "Download models" button. On first
     // use it pops up after the gate click; on returning profiles it's
@@ -364,23 +377,25 @@ async function main() {
     // download); on a warm-cache return visit it's seconds.
     //
     // While we poll, also record every distinct value of the
-    // ProgressBar's `<current>/<total>` counter (the only
-    // `.tabular-nums` element in the dialog) so we can assert
+    // Per-model received bytes and readiness labels so we can assert
     // progress visibly advanced — the React 18 batching bug used to
     // make the bar snap from 0 → done with no intermediate states.
     console.log("→ Waiting for the local model stack to load…");
     const modelLoadOutcome = await page.evaluate(async (timeoutMs) => {
       const states = new Set<string>();
+      let downloaded = false;
       const startedAt = Date.now();
       while (Date.now() - startedAt < timeoutMs) {
-        const counter = document.querySelector(".tabular-nums");
+        const counter = document.querySelector(".pdf-model-downloads");
         if (counter) {
           const s = (counter.textContent ?? "").trim();
           if (s) states.add(s);
         }
-        const fileInput = document.querySelector('input[type="file"]');
-        if (fileInput) return { states: [...states], modelsReady: true };
         const root = document.querySelector("[data-rag-status]") as HTMLElement | null;
+        if (root?.dataset.ragStatus === "downloading") downloaded = true;
+        const fileInput = root?.querySelector('input[type="file"]');
+        if (root?.dataset.ragStatus === "ready" && fileInput)
+          return { states: [...states], modelsReady: true, downloaded };
         if (root?.dataset.ragStatus === "error") {
           return {
             states: [...states],
@@ -410,7 +425,7 @@ async function main() {
     // point (we just confirmed it via the polling loop above).
     console.log("→ Uploading fixture PDF…");
     const fileInput = await page
-      .waitForSelector('input[type="file"]', { timeout: 10_000 })
+      .waitForSelector('.pdf-chat-workspace input[type="file"]', { timeout: 10_000 })
       .catch(async () => {
         const dump = await page.evaluate(() => ({
           url: location.href,
@@ -429,19 +444,18 @@ async function main() {
     await (fileInput as { uploadFile: (...p: string[]) => Promise<void> }).uploadFile(FIXTURE_PATH);
 
     // Phase 3 — wait for indexing to finish (signal: composer enables).
-    // The indexing card has its own `.tabular-nums` counter so we
-    // continue to harvest progress states here.
+    // Read the indexing card’s actual progress label and measured units.
     console.log("→ Waiting for indexing to finish…");
     const progressOutcome = await page.evaluate(async () => {
       const states = new Set<string>();
       const startedAt = Date.now();
       while (Date.now() - startedAt < 5 * 60_000) {
-        const counter = document.querySelector(".tabular-nums");
+        const counter = document.querySelector(".pdf-chat-preparing .pdf-progress-label");
         if (counter) {
           const s = (counter.textContent ?? "").trim();
           if (s) states.add(s);
         }
-        const textarea = document.querySelector("textarea");
+        const textarea = document.querySelector("#pdf-chat-question");
         if (textarea instanceof HTMLTextAreaElement && !textarea.disabled) {
           return { states: [...states], composerEnabled: true };
         }
@@ -458,15 +472,10 @@ async function main() {
     console.log(
       `  ✓ composer enabled; progress recorded ${combinedStates.size} distinct states (${[...combinedStates].slice(0, 6).join(", ")}${combinedStates.size > 6 ? "…" : ""})`,
     );
-    // The progress-advances assertion only makes sense on the cold
-    // path. On a warm cache (IndexedDB has the indexed vectors, model
-    // weights are in CacheStorage) the composer enables in well under
-    // a second and no progress dialog ever renders — zero distinct
-    // states is the correct outcome. We use the gate click as the
-    // cold-path signal: if we never clicked "Download model", the
-    // model was already cached, so we skip the React-batching check.
-    if (!gateClicked && !consentClicked) {
-      console.log("  · skipping progress-advances check (warm cache — no progress dialog)");
+    // Only an observed download establishes a cold network path. A cached
+    // model still requires a Load models click; that is not a fresh download.
+    if (!modelLoadOutcome.downloaded) {
+      console.log("  · warm model cache: cold-download progress is not established");
     } else if (combinedStates.size < 3) {
       // The React-batching regression check is meant to catch a UI
       // regression on the canonical default-tier load. Cross-tier
@@ -495,7 +504,7 @@ async function main() {
       const priorBubbleCount = await page.evaluate(
         () => document.querySelectorAll("[data-bubble]").length,
       );
-      await page.focus("textarea");
+      await focusComposer();
       // Match the system-prompt's "what is this document?" handler
       // wording exactly — it has a directive branch ("identify the
       // type from structure") that anchors the model on document
@@ -648,7 +657,7 @@ async function main() {
       const priorWarmBubbleCount = await page.evaluate(
         () => document.querySelectorAll("[data-bubble]").length,
       );
-      await page.focus("textarea");
+      await focusComposer();
       // Same directive phrasing as the cold pass — see the comment
       // above the cold-question type call for the rationale.
       await page.keyboard.type("What is this document and what is its main subject?");
@@ -741,7 +750,7 @@ async function main() {
     async function askAndCapture(question: string, label: string): Promise<string> {
       return timed(label, async () => {
         const prior = await page.evaluate(() => document.querySelectorAll("[data-bubble]").length);
-        await page.focus("textarea");
+        await focusComposer();
         await page.keyboard.type(question);
         await page.keyboard.press("Enter");
         await page.waitForFunction(
@@ -1134,7 +1143,7 @@ async function main() {
         const priorSwapBubbleCount = await page.evaluate(
           () => document.querySelectorAll("[data-bubble]").length,
         );
-        await page.focus("textarea");
+        await focusComposer();
         await page.keyboard.type("Summarize this document in two sentences.");
         await page.keyboard.press("Enter");
         await page.waitForFunction(

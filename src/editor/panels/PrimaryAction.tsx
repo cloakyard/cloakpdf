@@ -3,8 +3,8 @@
 // Desktop: renders an inline Apply button in the right panel (each tool still
 // owns its own primary CTA, since the desktop shell has no global Apply).
 //
-// Mobile: renders NOTHING and instead hands the action to the bottom sheet's
-// labelled Apply button via registerPendingApply — so a phone never shows two
+// Phone/tablet: renders NOTHING and instead hands the action to the fixed tool header's
+// Apply button via registerPendingApply — so a phone never shows two
 // Apply buttons (the redundant per-tool one). Apply flushes whatever is
 // registered, then closes the tool; when nothing is registered (no work, or a
 // tool that has no single "apply") the sheet shows Close.
@@ -15,7 +15,7 @@
 // (marks persist and burn at export — Close keeps them).
 
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
 
 interface Props {
@@ -40,7 +40,7 @@ export function PrimaryAction({
 }: Props) {
   const { layout, busyLabel } = useEditorRead();
   const { registerPendingApply } = useEditorActions();
-  const isMobile = layout === "mobile";
+  const isCompact = layout !== "desktop";
   const busy = busyLabel !== null;
   const ready = !disabled && !busy;
 
@@ -50,14 +50,15 @@ export function PrimaryAction({
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
 
-  // The mobile sheet consumes the action; the desktop inspector also needs the
+  // Register before paint so Close cannot turn into Apply between pointer down/up.
+  // The compact header consumes the action; the desktop inspector also needs the
   // registration to expose Cancel for uncommitted work. Readiness stays shared.
-  useEffect(() => {
+  useLayoutEffect(() => {
     registerPendingApply({ run: () => onApplyRef.current(), ready });
     return () => registerPendingApply(null);
   }, [ready, registerPendingApply]);
 
-  if (isMobile) return null;
+  if (isCompact) return null;
 
   return (
     <button

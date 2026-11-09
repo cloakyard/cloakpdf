@@ -58,14 +58,24 @@ for (const engine of ["chromium", "webkit"]) {
         await open("Metadata");
         const title = page.locator("#metadata-title");
         await title.fill("Discard this title");
-        assert.deepEqual(await actions.locator("button").allTextContents(), ["Cancel", "Apply"]);
+        assert.deepEqual(
+          await actions
+            .locator("button")
+            .evaluateAll((nodes) => nodes.map((n) => n.getAttribute("aria-label"))),
+          ["Cancel", "Apply"],
+        );
         await button("Cancel").click();
         await open("Metadata");
         assert.equal(await title.inputValue(), "Original title");
         await title.fill("Applied title");
-        await page.getByRole("button", { name: "Expand controls", exact: true }).click();
+        assert.equal(
+          await page.getByRole("button", { name: "Expand controls", exact: true }).count(),
+          0,
+        );
+        await sheet
+          .locator(".editor-mobile-sheet__body")
+          .evaluate((e) => e.scrollTo(0, e.scrollHeight));
         assert.equal(await title.inputValue(), "Applied title");
-        await page.getByRole("button", { name: "Return to split view", exact: true }).click();
         const split = await sheet.evaluate((element) => {
           const panel = element.getBoundingClientRect();
           const column = element.parentElement.getBoundingClientRect();
@@ -79,13 +89,14 @@ for (const engine of ["chromium", "webkit"]) {
           const box = await button(name).boundingBox();
           assert(
             box &&
-              box.height >= 44 &&
+              box.height >= 48 &&
+              box.width >= 48 &&
               box.x >= 0 &&
               box.y >= 0 &&
               box.x + box.width <= width + 1 &&
               box.y + box.height <= height + 1,
           );
-          assert.equal(await button(name).locator("svg").count(), 0);
+          assert.equal(await button(name).locator("svg").count(), 1);
         }
         assert.equal(
           await actions.evaluate((e) => !!e.closest(".editor-mobile-sheet__body")),
@@ -99,7 +110,9 @@ for (const engine of ["chromium", "webkit"]) {
           e.parentElement.querySelector('[aria-label="Cancel"]').click();
         });
         await page.getByRole("button", { name: "Open tools", exact: true }).waitFor();
+        await page.getByRole("button", { name: "More actions", exact: true }).click();
         await page.getByRole("button", { name: "Undo", exact: true }).click();
+        await page.getByRole("button", { name: "Close actions", exact: true }).click();
         await open("Metadata");
         assert.equal(
           await title.inputValue(),
@@ -107,12 +120,19 @@ for (const engine of ["chromium", "webkit"]) {
           "A repeated Apply must create only one undo step",
         );
         await button("Cancel").click();
+        await page.getByRole("button", { name: "More actions", exact: true }).click();
         await page.getByRole("button", { name: "Redo", exact: true }).click();
+        await page.getByRole("button", { name: "Close actions", exact: true }).click();
         await open("Metadata");
         assert.equal(await title.inputValue(), "Applied title");
         await button("Cancel").click();
         await open("Attach");
-        assert.deepEqual(await actions.locator("button").allTextContents(), ["Cancel", "Close"]);
+        assert.deepEqual(
+          await actions
+            .locator("button")
+            .evaluateAll((nodes) => nodes.map((n) => n.getAttribute("aria-label"))),
+          ["Close"],
+        );
         await button("Close").click();
         await page.getByRole("button", { name: "Export", exact: true }).click();
         const dialog = page.getByRole("dialog", { name: "Export" });

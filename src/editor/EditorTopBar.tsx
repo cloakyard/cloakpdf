@@ -12,9 +12,9 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { PagePreviewNav } from "../components/PagePreviewNav.tsx";
-import { CLOAK_MODAL_OPEN_EVENT } from "../utils/modal-events.ts";
+import { EditorActionsMenu } from "./EditorActionsMenu.tsx";
 import { countPendingDestructive } from "./doc.ts";
 import { useEditorActions, useEditorRead, useEditorView } from "./EditorContext.tsx";
 import { ExportButton } from "./ExportModal.tsx";
@@ -27,112 +27,59 @@ const DENSITIES = [
 ] as const;
 const ICON = "air-icon-button air-button--quiet";
 
-/** Native light-dismiss keeps compact document context available to touch and keyboard. */
-function DocumentInfo({
-  name,
-  pending,
-  onExit,
-}: {
-  name: string;
-  pending: number;
-  onExit: () => void;
-}) {
-  const popup = useRef<HTMLDivElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const hovering = useRef(false);
-  const clearTimer = () => clearTimeout(timer.current);
-  const leave = () => {
-    clearTimer();
-    if (hovering.current) timer.current = setTimeout(() => popup.current?.hidePopover(), 160);
-  };
-  useEffect(() => {
-    const close = () => {
-      clearTimeout(timer.current);
-      popup.current?.hidePopover();
-    };
-    document.addEventListener(CLOAK_MODAL_OPEN_EVENT, close);
-    return () => {
-      clearTimeout(timer.current);
-      document.removeEventListener(CLOAK_MODAL_OPEN_EVENT, close);
-    };
-  }, []);
-  return (
-    <>
-      <button
-        type="button"
-        className={`${ICON} editor-document-trigger`}
-        aria-label="Document information"
-        aria-describedby="editor-document-name"
-        popoverTarget="editor-document-info"
-        onPointerEnter={(event) => {
-          if (event.pointerType !== "mouse") return;
-          clearTimer();
-          timer.current = setTimeout(() => {
-            if (!popup.current?.matches(":popover-open")) {
-              hovering.current = true;
-              popup.current?.showPopover();
-            }
-          }, 350);
-        }}
-        onPointerLeave={leave}
-        onClick={(event) => {
-          event.currentTarget.focus();
-          clearTimer();
-          if (hovering.current) event.preventDefault();
-          hovering.current = false;
-        }}
-      >
-        <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
-        {pending > 0 && (
-          <span
-            className="editor-document-pending"
-            data-testid="pending-marks"
-            role="status"
-            aria-label={`${pending} pending marks, applied when you export`}
-          >
-            {pending}
-          </span>
-        )}
-      </button>
-      <div
-        ref={popup}
-        id="editor-document-info"
-        popover="auto"
-        role="region"
-        aria-label="Document information"
-        className="editor-document-info"
-        onPointerEnter={clearTimer}
-        onPointerLeave={leave}
-        onToggle={(event) => {
-          if (event.newState === "closed") hovering.current = false;
-        }}
-      >
-        <p id="editor-document-name">{name}</p>
-        {pending > 0 && (
-          <p className="air-help">{pending} pending marks will be applied when you export.</p>
-        )}
-        <button type="button" className="air-button air-button--quiet" onClick={onExit}>
-          <ChevronLeft aria-hidden="true" /> Back to home
-        </button>
-      </div>
-    </>
-  );
-}
-
 export function EditorTopBar() {
   const { doc, viewMode, selectedPage, canUndo, canRedo, canReset, layout } = useEditorRead();
   const view = useEditorView();
   const { exit, setViewMode, setView, setSelectedPage, undo, redo, reset } = useEditorActions();
   const isMobile = layout === "mobile";
   const isCompact = layout !== "desktop";
+  const headerRef = useRef<HTMLElement>(null);
+  const focusedControl = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    const previous = focusedControl.current;
+    if (previous && !previous.isConnected && document.activeElement === document.body) {
+      const label = isCompact ? "More actions" : previous.getAttribute("aria-label");
+      const target = [
+        ...(headerRef.current?.querySelectorAll<HTMLButtonElement>("button") ?? []),
+      ].find((button) => button.getAttribute("aria-label") === label);
+      (
+        target ?? headerRef.current?.querySelector<HTMLButtonElement>('[aria-label="Export"]')
+      )?.focus();
+    }
+  }, [layout, isCompact]);
   const pendingMarks = countPendingDestructive(doc);
   const activeCols = Math.min(3, Math.max(1, viewMode === "focus" ? 1 : view.gridCols));
 
   return (
-    <header className="editor-topbar" data-layout={layout}>
+    <header
+      ref={headerRef}
+      onFocusCapture={(event) => {
+        focusedControl.current = event.target as HTMLElement;
+      }}
+      className={`editor-topbar${isCompact ? " air-editor-header--compact" : ""}`}
+      data-layout={layout}
+    >
       <div className="editor-topbar__identity">
         {isCompact ? (
-          <DocumentInfo name={doc?.fileName ?? "CloakPDF"} pending={pendingMarks} onExit={exit} />
+          <button
+            type="button"
+            className={`${ICON} editor-document-trigger`}
+            onClick={exit}
+            aria-label="Back to home"
+            title="Back to home"
+          >
+            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
+            {pendingMarks > 0 && (
+              <span
+                className="editor-document-pending"
+                data-testid="pending-marks"
+                role="status"
+                aria-label={`${pendingMarks} pending marks, applied when you export`}
+              >
+                {pendingMarks}
+              </span>
+            )}
+          </button>
         ) : (
           <>
             <button
@@ -232,50 +179,53 @@ export function EditorTopBar() {
         </div>
       )}
       <div className="editor-topbar__actions">
-        <div className="editor-topbar__group" role="group" aria-label="Document history">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.currentTarget.focus();
-              if (canUndo) undo();
-            }}
-            aria-disabled={!canUndo}
-            className={ICON}
-            aria-label="Undo"
-            title="Undo (⌘Z / Ctrl+Z)"
-          >
-            <Undo2 aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.currentTarget.focus();
-              if (canRedo) redo();
-            }}
-            aria-disabled={!canRedo}
-            className={ICON}
-            aria-label="Redo"
-            title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
-          >
-            <Redo2 aria-hidden="true" />
-          </button>
-          {!isMobile && (
+        {!isCompact && (
+          <div className="editor-topbar__group" role="group" aria-label="Document history">
             <button
               type="button"
               onClick={(event) => {
                 event.currentTarget.focus();
-                if (canReset) reset();
+                if (canUndo) undo();
               }}
-              aria-disabled={!canReset}
+              aria-disabled={!canUndo}
               className={ICON}
-              aria-label="Reset to original"
-              title="Reset to original"
+              aria-label="Undo"
+              title="Undo (⌘Z / Ctrl+Z)"
             >
-              <RotateCcw aria-hidden="true" />
+              <Undo2 aria-hidden="true" />
             </button>
-          )}
-        </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.currentTarget.focus();
+                if (canRedo) redo();
+              }}
+              aria-disabled={!canRedo}
+              className={ICON}
+              aria-label="Redo"
+              title="Redo (⌘⇧Z / Ctrl+Shift+Z)"
+            >
+              <Redo2 aria-hidden="true" />
+            </button>
+            {!isMobile && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.currentTarget.focus();
+                  if (canReset) reset();
+                }}
+                aria-disabled={!canReset}
+                className={ICON}
+                aria-label="Reset to original"
+                title="Reset to original"
+              >
+                <RotateCcw aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )}
         <ExportButton />
+        {isCompact && <EditorActionsMenu />}
       </div>
     </header>
   );

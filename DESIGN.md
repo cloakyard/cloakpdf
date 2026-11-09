@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.6.0
+version: 1.7.0
 status: approved
-date: 2026-11-03
+date: 2026-11-09
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: ebcfe4f5ccc2c530fa9676b957664cc1c6e1ad4e7b1612a9771a2e38c89360ca
+family-contract-sha256: 33da13992befe0dcc707978bb702ffcb3e1d2d59dcb9ddec156043d0a0c0c015
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.6.0 — compact notices and quiet scrolling** · Direction: **Air** · Updated: **2026-11-03**
+Version: **1.7.0 — simpler compact editors** · Direction: **Air** · Updated: **2026-11-09**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -367,31 +367,38 @@ No glass blur behind forms, body copy, tables, or document content.
   controls on phones/tablets. Never repeat the same commit in the header, panel
   body or canvas. Different operations (such as detecting, printing or downloading)
   retain their descriptive verbs and their real consent/output boundaries.
-- **Canvas-first touch composition:** the approved IMG phone/tablet variant puts
-  one X / tick pair in the fixed tool-panel header beside its title. X means
-  Cancel, tick means Apply; accessible names and keyboard/hover tooltips state
-  those verbs. Use `air-editor-actions--compact`, neutral secondary/monochrome
-  primary materials and 48px targets. Close-only panels retain a labelled Close.
+- **Compact tool completion:** PDF and IMG phone/tablet editing use one X / tick
+  pair in the fixed tool-panel header beside its title. X means Cancel; tick means
+  Apply. Accessible names and keyboard/hover tooltips state those verbs. Use
+  `air-editor-actions--compact`, neutral secondary/monochrome primary materials
+  and 48px targets. Desktop controls retain text labels. Inspection/output panels
+  use labelled Close; autosaved writing uses Close without inventing a transaction.
   Keep errors in the reachable scrolling body, announced and associated with the
-  actions. Never duplicate this pair in the canvas toolbar or panel footer.
-  Reserve at least 40% of the visible editor height for the image viewport;
-  maintain image aspect ratio and scroll only the tool body. Tablet and short
-  landscape may place the inspector beside the photo. Global history/view/export
-  controls form a small opaque floating group on the canvas plane. The compact
-  composition replaces expansion toggles, not real tool transactions. Preserve
-  every navigation/output action, safe-area clearance and keyboard access.
-  This optional composition does not force icon-only actions into document
-  editing or autosaved writing; their labelled actions remain the default.
+  actions. Never duplicate this pair in the canvas header or panel footer.
+- **Compact editor header:** use `air-editor-header--compact`, with a 64px minimum
+  height, 12px side insets, quiet canvas-plane background and no floating toolbar
+  enclosure. Place the home mark at the leading edge; Export and More actions are
+  the trailing actions. Export uses the monochrome primary button; More actions
+  opens the shared Actions dialog/sheet. Use `air-editor-menu` and its rows/zoom
+  composition with shared 18px/1.6 icons. Task-specific navigation or history may
+  use the remaining space; secondary commands remain available in Actions.
+  Filename/context wraps fully in the sheet. Desktop canvas chrome may retain its
+  task-specific layout; compact chrome cannot shrink targets to fit it.
+- Reserve at least 40% of the visible editor working area for the photo/document
+  preview, maintain its aspect ratio and scroll the controls independently. Tablet
+  and short landscape may place controls beside the preview. Remove panel expansion
+  toggles when scrolling serves the task. A full-preview action is distinct from
+  editing and must provide a clearly named return to Edit. Preserve every real
+  navigation/output action, safe-area clearance, drafts and keyboard access.
 - **Apply** accepts the current edit once; **Cancel** restores its entry state.
   Await work, retain failed/invalid drafts for correction and block repeated
   activation. An inspection or output panel with no staged edit uses **Close**;
   autosaved writing stays autosaved, with no invented Apply/Cancel transaction.
   Use **Save**, **Download** or another precise verb when that is the real action.
   Done is reserved for finishing a transient picker whose value is already live.
-- Keep **Expand controls / Split view** separate from edit completion. Changing
-  the view never applies or cancels work; a swipe must not silently commit an edit.
-  The action region wraps at enlarged text, retains 44px touch targets and leaves
-  the photo/document plus a reachable scrolling control region on short screens.
+- Changing views never applies or cancels work; a swipe must not silently commit
+  an edit. Keep the action region outside the scrolling controls, and retain
+  reachable controls and a visible preview on short screens and at enlarged text.
 
 - Use a real button for actions. Ready, busy, success and recoverable failure
   retain the same geometry and hierarchy. Reserve the intrinsic size of all
@@ -1252,7 +1259,7 @@ performance approval.
   pending initialization. Reduced motion, Save-Data, unavailable WebGPU, and
   reported memory/core counts of 4 or fewer use the static artwork. These browser
   hints supplement, rather than replace, real-device performance validation.
-- Bundle Shaders locally, pinned to 4.0.5 for this candidate, with no telemetry,
+- Bundle Shaders locally, pinned to 4.0.7 for this candidate, with no telemetry,
   hosted presets or remote assets. The lazy study bundle is approximately 369 kB
   gzip, with a 400 kB build ceiling. This is a measured study budget, not an
   approved production payload. Preserve dependency licenses and asset hashes.
@@ -1332,17 +1339,16 @@ journeys across all apps; it is not inferred from the pilot alone.
   the rail grow rather than squeezing enlarged words. Search retains the full
   tool names and descriptions. The filename, page controls, view controls and
   document actions share one 64px toolbar at normal text size, retaining real
-  40/44px targets. Tablet/phone chrome hides the filename and back action in a
-  document-mark popover, available by hover or keyboard/touch activation; the
-  full filename remains accessible. Enlarged text may reflow without clipping.
+  40/44px targets. Tablet/phone chrome uses a home mark, page navigation, Export and More actions.
+  The Actions sheet retains the full filename, history, zoom and reset. Enlarged text may reflow without clipping.
   Keep the desktop filename alone beside the mark; the page selector owns the count.
 - Editor widths follow 768/1024px. Below 1024px, a height under 500px uses the
   working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps
   its desktop rail. The phone picker uses full-name rows and persistent search.
-- The mobile working sheet starts at half height, reserving at least 18rem for
-  controls when possible while keeping 64px of preview. Expand controls uses
-  the available editor region; Return to split view preserves tool values and
-  the mounted document. Cancel/Apply return focus to the tool selector.
+- The mobile working sheet uses half the available working area, with one fixed
+  title/action row and an independently scrolling body. No Expand/Split toggle.
+  The preview and document remain mounted; Cancel/Apply return focus to Tools.
+  Staged work uses the shared 48px X/tick pair; inspection uses labelled Close.
 - Tool navigation is immediate, including active-rail scrolling. Global history
   shortcuts cannot change the document behind a modal or during a busy operation.
 - Inspector headers use sentence case and secondary descriptions; omit the repeated
