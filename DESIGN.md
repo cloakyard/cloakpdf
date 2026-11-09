@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.1
+version: 1.7.2
 status: approved
 date: 2026-11-09
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 9f46b7f494fa25eaf189eee8293af0ffde75e83f8c638215e3a56b553588f530
+family-contract-sha256: 831c1d7260d4d6c54f42b33842c8548ee14d7584abc8b3a9472a140ab6634631
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.1 — consistent component corners** · Direction: **Air** · Updated: **2026-11-09**
+Version: **1.7.2 — growing family mark** · Direction: **Air** · Updated: **2026-11-09**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -765,12 +765,18 @@ and primary entry gives an app its own identity. It replaces that landing's hori
 do not stack multiple decorative effects or use an app screenshot as the hero hook.
 An accurate product screenshot may remain in the following feature section.
 
-- **Cloakyard:** the family opens out from its mark into five small, recognisable
-  materials: paper, download pixels, résumé lines, an image and a photo strip. This
-  explains the family without a product screenshot. One finite arrival uses 1,800ms
-  ease-out transforms with a 60ms object stagger; details start at 640ms with 45ms
-  staggering and finish within 4,300ms. Product artwork colours remain confined to
-  these materials. Settle into a quiet collection; no looping orbit or moving text.
+- **Cloakyard:** one isometric blue building block arrives per productivity app,
+  forming a growing grid inspired by the mark. Generate cells from the product
+  registry in stable expanding shells; adding an app needs no bespoke motif or
+  fixed five-item composition. Only the next available cell remains a faint
+  outline. Do not repeat the logo below the artwork or depict KERR as an app cube.
+  Each block arrives from above with the shared ease-out, transform/opacity only,
+  for up to 600ms with a 620ms step and 160ms opening delay. At larger counts,
+  compress the step to 3,900ms divided by the count and keep arrivals sequential.
+  The next outline settles over 480ms after the last block. Total active motion
+  stays at or below 4,540ms; settle at rest and preserve the shared replay lifecycle.
+  Fit the generated composition to reserved responsive bounds; only the Yard
+  artwork blue and neutral face shades are used. No app-specific miniature scenes.
 - **PDF:** five white pages start as a compact stack. The four rear sheets spread
   left and right over 2,200ms with the shared spatial curve and 60ms stagger,
   keeping their stacking order. The front page and real dropzone stay anchored.
