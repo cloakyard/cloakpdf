@@ -1,9 +1,12 @@
 /** Whole-word rail labels with real scroll gutters, touch targets and enlarged text. */
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { PDFDocument } from "@pdfme/pdf-lib";
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
-const out = process.env.AIR_EVIDENCE_DIR || "/tmp/cloakpdf-rail-labels";
+const out =
+  process.env.AIR_EVIDENCE_DIR || (await mkdtemp(join(tmpdir(), "cloakpdf-rail-labels-")));
 await mkdir(out, { recursive: true });
 const pdf = await PDFDocument.create();
 pdf.addPage([595, 842]);
