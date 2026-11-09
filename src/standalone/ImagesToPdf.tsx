@@ -102,8 +102,8 @@ export default function ImagesToPdf() {
           processing={task.processing}
           label={
             queue.items.length === 1
-              ? "Create PDF & Download"
-              : `Combine ${queue.items.length} images & Download`
+              ? "Create PDF & download"
+              : `Combine ${queue.items.length} images & download`
           }
           secondaryLabel={queue.items.length === 1 ? "Create & edit" : "Combine & edit"}
           onSecondaryClick={() => runConvert(true)}

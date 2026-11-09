@@ -335,7 +335,7 @@ async function main(): Promise<void> {
         "Sort/remove/undo changed the manual merge order.",
       );
       console.log("  ✓ sorted removal/undo restores keyboard focus and original manual order");
-      const output = await clickAndDownload(page, directory, "Merge 4 files & Download");
+      const output = await clickAndDownload(page, directory, "Merge 4 files & download");
       assert(basename(output) === "merged.pdf", `Unexpected merge filename: ${basename(output)}`);
       const expectedPages = Object.values(EXPECTED_PAGE_COUNTS).reduce(
         (sum, count) => sum + count,
@@ -359,7 +359,7 @@ async function main(): Promise<void> {
           'input[type="file"][aria-label="Drop images here"]',
           ...IMAGE_FIXTURES,
         );
-        const output = await clickAndDownload(page, directory, "Combine 2 images & Download");
+        const output = await clickAndDownload(page, directory, "Combine 2 images & download");
         assert(basename(output) === "images.pdf", `Unexpected image PDF name: ${basename(output)}`);
         assert((await pdfPageCount(output)) === 2, "Images to PDF output did not have 2 pages.");
         console.log("  ✓ uploaded 2 shipped PNG assets; images.pdf has 2 pages");
@@ -369,7 +369,7 @@ async function main(): Promise<void> {
     await withTool(
       browser,
       downloadRoot,
-      "Extract Images",
+      "Extract images",
       "extract-images",
       async (page, directory) => {
         await uploadFiles(
@@ -455,7 +455,7 @@ async function main(): Promise<void> {
         const output = await clickAndDownload(page, directory, `Download ${found} as ZIP`);
         assert(
           output.endsWith(".zip"),
-          `Extract Images produced a non-ZIP file: ${basename(output)}`,
+          `Extract images produced a non-ZIP file: ${basename(output)}`,
         );
         assert(
           zipEntryCount(output) === found,
@@ -587,7 +587,7 @@ async function main(): Promise<void> {
     await withTool(
       browser,
       downloadRoot,
-      "PDF Password",
+      "PDF password",
       "pdf-password",
       async (page, directory) => {
         await uploadFiles(
@@ -622,7 +622,7 @@ async function main(): Promise<void> {
         );
         await page.click(".pdf-password-permissions > label input");
         await page.click('input[aria-label="Copy text & images"]');
-        const output = await clickAndDownload(page, directory, "Protect & Download");
+        const output = await clickAndDownload(page, directory, "Protect & download");
         assert(
           basename(output) === `${basename(FIXTURES.sample, ".pdf")}_protected.pdf`,
           `Unexpected protected PDF name: ${basename(output)}`,
@@ -679,7 +679,7 @@ async function main(): Promise<void> {
         await uploadFiles(page, 'input[type="file"]', output);
         await page.waitForSelector("#current-password");
         await page.type("#current-password", "incorrect");
-        await clickButton(page, "Unlock & Download");
+        await clickButton(page, "Unlock & download");
         await page.waitForFunction(
           () =>
             document.querySelector("#current-password")?.getAttribute("aria-invalid") === "true",
@@ -696,7 +696,7 @@ async function main(): Promise<void> {
           (input as HTMLInputElement).select();
         });
         await page.type("#current-password", "cloakpdf-e2e-password");
-        const unlockedPath = await clickAndDownload(page, directory, "Unlock & Download");
+        const unlockedPath = await clickAndDownload(page, directory, "Unlock & download");
         const unlocked = await PDFDocument.load(readFileSync(unlockedPath));
         assert(
           !unlocked.context.trailerInfo.Encrypt &&
@@ -712,7 +712,7 @@ async function main(): Promise<void> {
         console.log(
           `  ✓ AES-256/permissions, visibility/mismatch recovery, wrong-password retry, source-stream fidelity and unlock-to-editor pass`,
         );
-        await openTool(page, "PDF Password");
+        await openTool(page, "PDF password");
         const emptyProtected = join(directory, "empty-password.pdf");
         await writeFile(
           emptyProtected,
@@ -720,7 +720,7 @@ async function main(): Promise<void> {
         );
         await uploadFiles(page, 'input[type="file"]', emptyProtected);
         await page.waitForSelector("#current-password");
-        const emptyUnlocked = await clickAndDownload(page, directory, "Unlock & Download");
+        const emptyUnlocked = await clickAndDownload(page, directory, "Unlock & download");
         assert(
           (await PDFDocument.load(readFileSync(emptyUnlocked))).getPageCount() ===
             original.getPageCount(),
@@ -1031,7 +1031,7 @@ async function main(): Promise<void> {
     await withTool(
       browser,
       downloadRoot,
-      "Digital Signature",
+      "Digital signature",
       "digital-signature",
       async (page, directory) => {
         await uploadFiles(
@@ -1047,7 +1047,7 @@ async function main(): Promise<void> {
         await page.type("#sig-reason", "Standalone tool regression");
         await page.type("#sig-location", "Local browser");
         await page.type("#sig-contact", "e2e@cloakpdf.test");
-        const output = await clickAndDownload(page, directory, "Sign & Download PDF", 120_000);
+        const output = await clickAndDownload(page, directory, "Sign & download PDF", 120_000);
         assert(
           basename(output) === `${basename(FIXTURES.sample, ".pdf")}_signed.pdf`,
           "Unexpected signed filename.",
@@ -1232,7 +1232,7 @@ async function main(): Promise<void> {
         // Headless Chromium replaces an existing same-name download. Retire the
         // already-verified synthetic output so the next download is observable.
         await rm(output);
-        const imported = await clickAndDownload(page, directory, "Sign & Download PDF");
+        const imported = await clickAndDownload(page, directory, "Sign & download PDF");
         await verifyOutput(imported, "Imported fixture signer", 2);
         await clickButton(page, "Change certificate");
         assert(
@@ -1246,7 +1246,7 @@ async function main(): Promise<void> {
         await clickButton(page, "Load certificate");
         await page.waitForSelector("#certificate-loaded");
         await rm(imported);
-        const emptySigned = await clickAndDownload(page, directory, "Sign & Download PDF");
+        const emptySigned = await clickAndDownload(page, directory, "Sign & download PDF");
         await verifyOutput(emptySigned, "Imported fixture signer", 2);
         console.log(
           "  ✓ imported PKCS#12 chain, wrong-password retry, visibility and empty-password certificate produce independently verified output",

@@ -31,7 +31,7 @@ import type { Tool } from "../types.ts";
 // ── Tool metadata ────────────────────────────────────────────────
 
 export const HOME_CARD_TOOLS = [
-  // ── Combine & Convert ────────────────────────────────────
+  // ── Combine & convert ────────────────────────────────────
   // Multi-file constructors + format conversion — the jobs the single-PDF
   // editor can't do (it edits one document, these build one from many or
   // convert between PDF and images).
@@ -51,16 +51,16 @@ export const HOME_CARD_TOOLS = [
   },
   {
     id: "extract-images",
-    title: "Extract Images",
+    title: "Extract images",
     description: "Pull all embedded images from a PDF and download as PNG or ZIP",
     icon: ImageDown,
     category: "combine",
   },
 
-  // ── Secure & Sign ────────────────────────────────────────
+  // ── Secure & sign ────────────────────────────────────────
   {
     id: "pdf-password",
-    title: "PDF Password",
+    title: "PDF password",
     description: "Add or remove a password and control print, copy, and edit rights",
     icon: Lock,
     category: "security",
@@ -74,7 +74,7 @@ export const HOME_CARD_TOOLS = [
   },
   {
     id: "digital-signature",
-    title: "Digital Signature",
+    title: "Digital signature",
     description: "Sign PDFs with a cryptographic certificate for authenticity verification",
     icon: FileKey2,
     category: "security",
@@ -144,12 +144,12 @@ const toolComponents: Record<StandaloneToolId, React.LazyExoticComponent<React.C
 export const categories = [
   {
     key: "combine",
-    label: "Combine & Convert",
+    label: "Combine & convert",
     description: "Build a PDF from several files, or pull its contents out",
   },
   {
     key: "security",
-    label: "Secure & Sign",
+    label: "Secure & sign",
     description: "Protect, sign, and compare your documents",
   },
   {

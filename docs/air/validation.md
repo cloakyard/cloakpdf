@@ -1,5 +1,11 @@
 # Air validation record
 
+## 2026-11-09 — Refinement, cleanup and README consistency
+
+See [the refinement record](refinement-2026-11-09.md) for fresh all-view browser,
+source and output evidence. Required software checks pass; physical-device and
+separate product acceptance remain open.
+
 ## 2026-10-26 — Automatic landing artwork without playback controls
 
 Adopts the smaller shared artwork lifecycle; the existing page unveiling and immediate upload behavior are preserved. 461 unit tests, all 16 production smoke suites and 68 artwork layouts pass. The existing Compact beta and node-forge release exceptions are unchanged.
