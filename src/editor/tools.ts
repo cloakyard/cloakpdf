@@ -60,11 +60,9 @@ export interface EditorTool {
    *  Properties panel header and the mobile tool sheet — per-tool, never the
    *  group label, so sibling tools in a family read distinctly. */
   description: string;
-  /** Optional short label for the rail / mobile picker, used when the tool
-   *  name's first word loses meaning on its own (e.g. "Page numbers" → "Page"
-   *  reads as page management). When unset, the rail falls back to the first
-   *  word of `name`, so most tools need nothing here. Keep ≤8 chars to fit the
-   *  ~64px rail button. */
+  /** Optional concise rail label. The full name remains in search, panel titles,
+   *  tooltips and accessible names. Keep whole words readable within the rail's
+   *  scroll gutter; without this label, the rail displays the full name. */
   railLabel?: string;
   icon: ComponentType<{ className?: string }>;
   group: EditorToolGroup;
@@ -96,6 +94,7 @@ export const EDITOR_TOOLS = [
   {
     id: "signature",
     name: "Signature",
+    railLabel: "Sign",
     description: "Draw or upload a signature and place it on the page.",
     icon: PenTool,
     group: "annotate",
@@ -265,6 +264,7 @@ export const EDITOR_TOOLS = [
   {
     id: "add-bookmarks",
     name: "Bookmarks",
+    railLabel: "Outline",
     description: "Build a bookmark outline for quick navigation.",
     icon: BookMarked,
     group: "document",
