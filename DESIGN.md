@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.3
+version: 1.7.4
 status: approved
 date: 2026-11-14
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: cee03d4f76d550277c17dbfda1f634419cad3faf22a94825c229dff62dad4ce9
+family-contract-sha256: b25a09ffabbaa1c027037af2c4253c96cea9b988e62acd2c9526bc9df91a016c
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.3 — privacy source consistency** · Direction: **Air** · Updated: **2026-11-14**
+Version: **1.7.4 — modern web guidance and composition safety** · Direction: **Air** · Updated: **2026-11-14**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -80,6 +80,28 @@ and product appendix, the same local bundle and the same drift/portability check
 Standalone builds work offline without another checkout. The central component
 review matrix records remaining design work; each app still owns proof that its
 real features and custom widgets conform.
+
+### Modern platform guidance
+
+Use the repository's `modern-web-guidance` skill for web implementation and
+audits. Search for the task's relevant guides and evaluate their browser support,
+fallbacks and applicability before editing. Run its CLI with `DISABLE_TELEMETRY=1`;
+the installed skill is development documentation, never a shipped dependency.
+A legacy scan covers only a subset of the guidance, and neither a zero count nor
+a public-page audit proves whole-app conformance. Record findings, justified
+exceptions and per-view verification, including editor tools and recovery routes.
+
+Prefer native semantics and platform capabilities where they preserve the
+approved Air appearance, accessibility and browser behavior. Keep proven
+fallbacks and accessible library primitives when required. Do not replace the
+overlay stack, change geometry, introduce tracking, alter local storage ownership
+or change document output merely to satisfy a generic recommendation. Propose
+substantial design or architecture changes to the user before implementation.
+
+When the system requests increased contrast, keep scroll thumbs visible using
+the ink token even when the pointer is outside the container. Forced-colour mode
+keeps system colours. Do not animate scrollbar colours; the normal quiet inset
+thumb and its tested Windows arrow-free fallback remain the default.
 
 ## 2. Visual signature — the Air identity
 
@@ -347,6 +369,12 @@ No glass blur behind forms, body copy, tables, or document content.
   errors, announce the outcome and focus the first invalid field. Correcting a
   value clears its error at the next validation boundary; never report success
   while another field is invalid. Allow paste, undo and IME without interception.
+- Custom Enter-to-apply handlers must ignore IME confirmation: check native
+  `isComposing` and `keyCode === 229` (the Safari event-order fallback) before
+  applying or clearing a draft. Leave composition keys to the input method;
+  a later ordinary Enter and the explicit Apply/Use action still work. Test both
+  composition signals and normal submission. Native form submission without a
+  custom Enter handler does not need a duplicate keyboard listener.
 
 ### Compound search and numeric fields
 

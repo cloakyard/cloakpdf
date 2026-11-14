@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cloakyard Air — refined design study</title>
-    <link rel="stylesheet" href="../../src/styles/air.css?air=42cd09dc47fe" />
+    <link rel="stylesheet" href="../../src/styles/air.css?air=470d7e37feb7" />
     <style>
       * {
         box-sizing: border-box;
@@ -4816,6 +4816,7 @@
       dateOnly.addEventListener("change", renderDateMonths);
       dateYear.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
+          if (event.isComposing || event.keyCode === 229) return;
           event.preventDefault();
           document.querySelector("#date-apply").click();
         }
