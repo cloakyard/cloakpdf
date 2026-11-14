@@ -678,6 +678,11 @@ textarea.air-field {
     --air-scroll-thumb: var(--air-ink-muted);
   }
 }
+@media (prefers-contrast: more) {
+  :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
+    --air-scroll-thumb: var(--air-ink);
+  }
+}
 @supports selector(::-webkit-scrollbar) {
   :where(.air-scroll, .air-dialog, .air-modal, .air-menu, .air-popover, .air-update) {
     scrollbar-width: auto;
