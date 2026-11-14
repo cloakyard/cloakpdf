@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.2
+version: 1.7.3
 status: approved
-date: 2026-11-09
+date: 2026-11-14
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 831c1d7260d4d6c54f42b33842c8548ee14d7584abc8b3a9472a140ab6634631
+family-contract-sha256: cee03d4f76d550277c17dbfda1f634419cad3faf22a94825c229dff62dad4ce9
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.2 — growing family mark** · Direction: **Air** · Updated: **2026-11-09**
+Version: **1.7.3 — privacy source consistency** · Direction: **Air** · Updated: **2026-11-14**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -970,6 +970,14 @@ Public shell content follows the same recipe across the family:
   focus/close safeguards. Returning from public privacy never clears a saved draft.
 - Keep policy facts and dates intact during a visual refresh. Native and website
   privacy are distinct; a shared layout does not authorize new privacy claims.
+- Each product keeps one maintained policy body. Public pages and in-editor policy
+  dialogs reuse that body and its date/lead; native websites render the maintained
+  app policy instead of hand-copying its text. Keep published section anchors.
+  Website hosting and external-link disclosures remain distinct from native app
+  network behavior. Say “no accounts, advertising, analytics, or tracking cookies”
+  only where true; distinguish personal details entered in a local document from
+  data collected by the project. Browser storage and caches are not cookies.
+  A wording clarification gets its actual revision date; a visual-only change does not.
 
 - Privacy, help and recovery use the same family mark, navigation, theme, footer
   and controls as the product. They are complete layouts, not unstyled text below

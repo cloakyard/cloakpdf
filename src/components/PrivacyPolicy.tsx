@@ -26,9 +26,9 @@ const sections: PrivacySection[] = [
     body: (
       <>
         <p>
-          CloakPDF does not ask for a name or email address, create user profiles, set tracking
-          cookies, or install third-party analytics and advertising scripts. The application does
-          not intentionally collect or retain personal information about how you use the tools.
+          CloakPDF has no accounts, advertising, analytics, or tracking cookies. Personal
+          information in your documents and edits stays in this browser; it is not sent to the
+          CloakPDF project.
         </p>
         <ul>
           <li>No CloakPDF account or account identifier</li>
@@ -128,7 +128,7 @@ export function PrivacyPolicy() {
     <PrivacyPage
       product="CloakPDF"
       home={import.meta.env.BASE_URL}
-      date="2026-07-18"
+      date="2026-11-14"
       lead={
         <>
           CloakPDF is a free, open-source PDF workbench. Document processing happens inside your
