@@ -1,10 +1,10 @@
 {
-  "version": "1.7.2",
+  "version": "1.7.3",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "831c1d7260d4d6c54f42b33842c8548ee14d7584abc8b3a9472a140ab6634631"
+    "contractSha256": "cee03d4f76d550277c17dbfda1f634419cad3faf22a94825c229dff62dad4ce9"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
