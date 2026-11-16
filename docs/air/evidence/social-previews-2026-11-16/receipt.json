@@ -1,0 +1,194 @@
+{
+  "date": "2026-11-16",
+  "contract": "1.7.5",
+  "scope": "Social images and crawler-visible metadata; no fresh whole-app or physical-device certification",
+  "app": "cloakpdf",
+  "image": {
+    "path": "public/icons/og-image.png",
+    "url": "https://pdf.cloakyard.com/icons/og-image.png?v=air-1.7.5",
+    "width": 1200,
+    "height": 630,
+    "bytes": 69754,
+    "sha256": "e52ac9b2f0412fa847e4c781a19b79775659c80b996d8d30d3a73b5a0a94d838"
+  },
+  "repeat": {
+    "app": "cloakpdf",
+    "exit": 0,
+    "identical": true,
+    "hashes": [
+      "e52ac9b2f0412fa847e4c781a19b79775659c80b996d8d30d3a73b5a0a94d838",
+      "e52ac9b2f0412fa847e4c781a19b79775659c80b996d8d30d3a73b5a0a94d838"
+    ]
+  },
+  "render": {
+    "name": "CloakPDF",
+    "size": [1200, 630],
+    "artwork": ".pdf-page-stack-sheet",
+    "clip": {
+      "x": 503,
+      "y": 431,
+      "width": 432,
+      "height": 271
+    },
+    "layout": [
+      {
+        "element": "HEADER",
+        "x": 56,
+        "y": 48,
+        "width": 1088,
+        "height": 36,
+        "overflow": false
+      },
+      {
+        "element": "H1",
+        "x": 56,
+        "y": 207.890625,
+        "width": 544,
+        "height": 138.21875,
+        "overflow": false
+      },
+      {
+        "element": "P",
+        "x": 56,
+        "y": 374.109375,
+        "width": 543.40625,
+        "height": 66,
+        "overflow": false
+      },
+      {
+        "element": "IMG",
+        "x": 664,
+        "y": 160,
+        "width": 480,
+        "height": 328,
+        "overflow": false
+      },
+      {
+        "element": "FOOTER",
+        "x": 56,
+        "y": 544,
+        "width": 1088,
+        "height": 46,
+        "overflow": false
+      }
+    ],
+    "errors": []
+  },
+  "cardLayouts": [
+    {
+      "app": "cloakpdf",
+      "layout": "phone",
+      "theme": "light",
+      "width": 358,
+      "height": 187.9375,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "phone",
+      "theme": "dark",
+      "width": 358,
+      "height": 187.9375,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "tablet",
+      "theme": "light",
+      "width": 788,
+      "height": 413.6875,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "tablet",
+      "theme": "dark",
+      "width": 788,
+      "height": 413.6875,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "laptop",
+      "theme": "light",
+      "width": 1200,
+      "height": 630,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "laptop",
+      "theme": "dark",
+      "width": 1200,
+      "height": 630,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "desktop",
+      "theme": "light",
+      "width": 1200,
+      "height": 630,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    },
+    {
+      "app": "cloakpdf",
+      "layout": "desktop",
+      "theme": "dark",
+      "width": 1200,
+      "height": 630,
+      "naturalWidth": 1200,
+      "naturalHeight": 630,
+      "overflow": false
+    }
+  ],
+  "crawlerPages": [
+    {
+      "app": "cloakpdf",
+      "file": "404.html",
+      "agent": "facebookexternalhit/1.1",
+      "status": 200
+    },
+    {
+      "app": "cloakpdf",
+      "file": "404.html",
+      "agent": "Twitterbot/1.0",
+      "status": 200
+    },
+    {
+      "app": "cloakpdf",
+      "file": "index.html",
+      "agent": "facebookexternalhit/1.1",
+      "status": 200
+    },
+    {
+      "app": "cloakpdf",
+      "file": "index.html",
+      "agent": "Twitterbot/1.0",
+      "status": 200
+    }
+  ],
+  "tests": {
+    "unit": 461,
+    "deadCode": "pass"
+  },
+  "build": "pass; includes check:og",
+  "airContractAndPortability": "pass",
+  "readmes": "8 READMEs; 118 local references",
+  "rollout": "Production receipt will be recorded on the rollout PR after merge",
+  "rawEvidence": "Family review evidence/og-2026-11-16"
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.7.4",
+  "contractVersion": "1.7.5",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -29,17 +29,6 @@
         "evidence/consistency-2026-10-26/checks.json.gz"
       ],
       "notes": "Build-owned shared Air recovery replaces retired public/404.html. All 66 Chromium layouts pass. Physical/assistive acceptance remains open. 2026-10-26: Air 1.2.0 public-shell/Storyline software audit passes; see current validation. Physical/assistive gates stay separate. Public header/footer content, spacing, rendering and navigation verified in Air 1.2.2; this evidence does not close unrelated product/device gates. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
-    },
-    {
-      "path": "artwork/og.html",
-      "kind": "app-surface",
-      "sourceReviewed": true,
-      "airImplemented": true,
-      "validated": true,
-      "states": ["static"],
-      "viewports": ["social 1200x630"],
-      "evidence": ["docs/air/evidence/previews-2026-10-19.json"],
-      "notes": "Static metadata/social artwork; no interactive or device states. Real application captures inspected in both appearances."
     },
     {
       "path": "index.html",

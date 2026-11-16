@@ -2538,3 +2538,14 @@ checks and feature suites pass. IMG is audit-only, with isolated portable mainte
 its legacy footer/PWA remains pending with its parked redesign. Existing device,
 Compact beta/node-forge, official-runtime and Resume export-intermittency follow-ups
 remain open. See the central consistency audit for initial failures and deployment.
+
+## 2026-11-16 — Consistent family social previews
+
+Air 1.7.5 uses the shared 1200×630 card and this product's static landing artwork.
+OG/Twitter images and descriptive alternatives match; emitted privacy/recovery
+pages inherit the same image. The build now checks all emitted HTML and PNG bytes.
+Removed superseded OG sources only; application/native code and real README/PWA
+captures remain intact. Scoped card/metadata evidence and passing check results:
+[receipt](evidence/social-previews-2026-11-16/receipt.json).
+Phone/tablet/laptop/desktop preview surroundings cover light/dark; the share image
+itself stays light. This does not establish new whole-editor/device acceptance.
