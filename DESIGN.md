@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.4
+version: 1.7.5
 status: approved
-date: 2026-11-14
+date: 2026-11-16
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: b25a09ffabbaa1c027037af2c4253c96cea9b988e62acd2c9526bc9df91a016c
+family-contract-sha256: fa22bfbe5205068b70cdca8748665c0ef67c4f0129e7569dc6d19b76d5bf13bb
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.4 — modern web guidance and composition safety** · Direction: **Air** · Updated: **2026-11-14**
+Version: **1.7.5 — consistent social previews** · Direction: **Air** · Updated: **2026-11-16**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -784,6 +784,38 @@ industrial grids, oversized decorative icons, or compulsory dark sections.
 The family home is a product directory. Each card says what the app does, its
 platform, and how to open it. KERR is a text exploration link with brief context;
 no screenshot, simulation, orbital illustration, animated preview, or embedded app.
+
+### Social previews
+
+Every product shares the portable `social.html` composition: one opaque light
+1200×630 PNG, 56px side insets, a 36px product mark with a 24px wordmark, its
+canonical hostname at the top right, a two-line 64px/400 neutral headline, 22px
+supporting copy, and the same ruled footer. The 544px text and 480px artwork
+columns have a 64px gap. Do not introduce per-app typography, coloured headlines,
+screenshot frames, badges, counts or extra footer rows. Product names, truthful
+copy and the original mark remain distinct. The fixed light image is the same
+in light and dark sharing clients; it is an output artifact, not a responsive UI.
+
+Reuse the existing landing artwork at its complete static/reduced-motion pose.
+The shared `render-social.mjs` captures only that decorative region from a local
+production build, never a document, editor session or native screenshot. It uses
+a fresh browser context, blocks outside network requests and keeps all generation
+tools out of the production bundle. Regenerate after changing the motif or copy;
+keep standalone `artwork/social.json` settings and commit the resulting PNG.
+
+OG and Twitter large-image metadata must be present in served HTML, without
+requiring JavaScript or access to user work. Use one absolute same-origin HTTPS
+image URL, `image/png`, true 1200×630 dimensions, and matching descriptive image
+alt text in both formats. Each public/static page preserves its own title,
+description, canonical URL and noindex policy. Private workspace state uses the
+product card and must never expose user content. Version the image URL when its
+bytes change, and verify the actual crawler response and PNG after deployment.
+A metadata change does not force third-party services to refresh old cached posts.
+
+Validate all six cards together at native and reduced sharing sizes, on light and
+dark surrounding surfaces. Check served home/privacy/recovery metadata, duplicate
+properties, image MIME/bytes, accessible descriptions and standalone regeneration.
+This is social-preview coverage; it does not replace editor or native acceptance.
 
 ### Product landing artwork
 

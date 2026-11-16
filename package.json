@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build && node scripts/check-deploy-assets.mjs",
+    "build": "tsc && vp build && node scripts/check-deploy-assets.mjs && node docs/air/check-social.mjs",
     "preview": "vp preview",
     "prepare": "vp config",
     "check:dead": "knip",
@@ -24,7 +24,7 @@
     "test:probe": "node --experimental-strip-types tests/e2e/tools/retrieval-probe.ts",
     "test:shot": "node --experimental-strip-types tests/e2e/tools/shot.ts",
     "generate-screenshots": "node scripts/build-app-screenshots.mjs",
-    "generate-og": "node scripts/build-og-image.mjs",
+    "generate-og": "node docs/air/render-social.mjs",
     "generate-icons": "pwa-assets-generator --config pwa-assets.config.ts && mv public/icons/apple-touch-icon-180x180.png public/icons/apple-touch-icon.png",
     "design:check": "node scripts/check-air-design.mjs",
     "design:inventory": "node scripts/air-inventory.mjs",
@@ -33,7 +33,8 @@
     "test:air-links": "node scripts/test-air-links.mjs",
     "test:air-actions": "node scripts/test-air-tool-actions.mjs",
     "test:air-selects": "node scripts/test-air-selects.mjs",
-    "test:air-rail-labels": "node scripts/test-air-rail-labels.mjs"
+    "test:air-rail-labels": "node scripts/test-air-rail-labels.mjs",
+    "check:og": "node docs/air/check-social.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.2",

@@ -1,0 +1,13 @@
+{
+  "name": "CloakPDF",
+  "url": "https://pdf.cloakyard.com/",
+  "dist": "dist",
+  "logo": "public/cloakpdf-mark.svg",
+  "output": "public/icons/og-image.png",
+  "artwork": ".pdf-page-stack-sheet",
+  "headline": ["Your PDF.", "Your space."],
+  "description": ["Edit, organise and sign PDFs.", "Your files stay on your device."],
+  "artAlt": "A stack of white pages spreading left and right.",
+  "imageAlt": "CloakPDF — Your PDF. Your space. A stack of white pages spreading left and right.",
+  "imagePath": "/icons/og-image.png?v=air-1.7.5"
+}

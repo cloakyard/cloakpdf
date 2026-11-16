@@ -38,10 +38,9 @@ nonstandard Chrome/Chromium binary. The capture script opens isolated contexts,
 selects Annotate through the real UI, waits for decoded pages/fonts, captures both
 appearances and removes its temporary PDF. It never clears user storage.
 
-`artwork/og.html` composes the 1200×630 social card from the pinned local Air CSS,
-the original family mark and the real light editor capture. Its headline matches
-the landing promise. `pnpm generate-og` renders it directly from local files;
-no dev server, network artwork, extra font or duplicated editor UI is needed.
+`artwork/social.json` configures the shared 1200×630 Air card with the original
+family mark and the static landing page stack. `pnpm generate-og` renders it from
+the local production build. See [the portable workflow](air/social-previews.md).
 The PNG is `public/icons/og-image.png`; OG/Twitter titles, dimensions and image
 alternatives are in `index.html`. Inspect the PNG at full size and card scale.
 

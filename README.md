@@ -74,7 +74,7 @@ vp dev       # http://localhost:5173
 | `vp test run tests/unit`    | Run unit tests                                                       |
 | `pnpm generate-icons`       | Rebuild PWA, touch, and legacy icons from the app-icon SVG           |
 | `pnpm generate-screenshots` | Capture light/dark editor previews from a running production preview |
-| `pnpm generate-og`          | Render the Air social card from local artwork and the editor capture |
+| `pnpm generate-og`          | Render the shared Air card from the static landing page stack        |
 
 ### Verification
 

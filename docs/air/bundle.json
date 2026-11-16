@@ -1,14 +1,18 @@
 {
-  "version": "1.7.4",
+  "version": "1.7.5",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "b25a09ffabbaa1c027037af2c4253c96cea9b988e62acd2c9526bc9df91a016c"
+    "contractSha256": "fa22bfbe5205068b70cdca8748665c0ef67c4f0129e7569dc6d19b76d5bf13bb"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
     "components.html": "408e9413ddd719b3c3afc36800a97fd07275109a1043c2dd77daf69277c4799e",
+    "social.html": "441cfed178be614735d9f9b54163a07bff5b9af54a933fb55687a9357e01bd3c",
+    "render-social.mjs": "c0936ee6afd53898c8dcf5cf7f71f970143108cb9a6a39b3183b493501d30974",
+    "check-social.mjs": "93b4467b8ce043800a7aa7f7617f86916374a2b476bb9aa215a4492a3ce1f242",
+    "social-previews.md": "89d5a5b8d9b23a09867ca0c2ab511ab5f753e142450b16136e278c2a31b27193",
     "reading.html": "66e16262ea678bc32c53ded704f712e7bdc3d61f7a783b38a12627c9382bd580",
     "recovery.html": "25632b2b9144a09ca8de7bd8972cbb450f998552c444362639915f06331f40f7",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",
