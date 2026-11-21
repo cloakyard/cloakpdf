@@ -108,7 +108,7 @@ try {
           {},
           mobile ? "mobile" : width < 1024 ? "tablet" : "desktop",
         );
-        const states = mobile ? ["closed", "picker", "expanded"] : ["rail"];
+        const states = mobile ? ["closed", "picker", "tool"] : ["rail"];
         if (width < 1024) states.push("document");
         for (const state of states) {
           if (state === "picker") {
@@ -121,14 +121,16 @@ try {
               await page.waitForSelector(".air-update-panel", { hidden: true });
             }
             await page.locator('[aria-label="Open tools"]').click();
-            await page.waitForSelector('[aria-label="Expand controls"]');
+            await page.waitForSelector('[aria-label="Close tools"]');
           }
-          if (state === "expanded") {
-            await page.click('[aria-label="Expand controls"]');
-            await page.waitForSelector('[aria-label="Return to split view"]');
+          if (state === "tool") {
+            await page.click('.editor-mobile-tool-list [aria-label="Signature"]');
+            await page.waitForSelector('[aria-label="Back to tools"]');
           }
           if (state === "document") {
-            await page.click('button[aria-label="Document information"]');
+            await page.click(
+              'button:is([aria-label="Document information"],[aria-label="More actions"])',
+            );
             await page.waitForSelector("#editor-document-info:popover-open");
           }
           const result = await page.evaluate(async () => {
@@ -181,10 +183,11 @@ try {
           assert.deepEqual(result.undersized, [], JSON.stringify(rows.at(-1)));
           if (root === 16)
             assert.equal(result.headerHeight, 64, "Toolbar stays in one 64px row at every width");
-          if (state === "expanded") assert.ok(result.bodyHeight! > 64, JSON.stringify(rows.at(-1)));
+          if (state === "tool") assert.ok(result.bodyHeight! >= 44, JSON.stringify(rows.at(-1)));
           if (root === 16 && [390, 768, 1280, 1440].includes(width) && state !== "closed")
             await page.screenshot({ path: resolve(output, `${state}-${width}-${theme}.png`) });
           if (state === "document") await page.keyboard.press("Escape");
+          if (state === "tool") await page.click('[aria-label="Back to tools"]');
         }
         if (mobile) {
           await page.click('[aria-label="Close tools"]');
@@ -198,33 +201,34 @@ try {
   });
   await page.setViewport({ width: 390, height: 844 });
   await page.waitForSelector('[aria-label="Open tools"]');
-  await page.click('button[aria-label="Document information"]');
+  await page.click('button:is([aria-label="Document information"],[aria-label="More actions"])');
   await page.waitForSelector("#editor-document-info:popover-open");
   assert.equal(
     await page.$eval("#editor-document-name", (n) => n.textContent),
     "Air workspace study.pdf",
   );
   await page.keyboard.press("Tab");
-  assert.equal(
-    await page.evaluate(() => document.activeElement?.textContent?.trim()),
-    "Back to home",
-  );
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent?.trim()), "Undo");
+  await page.click('[aria-label="Zoom in"]');
+  assert.equal(await page.$eval(".editor-topbar__value", (n) => n.textContent), "120%");
+  await page.click('[aria-label="Fit to screen"]');
+  assert.equal(await page.$eval(".editor-topbar__value", (n) => n.textContent), "100%");
   await page.keyboard.press("Escape");
   await page.waitForSelector("#editor-document-info:popover-open", { hidden: true });
   assert.equal(
     await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
-    "Document information",
+    "More actions",
   );
   await page.mouse.move(380, 300);
-  await page.hover('button[aria-label="Document information"]');
+  await page.hover('button:is([aria-label="Document information"],[aria-label="More actions"])');
   await page.waitForSelector("#editor-document-info:popover-open");
   await page.hover("#editor-document-info");
   assert.ok(await page.$("#editor-document-info:popover-open"));
   await page.keyboard.press("Escape");
-  await page.click('button[aria-label="Document information"]');
+  await page.click('button:is([aria-label="Document information"],[aria-label="More actions"])');
   await page.click('[aria-label="Next page"]');
   await page.waitForSelector("#editor-document-info:popover-open", { hidden: true });
-  await page.click('button[aria-label="Document information"]');
+  await page.click('button:is([aria-label="Document information"],[aria-label="More actions"])');
   await page.keyboard.down("Control");
   await page.keyboard.press("k");
   await page.keyboard.up("Control");
@@ -249,13 +253,54 @@ try {
     '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])',
   );
   assert.equal(await page.evaluate(() => document.activeElement?.tagName), "H2");
-  await page.click('[aria-label="Expand controls"]');
-  await page.click('[aria-label="Return to split view"]');
+  const startLabel = page.locator("#number-startNumber");
+  await startLabel.fill("17");
+  await page.click('[aria-label="Back to tools"]');
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+    "Page numbers",
+  );
+  await page.keyboard.press("Enter");
+  assert.equal(
+    await page.$eval("#number-startNumber", (node) => (node as HTMLInputElement).value),
+    "17",
+  );
   await page.click('[aria-label="Cancel"]');
   assert.equal(
     await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
     "Open tools",
   );
+  // A keyboard-sized viewport keeps search pinned and its first match tappable.
+  await page.setViewport({ width: 390, height: 360 });
+  await page.locator('[aria-label="Open tools"]').click();
+  await page.focus("#mobile-editor-tool-search");
+  const searchTop = await page.$eval(
+    "#mobile-editor-tool-search",
+    (node) => node.getBoundingClientRect().top,
+  );
+  await page.$eval("#mobile-editor-tool-body", (node) => node.scrollTo(0, node.scrollHeight));
+  assert.equal(
+    await page.$eval("#mobile-editor-tool-search", (node) => node.getBoundingClientRect().top),
+    searchTop,
+  );
+  await page.type("#mobile-editor-tool-search", "Signature");
+  const tappable = await page.$eval(".editor-mobile-tool-list button", (row) => {
+    const box = row.getBoundingClientRect();
+    return row.contains(
+      document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2),
+    );
+  });
+  assert.ok(tappable, "The matching tool is accessible above the keyboard");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(
+    () => document.querySelector(".editor-mobile-sheet__header h2")?.textContent === "Signature",
+  );
+  await page.locator('[aria-label="Back to tools"]').click();
+  assert.equal(
+    await page.$eval("#mobile-editor-tool-search", (node) => (node as HTMLInputElement).value),
+    "Signature",
+  );
+  await page.locator('[aria-label="Close tools"]').click();
   // Exercise real commit/undo and keep document shortcuts out of Export's modal.
   await page.setViewport({ width: 1440, height: 900 });
   await page.waitForSelector(".editor-toolrail");
@@ -344,7 +389,8 @@ try {
     }
   }
   await page.setViewport({ width: 1440, height: 900 });
-  await page.click('[aria-label="Redo"]');
+  await page.waitForSelector('.editor-topbar[data-layout="desktop"]');
+  await page.locator('[aria-label="Redo"]').click();
   await page.focus('[aria-label="Reset to original"]');
   await page.keyboard.press("Enter");
   await page.waitForFunction(
@@ -489,7 +535,9 @@ try {
       { fits: true, text: longName },
     );
     if (width < 1024) {
-      await page.click('button[aria-label="Document information"]');
+      await page.click(
+        'button:is([aria-label="Document information"],[aria-label="More actions"])',
+      );
       await page.waitForSelector("#editor-document-info:popover-open");
       assert.equal(
         await page.$eval("#editor-document-info", (n) => n.scrollWidth <= n.clientWidth + 1),
@@ -501,7 +549,7 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(resolve(output, "geometry.json"), JSON.stringify(rows, null, 2) + "\n");
   console.log(
-    `PASS: ${rows.length} navigation layouts; page/zoom persistence, view modes, mobile search and focus, expanded controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.`,
+    `PASS: ${rows.length} navigation layouts; page/zoom persistence, view modes, mobile search and focus, tool switching, touch zoom, real apply/undo, modal shortcut ownership, reduced motion and forced colours.`,
   );
 } catch (error) {
   await page.screenshot({ path: resolve(output, "failure.png") });

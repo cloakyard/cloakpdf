@@ -47,9 +47,12 @@
       "sourceReviewed": true,
       "airImplemented": true,
       "validated": true,
-      "states": ["static"],
+      "states": ["static", "Phone layout with the on-screen keyboard open"],
       "viewports": ["metadata only; rendered entry covered separately"],
-      "evidence": ["docs/air/evidence/previews-2026-10-19.json"],
+      "evidence": [
+        "docs/air/evidence/previews-2026-10-19.json",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
+      ],
       "notes": "Static metadata/social artwork; no interactive or device states. Real application captures inspected in both appearances."
     },
     {
@@ -1022,7 +1025,8 @@
         "enlarged-text",
         "active-work update deferral",
         "other-tab worker activation",
-        "home update after deferral"
+        "home update after deferral",
+        "First-install cache status during document editing"
       ],
       "viewports": [
         "320x568",
@@ -1042,7 +1046,8 @@
         "docs/air/validation.md",
         "docs/air/evidence/pwa-update-2026-10-19.json",
         "evidence/consistency-2026-10-26/checks.json.gz",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. PWA updates defer during editor/standalone work; real waiting-worker, two-tab, handoff-race and output checks pass. Human/device validation remains open. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -1395,7 +1400,8 @@
         "restore failure/retry",
         "restore success",
         "discard",
-        "processing"
+        "processing",
+        "Keyboard viewport, safe areas and landscape canvas split"
       ],
       "viewports": [
         "320x568",
@@ -1423,7 +1429,8 @@
         "docs/air/evidence/preview-recovery-2026-10-14.json",
         "docs/air/evidence/editor-recovery-2026-10-15.json",
         "docs/air/evidence/foundation-2026-10-19.json",
-        "evidence/consistency-2026-10-26/checks.json.gz"
+        "evidence/consistency-2026-10-26/checks.json.gz",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations. Foundation checkpoint: editor root uses canonical Air layer/surface/ink; 141 recovery captures confirm processing stays above the editor and root typography uses the system stack. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
@@ -1462,7 +1469,8 @@
         "coarse-emulation",
         "expanded",
         "reduced-motion",
-        "forced-colors"
+        "forced-colors",
+        "Touch Export, More actions, zoom and history focus across reflow"
       ],
       "viewports": [
         "320x568",
@@ -1489,7 +1497,8 @@
         "docs/air/validation.md",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/canvas-2026-10-14.json",
-        "docs/air/evidence/editor-wrappers-2026-10-19.json"
+        "docs/air/evidence/editor-wrappers-2026-10-19.json",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air 64px toolbar at normal text size on every required width. Desktop filename only; tablet/mobile document-mark popover reveals filename/home with hover, keyboard or touch; Escape/outside dismissal and modal handoff verified. Compact pending-mark badge preserves the single row. Shared page selector, neutral view/history controls, page/zoom/history/export preserved. Enlarged text may reflow. Physical/assistive acceptance remains open. Canvas checkpoint: same 36px mark as landing at every size; compact 64px toolbar retained. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open."
     },
@@ -1578,7 +1587,8 @@
         "coarse-emulation",
         "expanded",
         "reduced-motion",
-        "forced-colors"
+        "forced-colors",
+        "Pinned search, sole-result submission, draft-preserving Back, compact Apply and Close"
       ],
       "viewports": [
         "320x568",
@@ -1606,7 +1616,8 @@
         "docs/air/evidence/search-scrub-2026-10-15.json",
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
         "docs/air/simple-actions-2026-11-02.md",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -3063,7 +3074,8 @@
         "file picker/drop and editor handoff",
         "hidden/offscreen cleanup",
         "neutral links/hover",
-        "200% text and browser zoom"
+        "200% text and browser zoom",
+        "Touch-friendly PDF intake invitation"
       ],
       "viewports": [
         "320x568",
@@ -3086,7 +3098,8 @@
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",
         "docs/air/evidence/landing-horizon-2026-10-19/results.json",
         "docs/air/hyperlinks-2026-10-19.md",
-        "evidence/product-artwork-2026-10-25/"
+        "evidence/product-artwork-2026-10-25/",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air entry slice implemented. Evidence distinguishes home/policy matrix, notice cases and feature journeys. Physical touch and screen-reader acceptance remain open; not every state was exercised at every dimension. Registry/lifecycle checkpoint: the standalone roster is direct and readonly; device filtering still applies. Editor search metadata remains independent of the heavy editor component graph. Approved product artwork implemented and validated 2026-10-25; see latest validation record for scope and remaining physical/assistive acceptance."
     },
@@ -3539,7 +3552,8 @@
         "hidden/offscreen cleanup",
         "neutral links/hover",
         "200% text and browser zoom",
-        "Responsive on-page fields and contextual selection controls"
+        "Responsive on-page fields and contextual selection controls",
+        "Short landscape and keyboard-constrained picker with large text"
       ],
       "viewports": [
         "320x568",
@@ -3578,7 +3592,8 @@
         "evidence/consistency-2026-10-26/checks.json.gz",
         "docs/air/consistency-2026-10-28.md",
         "docs/air/simple-actions-2026-11-02.md",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-mobile-2026-11-21.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },

@@ -1,14 +1,9 @@
-import { useAirPresence } from "../../docs/air/presence.tsx";
 // In-flow working sheet: the document stays mounted while controls expand.
-import { ChevronUp, Grid2x2, RotateCcw, Search, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronUp, Grid2x2, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
 import { ToolControls } from "./ToolControls.tsx";
-import { EDITOR_GROUP_LABELS, type EditorTool, EDITOR_TOOLS, findEditorTool } from "./tools.ts";
-
-/** What the body shows. Latched while closing so the content
- *  doesn't blank out as the tool deactivates on close. */
-type SheetView = { kind: "picker" } | { kind: "tool"; id: string };
+import { type EditorTool, EDITOR_TOOLS, findEditorTool } from "./tools.ts";
 
 function mobileSearchTokens(query: string): string[] {
   return [...new Set(query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean))];
@@ -61,26 +56,20 @@ function MobileSearchMatch({ text, query }: { text: string; query: string }) {
 
 export function MobileEditorSurface() {
   const activeTool = useActiveTool();
-  const { setActiveTool, setViewMode, cancelCurrentTool, flushPendingApply, reset } =
-    useEditorActions();
-  const { pendingApply, canReset, busyLabel } = useEditorRead();
+  const { setActiveTool, setViewMode, cancelCurrentTool, flushPendingApply } = useEditorActions();
+  const { pendingApply, canCancelCurrentTool, busyLabel } = useEditorRead();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
-  const [expanded, setExpanded] = useState(false);
   const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
-  const presence = useAirPresence(open, "panel");
   const applyDisabled = busyLabel !== null || (pendingApply !== null && !pendingApply.ready);
-  // Retain the mounted tool while closed, matching the existing apply lifecycle.
-  const viewRef = useRef<SheetView>({ kind: "picker" });
-  if (open) viewRef.current = tool ? { kind: "tool", id: tool.id } : { kind: "picker" };
-  const view = viewRef.current;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const bodyRef = presence.ref;
+  const bodyRef = useRef<HTMLDivElement>(null);
   const previousTool = useRef(activeTool);
+  const returnTool = useRef<string | null>(null);
   useEffect(() => {
     // Reflow may mount this panel while the persistent toolbar owns focus.
     // Move only for a tool change or when the old panel lost its focused node.
@@ -89,11 +78,22 @@ export function MobileEditorSurface() {
       (previousTool.current !== activeTool || document.activeElement === document.body)
     )
       headingRef.current?.focus({ preventScroll: true });
-    else if (previousTool.current) toggleRef.current?.focus({ preventScroll: true });
+    else if (previousTool.current && !returnTool.current)
+      toggleRef.current?.focus({ preventScroll: true });
     previousTool.current = activeTool;
   }, [activeTool]);
   useEffect(() => {
-    if (open) bodyRef.current?.scrollTo({ top: 0 });
+    if (!open) return;
+    const previous = returnTool.current;
+    returnTool.current = null;
+    const row =
+      previous && bodyRef.current?.querySelector<HTMLButtonElement>(`[data-tool-id="${previous}"]`);
+    if (row) {
+      row.focus({ preventScroll: true });
+      row.scrollIntoView({ block: "nearest" });
+    } else {
+      bodyRef.current?.scrollTo({ top: 0 });
+    }
   }, [open, activeTool]);
 
   const pick = useCallback(
@@ -102,13 +102,12 @@ export function MobileEditorSurface() {
       const picked = findEditorTool(id);
       if (picked?.mode === "focus" || picked?.mode === "overview") setViewMode(picked.mode);
       setPickerOpen(false);
-      setToolQuery("");
     },
     [setActiveTool, setViewMode],
   );
   const close = () => {
     setPickerOpen(false);
-    setExpanded(false);
+    setToolQuery("");
   };
   const clearSearch = () => {
     setToolQuery("");
@@ -132,57 +131,154 @@ export function MobileEditorSurface() {
       data-testid="mobile-tool-sheet"
       aria-label="Editor tools"
       className="editor-mobile-sheet"
-      data-open={open || presence.mounted}
-      data-expanded={(open || presence.mounted) && expanded}
+      data-open={open}
     >
       <div className="editor-mobile-sheet__header">
         {tool ? (
           <>
+            <button
+              type="button"
+              className="air-icon-button air-button--quiet"
+              aria-label="Back to tools"
+              title="Back to tools"
+              disabled={busyLabel !== null}
+              onClick={() => {
+                if (finishing.current) return;
+                returnTool.current = tool.id;
+                setPickerOpen(true);
+                setActiveTool(null);
+              }}
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
             <h2 ref={headingRef} data-dialog-return-focus="editor-tool-picker" tabIndex={-1}>
               {tool.name}
             </h2>
-            <button
-              type="button"
-              className="air-button air-button--quiet"
-              onClick={() => setExpanded(!expanded)}
-              aria-label={expanded ? "Return to split view" : "Expand controls"}
-              aria-expanded={expanded}
+            <div
+              className="air-editor-actions air-editor-actions--compact"
+              role="group"
+              aria-label="Edit actions"
             >
-              {expanded ? "Split view" : "Expand"}
-            </button>
+              {canCancelCurrentTool && (
+                <button
+                  type="button"
+                  className="air-icon-button air-button--quiet"
+                  disabled={busyLabel !== null}
+                  onClick={() => {
+                    if (finishing.current) return;
+                    close();
+                    void cancelCurrentTool();
+                  }}
+                  aria-label="Cancel"
+                  title="Cancel"
+                >
+                  <X aria-hidden="true" />
+                </button>
+              )}
+              <button
+                type="button"
+                className={
+                  pendingApply
+                    ? "air-icon-button air-button--primary"
+                    : "air-button air-button--quiet"
+                }
+                onClick={() => {
+                  if (finishing.current) return;
+                  finishing.current = true;
+                  void flushPendingApply()
+                    .then(() => {
+                      close();
+                      setActiveTool(null);
+                    })
+                    .catch(() => {
+                      // Keep the tool and its values available for retry. The
+                      // operation reports its failure in the editor/panel.
+                    })
+                    .finally(() => {
+                      finishing.current = false;
+                    });
+                }}
+                disabled={applyDisabled}
+                aria-label={pendingApply ? "Apply" : "Close"}
+                title={pendingApply ? "Apply" : "Close"}
+              >
+                {pendingApply ? <Check aria-hidden="true" /> : "Close"}
+              </button>
+            </div>
           </>
         ) : (
           <>
             <button
               ref={toggleRef}
               type="button"
-              className="air-button air-button--quiet editor-mobile-sheet__toggle"
-              onClick={() => {
-                if (pickerOpen) {
-                  close();
-                  setToolQuery("");
-                } else setPickerOpen(true);
-              }}
+              className={
+                pickerOpen
+                  ? "air-icon-button air-button--quiet"
+                  : "air-button air-button--quiet editor-mobile-sheet__toggle"
+              }
+              onClick={() => (pickerOpen ? close() : setPickerOpen(true))}
               data-dialog-return-focus="editor-tool-picker"
               aria-expanded={pickerOpen}
               aria-controls="mobile-editor-tool-body"
               aria-label={pickerOpen ? "Close tools" : "Open tools"}
+              title={pickerOpen ? "Close tools" : undefined}
             >
-              <Grid2x2 aria-hidden="true" />
-              <span>Tools</span>
-              <ChevronUp aria-hidden="true" className={pickerOpen ? "rotate-180" : ""} />
+              {pickerOpen ? (
+                <ChevronLeft aria-hidden="true" />
+              ) : (
+                <>
+                  <Grid2x2 aria-hidden="true" />
+                  <span>Tools</span>
+                  <ChevronUp aria-hidden="true" />
+                </>
+              )}
             </button>
-            {open && (
-              <button
-                type="button"
-                className="air-button air-button--quiet"
-                onClick={() => setExpanded(!expanded)}
-                aria-label={expanded ? "Return to split view" : "Expand controls"}
-                aria-expanded={expanded}
-                title={expanded ? "Return to split view" : "Expand controls"}
+            {pickerOpen && (
+              <form
+                role="search"
+                aria-label="Editor tools"
+                className="editor-mobile-search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (visibleTools.length === 1) pick(visibleTools[0].id);
+                  else
+                    bodyRef.current
+                      ?.querySelector<HTMLButtonElement>(".editor-mobile-tool-list button")
+                      ?.focus();
+                }}
               >
-                {expanded ? "Split view" : "Expand"}
-              </button>
+                <label htmlFor="mobile-editor-tool-search" className="air-label">
+                  Search editor tools
+                </label>
+                <div className="air-field-group">
+                  <input
+                    ref={searchRef}
+                    id="mobile-editor-tool-search"
+                    name="editor-tool-search"
+                    type="search"
+                    enterKeyHint="search"
+                    value={toolQuery}
+                    onChange={(event) => setToolQuery(event.target.value)}
+                    placeholder="Name or task…"
+                    aria-describedby="mobile-editor-tool-search-count"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="air-field"
+                  />
+                  {toolQuery ? (
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="air-icon-button air-button--quiet"
+                      aria-label="Clear editor tool search"
+                    >
+                      <X aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <Search aria-hidden="true" className="editor-mobile-search__icon" />
+                  )}
+                </div>
+              </form>
             )}
           </>
         )}
@@ -194,63 +290,18 @@ export function MobileEditorSurface() {
         inert={!open ? true : undefined}
         aria-hidden={!open}
         className="editor-mobile-sheet__body thin-scrollbar"
-        aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
+        aria-label={tool ? "Tool controls" : "Tools"}
       >
-        {view.kind === "tool" ? (
-          <ToolControls key={view.id} toolId={view.id} />
+        {tool ? (
+          <ToolControls key={tool.id} toolId={tool.id} />
         ) : (
           <>
-            <div role="search" aria-label="Editor tools" className="editor-mobile-search">
-              <label htmlFor="mobile-editor-tool-search" className="air-label">
-                Search editor tools
-              </label>
-              <div className="air-field-group">
-                <input
-                  ref={searchRef}
-                  id="mobile-editor-tool-search"
-                  name="editor-tool-search"
-                  type="search"
-                  value={toolQuery}
-                  onChange={(event) => setToolQuery(event.target.value)}
-                  placeholder="Name or task…"
-                  aria-describedby="mobile-editor-tool-search-count"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="air-field"
-                />
-                {toolQuery ? (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="air-icon-button air-button--quiet"
-                    aria-label="Clear editor tool search"
-                  >
-                    <X aria-hidden="true" />
-                  </button>
-                ) : (
-                  <Search aria-hidden="true" className="editor-mobile-search__icon" />
-                )}
-              </div>
-              <p id="mobile-editor-tool-search-count" className="air-help" role="status">
-                {activeToolQuery
-                  ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
-                  : `${EDITOR_TOOLS.length} editor tools`}
-              </p>
-            </div>
-            {canReset && (
-              <button
-                type="button"
-                className="air-button air-button--quiet editor-mobile-reset"
-                onClick={() => {
-                  reset();
-                  close();
-                  toggleRef.current?.focus();
-                }}
-              >
-                <RotateCcw aria-hidden="true" />
-                Reset to original
-              </button>
-            )}
+            <p id="mobile-editor-tool-search-count" className="air-help" role="status">
+              {activeToolQuery
+                ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
+                : `${EDITOR_TOOLS.length} editor tools`}
+            </p>
+
             {visibleTools.length > 0 ? (
               <ul
                 className="editor-mobile-tool-list"
@@ -263,22 +314,20 @@ export function MobileEditorSurface() {
                       <button
                         type="button"
                         onClick={() => pick(candidate.id)}
+                        data-tool-id={candidate.id}
                         aria-label={candidate.name}
+                        aria-describedby={`mobile-tool-help-${candidate.id}`}
                       >
                         <Icon aria-hidden="true" />
                         <span>
                           <span className="editor-mobile-tool-list__name">
                             <MobileSearchMatch text={candidate.name} query={activeToolQuery} />
                           </span>
-                          <span className="air-help">
-                            {activeToolQuery ? (
-                              <MobileSearchMatch
-                                text={candidate.description}
-                                query={activeToolQuery}
-                              />
-                            ) : (
-                              EDITOR_GROUP_LABELS[candidate.group]
-                            )}
+                          <span className="air-help" id={`mobile-tool-help-${candidate.id}`}>
+                            <MobileSearchMatch
+                              text={candidate.description}
+                              query={activeToolQuery}
+                            />
                           </span>
                         </span>
                       </button>
@@ -298,49 +347,6 @@ export function MobileEditorSurface() {
           </>
         )}
       </div>
-      {tool && (
-        <div className="air-editor-actions" role="group" aria-label="Edit actions">
-          <button
-            type="button"
-            className="air-button"
-            disabled={busyLabel !== null}
-            onClick={() => {
-              if (finishing.current) return;
-              close();
-              void cancelCurrentTool();
-            }}
-            aria-label="Cancel"
-            title="Cancel"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={`air-button${pendingApply ? " air-button--primary" : ""}`}
-            onClick={() => {
-              if (finishing.current) return;
-              finishing.current = true;
-              void flushPendingApply()
-                .then(() => {
-                  close();
-                  setActiveTool(null);
-                })
-                .catch(() => {
-                  // Keep the tool and its values available for retry. The
-                  // operation reports its failure in the editor/panel.
-                })
-                .finally(() => {
-                  finishing.current = false;
-                });
-            }}
-            disabled={applyDisabled}
-            aria-label={pendingApply ? "Apply" : "Close"}
-            title={pendingApply ? "Apply" : "Close"}
-          >
-            {pendingApply ? "Apply" : "Close"}
-          </button>
-        </div>
-      )}
     </section>
   );
 }

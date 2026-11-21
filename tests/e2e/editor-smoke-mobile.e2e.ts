@@ -376,9 +376,10 @@ async function main() {
     ];
     for (const name of sweep) {
       await pickTool(page, name); // also waits for the completion action (tool active)
-      if (!(await page.$('button[aria-label="Cancel"]'))) fail(`${name}: Cancel missing.`);
       await assertHalfSplit(page, name);
-      await page.click('button[aria-label="Cancel"]'); // ✗ rolls back + closes
+      // Back returns to the actual picker even for inspection-only tools.
+      await page.locator('button[aria-label="Back to tools"]').click();
+      await page.locator('button[aria-label="Close tools"]').click();
       await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
     }
     console.log(
@@ -432,14 +433,10 @@ async function main() {
 
     // 11. Export modal renders as a bottom sheet on mobile: close the OCR tool,
     //     open Export, pick Markdown, Download, and verify a real liteparse-
-    //     native .md lands. The Export trigger's text label is hidden on mobile
-    //     (icon only), so target the dialog-popup button — with no tool open it
-    //     is unambiguous (the only other aria-haspopup=dialog is a date input).
-    if (await page.$('button[aria-label="Cancel"]')) {
-      await page.click('button[aria-label="Cancel"]'); // close the OCR sheet
-      await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
-    }
-    await page.click('button[aria-haspopup="dialog"]'); // Export (icon-only on mobile)
+    //     native .md lands.
+    await page.click('.air-editor-actions button:is([aria-label="Cancel"], [aria-label="Close"])');
+    await page.waitForSelector('button[aria-label="Open tools"]');
+    await page.click('button[aria-label="Export"]');
     await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
     await page.locator('input[aria-label="Markdown (.md)"]').click();
     if (await hasExactText(page, "Infer headings"))

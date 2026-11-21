@@ -226,7 +226,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
             accept="application/pdf,.pdf"
             size="hero"
             onFiles={(files) => onOpenEditor(files[0] ?? null)}
-            label="Drop a PDF to open the editor"
+            label="Open a PDF in the editor"
             hint="One PDF. Opened here, on your device."
           />
           <p className="pdf-entry-note">

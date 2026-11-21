@@ -1310,17 +1310,20 @@ journeys across all apps; it is not inferred from the pilot alone.
   the rail grow rather than squeezing enlarged words. Search retains the full
   tool names and descriptions. The filename, page controls, view controls and
   document actions share one 64px toolbar at normal text size, retaining real
-  40/44px targets. Tablet/phone chrome hides the filename and back action in a
-  document-mark popover, available by hover or keyboard/touch activation; the
-  full filename remains accessible. Enlarged text may reflow without clipping.
+  40/44px targets. Phones keep the home mark, page navigation, labelled Export
+  and More actions in reach. More actions holds the filename, history and zoom.
+  Tablet retains the document popover. Enlarged text can reflow without clipping.
   Keep the desktop filename alone beside the mark; the page selector owns the count.
 - Editor widths follow 768/1024px. Below 1024px, a height under 500px uses the
   working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps
   its desktop rail. The phone picker uses full-name rows and persistent search.
-- The mobile working sheet starts at half height, reserving at least 18rem for
-  controls when possible while keeping 64px of preview. Expand controls uses
-  the available editor region; Return to split view preserves tool values and
-  the mounted document. Cancel/Apply return focus to the tool selector.
+- Split the phone workspace evenly between preview and controls. Portrait stacks
+  them vertically. Landscape uses adjacent columns from 640px wide below 500px high.
+  Keep tool search and the active tool's title and actions outside the scrolling body.
+  A short search viewport gives the picker the full working area above the keyboard.
+  Back to tools preserves the draft, query and focused result. Apply or Cancel ends
+  the edit and returns focus to Tools. Use the shared 48px actions and a labelled
+  Close for inspection.
 - Tool navigation is immediate, including active-rail scrolling. Global history
   shortcuts cannot change the document behind a modal or during a busy operation.
 - Inspector headers use sentence case and secondary descriptions; omit the repeated

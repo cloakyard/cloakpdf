@@ -436,7 +436,6 @@ try {
       await tool("pdf-scrub");
       await tool("find-act");
       await clickText("Clear search");
-      if (width === 390) await page.locator('[aria-label="Expand controls"]').click();
       await page.evaluate(() => {
         const w = window as any;
         w.holdRead = true;
@@ -487,7 +486,6 @@ try {
         scrubError: true,
         retryFocus: true,
       });
-      if (width === 390) await page.locator('[aria-label="Return to split view"]').click();
     }
   }
   await page.setViewport({ width: 390, height: 844 });

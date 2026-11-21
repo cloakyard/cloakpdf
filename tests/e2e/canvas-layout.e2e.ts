@@ -4,6 +4,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { launch } from "puppeteer-core";
+import { detectLayout } from "../../src/editor/breakpoints.ts";
 import { EDITOR_TOOLS } from "../../src/editor/tools.ts";
 import { createEvidenceDirectory } from "./helpers/evidence-directory.ts";
 
@@ -52,6 +53,11 @@ try {
   await page.waitForSelector(".editor-toolrail");
   for (const [width, height] of sizes) {
     await page.setViewport({ width, height });
+    await page.waitForFunction(
+      (layout) => document.querySelector(".editor-topbar")?.getAttribute("data-layout") === layout,
+      {},
+      detectLayout(width, height),
+    );
     await cdp.send("Emulation.setTouchEmulationEnabled", {
       enabled: width <= 1024,
       maxTouchPoints: 5,
@@ -78,7 +84,7 @@ try {
                   node.getAttribute("aria-label") === label && node.getBoundingClientRect().width,
               );
             if (!document.querySelector(".editor-toolrail")) {
-              button("Cancel")?.click();
+              button("Back to tools")?.click();
               await tick();
               button("Open tools")?.click();
               await tick();
@@ -97,10 +103,29 @@ try {
               );
               if (title?.textContent !== name || !body?.textContent?.trim()) continue;
               await tick();
+              if (!body.isConnected || !title.isConnected) continue;
               if (body.scrollWidth > body.clientWidth + 2)
                 return "Tool panel overflows horizontally";
               if (document.documentElement.scrollWidth > innerWidth + 1)
                 return "Page overflows horizontally";
+              const sheet = document.querySelector(".editor-mobile-sheet");
+              if (sheet) {
+                const preview = sheet.previousElementSibling!.getBoundingClientRect();
+                if (Math.min(preview.height, preview.width) < 64 || body.clientHeight < 44)
+                  return `Preview ${Math.round(preview.width)}×${Math.round(preview.height)}, controls ${body.clientHeight}px`;
+                for (const control of sheet.querySelectorAll<HTMLButtonElement>(
+                  ".editor-mobile-sheet__header button",
+                )) {
+                  const rect = control.getBoundingClientRect();
+                  if (
+                    rect.width < 44 ||
+                    rect.height < 44 ||
+                    rect.right > innerWidth + 1 ||
+                    rect.bottom > innerHeight + 1
+                  )
+                    return "Tool action is too small or outside the viewport";
+                }
+              }
               return null;
             }
             return "Tool controls did not open";
