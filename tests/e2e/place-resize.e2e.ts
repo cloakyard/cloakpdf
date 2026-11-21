@@ -169,7 +169,7 @@ async function main() {
 
     // ── Signature ──────────────────────────────────────────────────────────
     await page.click('button[aria-label="Signature"]');
-    await waitText(page, /Draw or upload a signature/i);
+    await page.waitForSelector('canvas[aria-label^="Signature drawing area"]');
 
     // No Size slider any more — the audit's core change.
     const sliderCount = await page.$$eval('input[type="range"]', (els) => els.length);

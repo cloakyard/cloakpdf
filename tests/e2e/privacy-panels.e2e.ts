@@ -104,7 +104,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -175,7 +176,10 @@ try {
   await page.click('[aria-label="Find and redact"]');
   await page.waitForFunction(() => (window as any).airRead.doc.objects.length === 2);
   // Actual native-text matching and source bytes remain available until burn.
-  await clickText("Detect & add boxes");
+  await clickText("Detect sensitive data");
+  await page.waitForSelector('[aria-label="Review candidates"]');
+  assert.equal(await count(), 2);
+  await clickText("Add 2 selected boxes");
   await page.waitForFunction(() => (window as any).airRead.doc.objects.length === 4);
   await page.click('[aria-label="Remove box 4"]');
   assert.equal(await count(), 3);

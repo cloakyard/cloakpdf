@@ -108,7 +108,29 @@ try {
           {},
           mobile ? "mobile" : width < 1024 ? "tablet" : "desktop",
         );
-        const states = mobile ? ["closed", "picker"] : ["rail"];
+        const trigger = await page.$eval('button[aria-label="Export"]', (button) => {
+          const icon = button.querySelector("svg")!.getBoundingClientRect();
+          const rect = button.getBoundingClientRect();
+          return {
+            label: button.innerText.trim(),
+            quiet: button.classList.contains("air-button--quiet"),
+            iconWidth: icon.width,
+            iconHeight: icon.height,
+            width: rect.width,
+            height: rect.height,
+            centered:
+              Math.abs(rect.x + rect.width / 2 - icon.x - icon.width / 2) < 1 &&
+              Math.abs(rect.y + rect.height / 2 - icon.y - icon.height / 2) < 1,
+          };
+        });
+        assert.deepEqual([trigger.iconWidth, trigger.iconHeight], [18, 18]);
+        assert.equal(trigger.label, width < 1024 ? "" : "Export");
+        assert.equal(trigger.quiet, width < 1024);
+        if (width < 1024) {
+          assert.deepEqual([trigger.width, trigger.height], [44, 44]);
+          assert.ok(trigger.centered);
+        }
+        const states = mobile ? ["closed", "picker", "tool"] : ["rail"];
         if (width < 1024) states.push("document");
         for (const state of states) {
           if (state === "picker") {
@@ -122,6 +144,10 @@ try {
             }
             await page.locator('[aria-label="Open tools"]').click();
             await page.waitForSelector('[aria-label="Close tools"]');
+          }
+          if (state === "tool") {
+            await page.click('.editor-mobile-tool-list [aria-label="Signature"]');
+            await page.waitForSelector('[aria-label="Back to tools"]');
           }
           if (state === "document") {
             await page.click('button[aria-label="More actions"]');
@@ -181,6 +207,7 @@ try {
           assert.deepEqual(result.undersized, [], JSON.stringify(rows.at(-1)));
           if (root === 16)
             assert.equal(result.headerHeight, 64, "Toolbar stays in one 64px row at every width");
+          if (state === "tool") assert.ok(result.bodyHeight! >= 44, JSON.stringify(rows.at(-1)));
           if (root === 16 && [390, 768, 1280, 1440].includes(width) && state !== "closed")
             await page.screenshot({ path: resolve(output, `${state}-${width}-${theme}.png`) });
           if (state === "document") {
@@ -189,6 +216,7 @@ try {
               hidden: true,
             });
           }
+          if (state === "tool") await page.click('[aria-label="Back to tools"]');
         }
         if (mobile) {
           await page.click('[aria-label="Close tools"]');
@@ -202,6 +230,10 @@ try {
   });
   await page.setViewport({ width: 390, height: 844 });
   await page.waitForSelector('[aria-label="Open tools"]');
+  await page.locator('::-p-aria([name="Export"][role="button"])').click();
+  await page.waitForSelector('[data-testid="export-dialog"]');
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "Export");
   await page.click('button[aria-label="More actions"]');
   await page.waitForSelector('[aria-labelledby="editor-actions-title"]');
   assert.equal(
@@ -214,6 +246,10 @@ try {
     ),
     "true",
   );
+  await page.locator('.air-editor-menu [aria-label="Zoom in"]').click();
+  assert.match(await page.$eval(".air-editor-menu__zoom", (n) => n.textContent!), /120%/);
+  await page.locator(".air-editor-menu button::-p-text(Fit)").click();
+  assert.match(await page.$eval(".air-editor-menu__zoom", (n) => n.textContent!), /100%/);
   await page.keyboard.down("Control");
   await page.keyboard.press("k");
   await page.keyboard.up("Control");
@@ -243,11 +279,121 @@ try {
   );
   assert.equal(await page.evaluate(() => document.activeElement?.tagName), "H2");
   assert.equal(await page.$('[aria-label="Expand controls"]'), null);
+  const startLabel = page.locator("#number-startNumber");
+  await startLabel.fill("17");
+  // Jumping pages is an explicit view change and preserves the open tool draft.
+  const jump = 'button[aria-label="Go to page"]';
+  const destination = '.pdf-page-jump-dialog input[name="page"]';
+  await page.click(jump);
+  await page.waitForFunction(
+    (selector) => document.activeElement?.matches(selector),
+    {},
+    destination,
+  );
+  for (const value of ["", "4", "1.5"]) {
+    await page.locator(destination).fill(value);
+    await page.keyboard.press("Enter");
+    await page.waitForSelector('.pdf-page-jump-dialog [role="alert"]');
+    assert.equal(
+      await page.$eval(destination, (node) => node.getAttribute("aria-invalid")),
+      "true",
+    );
+    assert.equal(await page.$eval(destination, (node) => (node as HTMLInputElement).value), value);
+  }
+  await page.locator(destination).fill("1");
+  await page.keyboard.press("Enter");
+  await page.waitForSelector('img[alt="Page 1"]');
+  await page.waitForFunction((selector) => document.activeElement?.matches(selector), {}, jump);
+  await page.click(jump);
+  await page.locator(destination).fill("3");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector(".pdf-page-jump-dialog", { hidden: true });
+  assert.ok(await page.$('img[alt="Page 1"]'));
+  await page.click(jump);
+  await page.type(destination, "3");
+  await page.locator('.pdf-page-jump-dialog button[type="submit"]').click();
+  await page.waitForSelector('img[alt="Page 3"]');
+  await page.waitForSelector(".pdf-page-jump-dialog", { hidden: true });
+  assert.equal(
+    await page.$eval("#number-startNumber", (node) => (node as HTMLInputElement).value),
+    "17",
+  );
+  await page.click('[aria-label="Back to tools"]');
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+    "Page numbers",
+  );
+  await page.keyboard.press("Enter");
+  assert.equal(
+    await page.$eval("#number-startNumber", (node) => (node as HTMLInputElement).value),
+    "17",
+  );
   await page.click('[aria-label="Cancel"]');
   assert.equal(
     await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
     "Open tools",
   );
+  // A keyboard-sized viewport keeps search pinned and its first match tappable.
+  await page.setViewport({ width: 390, height: 360 });
+  await page.locator('[aria-label="Open tools"]').click();
+  await page.focus("#mobile-editor-tool-search");
+  const searchTop = await page.$eval(
+    "#mobile-editor-tool-search",
+    (node) => node.getBoundingClientRect().top,
+  );
+  await page.$eval("#mobile-editor-tool-body", (node) => node.scrollTo(0, node.scrollHeight));
+  assert.equal(
+    await page.$eval("#mobile-editor-tool-search", (node) => node.getBoundingClientRect().top),
+    searchTop,
+  );
+  await page.type("#mobile-editor-tool-search", "page");
+  assert.equal(
+    await page.$eval(
+      ".editor-mobile-tool-list button",
+      (row) =>
+        row.getAttribute("aria-label") === "Page numbers" &&
+        row.getBoundingClientRect().top >=
+          document.querySelector("#mobile-editor-tool-body")!.getBoundingClientRect().top,
+    ),
+    true,
+    "Editing the pinned search brings the best of multiple matches into view",
+  );
+  await page.click('[aria-label="Clear editor tool search"]');
+  // Real Chromium IME input updates the field; candidate confirmation stays in search.
+  await cdp.send("Input.imeSetComposition", {
+    text: "Signature",
+    selectionStart: 9,
+    selectionEnd: 9,
+  });
+  assert.equal(
+    await page.$$eval(".editor-mobile-tool-list button", (nodes) => nodes.length),
+    EDITOR_TOOLS.length,
+  );
+  await page.$eval("#mobile-editor-tool-search", (node) => {
+    node.closest("form")!.requestSubmit();
+  });
+  assert.ok(await page.$("#mobile-editor-tool-search"));
+  await cdp.send("Input.insertText", { text: "Signature" });
+  await page.waitForFunction(
+    () => document.querySelectorAll(".editor-mobile-tool-list button").length === 1,
+  );
+  const tappable = await page.$eval(".editor-mobile-tool-list button", (row) => {
+    const box = row.getBoundingClientRect();
+    return row.contains(
+      document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2),
+    );
+  });
+  assert.ok(tappable, "The matching tool is accessible above the keyboard");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(
+    () => document.querySelector(".editor-mobile-sheet__header h2")?.textContent === "Signature",
+  );
+  await page.locator('[aria-label="Back to tools"]').click();
+  assert.equal(
+    await page.$eval("#mobile-editor-tool-search", (node) => (node as HTMLInputElement).value),
+    "Signature",
+  );
+  await page.locator('[aria-label="Close tools"]').click();
   // Exercise real commit/undo and keep document shortcuts out of Export's modal.
   await page.setViewport({ width: 1440, height: 900 });
   await page.waitForSelector(".editor-toolrail");
@@ -349,6 +495,7 @@ try {
     }
   }
   await page.setViewport({ width: 1440, height: 900 });
+  await page.waitForSelector('.editor-topbar[data-layout="desktop"]');
   await page.locator('[aria-label="Redo"]').click();
   await page.focus('[aria-label="Reset to original"]');
   await page.keyboard.press("Enter");
@@ -507,7 +654,7 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(resolve(output, "geometry.json"), JSON.stringify(rows, null, 2) + "\n");
   console.log(
-    `PASS: ${rows.length} navigation layouts; page/zoom persistence, view modes, mobile search and focus, fixed completion controls, real apply/undo, modal shortcut ownership, reduced motion and forced colours.`,
+    `PASS: ${rows.length} navigation layouts; page/zoom persistence, view modes, mobile search and focus, tool switching, touch zoom, real apply/undo, modal shortcut ownership, reduced motion and forced colours.`,
   );
 } catch (error) {
   await page.screenshot({ path: resolve(output, "failure.png") });

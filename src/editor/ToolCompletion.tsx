@@ -1,12 +1,19 @@
 import { Check, X } from "lucide-react";
-import { useRef } from "react";
+import { type RefObject, useRef } from "react";
 import { useEditorActions, useEditorRead } from "./EditorContext.tsx";
 
 /** One compact completion pair, outside the independently scrolling controls. */
-export function ToolCompletion({ onClose }: { onClose: () => void }) {
+export function ToolCompletion({
+  onClose,
+  finishingRef,
+}: {
+  onClose: () => void;
+  finishingRef?: RefObject<boolean>;
+}) {
   const { pendingApply, canCancelCurrentTool, busyLabel } = useEditorRead();
   const { flushPendingApply, cancelCurrentTool, setActiveTool } = useEditorActions();
-  const finishing = useRef(false);
+  const localFinishing = useRef(false);
+  const finishing = finishingRef ?? localFinishing;
   const finish = async (cancel: boolean) => {
     if (finishing.current || busyLabel || (!cancel && pendingApply && !pendingApply.ready)) return;
     finishing.current = true;

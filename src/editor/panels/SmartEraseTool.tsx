@@ -42,7 +42,7 @@ function readSettings(slice: Record<string, unknown>): EraseSettings {
 export function Stage() {
   const { selectedPage } = useEditorRead();
   const { mode, coarseness } = readSettings(useToolSlice(TOOL_ID));
-  const { addObject } = useEditorActions();
+  const { addObject, patchToolState } = useEditorActions();
   const startRef = useRef<{ x: number; y: number } | null>(null);
   const [box, setBox] = useState<FractionRect | null>(null);
 
@@ -84,9 +84,13 @@ export function Stage() {
     [box, mode, coarseness],
   );
 
-  const onPointerDown = useCallback((p: StagePoint) => {
-    startRef.current = { x: p.xPct, y: p.yPct };
-  }, []);
+  const onPointerDown = useCallback(
+    (p: StagePoint) => {
+      patchToolState(TOOL_ID, { selectedId: undefined });
+      startRef.current = { x: p.xPct, y: p.yPct };
+    },
+    [patchToolState],
+  );
   const onPointerMove = useCallback(
     (p: StagePoint) => {
       const s = startRef.current;
@@ -139,18 +143,41 @@ export function Stage() {
 }
 
 export function Panel() {
-  const { patchToolState } = useEditorActions();
-  const { mode, coarseness } = readSettings(useToolSlice(TOOL_ID));
+  const { patchToolState, moveObject } = useEditorActions();
+  const { doc, selectedPage } = useEditorRead();
+  const slice = useToolSlice(TOOL_ID);
+  const selected = doc?.objects.find(
+    (o) => o.id === slice.selectedId && o.kind === "erase" && o.pageIndex === selectedPage,
+  );
+  const payload = selected?.payload as ErasePayload | undefined;
+  const defaults = readSettings(slice);
+  const mode = payload?.mode ?? defaults.mode;
+  const coarseness =
+    (Object.keys(BLOCK_FRAC) as Coarseness[]).find((k) => BLOCK_FRAC[k] === payload?.blockFrac) ??
+    defaults.coarseness;
+  function change(mode: EraseMode, coarseness: Coarseness) {
+    if (selected)
+      moveObject(
+        selected.id,
+        { payload: { mode, blockFrac: BLOCK_FRAC[coarseness] } },
+        "Edit erase area",
+      );
+    else patchToolState(TOOL_ID, { mode, coarseness });
+  }
   return (
     <div className="pdf-mark-panel">
-      <p>Draw a box over an area to erase. Choose how the next area will look.</p>
+      <p>
+        {selected
+          ? "Editing the selected erase area."
+          : "Draw a box to erase, or choose an existing area below."}
+      </p>
       <fieldset className="air-choice-group">
         <legend>Method</legend>
         <SegmentedControl
           value={mode}
           ariaLabel="Erase method"
           fullWidth
-          onChange={(value: EraseMode) => patchToolState(TOOL_ID, { mode: value })}
+          onChange={(value: EraseMode) => change(value, coarseness)}
           options={[
             { value: "fill", label: "Fill" },
             { value: "inpaint", label: "Blend" },
@@ -172,7 +199,7 @@ export function Panel() {
             value={coarseness}
             ariaLabel="Pixelation coarseness"
             fullWidth
-            onChange={(value: Coarseness) => patchToolState(TOOL_ID, { coarseness: value })}
+            onChange={(value: Coarseness) => change(mode, value)}
             options={[
               { value: "subtle", label: "Subtle" },
               { value: "medium", label: "Medium" },
@@ -181,11 +208,60 @@ export function Panel() {
           />
         </fieldset>
       )}
-      <PendingMarkList kind="erase" />
+      {selected?.rect && (
+        <section>
+          <p>Selected area on page {selectedPage + 1}</p>
+          {(["xPct", "yPct", "wPct", "hPct"] as const).map((key, i) => {
+            const r = selected.rect!;
+            const max = [1 - r.wPct, 1 - r.hPct, 1 - r.xPct, 1 - r.yPct][i];
+            return (
+              <label className="pdf-property-field" key={key}>
+                {["Left", "Top", "Width", "Height"][i]} (%)
+                <input
+                  className="air-field"
+                  key={r[key]}
+                  type="number"
+                  step="0.1"
+                  min={i < 2 ? 0 : 0.1}
+                  max={Number((max * 100).toFixed(3))}
+                  defaultValue={Number((r[key] * 100).toFixed(2))}
+                  onBlur={(e) => {
+                    const v = Number(e.target.value) / 100;
+                    if (
+                      !e.target.value ||
+                      !Number.isFinite(v) ||
+                      v < (i < 2 ? 0 : 0.001) ||
+                      v > max + 0.0001
+                    ) {
+                      e.target.value = String(r[key] * 100);
+                      return;
+                    }
+                    if (Math.abs(v - r[key]) > 0.00005)
+                      moveObject(
+                        selected.id,
+                        { rect: { ...r, [key]: Math.min(v, max) } },
+                        "Resize erase area",
+                      );
+                  }}
+                />
+              </label>
+            );
+          })}
+          <button
+            className="air-button"
+            onClick={() => patchToolState(TOOL_ID, { selectedId: undefined })}
+          >
+            Done editing area
+          </button>
+        </section>
+      )}
+      <PendingMarkList
+        kind="erase"
+        onSelect={(selectedId) => patchToolState(TOOL_ID, { selectedId })}
+      />
       <p className="air-help">
-        Method and coarseness apply to new areas. Existing marks stay editable until export or
-        another operation changes the PDF. Marked pages then become images, losing selectable text;
-        the file may grow.
+        Existing marks stay editable until export or another operation changes the PDF. Marked pages
+        then become images, losing selectable text; the file may grow.
       </p>
     </div>
   );

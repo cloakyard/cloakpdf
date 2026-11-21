@@ -58,7 +58,10 @@ try {
     const { EditorProvider, useEditorRead, useEditorActions, useToolSlice, useActiveTool } =
       await load(context);
     const { EditorShell } = await load("/src/editor/EditorShell.tsx");
-    const { StageProvider } = await load("/src/editor/stage.tsx");
+    const stageSource = await (await fetch("/src/editor/PdfStage.tsx")).text();
+    const { StageProvider } = await load(
+      stageSource.match(/from ["']([^"']*\/stage\.tsx[^"']*)["']/)![1],
+    );
     const { MotionProvider } = await load("/src/components/motion.tsx");
     const w = window as any;
     function Probe() {
@@ -69,7 +72,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(

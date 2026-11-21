@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { PDFDocument } from "@pdfme/pdf-lib";
 const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 
 const out =
@@ -10,6 +11,14 @@ const out =
 await mkdir(out, { recursive: true });
 const rows = [],
   errors = [];
+const pdf = await PDFDocument.create();
+pdf.addPage([400, 600]);
+pdf.addPage([400, 600]);
+const fixture = {
+  name: "Layout.pdf",
+  mimeType: "application/pdf",
+  buffer: Buffer.from(await pdf.save()),
+};
 const sizes = [
   [320, 568],
   [375, 812],
@@ -42,10 +51,7 @@ for (const engine of ["chromium", "webkit"]) {
         });
         page.on("pageerror", (e) => errors.push(e.message));
         await page.goto(process.env.BASE_URL || "http://127.0.0.1:8521");
-        await page
-          .locator("input[type=file]")
-          .first()
-          .setInputFiles(new URL("../tests/fixtures/multipage.pdf", import.meta.url).pathname);
+        await page.locator("input[type=file]").first().setInputFiles(fixture);
         await page.getByRole("button", { name: "Export", exact: true }).waitFor();
         await page.locator(".editor-toolrail,.editor-mobile-sheet").first().waitFor();
         const rail = page.locator(".editor-toolrail");

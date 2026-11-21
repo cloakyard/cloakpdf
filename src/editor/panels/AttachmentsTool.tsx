@@ -1,7 +1,7 @@
 // Immediate, undoable attachment actions; failed selections belong to exact bytes.
 import { AlertTriangle, Paperclip, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { formatFileSize } from "../../utils/file-helpers.ts";
+import { downloadBlob, formatFileSize } from "../../utils/file-helpers.ts";
 import {
   attachFilesToPdf,
   listPdfAttachments,
@@ -124,6 +124,17 @@ export function Panel() {
                     {formatFileSize(item.size)} · File {index + 1}
                   </span>
                 </div>
+                <button
+                  className="air-button"
+                  type="button"
+                  disabled={unavailable}
+                  aria-label={`Save a copy of ${item.name}`}
+                  onClick={() =>
+                    downloadBlob(new Blob([item.data.slice()], { type: item.mimeType }), item.name)
+                  }
+                >
+                  Save a copy
+                </button>
                 <button
                   type="button"
                   className="air-button air-icon-button air-button--quiet"

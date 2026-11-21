@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-21",
+  "baseline": "80af8c4",
+  "fixture": "Locally generated 84-page PDF. No document leaves the browser.",
+  "findings": [
+    {
+      "flow": "Signature on a 568 × 320 landscape phone",
+      "before": {
+        "paperHeightPx": 96,
+        "scrollingControlHeightPx": 70
+      },
+      "after": {
+        "paperHeightPx": 224,
+        "scrollingControlHeightPx": 199
+      },
+      "screenshot": "mobile-navigation-2026-11-21/landscape-signature.png"
+    },
+    {
+      "flow": "Search for “page” after scrolling to the last tool",
+      "before": {
+        "top": 627,
+        "first": "Page numbers",
+        "firstVisible": false
+      },
+      "after": {
+        "top": 0,
+        "first": "Page numbers",
+        "firstVisible": true
+      },
+      "inputMethods": "Composition changes the field immediately. Filtering waits for candidate confirmation. Enter can then open a unique match."
+    },
+    {
+      "flow": "Move from page 1 to 84 with Page numbers open",
+      "before": "83 Next page activations while staying in the tool.",
+      "after": "Tap the page count, enter 84 and choose Go. The starting-number draft remains 17. Dismissal returns to the previous page if no destination was submitted.",
+      "screenshot": "mobile-navigation-2026-11-21/page-jump.png"
+    }
+  ],
+  "checks": {
+    "registeredTools": 22,
+    "canvasLayouts": 1320,
+    "canvasLayoutCoverage": "15 screen sizes in both themes at 16px and 32px root text, including 535, 536 and 537px wide landscape phones.",
+    "pageJumpDialogLayouts": 76,
+    "pageJumpDialogCoverage": "19 screen sizes in both themes at 16px and 32px. A recoverable invalid destination, bounds, scroll and reachable controls exercised in every case.",
+    "navigation": "176 responsive navigation cases and 176 registered tool selections.",
+    "chromiumAndWebKit": "Chromium 158 and WebKit 26.6 with touch emulation. An invalid destination, tap and keyboard submission, cancellation, focus return, draft retention, search and rotation passed.",
+    "firefox": "Firefox 160 desktop at 320px. Page jump, invalid input, keyboard submission, Escape, focus return and previous page passed.",
+    "safariSimulator": "On an iPhone 17 Pro simulator running iOS 26.2, the isolated shipping page picker accepted a number through the native keypad and navigated. The full app intermittently reloaded during PDF intake, before the picker could be verified end to end. Physical hardware was unavailable.",
+    "additionalSuites": [
+      "editor-smoke-mobile including a Markdown download",
+      "modal-system",
+      "responsive-motion",
+      "check:dead",
+      "production build",
+      "unit tests"
+    ]
+  }
+}

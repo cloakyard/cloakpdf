@@ -342,9 +342,9 @@ async function main() {
     await waitForText(page, /area to keep/i, 8_000); // Crop panel mounted = tool selected
     console.log("  ✓ ⌘K search → Enter selects the Crop tool");
 
-    // 3b. Name-first ranking. "page numbers" also matches Strip furniture's
+    // 3b. Name-first ranking. "page numbers" also matches Trim headers & footers's
     //     description ("…page numbers"), but the NAME match must rank first — so
-    //     the top row is Page numbers (Strip furniture still appears, lower), and
+    //     the top row is Page numbers (Trim headers & footers still appears, lower), and
     //     a plain Enter selects the right tool.
     await pressMeta(page, "k");
     await page.waitForSelector(`${PALETTE} input`, { timeout: 5_000 });
@@ -364,12 +364,14 @@ async function main() {
     );
     if (!labels[0]?.includes("Page numbers"))
       fail(`Expected Page numbers ranked first, got: ${labels[0]}`);
-    if (!labels.some((l) => l.includes("Strip furniture")))
-      fail("Strip furniture should still appear via description match.");
+    if (!labels.some((l) => l.includes("Trim headers & footers")))
+      fail("Trim headers & footers should still appear via description match.");
     await page.keyboard.press("Enter"); // top result = Page numbers
     await page.waitForFunction((sel) => !document.querySelector(sel), { timeout: 5_000 }, PALETTE);
     await waitForText(page, /Add page numbers/i, 8_000); // panel mounted = tool selected
-    console.log("  ✓ name-first ranking: Page numbers tops the desc match (Strip furniture)");
+    console.log(
+      "  ✓ name-first ranking: Page numbers tops the desc match (Trim headers & footers)",
+    );
 
     // 4. Undo/redo keyboard shortcuts. At base both should be disabled; applying
     //    page numbers commits one history entry → Undo lights.

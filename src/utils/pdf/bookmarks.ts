@@ -8,8 +8,10 @@ import {
   PDFDict,
   PDFDocument,
   PDFHexString,
+  PDFString,
   PDFName,
   PDFNumber,
+  type PDFObject,
   PDFRef,
   rgb,
   StandardFonts,
@@ -17,13 +19,18 @@ import {
 
 /** One outline entry. `pageIndex` is 0-based into the *input* document (before
  *  any contents page is inserted). `level` nests the entry: 1 = top-level, 2 =
- *  child of the nearest preceding level-1, and so on (clamped to 3). Omitting
+ *  child of the nearest preceding level-1, and so on. Omitting
  *  `level` (or passing all 1s) yields a flat outline — byte-compatible with the
  *  original flat-only behaviour. */
 export interface BookmarkEntry {
   title: string;
   pageIndex: number;
   level?: number;
+  /** Preserve zoom and scroll position for imported page destinations. */
+  destination?: { mode: string; args: (number | null)[] };
+  /** Path in the original outline for a section or non-page action. */
+  originalTarget?: { path: number[]; title: string; label: string };
+  appearance?: { bold: boolean; italic: boolean; color: number[] };
 }
 
 export interface BookmarkOptions {
@@ -128,6 +135,7 @@ export async function addPdfBookmarks(
   if (bookmarks.length === 0) return pdf.save();
 
   for (const entry of bookmarks) {
+    if (entry.originalTarget) continue;
     if (
       !Number.isInteger(entry.pageIndex) ||
       entry.pageIndex < 0 ||
@@ -139,14 +147,38 @@ export async function addPdfBookmarks(
     }
   }
 
-  // Sanitise levels up front (1–3) so both the outline tree and the TOC indent
-  // read from the same normalised value.
+  // Preserve imported depth. The printed TOC separately caps indentation to fit the sheet.
   const entries = bookmarks.map((b) => ({
-    title: b.title,
-    pageIndex: b.pageIndex,
-    level: Math.max(1, Math.min(3, Math.round(b.level ?? 1))),
+    ...b,
+    level: Math.max(1, Math.round(b.level ?? 1)),
   }));
 
+  const originalOutline = pdf.catalog.lookup(PDFName.of("Outlines"));
+  function target(entry: BookmarkEntry | undefined, pageRef: PDFRef) {
+    if (!entry?.originalTarget)
+      return {
+        Dest: pdf.context.obj([
+          pageRef,
+          PDFName.of(entry?.destination?.mode ?? "Fit"),
+          ...(entry?.destination?.args ?? []),
+        ]),
+      };
+    let item = originalOutline;
+    for (const index of entry.originalTarget.path) {
+      item = item instanceof PDFDict ? item.lookup(PDFName.of("First")) : undefined;
+      for (let i = 0; i < index && item instanceof PDFDict; i++)
+        item = item.lookup(PDFName.of("Next"));
+    }
+    if (!(item instanceof PDFDict))
+      throw new Error("The original bookmark target could not be preserved.");
+    const title = item.lookup(PDFName.of("Title"));
+    if (
+      !(title instanceof PDFHexString || title instanceof PDFString) ||
+      title.decodeText() !== entry.originalTarget.title
+    )
+      throw new Error("The original outline changed. Review its bookmarks again.");
+    return { Dest: item.get(PDFName.of("Dest")), A: item.get(PDFName.of("A")) };
+  }
   // ── Optional contents page ─────────────────────────────────────────────
   let shift = 0;
   if (options.contentsPage) {
@@ -182,8 +214,8 @@ export async function addPdfBookmarks(
         const entry = entries[entryIdx++];
         const targetIndex = entry.pageIndex + shift;
         const baseline = topY - ENTRY_SIZE;
-        const x = MARGIN + (entry.level - 1) * INDENT;
-        const numLabel = String(targetIndex + 1);
+        const x = MARGIN + Math.min((entry.level - 1) * INDENT, Math.max(0, W / 2 - MARGIN));
+        const numLabel = entry.originalTarget ? "" : String(targetIndex + 1);
         const numWidth = helv.widthOfTextAtSize(numLabel, ENTRY_SIZE);
         const titleMaxW = W - MARGIN - x - numWidth - 16;
         const titleText = fitText(encodableText(entry.title, helv), helv, ENTRY_SIZE, titleMaxW);
@@ -208,7 +240,7 @@ export async function addPdfBookmarks(
           pdf,
           tocPage.node,
           [MARGIN, baseline - 4, W - MARGIN, baseline + ENTRY_SIZE + 4],
-          pagesAfter[targetIndex].ref,
+          target(entry, pagesAfter[targetIndex].ref),
         );
 
         topY -= LINE_GAP;
@@ -223,9 +255,21 @@ export async function addPdfBookmarks(
   // emits UTF-16BE (with BOM) so non-Latin-1 titles — routine from the heading
   // auto-detector on non-English docs — render correctly in the viewer's
   // outline; PDFString.of would mangle them.
-  const makeNode = (title: string, targetIndex: number, level: number): OutlineNode => {
-    const dest = pdf.context.obj([pages[targetIndex].ref, PDFName.of("Fit")]) as PDFArray;
-    const dict = pdf.context.obj({ Title: PDFHexString.fromText(title), Dest: dest }) as PDFDict;
+  const makeNode = (
+    title: string,
+    targetIndex: number,
+    level: number,
+    imported?: BookmarkEntry,
+  ): OutlineNode => {
+    const dict = pdf.context.obj({
+      Title: PDFHexString.fromText(title),
+      ...target(imported, pages[targetIndex].ref),
+    });
+    if (imported?.appearance) {
+      const { bold, italic, color } = imported.appearance;
+      dict.set(PDFName.of("F"), PDFNumber.of((bold ? 2 : 0) + (italic ? 1 : 0)));
+      if (color.length === 3) dict.set(PDFName.of("C"), pdf.context.obj(color.map((c) => c / 255)));
+    }
     return { level, children: [], ref: pdf.context.register(dict) };
   };
 
@@ -233,7 +277,7 @@ export async function addPdfBookmarks(
   const roots: OutlineNode[] = [];
   const stack: OutlineNode[] = [];
   for (const e of entries) {
-    const node = makeNode(e.title, e.pageIndex + shift, e.level);
+    const node = makeNode(e.title, e.pageIndex + shift, e.level, e);
     while (stack.length > 0 && stack[stack.length - 1].level >= node.level) stack.pop();
     if (stack.length === 0) roots.push(node);
     else stack[stack.length - 1].children.push(node);
@@ -284,14 +328,15 @@ function addLinkAnnotation(
   pdf: PDFDocument,
   pageNode: PDFDict,
   rect: [number, number, number, number],
-  targetRef: PDFRef,
+  target: { Dest?: PDFObject; A?: PDFObject },
 ): void {
+  if (!target.Dest && !target.A) return;
   const linkDict = pdf.context.obj({
     Type: PDFName.of("Annot"),
     Subtype: PDFName.of("Link"),
     Rect: pdf.context.obj(rect),
     Border: pdf.context.obj([0, 0, 0]),
-    Dest: pdf.context.obj([targetRef, PDFName.of("Fit")]),
+    ...target,
   }) as PDFDict;
   const linkRef = pdf.context.register(linkDict);
 

@@ -126,7 +126,8 @@ export function ReloadPrompt({ deferUpdate = false }: { deferUpdate?: boolean })
     return () => clearTimeout(id);
   }, [offlineReady, needRefresh, paused, close]);
 
-  const show = offlineReady || (needRefresh && !dismissed);
+  // The first-run cache confirmation can cover the phone tool selector mid-edit.
+  const show = (offlineReady && !deferUpdate) || (needRefresh && !dismissed);
   return (
     <AirUpdateNotice
       open={show}

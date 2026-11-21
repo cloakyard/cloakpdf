@@ -58,10 +58,19 @@ await page.setBypassServiceWorker(true);
 const clickText = async (text: string) => page.locator(`button::-p-text(${text})`).click();
 const tool = async (id: string) => {
   await page.evaluate((id) => (window as any).airActions.setActiveTool(id), id);
-  if (id === "add-bookmarks") await page.waitForSelector(".pdf-bookmarks-panel");
+  if (id === "add-bookmarks")
+    await page.waitForSelector('fieldset:not(:disabled) [aria-label="Bookmark title"]');
   else if (id === "metadata") await page.waitForSelector(".pdf-metadata-panel");
 };
 const enter = async (selector: string, text: string) => {
+  await page.waitForFunction(
+    (sel) => {
+      const n = document.querySelector<HTMLInputElement>(sel);
+      return !!n && !n.matches(":disabled");
+    },
+    {},
+    selector,
+  );
   await page.$eval(selector, (n) => (n as HTMLInputElement).select());
   await page.type(selector, text);
 };
@@ -72,7 +81,10 @@ const saved = () =>
   page.waitForFunction(
     () =>
       !(window as any).airRead.busyLabel &&
-      document.querySelector<HTMLInputElement>('[aria-label="Bookmark title"]')?.value === "",
+      document.querySelector(".pdf-bookmarks-panel")?.textContent?.includes("Outline saved.") &&
+      !(document.querySelector('[aria-label="Bookmark title"]') as HTMLInputElement)?.closest(
+        "fieldset",
+      )?.disabled,
   );
 const outputPdf = async () =>
   PDFDocument.load(
@@ -109,7 +121,10 @@ try {
     const { EditorProvider, useEditorRead, useEditorActions, useToolSlice, useActiveTool } =
       await load(context);
     const { EditorShell } = await load("/src/editor/EditorShell.tsx");
-    const { StageProvider } = await load("/src/editor/stage.tsx");
+    const stageSource = await (await fetch("/src/editor/PdfStage.tsx")).text();
+    const { StageProvider } = await load(
+      stageSource.match(/from ["']([^"']*\/stage\.tsx[^"']*)["']/)![1],
+    );
     const { MotionProvider } = await load("/src/components/motion.tsx");
     const w = window as any;
     function Probe() {
@@ -120,7 +135,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -275,6 +291,7 @@ try {
     { timeout: 60000 },
   );
   assert.deepEqual(await titles(), [
+    "Keep this draft",
     "A little room to think.",
     "hello@example.com",
     "A little room to think.",

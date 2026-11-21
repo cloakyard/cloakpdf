@@ -206,11 +206,11 @@ async function main() {
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 10_000 });
     console.log("  ✓ density control (single ↔ grid)");
 
-    // 1c. Strip furniture: scan the pristine doc for repeating headers / footers /
+    // 1c. Trim headers & footers: scan the pristine doc for repeating headers / footers /
     //     page numbers; if any are found, trim them by cropping (non-destructive,
     //     page count unchanged — so the 40→39 organize assertion below still holds).
-    const stripBtn = await page.$('button[aria-label="Strip furniture"]');
-    if (!stripBtn) fail("Strip furniture rail tool not found.");
+    const stripBtn = await page.$('button[aria-label="Trim headers & footers"]');
+    if (!stripBtn) fail("Trim headers & footers rail tool not found.");
     await stripBtn.click(); // focus mode
     await page.waitForSelector(".pdf-furniture-panel", { timeout: 5_000 });
     await page.waitForFunction(
@@ -221,7 +221,7 @@ async function main() {
       { timeout: 60_000 },
     );
     const canTrim = await page.evaluate(() => /Trims [\d.]+%/i.test(document.body.innerText));
-    if (canTrim && (await clickByText(page, "Trim furniture"))) {
+    if (canTrim && (await clickByText(page, "Trim margins"))) {
       await waitForText(page, /Selected margins trimmed/i, 60_000);
       await page.waitForSelector('img[alt="Page 1"]', { timeout: 60_000 });
       console.log("  ✓ strip furniture detect + trim (crop) apply");
@@ -237,7 +237,7 @@ async function main() {
     const redactBtn = await page.$('button[aria-label="Redact"]');
     if (!redactBtn) fail("Redact rail tool not found.");
     await redactBtn.click();
-    await waitForText(page, /Detect & add boxes/i, 5_000);
+    await waitForText(page, /Detect sensitive data/i, 5_000);
     // 2a. Find & box a recurring word (pristine doc → no OCR needed).
     await page.type('input[placeholder^="Search text"]', "Introduction");
     await page.click('button[aria-label="Find and redact"]');
@@ -350,7 +350,7 @@ async function main() {
     const sigBtn = await page.$('button[aria-label="Signature"]');
     if (!sigBtn) fail("Signature rail tool not found.");
     await sigBtn.click(); // focus mode
-    await waitForText(page, /Draw or upload a signature/i, 5_000);
+    await page.waitForSelector('[aria-label="Signature source"]', { timeout: 5_000 });
     await scribbleOnPad(page);
     await waitForText(page, /Tap the page to place/i, 5_000);
     await clickOnPage(page, 0.5, 0.55);
@@ -498,35 +498,24 @@ async function main() {
     if (!bmBtn) fail("Bookmarks rail tool not found.");
     await bmBtn.click();
     await waitForText(page, /show in the viewer's outline/i, 5_000);
+    await page.waitForSelector('fieldset:not(:disabled) input[placeholder="Bookmark title"]');
     await page.type('input[placeholder="Bookmark title"]', "Intro");
     if (!(await clickByText(page, "Add 1 bookmark"))) fail("Bookmarks Apply button not found.");
-    await waitForText(page, /Working/i, 10_000);
+    await waitForText(page, /Outline saved/i, 60000);
     await page.waitForFunction(
       () =>
         document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
-        "",
-      { timeout: 60_000 },
+        "Intro",
     );
-    console.log("  ✓ bookmarks add + apply");
+    console.log("  ✓ bookmark saved and reloaded");
 
-    // 12b. A successful apply retires its draft. Enter another outline and add
-    //      clickable contents pages (embedFont + drawText + /Link annots).
-    //      Output correctness is unit-tested; this proves it runs in a browser.
-    await page.type('input[placeholder="Bookmark title"]', "Intro");
-    await page.evaluate(() => {
-      const lbl = Array.from(document.querySelectorAll("label")).find((l) =>
-        /Add a contents page/i.test(l.textContent ?? ""),
-      );
-      (lbl?.querySelector("input") as HTMLInputElement | null)?.click();
-    });
-    if (!(await clickByText(page, "Add 1 bookmark")))
-      fail("Bookmarks contents re-apply not found.");
-    await waitForText(page, /Working/i, 10_000);
+    await page.click('.pdf-bookmarks-panel input[type="checkbox"]');
+    if (!(await clickByText(page, "Add 1 bookmark"))) fail("Contents apply action unavailable.");
     await page.waitForFunction(
       () =>
         document.querySelector<HTMLInputElement>('input[placeholder="Bookmark title"]')?.value ===
-        "",
-      { timeout: 60_000 },
+        "Contents",
+      { timeout: 60000 },
     );
     console.log("  ✓ bookmarks contents page apply");
 

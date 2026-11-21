@@ -80,7 +80,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -451,11 +452,10 @@ try {
   }
   await page.setViewport({ width: 844, height: 390 });
   await settle();
-  await page.click('button[aria-label="Expand controls"]');
   await clickText("Draw");
   await settle();
   await page.$eval(".pdf-signature-panel", (e) => e.scrollIntoView({ block: "start" }));
-  await page.screenshot({ path: join(output, "signature-landscape-expanded.png") });
+  await page.screenshot({ path: join(output, "signature-landscape.png") });
   await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
   await cdp.send("Emulation.setEmulatedMedia", {
     features: [{ name: "forced-colors", value: "active" }],

@@ -195,6 +195,19 @@ export function Panel() {
           </p>
         </section>
       </fieldset>
+      {active && !invalid && doc && (
+        <p className="air-help" aria-live="polite">
+          {[
+            ...new Set([
+              Math.max(1, o.firstPage - 1),
+              o.firstPage,
+              Math.min(doc.pageCount, o.firstPage + 1),
+            ]),
+          ]
+            .map((n) => `PDF page ${n} → ${pageNumberText(o, n, doc.pageCount) || "unnumbered"}`)
+            .join(" · ")}
+        </p>
+      )}
       <section aria-label="Apply page numbers">
         <p className="air-help" id="page-number-preview">
           {!active

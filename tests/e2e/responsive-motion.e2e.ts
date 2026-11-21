@@ -247,7 +247,9 @@ async function panelState(page: Page) {
       transform: style?.transform ?? "none",
       sheetFraction:
         sheet && column
-          ? sheet.getBoundingClientRect().height / column.getBoundingClientRect().height
+          ? getComputedStyle(column).display === "grid"
+            ? sheet.getBoundingClientRect().width / column.getBoundingClientRect().width
+            : sheet.getBoundingClientRect().height / column.getBoundingClientRect().height
           : null,
       properties: properties?.getBoundingClientRect().toJSON() ?? null,
       overflow: document.documentElement.scrollWidth - window.innerWidth,

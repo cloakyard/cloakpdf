@@ -229,6 +229,7 @@ export async function detectContentBox(
 }
 
 export interface DeskewOptions {
+  signal?: AbortSignal;
   /** 0-based pages to straighten (default: all). */
   pageIndices?: number[];
   /** Skip rotation below this angle (degrees) — avoids re-rasterising pages that
@@ -250,7 +251,7 @@ export interface DeskewOptions {
 export async function deskewPdf(
   file: File,
   options: DeskewOptions = {},
-): Promise<{ bytes: Uint8Array; deskewed: number }> {
+): Promise<{ bytes: Uint8Array; deskewed: number; angles: Map<number, number> }> {
   const minAngle = options.minAngle ?? 0.4;
   const ab = await file.arrayBuffer();
   const src = await PDFDocument.load(ab, { updateMetadata: false });
@@ -271,6 +272,7 @@ export async function deskewPdf(
     // Detect skew per target page first (cheap, low-res), reusing pdfjsDoc.
     const angles = new Map<number, number>();
     for (const i of targets) {
+      options.signal?.throwIfAborted();
       if (i < 0 || i >= pageCount) continue;
       const page = await pdfjsDoc.getPage(i + 1);
       try {
@@ -281,7 +283,7 @@ export async function deskewPdf(
         page.cleanup();
       }
     }
-    if (angles.size === 0) return { bytes: new Uint8Array(ab), deskewed: 0 };
+    if (angles.size === 0) return { bytes: new Uint8Array(ab), deskewed: 0, angles };
     // Keep page refs, the document catalog and all untouched pages intact.
     // Native annotations cannot be safely rotated with their page pixels here.
     for (const i of angles.keys()) {
@@ -292,6 +294,7 @@ export async function deskewPdf(
     }
 
     for (let i = 0; i < pageCount; i++) {
+      options.signal?.throwIfAborted();
       const angle = angles.get(i);
       if (angle === undefined) {
         options.onProgress?.(++done, total);
@@ -340,7 +343,7 @@ export async function deskewPdf(
       }
       options.onProgress?.(++done, total);
     }
-    return { bytes: await src.save(), deskewed: angles.size };
+    return { bytes: await src.save(), deskewed: angles.size, angles };
   } finally {
     void task.destroy();
   }

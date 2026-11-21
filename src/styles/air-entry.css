@@ -618,7 +618,11 @@ body:has(.pdf-site) {
   z-index: var(--air-z-editor);
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: var(--pdf-visible-height, 100dvh);
+  top: var(--pdf-visible-top, 0px);
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .pdf-utility {
@@ -1121,6 +1125,28 @@ body:has(.pdf-site) {
 .pdf-page-nav > span {
   text-align: center;
 }
+.pdf-page-jump {
+  min-inline-size: 44px;
+  gap: 2px;
+  padding: 0 4px;
+  background: var(--air-surface-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pdf-dialog.pdf-page-jump-dialog {
+  width: min(24rem, 100%);
+}
+.pdf-page-jump-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+  margin-block-start: 4px;
+}
+.pdf-page-jump-fields input {
+  min-width: 0;
+  font-size: max(16px, var(--air-text-body));
+}
 .pdf-compare,
 .pdf-compare-file,
 .pdf-compare-results {
@@ -1365,6 +1391,10 @@ body:has(.pdf-site) {
   justify-content: center;
   padding: 16px 24px;
 }
+body:has(.pdf-workspace) > .pdf-modal-root {
+  top: var(--pdf-visible-top, 0px);
+  height: var(--pdf-visible-height, 100dvh);
+}
 .pdf-modal-scrim {
   background: var(--air-scrim);
 }
@@ -1442,7 +1472,7 @@ body:has(.pdf-site) {
   }
   .pdf-modal-root > .pdf-dialog {
     width: 100%;
-    max-height: calc(100dvh - 16px);
+    max-height: calc(var(--pdf-visible-height, 100dvh) - 16px);
     border-bottom: 0;
     border-radius: var(--air-radius-dialog) var(--air-radius-dialog) 0 0;
     padding-bottom: env(safe-area-inset-bottom);
@@ -1801,15 +1831,10 @@ body:has(.pdf-site) {
 .pdf-export-footer > button {
   flex: 0 1 auto;
 }
-@media (max-width: 1023px) {
-  .pdf-export-trigger > span {
-    display: none;
-  }
-  .pdf-export-trigger {
-    padding: 0;
-    min-width: 44px;
-    min-height: 44px;
-  }
+.editor-topbar:not([data-layout="desktop"]) .pdf-export-trigger {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 @media (max-width: 640px) {
   .pdf-export-footer > button {
@@ -2100,6 +2125,9 @@ body:has(.pdf-site) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.editor-topbar[data-layout="mobile"] .editor-topbar__identity .air-icon-button {
+  padding: 4px;
+}
 .editor-topbar__actions {
   flex: 0 0 auto;
   margin-inline-start: auto;
@@ -2149,7 +2177,6 @@ body:has(.pdf-site) {
 .editor-toolrail svg,
 .editor-mobile-sheet__header svg,
 .editor-mobile-search svg,
-.editor-mobile-reset svg,
 .editor-mobile-tool-list svg {
   width: 18px;
   height: 18px;
@@ -2205,6 +2232,14 @@ body:has(.pdf-site) {
   height: 16px;
   background: var(--air-accent);
 }
+.editor-working-area {
+  container: editor-work / size;
+}
+@container editor-work (max-width: 639px) and (max-height: 420px) {
+  .editor-mobile-sheet[data-open="true"]:has(.editor-mobile-search) {
+    height: 100%;
+  }
+}
 .editor-mobile-sheet {
   display: flex;
   flex: 0 0 auto;
@@ -2219,7 +2254,6 @@ body:has(.pdf-site) {
 }
 .editor-mobile-sheet[data-open="true"] {
   height: 50%;
-  max-height: 60%;
 }
 .editor-mobile-sheet__header {
   display: flex;
@@ -2231,8 +2265,23 @@ body:has(.pdf-site) {
   padding: 4px 12px;
   border-bottom: 1px solid var(--air-line);
 }
+.editor-mobile-sheet__header .air-editor-actions {
+  margin-inline-start: auto;
+}
+@media (min-width: 536px) and (max-width: 1023px) and (max-height: 499px) and (orientation: landscape) {
+  .editor-working-area:has(.editor-mobile-sheet[data-open="true"]) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(min(60%, 320px), 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .editor-mobile-sheet[data-open="true"] {
+    height: auto;
+    border-top: 0;
+    border-inline-start: 1px solid var(--air-line);
+  }
+}
 .editor-mobile-sheet__header h2 {
-  flex: 1 1 96px;
+  flex: 1 1 0;
   min-width: 0;
   margin: 0;
   font: 500 var(--air-text-body)/1.4 var(--air-font);
@@ -2256,9 +2305,14 @@ body:has(.pdf-site) {
   display: none;
 }
 .editor-mobile-search {
+  flex: 1 1 0;
+  min-width: 0;
   display: grid;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 4px;
+  padding-block: 4px;
+}
+#mobile-editor-tool-search-count {
+  margin-block: 8px;
 }
 .editor-mobile-search__icon {
   margin-inline: 12px;
@@ -2269,10 +2323,6 @@ body:has(.pdf-site) {
 }
 .editor-mobile-search input::-webkit-search-cancel-button {
   appearance: none;
-}
-.editor-mobile-reset {
-  margin-bottom: 12px;
-  text-align: start;
 }
 .editor-mobile-tool-list {
   list-style: none;
@@ -2360,11 +2410,15 @@ body:has(.pdf-site) {
   .editor-topbar .pdf-page-nav {
     gap: 0;
   }
-  .editor-topbar .pdf-export-trigger {
-    min-width: var(--air-control);
-    padding-inline: 8px;
+}
+@media (max-width: 359px) {
+  .editor-topbar {
+    column-gap: 0;
   }
-  .editor-topbar .pdf-export-trigger > span {
+  .editor-topbar .pdf-export-trigger {
+    margin-inline-start: 0;
+  }
+  .editor-topbar .pdf-page-jump svg {
     display: none;
   }
 }
@@ -3902,5 +3956,54 @@ body:has(.pdf-site) {
 @container (max-width: 14rem) {
   .pdf-selection-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Form controls follow widget geometry on the paper. */
+.pdf-canvas-field {
+  position: absolute;
+  pointer-events: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 2px;
+  border: 1px solid var(--air-accent);
+  color: var(--air-ink);
+  background: var(--air-surface);
+  font: inherit;
+  font-size: clamp(9px, 1vw, 14px);
+}
+.pdf-touch-selection {
+  position: absolute;
+  pointer-events: auto;
+  left: 2%;
+  right: 2%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: var(--air-surface);
+  border-radius: var(--air-radius-control);
+  z-index: 1;
+}
+.pdf-touch-selection .air-button {
+  flex: 1;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+/* These frequently reopened controls track the user's input immediately. */
+.pdf-select-popup.air-select-popup,
+.pdf-select-popup.air-select-popup .air-menu-item {
+  transition: none;
+  animation: none;
+}
+
+@media (max-width: 350px) {
+  .pdf-date-popover.air-popover {
+    padding-inline: 0;
+  }
+  .pdf-date-calendar {
+    width: 100%;
+    margin-inline: 0;
   }
 }

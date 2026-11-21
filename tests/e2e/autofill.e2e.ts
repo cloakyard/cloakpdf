@@ -88,7 +88,10 @@ try {
     const { EditorProvider, useEditorRead, useEditorActions, useToolSlice, useActiveTool } =
       await load(context);
     const { EditorShell } = await load("/src/editor/EditorShell.tsx");
-    const { StageProvider } = await load("/src/editor/stage.tsx");
+    const stageSource = await (await fetch("/src/editor/PdfStage.tsx")).text();
+    const { StageProvider } = await load(
+      stageSource.match(/from ["']([^"']*\/stage\.tsx[^"']*)["']/)![1],
+    );
     const { MotionProvider } = await load("/src/components/motion.tsx");
     const w = window as any;
     function Probe() {
@@ -99,7 +102,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -272,12 +276,16 @@ try {
 
   // Unsupported text fails atomically; the draft survives for correction/retry.
   await field("#autofill-answer-0", "漢字");
-  await clickText("Fill 6 fields");
-  await finished();
-  await settle();
+  assert.equal(
+    await page.$eval(
+      ".pdf-autofill-panel .air-button--primary",
+      (el) => (el as HTMLButtonElement).disabled,
+    ),
+    true,
+  );
   assert.match(
     await page.$eval(".pdf-autofill-panel", (e) => e.textContent!),
-    /characters Helvetica cannot print/,
+    /characters that the PDF font cannot print/,
   );
   assert.equal((await values())[0], "漢字");
   await field("#autofill-answer-0", "Manual answer");

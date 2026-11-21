@@ -4,7 +4,7 @@
  * blanks all flow through `assemblePdf`).
  */
 
-import { PDFDocument, degrees } from "@pdfme/pdf-lib";
+import { PDFDocument, PDFName, degrees } from "@pdfme/pdf-lib";
 
 /**
  * Merge multiple PDF files into a single document.
@@ -92,9 +92,14 @@ export interface AssembleOp {
  *
  * @param sources - Raw bytes of every source PDF referenced by the plan.
  * @param ops - The output pages, in order.
+ * @param preserveCatalog - Keep the source catalog when an edit retains every page exactly once.
  * @returns The assembled PDF bytes.
  */
-export async function assemblePdf(sources: Uint8Array[], ops: AssembleOp[]): Promise<Uint8Array> {
+export async function assemblePdf(
+  sources: Uint8Array[],
+  ops: AssembleOp[],
+  preserveCatalog = false,
+): Promise<Uint8Array> {
   if (ops.length === 0) {
     throw new Error("Nothing to assemble — the document has no pages.");
   }
@@ -105,6 +110,7 @@ export async function assemblePdf(sources: Uint8Array[], ops: AssembleOp[]): Pro
     const existing = loaded[i];
     if (existing) return existing;
     const doc = await PDFDocument.load(sources[i], {
+      updateMetadata: false,
       throwOnInvalidObject: false,
       ignoreEncryption: true,
     });
@@ -114,6 +120,45 @@ export async function assemblePdf(sources: Uint8Array[], ops: AssembleOp[]): Pro
 
   const norm = (deg: number) => ((deg % 360) + 360) % 360;
 
+  // An in-place permutation keeps the original page references, form registration,
+  // outline destinations and attachments. Extraction deliberately creates a separate document.
+  if (
+    preserveCatalog &&
+    sources.length === 1 &&
+    ops.every((op) => op.kind === "page" && op.sourceIndex === 0)
+  ) {
+    const source = await getSource(0);
+    const pages = source.getPages();
+    const order = ops.map((op) => op.pageIndex);
+    if (
+      order.length === pages.length &&
+      new Set(order).size === pages.length &&
+      order.every((i) => i !== undefined && Number.isInteger(i) && i >= 0 && i < pages.length)
+    ) {
+      const reordered = order.some((i, pos) => i !== pos);
+      if (reordered) {
+        // Materialize inherited resources and boxes before moving leaves between parents.
+        for (const page of pages) {
+          for (const key of [
+            PDFName.Resources,
+            PDFName.MediaBox,
+            PDFName.CropBox,
+            PDFName.Rotate,
+          ]) {
+            const inherited = page.node.getInheritableAttribute(key);
+            if (inherited) page.node.set(key, inherited);
+          }
+        }
+        for (let i = pages.length - 1; i >= 0; i--) source.removePage(i);
+      }
+      for (const op of ops) {
+        const page = pages[op.pageIndex!];
+        if (op.rotation) page.setRotation(degrees(norm(page.getRotation().angle + op.rotation)));
+        if (reordered) source.addPage(page);
+      }
+      return source.save();
+    }
+  }
   for (const op of ops) {
     if (op.kind === "blank") {
       const page = out.addPage([op.width ?? 612, op.height ?? 792]);

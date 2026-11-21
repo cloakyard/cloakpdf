@@ -180,7 +180,8 @@ try {
     const { MotionProvider } = await load("/src/components/motion.tsx");
     const w = window as any;
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     function Probe() {
       w.airRead = useEditorRead();

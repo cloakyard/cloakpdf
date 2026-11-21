@@ -2,9 +2,13 @@ import { AlertTriangle, Loader2, ScanText } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SegmentedControl } from "../../components/SegmentedControl.tsx";
 import { Select } from "../../components/Select.tsx";
-import { extractTextGeometry, type LayoutPage } from "../../utils/layout-extract.ts";
+import {
+  layoutToReadingOrderText,
+  extractTextGeometry,
+  type LayoutPage,
+} from "../../utils/layout-extract.ts";
 import { createSearchablePdfFromLayout } from "../../utils/pdf-operations.ts";
-import { type CanvasDoc, docToFile, hasPendingDestructive } from "../doc.ts";
+import { type CanvasDoc, placedMarkTools, docToFile, hasPendingDestructive } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PageThumb } from "../PageThumb.tsx";
 
@@ -24,11 +28,6 @@ const LANGUAGES = [
   { value: "rus", label: "Russian" },
   { value: "spa", label: "Spanish" },
 ];
-const PENDING_TOOLS = [
-  { kind: "annotation", id: "annotate-pdf", label: "Review annotations" },
-  { kind: "signature", id: "signature", label: "Review signatures" },
-  { kind: "stamp", id: "qr-stamp", label: "Review codes" },
-];
 
 /** Document identity includes byte edits AND pending marks; the stable id alone
  * cannot distinguish a crop, rotation, undo or new redaction from its source. */
@@ -40,10 +39,19 @@ export function OcrPreview() {
   const { doc, selectedPage } = useEditorRead();
   const slice = useToolSlice(OCR_ID);
   const { patchToolState } = useEditorActions();
+  const [editWord, setEditWord] = useState({ page: -1, index: 0 });
   if (!doc || !ocrHasPreview(slice, doc)) return null;
   const layout = slice.layout as LayoutPage[];
   const page = doc.pages[selectedPage];
-  const text = layout.find((p) => p.pageNumber === selectedPage + 1)?.text ?? "";
+  const recognised = layout.find((p) => p.pageNumber === selectedPage + 1);
+  const wordIndex = Math.max(
+    0,
+    Math.min(
+      editWord.page === selectedPage ? editWord.index : 0,
+      (recognised?.items.length ?? 1) - 1,
+    ),
+  );
+  const text = recognised?.text ?? "";
   const view = (slice.previewView as "text" | "source") ?? "text";
   return (
     <section className="pdf-ocr-preview" aria-label="OCR preview" data-view={view}>
@@ -66,6 +74,46 @@ export function OcrPreview() {
         >
           <h3 className="air-label">Recognised text</h3>
           <pre tabIndex={0}>{text.trim() || "No text detected on this page."}</pre>
+          {recognised?.source === "ocr" && recognised.items.length > 0 && (
+            <details>
+              <summary className="air-button">Correct a word</summary>
+              <div className="pdf-property-field">
+                <label>
+                  Recognised word
+                  <select
+                    className="air-field"
+                    value={wordIndex}
+                    onChange={(e) =>
+                      setEditWord({ page: selectedPage, index: Number(e.target.value) })
+                    }
+                  >
+                    {recognised.items.map((word, i) => (
+                      <option value={i} key={i}>
+                        {i + 1}. {word.text || "(empty)"}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Corrected text
+                  <input
+                    className="air-field"
+                    value={recognised.items[wordIndex]?.text ?? ""}
+                    onChange={(e) => {
+                      const items = recognised.items.map((word, i) =>
+                        i === wordIndex ? { ...word, text: e.target.value } : word,
+                      );
+                      const edited = { ...recognised, items, text: "" };
+                      edited.text = layoutToReadingOrderText(edited);
+                      patchToolState(OCR_ID, {
+                        layout: layout.map((p) => (p === recognised ? edited : p)),
+                      });
+                    }}
+                  />
+                </label>
+              </div>
+            </details>
+          )}
         </section>
         <section
           className="pdf-ocr-preview__source"
@@ -223,17 +271,19 @@ export function Panel() {
               Apply redactions & erase marks
             </button>
           )}
-          {PENDING_TOOLS.filter((t) => doc?.objects.some((o) => o.kind === t.kind)).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className="air-button"
-              disabled={busy}
-              onClick={() => setActiveTool(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
+          {placedMarkTools
+            .filter((t) => doc?.objects.some((o) => o.kind === t.kind))
+            .map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className="air-button"
+                disabled={busy}
+                onClick={() => setActiveTool(t.id)}
+              >
+                Review {t.label}
+              </button>
+            ))}
         </div>
       )}
       {hasPreview ? (

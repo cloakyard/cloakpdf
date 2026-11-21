@@ -1,3 +1,4 @@
+import { renderPagePreviews, revokeThumbnails } from "../../utils/pdf-renderer.ts";
 // CropTool.tsx — Whole-page geometry tool. The Stage lets the user drag a
 // "keep" rectangle on the focused page (everything outside it dims); the Panel
 // applies that fractional crop to every page (or just this one). Crop lives in
@@ -143,6 +144,61 @@ export function Panel() {
   const scope = (slice.scope as "all" | "page") ?? "all";
   const [scanning, setScanning] = useState(false);
   const [note, setNote] = useState({ text: "", failed: false });
+  type Straightening = {
+    source: typeof doc;
+    scope: string;
+    page: number;
+    result: Awaited<ReturnType<typeof deskewPdf>>;
+  };
+  const straightened = slice.straightened as Straightening | undefined;
+  const previewPage = (slice.previewPage as number | undefined) ?? 0;
+  useEffect(() => {
+    if (straightened && straightened.source !== doc)
+      patchToolState(TOOL_ID, { straightened: undefined });
+  }, [doc, straightened, patchToolState]);
+  const prepared =
+    straightened &&
+    straightened.source === doc &&
+    straightened.scope === scope &&
+    (scope === "all" || straightened.page === selectedPage)
+      ? straightened.result
+      : undefined;
+  const [afterPreview, setAfterPreview] = useState<{
+    bytes: Uint8Array;
+    page: number;
+    url: string | null;
+  }>();
+  useEffect(() => {
+    if (!prepared || !doc) return;
+    const controller = new AbortController();
+    let owned: (string | null)[] = [];
+    void renderPagePreviews(
+      new File([prepared.bytes.slice()], doc.fileName),
+      [previewPage],
+      undefined,
+      controller.signal,
+    )
+      .then((urls) => {
+        if (controller.signal.aborted) {
+          revokeThumbnails(urls.filter((url): url is string => !!url));
+          return;
+        }
+        owned = urls;
+        setAfterPreview({ bytes: prepared.bytes, page: previewPage, url: urls[0] });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          setAfterPreview({ bytes: prepared.bytes, page: previewPage, url: null });
+      });
+    return () => {
+      controller.abort();
+      revokeThumbnails(owned.filter((url): url is string => !!url));
+    };
+  }, [doc, prepared, previewPage]);
+  const after =
+    afterPreview?.bytes === prepared?.bytes && afterPreview?.page === previewPage
+      ? afterPreview
+      : undefined;
   const [saveFailed, setSaveFailed] = useState(false);
   const request = useRef<AbortController | null>(null);
   const applying = useRef(false);
@@ -204,29 +260,56 @@ export function Panel() {
   };
 
   const straighten = async () => {
-    if (!doc || busy || request.current || applying.current || pendingMarks) return;
-    applying.current = true;
-    setNote({ text: "", failed: false });
-    let count = 0;
+    if (!doc || busy || request.current || pendingMarks) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setScanning(true);
+    patchToolState(TOOL_ID, { straightened: undefined });
+    setNote({ text: "Checking page angles…", failed: false });
     try {
-      await applyTransform(async (d) => {
-        if (d.objects.length) throw new Error("Apply pending marks before straightening.");
-        const result = await deskewPdf(docToFile(d), {
-          pageIndices: scope === "all" ? undefined : [selectedPage],
-        });
-        count = result.deskewed;
-        return { bytes: result.bytes, label: "Straighten pages" };
+      const result = await deskewPdf(docToFile(doc), {
+        pageIndices: scope === "all" ? undefined : [selectedPage],
+        signal: controller.signal,
       });
-      patchToolState(TOOL_ID, { sourceBytes: undefined, margins: undefined });
+      if (controller.signal.aborted) return;
+      if (result.deskewed) {
+        patchToolState(TOOL_ID, {
+          straightened: { source: doc, scope, page: selectedPage, result },
+          previewPage: result.angles.keys().next().value ?? selectedPage,
+        });
+      }
       setNote({
-        text: count
-          ? `Straightened ${count} ${count === 1 ? "page" : "pages"}. Review the edges; Undo restores the original.`
+        text: result.deskewed
+          ? `Review ${result.deskewed} affected ${result.deskewed === 1 ? "page" : "pages"} before applying.`
           : "No skew detected. No pages were rasterised.",
         failed: false,
       });
     } catch (e) {
+      if (!controller.signal.aborted)
+        setNote({
+          text: e instanceof Error ? e.message : "Could not preview straightening.",
+          failed: true,
+        });
+    } finally {
+      if (request.current === controller) {
+        request.current = null;
+        setScanning(false);
+      }
+    }
+  };
+  const applyStraightening = async () => {
+    if (!doc || !prepared || busy || applying.current) return;
+    applying.current = true;
+    try {
+      await applyTransform(async (d) => {
+        if (d !== doc) throw new Error("The document changed. Preview again.");
+        return { bytes: prepared.bytes, label: "Straighten pages" };
+      });
+      patchToolState(TOOL_ID, { straightened: undefined });
+      setNote({ text: "Straightening applied.", failed: false });
+    } catch (e) {
       setNote({
-        text: e instanceof Error ? e.message : "Couldn't straighten the pages. Try again.",
+        text: e instanceof Error ? e.message : "Could not apply straightening.",
         failed: true,
       });
     } finally {
@@ -374,11 +457,55 @@ export function Panel() {
           <Wand2 size={16} aria-hidden="true" />
           Straighten
         </button>
+        {prepared && doc && (
+          <section aria-label="Straightening preview">
+            <label className="pdf-property-field">
+              Affected page
+              <select
+                className="air-field"
+                value={previewPage}
+                onChange={(e) => patchToolState(TOOL_ID, { previewPage: Number(e.target.value) })}
+              >
+                {[...prepared.angles].map(([i, angle]) => (
+                  <option key={i} value={i}>
+                    Page {i + 1} · {(-angle).toFixed(1)}°
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {["Before", "After"].map((label, i) => (
+                <figure key={label}>
+                  <figcaption>{label}</figcaption>
+                  <div className="overflow-hidden bg-white">
+                    {(i ? after?.url : doc.pages[previewPage]?.thumbUrl) ? (
+                      <img
+                        alt={`${label} straightening page ${previewPage + 1}`}
+                        src={(i ? after?.url : doc.pages[previewPage]?.thumbUrl) ?? undefined}
+                      />
+                    ) : (
+                      <p className="air-help" role="status">
+                        {i && !after ? "Rendering preview…" : "Preview unavailable."}
+                      </p>
+                    )}
+                  </div>
+                </figure>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="air-button air-button--primary"
+              onClick={() => void applyStraightening()}
+              disabled={busy}
+            >
+              Apply straightening
+            </button>
+          </section>
+        )}
         <p className="air-help">
-          Straighten acts immediately on{" "}
-          {scope === "all" ? "all pages" : `page ${selectedPage + 1}`}. Changed pages become images:
-          text is no longer selectable, file size may grow, and edges may be clipped. Pages with
-          links, comments or form fields must be flattened first.
+          Preview the correction before applying. Changed pages become images: text is no longer
+          selectable, file size may grow, and edges may be clipped. Pages with links, comments or
+          form fields must be flattened first.
         </p>
         {pendingMarks && (
           <p className="air-notice air-notice--warning">

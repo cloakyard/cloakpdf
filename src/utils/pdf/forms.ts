@@ -26,6 +26,14 @@ export interface FormFieldInfo {
   type: "text" | "checkbox" | "choice" | "unsupported";
   value: FormValue;
   pages: number[];
+  widgets: {
+    radioOption?: string;
+    pageIndex: number;
+    xPct: number;
+    yPct: number;
+    wPct: number;
+    hPct: number;
+  }[];
   readOnly: boolean;
   required: boolean;
   options?: string[];
@@ -54,13 +62,15 @@ export async function readFormFields(file: File): Promise<FormFieldInfo[]> {
     .getForm()
     .getFields()
     .map((field) => {
+      const radioOptions = field instanceof PDFRadioGroup ? field.getOptions() : undefined;
       const positions = field.acroField
         .getWidgets()
-        .flatMap((widget) => {
+        .flatMap((widget, index) => {
           const pageIndex = widgetPages.get(widget.dict);
           if (pageIndex === undefined) return [];
           const {
             height,
+            width: pageWidth,
             matrix: [a, b, c, d, e, f],
           } = visiblePageGeometry(pages[pageIndex]);
           const { x, y, width, height: h } = widget.getRectangle();
@@ -74,11 +84,23 @@ export async function readFormFields(file: File): Promise<FormFieldInfo[]> {
             x: (d * (px - e) - c * (py - f)) / det,
             y: height - (-b * (px - e) + a * (py - f)) / det,
           }));
+          const left = Math.min(...corners.map((p) => p.x));
+          const top = Math.min(...corners.map((p) => p.y));
+          const right = Math.min(pageWidth, Math.max(...corners.map((p) => p.x)));
+          const bottom = Math.min(height, Math.max(...corners.map((p) => p.y)));
+          const clippedLeft = Math.max(0, left),
+            clippedTop = Math.max(0, top);
+          const visible = !(widget.getFlags() & (1 | 2 | 32));
           return [
             {
               pageIndex,
-              x: Math.min(...corners.map((p) => p.x)),
-              y: Math.min(...corners.map((p) => p.y)),
+              xPct: clippedLeft / pageWidth,
+              yPct: clippedTop / height,
+              wPct: visible ? Math.max(0, right - clippedLeft) / pageWidth : 0,
+              hPct: visible ? Math.max(0, bottom - clippedTop) / height : 0,
+              x: left,
+              y: top,
+              radioOption: radioOptions?.[index],
             },
           ];
         })
@@ -87,6 +109,7 @@ export async function readFormFields(file: File): Promise<FormFieldInfo[]> {
         name: field.getName(),
         type: "unsupported",
         value: "",
+        widgets: positions,
         pages: [...new Set(positions.map((p) => p.pageIndex))],
         readOnly: field.isReadOnly(),
         required: field.isRequired(),

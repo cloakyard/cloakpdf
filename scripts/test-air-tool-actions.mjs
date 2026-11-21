@@ -78,12 +78,15 @@ for (const engine of ["chromium", "webkit"]) {
         assert.equal(await title.inputValue(), "Applied title");
         const split = await sheet.evaluate((element) => {
           const panel = element.getBoundingClientRect();
-          const column = element.parentElement.getBoundingClientRect();
-          return { panel: panel.height, preview: column.height - panel.height };
+          const preview = element.previousElementSibling.getBoundingClientRect();
+          const sideBySide = preview.right <= panel.left + 1;
+          return sideBySide
+            ? { panel: panel.width, preview: preview.width }
+            : { panel: panel.height, preview: preview.height };
         });
         assert(
-          height > 500 || Math.abs(split.panel - split.preview) <= 2,
-          "Default tools retain half the column for the preview",
+          Math.abs(split.panel - split.preview) <= 2,
+          "Default tools share the working area evenly with the preview",
         );
         for (const name of ["Cancel", "Apply"]) {
           const box = await button(name).boundingBox();
@@ -108,6 +111,9 @@ for (const engine of ["chromium", "webkit"]) {
           e.click();
           e.click();
           e.parentElement.querySelector('[aria-label="Cancel"]').click();
+          e.closest(".editor-mobile-sheet__header")
+            .querySelector('[aria-label="Back to tools"]')
+            .click();
         });
         await page.getByRole("button", { name: "Open tools", exact: true }).waitFor();
         await page.getByRole("button", { name: "More actions", exact: true }).click();
