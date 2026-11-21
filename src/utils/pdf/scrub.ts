@@ -12,6 +12,8 @@ export type ScrubCategory = "metadata" | "xmp" | "javascript" | "attachments" | 
 
 /** Per-category count of hidden-data items detected in a PDF. */
 export interface ScrubAnalysis {
+  fieldCount: number | null;
+  bookmarkCount: number;
   counts: Record<ScrubCategory, number>;
 }
 
@@ -117,7 +119,26 @@ export async function analyzePdfHiddenData(file: File): Promise<ScrubAnalysis> {
     if (annots instanceof PDFArray) annotations += annots.size();
   }
 
-  return { counts: { metadata, xmp, javascript, attachments, annotations } };
+  let fieldCount: number | null = 0;
+  try {
+    if (catalog.has(PDFName.of("AcroForm"))) fieldCount = pdf.getForm().getFields().length;
+  } catch {
+    fieldCount = null;
+  }
+  const outline = catalog.lookup(PDFName.of("Outlines"));
+  const bookmarks = new Set<PDFDict>();
+  const stack = [outline instanceof PDFDict ? outline.lookup(PDFName.of("First")) : undefined];
+  while (stack.length) {
+    const item = stack.pop();
+    if (!(item instanceof PDFDict) || bookmarks.has(item)) continue;
+    bookmarks.add(item);
+    stack.push(item.lookup(PDFName.of("Next")), item.lookup(PDFName.of("First")));
+  }
+  return {
+    fieldCount,
+    bookmarkCount: bookmarks.size,
+    counts: { metadata, xmp, javascript, attachments, annotations },
+  };
 }
 
 /**

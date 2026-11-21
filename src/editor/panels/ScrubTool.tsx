@@ -151,6 +151,18 @@ export function Panel() {
             </span>
           </p>
         )}
+        {current?.analysis &&
+          (current.analysis.fieldCount !== 0 || current.analysis.bookmarkCount > 0) && (
+            <div className="air-help" role="status">
+              {current.analysis.fieldCount === null
+                ? "This file has a form whose fields could not be counted."
+                : current.analysis.fieldCount > 0
+                  ? `This PDF has ${current.analysis.fieldCount} interactive form ${current.analysis.fieldCount === 1 ? "field" : "fields"}. Scrubbing removes their form registration.`
+                  : ""}{" "}
+              {current.analysis.bookmarkCount > 0 &&
+                `Scrubbing removes ${current.analysis.bookmarkCount} ${current.analysis.bookmarkCount === 1 ? "bookmark" : "bookmarks"}.`}
+            </div>
+          )}
         <PrimaryAction
           label="Scrub hidden data"
           onApply={apply}

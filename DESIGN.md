@@ -1437,15 +1437,25 @@ journeys across all apps; it is not inferred from the pilot alone.
   tool names and descriptions. The filename, page controls, view controls and
   document actions share one 64px toolbar at normal text size, retaining real
   40/44px targets. Tablet/phone chrome uses a home mark, page navigation, Export and More actions.
-  The Actions sheet retains the full filename, history, zoom and reset. Enlarged text may reflow without clipping.
+  Export shows a plain 18px download icon in a 44px target. The Actions sheet retains the full filename, history, zoom and reset. Enlarged text may reflow without clipping.
   Keep the desktop filename alone beside the mark; the page selector owns the count.
 - Editor widths follow 768/1024px. Below 1024px, a height under 500px uses the
   working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps
   its desktop rail. The phone picker uses full-name rows and persistent search.
-- The mobile working sheet uses half the available working area, with one fixed
-  title/action row and an independently scrolling body. No Expand/Split toggle.
-  The preview and document remain mounted; Cancel/Apply return focus to Tools.
-  Staged work uses the shared 48px X/tick pair; inspection uses labelled Close.
+- Split the phone workspace evenly between preview and controls. Portrait stacks
+  them vertically. Landscape uses adjacent columns from 536px wide below 500px high. Reserve at least
+  40% for paper. Give the inspector 320px when space allows.
+  Keep tool search and the active tool's title and actions outside the scrolling body.
+  A short search viewport gives the picker the full working area above the keyboard.
+  Back to tools preserves the draft, query and focused result. Apply or Cancel ends
+  the edit and returns focus to Tools. Use the shared 48px actions and a labelled
+  Close for inspection.
+- The page count opens Go to page. Keep previous and next page available in the
+  toolbar. Enter or Go navigates to a valid whole page and restores focus to the
+  count. Closing the dialog preserves the current page and the active tool draft.
+- A new tool search scrolls the best match into view. While an input method is
+  composing text, keep the existing results and allow the keyboard to confirm
+  its candidate before submitting a search.
 - Tool navigation is immediate, including active-rail scrolling. Global history
   shortcuts cannot change the document behind a modal or during a busy operation.
 - Inspector headers use sentence case and secondary descriptions; omit the repeated
@@ -1542,7 +1552,8 @@ journeys across all apps; it is not inferred from the pilot alone.
   apply twice. Desktop primary actions consume reported failures without an unhandled
   rejection. Undo remains the recovery path for successfully applied byte changes.
 
-- Metadata uses an open document report, persistent field labels and the family
+- Metadata puts title, author, subject and keywords first. Technical properties
+  open on demand and Scrub is reachable from the panel. Use persistent field labels and the family
   date/time picker. Read errors must never become blank editable properties;
   expose retry and disable Apply until the current revision has been read.
   Preserve drafts through tool/viewport changes and failures, scope them to exact
@@ -1560,7 +1571,8 @@ journeys across all apps; it is not inferred from the pilot alone.
 
 - Bookmarks use open, named rows with persistent title, target-page and nesting
   labels; the shared select owns keyboard selection. Reorder controls retain row
-  identity and focus; removal and heading replacement offer draft-list recovery.
+  identity and focus. Open the existing outline and merge detected headings with
+  its entries. Removing rows or merging headings offers draft-list recovery.
   Invalid targets remain editable with nearby feedback, never silently clamp.
 - Bookmark drafts belong to exact source bytes, survive ordinary tool/viewport
   navigation and retire after Apply or Cancel. Heading scans cancel or ignore
@@ -1599,17 +1611,18 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Trim to content is a cancellable suggestion. A result must still belong to the
   same bytes, page, scope, marks and draft before replacing margins. Blank and
   full-frame pages are legitimate no-result cases; read failures require retry.
-- Straighten is an immediate undoable operation. Explain image-only text, possible
+- Straighten previews each affected page from the prepared PDF. A separate Apply
+  commits the preview in one undoable operation. Explain image-only text, possible
   file growth and clipped edges. Require pending marks to be applied first; reject
   changed pages with native annotations/widgets until flattened. Preserve the PDF
   catalog, page references, metadata, attachments, untouched forms and original
   rotated/CropBox/UserUnit geometry. A no-skew pass returns the original bytes.
-- Strip furniture presents full wrapping text samples and named Air check rows.
+- Trim headers & footers presents full wrapping text samples and named Air check rows.
   Distinguish too few pages, no selectable text, no matches, reading, cancellation
   and failure. Selection belongs to exact bytes and survives tool/viewport changes
   and failed Apply. Derive preview bands directly from the selected result; do not
   maintain a second copy of crop margins. Retire applied selections before Undo.
-- Crop and Strip furniture await their byte operation before mobile Apply closes.
+- Crop and Trim headers & footers await their byte operation before mobile Apply closes.
   Failures keep the tool and draft ready for retry. Cropping hides content without
   deleting it; both tools must explain that it is not sensitive-data removal.
 

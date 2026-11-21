@@ -1,0 +1,119 @@
+{
+  "date": "2026-11-21",
+  "scope": "All registered canvas tools on compact screens, with desktop and tablet reflow checks.",
+  "measurements": {
+    "fixture": "Two-page local PDF with the Signature tool open. Element heights are CSS pixels rounded to the nearest integer.",
+    "chromium": [
+      {
+        "viewport": [844, 390],
+        "rootFontPx": 16,
+        "element": "paper",
+        "beforeHeightPx": 32,
+        "afterHeightPx": 294
+      },
+      {
+        "viewport": [844, 390],
+        "rootFontPx": 16,
+        "element": "body",
+        "beforeHeightPx": 144,
+        "afterHeightPx": 269
+      },
+      {
+        "viewport": [375, 340],
+        "rootFontPx": 32,
+        "element": "body",
+        "beforeHeightPx": 20,
+        "afterHeightPx": 80
+      },
+      {
+        "viewport": [320, 568],
+        "rootFontPx": 32,
+        "element": "body",
+        "beforeHeightPx": 188,
+        "afterHeightPx": 171
+      }
+    ],
+    "safari": {
+      "device": "iPhone 17 Pro simulator, iOS 26.2, portrait, native software keyboard",
+      "visibleHeightPx": 377,
+      "query": "Signature",
+      "firstMatchTopPxBefore": 411,
+      "firstMatchTopPxAfter": 196,
+      "firstMatchHeightPx": 73
+    }
+  },
+  "browserChecks": {
+    "layout": {
+      "cases": 968,
+      "issues": 0,
+      "tools": [
+        "Annotate",
+        "Signature",
+        "Fill form",
+        "Select text",
+        "Auto-fill",
+        "Organize",
+        "Redact",
+        "Find & Act",
+        "Scrub",
+        "Metadata",
+        "Crop",
+        "Trim headers & footers",
+        "Erase",
+        "OCR",
+        "N-up",
+        "Stamp",
+        "Page numbers",
+        "Header & footer",
+        "Bates",
+        "QR / barcode",
+        "Bookmarks",
+        "Attach"
+      ],
+      "viewports": [
+        [320, 568],
+        [375, 812],
+        [390, 844],
+        [430, 932],
+        [844, 390],
+        [768, 1024],
+        [1024, 768],
+        [1280, 720],
+        [1366, 768],
+        [1440, 900],
+        [1920, 1080]
+      ],
+      "rootFontPx": [16, 32],
+      "themes": ["light", "dark"],
+      "suite": "tests/e2e/canvas-layout.e2e.ts"
+    },
+    "navigation": {
+      "registeredToolSelections": 176,
+      "layoutAndNavigationCases": 176,
+      "suite": "tests/e2e/editor-navigation.e2e.ts",
+      "additionalChecks": [
+        "Search stays visible while the list scrolls.",
+        "Search submits a unique match from the keyboard.",
+        "The only match can be tapped with a short visible viewport.",
+        "Back restores the search and focus. Reopening Page numbers restores its draft start number.",
+        "More actions exposes zoom and Undo and preserves focused history controls across layout changes."
+      ]
+    },
+    "editAndExport": "The mobile smoke test applied crop, annotation, find-and-act, page numbers, metadata and page deletion. It retained pending redactions and downloaded the resulting Markdown.",
+    "pwa": "44 update-notice layouts, a deferred update during editing, a second tab, a real downloaded PDF and safe return home.",
+    "additionalSuites": [
+      "annotate-inspector",
+      "signature-panel",
+      "search-scrub",
+      "place-resize-mobile",
+      "canvas-upgrades",
+      "responsive-motion",
+      "export-dialog"
+    ],
+    "nativeSafari": "The native software keyboard, selecting the visible result, tool navigation after rotation, Zoom in and Fit to screen were verified on the final layout. An earlier pass completed the Export dialog. Repeated runs intermittently lost the Safari web content process. A control run of the previous commit also failed to keep the editor open after intake on the same simulator. Physical devices were outside the test environment."
+  },
+  "screenshots": {
+    "canvas-mobile-2026-11-21/keyboard-search.png": "iPhone Safari with the native keyboard, one result and a deferred app update.",
+    "canvas-mobile-2026-11-21/landscape.png": "Chrome touch emulation, 844 × 390, with the Signature panel and the page preview side by side."
+  }
+}

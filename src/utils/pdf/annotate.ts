@@ -4,7 +4,6 @@
 
 import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFDocument, rgb, LineCapStyle, StandardFonts } from "@pdfme/pdf-lib";
-import fontkit from "@pdf-lib/fontkit";
 
 // ── Annotate — vector overlay (pen / highlighter / shapes / text) ─
 
@@ -503,7 +502,7 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
         if (!url) throw new Error(`no embedded font for "${id}"`);
         const bytes = await loadEmbeddedFontBytes(url);
         if (!fontkitReady) {
-          pdf.registerFontkit(fontkit);
+          pdf.registerFontkit((await import("@pdf-lib/fontkit")).default);
           fontkitReady = true;
         }
         f = await pdf.embedFont(bytes, { subset: true });

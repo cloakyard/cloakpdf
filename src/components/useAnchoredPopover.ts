@@ -49,10 +49,8 @@ export function useAnchoredPopover(
     const viewportBottom = viewportTop + vh;
     const viewportRight = viewportLeft + vw;
     const popupWidth = Math.min(width, vw - margin * 2);
-    const popupHeight = Math.min(
-      contentRef?.current?.getBoundingClientRect().height || height,
-      vh - margin * 2,
-    );
+    // Anchor the final border box even while the entrance animation scales its paint.
+    const popupHeight = Math.min(contentRef?.current?.offsetHeight || height, vh - margin * 2);
     const spaceBelow = viewportBottom - r.bottom - margin;
     const spaceAbove = r.top - viewportTop - margin;
     const flip = spaceBelow < popupHeight && spaceAbove > spaceBelow;

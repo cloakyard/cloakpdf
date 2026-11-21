@@ -1,0 +1,200 @@
+{
+  "date": "2026-11-21",
+  "releaseBase": "ec9d473",
+  "tools": [
+    {
+      "id": "annotate-pdf",
+      "name": "Annotate",
+      "functionalSuites": ["annotate-inspector", "annotate-fonts"]
+    },
+    {
+      "id": "signature",
+      "name": "Signature",
+      "functionalSuites": ["signature-panel", "signature-pen", "place-resize-mobile"]
+    },
+    {
+      "id": "fill-pdf-form",
+      "name": "Fill form",
+      "functionalSuites": ["fill-form", "canvas-upgrades"]
+    },
+    {
+      "id": "select-text",
+      "name": "Select text",
+      "functionalSuites": ["select-text", "canvas-upgrades"]
+    },
+    {
+      "id": "auto-fill",
+      "name": "Auto-fill",
+      "functionalSuites": ["autofill"]
+    },
+    {
+      "id": "organize-pages",
+      "name": "Organize",
+      "functionalSuites": ["editor-collections", "editor-smoke-mobile", "rotate"]
+    },
+    {
+      "id": "redact-pdf",
+      "name": "Redact",
+      "functionalSuites": ["privacy-panels", "export-dialog"]
+    },
+    {
+      "id": "find-act",
+      "name": "Find & Act",
+      "functionalSuites": ["search-scrub", "editor-smoke-mobile"]
+    },
+    {
+      "id": "pdf-scrub",
+      "name": "Scrub",
+      "functionalSuites": ["search-scrub"]
+    },
+    {
+      "id": "metadata",
+      "name": "Metadata",
+      "functionalSuites": ["metadata-calendar"]
+    },
+    {
+      "id": "crop-pages",
+      "name": "Crop",
+      "functionalSuites": ["crop-furniture", "page-geometry"]
+    },
+    {
+      "id": "strip-furniture",
+      "name": "Trim headers & footers",
+      "functionalSuites": ["crop-furniture"]
+    },
+    {
+      "id": "smart-erase",
+      "name": "Erase",
+      "functionalSuites": ["privacy-panels", "page-geometry"]
+    },
+    {
+      "id": "ocr",
+      "name": "OCR",
+      "functionalSuites": ["ocr-layout"]
+    },
+    {
+      "id": "nup-pages",
+      "name": "N-up",
+      "functionalSuites": ["nup-layout"]
+    },
+    {
+      "id": "stamp-pdf",
+      "name": "Stamp",
+      "functionalSuites": ["stamp-panel", "stamp-preview"]
+    },
+    {
+      "id": "add-page-numbers",
+      "name": "Page numbers",
+      "functionalSuites": ["page-numbers"]
+    },
+    {
+      "id": "header-footer",
+      "name": "Header & footer",
+      "functionalSuites": ["header-footer"]
+    },
+    {
+      "id": "bates-numbering",
+      "name": "Bates",
+      "functionalSuites": ["bates-numbering"]
+    },
+    {
+      "id": "qr-stamp",
+      "name": "QR / barcode",
+      "functionalSuites": ["code-stamp", "canvas-upgrades"]
+    },
+    {
+      "id": "add-bookmarks",
+      "name": "Bookmarks",
+      "functionalSuites": ["bookmarks"]
+    },
+    {
+      "id": "file-attachment",
+      "name": "Attach",
+      "functionalSuites": ["attachments"]
+    }
+  ],
+  "canvasLayout": {
+    "cases": 1320,
+    "viewports": 15,
+    "themes": ["light", "dark"],
+    "textScalePercent": [100, 200],
+    "smallestPortrait": "320×568",
+    "smallestLandscape": "535×320",
+    "checks": [
+      "Panel and document overflow",
+      "Preview and panel bounds",
+      "Reachable header actions"
+    ]
+  },
+  "navigation": {
+    "layouts": 176,
+    "toolSelections": 176
+  },
+  "phoneHeader": {
+    "exportIconPx": 18,
+    "touchTargetPx": 44,
+    "brandMarkPx": 36,
+    "restingBackground": "transparent",
+    "verified": [
+      "Accessible Export button opens the dialog",
+      "Focus returns after dismissal",
+      "Portrait 320×568 and 390×844 in Chromium touch emulation"
+    ],
+    "screenshot": "mobile-export-320-dark.png"
+  },
+  "browserSuites": [
+    "annotate-fonts",
+    "annotate-inspector",
+    "attachments",
+    "autofill",
+    "bates-numbering",
+    "bookmarks",
+    "canvas-layout",
+    "canvas-upgrades",
+    "code-stamp",
+    "colour-wheel",
+    "command-palette",
+    "compress",
+    "crop-furniture",
+    "editor-canvas",
+    "editor-collections",
+    "editor-features",
+    "editor-interactions",
+    "editor-navigation",
+    "editor-recovery",
+    "editor-smoke",
+    "editor-smoke-mobile",
+    "export-dialog",
+    "fill-form",
+    "header-footer",
+    "home-routing",
+    "metadata-calendar",
+    "modal-system",
+    "nup-layout",
+    "ocr-layout",
+    "page-geometry",
+    "page-numbers",
+    "place-resize",
+    "place-resize-mobile",
+    "preview-recovery",
+    "privacy-panels",
+    "pwa-update",
+    "responsive-motion",
+    "rotate",
+    "search-scrub",
+    "select-text",
+    "signature-panel",
+    "signature-pen",
+    "stamp-panel",
+    "stamp-preview",
+    "standalone-tools"
+  ],
+  "unitTests": 463,
+  "crossBrowser": {
+    "engines": ["Chromium", "WebKit"],
+    "phoneActionAndPdfDownloadJourneys": 16,
+    "selectAndKeyboardJourneys": 44,
+    "railObservations": 104,
+    "deviceMode": "Browser emulation"
+  }
+}

@@ -601,6 +601,7 @@ describe("furnitureCropMargins", () => {
         kind: "header",
         sampleText: "h",
         pageCount: 5,
+        pageNumbers: [1, 2, 3, 4, 5],
         marginPct: 0.05,
       },
       {
@@ -609,6 +610,7 @@ describe("furnitureCropMargins", () => {
         kind: "page-number",
         sampleText: "",
         pageCount: 5,
+        pageNumbers: [1, 2, 3, 4, 5],
         marginPct: 0.09,
       },
       {
@@ -617,6 +619,7 @@ describe("furnitureCropMargins", () => {
         kind: "footer",
         sampleText: "f",
         pageCount: 5,
+        pageNumbers: [1, 2, 3, 4, 5],
         marginPct: 0.07,
       },
     ];

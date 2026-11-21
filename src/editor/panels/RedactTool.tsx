@@ -151,11 +151,20 @@ export function Stage() {
 
 export function Panel() {
   const { doc, busyLabel } = useEditorRead();
-  const { addObjects, patchToolState } = useEditorActions();
-  const { fillColor, borderColor } = readStyle(useToolSlice(TOOL_ID));
+  const { addObjects, patchToolState, setSelectedPage } = useEditorActions();
+  const slice = useToolSlice(TOOL_ID);
+  const { fillColor, borderColor } = readStyle(slice);
   const [piiTypes, setPiiTypes] = useState<Set<PiiType>>(
     () => new Set(PII_TYPES.filter((t) => t !== "date")),
   );
+  type CandidateReview = {
+    bytes: Uint8Array;
+    hits: ReturnType<typeof detectPiiRects>;
+    excluded: Set<number>;
+  };
+  const review = slice.review as CandidateReview | undefined;
+  const setReview = (review: CandidateReview | undefined) => patchToolState(TOOL_ID, { review });
+  const candidates = doc && review?.bytes === doc.bytes ? review : undefined;
   type Operation = "scan" | "query";
   type Message = { tone: "muted" | "error"; text: string };
   const [summary, setSummary] = useState<Partial<Record<Operation, Message>>>({});
@@ -214,10 +223,21 @@ export function Panel() {
         geometry.current = { key: doc.bytes, pages };
       }
       if (!ownsRequest()) return;
-      const found =
-        operation === "scan"
-          ? detectPiiRects(pages, [...piiTypes])
-          : findTextRects(pages, [q], { caseSensitive, wholeWord });
+      if (operation === "scan") {
+        const hits = detectPiiRects(pages, [...piiTypes]);
+        setReview({ bytes: doc.bytes, hits, excluded: new Set() });
+        setSummary((s) => ({
+          ...s,
+          scan: {
+            tone: "muted",
+            text: hits.length
+              ? `Review ${hits.length} candidates before adding boxes.`
+              : "No matching sensitive data found.",
+          },
+        }));
+        return;
+      }
+      const found = findTextRects(pages, [q], { caseSensitive, wholeWord });
       if (found.length) {
         addObjects(
           found.map((r) => ({
@@ -226,19 +246,17 @@ export function Panel() {
             rect: { xPct: r.xPct, yPct: r.yPct, wPct: r.wPct, hPct: r.hPct },
             payload: { fill: fillColor, border: borderColor } satisfies RedactionPayload,
           })),
-          operation === "scan" ? "Detect PII" : `Find “${q}”`,
+          `Find “${q}”`,
         );
-        if (operation === "query") setTerm("");
+        setTerm("");
       }
       setSummary((s) => ({
         ...s,
         [operation]: {
           tone: "muted",
           text: found.length
-            ? `Added ${found.length} box${found.length === 1 ? "" : "es"}${operation === "query" ? ` for “${q}”` : ""}. Review every box before exporting.`
-            : operation === "scan"
-              ? "No matching sensitive data found. You can draw boxes by hand."
-              : `No matches for “${q}”. Check the spelling or draw a box over the text.`,
+            ? `Added ${found.length} box${found.length === 1 ? "" : "es"} for “${q}”. Review every box before exporting.`
+            : `No matches for “${q}”. Check the spelling or draw a box over the text.`,
         },
       }));
     } catch {
@@ -275,6 +293,11 @@ export function Panel() {
 
   return (
     <div className="pdf-mark-panel">
+      {doc?.objects.some((o) => o.kind === "redaction") && (
+        <p className="air-help">
+          Applying another edit also embeds existing marks on redacted pages before covering them.
+        </p>
+      )}
       <p>Find sensitive text or draw boxes on the page. Review each mark before exporting.</p>
       <section aria-label="Smart redaction">
         <fieldset className="air-choice-group" disabled={blocked}>
@@ -311,7 +334,7 @@ export function Panel() {
           <ScanSearch size={16} aria-hidden="true" />
           <span className="air-action-labels">
             <span data-active={pending !== "scan" || undefined} aria-hidden={pending === "scan"}>
-              Detect &amp; add boxes
+              Detect sensitive data
             </span>
             <span data-active={pending === "scan" || undefined} aria-hidden={pending !== "scan"}>
               Scanning…
@@ -319,6 +342,79 @@ export function Panel() {
           </span>
         </button>
         {feedback("scan")}
+        {candidates && candidates.hits.length > 0 && (
+          <section aria-label="Review candidates">
+            {PII_TYPES.map((type) => {
+              const group = candidates.hits
+                .map((hit, index) => ({ hit, index }))
+                .filter(({ hit }) => hit.type === type);
+              if (!group.length) return null;
+              return (
+                <details key={type}>
+                  <summary>
+                    {PII_LABELS[type]} · {group.length} on{" "}
+                    {new Set(group.map(({ hit }) => hit.pageIndex)).size} page(s)
+                  </summary>
+                  {[...new Set(group.map(({ hit }) => hit.pageIndex))].map((pageIndex) => (
+                    <fieldset key={pageIndex}>
+                      <legend>
+                        <button
+                          type="button"
+                          className="air-button air-button--quiet"
+                          onClick={() => setSelectedPage(pageIndex)}
+                        >
+                          Page {pageIndex + 1}
+                        </button>
+                      </legend>
+                      {group
+                        .filter((item) => item.hit.pageIndex === pageIndex)
+                        .map(({ hit, index }) => (
+                          <label className="air-check-label" key={index}>
+                            <input
+                              className="air-check"
+                              type="checkbox"
+                              checked={!candidates.excluded.has(index)}
+                              disabled={blocked}
+                              onChange={(e) => {
+                                const excluded = new Set(candidates.excluded);
+                                if (e.target.checked) excluded.delete(index);
+                                else excluded.add(index);
+                                setReview({ ...candidates, excluded });
+                              }}
+                            />
+                            {hit.value}
+                          </label>
+                        ))}
+                    </fieldset>
+                  ))}
+                </details>
+              );
+            })}
+            <button
+              className="air-button"
+              disabled={blocked || candidates.hits.length === candidates.excluded.size}
+              onClick={() => {
+                const selected = candidates.hits.filter((_, i) => !candidates.excluded.has(i));
+                addObjects(
+                  selected.map(({ pageIndex, xPct, yPct, wPct, hPct }) => ({
+                    kind: "redaction",
+                    pageIndex,
+                    rect: { xPct, yPct, wPct, hPct },
+                    payload: { fill: fillColor, border: borderColor },
+                  })),
+                  "Redact reviewed data",
+                );
+                setReview(undefined);
+                setSummary((s) => ({
+                  ...s,
+                  scan: { tone: "muted", text: `Added ${selected.length} boxes.` },
+                }));
+              }}
+            >
+              Add {candidates.hits.length - candidates.excluded.size} selected boxes
+            </button>
+          </section>
+        )}
       </section>
       <section className="pdf-mark-query" aria-label="Find text">
         <label htmlFor="redaction-search" className="air-label">

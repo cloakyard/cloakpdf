@@ -1,15 +1,11 @@
+// The tool picker and active controls share the sheet beside the mounted preview.
 import { useAirPresence } from "../../docs/air/presence.tsx";
-// In-flow working sheet: the document stays mounted while controls scroll.
-import { Grid2x2, RotateCcw, Search, X } from "lucide-react";
+import { ToolCompletion } from "./ToolCompletion.tsx";
+import { ChevronLeft, ChevronUp, Grid2x2, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
-import { ToolCompletion } from "./ToolCompletion.tsx";
 import { ToolControls } from "./ToolControls.tsx";
-import { EDITOR_GROUP_LABELS, type EditorTool, EDITOR_TOOLS, findEditorTool } from "./tools.ts";
-
-/** What the body shows. Latched while closing so the content
- *  doesn't blank out as the tool deactivates on close. */
-type SheetView = { kind: "picker" } | { kind: "tool"; id: string };
+import { type EditorTool, EDITOR_TOOLS, findEditorTool } from "./tools.ts";
 
 function mobileSearchTokens(query: string): string[] {
   return [...new Set(query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean))];
@@ -62,23 +58,26 @@ function MobileSearchMatch({ text, query }: { text: string; query: string }) {
 
 export function MobileEditorSurface() {
   const activeTool = useActiveTool();
-  const { setActiveTool, setViewMode, reset } = useEditorActions();
-  const { canReset } = useEditorRead();
+  const { setActiveTool, setViewMode } = useEditorActions();
+  const { busyLabel } = useEditorRead();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
+  // Keep the result list stable while the input method is choosing a candidate.
+  const [queryBeforeComposition, setQueryBeforeComposition] = useState<string | null>(null);
+  const confirmingCandidate = useRef(false);
+  const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
   const presence = useAirPresence(open, "panel");
-
-  // Retain the mounted tool while closed, matching the existing apply lifecycle.
-  const viewRef = useRef<SheetView>({ kind: "picker" });
-  if (open) viewRef.current = tool ? { kind: "tool", id: tool.id } : { kind: "picker" };
-  const view = viewRef.current;
+  const lastTool = useRef(tool);
+  if (open) lastTool.current = tool;
+  const visibleTool = open ? tool : presence.mounted ? lastTool.current : null;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const bodyRef = presence.ref;
   const previousTool = useRef(activeTool);
+  const returnTool = useRef<string | null>(null);
   useEffect(() => {
     // Reflow may mount this panel while the persistent toolbar owns focus.
     // Move only for a tool change or when the old panel lost its focused node.
@@ -87,11 +86,22 @@ export function MobileEditorSurface() {
       (previousTool.current !== activeTool || document.activeElement === document.body)
     )
       headingRef.current?.focus({ preventScroll: true });
-    else if (previousTool.current) toggleRef.current?.focus({ preventScroll: true });
+    else if (previousTool.current && !returnTool.current)
+      toggleRef.current?.focus({ preventScroll: true });
     previousTool.current = activeTool;
   }, [activeTool]);
   useEffect(() => {
-    if (open) bodyRef.current?.scrollTo({ top: 0 });
+    if (!open) return;
+    const previous = returnTool.current;
+    returnTool.current = null;
+    const row =
+      previous && bodyRef.current?.querySelector<HTMLButtonElement>(`[data-tool-id="${previous}"]`);
+    if (row) {
+      row.focus({ preventScroll: true });
+      row.scrollIntoView({ block: "nearest" });
+    } else {
+      bodyRef.current?.scrollTo({ top: 0 });
+    }
   }, [open, activeTool]);
 
   const pick = useCallback(
@@ -100,18 +110,24 @@ export function MobileEditorSurface() {
       const picked = findEditorTool(id);
       if (picked?.mode === "focus" || picked?.mode === "overview") setViewMode(picked.mode);
       setPickerOpen(false);
-      setToolQuery("");
     },
     [setActiveTool, setViewMode],
   );
+  const resetQuery = () => {
+    confirmingCandidate.current = false;
+    setQueryBeforeComposition(null);
+    setToolQuery("");
+  };
   const close = () => {
     setPickerOpen(false);
+    resetQuery();
   };
   const clearSearch = () => {
-    setToolQuery("");
+    resetQuery();
+    bodyRef.current?.scrollTo({ top: 0 });
     searchRef.current?.focus();
   };
-  const activeToolQuery = toolQuery.trim();
+  const activeToolQuery = (queryBeforeComposition ?? toolQuery).trim();
   const visibleTools = useMemo(() => {
     if (!activeToolQuery) return EDITOR_TOOLS;
     const normalized = activeToolQuery.toLocaleLowerCase();
@@ -134,32 +150,124 @@ export function MobileEditorSurface() {
       <div className="editor-mobile-sheet__header air-editor-panel-heading">
         {tool ? (
           <>
+            <button
+              type="button"
+              className="air-icon-button air-button--quiet"
+              aria-label="Back to tools"
+              title="Back to tools"
+              disabled={busyLabel !== null}
+              onClick={() => {
+                if (finishing.current) return;
+                returnTool.current = tool.id;
+                setPickerOpen(true);
+                setActiveTool(null);
+              }}
+            >
+              <ChevronLeft aria-hidden="true" />
+            </button>
             <h2 ref={headingRef} data-dialog-return-focus="editor-tool-picker" tabIndex={-1}>
               {tool.name}
             </h2>
-            <ToolCompletion onClose={close} />
+            <ToolCompletion onClose={close} finishingRef={finishing} />
           </>
         ) : (
           <>
             <button
               ref={toggleRef}
               type="button"
-              className="air-button air-button--quiet editor-mobile-sheet__toggle"
-              onClick={() => {
-                if (pickerOpen) {
-                  close();
-                  setToolQuery("");
-                } else setPickerOpen(true);
-              }}
+              className={
+                pickerOpen
+                  ? "air-icon-button air-button--quiet"
+                  : "air-button air-button--quiet editor-mobile-sheet__toggle"
+              }
+              onClick={() => (pickerOpen ? close() : setPickerOpen(true))}
               data-dialog-return-focus="editor-tool-picker"
               aria-expanded={pickerOpen}
               aria-controls="mobile-editor-tool-body"
               aria-label={pickerOpen ? "Close tools" : "Open tools"}
+              title={pickerOpen ? "Close tools" : undefined}
             >
-              <Grid2x2 aria-hidden="true" />
-              <span>Tools</span>
-              {pickerOpen && <X aria-hidden="true" />}
+              {pickerOpen ? (
+                <ChevronLeft aria-hidden="true" />
+              ) : (
+                <>
+                  <Grid2x2 aria-hidden="true" />
+                  <span>Tools</span>
+                  <ChevronUp aria-hidden="true" />
+                </>
+              )}
             </button>
+            {pickerOpen && (
+              <form
+                role="search"
+                aria-label="Editor tools"
+                className="editor-mobile-search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (queryBeforeComposition !== null || confirmingCandidate.current) return;
+                  if (visibleTools.length === 1) pick(visibleTools[0].id);
+                  else
+                    bodyRef.current
+                      ?.querySelector<HTMLButtonElement>(".editor-mobile-tool-list button")
+                      ?.focus();
+                }}
+              >
+                <label htmlFor="mobile-editor-tool-search" className="air-label">
+                  Search editor tools
+                </label>
+                <div className="air-field-group">
+                  <input
+                    ref={searchRef}
+                    id="mobile-editor-tool-search"
+                    name="editor-tool-search"
+                    type="search"
+                    enterKeyHint="search"
+                    value={toolQuery}
+                    onChange={(event) => {
+                      setToolQuery(event.currentTarget.value);
+                      if (queryBeforeComposition === null) bodyRef.current?.scrollTo({ top: 0 });
+                    }}
+                    onCompositionStart={() => setQueryBeforeComposition(toolQuery)}
+                    onCompositionEnd={(event) => {
+                      setQueryBeforeComposition(null);
+                      setToolQuery(event.currentTarget.value);
+                      bodyRef.current?.scrollTo({ top: 0 });
+                    }}
+                    onKeyDown={(event) => {
+                      // Let the keyboard accept its candidate, including engines that
+                      // dispatch compositionend before the confirming Enter submits.
+                      confirmingCandidate.current =
+                        event.key === "Enter" &&
+                        (event.nativeEvent.isComposing ||
+                          event.nativeEvent.keyCode === 229 ||
+                          queryBeforeComposition !== null);
+                    }}
+                    onKeyUp={() => {
+                      confirmingCandidate.current = false;
+                    }}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    placeholder="Name or task…"
+                    aria-describedby="mobile-editor-tool-search-count"
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="air-field"
+                  />
+                  {toolQuery ? (
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="air-icon-button air-button--quiet"
+                      aria-label="Clear editor tool search"
+                    >
+                      <X aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <Search aria-hidden="true" className="editor-mobile-search__icon" />
+                  )}
+                </div>
+              </form>
+            )}
           </>
         )}
       </div>
@@ -170,63 +278,18 @@ export function MobileEditorSurface() {
         inert={!open ? true : undefined}
         aria-hidden={!open}
         className="editor-mobile-sheet__body air-scroll"
-        aria-label={view.kind === "tool" ? "Tool controls" : "Tools"}
+        aria-label={visibleTool ? "Tool controls" : "Tools"}
       >
-        {view.kind === "tool" ? (
-          <ToolControls key={view.id} toolId={view.id} />
+        {visibleTool ? (
+          <ToolControls key={visibleTool.id} toolId={visibleTool.id} />
         ) : (
           <>
-            <div role="search" aria-label="Editor tools" className="editor-mobile-search">
-              <label htmlFor="mobile-editor-tool-search" className="air-label">
-                Search editor tools
-              </label>
-              <div className="air-field-group">
-                <input
-                  ref={searchRef}
-                  id="mobile-editor-tool-search"
-                  name="editor-tool-search"
-                  type="search"
-                  value={toolQuery}
-                  onChange={(event) => setToolQuery(event.target.value)}
-                  placeholder="Name or task…"
-                  aria-describedby="mobile-editor-tool-search-count"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="air-field"
-                />
-                {toolQuery ? (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="air-icon-button air-button--quiet"
-                    aria-label="Clear editor tool search"
-                  >
-                    <X aria-hidden="true" />
-                  </button>
-                ) : (
-                  <Search aria-hidden="true" className="editor-mobile-search__icon" />
-                )}
-              </div>
-              <p id="mobile-editor-tool-search-count" className="air-help" role="status">
-                {activeToolQuery
-                  ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
-                  : `${EDITOR_TOOLS.length} editor tools`}
-              </p>
-            </div>
-            {canReset && (
-              <button
-                type="button"
-                className="air-button air-button--quiet editor-mobile-reset"
-                onClick={() => {
-                  reset();
-                  close();
-                  toggleRef.current?.focus();
-                }}
-              >
-                <RotateCcw aria-hidden="true" />
-                Reset to original
-              </button>
-            )}
+            <p id="mobile-editor-tool-search-count" className="air-help" role="status">
+              {activeToolQuery
+                ? `${visibleTools.length} matching ${visibleTools.length === 1 ? "tool" : "tools"}`
+                : `${EDITOR_TOOLS.length} editor tools`}
+            </p>
+
             {visibleTools.length > 0 ? (
               <ul
                 className="editor-mobile-tool-list"
@@ -239,22 +302,20 @@ export function MobileEditorSurface() {
                       <button
                         type="button"
                         onClick={() => pick(candidate.id)}
+                        data-tool-id={candidate.id}
                         aria-label={candidate.name}
+                        aria-describedby={`mobile-tool-help-${candidate.id}`}
                       >
                         <Icon aria-hidden="true" />
                         <span>
                           <span className="editor-mobile-tool-list__name">
                             <MobileSearchMatch text={candidate.name} query={activeToolQuery} />
                           </span>
-                          <span className="air-help">
-                            {activeToolQuery ? (
-                              <MobileSearchMatch
-                                text={candidate.description}
-                                query={activeToolQuery}
-                              />
-                            ) : (
-                              EDITOR_GROUP_LABELS[candidate.group]
-                            )}
+                          <span className="air-help" id={`mobile-tool-help-${candidate.id}`}>
+                            <MobileSearchMatch
+                              text={candidate.description}
+                              query={activeToolQuery}
+                            />
                           </span>
                         </span>
                       </button>

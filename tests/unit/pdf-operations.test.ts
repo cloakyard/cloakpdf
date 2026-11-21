@@ -296,6 +296,49 @@ describe("assemblePdf", () => {
     expect(await widths(out)).toEqual([222, 111]);
   });
 
+  it("preserves form registration and page references when reordering the full document", async () => {
+    const doc = await PDFDocument.create();
+    const first = doc.addPage([200, 300]),
+      second = doc.addPage([400, 500]);
+    doc.getForm().createTextField("Name").addToPage(first);
+    // A page subtree may supply the geometry instead of the leaf itself.
+    const root = doc.catalog.Pages();
+    const branch = doc.context.obj({
+      Type: "Pages",
+      Kids: [first.ref],
+      Count: 1,
+      Parent: doc.context.getObjectRef(root),
+      MediaBox: [0, 0, 215, 315],
+      CropBox: [5, 5, 210, 310],
+      Rotate: 90,
+    });
+    const branchRef = doc.context.register(branch);
+    root.lookup(PDFName.of("Kids"), PDFArray).set(0, branchRef);
+    first.node.set(PDFName.Parent, branchRef);
+    first.node.delete(PDFName.MediaBox);
+    const bytes = await assemblePdf(
+      [await doc.save()],
+      [
+        { kind: "page", sourceIndex: 0, pageIndex: 1 },
+        { kind: "page", sourceIndex: 0, pageIndex: 0, rotation: 90 },
+      ],
+      true,
+    );
+    const out = await PDFDocument.load(bytes);
+    expect(out.getPages().map((p) => p.ref.toString())).toEqual([
+      second.ref.toString(),
+      first.ref.toString(),
+    ]);
+    expect(out.getPage(1).getRotation().angle).toBe(180);
+    expect(out.getPage(1).getMediaBox().width).toBe(215);
+    expect(out.getPage(1).getCropBox().width).toBe(205);
+    expect(
+      out
+        .getForm()
+        .getFields()
+        .map((field) => field.getName()),
+    ).toEqual(["Name"]);
+  });
   it("rejects an empty plan", async () => {
     await expect(assemblePdf([], [])).rejects.toThrow();
   });
@@ -592,6 +635,42 @@ describe("addPdfBookmarks", () => {
     expect(doc.catalog.get(PDFName.of("PageMode"))?.toString()).toBe("/UseOutlines");
     // First/Last differ for two top-level siblings.
     expect(outlines.get(PDFName.of("First"))).not.toBe(outlines.get(PDFName.of("Last")));
+  });
+
+  it("preserves an imported link and local zoom when adding or renaming headings", async () => {
+    const bytes = await addPdfBookmarks(await pagesFile(2), [{ title: "Reference", pageIndex: 0 }]);
+    const original = await PDFDocument.load(bytes);
+    const first = original.catalog
+      .lookup(PDFName.of("Outlines"), PDFDict)
+      .lookup(PDFName.of("First"), PDFDict);
+    first.delete(PDFName.of("Dest"));
+    first.set(
+      PDFName.of("A"),
+      original.context.obj({ S: "URI", URI: PDFString.of("https://example.org/reference") }),
+    );
+    const output = await addPdfBookmarks(
+      new File([await original.save()], "input.pdf"),
+      [
+        {
+          title: "Read reference",
+          pageIndex: 0,
+          originalTarget: { path: [0], title: "Reference", label: "Reference" },
+        },
+        { title: "Details", pageIndex: 1, destination: { mode: "XYZ", args: [24, 310, null] } },
+      ],
+      { contentsPage: true },
+    );
+    const result = await PDFDocument.load(output);
+    const link = result.getPage(0).node.lookup(PDFName.of("Annots"), PDFArray).lookup(0, PDFDict);
+    expect(
+      link.lookup(PDFName.of("A"), PDFDict).lookup(PDFName.of("URI"), PDFString).decodeText(),
+    ).toBe("https://example.org/reference");
+    const outline = result.catalog.lookup(PDFName.of("Outlines"), PDFDict);
+    expect(
+      outline.lookup(PDFName.of("Last"), PDFDict).lookup(PDFName.of("Dest"), PDFArray).toString(),
+    ).toContain("/XYZ 24 310 null");
+    const report = await analyzePdfHiddenData(new File([output.slice()], "outline.pdf"));
+    expect(report.bookmarkCount).toBe(3);
   });
 
   it("nests an entry under its parent by level", async () => {

@@ -54,7 +54,6 @@ import type {
   TextFontId,
 } from "../../utils/pdf-operations.ts";
 import {
-  annotatePdf,
   decomposeTextFont,
   FONT_FAMILIES,
   iconGeometry,
@@ -67,6 +66,7 @@ import {
   wrapTextToWidth,
 } from "../../utils/pdf-operations.ts";
 import { extractPageTextGeometry, type LayoutPage } from "../../utils/layout-extract.ts";
+import { bakePlacedMarks } from "../placed-marks.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
@@ -1397,7 +1397,7 @@ export function Stage() {
               opacity: strokeOpacity,
             },
           });
-          if (id) patchToolState(TOOL_ID, { mode: "select", selectedId: id });
+          if (id && !slice.keepDrawing) patchToolState(TOOL_ID, { mode: "select", selectedId: id });
         }
       }
     },
@@ -1412,6 +1412,7 @@ export function Stage() {
       color,
       fill,
       strokeThick,
+      slice.keepDrawing,
       strokeOpacity,
       selectedPage,
       addObject,
@@ -1685,16 +1686,14 @@ export function Panel() {
     : showFill && fill.enabled && !opacity.valid;
   const apply = async () => {
     flush();
-    await applyTransform(async (d) => {
-      const anns = d.objects
-        .filter((o) => o.kind === "annotation" && o.payload)
-        .map((o) => o.payload as Annotation);
-      return {
-        bytes: await annotatePdf(docToFile(d), anns),
-        label: `Annotate ${anns.length}`,
-        objects: d.objects.filter((o) => o.kind !== "annotation"),
-      };
-    });
+    await applyTransform(
+      async (d) => ({ bytes: d.bytes, label: "Apply annotations" }),
+      (d) =>
+        bakePlacedMarks(
+          d,
+          d.objects.filter((o) => o.kind === "annotation"),
+        ),
+    );
     patchToolState(TOOL_ID, { selectedId: undefined });
   };
   return (
@@ -1725,6 +1724,17 @@ export function Panel() {
                 </button>
               ))}
             </div>
+            {(mode === "pen" || mode === "highlight") && (
+              <label className="air-check-label">
+                <input
+                  className="air-check"
+                  type="checkbox"
+                  checked={slice.keepDrawing === true}
+                  onChange={(e) => patchToolState(TOOL_ID, { keepDrawing: e.target.checked })}
+                />
+                Keep drawing
+              </label>
+            )}
           </div>
           {objects.length > 0 && (
             <div className="pdf-property-field">

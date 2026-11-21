@@ -89,7 +89,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -333,14 +334,10 @@ try {
           state.minTarget >= (width <= 1024 ? 43.9 : 39.9),
           JSON.stringify({ id, width, state }),
         );
-        const primary =
+        const action =
           width < 1024
-            ? '.editor-mobile-sheet .air-editor-actions :is([aria-label="Apply"], [aria-label="Close"])'
+            ? '.air-editor-actions button[aria-label="Apply"]'
             : panel + " .air-button--primary";
-        // Actual layout decides where the primary action lives (landscape may retain desktop chrome).
-        const action = (await page.$(panel + " .air-button--primary"))
-          ? panel + " .air-button--primary"
-          : primary;
         await page.$eval(action, (n) => n.scrollIntoView({ block: "nearest" }));
         const bounds = await page.$eval(action, (n) => {
           const b = n.getBoundingClientRect();

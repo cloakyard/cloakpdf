@@ -222,7 +222,8 @@ try {
       }
       w.mount = (strict = false, file = null) => {
         const host = document.createElement("div");
-        document.body.append(host);
+        host.className = "pdf-workspace";
+        document.body.replaceChildren(host);
         const root = createRoot(host);
         w.root = root;
         root.render(

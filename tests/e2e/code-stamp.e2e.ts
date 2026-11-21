@@ -56,7 +56,10 @@ try {
     const { EditorProvider, useEditorRead, useEditorActions, useToolSlice, useActiveTool } =
       await load(context);
     const { EditorShell } = await load("/src/editor/EditorShell.tsx");
-    const { StageProvider } = await load("/src/editor/stage.tsx");
+    const stageSource = await (await fetch("/src/editor/PdfStage.tsx")).text();
+    const { StageProvider } = await load(
+      stageSource.match(/from ["']([^"']*\/stage\.tsx[^"']*)["']/)![1],
+    );
     const { MotionProvider } = await load("/src/components/motion.tsx");
     const w = window as any;
     function Probe() {
@@ -67,7 +70,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -163,6 +167,12 @@ try {
   assert.equal(placed.length, 1);
   assert.ok(placed[0].rect.xPct + placed[0].rect.wPct <= 1.000001);
   assert.ok(placed[0].rect.yPct + placed[0].rect.hPct <= 1.000001);
+  await clickText("Test scan");
+  await page.waitForFunction(
+    () =>
+      document.body.innerText.includes("Decoded at 150 dpi") &&
+      document.querySelector(".pdf-code-panel [role=status]") !== null,
+  );
   // Keyboard alternatives work without dragging.
   await page.click('button[aria-label="Move left"]');
   await page.click('button[aria-label="Larger code"]');
@@ -278,6 +288,8 @@ try {
   await clickText("Place on this page");
   await settle();
   const captioned = (await stamps())[0];
+  await clickText("Test scan");
+  await page.waitForFunction(() => /Decoded at 150 dpi.*CASE-0042/.test(document.body.innerText));
   await page.click('[aria-label="Show text under barcode"]');
   await clickText("Place on this page");
   await settle();

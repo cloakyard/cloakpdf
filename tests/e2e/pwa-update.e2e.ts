@@ -145,7 +145,19 @@ try {
             range.selectNodeContents(n);
             return [...range.getClientRects()];
           });
+          const primary = toast.querySelector<HTMLButtonElement>(".air-button--primary")!;
+          const initialScroll = toast.scrollTop;
+          toast.scrollTop = toast.scrollHeight;
+          const action = primary.getBoundingClientRect();
+          const primaryReachable = primary.contains(
+            document.elementFromPoint(
+              action.left + action.width / 2,
+              action.top + action.height / 2,
+            ),
+          );
+          toast.scrollTop = initialScroll;
           return {
+            primaryReachable,
             left: rect.left,
             right: rect.right,
             top: rect.top,
@@ -172,6 +184,7 @@ try {
         assert.equal(result.overflow, false);
         assert.equal(result.textOverflow, false);
         assert.equal(result.smallTargets, 0);
+        assert.ok(result.primaryReachable, JSON.stringify({ width, height, theme, font, result }));
         assert.equal(result.deferred, "true");
         rows.push({ width, height, theme, font, ...result });
         if ([320, 390, 768, 1280, 1440].includes(width))
@@ -308,7 +321,7 @@ try {
         errors,
         checks: [
           "pending editor draft protected from pointer/keyboard update",
-          "Later retains draft and resurfaces on home",
+          "Dismissing the update retains draft and resurfaces on home",
           "Save + real PDF export retains metadata/page",
           "Other-tab activation preserves working tab",
           "Standalone file queue survives waiting update",

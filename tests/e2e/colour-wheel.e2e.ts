@@ -63,7 +63,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -300,6 +301,7 @@ try {
           metrics.y >= 15 &&
           metrics.x + metrics.w <= width - 15 &&
           metrics.y + metrics.h <= height - 15,
+        JSON.stringify({ width, height, theme, metrics }),
       );
       assert.equal(
         await page.$eval(

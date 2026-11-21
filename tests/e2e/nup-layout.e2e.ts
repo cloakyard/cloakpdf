@@ -184,7 +184,7 @@ try {
       const a = node.getBoundingClientRect(),
         b = trigger.getBoundingClientRect();
       const gap = a.bottom <= b.top ? b.top - a.bottom : a.top - b.bottom;
-      return Math.abs(gap - 4) < 1;
+      return Math.abs(gap - 8) < 1;
     });
     const popup = await page.$eval('[role="listbox"]', (node) => {
       const r = node.getBoundingClientRect(),
@@ -213,7 +213,7 @@ try {
         popup.bottom <= popup.height - 15,
       JSON.stringify(popup),
     );
-    assert.ok(Math.abs(popup.gap - 4) < 1, JSON.stringify(popup));
+    assert.ok(Math.abs(popup.gap - 8) < 1, JSON.stringify(popup));
     assert.ok(popup.target >= (popup.touch ? 44 : 40), JSON.stringify(popup));
     assert.equal(popup.clippedLabels, 0, "Full choice labels remain readable");
     assert.equal(popup.animationCount, 0, "Frequent selects are immediate");

@@ -4,6 +4,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { KeyInput, Page } from "puppeteer-core";
 import { launch } from "puppeteer-core";
+import { CHAT_VARIANT_IDS } from "../../src/utils/ai-models.ts";
 
 const DEV_URL = process.env.E2E_URL ?? "http://localhost:5173";
 const CHROME_PATH =
@@ -406,31 +407,40 @@ async function main() {
     await page.waitForSelector(".pdf-ai-setup");
 
     const radios = '.pdf-ai-tiers input[type="radio"]';
-    await page.focus(`${radios}:checked`);
-    for (const [key, expected] of [
-      ["End", "lfm2-2.6b"],
-      ["ArrowRight", "lfm2.5-1.2b"],
-      ["ArrowLeft", "lfm2-2.6b"],
-      ["Home", "lfm2.5-1.2b"],
-    ] as const) {
-      await page.keyboard.press(key);
-      const selected = await page.$eval(`${radios}:checked`, (input) => ({
-        value: (input as HTMLInputElement).value,
-        focused: document.activeElement === input,
-      }));
-      if (selected.value !== expected || !selected.focused)
-        fail(`Tier ${key} failed: ${JSON.stringify(selected)}`);
+    const firstVariant = CHAT_VARIANT_IDS[0];
+    const lastVariant = CHAT_VARIANT_IDS[CHAT_VARIANT_IDS.length - 1];
+    const hasTiers = CHAT_VARIANT_IDS.length > 1;
+    if (hasTiers) {
+      await page.focus(`${radios}:checked`);
+      for (const [key, expected] of [
+        ["End", lastVariant],
+        ["ArrowRight", firstVariant],
+        ["ArrowLeft", lastVariant],
+        ["Home", firstVariant],
+      ] as const) {
+        await page.keyboard.press(key);
+        const selected = await page.$eval(`${radios}:checked`, (input) => ({
+          value: (input as HTMLInputElement).value,
+          focused: document.activeElement === input,
+        }));
+        if (selected.value !== expected || !selected.focused)
+          fail(`Tier ${key} failed: ${JSON.stringify(selected)}`);
+      }
+      const compactSize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
+      await page.keyboard.press("End");
+      const qualitySize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
+      if (compactSize === qualitySize) fail("Bundle estimates did not follow the selected tier.");
+      await page.keyboard.press("Tab");
+      if (
+        (await page.evaluate(() => document.activeElement?.textContent?.trim())) !== "View details"
+      )
+        fail("Tier group did not use one Tab stop.");
+      console.log(
+        "  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates",
+      );
+    } else if (await page.$(radios)) {
+      fail("A single-model setup should not require a tier choice.");
     }
-    const compactSize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
-    await page.keyboard.press("End");
-    const qualitySize = await page.$eval(".pdf-ai-metrics", (node) => node.textContent);
-    if (compactSize === qualitySize) fail("Bundle estimates did not follow the selected tier.");
-    await page.keyboard.press("Tab");
-    if ((await page.evaluate(() => document.activeElement?.textContent?.trim())) !== "View details")
-      fail("Tier group did not use one Tab stop.");
-    console.log(
-      "  ✓ Native tier selection, wrapping arrows, Home/End, one Tab stop and bundle estimates",
-    );
 
     await clickButtonWithText(page, "View details");
     await page.waitForSelector('[data-testid="ai-model-details-dialog"]');
@@ -479,10 +489,13 @@ async function main() {
       if (/huggingface\.co|hf\.co/.test(request.url())) unrequestedModelFetches++;
     };
     page.on("request", trackModelRequest);
-    await page.evaluate(() => {
-      localStorage.setItem("cloakpdf:chat-variant", "lfm2-2.6b");
-      localStorage.setItem("cloakpdf:ai-model-ready:chat:lfm2-2.6b", "1");
-    });
+    await page.evaluate(
+      ({ variant, selectable }) => {
+        if (selectable) localStorage.setItem("cloakpdf:chat-variant", variant);
+        localStorage.setItem(`cloakpdf:ai-model-ready:chat:${variant}`, "1");
+      },
+      { variant: lastVariant, selectable: hasTiers },
+    );
     await page.reload({ waitUntil: "networkidle2" });
     console.log("  · Reloaded test page");
     await page.evaluate(() => {
@@ -502,14 +515,16 @@ async function main() {
     }));
     if (
       partialState.status !== "idle" ||
-      partialState.selected !== "lfm2-2.6b" ||
+      partialState.selected !== (hasTiers ? lastVariant : undefined) ||
       unrequestedModelFetches
     )
       fail(
         `Partial cache loaded without consent or lost preference: ${JSON.stringify(partialState)}, requests=${unrequestedModelFetches}`,
       );
     page.off("request", trackModelRequest);
-    console.log("  ✓ Selected tier persists; a partial-cache return waits for explicit download");
+    console.log(
+      "  ✓ A partial-cache return preserves the configured model and waits for explicit download",
+    );
 
     // Rotation must preserve the tool and controls; the retired orientation gate
     // must never reappear. AI remains intentionally unavailable on actual phones.

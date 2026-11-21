@@ -16,7 +16,7 @@
  */
 
 import { drawOnVisiblePage } from "./page-geometry.ts";
-import { PDFDocument, rgb, StandardFonts } from "@pdfme/pdf-lib";
+import { PDFDocument, rgb, StandardFontEmbedder, StandardFonts } from "@pdfme/pdf-lib";
 import type { LayoutItem, LayoutPage } from "../layout-extract.ts";
 import type { FracRect } from "../text-select.ts";
 
@@ -179,12 +179,16 @@ interface FieldFill {
 }
 
 /** Shared top-left layout for the preview and writer; output uses exact font metrics. */
+const helvetica = StandardFontEmbedder.for(
+  "Helvetica" as Parameters<typeof StandardFontEmbedder.for>[0],
+);
 export function flatFieldLayout(
   value: string,
   rect: FracRect,
   width: number,
   height: number,
-  measure: (text: string, size: number) => number,
+  measure: (text: string, size: number) => number = (text, size) =>
+    helvetica.widthOfTextAtSize(text, size),
 ) {
   const text = value.trim();
   const boxH = rect.hPct * height;
@@ -196,9 +200,14 @@ export function flatFieldLayout(
     if (measured > available) {
       size = Math.max(6, (size * available) / measured);
       if (measure(drawn, size) > available) {
-        while (drawn.length > 1 && measure(`${drawn}…`, size) > available)
-          drawn = drawn.slice(0, -1);
-        drawn = `${drawn}…`;
+        let low = 0,
+          high = drawn.length;
+        while (low < high) {
+          const mid = Math.ceil((low + high) / 2);
+          if (measure(`${text.slice(0, mid)}…`, size) <= available) low = mid;
+          else high = mid - 1;
+        }
+        drawn = measure("…", size) <= available ? `${text.slice(0, low)}…` : "";
       }
     }
   } catch {

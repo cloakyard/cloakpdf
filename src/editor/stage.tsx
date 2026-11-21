@@ -45,6 +45,7 @@ export interface PdfStageProps {
     pageIndex: number,
     pageBitmap: HTMLCanvasElement | null,
   ) => void;
+  focusTarget?: { pageIndex: number; xPct: number; yPct: number; wPct: number; hPct: number };
   onPointerDown?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
   onPointerMove?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
   onPointerUp?: (p: StagePoint, e: ReactPointerEvent<HTMLElement>) => void;
@@ -114,7 +115,13 @@ const StageSetCtx = createContext<(p: PdfStageProps) => void>(() => {});
 const InlineEditorCtx = createContext<InlineEditorDescriptor | null>(null);
 const InlineEditorSetCtx = createContext<(d: InlineEditorDescriptor | null) => void>(() => {});
 
+const PageHost = createContext<HTMLDivElement | null>(null);
+const SetPageHost = createContext<(node: HTMLDivElement | null) => void>(() => {});
+export const usePageHost = () => useContext(PageHost);
+export const useSetPageHost = () => useContext(SetPageHost);
+
 export function StageProvider({ children }: { children: ReactNode }) {
+  const [host, setHost] = useState<HTMLDivElement | null>(null);
   const [props, setProps] = useState<PdfStageProps>(EMPTY);
   const set = useCallback((next: PdfStageProps) => {
     setProps((prev) => (shallowEqual(prev, next) ? prev : next));
@@ -124,7 +131,11 @@ export function StageProvider({ children }: { children: ReactNode }) {
     <StageSetCtx.Provider value={set}>
       <StagePropsCtx.Provider value={props}>
         <InlineEditorSetCtx.Provider value={setInlineEditor}>
-          <InlineEditorCtx.Provider value={inlineEditor}>{children}</InlineEditorCtx.Provider>
+          <InlineEditorCtx.Provider value={inlineEditor}>
+            <SetPageHost.Provider value={setHost}>
+              <PageHost.Provider value={host}>{children}</PageHost.Provider>
+            </SetPageHost.Provider>
+          </InlineEditorCtx.Provider>
         </InlineEditorSetCtx.Provider>
       </StagePropsCtx.Provider>
     </StageSetCtx.Provider>
@@ -164,6 +175,7 @@ export function useActiveStageProps(): PdfStageProps {
 
 function shallowEqual(a: PdfStageProps, b: PdfStageProps): boolean {
   return (
+    a.focusTarget === b.focusTarget &&
     a.paintOverlay === b.paintOverlay &&
     a.onPointerDown === b.onPointerDown &&
     a.onPointerMove === b.onPointerMove &&

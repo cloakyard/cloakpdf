@@ -56,6 +56,34 @@ export function EditorShell() {
   const wasBusyRef = useRef(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
 
+  // iOS keeps the layout viewport behind the software keyboard. Size the editor and
+  // its portaled dialogs to the visible area, while leaving browser pinch zoom alone.
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport || layout === "desktop") return;
+    const style = document.documentElement.style;
+    const clear = () => {
+      style.removeProperty("--pdf-visible-height");
+      style.removeProperty("--pdf-visible-top");
+    };
+    const sync = () => {
+      if (Math.abs(viewport.scale - 1) > 0.01 || viewport.height >= window.innerHeight - 1) {
+        clear();
+        return;
+      }
+      style.setProperty("--pdf-visible-height", `${viewport.height}px`);
+      style.setProperty("--pdf-visible-top", `${viewport.offsetTop}px`);
+    };
+    sync();
+    viewport.addEventListener("resize", sync);
+    viewport.addEventListener("scroll", sync);
+    return () => {
+      viewport.removeEventListener("resize", sync);
+      viewport.removeEventListener("scroll", sync);
+      clear();
+    };
+  }, [layout]);
+
   // An editor transform is a blocking state, even though it is not a
   // dismissible dialog. Move focus to its status surface while the editor is
   // inert, then restore the initiating control. Removed rows can nominate a
@@ -277,7 +305,7 @@ export function EditorShell() {
 
           <div className="flex min-w-0 flex-1 flex-col">
             <PreviewRecovery />
-            <div className="flex min-h-0 flex-1 flex-col">
+            <div className="editor-working-area flex min-h-0 flex-1 flex-col">
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
               {isMobile && <MobileEditorSurface />}
             </div>

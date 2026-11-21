@@ -6,7 +6,13 @@ import { useEditorActions, useEditorRead } from "../EditorContext.tsx";
 const METHOD = { fill: "Fill", inpaint: "Blend", pixelate: "Pixelate" } as const;
 
 /** Deferred marks share one collection and the editor's persistent undo history. */
-export function PendingMarkList({ kind }: { kind: "redaction" | "erase" }) {
+export function PendingMarkList({
+  kind,
+  onSelect,
+}: {
+  kind: "redaction" | "erase";
+  onSelect?: (id: string) => void;
+}) {
   const { doc } = useEditorRead();
   const { removeObject, removeObjects, setSelectedPage, setViewMode } = useEditorActions();
   const clearRef = useRef<HTMLButtonElement>(null);
@@ -49,6 +55,7 @@ export function PendingMarkList({ kind }: { kind: "redaction" | "erase" }) {
                 className="pdf-mark-list__location"
                 onClick={() => {
                   setSelectedPage(mark.pageIndex);
+                  onSelect?.(mark.id);
                   setViewMode("focus");
                 }}
               >

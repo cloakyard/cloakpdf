@@ -104,7 +104,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -267,7 +268,7 @@ try {
   await page.evaluate(() => (window as any).releaseRead());
   await settle();
   assert.equal(await page.$$eval(".pdf-attachment-list li", (n) => n.length), 1);
-  // Discard and explicit Cancel retire a failed draft; Done preserves an uncommitted selection.
+  // Close preserves a failed selection. Discard clears the retry and Undo reverts an attached file.
   await page.evaluate((name) => {
     (window as any).failName = name;
   }, filename);
@@ -283,6 +284,11 @@ try {
   assert.ok(await page.$(".pdf-attachment-selection"));
   await clickText("Discard selection");
   assert.equal(await page.$(".pdf-attachment-selection"), null);
+  await choose(join(output, "b", filename));
+  await page.waitForFunction(
+    () => document.querySelectorAll(".pdf-attachment-list li").length === 2,
+  );
+  await ready();
   await page.evaluate((name) => {
     (window as any).failName = name;
   }, filename);
@@ -290,7 +296,11 @@ try {
   await page.waitForFunction(() =>
     document.querySelector(".pdf-attachments-panel")?.textContent?.includes("Couldn't attach"),
   );
-  await page.click('[aria-label="Cancel"]');
+  await clickText("Discard selection");
+  await page.click('.editor-mobile-sheet [aria-label="Close"]');
+  await page.locator('[aria-label="More actions"]').click();
+  await page.locator('[aria-label="Undo"]').click();
+  await page.locator('[aria-label="Close actions"]').click();
   await tool();
   await ready();
   assert.equal(await page.$(".pdf-attachment-selection"), null);
@@ -355,7 +365,7 @@ try {
       await page.setViewport({ width, height: 900 });
       await settle();
       await reset();
-      await page.locator(".pdf-attachment-list button").click();
+      await page.locator('.pdf-attachment-list button[aria-label^="Remove file"]').click();
       await page.waitForFunction(() =>
         document
           .querySelector(".pdf-attachments-panel")

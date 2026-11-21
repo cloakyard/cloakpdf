@@ -15,7 +15,7 @@ import { Copy, Upload } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ColorPicker } from "../../components/ColorPicker.tsx";
 import { SignaturePad, type SignatureStroke } from "../../components/SignaturePad.tsx";
-import { addSignature } from "../../utils/pdf-operations.ts";
+import { bakePlacedMarks } from "../placed-marks.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 import { PlacementActions } from "./PlacementActions.tsx";
@@ -52,7 +52,9 @@ const boxToRect = (b: Box): FractionRect => ({ xPct: b.x, yPct: b.y, wPct: b.w, 
 
 type DrawnSignature = SignatureImage & { strokes: SignatureStroke[] };
 const sourceOf = (slice: Record<string, unknown>) =>
-  (slice.mode === "upload" ? slice.uploaded : slice.drawn) as SignatureImage | undefined;
+  (slice.mode === "upload" ? slice.uploaded : slice.mode === "type" ? slice.typed : slice.drawn) as
+    | SignatureImage
+    | undefined;
 
 export function Stage() {
   const { doc, selectedPage } = useEditorRead();
@@ -399,7 +401,7 @@ export function Panel() {
   const drawn = slice.drawn as DrawnSignature | undefined;
   const inkHex = (slice.inkHex as string) ?? DEFAULT_INK;
   const inkBleed = (slice.inkBleed as boolean) ?? false;
-  const mode = (slice.mode as "draw" | "upload") ?? "draw";
+  const mode = (slice.mode as "draw" | "upload" | "type") ?? "draw";
   const bgEnabled = (slice.bgEnabled as boolean) ?? false;
   const bgHex = (slice.bgHex as string) ?? DEFAULT_BG;
   const uploadRef = useRef<HTMLInputElement>(null);
@@ -508,43 +510,15 @@ export function Panel() {
     if (additions.length) addObjects(additions, "Signature on remaining pages");
   };
   const apply = useCallback(async () => {
-    await applyTransform(async (d) => {
-      let bytes = d.bytes;
-      const signatures = d.objects.filter((o) => o.kind === "signature");
-      const backgrounds = new Map<string, string>();
-      for (const o of signatures) {
-        const page = d.pages[o.pageIndex];
-        const r = o.rect;
-        const payload = o.payload as SigPayload | undefined;
-        if (!page || !r || !payload?.dataUrl)
-          throw new Error("A signature is incomplete. Remove it and place it again.");
-        let url = payload.dataUrl;
-        if (bgEnabled) {
-          let prepared = backgrounds.get(url);
-          if (!prepared) {
-            prepared = (await prepareSignature(url, { background: bgHex })).dataUrl;
-            backgrounds.set(url, prepared);
-          }
-          url = prepared;
-        }
-        bytes = await addSignature(
-          new File([bytes.slice(0)], d.fileName, { type: "application/pdf" }),
-          url,
-          [o.pageIndex],
-          {
-            x: r.xPct * page.widthPt,
-            y: (1 - r.yPct - r.hPct) * page.heightPt,
-            width: r.wPct * page.widthPt,
-            height: r.hPct * page.heightPt,
-          },
-        );
-      }
-      return {
-        bytes,
-        label: `Signature ${signatures.length}`,
-        objects: d.objects.filter((o) => o.kind !== "signature"),
-      };
-    });
+    await applyTransform(
+      async (d) => ({ bytes: d.bytes, label: "Apply signatures" }),
+      (d) =>
+        bakePlacedMarks(
+          d,
+          d.objects.filter((o) => o.kind === "signature"),
+          bgEnabled ? bgHex : undefined,
+        ),
+    );
   }, [applyTransform, bgEnabled, bgHex]);
 
   return (
@@ -558,6 +532,7 @@ export function Panel() {
           disabled={busy}
           options={[
             { value: "draw", label: "Draw" },
+            { value: "type", label: "Type" },
             { value: "upload", label: "Choose" },
           ]}
         />
@@ -590,6 +565,45 @@ export function Panel() {
               />
             </label>
           </>
+        ) : mode === "type" ? (
+          <div className="pdf-property-field">
+            <label htmlFor="signature-name">Name or initials</label>
+            <input
+              className="air-field"
+              id="signature-name"
+              maxLength={100}
+              value={(slice.typedName as string | undefined) ?? ""}
+              onChange={(e) => {
+                const typedName = e.target.value;
+                const name = typedName.trim();
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d")!;
+                const font = "italic 64px Georgia, serif";
+                ctx.font = font;
+                const { width, actualBoundingBoxLeft, actualBoundingBoxRight } =
+                  ctx.measureText(name);
+                const left = Math.max(0, actualBoundingBoxLeft);
+                canvas.width = Math.ceil(left + Math.max(width, actualBoundingBoxRight)) + 24;
+                canvas.height = 100;
+                ctx.font = font;
+                ctx.fillStyle = inkHex;
+                ctx.fillText(name, 12 + left, 72);
+                patchToolState(TOOL_ID, {
+                  typedName,
+                  typed: name
+                    ? { dataUrl: canvas.toDataURL(), aspect: canvas.width / canvas.height }
+                    : undefined,
+                });
+              }}
+            />
+            {source && (
+              <img
+                alt="Typed signature preview"
+                src={source.dataUrl}
+                style={{ maxHeight: 72, maxWidth: "100%", background: "white" }}
+              />
+            )}
+          </div>
         ) : (
           <>
             <button

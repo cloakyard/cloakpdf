@@ -200,7 +200,13 @@ export function docToFile(doc: CanvasDoc): File {
 /** Overlay kinds that destroy page content when flattened (they rasterise). */
 const DESTRUCTIVE_KINDS = new Set<CanvasObjectKind>(["redaction", "erase"]);
 
-/** Any pending redaction / erase marks still waiting to be burned in? */
+/** Editable marks that require an explicit apply before ordinary export. */
+export const placedMarkTools = [
+  { kind: "annotation", id: "annotate-pdf", label: "annotations" },
+  { kind: "signature", id: "signature", label: "signatures" },
+  { kind: "stamp", id: "qr-stamp", label: "codes" },
+] as const;
+
 export function hasPendingDestructive(doc: CanvasDoc | null): boolean {
   return !!doc && doc.objects.some((o) => DESTRUCTIVE_KINDS.has(o.kind));
 }

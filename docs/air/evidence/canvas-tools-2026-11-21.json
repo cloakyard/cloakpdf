@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-21",
+  "surface": "CloakPDF canvas editor",
+  "layoutAudit": {
+    "browser": "Chrome headless against the production build",
+    "document": "Synthetic seven-page agreement with form fields",
+    "viewports": [
+      "320x568",
+      "375x812",
+      "390x844",
+      "430x932",
+      "844x390",
+      "768x1024",
+      "1024x768",
+      "1280x720",
+      "1366x768",
+      "1440x900",
+      "1920x1080"
+    ],
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "coarsePointerWidths": "1024px and below",
+    "scope": "Opened each tool through the editor rail or mobile picker. Checked for populated controls, horizontal overflow in the panel and document overflow.",
+    "repeatWith": "pnpm test:e2e:canvas-layout",
+    "cases": 968,
+    "missingControls": 0,
+    "horizontalOverflow": 0,
+    "browserErrors": []
+  },
+  "tools": [
+    {
+      "name": "Annotate",
+      "upgrade": "Optional continuous pen and highlighter strokes",
+      "layoutCases": 44
+    },
+    {
+      "name": "Signature",
+      "upgrade": "Typed name or initials with on-page placement",
+      "layoutCases": 44
+    },
+    {
+      "name": "Fill form",
+      "upgrade": "Shared page and panel answers with required-field navigation",
+      "layoutCases": 44
+    },
+    {
+      "name": "Select text",
+      "upgrade": "Two-tap word range and contextual touch actions",
+      "layoutCases": 44
+    },
+    {
+      "name": "Auto-fill",
+      "upgrade": "Exact printed answer preview with widening and shortening",
+      "layoutCases": 44
+    },
+    {
+      "name": "Organize",
+      "upgrade": "Page checkboxes, range extraction and rotation with placed marks",
+      "layoutCases": 44
+    },
+    {
+      "name": "Redact",
+      "upgrade": "Candidate review by type and page with individual exclusion",
+      "layoutCases": 44
+    },
+    {
+      "name": "Find & Act",
+      "upgrade": "Previous and next match with centered geometry",
+      "layoutCases": 44
+    },
+    {
+      "name": "Scrub",
+      "upgrade": "File-specific form-field and bookmark removal counts",
+      "layoutCases": 44
+    },
+    {
+      "name": "Metadata",
+      "upgrade": "Collapsible technical properties and direct Scrub access",
+      "layoutCases": 44
+    },
+    {
+      "name": "Crop",
+      "upgrade": "Preview the prepared straightened pages before applying",
+      "layoutCases": 44
+    },
+    {
+      "name": "Trim headers & footers",
+      "upgrade": "Preview and exclude individual matching pages",
+      "layoutCases": 44
+    },
+    {
+      "name": "Erase",
+      "upgrade": "Edit the position, size, method and strength of a placed area",
+      "layoutCases": 44
+    },
+    {
+      "name": "OCR",
+      "upgrade": "Correct a recognised word before writing its invisible text layer",
+      "layoutCases": 44
+    },
+    {
+      "name": "N-up",
+      "upgrade": "Navigate every output sheet and booklet side including blanks",
+      "layoutCases": 44
+    },
+    {
+      "name": "Stamp",
+      "upgrade": "Apply to all pages, the current page or a range",
+      "layoutCases": 44
+    },
+    {
+      "name": "Page numbers",
+      "upgrade": "Map original page numbers to printed labels",
+      "layoutCases": 44
+    },
+    {
+      "name": "Header & footer",
+      "upgrade": "One-click title and page-number layout",
+      "layoutCases": 44
+    },
+    {
+      "name": "Bates",
+      "upgrade": "First and last identifiers with copyable continuation number",
+      "layoutCases": 44
+    },
+    {
+      "name": "QR / barcode",
+      "upgrade": "Decode a placement locally at a simulated 150 dpi",
+      "layoutCases": 44
+    },
+    {
+      "name": "Bookmarks",
+      "upgrade": "Import the original outline and merge detected headings",
+      "layoutCases": 44
+    },
+    {
+      "name": "Attach",
+      "upgrade": "Save a separate copy of an embedded file",
+      "layoutCases": 44
+    }
+  ],
+  "regressions": {
+    "tests/e2e/canvas-upgrades.e2e.ts": [
+      "Tap two words inside a single native text run, then apply a contextual box.",
+      "Edit a form on paper and verify its value after rotating and exporting.",
+      "Decode a QR from the actual rasterized output of a rotated one-page copy and the complete three-page download.",
+      "Verify export review, Undo, and typed initials.",
+      "Verify overlapping redactions stay opaque above a signature and a QR code, and remove underlying text only on the redacted page."
+    ],
+    "tests/e2e/code-stamp.e2e.ts": ["Decode both QR and Code 128 placements on device."],
+    "tests/e2e/ocr-layout.e2e.ts": [
+      "Edit an OCR word, write the layer and select the corrected word from the PDF."
+    ],
+    "tests/unit/pdf-operations.test.ts": [
+      "Preserve form registration and page references across reordering.",
+      "Preserve an imported bookmark action, local zoom coordinates and linked contents."
+    ]
+  },
+  "coverageLimits": "Chrome device emulation. Physical touch hardware and spoken assistive technology were not exercised in this audit."
+}

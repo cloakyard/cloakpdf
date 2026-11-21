@@ -1,3 +1,4 @@
+import { canvasAccent } from "../../config/theme.ts";
 // FindActTool.tsx — Search the document's text layer for any term and mark
 // every occurrence at once: Highlight it or Box it for review, in a colour you
 // pick. This is the only path that *locates* existing user-supplied text and
@@ -41,6 +42,7 @@ interface StoredMatch extends TextMatchRect {
 }
 
 interface FindActSlice {
+  activeMatch?: string;
   input: string;
   sourceBytes?: Uint8Array;
   terms: string[];
@@ -61,6 +63,7 @@ const DEFAULT_BOX: Rgb = { r: 220, g: 38, b: 38 }; // Author outline colour.
 
 function readSlice(slice: Record<string, unknown>): FindActSlice {
   return {
+    activeMatch: slice.activeMatch as string | undefined,
     input: (slice.input as string) ?? "",
     sourceBytes: slice.sourceBytes as Uint8Array | undefined,
     terms: (slice.terms as string[]) ?? [],
@@ -102,18 +105,26 @@ export function Stage() {
   const slice = readSlice(useToolSlice(TOOL_ID));
   const { mode, highlightColor, boxColor } = slice;
   const matches = slice.sourceBytes === doc?.bytes ? slice.matches : [];
+  const focused = matches.find((m) => m.id === slice.activeMatch);
   const color = mode === "highlight" ? highlightColor : boxColor;
 
   const paintOverlay = useCallback(
     (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
       for (const m of matches) {
         if (m.on && m.pageIndex === pageIndex) paintMatch(ctx, m, w, h, mode, color);
+        if (m === focused && m.pageIndex === pageIndex) {
+          ctx.save();
+          ctx.strokeStyle = canvasAccent(ctx);
+          ctx.lineWidth = 3;
+          ctx.strokeRect(m.xPct * w - 2, m.yPct * h - 2, m.wPct * w + 4, m.hPct * h + 4);
+          ctx.restore();
+        }
       }
     },
-    [matches, mode, color],
+    [matches, mode, color, focused],
   );
 
-  useStageProps({ cursor: "default", paintOverlay });
+  useStageProps({ cursor: "default", paintOverlay, focusTarget: focused });
   return null;
 }
 
@@ -227,8 +238,10 @@ export function Panel() {
     setMessage(null);
     patchToolState(TOOL_ID, { input: "", terms: [], matches: [], searched: false, scanned: false });
   };
-  const jump = (page: number) => {
-    setSelectedPage(page);
+  const activeIndex = matches.findIndex((m) => m.id === slice.activeMatch);
+  const jump = (match: StoredMatch) => {
+    patchToolState(TOOL_ID, { activeMatch: match.id });
+    setSelectedPage(match.pageIndex);
     setViewMode("focus");
   };
   const apply = async () => {
@@ -433,6 +446,27 @@ export function Panel() {
       )}
       {matches.length > 0 && (
         <section aria-label="Matches" aria-busy={detecting}>
+          <div className="pdf-text-tokens">
+            <button
+              className="air-button"
+              disabled={blocked}
+              onClick={() => jump(matches[activeIndex < 1 ? matches.length - 1 : activeIndex - 1])}
+            >
+              Previous match
+            </button>
+            <button
+              className="air-button"
+              disabled={blocked}
+              onClick={() => jump(matches[(activeIndex + 1) % matches.length])}
+            >
+              Next match
+            </button>
+          </div>
+          {activeIndex >= 0 && (
+            <p role="status">
+              Match {activeIndex + 1} of {matches.length}
+            </p>
+          )}
           <div className="pdf-find-selection">
             <span>{enabled.length} selected</span>
             <button
@@ -458,7 +492,7 @@ export function Panel() {
                 <button
                   type="button"
                   className="air-button air-button--quiet"
-                  onClick={() => jump(pageIndex)}
+                  onClick={() => jump(list[0])}
                 >
                   Page {pageIndex + 1}
                 </button>
@@ -484,7 +518,7 @@ export function Panel() {
                       <button
                         type="button"
                         className="pdf-mark-list__location"
-                        onClick={() => jump(pageIndex)}
+                        onClick={() => jump(m)}
                       >
                         <span>
                           {m.line.slice(0, m.matchStart)}

@@ -14,13 +14,9 @@
 
 import { AlertTriangle, Layers } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  addCodeStampAt,
-  type CodeStampType,
-  encodeCode128B,
-  encodeQr,
-} from "../../utils/pdf-operations.ts";
-import { ColorPicker, hexToRgb } from "../../components/ColorPicker.tsx";
+import { type CodeStampType, encodeCode128B, encodeQr } from "../../utils/pdf-operations.ts";
+import { bakePlacedMarks, type StampPayload } from "../placed-marks.ts";
+import { ColorPicker } from "../../components/ColorPicker.tsx";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 import { PlacementActions } from "./PlacementActions.tsx";
@@ -46,15 +42,6 @@ const MOVE_THRESHOLD_PX = 4;
  *  barcode is wide, so it starts wider). */
 const DEFAULT_QR_W = 0.18;
 const DEFAULT_BAR_W = 0.42;
-
-interface StampPayload {
-  type: CodeStampType;
-  content: string;
-  colorHex: string;
-  caption: boolean;
-  /** Rendered preview PNG for the on-canvas overlay (burn re-draws as vector). */
-  dataUrl: string;
-}
 
 interface RenderedCode {
   dataUrl: string;
@@ -473,6 +460,62 @@ export function Panel() {
   const pageCount = doc?.pageCount ?? 0;
   const remainingPages = pageCount - new Set(stamps.map((o) => o.pageIndex)).size;
   const busy = busyLabel !== null;
+  const [scan, setScan] = useState<{ placement: typeof selected; text: string }>();
+  const scanRequest = useRef(0);
+  async function testScan() {
+    if (!selected?.rect || !doc) return;
+    const placement = selected,
+      request = ++scanRequest.current;
+    const tell = (text: string) => {
+      if (scanRequest.current === request) setScan({ placement, text });
+    };
+    tell("Testing scan…");
+    const page = doc.pages[selectedPage];
+    const w = Math.max(1, Math.round((selected.rect.wPct * page.widthPt * 150) / 72));
+    const h = Math.max(1, Math.round((selected.rect.hPct * page.heightPt * 150) / 72));
+    if (w * h > 16000000 || Math.max(w, h) > 12000) {
+      tell("This placement is too large to test at 150 dpi.");
+      return;
+    }
+    try {
+      const {
+        BinaryBitmap,
+        HybridBinarizer,
+        RGBLuminanceSource,
+        MultiFormatReader,
+        DecodeHintType,
+        BarcodeFormat,
+      } = await import("@zxing/library");
+      const payload = placement.payload as StampPayload;
+      const image = new Image();
+      image.src = payload.dataUrl;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(image, 0, 0, w, h);
+      const rgba = ctx.getImageData(0, 0, w, h).data;
+      const gray = new Uint8ClampedArray(w * h);
+      for (let i = 0; i < gray.length; i++)
+        gray[i] = (rgba[4 * i] + 2 * rgba[4 * i + 1] + rgba[4 * i + 2]) / 4;
+      const reader = new MultiFormatReader();
+      reader.setHints(
+        new Map([
+          [
+            DecodeHintType.POSSIBLE_FORMATS,
+            [payload.type === "qr" ? BarcodeFormat.QR_CODE : BarcodeFormat.CODE_128],
+          ],
+        ]),
+      );
+      const result = reader.decodeWithState(
+        new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(gray, w, h))),
+      );
+      tell(`Decoded at 150 dpi (${w} × ${h} px): ${result.getText()}`);
+    } catch {
+      tell(`Unreadable at 150 dpi (${w} × ${h} px). Try a larger placement or darker ink.`);
+    }
+  }
   const placeRef = useRef<HTMLButtonElement>(null);
   const error = !trimmed
     ? ""
@@ -547,51 +590,14 @@ export function Panel() {
   }, [doc, busy, addObjects]);
 
   const apply = useCallback(async () => {
-    await applyTransform(async (d) => {
-      const stamps = d.objects.filter((o) => o.kind === "stamp" && o.rect && o.payload);
-      // Group placements by payload identity (type/content/colour/caption) so one
-      // addCodeStampAt call burns every box that shares the same code.
-      const groups = new Map<
-        string,
-        {
-          payload: StampPayload;
-          placements: { pageIndex: number; x: number; y: number; width: number; height: number }[];
-        }
-      >();
-      for (const o of stamps) {
-        const payload = o.payload as StampPayload;
-        const r = o.rect!;
-        const page = d.pages[o.pageIndex];
-        if (!page) continue;
-        const key = `${payload.type}|${payload.content}|${payload.colorHex}|${payload.caption}`;
-        const width = r.wPct * page.widthPt;
-        const height = r.hPct * page.heightPt;
-        const x = r.xPct * page.widthPt;
-        const y = (1 - r.yPct) * page.heightPt - height;
-        const g = groups.get(key) ?? { payload, placements: [] };
-        g.placements.push({ pageIndex: o.pageIndex, x, y, width, height });
-        groups.set(key, g);
-      }
-      let bytes = d.bytes;
-      for (const { payload, placements } of groups.values()) {
-        const file = new File([bytes.slice(0)], d.fileName, { type: "application/pdf" });
-        bytes = await addCodeStampAt(
-          file,
-          {
-            type: payload.type,
-            content: payload.content,
-            color: hexToRgb(payload.colorHex),
-            caption: payload.caption,
-          },
-          placements,
-        );
-      }
-      return {
-        bytes,
-        label: stamps.length === 1 ? "Code stamp" : `Code stamp ×${stamps.length}`,
-        objects: d.objects.filter((o) => o.kind !== "stamp"),
-      };
-    });
+    await applyTransform(
+      async (d) => ({ bytes: d.bytes, label: "Code stamp" }),
+      (d) =>
+        bakePlacedMarks(
+          d,
+          d.objects.filter((o) => o.kind === "stamp"),
+        ),
+    );
   }, [applyTransform]);
 
   return (
@@ -738,6 +744,18 @@ export function Panel() {
                   else document.getElementById("code-content")?.focus();
                 }}
               />
+            )}
+            {selected && (
+              <div>
+                <button className="air-button" disabled={busy} onClick={() => void testScan()}>
+                  Test scan
+                </button>
+                {scan?.placement === selected && (
+                  <p className="air-help" role="status">
+                    {scan.text}
+                  </p>
+                )}
+              </div>
             )}
             {pageCount > 1 && (
               <>
