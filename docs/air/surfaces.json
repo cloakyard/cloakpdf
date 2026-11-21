@@ -1485,7 +1485,8 @@
         "expanded",
         "reduced-motion",
         "forced-colors",
-        "Touch Export, More actions, zoom and history focus across reflow"
+        "Touch Export, More actions, zoom and history focus across reflow",
+        "Icon-only compact Export, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -1513,7 +1514,8 @@
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/canvas-2026-10-14.json",
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
-        "docs/air/evidence/canvas-mobile-2026-11-21.json"
+        "docs/air/evidence/canvas-mobile-2026-11-21.json",
+        "docs/air/evidence/mobile-export-320-dark.png"
       ],
       "notes": "Air 64px toolbar at normal text size on every required width. Desktop filename only; tablet/mobile document-mark popover reveals filename/home with hover, keyboard or touch; Escape/outside dismissal and modal handoff verified. Compact pending-mark badge preserves the single row. Shared page selector, neutral view/history controls, page/zoom/history/export preserved. Enlarged text may reflow. Physical/assistive acceptance remains open. Canvas checkpoint: same 36px mark as landing at every size; compact 64px toolbar retained. 2026-10-19: wrapper/history focus refinement, real busy guards, responsive toolbar-focus preservation and shared aria-disabled icon skin; see editor-wrappers evidence. Device acceptance remains open."
     },
@@ -1557,7 +1559,8 @@
         "keyboard-focus",
         "reduced-motion",
         "forced-colors",
-        "Review unapplied annotations, signatures and codes before download"
+        "Review unapplied annotations, signatures and codes before download",
+        "Icon-only compact Export, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -1580,7 +1583,8 @@
       "evidence": [
         "docs/air/evidence/export-2026-10-14.json",
         "docs/air/validation.md",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/mobile-export-320-dark.png"
       ],
       "notes": "Air interior implemented. 320 theme/viewport/text cases; real outputs for every format/modifier; source/history unchanged; redaction verified across all formats; Safari/Firefox keyboard and 200% zoom pass. Physical/assistive acceptance remains open. No cancellable processing API; preparation is explicitly protected until settlement."
     },
@@ -3575,7 +3579,8 @@
         "200% text and browser zoom",
         "Responsive on-page fields and contextual selection controls",
         "Short landscape and keyboard-constrained picker with large text",
-        "Small landscape phone split and minimum-width pagination"
+        "Small landscape phone split and minimum-width pagination",
+        "Icon-only compact Export, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -3620,7 +3625,8 @@
         "docs/air/simple-actions-2026-11-02.md",
         "docs/air/evidence/canvas-tools-2026-11-21.json",
         "docs/air/evidence/canvas-mobile-2026-11-21.json",
-        "docs/air/evidence/mobile-navigation-2026-11-21.json"
+        "docs/air/evidence/mobile-navigation-2026-11-21.json",
+        "docs/air/evidence/mobile-export-320-dark.png"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },

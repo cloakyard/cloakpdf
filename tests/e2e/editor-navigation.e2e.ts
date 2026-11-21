@@ -108,6 +108,26 @@ try {
           {},
           mobile ? "mobile" : width < 1024 ? "tablet" : "desktop",
         );
+        const trigger = await page.$eval('button[aria-label="Export"]', (button) => {
+          const icon = button.querySelector("svg")!.getBoundingClientRect();
+          const rect = button.getBoundingClientRect();
+          return {
+            label: button.innerText.trim(),
+            iconWidth: icon.width,
+            iconHeight: icon.height,
+            width: rect.width,
+            height: rect.height,
+            centered:
+              Math.abs(rect.x + rect.width / 2 - icon.x - icon.width / 2) < 1 &&
+              Math.abs(rect.y + rect.height / 2 - icon.y - icon.height / 2) < 1,
+          };
+        });
+        assert.deepEqual([trigger.iconWidth, trigger.iconHeight], [18, 18]);
+        assert.equal(trigger.label, width < 1024 ? "" : "Export");
+        if (width < 1024) {
+          assert.deepEqual([trigger.width, trigger.height], [44, 44]);
+          assert.ok(trigger.centered);
+        }
         const states = mobile ? ["closed", "picker", "tool"] : ["rail"];
         if (width < 1024) states.push("document");
         for (const state of states) {
@@ -201,6 +221,10 @@ try {
   });
   await page.setViewport({ width: 390, height: 844 });
   await page.waitForSelector('[aria-label="Open tools"]');
+  await page.locator('::-p-aria([name="Export"][role="button"])').click();
+  await page.waitForSelector('[data-testid="export-dialog"]');
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "Export");
   await page.click('button:is([aria-label="Document information"],[aria-label="More actions"])');
   await page.waitForSelector("#editor-document-info:popover-open");
   assert.equal(

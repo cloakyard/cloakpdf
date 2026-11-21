@@ -277,6 +277,7 @@ export function ExportButton() {
         disabled={!doc || busyLabel !== null || busy}
         aria-haspopup="dialog"
         aria-label="Export"
+        title="Export document"
         className="air-button air-button--primary pdf-export-trigger"
       >
         <Download size={18} strokeWidth={1.6} aria-hidden="true" />

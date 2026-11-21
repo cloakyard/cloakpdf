@@ -1310,9 +1310,10 @@ journeys across all apps; it is not inferred from the pilot alone.
   the rail grow rather than squeezing enlarged words. Search retains the full
   tool names and descriptions. The filename, page controls, view controls and
   document actions share one 64px toolbar at normal text size, retaining real
-  40/44px targets. Phones keep the home mark, page navigation, labelled Export
-  and More actions in reach. More actions holds the filename, history and zoom.
-  Tablet retains the document popover. Enlarged text can reflow without clipping.
+  40/44px targets. Phones keep the home mark, page navigation, and More actions
+  in reach. Export uses a download icon in a 44×44px primary button named “Export”.
+  More actions holds the filename, history and zoom. Tablet retains the document
+  popover. Enlarged text can reflow without clipping.
   Keep the desktop filename alone beside the mark; the page selector owns the count.
 - Editor widths follow 768/1024px. Below 1024px, a height under 500px uses the
   working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps

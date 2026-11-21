@@ -1829,15 +1829,13 @@ body:has(.pdf-workspace) > .pdf-modal-root {
 .pdf-export-footer > button {
   flex: 0 1 auto;
 }
-@media (max-width: 1023px) {
-  .editor-topbar[data-layout="tablet"] .pdf-export-trigger > span {
-    display: none;
-  }
-  .pdf-export-trigger {
-    padding: 0 8px;
-    min-width: 44px;
-    min-height: 44px;
-  }
+.editor-topbar:not([data-layout="desktop"]) .pdf-export-trigger {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+.editor-topbar:not([data-layout="desktop"]) .pdf-export-trigger > span {
+  display: none;
 }
 @media (max-width: 640px) {
   .pdf-export-footer > button {
@@ -2459,7 +2457,6 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   .editor-topbar .pdf-export-trigger {
     margin-inline-start: 0;
   }
-  .editor-topbar .pdf-export-trigger > svg,
   .editor-topbar .pdf-page-jump svg {
     display: none;
   }
