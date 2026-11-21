@@ -255,6 +255,43 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement?.tagName), "H2");
   const startLabel = page.locator("#number-startNumber");
   await startLabel.fill("17");
+  // Jumping pages is an explicit view change and preserves the open tool draft.
+  const jump = 'button[aria-label="Go to page"]';
+  const destination = '.pdf-page-jump-dialog input[name="page"]';
+  await page.click(jump);
+  await page.waitForFunction(
+    (selector) => document.activeElement?.matches(selector),
+    {},
+    destination,
+  );
+  for (const value of ["", "4", "1.5"]) {
+    await page.locator(destination).fill(value);
+    await page.keyboard.press("Enter");
+    await page.waitForSelector('.pdf-page-jump-dialog [role="alert"]');
+    assert.equal(
+      await page.$eval(destination, (node) => node.getAttribute("aria-invalid")),
+      "true",
+    );
+    assert.equal(await page.$eval(destination, (node) => (node as HTMLInputElement).value), value);
+  }
+  await page.locator(destination).fill("1");
+  await page.keyboard.press("Enter");
+  await page.waitForSelector('img[alt="Page 1"]');
+  await page.waitForFunction((selector) => document.activeElement?.matches(selector), {}, jump);
+  await page.click(jump);
+  await page.locator(destination).fill("3");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector(".pdf-page-jump-dialog", { hidden: true });
+  assert.ok(await page.$('img[alt="Page 1"]'));
+  await page.click(jump);
+  await page.type(destination, "3");
+  await page.locator('.pdf-page-jump-dialog button[type="submit"]').click();
+  await page.waitForSelector('img[alt="Page 3"]');
+  await page.waitForSelector(".pdf-page-jump-dialog", { hidden: true });
+  assert.equal(
+    await page.$eval("#number-startNumber", (node) => (node as HTMLInputElement).value),
+    "17",
+  );
   await page.click('[aria-label="Back to tools"]');
   assert.equal(
     await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
@@ -283,7 +320,37 @@ try {
     await page.$eval("#mobile-editor-tool-search", (node) => node.getBoundingClientRect().top),
     searchTop,
   );
-  await page.type("#mobile-editor-tool-search", "Signature");
+  await page.type("#mobile-editor-tool-search", "page");
+  assert.equal(
+    await page.$eval(
+      ".editor-mobile-tool-list button",
+      (row) =>
+        row.getAttribute("aria-label") === "Page numbers" &&
+        row.getBoundingClientRect().top >=
+          document.querySelector("#mobile-editor-tool-body")!.getBoundingClientRect().top,
+    ),
+    true,
+    "Editing the pinned search brings the best of multiple matches into view",
+  );
+  await page.click('[aria-label="Clear editor tool search"]');
+  // Real Chromium IME input updates the field; candidate confirmation stays in search.
+  await cdp.send("Input.imeSetComposition", {
+    text: "Signature",
+    selectionStart: 9,
+    selectionEnd: 9,
+  });
+  assert.equal(
+    await page.$$eval(".editor-mobile-tool-list button", (nodes) => nodes.length),
+    EDITOR_TOOLS.length,
+  );
+  await page.$eval("#mobile-editor-tool-search", (node) => {
+    node.closest("form")!.requestSubmit();
+  });
+  assert.ok(await page.$("#mobile-editor-tool-search"));
+  await cdp.send("Input.insertText", { text: "Signature" });
+  await page.waitForFunction(
+    () => document.querySelectorAll(".editor-mobile-tool-list button").length === 1,
+  );
   const tappable = await page.$eval(".editor-mobile-tool-list button", (row) => {
     const box = row.getBoundingClientRect();
     return row.contains(

@@ -1318,12 +1318,19 @@ journeys across all apps; it is not inferred from the pilot alone.
   working sheet to avoid a shallow three-pane layout. A 1280×720 laptop keeps
   its desktop rail. The phone picker uses full-name rows and persistent search.
 - Split the phone workspace evenly between preview and controls. Portrait stacks
-  them vertically. Landscape uses adjacent columns from 640px wide below 500px high.
+  them vertically. Landscape uses adjacent columns from 536px wide below 500px high. Reserve at least
+  40% for paper. Give the inspector 320px when space allows.
   Keep tool search and the active tool's title and actions outside the scrolling body.
   A short search viewport gives the picker the full working area above the keyboard.
   Back to tools preserves the draft, query and focused result. Apply or Cancel ends
   the edit and returns focus to Tools. Use the shared 48px actions and a labelled
   Close for inspection.
+- The page count opens Go to page. Keep previous and next page available in the
+  toolbar. Enter or Go navigates to a valid whole page and restores focus to the
+  count. Closing the dialog preserves the current page and the active tool draft.
+- A new tool search scrolls the best match into view. While an input method is
+  composing text, keep the existing results and allow the keyboard to confirm
+  its candidate before submitting a search.
 - Tool navigation is immediate, including active-rail scrolling. Global history
   shortcuts cannot change the document behind a modal or during a busy operation.
 - Inspector headers use sentence case and secondary descriptions; omit the repeated

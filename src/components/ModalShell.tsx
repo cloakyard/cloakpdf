@@ -63,20 +63,22 @@ interface ModalShellProps {
   testId?: string;
 }
 
-export function ModalShell({ open, ...props }: ModalShellProps) {
-  const preference = useDialogMotion();
-  const motion = {
-    ...preference,
-    immediate: preference.immediate,
-  };
+export function ModalShell(props: ModalShellProps) {
   if (typeof document === "undefined") return null;
-  return createPortal(
-    <AnimatePresence custom={motion}>{open && <ModalFrame {...props} />}</AnimatePresence>,
-    document.body,
+  return createPortal(<ModalPresence {...props} />, document.body);
+}
+
+function ModalPresence({ open, ...props }: ModalShellProps) {
+  const motion = useDialogMotion();
+  return (
+    <AnimatePresence custom={motion}>
+      {open && <ModalFrame {...props} motion={motion} />}
+    </AnimatePresence>
   );
 }
 
 function ModalFrame({
+  motion,
   onClose,
   onAfterClose,
   children,
@@ -87,9 +89,7 @@ function ModalFrame({
   placement = "center",
   panelClassName = "",
   testId,
-}: Omit<ModalShellProps, "open">) {
-  const preference = useDialogMotion();
-  const motion = { ...preference, immediate: preference.immediate };
+}: Omit<ModalShellProps, "open"> & { motion: MotionState }) {
   const present = useIsPresent();
   const dialogRef = useRef<HTMLDivElement>(null);
   const isTopmost = useFocusTrap(dialogRef, true);

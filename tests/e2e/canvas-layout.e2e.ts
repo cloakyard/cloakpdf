@@ -13,6 +13,10 @@ const sizes = [
   [375, 812],
   [390, 844],
   [430, 932],
+  [535, 320],
+  [536, 320],
+  [537, 320],
+  [568, 320],
   [844, 390],
   [768, 1024],
   [1024, 768],
@@ -111,6 +115,15 @@ try {
               const sheet = document.querySelector(".editor-mobile-sheet");
               if (sheet) {
                 const preview = sheet.previousElementSibling!.getBoundingClientRect();
+                const panel = sheet.getBoundingClientRect();
+                if (
+                  innerWidth >= 536 &&
+                  innerHeight < 500 &&
+                  innerWidth > innerHeight &&
+                  (preview.right > panel.left + 1 ||
+                    preview.width < (preview.width + panel.width) * 0.4 - 1)
+                )
+                  return "Short landscape must leave the preview beside the controls with at least 40% of the workspace";
                 if (Math.min(preview.height, preview.width) < 64 || body.clientHeight < 44)
                   return `Preview ${Math.round(preview.width)}×${Math.round(preview.height)}, controls ${body.clientHeight}px`;
                 for (const control of sheet.querySelectorAll<HTMLButtonElement>(

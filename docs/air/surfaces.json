@@ -795,7 +795,8 @@
         "cache",
         "confirmed-delete",
         "reduced-motion",
-        "forced-colors"
+        "forced-colors",
+        "Static rendering and shared motion settings for page navigation"
       ],
       "viewports": [
         "320x568",
@@ -811,7 +812,11 @@
         "1920x1080",
         "639x800",
         "640x800",
-        "641x800"
+        "641x800",
+        "535x320",
+        "536x320",
+        "537x320",
+        "568x320"
       ],
       "evidence": [
         "docs/air/validation.md",
@@ -820,7 +825,8 @@
         "docs/air/evidence/palette-2026-10-14.json",
         "docs/air/evidence/navigation-2026-10-14.json",
         "docs/air/evidence/foundation-2026-10-19.json",
-        "docs/air/surface-motion-2026-11-03.md"
+        "docs/air/surface-motion-2026-11-03.md",
+        "docs/air/evidence/mobile-navigation-2026-11-21.json"
       ],
       "notes": "Air modal/model-control implementation. Shared ownership, real AI lifecycle, storage failures, keyboard and responsive states covered. Physical touch and assistive speech gates remain open. Export checkpoint: modal keyboard events cannot reach global background editor shortcuts; command palette toggle retained and regression suites pass. Composition Escape preserves candidate selection; palette now follows the shared phone sheet geometry. Navigation checkpoint: Queued palette commands run after the closing trap releases inertness; first/repeated tool selection focuses its heading, verified in Chromium and native Firefox. Foundation checkpoint: useFocusTrap stack now derives layers from --air-z-dialog directly; nested modal and focus regressions pass after removing the old layer aliases. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -888,7 +894,8 @@
         "difference-overlay",
         "missing-page",
         "reduced-motion",
-        "forced-colors"
+        "forced-colors",
+        "Direct page navigation, numeric entry, validation, cancel and focus return"
       ],
       "viewports": [
         "320x568",
@@ -901,9 +908,17 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "535x320",
+        "536x320",
+        "537x320",
+        "568x320"
       ],
-      "evidence": ["docs/air/validation.md", "docs/air/evidence/compare-2026-10-14.json"],
+      "evidence": [
+        "docs/air/validation.md",
+        "docs/air/evidence/compare-2026-10-14.json",
+        "docs/air/evidence/mobile-navigation-2026-11-21.json"
+      ],
       "notes": "Air comparison inputs, persistent file context, results and shared page navigation. 484 geometry observations, representative visual review, native Safari/Firefox 200%, source/pixel/geometry checks and lifecycle cancellation/cleanup pass. Mobile editor pager also verified. Physical touch and assistive acceptance remain open."
     },
     {
@@ -1588,7 +1603,8 @@
         "expanded",
         "reduced-motion",
         "forced-colors",
-        "Pinned search, sole-result submission, draft-preserving Back, compact Apply and Close"
+        "Pinned search, sole-result submission, draft-preserving Back, compact Apply and Close",
+        "Best-match scroll position and keyboard composition"
       ],
       "viewports": [
         "320x568",
@@ -1608,7 +1624,11 @@
         "1920x1080",
         "844x499",
         "844x500",
-        "844x501"
+        "844x501",
+        "535x320",
+        "536x320",
+        "537x320",
+        "568x320"
       ],
       "evidence": [
         "docs/air/validation.md",
@@ -1617,7 +1637,8 @@
         "docs/air/evidence/editor-wrappers-2026-10-19.json",
         "docs/air/simple-actions-2026-11-02.md",
         "docs/air/surface-motion-2026-11-03.md",
-        "docs/air/evidence/canvas-mobile-2026-11-21.json"
+        "docs/air/evidence/canvas-mobile-2026-11-21.json",
+        "docs/air/evidence/mobile-navigation-2026-11-21.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -3553,7 +3574,8 @@
         "neutral links/hover",
         "200% text and browser zoom",
         "Responsive on-page fields and contextual selection controls",
-        "Short landscape and keyboard-constrained picker with large text"
+        "Short landscape and keyboard-constrained picker with large text",
+        "Small landscape phone split and minimum-width pagination"
       ],
       "viewports": [
         "320x568",
@@ -3567,8 +3589,12 @@
         "1366x768",
         "1440x900",
         "1920x1080",
-        "320\u20131920px; 17 widths/heights; light/dark; 16/32px root font",
-        "native Chrome 200%"
+        "320–1920px; 17 widths/heights; light/dark; 16/32px root font",
+        "native Chrome 200%",
+        "535x320",
+        "536x320",
+        "537x320",
+        "568x320"
       ],
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
@@ -3593,7 +3619,8 @@
         "docs/air/consistency-2026-10-28.md",
         "docs/air/simple-actions-2026-11-02.md",
         "docs/air/evidence/canvas-tools-2026-11-21.json",
-        "docs/air/evidence/canvas-mobile-2026-11-21.json"
+        "docs/air/evidence/canvas-mobile-2026-11-21.json",
+        "docs/air/evidence/mobile-navigation-2026-11-21.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },

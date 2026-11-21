@@ -1,4 +1,4 @@
-// In-flow working sheet: the document stays mounted while controls expand.
+// The tool picker and active controls share the sheet beside the mounted preview.
 import { Check, ChevronLeft, ChevronUp, Grid2x2, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useActiveTool, useEditorActions, useEditorRead } from "./EditorContext.tsx";
@@ -60,6 +60,9 @@ export function MobileEditorSurface() {
   const { pendingApply, canCancelCurrentTool, busyLabel } = useEditorRead();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [toolQuery, setToolQuery] = useState("");
+  // Keep the result list stable while the input method is choosing a candidate.
+  const [queryBeforeComposition, setQueryBeforeComposition] = useState<string | null>(null);
+  const confirmingCandidate = useRef(false);
   const finishing = useRef(false);
   const tool = findEditorTool(activeTool);
   const open = pickerOpen || tool !== null;
@@ -105,15 +108,21 @@ export function MobileEditorSurface() {
     },
     [setActiveTool, setViewMode],
   );
+  const resetQuery = () => {
+    confirmingCandidate.current = false;
+    setQueryBeforeComposition(null);
+    setToolQuery("");
+  };
   const close = () => {
     setPickerOpen(false);
-    setToolQuery("");
+    resetQuery();
   };
   const clearSearch = () => {
-    setToolQuery("");
+    resetQuery();
+    bodyRef.current?.scrollTo({ top: 0 });
     searchRef.current?.focus();
   };
-  const activeToolQuery = toolQuery.trim();
+  const activeToolQuery = (queryBeforeComposition ?? toolQuery).trim();
   const visibleTools = useMemo(() => {
     if (!activeToolQuery) return EDITOR_TOOLS;
     const normalized = activeToolQuery.toLocaleLowerCase();
@@ -240,6 +249,7 @@ export function MobileEditorSurface() {
                 className="editor-mobile-search"
                 onSubmit={(event) => {
                   event.preventDefault();
+                  if (queryBeforeComposition !== null || confirmingCandidate.current) return;
                   if (visibleTools.length === 1) pick(visibleTools[0].id);
                   else
                     bodyRef.current
@@ -258,7 +268,30 @@ export function MobileEditorSurface() {
                     type="search"
                     enterKeyHint="search"
                     value={toolQuery}
-                    onChange={(event) => setToolQuery(event.target.value)}
+                    onChange={(event) => {
+                      setToolQuery(event.currentTarget.value);
+                      if (queryBeforeComposition === null) bodyRef.current?.scrollTo({ top: 0 });
+                    }}
+                    onCompositionStart={() => setQueryBeforeComposition(toolQuery)}
+                    onCompositionEnd={(event) => {
+                      setQueryBeforeComposition(null);
+                      setToolQuery(event.currentTarget.value);
+                      bodyRef.current?.scrollTo({ top: 0 });
+                    }}
+                    onKeyDown={(event) => {
+                      // Let the keyboard accept its candidate, including engines that
+                      // dispatch compositionend before the confirming Enter submits.
+                      confirmingCandidate.current =
+                        event.key === "Enter" &&
+                        (event.nativeEvent.isComposing ||
+                          event.nativeEvent.keyCode === 229 ||
+                          queryBeforeComposition !== null);
+                    }}
+                    onKeyUp={() => {
+                      confirmingCandidate.current = false;
+                    }}
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     placeholder="Name or task…"
                     aria-describedby="mobile-editor-tool-search-count"
                     autoComplete="off"
