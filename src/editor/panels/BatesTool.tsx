@@ -83,6 +83,7 @@ export function Panel() {
   const active = !!doc && slice.sourceBytes === bytes;
   const busy = busyLabel !== null;
   const [failed, setFailed] = useState(false);
+  const [copyNote, setCopyNote] = useState("");
   const applying = useRef(false);
   const numbers = (slice.numbers as Partial<Record<NumberKey, string>>) ?? {};
   const touched = (slice.touched as Partial<Record<NumberKey, boolean>>) ?? {};
@@ -112,7 +113,11 @@ export function Panel() {
         bytes: await addBatesNumbers(docToFile(d), o),
         label: "Bates numbering",
       }));
-      patchToolState(TOOL, { sourceBytes: undefined });
+      patchToolState(TOOL, {
+        sourceBytes: undefined,
+        nextNumber: o.startNumber + (doc?.pageCount ?? 0),
+      });
+      setCopyNote("");
     } catch (error) {
       setFailed(true);
       throw error;
@@ -213,6 +218,30 @@ export function Panel() {
         </section>
       </fieldset>
       <section aria-label="Apply Bates numbers">
+        {active && doc && !invalid && !layoutError && (
+          <p className="air-help">
+            First {batesNumberText(o, 1)} · Last {batesNumberText(o, doc.pageCount)}
+          </p>
+        )}
+        {!active && typeof slice.nextNumber === "number" && (
+          <div>
+            <p>Next starting number: {slice.nextNumber}</p>
+            <button
+              className="air-button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(String(slice.nextNumber));
+                  setCopyNote("Number copied.");
+                } catch {
+                  setCopyNote("Select the number above to copy it.");
+                }
+              }}
+            >
+              Copy next starting number
+            </button>
+            <p role="status">{copyNote}</p>
+          </div>
+        )}
         <p className="air-help" id="bates-preview">
           {active ? `Preview on this page: ${preview}` : "No pending preview."}
         </p>

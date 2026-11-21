@@ -1,6 +1,8 @@
 /** Interactive form drafts belong to exact bytes, independently of inspector mounts. */
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { usePageHost } from "../stage.tsx";
 import { Select } from "../../components/Select.tsx";
 import {
   fillPdfForm,
@@ -30,10 +32,11 @@ const valueError = (f: FormFieldInfo, v: FormValue) =>
     : "";
 
 export function Panel() {
-  const { doc, busyLabel } = useEditorRead();
+  const { doc, busyLabel, selectedPage } = useEditorRead();
   const { applyTransform, patchToolState, setSelectedPage, setViewMode, setActiveTool } =
     useEditorActions();
   const slice = useToolSlice(TOOL);
+  const host = usePageHost();
   const stored = slice.draft as Draft | undefined;
   const draft = stored?.bytes === doc?.bytes ? stored : undefined;
   const bytes = doc?.bytes;
@@ -112,6 +115,15 @@ export function Panel() {
           .map((f) => [f.name, draft.values[f.name]]),
       )
     : {};
+  const nextRequired = draft?.fields.find((f) => {
+    if (!f.required || f.readOnly || f.type === "unsupported") return false;
+    const value = draft.values[f.name];
+    return Array.isArray(value)
+      ? !value.length
+      : typeof value === "string"
+        ? !value.trim()
+        : !value;
+  });
   const changed = Object.keys(changes).length;
   const unsupported = draft?.fields.some((f) => f.type === "unsupported");
   const apply = async () => {
@@ -196,10 +208,112 @@ export function Panel() {
         </section>
       ) : (
         <>
+          {host &&
+            createPortal(
+              draft.fields.flatMap((field, index) =>
+                field.widgets
+                  .filter((w) => w.pageIndex === selectedPage && w.wPct > 0 && w.hPct > 0)
+                  .map((w, widgetIndex) => {
+                    if (field.type === "unsupported" || field.readOnly) return null;
+                    const value = draft.values[field.name];
+                    const key = `${index}-${widgetIndex}`;
+                    const props = {
+                      className: "pdf-canvas-field",
+                      style: {
+                        left: `${w.xPct * 100}%`,
+                        top: `${w.yPct * 100}%`,
+                        width: `${w.wPct * 100}%`,
+                        height: `${w.hPct * 100}%`,
+                      },
+                      "aria-label": `${field.name} on page ${selectedPage + 1}`,
+                      disabled: busy,
+                    };
+                    if (w.radioOption !== undefined)
+                      return (
+                        <input
+                          {...props}
+                          key={key}
+                          type="radio"
+                          name={`canvas-radio-${index}`}
+                          aria-label={`${field.name}, ${w.radioOption} on page ${selectedPage + 1}`}
+                          checked={value === w.radioOption}
+                          onChange={() => set(field.name, w.radioOption!)}
+                        />
+                      );
+                    if (field.type === "checkbox")
+                      return (
+                        <input
+                          {...props}
+                          key={key}
+                          type="checkbox"
+                          checked={value === true}
+                          onChange={(e) => set(field.name, e.target.checked)}
+                        />
+                      );
+                    if (field.type === "text" || field.editable) {
+                      if (field.multiline && !field.password)
+                        return (
+                          <textarea
+                            {...props}
+                            key={key}
+                            value={textValue(value)}
+                            onChange={(e) => set(field.name, e.target.value)}
+                          />
+                        );
+                      return (
+                        <input
+                          {...props}
+                          key={key}
+                          type={field.password ? "password" : "text"}
+                          autoComplete="off"
+                          value={textValue(value)}
+                          onChange={(e) => set(field.name, e.target.value)}
+                        />
+                      );
+                    }
+                    return (
+                      <select
+                        {...props}
+                        key={key}
+                        multiple={field.multiple}
+                        value={Array.isArray(value) ? value : textValue(value)}
+                        onChange={(e) =>
+                          set(
+                            field.name,
+                            field.multiple
+                              ? Array.from(e.target.selectedOptions, (o) => o.value)
+                              : e.target.value,
+                          )
+                        }
+                      >
+                        {!field.multiple && <option value="">Choose…</option>}
+                        {field.options?.map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    );
+                  }),
+              ),
+              host,
+            )}
           <section aria-label="Form answers">
+            {nextRequired && (
+              <button
+                className="air-button"
+                onClick={() => {
+                  if (nextRequired.pages.length) {
+                    setSelectedPage(nextRequired.pages[0]);
+                    setViewMode("focus");
+                  }
+                  focusField(nextRequired.name);
+                }}
+              >
+                Next empty required field
+              </button>
+            )}
             <p className="air-help">
-              Edit your answers here, then save to update the PDF. Required fields are marked by the
-              form; you can save partial work.
+              Tap a field on the page or edit your answers here, then save. Required fields are
+              marked by the form; you can save partial work.
             </p>
             <ol className="pdf-form-fields">
               {draft.fields.map((f, i) => {

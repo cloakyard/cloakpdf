@@ -3915,3 +3915,52 @@ body:has(.pdf-site) {
     grid-template-columns: 1fr;
   }
 }
+
+/* Form controls follow widget geometry on the paper. */
+.pdf-canvas-field {
+  position: absolute;
+  pointer-events: auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 2px;
+  border: 1px solid var(--air-accent);
+  color: var(--air-ink);
+  background: var(--air-surface);
+  font: inherit;
+  font-size: clamp(9px, 1vw, 14px);
+}
+.pdf-touch-selection {
+  position: absolute;
+  pointer-events: auto;
+  left: 2%;
+  right: 2%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  background: var(--air-surface);
+  border-radius: var(--air-radius-control);
+  z-index: 1;
+}
+.pdf-touch-selection .air-button {
+  flex: 1;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+/* These frequently reopened controls track the user's input immediately. */
+.pdf-select-popup.air-select-popup,
+.pdf-select-popup.air-select-popup .air-menu-item {
+  transition: none;
+  animation: none;
+}
+
+@media (max-width: 350px) {
+  .pdf-date-popover.air-popover {
+    padding-inline: 0;
+  }
+  .pdf-date-calendar {
+    width: 100%;
+    margin-inline: 0;
+  }
+}

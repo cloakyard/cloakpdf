@@ -1,6 +1,6 @@
 // Printed-form answers stay scoped to the exact bytes used for detection.
 import { AlertTriangle, ChevronDown, ScanLine } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { canvasAccent } from "../../config/theme.ts";
 import { extractTextGeometry } from "../../utils/layout-extract.ts";
 import {
@@ -79,10 +79,12 @@ export function Stage() {
         ctx.setLineDash([]);
         const value = answers.values[i];
         if (!value?.trim()) continue;
-        const run = flatFieldLayout(value, f.rect, page.widthPt, page.heightPt, (text, size) => {
-          ctx.font = `${size}px Helvetica, Arial, sans-serif`;
-          return ctx.measureText(text).width;
-        });
+        let run;
+        try {
+          run = flatFieldLayout(value, f.rect, page.widthPt, page.heightPt);
+        } catch {
+          continue;
+        }
         ctx.fillStyle = "rgb(15.3, 22.95, 40.8)";
         ctx.font = `${run.size * scale}px Helvetica, Arial, sans-serif`;
         ctx.textBaseline = "alphabetic";
@@ -208,6 +210,21 @@ export function Panel() {
     }
     patchToolState(TOOL_ID, { profile: next, profileSaved });
   };
+  const fitNotes = useMemo(
+    () =>
+      answers?.fields.map((field, i) => {
+        const value = answers.values[i]?.trim(),
+          page = doc?.pages[field.pageIndex];
+        if (!value || !page) return;
+        try {
+          const run = flatFieldLayout(value, field.rect, page.widthPt, page.heightPt);
+          if (run.text !== value) return { printed: run.text };
+        } catch {
+          return { error: "This answer contains characters that the PDF font cannot print." };
+        }
+      }),
+    [answers, doc?.pages],
+  );
   const filledCount = answers?.fields.filter((_, i) => answers.values[i]?.trim()).length ?? 0;
   const hasProfileMatch = answers?.fields.some(
     (f) => f.profileKey && profile[f.profileKey]?.trim(),
@@ -441,6 +458,42 @@ export function Panel() {
                   disabled={busy || detecting || blocked}
                   onChange={(e) => setValue(i, e.target.value)}
                 />
+                {fitNotes?.[i] && (
+                  <div className="air-notice">
+                    <span>{fitNotes[i]?.error ?? `Will print “${fitNotes[i]?.printed}”`}</span>
+                    {fitNotes[i]?.printed && (
+                      <button
+                        className="air-button"
+                        onClick={() => setValue(i, fitNotes[i]!.printed!)}
+                      >
+                        Use shortened answer
+                      </button>
+                    )}
+                    {!fitNotes[i]?.error && f.rect.xPct + f.rect.wPct < 0.999 && (
+                      <button
+                        className="air-button"
+                        onClick={() => {
+                          const fields = answers.fields.map((field, j) =>
+                            j === i
+                              ? {
+                                  ...field,
+                                  rect: {
+                                    ...field.rect,
+                                    wPct: Math.min(1 - field.rect.xPct, field.rect.wPct + 0.05),
+                                  },
+                                }
+                              : field,
+                          );
+                          patchToolState(TOOL_ID, { answers: { ...answers, fields } });
+                          setSelectedPage(f.pageIndex);
+                          setViewMode("focus");
+                        }}
+                      >
+                        Widen answer box
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             ))}
           </ol>
@@ -464,7 +517,7 @@ export function Panel() {
           <PrimaryAction
             label={`Fill ${filledCount} field${filledCount === 1 ? "" : "s"}`}
             onApply={apply}
-            disabled={!filledCount || detecting || blocked}
+            disabled={!filledCount || detecting || blocked || fitNotes?.some((n) => !!n?.error)}
           />
         )}
       </section>

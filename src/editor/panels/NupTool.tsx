@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Select } from "../../components/Select.tsx";
 import { type NupLayout, nupPages } from "../../utils/pdf-operations.ts";
 import { bookletOrder } from "../../utils/pdf/transform.ts";
-import { docToFile } from "../doc.ts";
+import { placedMarkTools, docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
 import { PageThumb } from "../PageThumb.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
@@ -13,23 +14,24 @@ const NUP_OPTIONS: { value: NupLayout; label: string }[] = [
   { value: "3x3", label: "9-up · grid" },
   { value: "booklet", label: "Booklet · fold in half" },
 ];
-const PENDING_TOOLS = [
-  { kind: "annotation", id: "annotate-pdf", label: "Review annotations" },
-  { kind: "signature", id: "signature", label: "Review signatures" },
-  { kind: "stamp", id: "qr-stamp", label: "Review codes" },
-];
 
 /** Thumbnails are fitted into the same gapless, physical sheet as the writer. */
 function NupPreview({ layout, cropMarks }: { layout: NupLayout; cropMarks: boolean }) {
   const { doc } = useEditorRead();
   const pages = doc?.pages ?? [];
   const first = pages[0];
+  const [side, setSide] = useState(0);
   if (!first) return null;
   const isBooklet = layout === "booklet";
   const [cols, rows] = isBooklet ? [2, 1] : layout.split("x").map(Number);
   const perSheet = cols * rows;
   const order = isBooklet ? bookletOrder(pages.length) : pages.map((_, i) => i);
-  const cellPages = Array.from({ length: perSheet }, (_, i) => pages[order[i]]);
+  const sides = Math.ceil(order.length / perSheet);
+  const current = Math.min(side, Math.max(0, sides - 1));
+  const cellPages = Array.from(
+    { length: perSheet },
+    (_, i) => pages[order[current * perSheet + i]],
+  );
   const width = first.widthPt,
     height = first.heightPt;
   const sheets = Math.ceil(pages.length / (isBooklet ? 4 : perSheet));
@@ -37,7 +39,9 @@ function NupPreview({ layout, cropMarks }: { layout: NupLayout; cropMarks: boole
   return (
     <figure className="pdf-nup-preview">
       <figcaption className="air-label">
-        {isBooklet ? "First printed side" : "First sheet"}
+        {isBooklet
+          ? `Sheet ${Math.floor(current / 2) + 1} · ${current % 2 ? "Back" : "Front"}`
+          : `Sheet ${current + 1} of ${sheets}`}
       </figcaption>
       <div className="pdf-nup-preview__surround">
         <div
@@ -50,7 +54,9 @@ function NupPreview({ layout, cropMarks }: { layout: NupLayout; cropMarks: boole
               page ? (
                 <PageThumb key={i} page={page} alt="" aspect={(width * rows) / (height * cols)} />
               ) : (
-                <div key={i} style={{ aspectRatio: String((width * rows) / (height * cols)) }} />
+                <div key={i} style={{ aspectRatio: String((width * rows) / (height * cols)) }}>
+                  Blank
+                </div>
               ),
             )}
           </div>
@@ -71,6 +77,20 @@ function NupPreview({ layout, cropMarks }: { layout: NupLayout; cropMarks: boole
           )}
         </div>
       </div>
+      {sides > 1 && (
+        <div className="pdf-text-tokens">
+          <button className="air-button" disabled={!current} onClick={() => setSide(current - 1)}>
+            Previous
+          </button>
+          <button
+            className="air-button"
+            disabled={current >= sides - 1}
+            onClick={() => setSide(current + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
       <p className="air-help" aria-live="polite">
         {sheets} {sheets === 1 ? "sheet" : "sheets"}
         {isBooklet ? ", double-sided" : ` · ${perSheet} pages per sheet`}
@@ -114,7 +134,7 @@ export function NupPanel() {
           onChange={(value) => patchToolState("nup-pages", { layout: value })}
         />
       </div>
-      <NupPreview layout={layout} cropMarks={cropMarks} />
+      <NupPreview key={layout} layout={layout} cropMarks={cropMarks} />
       {isBooklet && (
         <label className="air-switch-row">
           <span>Fold & trim marks</span>
@@ -131,17 +151,19 @@ export function NupPanel() {
       {pending.length > 0 && (
         <div className="air-notice pdf-nup-pending" role="status">
           <p>Apply your pending marks before arranging pages.</p>
-          {PENDING_TOOLS.filter((tool) => pending.some((o) => o.kind === tool.kind)).map((tool) => (
-            <button
-              key={tool.id}
-              type="button"
-              className="air-button"
-              disabled={busy}
-              onClick={() => setActiveTool(tool.id)}
-            >
-              {tool.label}
-            </button>
-          ))}
+          {placedMarkTools
+            .filter((tool) => pending.some((o) => o.kind === tool.kind))
+            .map((tool) => (
+              <button
+                key={tool.id}
+                type="button"
+                className="air-button"
+                disabled={busy}
+                onClick={() => setActiveTool(tool.id)}
+              >
+                Review {tool.label}
+              </button>
+            ))}
         </div>
       )}
       <PrimaryAction

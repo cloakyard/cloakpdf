@@ -2,6 +2,7 @@
 // one byte revision and retires after Apply, including subsequent Undo.
 import { AlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { parsePageSelection } from "../../utils/page-selection.ts";
 import { ColorPicker, hexToRgb, rgbToHex } from "../../components/ColorPicker.tsx";
 import { SegmentedControl } from "../../components/SegmentedControl.tsx";
 import type { WatermarkOptions } from "../../types.ts";
@@ -42,13 +43,23 @@ const validNumber = (raw: string, field: (typeof NUMBERS)[number]) =>
   Number(raw) <= field.max &&
   Number.isInteger((Number(raw) - field.min) / field.step);
 
+function stampTargets(slice: Record<string, unknown>, page: number, total: number) {
+  if (slice.scope === "page") return [page];
+  if (slice.scope === "range")
+    return parsePageSelection((slice.range as string | undefined) ?? "", total) ?? [];
+  return undefined;
+}
 export function Stage() {
   useEffect(() => clearStampCache, []);
   const { doc, selectedPage } = useEditorRead();
   const slice = useToolSlice(TOOL);
   const o = optionsOf(slice);
   const context = slice.context as TextOverlayContext | undefined;
-  const active = slice.sourceBytes === doc?.bytes && context?.bytes === doc?.bytes;
+  const targets = stampTargets(slice, selectedPage, doc?.pageCount ?? 0);
+  const active =
+    slice.sourceBytes === doc?.bytes &&
+    context?.bytes === doc?.bytes &&
+    (!targets || targets.includes(selectedPage));
   const widthPt = doc?.pages[selectedPage]?.widthPt ?? 0;
   const resolved = resolveStampTokens(o.text, {
     page: selectedPage + 1,
@@ -112,7 +123,8 @@ export function Panel() {
   const fields = NUMBERS.filter((f) => f.key !== "inkTexture" || o.finish === "ink");
   const rawValue = (f: (typeof NUMBERS)[number]) =>
     drafts[f.key] ?? String(Math.round((o[f.key] ?? 0) * f.factor));
-  const invalid = fields.some((f) => !validNumber(rawValue(f), f));
+  const targets = stampTargets(slice, selectedPage, doc?.pageCount ?? 0);
+  const invalid = targets?.length === 0 || fields.some((f) => !validNumber(rawValue(f), f));
   const set = (patch: Partial<WatermarkOptions>) => {
     setFailed(false);
     patchToolState(TOOL, { options: { ...o, ...patch } });
@@ -171,7 +183,7 @@ export function Panel() {
     setFailed(false);
     try {
       await applyTransform(async (d) => ({
-        bytes: await addWatermark(docToFile(d), { ...o, timestamp: current.timestamp }),
+        bytes: await addWatermark(docToFile(d), { ...o, timestamp: current.timestamp }, targets),
         label: "Add stamp",
       }));
       patchToolState(TOOL, { sourceBytes: undefined });
@@ -185,7 +197,30 @@ export function Panel() {
   return (
     <div className="pdf-mark-panel pdf-stamp-panel">
       <section aria-label="Stamp text" tabIndex={-1} data-busy-focus-fallback>
-        <p>Add a stamp to every page. Preview it on the page before applying.</p>
+        <SegmentedControl
+          ariaLabel="Stamp pages"
+          value={(slice.scope as string | undefined) ?? "all"}
+          disabled={busy || !active}
+          options={[
+            { value: "all", label: "All pages" },
+            { value: "page", label: "This page" },
+            { value: "range", label: "Range" },
+          ]}
+          onChange={(scope) => patchToolState(TOOL, { scope })}
+        />
+        {slice.scope === "range" && (
+          <label className="pdf-property-field">
+            Page range
+            <input
+              className="air-field"
+              disabled={busy || !active}
+              value={(slice.range as string | undefined) ?? ""}
+              placeholder="2–5, 8"
+              onChange={(e) => patchToolState(TOOL, { range: e.target.value })}
+            />
+            {targets?.length === 0 && <small>Enter a range within pages 1–{doc?.pageCount}.</small>}
+          </label>
+        )}
         {!active && current && (
           <>
             <p role="status" className="air-help">

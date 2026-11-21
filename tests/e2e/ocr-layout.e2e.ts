@@ -378,6 +378,11 @@ try {
   assert.match(await page.$eval(".pdf-ocr-preview pre", (n) => n.textContent!), /No text detected/);
   await page.click('[aria-label="Previous page"]');
   await page.click('[aria-label="Previous page"]');
+  await page.click(".pdf-ocr-preview details summary");
+  const corrected = ".pdf-ocr-preview details input";
+  await page.$eval(corrected, (el) => (el as HTMLInputElement).select());
+  await page.type(corrected, "Corrected");
+  assert.match(await page.$eval(".pdf-ocr-preview pre", (el) => el.textContent!), /Corrected/);
   // A failed application retains the recognised text for retry and copy.
   const failNextRead = async () =>
     page.evaluate(() => {
@@ -395,6 +400,13 @@ try {
   assert.ok(await page.$(".pdf-ocr-preview"));
   await page.locator("button::-p-text(Make searchable)").click();
   await page.waitForFunction(() => document.body.innerText.includes("Searchable text added"));
+  await page.click('[aria-label="Select text"]');
+  await page.locator("button::-p-text(Select page text)").click();
+  assert.match(
+    await page.$eval("#selected-page-text", (el) => (el as HTMLTextAreaElement).value),
+    /Corrected/,
+  );
+  await page.click('[aria-label="OCR"]');
   await page.locator("button::-p-text(Extract text)").click();
   await page.waitForFunction(
     () => document.body.innerText.includes("already has searchable text"),

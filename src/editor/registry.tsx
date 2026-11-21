@@ -49,7 +49,7 @@ const TOOL_IMPL: Record<EditorToolId, ToolImpl> = {
   // Canvas-placement tools: a Stage to place/drag on the page + a Panel.
   signature: { Stage: Signature.Stage, Panel: Signature.Panel },
   "crop-pages": { Stage: Crop.Stage, Panel: Crop.Panel },
-  // Strip Furniture: a passive Stage that previews the trimmed margin bands + a
+  // Trim headers & footers: a passive Stage that previews the trimmed margin bands + a
   // detect-and-crop Panel.
   "strip-furniture": { Stage: StripFurniture.Stage, Panel: StripFurniture.Panel },
   // Overview tools: their Board lives in OverviewMode (center), so no focus

@@ -1,3 +1,4 @@
+import type { BookmarkEntry } from "../../utils/pdf/bookmarks.ts";
 // Outline drafts survive tool/viewport changes and belong to one byte revision.
 import { AlertTriangle, ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -6,10 +7,11 @@ import { addPdfBookmarks } from "../../utils/pdf-operations.ts";
 import { detectHeadings, extractLayout } from "../../utils/layout-extract.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { readPageBookmarks } from "../../utils/pdf-renderer.ts";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 
 const TOOL_ID = "add-bookmarks";
-interface Row {
+interface Row extends Pick<BookmarkEntry, "destination" | "appearance" | "originalTarget"> {
   id: string;
   title: string;
   page: string;
@@ -50,10 +52,47 @@ export function Panel() {
   const addButton = useRef<HTMLButtonElement>(null);
   const focusRow = useRef<string | null>(null);
   const busy = !!busyLabel;
-  const blocked = busy || detecting;
+  const [outlineError, setOutlineError] = useState("");
+  const [readAttempt, setReadAttempt] = useState(0);
+  useEffect(() => {
+    if (!doc || currentDraft) return;
+    const controller = new AbortController();
+    setOutlineError("");
+    void readPageBookmarks(doc.bytes, controller.signal)
+      .then((list) => {
+        if (!controller.signal.aborted)
+          patchToolState(TOOL_ID, {
+            sourceBytes: doc.bytes,
+            rows: list.length
+              ? list.map((e) => ({
+                  ...newRow(e.page),
+                  title: e.title,
+                  level: String(e.level),
+                  destination: e.destination,
+                  originalTarget: e.originalTarget,
+                  appearance: e.appearance,
+                }))
+              : initial,
+          });
+      })
+      .catch((e) => {
+        if (!controller.signal.aborted)
+          setOutlineError(e instanceof Error ? e.message : "Could not read the existing outline.");
+      });
+    return () => controller.abort();
+  }, [doc?.bytes, currentDraft, patchToolState, initial, readAttempt]);
+  const blocked = busy || detecting || !currentDraft;
   const pageCount = doc?.pageCount ?? 1;
   const pendingObjects = doc?.objects.some((o) => o.kind !== "redaction" && o.kind !== "erase");
   const blockedContents = contentsPage && pendingObjects;
+  const [savedBytes, setSavedBytes] = useState<Uint8Array>();
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (savedRef.current && doc) {
+      savedRef.current = false;
+      setSavedBytes(doc.bytes);
+    }
+  }, [doc, currentDraft]);
   const setDraft = (
     next: Partial<{ rows: Row[]; contentsPage: boolean; restoreRows: Row[] | undefined }>,
   ) => {
@@ -87,7 +126,7 @@ export function Panel() {
   }, [doc?.id, doc?.bytes, doc?.objects, busyLabel]);
 
   const autoDetect = async () => {
-    if (!doc || busy || request.current || doc.objects.length) return;
+    if (!doc || blocked || request.current || doc.objects.length) return;
     const controller = new AbortController();
     request.current = controller;
     setDetecting(true);
@@ -112,11 +151,21 @@ export function Panel() {
       if (headings.length) {
         setDraft({
           restoreRows: rows,
-          rows: headings.map((h) => ({
-            ...newRow(h.pageNumber),
-            title: h.text,
-            level: String(h.level),
-          })),
+          rows: [
+            ...rows.filter((r) => r.title.trim()),
+            ...headings
+              .filter(
+                (h) =>
+                  !rows.some(
+                    (r) => r.page === String(h.pageNumber) && r.title.trim() === h.text.trim(),
+                  ),
+              )
+              .map((h) => ({
+                ...newRow(h.pageNumber),
+                title: h.text,
+                level: String(h.level),
+              })),
+          ],
         });
         setErrors({});
       }
@@ -147,7 +196,7 @@ export function Panel() {
     for (const row of rows) {
       if (!row.title.trim())
         nextErrors[`title-${row.id}`] = "Enter a bookmark title or remove this row.";
-      const error = pageError(row.page);
+      const error = row.originalTarget ? "" : pageError(row.page);
       if (error) nextErrors[`page-${row.id}`] = error;
     }
     setErrors(nextErrors);
@@ -170,12 +219,16 @@ export function Panel() {
               title: r.title.trim(),
               pageIndex: Number(r.page) - 1,
               level: Number(r.level),
+              destination: r.destination,
+              originalTarget: r.originalTarget,
+              appearance: r.appearance,
             })),
             { contentsPage },
           ),
           label: contentsPage ? "Add bookmarks and contents pages" : "Add bookmarks",
         };
       });
+      savedRef.current = true;
       // Retire the applied draft so Undo cannot resurrect and reapply it.
       patchToolState(TOOL_ID, {
         sourceBytes: undefined,
@@ -195,10 +248,21 @@ export function Panel() {
     <div ref={panel} className="pdf-mark-panel pdf-bookmarks-panel">
       <section aria-label="Find headings">
         <p>Add named bookmarks that show in the viewer's outline.</p>
+        {savedBytes && savedBytes === doc?.bytes && <p role="status">Outline saved.</p>}
+        {!currentDraft && (
+          <p role="status">
+            {outlineError || "Reading existing bookmarks…"}
+            {outlineError && (
+              <button className="air-button" onClick={() => setReadAttempt((n) => n + 1)}>
+                Retry reading outline
+              </button>
+            )}
+          </p>
+        )}
         <button
           type="button"
           className="air-button"
-          aria-disabled={busy || detecting || !!doc?.objects.length}
+          aria-disabled={blocked || !!doc?.objects.length}
           aria-busy={detecting}
           ref={detectButton}
           onClick={() => void autoDetect()}
@@ -213,7 +277,8 @@ export function Panel() {
           </span>
         </button>
         <p className="air-help">
-          Replaces this draft. Layout and OCR data may download on first use; your PDF stays local.
+          Adds new headings to your outline. Layout and OCR data may download on first use; your PDF
+          stays local.
         </p>
         {!!doc?.objects.length && (
           <p className="air-help">Apply pending marks in their tools before detecting headings.</p>
@@ -333,25 +398,34 @@ export function Panel() {
             <div className="pdf-bookmark-target">
               <div className="pdf-property-field">
                 <label className="air-label" htmlFor={`bookmark-page-${row.id}`}>
-                  Target page
+                  {row.originalTarget ? "Original destination" : "Target page"}
                 </label>
-                <input
-                  className="air-field"
-                  id={`bookmark-page-${row.id}`}
-                  aria-label="Target page"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={pageCount}
-                  step={1}
-                  value={row.page}
-                  onChange={(e) => update(row.id, { page: e.target.value })}
-                  onBlur={() =>
-                    setErrors((s) => ({ ...s, [`page-${row.id}`]: pageError(row.page) }))
-                  }
-                  aria-invalid={!!errors[`page-${row.id}`]}
-                  aria-describedby={errors[`page-${row.id}`] ? `page-error-${row.id}` : undefined}
-                />
+                {row.originalTarget ? (
+                  <input
+                    readOnly
+                    className="air-field"
+                    id={`bookmark-page-${row.id}`}
+                    value={row.originalTarget.label}
+                  />
+                ) : (
+                  <input
+                    className="air-field"
+                    id={`bookmark-page-${row.id}`}
+                    aria-label="Target page"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={pageCount}
+                    step={1}
+                    value={row.page}
+                    onChange={(e) => update(row.id, { page: e.target.value })}
+                    onBlur={() =>
+                      setErrors((s) => ({ ...s, [`page-${row.id}`]: pageError(row.page) }))
+                    }
+                    aria-invalid={!!errors[`page-${row.id}`]}
+                    aria-describedby={errors[`page-${row.id}`] ? `page-error-${row.id}` : undefined}
+                  />
+                )}
                 {errors[`page-${row.id}`] && (
                   <p className="air-help air-help--error" id={`page-error-${row.id}`}>
                     {errors[`page-${row.id}`]}
@@ -366,7 +440,11 @@ export function Panel() {
                   id={`bookmark-level-${row.id}`}
                   ariaLabel={`Nesting for bookmark ${index + 1}`}
                   value={row.level}
-                  options={LEVELS}
+                  options={
+                    Number(row.level) > 3
+                      ? [...LEVELS, { value: row.level, label: `Level ${row.level}` }]
+                      : LEVELS
+                  }
                   disabled={blocked}
                   onChange={(level) => update(row.id, { level })}
                 />
@@ -441,14 +519,12 @@ export function Panel() {
           </span>
         </p>
         <p className="air-help">
-          Applying replaces existing bookmarks. Undo restores the previous PDF.
+          Applying saves the outline shown here. Undo restores the previous PDF.
         </p>
         <PrimaryAction
           label={`Add ${rows.length} bookmark${rows.length === 1 ? "" : "s"}`}
           onApply={apply}
-          disabled={
-            detecting || !rows.length || !rows.some((r) => r.title.trim()) || blockedContents
-          }
+          disabled={blocked || !rows.length || !rows.some((r) => r.title.trim()) || blockedContents}
         />
       </section>
     </div>

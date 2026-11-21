@@ -65,6 +65,8 @@ export interface LayoutPage {
   text: string;
   /** Positioned text runs in document order. */
   items: LayoutItem[];
+  /** Per-word hit areas when requested by the text selection tool. */
+  selectionWords?: LayoutItem[];
 }
 
 /** A rectangle expressed as fractions (0–1) of page width/height, top-left origin. */
@@ -557,6 +559,7 @@ export interface FurnitureGroup {
   sampleText: string;
   /** How many pages carry this furniture. */
   pageCount: number;
+  pageNumbers: number[];
   /** Fraction (0–1) to trim from this group's page edge to remove it cleanly,
    *  clamped so it never crosses into body text and never exceeds 30%. */
   marginPct: number;
@@ -702,6 +705,7 @@ export function detectRunningFurniture(
       kind,
       sampleText,
       pageCount: b.pages.size,
+      pageNumbers: [...b.pages],
       marginPct,
     });
   }
@@ -1358,9 +1362,15 @@ async function pageLayoutFromTextLayer(
   const viewport = page.getViewport({ scale: 1 });
   const content = await page.getTextContent();
   const items: LayoutItem[] = [];
+  const selectionWords: LayoutItem[] = [];
+  const measure =
+    selectionBounds && typeof document !== "undefined"
+      ? document.createElement("canvas").getContext("2d")
+      : null;
   for (const raw of content.items) {
     const it = raw as {
       str?: string;
+      dir?: string;
       transform?: number[];
       width?: number;
       height?: number;
@@ -1373,7 +1383,7 @@ async function pageLayoutFromTextLayer(
     const width = it.width ?? 0;
     const [ax, ay] = viewport.convertToViewportPoint(tr[4], tr[5]);
     const [bx, by] = viewport.convertToViewportPoint(tr[4] + width, tr[5] + height);
-    items.push({
+    const run = {
       text,
       x: Math.min(ax, bx),
       y: Math.min(ay, by),
@@ -1385,7 +1395,37 @@ async function pageLayoutFromTextLayer(
             viewport.convertToViewportPoint(x, y),
           )
         : {}),
-    });
+    };
+    items.push(run);
+    if (!selectionBounds) continue;
+    const style = content.styles[it.fontName ?? ""] ?? {};
+    const tokens = Array.from(text.matchAll(/\S+/gu));
+    if (!measure || tokens.length < 2 || style.vertical) {
+      selectionWords.push(run);
+      continue;
+    }
+    measure.font = `100px "${it.fontName ?? ""}", ${style.fontFamily || "sans-serif"}`;
+    const total = measure.measureText(text).width;
+    const baseline = Math.hypot(tr[0], tr[1]);
+    if (!total || !baseline) {
+      selectionWords.push(run);
+      continue;
+    }
+    for (const token of tokens) {
+      const before = measure.measureText(text.slice(0, token.index)).width / total;
+      const end = measure.measureText(text.slice(0, token.index + token[0].length)).width / total;
+      const along = width * (it.dir === "rtl" ? 1 - end : before);
+      const wordTransform = [...tr];
+      wordTransform[4] += (along * tr[0]) / baseline;
+      wordTransform[5] += (along * tr[1]) / baseline;
+      selectionWords.push({
+        text: token[0],
+        fontSize: run.fontSize,
+        ...textSelectionBounds(wordTransform, width * (end - before), height, style, (x, y) =>
+          viewport.convertToViewportPoint(x, y),
+        ),
+      });
+    }
   }
   return {
     pageNumber,
@@ -1394,6 +1434,7 @@ async function pageLayoutFromTextLayer(
     rotation: page.rotate,
     text: "",
     items,
+    ...(selectionBounds ? { selectionWords } : {}),
     source: "text",
   };
 }

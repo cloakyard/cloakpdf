@@ -224,6 +224,17 @@ export function Panel() {
       <fieldset className="pdf-overlay-settings" disabled={busy || !active}>
         <legend className="sr-only">Header and footer appearance</legend>
         <section className="pdf-header-footer-fields" aria-label="Header and footer text">
+          {!o[`${row}Left`] && !o[`${row}Right`] && (
+            <button
+              type="button"
+              className="air-button"
+              onClick={() =>
+                set({ [`${row}Left`]: "{title}", [`${row}Right`]: "{page} / {total}" })
+              }
+            >
+              Title left, page number right
+            </button>
+          )}
           <SegmentedControl
             ariaLabel="Text position"
             fullWidth

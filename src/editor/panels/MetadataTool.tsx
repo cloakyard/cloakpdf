@@ -44,7 +44,7 @@ function pageSizeLabel(pages: PdfInfo["pages"]): string {
 
 export function Panel() {
   const { doc, busyLabel } = useEditorRead();
-  const { applyTransform, patchToolState } = useEditorActions();
+  const { applyTransform, patchToolState, setActiveTool } = useEditorActions();
   const draft = useToolSlice(TOOL_ID);
   const [report, setReport] = useState<{
     bytes: Uint8Array;
@@ -105,27 +105,27 @@ export function Panel() {
     }
   };
 
+  const renderField = ([key, label]: (typeof TEXT_FIELDS)[number]) =>
+    fields && (
+      <div className="pdf-property-field" key={key}>
+        <label className="air-label" htmlFor={`metadata-${key}`}>
+          {label}
+        </label>
+        <input
+          className="air-field"
+          id={`metadata-${key}`}
+          name={`metadata-${key}`}
+          autoComplete="off"
+          value={fields[key]}
+          disabled={busy}
+          onChange={(e) => setFields({ ...fields, [key]: e.target.value })}
+        />
+      </div>
+    );
   return (
     <div className="pdf-mark-panel pdf-metadata-panel">
       <section aria-label="Document properties">
         <p>Review this document and edit its standard properties.</p>
-        {current?.info && (
-          <dl className="pdf-document-facts">
-            {[
-              ["File name", fileName],
-              ["File size", formatFileSize(current.info.fileSize)],
-              ["PDF version", current.info.version],
-              ["Pages", current.info.pageCount],
-              ["Page size", pageSizeLabel(current.info.pages)],
-              ["Encrypted", current.info.isEncrypted ? "Yes" : "No"],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
         <p
           id="metadata-read-status"
           role={current?.failed ? "alert" : "status"}
@@ -156,44 +156,58 @@ export function Panel() {
       {fields && (
         <>
           <section aria-label="Editable metadata">
-            {TEXT_FIELDS.map(([key, label]) => (
-              <div className="pdf-property-field" key={key}>
-                <label className="air-label" htmlFor={`metadata-${key}`}>
-                  {label}
-                </label>
-                <input
-                  className="air-field"
-                  id={`metadata-${key}`}
-                  name={`metadata-${key}`}
-                  autoComplete="off"
-                  value={fields[key]}
-                  disabled={busy}
-                  onChange={(e) => setFields({ ...fields, [key]: e.target.value })}
-                />
-              </div>
-            ))}
-            {(
-              [
-                ["creationDate", "Created"],
-                ["modificationDate", "Modified"],
-              ] as const
-            ).map(([key, label]) => (
-              <div className="pdf-property-field" key={key}>
-                <label className="air-label" htmlFor={`metadata-${key}`}>
-                  {label}
-                </label>
-                <DateTimeInput
-                  id={`metadata-${key}`}
-                  label={label}
-                  value={fields[key]}
-                  disabled={busy}
-                  onChange={(v) => setFields({ ...fields, [key]: v })}
-                />
-              </div>
-            ))}
-            <p className="air-help">
-              Dates use your local time. Changes are saved when you apply this tool.
-            </p>
+            {TEXT_FIELDS.slice(0, 4).map(renderField)}
+            <details
+              className="pdf-property-field"
+              open={draft.showTechnical === true}
+              onToggle={(e) => {
+                const showTechnical = e.currentTarget.open;
+                if (showTechnical !== !!draft.showTechnical)
+                  patchToolState(TOOL_ID, { showTechnical });
+              }}
+            >
+              <summary className="air-button">Technical properties</summary>
+              {current?.info && (
+                <dl className="pdf-document-facts">
+                  {[
+                    ["File name", fileName],
+                    ["File size", formatFileSize(current.info.fileSize)],
+                    ["PDF version", current.info.version],
+                    ["Pages", current.info.pageCount],
+                    ["Page size", pageSizeLabel(current.info.pages)],
+                    ["Encrypted", current.info.isEncrypted ? "Yes" : "No"],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <dt>{label}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {TEXT_FIELDS.slice(4).map(renderField)}
+              {(
+                [
+                  ["creationDate", "Created"],
+                  ["modificationDate", "Modified"],
+                ] as const
+              ).map(([key, label]) => (
+                <div className="pdf-property-field" key={key}>
+                  <label className="air-label" htmlFor={`metadata-${key}`}>
+                    {label}
+                  </label>
+                  <DateTimeInput
+                    id={`metadata-${key}`}
+                    label={label}
+                    value={fields[key]}
+                    disabled={busy}
+                    onChange={(v) => setFields({ ...fields, [key]: v })}
+                  />
+                </div>
+              ))}
+              <p className="air-help">
+                Dates use your local time. Changes are saved when you apply this tool.
+              </p>
+            </details>
           </section>
           <section aria-label="Save metadata">
             <button
@@ -205,9 +219,11 @@ export function Panel() {
               Clear all fields
             </button>
             <p className="air-help">
-              Clearing these fields does not remove XMP or other hidden data. Use Scrub to review
-              those categories.
+              Clearing these fields does not remove XMP or other hidden data.
             </p>
+            <button className="air-button" onClick={() => setActiveTool("pdf-scrub")}>
+              Open Scrub
+            </button>
           </section>
         </>
       )}

@@ -22,6 +22,7 @@ import {
   type InlineEditorDescriptor,
   type StagePoint,
   useActiveInlineEditor,
+  useSetPageHost,
   useActiveStageProps,
 } from "./stage.tsx";
 import type { ViewState } from "./types.ts";
@@ -284,6 +285,7 @@ export function PdfStage() {
   const { doc, selectedPage } = useEditorRead();
   const view = useEditorView();
   const { setView, reportPreviewFailure } = useEditorActions();
+  const setPageHost = useSetPageHost();
   const stageProps = useActiveStageProps();
   const inlineEditor = useActiveInlineEditor();
   // The inline editor is open over the focused page → a tap on the page (off the
@@ -308,6 +310,15 @@ export function PdfStage() {
   const pinchActiveRef = useRef(false);
   const [fit, setFit] = useState<{ w: number; h: number } | null>(null);
   const [isPanning, setIsPanning] = useState(false);
+  const target = stageProps.focusTarget;
+  useEffect(() => {
+    if (!fit || !target || target.pageIndex !== selectedPage) return;
+    setView((v) => ({
+      ...v,
+      panX: (0.5 - target.xPct - target.wPct / 2) * fit.w * v.zoom,
+      panY: (0.5 - target.yPct - target.hPct / 2) * fit.h * v.zoom,
+    }));
+  }, [fit, target, selectedPage, setView]);
 
   // Gesture values are transient: Motion writes the full compositor transform
   // without re-rendering React for every 120Hz pointer/wheel event. The final
@@ -608,7 +619,7 @@ export function PdfStage() {
 
       const target = e.target;
       const inlineTarget =
-        target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+        target instanceof Element && target.closest("input, textarea, select, button");
       // The text field keeps its one-finger caret/selection interaction. We
       // still retain the pointer above so another touch can promote it to pinch.
       if (inlineTarget) return;
@@ -752,7 +763,8 @@ export function PdfStage() {
         (target.isContentEditable ||
           target.tagName === "INPUT" ||
           target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT")
+          target.tagName === "SELECT" ||
+          target.closest("button"))
       ) {
         return;
       }
@@ -926,6 +938,9 @@ export function PdfStage() {
             aria-hidden="true"
             className="absolute inset-0 h-full w-full"
           />
+          {page.thumbUrl && (
+            <div ref={setPageHost} className="absolute inset-0 pointer-events-none" />
+          )}
           {page.thumbUrl && editorOpen && fit && inlineEditor && (
             // Key by session id so a new edit always remounts (re-seeds its
             // value); a style-only update (same id) re-renders in place.

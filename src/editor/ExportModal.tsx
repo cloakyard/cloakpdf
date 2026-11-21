@@ -24,8 +24,8 @@ import {
   stripMetadata,
 } from "../utils/pdf-operations.ts";
 import { renderPagesToBlobs } from "../utils/pdf-renderer.ts";
-import { flattenDestructiveObjects } from "./doc.ts";
-import { useEditorRead, useToolSlice } from "./EditorContext.tsx";
+import { placedMarkTools, flattenDestructiveObjects } from "./doc.ts";
+import { useEditorActions, useEditorRead, useToolSlice } from "./EditorContext.tsx";
 import { hasPendingPageChanges, ORGANIZE_ID } from "./panels/OrganizeTool.tsx";
 
 const IMAGE_DPI = 150;
@@ -95,6 +95,8 @@ function OptionRow({
 
 export function ExportButton() {
   const { doc, busyLabel } = useEditorRead();
+  const { setActiveTool, setViewMode, setSelectedPage } = useEditorActions();
+  const unapplied = placedMarkTools.filter((t) => doc?.objects.some((o) => o.kind === t.kind));
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -313,6 +315,27 @@ export function ExportButton() {
               </p>
             </div>
           )}
+          {unapplied.length > 0 && (
+            <section className="air-notice" aria-label="Unapplied edits">
+              <p>These placed edits still need to be applied before downloading.</p>
+              {unapplied.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className="air-button"
+                  onClick={() => {
+                    close();
+                    const first = doc?.objects.find((o) => o.kind === t.kind);
+                    if (first) setSelectedPage(first.pageIndex);
+                    setActiveTool(t.id);
+                    setViewMode("focus");
+                  }}
+                >
+                  Review and apply {t.label}
+                </button>
+              ))}
+            </section>
+          )}
           {pendingPageChanges && (
             <div className="air-notice air-notice--warning" role="alert">
               <AlertTriangle size={18} strokeWidth={1.6} aria-hidden="true" />
@@ -466,8 +489,8 @@ export function ExportButton() {
           <button
             type="button"
             onClick={() => void handleDownload()}
-            disabled={!doc}
-            aria-disabled={busy}
+            disabled={!doc || unapplied.length > 0}
+            aria-disabled={busy || unapplied.length > 0}
             aria-busy={busy}
             className="air-button air-button--primary"
             data-export-download

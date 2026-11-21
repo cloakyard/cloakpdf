@@ -1,3 +1,4 @@
+import type { BookmarkEntry } from "./pdf/bookmarks.ts";
 /**
  * PDF page rendering utilities powered by PDF.js.
  *
@@ -230,5 +231,76 @@ export async function pageWhitenessScores(file: File): Promise<number[]> {
     return scores;
   } finally {
     void task.destroy();
+  }
+}
+
+/** Resolve named and explicit outline destinations against the current page tree. */
+export async function readPageBookmarks(bytes: Uint8Array, signal: AbortSignal) {
+  const task = pdfjsLib.getDocument({ data: bytes.slice(), wasmUrl: PDFJS_WASM_URL });
+  const abort = () => {
+    void task.destroy();
+  };
+  signal.addEventListener("abort", abort, { once: true });
+  try {
+    const pdf = await task.promise;
+    const roots = (await pdf.getOutline()) ?? [];
+    const rows: (Pick<BookmarkEntry, "destination" | "appearance" | "originalTarget"> & {
+      title: string;
+      page: number;
+      level: number;
+    })[] = [];
+    async function visit(nodes: typeof roots, parent: number[]) {
+      for (const [position, node] of nodes.entries()) {
+        const path = [...parent, position],
+          level = path.length;
+        signal.throwIfAborted();
+        const dest =
+          typeof node.dest === "string" ? await pdf.getDestination(node.dest) : node.dest;
+        const appearance = { bold: node.bold, italic: node.italic, color: Array.from(node.color) };
+        if (!Array.isArray(dest) || dest[0] == null) {
+          rows.push({
+            title: node.title,
+            page: 1,
+            level,
+            appearance,
+            originalTarget: {
+              title: node.title,
+              path,
+              label:
+                node.url ||
+                node.unsafeUrl ||
+                (node.items.length ? "Outline section" : "Original bookmark action"),
+            },
+          });
+          await visit(node.items, path);
+          continue;
+        }
+        const index = typeof dest[0] === "number" ? dest[0] : await pdf.getPageIndex(dest[0]);
+        if (index < 0 || index >= pdf.numPages)
+          throw new Error("A bookmark points outside this document.");
+        const mode = dest[1]?.name,
+          args = dest.slice(2);
+        if (
+          typeof mode !== "string" ||
+          !args.every(
+            (value) => value === null || (typeof value === "number" && Number.isFinite(value)),
+          )
+        )
+          throw new Error("A bookmark has an unsupported destination.");
+        rows.push({
+          title: node.title,
+          page: index + 1,
+          level,
+          destination: { mode, args },
+          appearance,
+        });
+        await visit(node.items, path);
+      }
+    }
+    await visit(roots, []);
+    return rows;
+  } finally {
+    signal.removeEventListener("abort", abort);
+    await task.destroy();
   }
 }

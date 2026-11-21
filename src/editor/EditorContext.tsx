@@ -35,6 +35,7 @@ import {
   flattenDestructiveObjects,
   hasPendingDestructive,
   nextId,
+  placedMarkTools,
   revokeThumbnails,
   withoutDestructive,
 } from "./doc.ts";
@@ -82,7 +83,10 @@ interface ActionsValue {
   setViewMode: (m: ViewMode) => void;
   setSelectedPage: (i: number) => void;
   /** Apply a byte transform under the busy spinner, re-render pages, commit. */
-  applyTransform: (t: DocTransform) => Promise<void>;
+  applyTransform: (
+    t: DocTransform,
+    prepareMarks?: (doc: CanvasDoc) => Promise<CanvasDoc>,
+  ) => Promise<void>;
   /** Append an overlay object and push one history entry; returns its
    *  freshly-minted id so callers can immediately select it (arm-once). */
   addObject: (obj: Omit<CanvasObject, "id">) => string;
@@ -199,6 +203,10 @@ export function EditorProvider({
 
   const [activeTool, setActiveToolState] = useState<string | null>(null);
   const [toolState, setToolState] = useState<Record<string, Record<string, unknown>>>({});
+  const signatureBackground = useRef<string | undefined>(undefined);
+  signatureBackground.current = toolState.signature?.bgEnabled
+    ? ((toolState.signature.bgHex as string) ?? "#ffffff")
+    : undefined;
   const [view, setViewState] = useState<ViewState>(DEFAULT_VIEW);
   const [viewMode, setViewModeState] = useState<ViewMode>("focus");
   const [selectedPage, setSelectedPageState] = useState(0);
@@ -656,7 +664,7 @@ export function EditorProvider({
   }, []);
 
   const applyTransform = useCallback(
-    async (t: DocTransform) => {
+    async (t: DocTransform, prepareMarks?: (doc: CanvasDoc) => Promise<CanvasDoc>) => {
       const cur = docRef.current;
       if (!cur) return;
       const request = loadRequest.current;
@@ -667,10 +675,25 @@ export function EditorProvider({
         // applyTransform (they only add overlay objects), so multiple rounds
         // stay non-destructive — the marks materialise here (a different edit)
         // or at export, never the moment a box is placed.
-        let base = cur;
-        if (hasPendingDestructive(cur)) {
-          const burned = await flattenDestructiveObjects(cur);
-          base = { ...cur, bytes: burned, objects: withoutDestructive(cur.objects) };
+        let base = prepareMarks ? await prepareMarks(cur) : cur;
+        if (request !== loadRequest.current) return;
+        if (hasPendingDestructive(base)) {
+          // Include editable content on these pages before masking it, even when
+          // the user applied a different tool. A later Apply cannot put it back over a redaction.
+          const pages = new Set(
+            base.objects
+              .filter((o) => o.kind === "erase" || o.kind === "redaction")
+              .map((o) => o.pageIndex),
+          );
+          const marks = base.objects.filter(
+            (o) => pages.has(o.pageIndex) && placedMarkTools.some((t) => t.kind === o.kind),
+          );
+          if (marks.length) {
+            const { bakePlacedMarks } = await import("./placed-marks.ts");
+            base = await bakePlacedMarks(base, marks, signatureBackground.current);
+          }
+          const burned = await flattenDestructiveObjects(base);
+          base = { ...base, bytes: burned, objects: withoutDestructive(base.objects) };
         }
         if (request !== loadRequest.current) return;
         const { bytes, label, objects } = await t(base);

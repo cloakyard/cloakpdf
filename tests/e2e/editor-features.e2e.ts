@@ -106,7 +106,7 @@ async function runFixture(page: Page, fixture: string, errors: string[]) {
 
   // 1. Signature: draw → place → corner-resize (aspect-locked).
   await page.click('button[aria-label="Signature"]');
-  await waitText(page, /Draw or upload a signature/i, 10_000);
+  await page.waitForSelector('canvas[aria-label^="Signature drawing area"]', { timeout: 10_000 });
   await scribblePad(page);
   await waitText(page, /Tap the page to place/i, 10_000);
   await tapFrac(page, 0.45, 0.4);

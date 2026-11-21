@@ -355,7 +355,7 @@ try {
       await page.setViewport({ width, height: 900 });
       await settle();
       await reset();
-      await page.locator(".pdf-attachment-list button").click();
+      await page.locator('.pdf-attachment-list button[aria-label^="Remove file"]').click();
       await page.waitForFunction(() =>
         document
           .querySelector(".pdf-attachments-panel")

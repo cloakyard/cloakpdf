@@ -32,9 +32,17 @@ interface ScanResult {
   groups: FurnitureGroup[];
   selected: string[];
   hadText: boolean;
+  excluded?: number[];
 }
-function selectedMargins(result: ScanResult | undefined) {
-  return furnitureCropMargins(result?.groups.filter((g) => result.selected.includes(g.id)) ?? []);
+function selectedMargins(result: ScanResult | undefined, pageNumber?: number) {
+  return furnitureCropMargins(
+    result?.groups.filter(
+      (g) =>
+        result.selected.includes(g.id) &&
+        (!pageNumber ||
+          (g.pageNumbers.includes(pageNumber) && !result.excluded?.includes(pageNumber))),
+    ) ?? [],
+  );
 }
 
 const KIND_LABELS: Record<FurnitureGroup["kind"], string> = {
@@ -45,10 +53,11 @@ const KIND_LABELS: Record<FurnitureGroup["kind"], string> = {
 
 export function Stage() {
   const slice = useToolSlice(TOOL_ID);
-  const { doc } = useEditorRead();
+  const { doc, selectedPage } = useEditorRead();
   const result = slice.result as ScanResult | undefined;
   const { topPct, bottomPct } = selectedMargins(
     result?.sourceBytes === doc?.bytes ? result : undefined,
+    selectedPage + 1,
   );
 
   const paintOverlay = useCallback(
@@ -84,12 +93,16 @@ export function Stage() {
 }
 
 export function Panel() {
-  const { doc, busyLabel } = useEditorRead();
-  const { applyTransform, patchToolState } = useEditorActions();
+  const { doc, busyLabel, selectedPage } = useEditorRead();
+  const { applyTransform, patchToolState, setSelectedPage } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
   const saved = slice.result as ScanResult | undefined;
   const result = saved?.sourceBytes === doc?.bytes ? saved : undefined;
-  const { topPct, bottomPct } = selectedMargins(result);
+  const affected = (doc?.pages ?? []).flatMap((p) => {
+    const { topPct, bottomPct } = selectedMargins(result, p.index + 1);
+    return topPct || bottomPct ? [{ index: p.index, topPct, bottomPct }] : [];
+  });
+  const { topPct, bottomPct } = selectedMargins(result, selectedPage + 1);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState("");
   const [note, setNote] = useState({ text: "", failed: false });
@@ -103,7 +116,7 @@ export function Panel() {
   const scanButton = useRef<HTMLButtonElement>(null);
   const tooFew = !doc || doc.pageCount < 3;
   const busy = !!busyLabel;
-  const nothingSelected = topPct <= 0 && bottomPct <= 0;
+  const nothingSelected = affected.length === 0;
 
   useEffect(() => {
     setScanning(false);
@@ -167,13 +180,13 @@ export function Panel() {
         ...(await cropDoc(
           d,
           new Map(
-            d.pages.map((p) => [
-              p.index,
+            affected.map(({ index, topPct, bottomPct }) => [
+              index,
               { xPct: 0, yPct: topPct, wPct: 1, hPct: 1 - topPct - bottomPct },
             ]),
           ),
         )),
-        label: "Strip furniture",
+        label: "Trim headers & footers",
       }));
       patchToolState(TOOL_ID, { result: undefined, hasScanned: true });
       setNote({
@@ -192,7 +205,7 @@ export function Panel() {
     <div className="pdf-mark-panel pdf-furniture-panel">
       <section aria-label="Find repeating text">
         <p>
-          Find running headers, footers and page numbers, then trim their margins on every page.
+          Find running headers, footers and page numbers, then trim the pages where they appear.
         </p>
         {tooFew ? (
           <p className="air-notice">
@@ -249,7 +262,7 @@ export function Panel() {
               <p className="air-notice" role="status">
                 {result.hadText
                   ? "No repeating headers, footers or page numbers found."
-                  : "No selectable text found. Run OCR first to detect furniture on a scanned PDF."}
+                  : "No selectable text found. Run OCR first to detect repeated headers or footers."}
               </p>
             )}
           </>
@@ -299,10 +312,38 @@ export function Panel() {
               </li>
             ))}
           </ul>
+          <label className="air-check-label">
+            <input
+              className="air-check"
+              type="checkbox"
+              checked={result.excluded?.includes(selectedPage + 1) ?? false}
+              onChange={(e) =>
+                patchToolState(TOOL_ID, {
+                  result: {
+                    ...result,
+                    excluded: e.target.checked
+                      ? [...(result.excluded ?? []), selectedPage + 1]
+                      : (result.excluded ?? []).filter((n) => n !== selectedPage + 1),
+                  },
+                })
+              }
+            />
+            Exclude page {selectedPage + 1}
+          </label>
+          {!!affected.length && (
+            <button
+              className="air-button"
+              onClick={() =>
+                setSelectedPage((affected.find((p) => p.index > selectedPage) ?? affected[0]).index)
+              }
+            >
+              Preview next affected page ({affected.length} total)
+            </button>
+          )}
           <p className="air-help" role="status">
             {nothingSelected
               ? "Select at least one margin to trim."
-              : `Trims ${(topPct * 100).toFixed(1)}% from the top and ${(bottomPct * 100).toFixed(1)}% from the bottom of every page.`}
+              : `Trims ${(topPct * 100).toFixed(1)}% from the top and ${(bottomPct * 100).toFixed(1)}% from the bottom of page ${selectedPage + 1}.`}
           </p>
           <p className="air-help">
             Review every page in the preview. Repeated text can be part of your content.
@@ -316,7 +357,7 @@ export function Panel() {
         </p>
       )}
       <PrimaryAction
-        label="Trim furniture"
+        label="Trim margins"
         onApply={apply}
         disabled={nothingSelected || scanning || tooFew}
       />

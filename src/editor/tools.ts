@@ -96,7 +96,7 @@ export const EDITOR_TOOLS = [
   {
     id: "signature",
     name: "Signature",
-    description: "Draw or upload a signature and place it on the page.",
+    description: "Draw, type, or upload a signature and place it on the page.",
     icon: PenTool,
     group: "annotate",
     mode: "focus",
@@ -183,7 +183,8 @@ export const EDITOR_TOOLS = [
   },
   {
     id: "strip-furniture",
-    name: "Strip furniture",
+    name: "Trim headers & footers",
+    railLabel: "Trim",
     description: "Auto-detect and trim repeating headers, footers, and page numbers.",
     icon: AlignVerticalSpaceAround,
     group: "transform",
@@ -218,7 +219,7 @@ export const EDITOR_TOOLS = [
   {
     id: "stamp-pdf",
     name: "Stamp",
-    description: "Stamp text across every page — boxed or sealed, digital or inked.",
+    description: "Stamp text on selected pages — boxed or sealed, digital or inked.",
     icon: Stamp,
     group: "stamps",
     mode: "either",
@@ -273,7 +274,7 @@ export const EDITOR_TOOLS = [
   {
     id: "file-attachment",
     name: "Attach",
-    description: "Embed or remove file attachments inside the PDF.",
+    description: "Add, save, or remove files attached to the PDF.",
     icon: Paperclip,
     group: "document",
     mode: "either",

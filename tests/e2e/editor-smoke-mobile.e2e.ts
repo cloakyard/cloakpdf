@@ -325,7 +325,7 @@ async function main() {
 
     // 6. Metadata (panel-only) via the completion action.
     await pickTool(page, "Metadata");
-    await waitForText(page, /PDF version/i, 10_000);
+    await waitForText(page, /Technical properties/i, 10_000);
     if (await hasExactText(page, "Save metadata"))
       fail("'Save metadata' must be hidden on mobile.");
     // "Clear all fields" is a secondary action — must STAY visible on mobile.
@@ -338,7 +338,7 @@ async function main() {
     //    export), reopen proves it persisted, then clear it so it can't burn
     //    into a later apply.
     await pickTool(page, "Redact");
-    await waitForText(page, /Detect & add boxes/i, 8_000);
+    await waitForText(page, /Detect sensitive data/i, 8_000);
     await drawOnPage(page, { x: 0.25, y: 0.3 }, { x: 0.6, y: 0.45 });
     await waitForText(page, /\d+ redactions?/i, 8_000);
     await page.click(
@@ -366,7 +366,7 @@ async function main() {
       "Fill form",
       "Scrub",
       "Erase",
-      "Strip furniture",
+      "Trim headers & footers",
       "N-up",
       "Stamp",
       "Header & footer",

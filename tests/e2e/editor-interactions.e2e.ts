@@ -664,6 +664,7 @@ async function main(): Promise<void> {
     // when day 31 is carried into a shorter month.
     await page.click('button[aria-label="Metadata"]');
     await waitForText(page, /Review this document and edit its standard properties/i);
+    await page.locator(".pdf-metadata-panel details:not([open]) > summary").click();
     const dateTrigger = 'aside button[aria-haspopup="dialog"]';
     await page.waitForSelector(dateTrigger);
     // A fresh production profile may show the cache notice over this lower
@@ -728,7 +729,7 @@ async function main(): Promise<void> {
     // The custom colour field is a non-modal disclosure with two independent
     // native values, so keyboard/screen-reader users can adjust both axes.
     await page.click('button[aria-label="Signature"]');
-    await waitForText(page, /Draw or upload a signature/i);
+    await page.waitForSelector('canvas[aria-label^="Signature drawing area"]');
     const colorTrigger = 'button[aria-label^="Custom color"]';
     await page.click(colorTrigger);
     const colorDialog = 'div[role="dialog"][aria-label="Custom color picker"]';

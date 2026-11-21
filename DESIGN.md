@@ -1417,7 +1417,8 @@ journeys across all apps; it is not inferred from the pilot alone.
   apply twice. Desktop primary actions consume reported failures without an unhandled
   rejection. Undo remains the recovery path for successfully applied byte changes.
 
-- Metadata uses an open document report, persistent field labels and the family
+- Metadata puts title, author, subject and keywords first. Technical properties
+  open on demand and Scrub is reachable from the panel. Use persistent field labels and the family
   date/time picker. Read errors must never become blank editable properties;
   expose retry and disable Apply until the current revision has been read.
   Preserve drafts through tool/viewport changes and failures, scope them to exact
@@ -1435,7 +1436,8 @@ journeys across all apps; it is not inferred from the pilot alone.
 
 - Bookmarks use open, named rows with persistent title, target-page and nesting
   labels; the shared select owns keyboard selection. Reorder controls retain row
-  identity and focus; removal and heading replacement offer draft-list recovery.
+  identity and focus. Open the existing outline and merge detected headings with
+  its entries. Removing rows or merging headings offers draft-list recovery.
   Invalid targets remain editable with nearby feedback, never silently clamp.
 - Bookmark drafts belong to exact source bytes, survive ordinary tool/viewport
   navigation and retire after Apply or Cancel. Heading scans cancel or ignore
@@ -1474,17 +1476,18 @@ journeys across all apps; it is not inferred from the pilot alone.
 - Trim to content is a cancellable suggestion. A result must still belong to the
   same bytes, page, scope, marks and draft before replacing margins. Blank and
   full-frame pages are legitimate no-result cases; read failures require retry.
-- Straighten is an immediate undoable operation. Explain image-only text, possible
+- Straighten previews each affected page from the prepared PDF. A separate Apply
+  commits the preview in one undoable operation. Explain image-only text, possible
   file growth and clipped edges. Require pending marks to be applied first; reject
   changed pages with native annotations/widgets until flattened. Preserve the PDF
   catalog, page references, metadata, attachments, untouched forms and original
   rotated/CropBox/UserUnit geometry. A no-skew pass returns the original bytes.
-- Strip furniture presents full wrapping text samples and named Air check rows.
+- Trim headers & footers presents full wrapping text samples and named Air check rows.
   Distinguish too few pages, no selectable text, no matches, reading, cancellation
   and failure. Selection belongs to exact bytes and survives tool/viewport changes
   and failed Apply. Derive preview bands directly from the selected result; do not
   maintain a second copy of crop margins. Retire applied selections before Undo.
-- Crop and Strip furniture await their byte operation before mobile Apply closes.
+- Crop and Trim headers & footers await their byte operation before mobile Apply closes.
   Failures keep the tool and draft ready for retry. Cropping hides content without
   deleting it; both tools must explain that it is not sensitive-data removal.
 

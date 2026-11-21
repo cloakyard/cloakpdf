@@ -84,7 +84,8 @@ try {
       return React.createElement(EditorShell);
     }
     const host = document.createElement("div");
-    document.body.append(host);
+    host.className = "pdf-workspace";
+    document.body.replaceChildren(host);
     const root = createRoot(host);
     root.render(
       React.createElement(
@@ -181,6 +182,8 @@ try {
       "Synthetic author",
   );
   // Calendar keyboard selection, nested time menus and AM/PM retain their semantics.
+  if (!(await page.$eval(".pdf-metadata-panel details", (n) => (n as HTMLDetailsElement).open)))
+    await page.click(".pdf-metadata-panel summary");
   await page.locator("#metadata-creationDate").click();
   await page.waitForSelector(".pdf-date-calendar");
   const selectedDay = await page.$eval(".pdf-date-calendar [aria-pressed=true]", (n) =>
@@ -209,6 +212,8 @@ try {
   );
   await page.keyboard.press("Escape");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "metadata-creationDate");
+  if (!(await page.$eval(".pdf-metadata-panel details", (n) => (n as HTMLDetailsElement).open)))
+    await page.click(".pdf-metadata-panel summary");
   await page.locator("#metadata-creationDate").click();
   await page.click('[aria-label="Select year"]');
   await page.waitForSelector(".pdf-date-years");
@@ -401,6 +406,8 @@ try {
         });
         await page.screenshot({ path: join(output, `metadata-panel-${width}-${theme}.png`) });
       }
+      if (!(await page.$eval(".pdf-metadata-panel details", (n) => (n as HTMLDetailsElement).open)))
+        await page.click(".pdf-metadata-panel summary");
       await page.locator("#metadata-creationDate").click();
       await page.waitForSelector(".pdf-date-calendar");
       await settle();
@@ -438,9 +445,13 @@ try {
     }
   }
   await page.setViewport({ width: 390, height: 844 });
+  await settle();
+  await page.waitForSelector(".editor-mobile-sheet .pdf-metadata-panel");
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "32px";
   });
+  if (!(await page.$eval(".pdf-metadata-panel details", (n) => (n as HTMLDetailsElement).open)))
+    await page.click(".pdf-metadata-panel summary");
   await page.locator("#metadata-creationDate").click();
   await settle();
   assert.ok(await page.$eval(".pdf-date-popover", (n) => n.scrollWidth <= n.clientWidth + 1));
@@ -452,6 +463,8 @@ try {
       { name: "prefers-reduced-motion", value: "reduce" },
     ],
   });
+  if (!(await page.$eval(".pdf-metadata-panel details", (n) => (n as HTMLDetailsElement).open)))
+    await page.click(".pdf-metadata-panel summary");
   await page.locator("#metadata-creationDate").click();
   await page.locator(".pdf-date-actions button:nth-child(2)").click();
   assert.equal(

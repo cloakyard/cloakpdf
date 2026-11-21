@@ -6,7 +6,7 @@
 // what used to be four separate tools:
 //   • Reverse      → reverse the `order` array
 //   • Remove-blank → auto-detect near-blank pages, mark them deleted
-//   • Extract      → "Delete all", then restore the few pages to keep
+//   • Extract      → select pages and download a separate copy
 //   • (rotate/reorder/delete are the board's native gestures)
 // N-up stays separate — it composites pages onto new sheets, not a reorder.
 // All working state lives in the namespaced tool slice so the Board (center)
@@ -14,9 +14,18 @@
 
 import { ChevronDown, ChevronUp, FileX, Repeat2, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { writePlacedMarks, bakePlacedMarks } from "../placed-marks.ts";
+import { downloadPdf, pdfFilename } from "../../utils/file-helpers.ts";
+import { parsePageSelection } from "../../utils/page-selection.ts";
 import { assemblePdf, type AssembleOp } from "../../utils/pdf-operations.ts";
 import { pageWhitenessScores } from "../../utils/pdf-renderer.ts";
-import { type CanvasDoc, type CanvasObject, docToFile } from "../doc.ts";
+import {
+  type CanvasDoc,
+  type CanvasObject,
+  docToFile,
+  placedMarkTools,
+  flattenDestructiveObjects,
+} from "../doc.ts";
 import { useEditorActions, useEditorRead, useEditorView, useToolSlice } from "../EditorContext.tsx";
 import { PageCollection } from "../PageCollection.tsx";
 import { PageThumb } from "../PageThumb.tsx";
@@ -95,12 +104,16 @@ export function Board() {
         rotations: {},
         deleted: [],
         basePages: doc.pages,
+        extractRange: "",
       });
     }
   }, [doc, slice.basePages, patchToolState]);
 
   if (!doc) return null;
 
+  const extractionSelection = new Set(
+    parsePageSelection((slice.extractRange as string | undefined) ?? "", doc.pageCount) ?? [],
+  );
   const rotate = (origIdx: number) => {
     const next = { ...state.rotations, [origIdx]: ((state.rotations[origIdx] ?? 0) + 90) % 360 };
     patchToolState(ORGANIZE_ID, { rotations: next });
@@ -170,6 +183,27 @@ export function Board() {
               data-dragging={fromPos === pos || undefined}
               data-drop-target={overPos === pos || undefined}
             >
+              <label className="air-check-label">
+                <input
+                  className="air-check"
+                  type="checkbox"
+                  aria-label={`Select page ${origIdx + 1} for extraction`}
+                  disabled={del}
+                  checked={extractionSelection.has(origIdx) && !del}
+                  onChange={(e) => {
+                    const picked = new Set(extractionSelection);
+                    if (e.target.checked) picked.add(origIdx);
+                    else picked.delete(origIdx);
+                    patchToolState(ORGANIZE_ID, {
+                      extractRange: [...picked]
+                        .sort((a, b) => a - b)
+                        .map((i) => i + 1)
+                        .join(", "),
+                    });
+                  }}
+                />
+                Select
+              </label>
               <PageThumb page={page} alt={`Page ${origIdx + 1}`} rotation={rot} loading="lazy" />
               <div className="editor-page-caption">
                 <span>Page {origIdx + 1}</span>
@@ -253,6 +287,49 @@ export function Panel() {
   const pageCount = doc?.pageCount ?? 0;
   const state = readState(slice, doc?.pages ?? []);
 
+  const signature = useToolSlice("signature");
+  const background = signature.bgEnabled ? ((signature.bgHex as string) ?? "#ffffff") : undefined;
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState("");
+  const range = (slice.extractRange as string | undefined) ?? "";
+  const selected = parsePageSelection(range, pageCount);
+  const rotatingMarks =
+    doc?.objects.filter(
+      (o) =>
+        placedMarkTools.some((t) => t.kind === o.kind) &&
+        state.rotations[o.pageIndex] &&
+        !state.deleted.includes(o.pageIndex),
+    ).length ?? 0;
+  async function extract() {
+    if (!doc || !selected?.length || extracting) return;
+    setExtracting(true);
+    setExtractError("");
+    try {
+      const ops = state.order
+        .filter((i) => selected.includes(i) && !state.deleted.includes(i))
+        .map((i) => ({
+          kind: "page" as const,
+          sourceIndex: 0,
+          pageIndex: i,
+          rotation: state.rotations[i] ?? 0,
+        }));
+      if (!ops.length) throw new Error("Select a page that is marked to keep.");
+      const selectedMarks = doc.objects.filter((o) =>
+        ops.some((op) => op.pageIndex === o.pageIndex),
+      );
+      const markedBytes = await writePlacedMarks(doc, selectedMarks, background);
+      const bytes = await assemblePdf(
+        [await flattenDestructiveObjects({ ...doc, bytes: markedBytes, objects: selectedMarks })],
+        ops,
+      );
+      if (liveBytes.current === doc.bytes)
+        downloadPdf(bytes, pdfFilename(doc.fileName, "_selected"));
+    } catch (e) {
+      setExtractError(e instanceof Error ? e.message : "Could not extract pages.");
+    } finally {
+      setExtracting(false);
+    }
+  }
   const [blanks, setBlanks] = useState<number[] | null>(null);
   const [scanning, setScanning] = useState(false);
   const [scanError, setScanError] = useState(false);
@@ -321,24 +398,34 @@ export function Panel() {
     const deleted = (slice.deleted as number[] | undefined) ?? [];
     const rotations = (slice.rotations as Record<number, number> | undefined) ?? {};
     const survivors = order.filter((i) => !deleted.includes(i));
-    void applyTransform(async (d) => {
-      const ops: AssembleOp[] = survivors.map((i) => ({
-        kind: "page",
-        sourceIndex: 0,
-        pageIndex: i,
-        rotation: rotations[i] ?? 0,
-      }));
-      const bytes = await assemblePdf([d.bytes], ops);
-      // Remap surviving overlay objects to their new page index; drop objects on
-      // deleted or rotated pages (rotation invalidates their fraction coords).
-      const newIndex = new Map<number, number>();
-      survivors.forEach((origIdx, pos) => newIndex.set(origIdx, pos));
-      const objects: CanvasObject[] = d.objects
-        .filter((o) => newIndex.has(o.pageIndex) && (rotations[o.pageIndex] ?? 0) % 360 === 0)
-        .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
-      return { bytes, label: "Organize pages", objects };
-    });
-  }, [applyTransform, slice, pageCount]);
+    return applyTransform(
+      async (d) => {
+        const ops: AssembleOp[] = survivors.map((i) => ({
+          kind: "page",
+          sourceIndex: 0,
+          pageIndex: i,
+          rotation: rotations[i] ?? 0,
+        }));
+        const bytes = await assemblePdf([d.bytes], ops, true);
+        // Rotating marks are in the PDF now. Retain editable marks on other surviving pages.
+        const newIndex = new Map<number, number>();
+        survivors.forEach((origIdx, pos) => newIndex.set(origIdx, pos));
+        const objects: CanvasObject[] = d.objects
+          .filter((o) => newIndex.has(o.pageIndex) && !rotations[o.pageIndex])
+          .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
+        return { bytes, label: "Organize pages", objects };
+      },
+      async (d) => {
+        const marks = d.objects.filter(
+          (o) =>
+            rotations[o.pageIndex] &&
+            survivors.includes(o.pageIndex) &&
+            placedMarkTools.some((tool) => tool.kind === o.kind),
+        );
+        return bakePlacedMarks(d, marks, background);
+      },
+    );
+  }, [applyTransform, slice, pageCount, background]);
 
   return (
     <div className="editor-organize-panel">
@@ -406,14 +493,42 @@ export function Panel() {
             Could not scan these pages. Try again; your pending changes are safe.
           </p>
         )}
-        <p className="editor-organize-note">
-          To keep only a few pages, “Delete all” then restore the ones you want.
-        </p>
+        <label className="pdf-property-field">
+          Pages to extract
+          <input
+            className="air-field"
+            placeholder="2–5, 8"
+            value={range}
+            onChange={(e) => patchToolState(ORGANIZE_ID, { extractRange: e.target.value })}
+            aria-invalid={!!range && !selected}
+          />
+        </label>
+        {range && !selected && (
+          <p className="air-help">
+            Enter pages from 1 to {pageCount}, separated by commas or ranges.
+          </p>
+        )}
+        <button
+          type="button"
+          className="air-button"
+          disabled={!selected?.length || extracting}
+          onClick={() => void extract()}
+        >
+          {extracting ? "Preparing PDF…" : "Extract selected as PDF"}
+        </button>
+        {extractError && <p role="alert">{extractError}</p>}
+        {rotatingMarks > 0 && (
+          <p className="air-notice">
+            Applying this rotation also embeds {rotatingMarks} placed{" "}
+            {rotatingMarks === 1 ? "mark" : "marks"} on the affected pages. Undo restores editable
+            placements.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
         <PrimaryAction
-          label="Apply changes"
+          label={rotatingMarks ? "Apply marks and rotate" : "Apply changes"}
           onApply={apply}
           disabled={!dirty || kept.length === 0}
         />
