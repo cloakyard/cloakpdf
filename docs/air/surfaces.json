@@ -2165,7 +2165,8 @@
         "apply/failure/retry",
         "Undo/Redo/Cancel",
         "pending privacy marks",
-        "Exact printed answer preview with widening and shortening"
+        "Exact printed answer preview with widening and shortening",
+        "Profile disclosure target on expansion and collapse"
       ],
       "viewports": [
         "320x568",
@@ -2186,7 +2187,8 @@
         "tests/e2e/autofill.e2e.ts",
         "tests/unit/form-detect.test.ts",
         "docs/air/evidence/fill-form-2026-10-19.json",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/mobile-quick-toolbar-2026-11-23.json"
       ],
       "notes": "Air detection/profile/answers and shared preview/output layout implemented. 44 size/theme regions, six enlarged-text cases and native Safari/Firefox review. Scans and answers belong to exact bytes; failed drafts and manual answers survive recovery. Promised Apply/mobile Done, duplicate guard, actual PDF output, metadata/attachment, rotation/CropBox/UserUnit and exact Undo/Redo pass. Profile-fill keeps focus after filling the last empty match. Physical touch/software keyboard, actual OS IME and assistive speech acceptance remain open. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision."
     },

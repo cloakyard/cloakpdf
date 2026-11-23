@@ -156,7 +156,22 @@ try {
   );
   await tool("annotate-pdf");
   await tool();
+  const profileToggle = ".pdf-autofill-profile-toggle";
+  assert.equal(
+    await page.$eval(profileToggle, (button) => button.getAttribute("aria-controls")),
+    null,
+  );
   await clickText("Your profile");
+  assert.ok(
+    await page.$eval(profileToggle, (button) => {
+      const target = button.getAttribute("aria-controls");
+      return (
+        button.getAttribute("aria-expanded") === "true" &&
+        !!target &&
+        !!document.getElementById(target)
+      );
+    }),
+  );
   assert.equal(
     await page.$eval("#autofill-profile-name", (e) => (e as HTMLInputElement).value),
     "",

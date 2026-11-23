@@ -41,5 +41,20 @@
       "44 select layouts and keyboard journeys in Chromium and WebKit"
     ]
   },
-  "coverage": "Browser viewport and input emulation with a local production build. Physical-device and spoken assistive-technology acceptance remain open."
+  "coverage": "Browser viewport and input emulation with a local production build. Physical-device and spoken assistive-technology acceptance remain open.",
+  "releaseAudit": {
+    "referenceChecks": {
+      "states": 26,
+      "coverage": [
+        "Closed toolbar",
+        "Searchable catalog",
+        "Every editor tool",
+        "Expanded and re-collapsed Auto-fill profile"
+      ],
+      "result": "All visible ARIA controls, descriptions, labels and native label targets resolve. All document IDs are unique."
+    },
+    "regression": "tests/e2e/autofill.e2e.ts checks that the profile disclosure references its panel when expanded and drops the reference when the panel unmounts.",
+    "dependencies": "All 31 direct dependencies matched npm's stable releases at verification. A fresh strict peer resolution and a frozen installation passed without a Vite peer-version exception.",
+    "staticChecks": "Knip reported no findings. All 66 editor CSS class selectors had source references. The package-script entry-point test, unit suite and production build passed."
+  }
 }
