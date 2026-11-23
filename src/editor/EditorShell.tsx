@@ -306,7 +306,9 @@ export function EditorShell() {
           <div className="flex min-w-0 flex-1 flex-col">
             <PreviewRecovery />
             <div className="editor-working-area flex min-h-0 flex-1 flex-col">
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{center}</div>
+              <div className="editor-stage-column flex min-h-0 flex-1 flex-col overflow-hidden">
+                {center}
+              </div>
               {isMobile && <MobileEditorSurface />}
             </div>
           </div>

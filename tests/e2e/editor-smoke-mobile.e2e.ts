@@ -133,9 +133,9 @@ async function pickTool(page: Page, name: string): Promise<void> {
   // Open the picker; confirm it actually opened (the toggle flips to "Close
   // tools"), retrying once in case the first tap landed mid-transition.
   for (let attempt = 0; attempt < 2; attempt++) {
-    const toggle = await page.$('button[aria-label="Open tools"]');
+    const toggle = await page.$('button[aria-label="All tools"]');
     if (!toggle) break; // already open
-    await page.locator('button[aria-label="Open tools"]').click();
+    await page.locator('button[aria-label="All tools"]').click();
     const opened = await page
       .waitForSelector('button[aria-label="Close tools"]', { timeout: 3_000 })
       .then(() => true)
@@ -186,7 +186,7 @@ async function completeTool(page: Page): Promise<void> {
   await page.click(
     '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
   );
-  await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 60_000 });
+  await page.waitForSelector('button[aria-label="All tools"]', { timeout: 60_000 });
   await waitForNoBusy(page);
 }
 
@@ -256,7 +256,7 @@ async function main() {
     if (!input) fail("Home dropzone file input not found.");
     await (input as { uploadFile: (...p: string[]) => Promise<void> }).uploadFile(FIXTURE_PATH);
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
-    await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    await page.waitForSelector('button[aria-label="All tools"]', { timeout: 10_000 });
     if (!(await page.$('[data-testid="mobile-tool-sheet"]')))
       fail("Mobile tool sheet not rendered at phone width.");
     console.log("  ✓ mobile sheet entry (no desktop rail)");
@@ -360,7 +360,7 @@ async function main() {
     await page.click(
       '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
     ); // Close — no burn, just close
-    await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    await page.waitForSelector('button[aria-label="All tools"]', { timeout: 10_000 });
     if (!(await page.$('[data-testid="pending-marks"]')))
       fail("Redact: pending-mark count is not visible in the persistent editor header.");
     if ((await page.$eval(".editor-topbar", (n) => n.getBoundingClientRect().height)) !== 64)
@@ -371,7 +371,7 @@ async function main() {
     await page.click(
       '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
     ); // close with marks cleared
-    await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    await page.waitForSelector('button[aria-label="All tools"]', { timeout: 10_000 });
     console.log("  ✓ redact deferred — mark persists across Close, no burn");
 
     // 8. Render sweep: open every remaining tool, assert its panel mounts in the
@@ -400,7 +400,7 @@ async function main() {
       // Back returns to the actual picker even for inspection-only tools.
       await page.locator('button[aria-label="Back to tools"]').click();
       await page.locator('button[aria-label="Close tools"]').click();
-      await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+      await page.waitForSelector('button[aria-label="All tools"]', { timeout: 10_000 });
     }
     console.log(
       `  ✓ render sweep — ${sweep.length} tools mount in the sheet (labelled actions, 50:50)`,
@@ -455,7 +455,7 @@ async function main() {
     //     open Export, pick Markdown, Download, and verify a real liteparse-
     //     native .md lands.
     await page.click('.air-editor-actions button:is([aria-label="Cancel"], [aria-label="Close"])');
-    await page.waitForSelector('button[aria-label="Open tools"]');
+    await page.waitForSelector('button[aria-label="All tools"]');
     await page.click('button[aria-label="Export"]');
     await page.waitForSelector('input[aria-label="Markdown (.md)"]', { timeout: 5_000 });
     await page.locator('input[aria-label="Markdown (.md)"]').click();

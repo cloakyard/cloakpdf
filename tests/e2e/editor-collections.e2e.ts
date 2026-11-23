@@ -215,7 +215,7 @@ try {
                 await cacheNotice.click();
                 await page.waitForSelector(".air-update-panel", { hidden: true });
               }
-              await page.locator('[aria-label="Open tools"]').click();
+              await page.locator('[aria-label="All tools"]').click();
               await page.locator('[aria-label="Organize"]').click();
             } else await clickText("Organize pages");
             await page.waitForSelector(".editor-page-organize");

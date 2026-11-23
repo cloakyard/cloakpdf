@@ -106,7 +106,7 @@ async function shootMobile(browser: Browser): Promise<string[]> {
   await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   await openEditor(page);
   // Open the mobile tool picker, then pick the tool.
-  const toggle = await page.$('button[aria-label="Open tools"]');
+  const toggle = await page.$('button[aria-label="All tools"]');
   if (toggle) {
     await toggle.click();
     await page

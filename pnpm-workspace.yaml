@@ -29,26 +29,20 @@ overrides:
   form-data: ">=4.0.6"
   adm-zip: ">=0.6.0"
   glob: "14.0.6"
-  minimatch: "11.0.8"
+  minimatch: "11.0.9"
   filelist: "2.0.2"
   global-agent: ">=4.1.7"
   sharp: "^0.35.5"
   brace-expansion: ">=5.0.13"
   vite@*: "catalog:"
 
-# Vite+ is installed as a versioned Vite-compatible alias and bundles the
-# matching Vitest toolchain, so their semver metadata does not reflect API
-# compatibility with the packages that consume them.
-peerDependencyRules:
-  allowAny:
-    - vite
-  allowedVersions:
-    vite: "*"
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
-  vite-plus: 1.6.0
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
+  vite-plus: 1.7.0
 patchedDependencies:
   "@rollup/plugin-node-resolve@16.0.3": patches/@rollup__plugin-node-resolve@16.0.3.patch
 minimumReleaseAgeExclude:
-  - "@langchain/core@1.4.1"
-  - lucide-react@1.73.0
+  - "@llamaindex/liteparse-wasm@2.21.0"
+  - "knip@6.48.0"
+  - "lucide-react@1.78.0"
+  - "node-forge@1.4.4"

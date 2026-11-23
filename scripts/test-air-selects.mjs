@@ -58,7 +58,7 @@ for (const engine of ["chromium", "webkit"]) {
         if (await rail.count())
           await rail.getByRole("button", { name: "N-up", exact: true }).click();
         else {
-          await page.getByRole("button", { name: "Open tools", exact: true }).click();
+          await page.getByRole("button", { name: "All tools", exact: true }).click();
           await page
             .locator(".editor-mobile-sheet")
             .getByRole("button", { name: "N-up", exact: true })

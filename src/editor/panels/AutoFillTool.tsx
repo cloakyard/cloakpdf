@@ -102,6 +102,7 @@ export function Panel() {
   const { doc, busyLabel } = useEditorRead();
   const { applyTransform, patchToolState, setSelectedPage, setViewMode } = useEditorActions();
   const slice = useToolSlice(TOOL_ID);
+  const profileOpen = slice.profileOpen === true;
   const saved = slice.answers as Answers | undefined;
   const answers = saved?.sourceBytes === doc?.bytes ? saved : undefined;
   const [initialProfile] = useState(loadProfile);
@@ -356,13 +357,13 @@ export function Panel() {
         <button
           type="button"
           className="air-button air-button--quiet pdf-autofill-profile-toggle"
-          aria-expanded={!!slice.profileOpen}
-          aria-controls="autofill-profile"
-          onClick={() => patchToolState(TOOL_ID, { profileOpen: !slice.profileOpen })}
+          aria-expanded={profileOpen}
+          aria-controls={profileOpen ? "autofill-profile" : undefined}
+          onClick={() => patchToolState(TOOL_ID, { profileOpen: !profileOpen })}
         >
           Your profile <ChevronDown size={16} aria-hidden="true" />
         </button>
-        {slice.profileOpen === true && (
+        {profileOpen && (
           <div id="autofill-profile" className="pdf-autofill-profile">
             <p className="air-help">
               Used for matching fields. Changes save on this device only, independently of the PDF.

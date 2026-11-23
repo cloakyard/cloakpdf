@@ -263,7 +263,7 @@ try {
         () =>
           new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
       );
-      const open = await page.$('[aria-label="Open tools"]');
+      const open = await page.$('[aria-label="All tools"]');
       if (open) await open.click();
       await page.waitForSelector("#ocr-language", { visible: true });
       const narrow = await page.$eval(
@@ -346,7 +346,7 @@ try {
     await page.evaluate(
       () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
     );
-    const open = await page.$('[aria-label="Open tools"]');
+    const open = await page.$('[aria-label="All tools"]');
     if (open) await open.click();
     await page.focus("#ocr-language");
     await page.keyboard.press("Enter");

@@ -2175,6 +2175,7 @@ body:has(.pdf-workspace) > .pdf-modal-root {
 }
 .editor-topbar svg,
 .editor-toolrail svg,
+.editor-mobile-dock svg,
 .editor-mobile-sheet__header svg,
 .editor-mobile-search svg,
 .editor-mobile-tool-list svg {
@@ -2234,10 +2235,65 @@ body:has(.pdf-workspace) > .pdf-modal-root {
 }
 .editor-working-area {
   container: editor-work / size;
+  position: relative;
+  --mobile-dock-height: max(64px, calc(34px + 2.5 * var(--air-text-meta)));
 }
-@container editor-work (max-width: 639px) and (max-height: 420px) {
-  .editor-mobile-sheet[data-open="true"]:has(.editor-mobile-search) {
-    height: 100%;
+.editor-mobile-dock {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) 1px minmax(0, 1fr);
+  align-items: stretch;
+  min-height: var(--mobile-dock-height);
+  padding: 3px max(6px, env(safe-area-inset-right)) 3px max(6px, env(safe-area-inset-left));
+}
+.editor-mobile-dock__shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.editor-mobile-dock .air-button {
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 2px;
+  font: 500 var(--air-text-meta)/1.25 var(--air-font);
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.editor-mobile-dock__separator {
+  height: 24px;
+  align-self: center;
+  background: var(--air-line);
+}
+/* Opening the catalog in portrait covers the foot of the page without changing
+   its fit. Once a tool needs the canvas, its panel shares the working area. */
+@media (max-width: 535px), (min-height: 500px), (orientation: portrait) {
+  .editor-working-area:has(> .editor-mobile-sheet[data-picker]) > .editor-stage-column {
+    margin-bottom: calc(var(--mobile-dock-height) + 1px + env(safe-area-inset-bottom));
+  }
+  .editor-mobile-sheet[data-picker] {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 1;
+  }
+  @container editor-work (max-height: 420px) {
+    .editor-mobile-sheet[data-open="true"][data-picker] {
+      height: 60%;
+    }
+  }
+}
+@container editor-work (max-height: 420px) {
+  .editor-mobile-sheet[data-picker] .editor-mobile-sheet__header {
+    flex-wrap: nowrap;
+  }
+  .editor-mobile-sheet[data-picker] .editor-mobile-sheet__header h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .editor-mobile-sheet[data-picker] .editor-mobile-search {
+    flex: 1 1 0;
   }
 }
 .editor-mobile-sheet {
@@ -2287,12 +2343,8 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   font: 500 var(--air-text-body)/1.4 var(--air-font);
   overflow-wrap: anywhere;
 }
-.editor-mobile-sheet__toggle {
-  flex: 1;
-  justify-content: flex-start;
-}
-.editor-mobile-sheet__toggle > svg:last-child {
-  margin-inline-start: auto;
+.editor-mobile-sheet[data-picker] .editor-mobile-sheet__header h2 {
+  font-size: 1.125rem;
 }
 .editor-mobile-sheet__body {
   min-height: 0;
@@ -2305,13 +2357,13 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   display: none;
 }
 .editor-mobile-search {
-  flex: 1 1 0;
+  flex: 1 0 100%;
   min-width: 0;
   display: grid;
   gap: 4px;
   padding-block: 4px;
 }
-#mobile-editor-tool-search-count {
+#mobile-editor-tool-search-count:not(.sr-only) {
   margin-block: 8px;
 }
 .editor-mobile-search__icon {
@@ -2323,6 +2375,11 @@ body:has(.pdf-workspace) > .pdf-modal-root {
 }
 .editor-mobile-search input::-webkit-search-cancel-button {
   appearance: none;
+}
+.editor-mobile-tool-group h3 {
+  margin: 12px 0 4px;
+  font: 500 var(--air-text-meta)/1.35 var(--air-font);
+  color: var(--air-ink-secondary);
 }
 .editor-mobile-tool-list {
   list-style: none;
@@ -2337,8 +2394,8 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 56px;
-  padding: 12px 4px;
+  min-height: 46px;
+  padding: 6px 4px;
   border: 0;
   border-radius: var(--air-radius-control);
   background: transparent;
@@ -2351,6 +2408,11 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   gap: 4px;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+.editor-mobile-tool-list .editor-mobile-tool-list__arrow {
+  width: 14px;
+  margin-inline-start: auto;
+  color: var(--air-ink-secondary);
 }
 .editor-mobile-tool-list__name {
   font: 500 var(--air-text-body)/1.4 var(--air-font);

@@ -90,7 +90,7 @@ try {
             if (!document.querySelector(".editor-toolrail")) {
               button("Back to tools")?.click();
               await tick();
-              button("Open tools")?.click();
+              button("All tools")?.click();
               await tick();
             }
             const action = button(name);

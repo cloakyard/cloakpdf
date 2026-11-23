@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-23",
+  "surface": "Mobile canvas quick toolbar and searchable tool picker",
+  "browsers": ["Chromium", "WebKit"],
+  "productionPreview": {
+    "viewportPixels": [
+      [320, 568],
+      [390, 720],
+      [430, 932],
+      [535, 320],
+      [568, 320],
+      [844, 390]
+    ],
+    "themes": ["light", "dark"],
+    "rootFontPixels": [16, 32],
+    "casesPerBrowser": 24,
+    "checked": [
+      "All four labelled toolbar buttons have at least 44 × 44 CSS pixels of usable space.",
+      "All 22 tools are reachable in the searchable catalog.",
+      "The page keeps its bounds while browsing the overlaid picker. At least 40% of the working area stays visible. Short wide phones use the side-by-side layout.",
+      "All three shortcuts open their own controls and restore focus when closed or cancelled.",
+      "Arrow keys, End, Enter and Escape work with a keyboard."
+    ]
+  },
+  "regression": {
+    "navigation": "tests/e2e/editor-navigation.e2e.ts",
+    "layout": "tests/e2e/canvas-layout.e2e.ts",
+    "otherBrowserSuites": [
+      "editor-smoke-mobile",
+      "editor-collections",
+      "responsive-motion",
+      "place-resize-mobile",
+      "nup-layout",
+      "ocr-layout",
+      "table-detail"
+    ],
+    "canvasLayoutCases": 1320,
+    "canvasTools": 22,
+    "sharedControls": [
+      "16 phone action journeys and PDF downloads in Chromium and WebKit",
+      "44 select layouts and keyboard journeys in Chromium and WebKit"
+    ]
+  },
+  "coverage": "Browser viewport and input emulation with a local production build. Physical-device and spoken assistive-technology acceptance remain open.",
+  "releaseAudit": {
+    "referenceChecks": {
+      "states": 26,
+      "coverage": [
+        "Closed toolbar",
+        "Searchable catalog",
+        "Every editor tool",
+        "Expanded and re-collapsed Auto-fill profile"
+      ],
+      "result": "All visible ARIA controls, descriptions, labels and native label targets resolve. All document IDs are unique."
+    },
+    "regression": "tests/e2e/autofill.e2e.ts checks that the profile disclosure references its panel when expanded and drops the reference when the panel unmounts.",
+    "dependencies": "All 31 direct dependencies matched npm's stable releases at verification. A fresh strict peer resolution and a frozen installation passed without a Vite peer-version exception.",
+    "staticChecks": "Knip reported no findings. All 66 editor CSS class selectors had source references. The package-script entry-point test, unit suite and production build passed."
+  }
+}
