@@ -25,6 +25,7 @@ import {
   CircleDot,
   Highlighter,
   Italic,
+  Link2,
   Minus,
   MousePointer2,
   Pen,
@@ -69,11 +70,13 @@ import { extractPageTextGeometry, type LayoutPage } from "../../utils/layout-ext
 import { bakePlacedMarks } from "../placed-marks.ts";
 import { docToFile } from "../doc.ts";
 import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { DetailLinkPanel, DetailLinkStage } from "./DetailLink.tsx";
 import { PrimaryAction } from "./PrimaryAction.tsx";
 import {
   type StageKeyboardEvent,
   type StagePoint,
   useInlineEditor,
+  usePageHost,
   useStageProps,
 } from "../stage.tsx";
 import {
@@ -97,6 +100,7 @@ const DEFAULT_TEXT_PT = 16;
 
 type Mode =
   | "select"
+  | "link"
   | "pen"
   | "highlight"
   | "line"
@@ -213,6 +217,7 @@ function annotationBBox(a: Annotation, w: number, h: number) {
     }
     case "rect":
     case "ellipse":
+    case "link":
     case "icon":
       return { x: a.x, y: a.y, w: a.w, h: a.h };
     case "line":
@@ -247,6 +252,7 @@ function isResizable(a: Annotation): boolean {
   return (
     a.kind === "rect" ||
     a.kind === "ellipse" ||
+    a.kind === "link" ||
     a.kind === "icon" ||
     (a.kind === "text" && a.w != null && a.h != null)
   );
@@ -254,16 +260,24 @@ function isResizable(a: Annotation): boolean {
 
 /** Write a new bbox back onto a resizable mark (rect/ellipse/icon/box-text). */
 function applyBBox(a: Annotation, b: { x: number; y: number; w: number; h: number }): Annotation {
-  if (a.kind === "rect" || a.kind === "ellipse" || a.kind === "text" || a.kind === "icon") {
+  if (
+    a.kind === "rect" ||
+    a.kind === "ellipse" ||
+    a.kind === "text" ||
+    a.kind === "icon" ||
+    a.kind === "link"
+  ) {
     return { ...a, x: b.x, y: b.y, w: b.w, h: b.h };
   }
   return a;
 }
 
-/** Icons are aspect-true (a square glyph) → corner-only handles + aspect-locked
- *  resize, exactly like a placed signature/QR stamp, so they never distort. Every
- *  other resizable mark uses the full eight-handle free resize. */
-const handlesFor = (a: Annotation): HandleId[] => (a.kind === "icon" ? CORNER_IDS : HANDLE_IDS);
+/** Two diagonal handles keep a single-line reference legible while resizing.
+ * Icons use aspect-locked corners. Other resizable marks expose every handle. */
+function handlesFor(a: Annotation): HandleId[] {
+  if (a.kind === "link") return ["nw", "se"];
+  return a.kind === "icon" ? CORNER_IDS : HANDLE_IDS;
+}
 function resizeAnnBBox(orig: Box, handle: HandleId, dx: number, dy: number, a: Annotation): Box {
   if (a.kind === "icon") {
     return resizeBBoxAspect(orig, handle, dx, dy, orig.h > 0 ? orig.w / orig.h : 1);
@@ -318,6 +332,7 @@ function translateAnnotation(a: Annotation, dx: number, dy: number): Annotation 
       return { ...a, points: a.points.map((p) => ({ x: p.x + dx, y: p.y + dy })) };
     case "rect":
     case "ellipse":
+    case "link":
     case "icon":
       return { ...a, x: a.x + dx, y: a.y + dy };
     case "line":
@@ -432,6 +447,15 @@ function drawIconGlyph(
 }
 
 function drawAnnotation(ctx: CanvasRenderingContext2D, a: Annotation, w: number, h: number) {
+  if (a.kind === "link") {
+    ctx.save();
+    ctx.strokeStyle = canvasAccent(ctx);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(a.x * w, a.y * h, a.w * w, a.h * h);
+    ctx.restore();
+    return;
+  }
   const col = fillStyle(a.color);
   if (a.kind === "stroke") {
     if (a.points.length < 1) return;
@@ -580,6 +604,22 @@ interface Editing {
 }
 
 export function Stage() {
+  const { doc } = useEditorRead();
+  const paintMarks = useCallback(
+    (ctx: CanvasRenderingContext2D, w: number, h: number, pageIndex: number) => {
+      for (const o of doc?.objects ?? [])
+        if (o.kind === "annotation" && o.pageIndex === pageIndex)
+          drawAnnotation(ctx, o.payload as Annotation, w, h);
+    },
+    [doc?.objects],
+  );
+  return useToolSlice(TOOL_ID).mode === "link" ? (
+    <DetailLinkStage paintMarks={paintMarks} />
+  ) : (
+    <MarkStage />
+  );
+}
+function MarkStage() {
   const { doc, selectedPage } = useEditorRead();
   const { addObject, moveObject, updateObject, removeObject, patchToolState } = useEditorActions();
   const setInlineEditor = useInlineEditor();
@@ -1475,6 +1515,7 @@ const MODES: { id: Mode; label: string; icon: typeof Pen }[] = [
   { id: "rect", label: "Rectangle", icon: Square },
   { id: "ellipse", label: "Oval", icon: Circle },
   { id: "text", label: "Text", icon: Type },
+  { id: "link", label: "Link", icon: Link2 },
   { id: "icon", label: "Icons", icon: SquareCheck },
 ];
 
@@ -1487,6 +1528,32 @@ type NumberKey = "sizePt" | "bgOpacity" | "fillOpacity";
 type NumberDraft = { raw: string; value: number; touched?: boolean };
 
 export function Panel() {
+  const returnFocus = useRef<"link" | "destination" | null>(null);
+  return useToolSlice(TOOL_ID).mode === "link" ? (
+    <DetailLinkPanel
+      onBack={(editing) => {
+        returnFocus.current = editing ? "destination" : "link";
+      }}
+    />
+  ) : (
+    <MarkPanel
+      restoreFocus={(control, node) => {
+        if (node && control === returnFocus.current) {
+          returnFocus.current = null;
+          node.focus({ preventScroll: true });
+        }
+      }}
+    />
+  );
+}
+function MarkPanel({
+  restoreFocus,
+}: {
+  restoreFocus: (control: "link" | "destination", node: HTMLButtonElement | null) => void;
+}) {
+  const pageHost = usePageHost();
+  const focusPage = () =>
+    pageHost?.closest<HTMLElement>(".editor-paper")?.focus({ preventScroll: true });
   const { doc, selectedPage, busyLabel } = useEditorRead();
   const {
     patchToolState,
@@ -1518,9 +1585,10 @@ export function Panel() {
       text && selected
         ? Math.round(text.sizeFrac * (doc?.pages[selected.pageIndex]?.heightPt ?? 0))
         : ((slice.textSizePt as number) ?? DEFAULT_TEXT_PT),
-    colorHex: ann
-      ? rgbToHex(ann.color.r, ann.color.g, ann.color.b)
-      : ((slice.colorHex as string) ?? DEFAULT_HEX),
+    colorHex:
+      ann && ann.kind !== "link"
+        ? rgbToHex(ann.color.r, ann.color.g, ann.color.b)
+        : ((slice.colorHex as string) ?? DEFAULT_HEX),
     bgEnabled: text ? !!text.bg : ((slice.bgEnabled as boolean) ?? false),
     bgHex: text?.bg
       ? rgbToHex(text.bg.color.r, text.bg.color.g, text.bg.color.b)
@@ -1701,6 +1769,31 @@ export function Panel() {
       <section aria-label="Annotation settings" tabIndex={-1} data-busy-focus-fallback>
         <fieldset className="pdf-overlay-settings" disabled={busy}>
           <legend className="sr-only">Annotation settings</legend>
+          {ann?.kind === "link" && selected && doc && (
+            <div className="pdf-property-field" role="group" aria-label="Link destination">
+              <p className="air-label" role="status">
+                Link to detail on page {ann.target.pageIndex + 1}
+              </p>
+              <button
+                className="air-button"
+                type="button"
+                ref={(node) => restoreFocus("destination", node)}
+                onClick={() => {
+                  focusPage();
+                  setSelectedPage(ann.target.pageIndex);
+                  patchToolState(TOOL_ID, {
+                    mode: "link",
+                    linkPlacement: {
+                      bytes: doc.bytes,
+                      editingId: selected.id,
+                    },
+                  });
+                }}
+              >
+                Change destination
+              </button>
+            </div>
+          )}
           <div className="pdf-property-field">
             <span className="air-label">Tool</span>
             <div className="pdf-annotate-tools" role="group" aria-label="Annotation tool">
@@ -1709,12 +1802,20 @@ export function Panel() {
                   key={id}
                   type="button"
                   className="air-button air-button--quiet"
-                  ref={id === "select" ? selectRef : undefined}
+                  ref={
+                    id === "select"
+                      ? selectRef
+                      : id === "link"
+                        ? (node) => restoreFocus("link", node)
+                        : undefined
+                  }
                   aria-pressed={mode === id}
                   onClick={() => {
                     flush();
+                    if (id === "link") focusPage();
                     patchToolState(TOOL_ID, {
                       mode: id,
+                      linkPlacement: undefined,
                       ...(id === "select" ? {} : { selectedId: undefined }),
                     });
                   }}
@@ -1761,7 +1862,7 @@ export function Panel() {
               />
             </div>
           )}
-          {showText ? (
+          {ann?.kind === "link" ? null : showText ? (
             <>
               <div className="pdf-property-field">
                 <label className="air-label" htmlFor="annotation-font">
@@ -1917,9 +2018,11 @@ export function Panel() {
         </fieldset>
         <p className="air-help">
           {mode === "select"
-            ? selected
-              ? "Drag to move. Arrow keys nudge; Shift moves further. Pull a handle to resize. Double-click text to edit it."
-              : "Choose a tool to add a mark, or select an annotation on the page to edit it."
+            ? ann?.kind === "link"
+              ? "Drag the reference to move it, or pull a handle to resize its clickable area."
+              : selected
+                ? "Drag to move. Arrow keys nudge; Shift moves further. Pull a handle to resize. Double-click text to edit it."
+                : "Choose a tool to add a mark, or select an annotation on the page to edit it."
             : mode === "text"
               ? "Drag a text box or tap the page, then type. Text wraps inside the box."
               : mode === "icon"

@@ -3,6 +3,7 @@
  * non-visible data that leaks identity or poses a security risk.
  */
 
+import { prepareDetailLinkCopy } from "./links.ts";
 import { PDFDocument, PDFDict, PDFArray, PDFName } from "@pdfme/pdf-lib";
 
 // ── PDF Scrub — privacy sanitiser ────────────────────────────────
@@ -191,7 +192,9 @@ export async function scrubPdf(file: File, removeAnnotations = false): Promise<U
   // Rebuild from page content only — the new catalog carries no
   // JavaScript, attachments, XMP, OpenAction, or Info metadata.
   const out = await PDFDocument.create();
+  const restoreLinks = prepareDetailLinkCopy(src);
   const copied = await out.copyPages(src, src.getPageIndices());
+  restoreLinks(copied.map((page, index) => ({ page, index })));
   for (const page of copied) out.addPage(page);
 
   // PDFDocument.create() stamps a default Producer string and

@@ -2,6 +2,7 @@
  * Annotate — vector overlay (pen / highlighter / shapes / text).
  */
 
+import { addDetailLink, type LinkRegion } from "./links.ts";
 import { drawOnVisiblePage } from "./page-geometry.ts";
 import { PDFDocument, rgb, LineCapStyle, StandardFonts } from "@pdfme/pdf-lib";
 
@@ -92,7 +93,18 @@ export type TextFontId =
  * height — so a stroke drawn on the preview lands at the same relative
  * weight in the output regardless of page dimensions.
  */
+export interface LinkAnnotation {
+  kind: "link";
+  pageIndex: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  target: LinkRegion;
+}
+
 export type Annotation =
+  | LinkAnnotation
   | {
       kind: "stroke";
       pageIndex: number;
@@ -479,7 +491,7 @@ function loadEmbeddedFontBytes(url: string): Promise<Uint8Array> {
  */
 export async function annotatePdf(file: File, annotations: Annotation[]): Promise<Uint8Array> {
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
+  const pdf = await PDFDocument.load(arrayBuffer, { updateMetadata: false });
   const pages = pdf.getPages();
   // Embed each text font at most once, lazily — only the families actually used.
   const fontCache = new Map<TextFontId, Awaited<ReturnType<typeof pdf.embedFont>>>();
@@ -518,6 +530,14 @@ export async function annotatePdf(file: File, annotations: Annotation[]): Promis
   for (const a of annotations) {
     const page = pages[a.pageIndex];
     if (!page) continue;
+    if (a.kind === "link") {
+      addDetailLink(
+        pdf,
+        { pageIndex: a.pageIndex, rect: { xPct: a.x, yPct: a.y, wPct: a.w, hPct: a.h } },
+        a.target,
+      );
+      continue;
+    }
     await drawOnVisiblePage(page, async ({ width: W, height: H }) => {
       const color = rgb(a.color.r / 255, a.color.g / 255, a.color.b / 255);
 

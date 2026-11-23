@@ -2,6 +2,7 @@
  * Destructive redaction — rasterise box-carrying pages and burn the boxes in.
  */
 
+import { prepareDetailLinkCopy } from "./links.ts";
 import { PDFDocument } from "@pdfme/pdf-lib";
 import { PDFJS_WASM_URL } from "../pdfjs-config.ts";
 import { canvasToImageBytes, clampScaleForCanvas, getPdfJs } from "./raster.ts";
@@ -78,6 +79,7 @@ export async function redactPdf(
   const total = byPage.size;
   let done = 0;
 
+  const restoreLinks = prepareDetailLinkCopy(src);
   const out = await PDFDocument.create();
   try {
     for (let i = 0; i < pageCount; i++) {
@@ -143,6 +145,9 @@ export async function redactPdf(
       }
       onProgress?.(++done, total);
     }
+    restoreLinks(
+      out.getPages().map((page, index) => ({ page, index, rasterized: byPage.has(index) })),
+    );
     return out.save();
   } finally {
     void loadingTask.destroy();

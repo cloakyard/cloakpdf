@@ -1128,7 +1128,8 @@
         "reduced motion",
         "forced colors",
         "200% text",
-        "Immediate option selection in the editor"
+        "Immediate option selection in the editor",
+        "Keyboard option after a stationary pointer crosses a reflowed menu"
       ],
       "viewports": [
         "1440x900",
@@ -1149,7 +1150,8 @@
         "docs/air/evidence/foundation-2026-10-19.json",
         "docs/air/surface-motion-2026-11-03.md",
         "docs/air/component-consistency-2026-11-03.md",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: full labels wrap, popup width is at least 15rem when space permits and clamped to the viewport; immediate pointer/keyboard opening and arrow state use the canonical Air rule. Removed animation/placement-only state. 70 layouts plus native Safari and Firefox actual 200% pass. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -1936,6 +1938,25 @@
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },
     {
+      "path": "src/editor/RegionStage.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "table selection",
+        "annotation link placement",
+        "keyboard crosshair",
+        "two-tap selection",
+        "pointer cancellation"
+      ],
+      "viewports": [
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
+      ],
+      "evidence": ["docs/air/evidence/canvas-table-link-2026-11-23/review.json"],
+      "notes": ""
+    },
+    {
       "path": "src/editor/ToolCompletion.tsx",
       "kind": "app-surface",
       "sourceReviewed": false,
@@ -2055,7 +2076,13 @@
         "enlarged text",
         "forced colours",
         "reduced motion",
-        "Optional continuous pen and highlighter strokes"
+        "Optional continuous pen and highlighter strokes",
+        "annotation link placement",
+        "selected link",
+        "change destination",
+        "delete and undo",
+        "mixed annotation apply",
+        "Keyboard focus on entering and leaving link placement"
       ],
       "viewports": [
         "320x568",
@@ -2068,7 +2095,8 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
       ],
       "evidence": [
         "docs/air/editor-audit.md",
@@ -2077,7 +2105,8 @@
         "docs/air/evidence/canvas-2026-10-14.json",
         "docs/air/evidence/geometry-2026-10-14.json",
         "docs/air/evidence/annotate-2026-10-15.json",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air annotation inspector: selected text, fill and glyph settings; raw numeric drafts, custom selection, guarded deferred history and awaited Apply/mobile Done. All drawing modes and icon repeat stamping preserved. 110 size/theme regions, 18 enlarged-text states and forced colours/reduced motion inspected. Native Safari and Firefox actual 200% pass. Physical touch/software keyboard, OS IME and assistive speech remain open."
     },
@@ -2278,6 +2307,26 @@
         "docs/air/evidence/canvas-tools-2026-11-21.json"
       ],
       "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
+    },
+    {
+      "path": "src/editor/panels/DetailLink.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "annotation link placement",
+        "selected link",
+        "change destination",
+        "delete and undo",
+        "mixed annotation apply",
+        "Undo a reference move during destination placement"
+      ],
+      "viewports": [
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
+      ],
+      "evidence": ["docs/air/evidence/canvas-table-link-2026-11-23/review.json"],
+      "notes": ""
     },
     {
       "path": "src/editor/panels/FillFormTool.tsx",
@@ -2545,7 +2594,8 @@
         "keyboard",
         "reduced motion",
         "forced colors",
-        "Page checkboxes, range extraction and rotation with placed marks"
+        "Page checkboxes, range extraction and rotation with placed marks",
+        "remap both ends of a pending link when pages change"
       ],
       "viewports": [
         "320x568",
@@ -2558,12 +2608,14 @@
         "1280x720",
         "1366x768",
         "1440x900",
-        "1920x1080"
+        "1920x1080",
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
       ],
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/collections-2026-10-14.json",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air inspector/page collection checkpoint. 88 layouts, real staged edits/output/history, boundary and 60-page keyboard focus, scan failure/retry, unavailable preview and native Safari/Firefox 200% zoom reviewed. Shared controls checked through all 22 tools; individual unmigrated panel bodies remain tracked separately. Physical touch/software keyboard, OS IME and assistive speech acceptance remain open."
     },
@@ -2820,18 +2872,24 @@
         "highlight/box busy/failure/retry, committed feedback, Undo/Redo/Cancel",
         "redaction pending/Undo/export; privacy-mark text gate",
         "rotated/cropped/scaled pages, font descenders, transformed corners, long excerpt",
-        "Two-tap word range and contextual touch actions"
+        "Two-tap word range and contextual touch actions",
+        "table selection",
+        "empty region",
+        "column adjustment",
+        "clipboard and manual fallback"
       ],
       "viewports": [
         "13 sizes (11 required plus 767/769 breakpoint neighbors) × light/dark × selection/action regions",
         "320/768/1440 at 200% root text, both themes",
         "coarse targets >=44px, forced colours/reduced motion",
-        "Safari native application/Undo; Firefox actual 200% zoom"
+        "Safari native application/Undo; Firefox actual 200% zoom",
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
       ],
       "evidence": [
         "docs/air/validation.md",
         "docs/air/evidence/select-text-2026-10-19.json",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air implementation and automated/native desktop review complete. Physical touch/software keyboard, actual OS IME and spoken assistive acceptance remain open. Yellow/red marks are document ink, not UI palette. Reading order remains a spatial text-run heuristic; arbitrary complex multi-column logical order is not guaranteed."
     },
@@ -2951,6 +3009,25 @@
         "docs/air/evidence/canvas-tools-2026-11-21.json"
       ],
       "notes": "Air interior implemented. 44 required layouts and 12 enlarged-text cases reviewed; real crop/deskew output and mobile failure/retry pass. Replaced skins, duplicated preview-margin state and void apply callbacks removed. Existing WholeDocPanel/Segmented adapters remain for live Signature/Stamp consumers. Physical touch/software keyboard, real OS IME and assistive speech remain open; this is not full-product acceptance."
+    },
+    {
+      "path": "src/editor/panels/TableCapture.tsx",
+      "kind": "app-surface",
+      "sourceReviewed": true,
+      "airImplemented": true,
+      "validated": false,
+      "states": [
+        "table selection",
+        "empty region",
+        "column adjustment",
+        "clipboard and manual fallback",
+        "Clipboard denial announcement and manual text selection"
+      ],
+      "viewports": [
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
+      ],
+      "evidence": ["docs/air/evidence/canvas-table-link-2026-11-23/review.json"],
+      "notes": ""
     },
     {
       "path": "src/editor/panels/TextTokens.tsx",
@@ -3630,7 +3707,9 @@
         "Responsive on-page fields and contextual selection controls",
         "Short landscape and keyboard-constrained picker with large text",
         "Small landscape phone split and minimum-width pagination",
-        "Unfilled compact Export icon, 44×44 target at 100% and 200% text"
+        "Unfilled compact Export icon, 44×44 target at 100% and 200% text",
+        "scrollable table preview",
+        "responsive annotation picker"
       ],
       "viewports": [
         "320x568",
@@ -3649,7 +3728,8 @@
         "535x320",
         "536x320",
         "537x320",
-        "568x320"
+        "568x320",
+        "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
       ],
       "evidence": [
         "docs/air/evidence/entry-2026-10-13.json",
@@ -3677,7 +3757,8 @@
         "docs/air/evidence/canvas-tools-2026-11-21.json",
         "docs/air/evidence/canvas-mobile-2026-11-21.json",
         "docs/air/evidence/mobile-navigation-2026-11-21.json",
-        "docs/air/evidence/mobile-export-320-dark.png"
+        "docs/air/evidence/mobile-export-320-dark.png",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },

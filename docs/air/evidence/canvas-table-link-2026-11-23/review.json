@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-23",
+  "features": ["Select text → Capture a table", "Annotate → Link"],
+  "fixture": "Two local pages with three table columns, a blank cell, a multiword cell, a negative number and a rotated, cropped destination using UserUnit 1.5.",
+  "chromium": {
+    "suite": "tests/e2e/table-detail.e2e.ts",
+    "viewports": [
+      "320×568",
+      "375×812",
+      "390×844",
+      "430×932",
+      "535×320",
+      "536×320",
+      "537×320",
+      "568×320",
+      "844×390",
+      "768×1024",
+      "1024×768",
+      "1280×720",
+      "1366×768",
+      "1440×900",
+      "1920×1080"
+    ],
+    "themes": ["light", "dark"],
+    "rootFontPx": [16, 32],
+    "states": ["table", "link-placement", "link"],
+    "measurements": 180,
+    "maximumHorizontalOverflowPx": 0,
+    "minimumPaperDimensionPx": 77,
+    "minimumInspectorBodyHeightPx": 53,
+    "screenshots": ["table-capture-phone.png", "annotation-link-phone.png"],
+    "output": [
+      "Spreadsheet clipboard contents and manual-copy fallback",
+      "Add, remove, keyboard-adjust and drag column dividers",
+      "Two-corner touch capture and empty-region recovery",
+      "Tap reference text, place and retarget the detail, delete and undo",
+      "Apply a rectangle and a link together, download PDF, independently inspect native reference and destination coordinates, undo and redo",
+      "Resize and nudge the selected reference, then verify its saved bounds",
+      "Resolve the exported destination through PDF.js after rasterizing the rotated target with redaction. The output contains exactly two page objects and the destination has no text layer.",
+      "Enter link placement from the keyboard and return focus to the initiating control.",
+      "Undo a reference drag while changing the destination and verify the downloaded PDF uses the restored bounds."
+    ]
+  },
+  "additionalBrowsers": {
+    "WebKit": "Keyboard table capture and native slider input at 375×812, touch reference and keyboard destination in 844×390 landscape, same-page PDF link download.",
+    "Firefox": "Keyboard table capture at 375×812, cross-page detail link placement and Apply at 844×390."
+  },
+  "deviceCoverage": "Browser-driven viewports, pointer input and text scaling. No physical-device or assistive-technology acceptance claim.",
+  "pageOperations": [
+    "Keep both ends aligned when cropping or rotating pending links",
+    "Keep a saved link when removing an unrelated page or extracting a reordered subset",
+    "Drop a link to a missing page without copying its excluded page object"
+  ],
+  "regressionChecks": [
+    "474 unit tests in 50 files, including quoted and multiline TSV cells and package-script entry points.",
+    "All 52 browser suites in tests/e2e passed, including real-model Ask PDF, the PWA update flow, production offline recovery and the standalone tools. Suites supporting demo fixtures used the repository’s demo option.",
+    "1,320 canvas layout checks covering all 22 registered tools across 15 viewports, two themes and two text sizes. Table capture and detail links have a further 180 responsive cases.",
+    "The form regression reproduced a parked pointer replacing a keyboard choice with South. The repaired shared control passed the saved-PDF test and 44 Chromium and WebKit select layout and keyboard journeys.",
+    "Production Workers preview: 66 recovery layouts. WebKit downloaded a same-page link; Firefox applied a cross-page link. Both exercised mobile table capture.",
+    "The combined smoke command, formatting, lint, type check, Knip, production build and Air design checks passed."
+  ]
+}

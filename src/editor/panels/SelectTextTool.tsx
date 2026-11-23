@@ -3,11 +3,11 @@ import { createPortal } from "react-dom";
 import { usePageHost } from "../stage.tsx";
 import { AlertTriangle, Highlighter, Copy, EyeOff, Square } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { extractPageTextGeometry } from "../../utils/layout-extract.ts";
+import { usePageText, useVisibleTextPage, type TextPage } from "../usePageText.ts";
+import { TableStage, TablePanel } from "./TableCapture.tsx";
 import { type Annotation, annotatePdf } from "../../utils/pdf-operations.ts";
 import {
   nearestWordIndex,
-  orderReading,
   type SelWord,
   selectedRects,
   selectedText,
@@ -17,20 +17,12 @@ import {
   DEFAULT_REDACTION_BORDER,
   DEFAULT_REDACTION_FILL,
   docToFile,
-  hasPendingDestructive,
   type RedactionPayload,
 } from "../doc.ts";
-import { useEditorActions, useEditorRead, useToolSlice } from "../EditorContext.tsx";
+import { useEditorActions, useToolSlice } from "../EditorContext.tsx";
 import { type StagePoint, type StageKeyboardEvent, useStageProps } from "../stage.tsx";
 
 const TOOL = "select-text";
-interface TextPage {
-  bytes: Uint8Array;
-  pageIndex: number;
-  words: SelWord[];
-  touchWords?: SelWord[];
-  failed?: boolean;
-}
 interface Selection {
   page: TextPage;
   anchor: number;
@@ -40,17 +32,11 @@ interface Selection {
 }
 const EMPTY: SelWord[] = [];
 function useSelection() {
-  const { doc, selectedPage, busyLabel } = useEditorRead();
-  const slice = useToolSlice(TOOL);
-  const stored = slice.page as TextPage | undefined;
-  const blocked = hasPendingDestructive(doc);
-  const page =
-    !blocked && stored?.bytes === doc?.bytes && stored?.pageIndex === selectedPage
-      ? stored
-      : undefined;
+  const visible = useVisibleTextPage();
+  const { page, slice } = visible;
   const saved = slice.selection as Selection | undefined;
   const selection = page && saved?.page === page ? saved : undefined;
-  return { doc, selectedPage, busy: busyLabel !== null, blocked, page, selection, slice };
+  return { ...visible, selection };
 }
 function wordsFor(selection: Selection) {
   return selection.touch
@@ -62,76 +48,18 @@ function range(selection: Selection) {
 }
 
 export function Stage() {
-  const { doc, selectedPage, busy, blocked, page, selection, slice } = useSelection();
-  const { patchToolState } = useEditorActions();
-  const bytes = doc?.bytes;
-  const retry = slice.retry;
-  useEffect(() => {
-    if (!doc || blocked || page) return;
-    let live = true;
-    patchToolState(TOOL, { selection: undefined });
-    void extractPageTextGeometry(docToFile(doc), selectedPage + 1, { selectionBounds: true }).then(
-      (layout) => {
-        if (!live) return;
-        const readWords = (items: NonNullable<typeof layout>["items"]) =>
-          layout
-            ? orderReading(
-                items
-                  .filter(
-                    (item) =>
-                      item.text.trim() &&
-                      item.width > 0 &&
-                      item.height > 0 &&
-                      item.x < layout.width &&
-                      item.y < layout.height &&
-                      item.x + item.width > 0 &&
-                      item.y + item.height > 0,
-                  )
-                  .map((item) => ({
-                    text: item.text,
-                    rect: {
-                      xPct: Math.max(0, item.x) / layout.width,
-                      yPct: Math.max(0, item.y) / layout.height,
-                      wPct:
-                        (Math.min(layout.width, item.x + item.width) - Math.max(0, item.x)) /
-                        layout.width,
-                      hPct:
-                        (Math.min(layout.height, item.y + item.height) - Math.max(0, item.y)) /
-                        layout.height,
-                    },
-                  })),
-                layout.rotation,
-              )
-            : [];
-        patchToolState(TOOL, {
-          page: {
-            bytes: doc.bytes,
-            pageIndex: selectedPage,
-            words: readWords(layout?.items ?? []),
-            touchWords: readWords(layout?.selectionWords ?? layout?.items ?? []),
-            failed: !layout,
-          } satisfies TextPage,
-        });
-      },
-      () => {
-        if (live)
-          patchToolState(TOOL, {
-            page: {
-              bytes: doc.bytes,
-              pageIndex: selectedPage,
-              words: [],
-              failed: true,
-            } satisfies TextPage,
-          });
-      },
-    );
-    return () => {
-      live = false;
-    };
-    // Only byte/page changes or an explicit retry invalidate the text geometry.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bytes, selectedPage, blocked, retry, patchToolState]);
+  const page = usePageText();
+  const slice = useToolSlice(TOOL);
+  return slice.captureTable && page?.words.length ? (
+    <TableStage page={page} key={page.pageIndex} />
+  ) : (
+    <TextStage />
+  );
+}
 
+function TextStage() {
+  const { busy, page, selection } = useSelection();
+  const { patchToolState } = useEditorActions();
   const words = selection ? wordsFor(selection) : (page?.words ?? EMPTY);
   const dragging = useRef<Selection | null>(null);
   const frame = useRef<number | null>(null);
@@ -459,100 +387,117 @@ export function Panel() {
         </section>
       ) : (
         <>
-          <section aria-label="Text selection">
-            {selection ? (
-              <>
-                <div className="pdf-form-heading">
-                  <label className="air-label" htmlFor="selected-page-text">
-                    Selected text
-                  </label>
-                  <span className="air-help">Page {page.pageIndex + 1}</span>
-                </div>
-                <textarea
-                  id="selected-page-text"
-                  className="air-field pdf-selection-preview"
-                  readOnly
-                  value={text}
-                  rows={4}
-                />
-                <p className="sr-only" role="status">
-                  {text.length} characters selected.
+          <button
+            type="button"
+            className="air-button"
+            aria-pressed={!!slice.captureTable}
+            disabled={busy || copying}
+            onClick={() => patchToolState(TOOL, { captureTable: !slice.captureTable })}
+          >
+            Capture a table
+          </button>
+          {slice.captureTable ? (
+            <TablePanel key={page.pageIndex} page={page} />
+          ) : (
+            <>
+              <section aria-label="Text selection">
+                {selection ? (
+                  <>
+                    <div className="pdf-form-heading">
+                      <label className="air-label" htmlFor="selected-page-text">
+                        Selected text
+                      </label>
+                      <span className="air-help">Page {page.pageIndex + 1}</span>
+                    </div>
+                    <textarea
+                      id="selected-page-text"
+                      className="air-field pdf-selection-preview"
+                      readOnly
+                      value={text}
+                      rows={4}
+                    />
+                    <p className="sr-only" role="status">
+                      {text.length} characters selected.
+                    </p>
+                  </>
+                ) : (
+                  <p className="air-help">
+                    Drag across text, or tap the first and last word on a touchscreen.
+                  </p>
+                )}
+                {selection?.awaitingEnd && (
+                  <p className="air-help" role="status">
+                    Tap the last word, or tap the same word again.
+                  </p>
+                )}
+                {selection?.touch && !selection.awaitingEnd && host ? (
+                  createPortal(
+                    <div
+                      className="pdf-touch-selection"
+                      style={{
+                        top: `${Math.min(78, Math.max(1, (wordsFor(selection)[selection.focus].rect.yPct + wordsFor(selection)[selection.focus].rect.hPct) * 100 + 1))}%`,
+                      }}
+                    >
+                      {actions}
+                    </div>,
+                    host,
+                  )
+                ) : (
+                  <div className="pdf-selection-actions">{actions}</div>
+                )}
+                <p className="air-help" id="selection-redaction-help">
+                  Redact adds removable marks. Exporting or applying another edit makes them
+                  permanent in that output.
                 </p>
-              </>
-            ) : (
-              <p className="air-help">
-                Drag across text, or tap the first and last word on a touchscreen.
-              </p>
-            )}
-            {selection?.awaitingEnd && (
-              <p className="air-help" role="status">
-                Tap the last word, or tap the same word again.
-              </p>
-            )}
-            {selection?.touch && !selection.awaitingEnd && host ? (
-              createPortal(
-                <div
-                  className="pdf-touch-selection"
-                  style={{
-                    top: `${Math.min(78, Math.max(1, (wordsFor(selection)[selection.focus].rect.yPct + wordsFor(selection)[selection.focus].rect.hPct) * 100 + 1))}%`,
-                  }}
-                >
-                  {actions}
-                </div>,
-                host,
-              )
-            ) : (
-              <div className="pdf-selection-actions">{actions}</div>
-            )}
-            <p className="air-help" id="selection-redaction-help">
-              Redact adds removable marks. Exporting or applying another edit makes them permanent
-              in that output.
-            </p>
-            <div className="pdf-selection-actions">
-              <button
-                className="air-button air-button--quiet"
-                type="button"
-                disabled={busy || copying}
-                onClick={() => {
-                  setNote(undefined);
-                  patchToolState(TOOL, {
-                    selection: {
-                      page,
-                      anchor: 0,
-                      focus: page.words.length - 1,
-                    } satisfies Selection,
-                  });
-                }}
-              >
-                Select page text
-              </button>
-              <button
-                className="air-button air-button--quiet"
-                type="button"
-                disabled={disabled}
-                onClick={clear}
-              >
-                Clear selection
-              </button>
-            </div>
-          </section>
-          <details className="pdf-selection-help">
-            <summary>Keyboard selection</summary>
-            <p className="air-help">
-              Focus the page, then use Left or Right to move through text. Hold Shift to extend the
-              selection. Home and End reach the first and last text; Escape clears it. Up and Down
-              pan the page.
-            </p>
-          </details>
+                <div className="pdf-selection-actions">
+                  <button
+                    className="air-button air-button--quiet"
+                    type="button"
+                    disabled={busy || copying}
+                    onClick={() => {
+                      setNote(undefined);
+                      patchToolState(TOOL, {
+                        selection: {
+                          page,
+                          anchor: 0,
+                          focus: page.words.length - 1,
+                        } satisfies Selection,
+                      });
+                    }}
+                  >
+                    Select page text
+                  </button>
+                  <button
+                    className="air-button air-button--quiet"
+                    type="button"
+                    disabled={disabled}
+                    onClick={clear}
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              </section>
+              <details className="pdf-selection-help">
+                <summary>Keyboard selection</summary>
+                <p className="air-help">
+                  Focus the page, then use Left or Right to move through text. Hold Shift to extend
+                  the selection. Home and End reach the first and last text; Escape clears it. Up
+                  and Down pan the page.
+                </p>
+              </details>
+            </>
+          )}
         </>
       )}
-      <p
-        className={feedback?.failed ? "air-notice air-notice--error" : "air-help"}
-        role={feedback?.failed ? "alert" : "status"}
-      >
-        {feedback?.failed && <AlertTriangle size={16} aria-hidden="true" />}
-        <span>{feedback?.text}</span>
-      </p>
+      {!slice.captureTable && (
+        <p
+          className={feedback?.failed ? "air-notice air-notice--error" : "air-help"}
+          role={feedback?.failed ? "alert" : "status"}
+        >
+          {feedback?.failed && <AlertTriangle size={16} aria-hidden="true" />}
+          <span>{feedback?.text}</span>
+        </p>
+      )}
     </div>
   );
 }

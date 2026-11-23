@@ -4,18 +4,18 @@
  */
 
 import {
-  PDFArray,
   PDFDict,
   PDFDocument,
   PDFHexString,
   PDFString,
   PDFName,
   PDFNumber,
-  type PDFObject,
   PDFRef,
   rgb,
   StandardFonts,
 } from "@pdfme/pdf-lib";
+
+import { addLinkAnnotation } from "./links.ts";
 
 /** One outline entry. `pageIndex` is 0-based into the *input* document (before
  *  any contents page is inserted). `level` nests the entry: 1 = top-level, 2 =
@@ -320,27 +320,4 @@ export async function addPdfBookmarks(
   pdf.catalog.set(PDFName.of("PageMode"), PDFName.of("UseOutlines"));
 
   return pdf.save();
-}
-
-/** Register a /Link annotation (a GoTo-Fit jump to `targetRef`) and attach it to
- *  the page's /Annots array, creating the array if absent. */
-function addLinkAnnotation(
-  pdf: PDFDocument,
-  pageNode: PDFDict,
-  rect: [number, number, number, number],
-  target: { Dest?: PDFObject; A?: PDFObject },
-): void {
-  if (!target.Dest && !target.A) return;
-  const linkDict = pdf.context.obj({
-    Type: PDFName.of("Annot"),
-    Subtype: PDFName.of("Link"),
-    Rect: pdf.context.obj(rect),
-    Border: pdf.context.obj([0, 0, 0]),
-    ...target,
-  }) as PDFDict;
-  const linkRef = pdf.context.register(linkDict);
-
-  const existing = pageNode.lookup(PDFName.of("Annots"));
-  if (existing instanceof PDFArray) existing.push(linkRef);
-  else pageNode.set(PDFName.of("Annots"), pdf.context.obj([linkRef]));
 }
