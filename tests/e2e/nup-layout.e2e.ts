@@ -290,7 +290,7 @@ try {
             requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
           ),
       );
-      const open = await page.$('[aria-label="Open tools"]');
+      const open = await page.$('[aria-label="All tools"]');
       if (open) await open.click();
       await page.waitForSelector("#nup-layout", { visible: true });
       for (let choice = 0; choice < 5; choice++) {
@@ -349,7 +349,7 @@ try {
           requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
         ),
     );
-    const open = await page.$('[aria-label="Open tools"]');
+    const open = await page.$('[aria-label="All tools"]');
     if (open) await open.click();
     await select(4);
     await page.focus(".air-switch-row input");

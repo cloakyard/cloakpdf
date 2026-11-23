@@ -132,6 +132,7 @@ try {
         }
         const states = mobile ? ["closed", "picker", "tool"] : ["rail"];
         if (width < 1024) states.push("document");
+        let restingPage: number[] | undefined;
         for (const state of states) {
           if (state === "picker") {
             // First-install production cache feedback can cover the bottom dock.
@@ -142,7 +143,7 @@ try {
               await notice.click();
               await page.waitForSelector(".air-update-panel", { hidden: true });
             }
-            await page.locator('[aria-label="Open tools"]').click();
+            await page.locator('[aria-label="All tools"]').click();
             await page.waitForSelector('[aria-label="Close tools"]');
           }
           if (state === "tool") {
@@ -162,6 +163,7 @@ try {
             const selectors = [
               ".editor-topbar",
               ".editor-toolrail",
+              ".editor-mobile-dock",
               ".editor-mobile-sheet__header",
               ".editor-mobile-sheet__body",
               '[aria-labelledby="editor-actions-title"]',
@@ -195,6 +197,11 @@ try {
                   (n) => n.getClientRects().length && n.getBoundingClientRect().height < min - 0.5,
                 )
                 .map((n) => n.getAttribute("aria-label") ?? n.textContent),
+              pageRect: document.querySelector(".editor-paper")?.getBoundingClientRect().toJSON(),
+              sheetHeight: document.querySelector(".editor-mobile-sheet")?.getBoundingClientRect()
+                .height,
+              workHeight: document.querySelector(".editor-working-area")!.getBoundingClientRect()
+                .height,
               bodyHeight:
                 document.querySelector(".editor-mobile-sheet__body")?.getBoundingClientRect()
                   .height ?? null,
@@ -207,6 +214,22 @@ try {
           assert.deepEqual(result.undersized, [], JSON.stringify(rows.at(-1)));
           if (root === 16)
             assert.equal(result.headerHeight, 64, "Toolbar stays in one 64px row at every width");
+          if (mobile && result.pageRect) {
+            const { x, y, width: pageWidth, height: pageHeight } = result.pageRect;
+            const bounds = [x, y, pageWidth, pageHeight];
+            if (state === "closed") restingPage = bounds;
+            const sideBySide = width >= 536 && height < 500 && width > height;
+            if (state === "picker" && !sideBySide) {
+              assert.ok(
+                restingPage && bounds.every((value, i) => Math.abs(value - restingPage![i]) <= 1),
+                JSON.stringify(rows.at(-1)),
+              );
+              assert.ok(
+                result.sheetHeight! <= result.workHeight * 0.6 + 1,
+                "The catalog leaves part of the page visible",
+              );
+            }
+          }
           if (state === "tool") assert.ok(result.bodyHeight! >= 44, JSON.stringify(rows.at(-1)));
           if (root === 16 && [390, 768, 1280, 1440].includes(width) && state !== "closed")
             await page.screenshot({ path: resolve(output, `${state}-${width}-${theme}.png`) });
@@ -220,7 +243,7 @@ try {
         }
         if (mobile) {
           await page.click('[aria-label="Close tools"]');
-          await page.waitForSelector('[aria-label="Open tools"]');
+          await page.waitForSelector('[aria-label="All tools"]');
         }
       }
     }
@@ -229,7 +252,55 @@ try {
     document.documentElement.style.fontSize = "16px";
   });
   await page.setViewport({ width: 390, height: 844 });
-  await page.waitForSelector('[aria-label="Open tools"]');
+  await page.waitForSelector('[aria-label="All tools"]');
+  const dock = ".editor-mobile-dock";
+  assert.deepEqual(
+    await page.$$eval(dock + " button", (buttons) => buttons.map((b) => b.textContent)),
+    ["Annotate", "Sign", "Fill form", "All tools"],
+  );
+  const paperRect = () =>
+    page.$eval(".editor-paper", (el) => {
+      const { x, y, width, height } = el.getBoundingClientRect();
+      return [x, y, width, height];
+    });
+  const beforeCatalog = await paperRect();
+  await page.focus(dock + ' [data-entry="annotate-pdf"]');
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent), "Sign");
+  await page.keyboard.press("End");
+  await page.keyboard.press("Enter");
+  await page.waitForSelector("#mobile-editor-tool-search");
+  assert.deepEqual(
+    await paperRect(),
+    beforeCatalog,
+    "Browsing tools preserves the reading position and scale",
+  );
+  assert.equal(
+    await page.$$eval(".editor-mobile-tool-list button", (buttons) => buttons.length),
+    EDITOR_TOOLS.length,
+  );
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.activeElement?.getAttribute("data-entry") === "all");
+  for (const [id, name] of [
+    ["annotate-pdf", "Annotate"],
+    ["signature", "Signature"],
+    ["fill-pdf-form", "Fill form"],
+  ]) {
+    await page.locator(dock + ' [data-entry="' + id + '"]').click();
+    await page.waitForFunction(
+      (name) => document.querySelector(".editor-mobile-sheet__header h2")?.textContent === name,
+      {},
+      name,
+    );
+    await page
+      .locator('.editor-mobile-sheet__header button:is([aria-label="Cancel"],[aria-label="Close"])')
+      .click();
+    await page.waitForFunction(
+      (id) => document.activeElement?.getAttribute("data-entry") === id,
+      {},
+      id,
+    );
+  }
   await page.locator('::-p-aria([name="Export"][role="button"])').click();
   await page.waitForSelector('[data-testid="export-dialog"]');
   await page.keyboard.press("Escape");
@@ -261,7 +332,7 @@ try {
     "More actions",
   );
   await page.click('[aria-label="Next page"]');
-  await page.click('[aria-label="Open tools"]');
+  await page.click('[aria-label="All tools"]');
   await page.type("#mobile-editor-tool-search", "qzx no such tool");
   assert.equal(await page.$eval(".editor-mobile-empty > p", (n) => n.textContent), "No tool found");
   await page.click('[aria-label="Clear editor tool search"]');
@@ -331,11 +402,11 @@ try {
   await page.click('[aria-label="Cancel"]');
   assert.equal(
     await page.evaluate(() => document.activeElement?.getAttribute("aria-label")),
-    "Open tools",
+    "All tools",
   );
   // A keyboard-sized viewport keeps search pinned and its first match tappable.
   await page.setViewport({ width: 390, height: 360 });
-  await page.locator('[aria-label="Open tools"]').click();
+  await page.locator('[aria-label="All tools"]').click();
   await page.focus("#mobile-editor-tool-search");
   const searchTop = await page.$eval(
     "#mobile-editor-tool-search",

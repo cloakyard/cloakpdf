@@ -51,7 +51,7 @@ for (const engine of ["chromium", "webkit"]) {
         const actions = sheet.locator(".air-editor-actions");
         const button = (name) => actions.getByRole("button", { name, exact: true });
         const open = async (name) => {
-          await page.getByRole("button", { name: "Open tools", exact: true }).click();
+          await page.getByRole("button", { name: "All tools", exact: true }).click();
           await sheet.getByRole("button", { name, exact: true }).click();
           await actions.waitFor();
         };
@@ -115,7 +115,7 @@ for (const engine of ["chromium", "webkit"]) {
             .querySelector('[aria-label="Back to tools"]')
             .click();
         });
-        await page.getByRole("button", { name: "Open tools", exact: true }).waitFor();
+        await page.getByRole("button", { name: "All tools", exact: true }).waitFor();
         await page.getByRole("button", { name: "More actions", exact: true }).click();
         await page.getByRole("button", { name: "Undo", exact: true }).click();
         await page.getByRole("button", { name: "Close actions", exact: true }).click();

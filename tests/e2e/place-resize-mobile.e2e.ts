@@ -112,7 +112,7 @@ async function pickTool(page: Page, name: string) {
     timeout: 60_000,
   });
   for (let attempt = 0; attempt < 2; attempt++) {
-    const toggle = await page.$('button[aria-label="Open tools"]');
+    const toggle = await page.$('button[aria-label="All tools"]');
     if (!toggle) break;
     await toggle.click();
     const opened = await page
@@ -172,7 +172,7 @@ async function main() {
       FIXTURE_PATH,
     );
     await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
-    await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 10_000 });
+    await page.waitForSelector('button[aria-label="All tools"]', { timeout: 10_000 });
     const toast = await page.$('[aria-label="Dismiss offline status"]');
     if (toast) await toast.click();
     const bb = await pageBox(page);
@@ -222,7 +222,7 @@ async function main() {
     await page.click(
       '.editor-mobile-sheet .air-editor-actions button:is([aria-label="Apply"], [aria-label="Close"])',
     ); // Apply commits
-    await page.waitForSelector('button[aria-label="Open tools"]', { timeout: 60_000 });
+    await page.waitForSelector('button[aria-label="All tools"]', { timeout: 60_000 });
     await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), {
       timeout: 60_000,
     });

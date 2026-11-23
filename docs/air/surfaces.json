@@ -1433,7 +1433,8 @@
         "restore success",
         "discard",
         "processing",
-        "Keyboard viewport, safe areas and landscape canvas split"
+        "Keyboard viewport, safe areas and landscape canvas split",
+        "Stable page fit while browsing tools on a phone"
       ],
       "viewports": [
         "320x568",
@@ -1462,7 +1463,8 @@
         "docs/air/evidence/editor-recovery-2026-10-15.json",
         "docs/air/evidence/foundation-2026-10-19.json",
         "evidence/consistency-2026-10-26/checks.json.gz",
-        "docs/air/evidence/canvas-mobile-2026-11-21.json"
+        "docs/air/evidence/canvas-mobile-2026-11-21.json",
+        "docs/air/evidence/mobile-quick-toolbar-2026-11-23.json"
       ],
       "notes": "Air shell navigation, preview recovery, initial loading, error/saved-session notices and processing surfaces are implemented. Shared LoadingState/ProgressBar replace old spinners; neutral notices use shared buttons and a bounded scroll region. Failed restores retain the original and retry action. Full PDF migration and physical/assistive acceptance remain open. See dated evidence for responsive/theme/text, feature and native scheduling observations. Foundation checkpoint: editor root uses canonical Air layer/surface/ink; 141 recovery captures confirm processing stays above the editor and root typography uses the system stack. Air 1.2.3 compares footer heights/content directly across products and uses the pinned PWA notice; current software checks pass. Separate product/device gates remain open."
     },
@@ -1627,7 +1629,10 @@
         "reduced-motion",
         "forced-colors",
         "Pinned search, sole-result submission, draft-preserving Back, compact Apply and Close",
-        "Best-match scroll position and keyboard composition"
+        "Best-match scroll position and keyboard composition",
+        "One-tap Annotate, Sign and Fill form",
+        "Keyboard toolbar navigation and return to its invoking shortcut",
+        "Grouped All tools with stable portrait page bounds and a keyboard-sized search field"
       ],
       "viewports": [
         "320x568",
@@ -1662,7 +1667,8 @@
         "docs/air/surface-motion-2026-11-03.md",
         "docs/air/evidence/canvas-mobile-2026-11-21.json",
         "docs/air/evidence/mobile-navigation-2026-11-21.json",
-        "docs/air/evidence/canvas-release-2026-11-21.json"
+        "docs/air/evidence/canvas-release-2026-11-21.json",
+        "docs/air/evidence/mobile-quick-toolbar-2026-11-23.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -3709,7 +3715,8 @@
         "Small landscape phone split and minimum-width pagination",
         "Unfilled compact Export icon, 44×44 target at 100% and 200% text",
         "scrollable table preview",
-        "responsive annotation picker"
+        "responsive annotation picker",
+        "Four mobile shortcuts at 320px and 200% text, and a responsive tool picker"
       ],
       "viewports": [
         "320x568",
@@ -3758,7 +3765,8 @@
         "docs/air/evidence/canvas-mobile-2026-11-21.json",
         "docs/air/evidence/mobile-navigation-2026-11-21.json",
         "docs/air/evidence/mobile-export-320-dark.png",
-        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json",
+        "docs/air/evidence/mobile-quick-toolbar-2026-11-23.json"
       ],
       "notes": "Air 1.3.3 source and rendered automated states reviewed; see dated action audit. Physical device, OS IME and spoken assistive acceptance remain separate and open."
     },

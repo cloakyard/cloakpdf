@@ -98,7 +98,7 @@ try {
         );
         if (notice) await notice.click();
         if (touch) {
-          await page.locator('[aria-label="Open tools"]').click();
+          await page.locator('[aria-label="All tools"]').click();
           await page.waitForSelector(".editor-mobile-tool-list", { visible: true });
         }
         await page

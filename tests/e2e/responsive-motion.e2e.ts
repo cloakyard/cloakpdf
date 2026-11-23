@@ -274,7 +274,7 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
   }
 
   if (shouldUseSheet) {
-    await page.click('button[aria-label="Open tools"]');
+    await page.click('button[aria-label="All tools"]');
     await page.waitForSelector('button[aria-label="Crop"]');
   }
   const propertiesBefore = shouldUseSheet
@@ -358,7 +358,7 @@ async function auditEditor(page: Page, viewport: ViewportCase) {
   // scale inward and briefly expose side gutters.
   if (viewport.name === "mobile") {
     await page.click('button[aria-label="Cancel"]');
-    await page.waitForSelector('button[aria-label="Open tools"]');
+    await page.waitForSelector('button[aria-label="All tools"]');
     await page.click('button[aria-label="Export"]');
     await page.waitForSelector('[data-testid="export-dialog"]');
     const modal = await page.$eval('[data-testid="export-dialog"]', (element) => {
@@ -410,7 +410,7 @@ async function auditReducedMotion(page: Page) {
   if (!input) fail("Reduced-motion PDF input was not available.");
   await (input as { uploadFile: (...paths: string[]) => Promise<void> }).uploadFile(FIXTURE_PATH);
   await page.waitForSelector('img[alt="Page 1"]', { timeout: 20_000 });
-  await page.click('button[aria-label="Open tools"]');
+  await page.click('button[aria-label="All tools"]');
   await page.click('button[aria-label="Crop"]');
   await new Promise((resolveDelay) => setTimeout(resolveDelay, 120));
   const panel = await panelState(page);
