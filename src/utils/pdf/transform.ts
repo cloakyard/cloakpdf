@@ -3,6 +3,7 @@
  * images-to-PDF, N-up, and crop/uncrop.
  */
 
+import { prepareDetailLinkCopy } from "./links.ts";
 import { visiblePageGeometry, visibleRectToPdf } from "./page-geometry.ts";
 import {
   PDFArray,
@@ -192,6 +193,7 @@ export async function compressPdf(
     // copying per-page instead re-embeds shared fonts and bloats the output 4-5×.
     const losslessIdx: number[] = [];
     for (let i = 0; i < total; i++) if (!rasterJpeg.has(i)) losslessIdx.push(i);
+    const restoreLinks = prepareDetailLinkCopy(srcLib);
     const copied = losslessIdx.length ? await newPdf.copyPages(srcLib, losslessIdx) : [];
     const copiedByIndex = new Map<number, (typeof copied)[number]>();
     losslessIdx.forEach((idx, k) => copiedByIndex.set(idx, copied[k]));
@@ -219,6 +221,9 @@ export async function compressPdf(
       await new Promise((r) => setTimeout(r, 0));
     }
 
+    restoreLinks(
+      newPdf.getPages().map((page, index) => ({ page, index, rasterized: rasterJpeg.has(index) })),
+    );
     const compressed = await newPdf.save({ useObjectStreams: true });
 
     // If the rebuild didn't actually shrink the file (already-optimised input),

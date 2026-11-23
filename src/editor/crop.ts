@@ -1,6 +1,7 @@
+import { isLinkObject, remapLink } from "./link-regions.ts";
 import type { Annotation } from "../utils/pdf/annotate.ts";
 import { cropPagesIndividual } from "../utils/pdf/transform.ts";
-import { docToFile, type CanvasDoc } from "./doc.ts";
+import { docToFile, type CanvasObject, type CanvasDoc } from "./doc.ts";
 import type { FractionRect } from "./types.ts";
 
 export type CropMargins = Record<"top" | "right" | "bottom" | "left", string>;
@@ -64,7 +65,27 @@ export async function cropDoc(doc: CanvasDoc, keeps: Map<number, FractionRect>) 
     });
   }
   const { bytes } = await cropPagesIndividual(docToFile(doc), margins);
-  const objects = doc.objects.map((o) => {
+  const objects = doc.objects.flatMap((o): CanvasObject | CanvasObject[] => {
+    if (isLinkObject(o))
+      return remapLink(o, (region) => {
+        const k = keeps.get(region.pageIndex);
+        if (!k || !margins.has(region.pageIndex)) return region;
+        const r = region.rect;
+        const left = Math.max(r.xPct, k.xPct),
+          top = Math.max(r.yPct, k.yPct);
+        const right = Math.min(r.xPct + r.wPct, k.xPct + k.wPct),
+          bottom = Math.min(r.yPct + r.hPct, k.yPct + k.hPct);
+        if (right <= left || bottom <= top) return;
+        return {
+          pageIndex: region.pageIndex,
+          rect: {
+            xPct: (left - k.xPct) / k.wPct,
+            yPct: (top - k.yPct) / k.hPct,
+            wPct: (right - left) / k.wPct,
+            hPct: (bottom - top) / k.hPct,
+          },
+        };
+      });
     const k = keeps.get(o.pageIndex);
     if (!k || !margins.has(o.pageIndex)) return o;
     const x = (v: number) => (v - k.xPct) / k.wPct;

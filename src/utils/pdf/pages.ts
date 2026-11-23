@@ -4,7 +4,8 @@
  * blanks all flow through `assemblePdf`).
  */
 
-import { PDFDocument, PDFName, degrees } from "@pdfme/pdf-lib";
+import { prepareDetailLinkCopy } from "./links.ts";
+import { PDFDocument, PDFName, degrees, type PDFPage } from "@pdfme/pdf-lib";
 
 /**
  * Merge multiple PDF files into a single document.
@@ -23,7 +24,9 @@ export async function mergePdfs(files: File[]): Promise<Uint8Array> {
   for (const file of files) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await PDFDocument.load(arrayBuffer);
+    const restoreLinks = prepareDetailLinkCopy(pdf);
     const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+    restoreLinks(pages.map((page, index) => ({ page, index })));
     for (const page of pages) {
       merged.addPage(page);
     }
@@ -46,12 +49,14 @@ export async function splitPdfIntoParts(file: File, parts: number[][]): Promise<
   const arrayBuffer = await file.arrayBuffer();
   const source = await PDFDocument.load(arrayBuffer);
   const pageCount = source.getPageCount();
+  const restoreLinks = prepareDetailLinkCopy(source);
   const out: Uint8Array[] = [];
   for (const indices of parts) {
     const valid = indices.filter((i) => i >= 0 && i < pageCount);
     if (valid.length === 0) throw new Error("No valid pages selected.");
     const result = await PDFDocument.create();
     const copied = await result.copyPages(source, valid);
+    restoreLinks(copied.map((page, i) => ({ page, index: valid[i] })));
     for (const page of copied) result.addPage(page);
     out.push(await result.save());
   }
@@ -159,6 +164,13 @@ export async function assemblePdf(
       return source.save();
     }
   }
+  const linkCopies = new Map<
+    PDFDocument,
+    {
+      restore: ReturnType<typeof prepareDetailLinkCopy>;
+      copies: { page: PDFPage; index: number }[];
+    }
+  >();
   for (const op of ops) {
     if (op.kind === "blank") {
       const page = out.addPage([op.width ?? 612, op.height ?? 792]);
@@ -179,7 +191,13 @@ export async function assemblePdf(
       if (op.pageIndex >= src.getPageCount()) {
         throw new Error("Malformed assembly plan: page index out of range.");
       }
+      let batch = linkCopies.get(src);
+      if (!batch) {
+        batch = { restore: prepareDetailLinkCopy(src), copies: [] };
+        linkCopies.set(src, batch);
+      }
       const [page] = await out.copyPages(src, [op.pageIndex]);
+      batch.copies.push({ page, index: op.pageIndex });
       if (op.rotation) {
         page.setRotation(degrees(norm(page.getRotation().angle + op.rotation)));
       }
@@ -187,5 +205,6 @@ export async function assemblePdf(
     }
   }
 
+  for (const { restore, copies } of linkCopies.values()) restore(copies);
   return out.save();
 }

@@ -86,7 +86,7 @@ export const EDITOR_TOOLS = [
   {
     id: "annotate-pdf",
     name: "Annotate",
-    description: "Draw, highlight, add shapes, and place text on the page.",
+    description: "Draw, highlight, add text and shapes, or link a reference to a detail.",
     icon: Highlighter,
     group: "annotate",
     mode: "focus",
@@ -112,7 +112,7 @@ export const EDITOR_TOOLS = [
     id: "select-text",
     name: "Select text",
     railLabel: "Select",
-    description: "Drag to select real text, then highlight, box, redact, or copy it.",
+    description: "Highlight, box, redact or copy text. Capture a table for a spreadsheet.",
     icon: TextCursor,
     group: "annotate",
     mode: "focus",

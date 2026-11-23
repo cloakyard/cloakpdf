@@ -14,6 +14,8 @@
 
 import { ChevronDown, ChevronUp, FileX, Repeat2, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isLinkObject, remapLink } from "../link-regions.ts";
+import { readingRect } from "../../utils/text-select.ts";
 import { writePlacedMarks, bakePlacedMarks } from "../placed-marks.ts";
 import { downloadPdf, pdfFilename } from "../../utils/file-helpers.ts";
 import { parsePageSelection } from "../../utils/page-selection.ts";
@@ -410,14 +412,25 @@ export function Panel() {
         // Rotating marks are in the PDF now. Retain editable marks on other surviving pages.
         const newIndex = new Map<number, number>();
         survivors.forEach((origIdx, pos) => newIndex.set(origIdx, pos));
-        const objects: CanvasObject[] = d.objects
-          .filter((o) => newIndex.has(o.pageIndex) && !rotations[o.pageIndex])
-          .map((o) => ({ ...o, pageIndex: newIndex.get(o.pageIndex)! }));
+        const objects: CanvasObject[] = d.objects.flatMap((o) => {
+          if (isLinkObject(o))
+            return remapLink(o, (region) => {
+              const index = newIndex.get(region.pageIndex);
+              if (index === undefined) return;
+              return {
+                pageIndex: index,
+                rect: readingRect(region.rect, -(rotations[region.pageIndex] ?? 0)),
+              };
+            });
+          const index = newIndex.get(o.pageIndex);
+          return index === undefined || rotations[o.pageIndex] ? [] : [{ ...o, pageIndex: index }];
+        });
         return { bytes, label: "Organize pages", objects };
       },
       async (d) => {
         const marks = d.objects.filter(
           (o) =>
+            !isLinkObject(o) &&
             rotations[o.pageIndex] &&
             survivors.includes(o.pageIndex) &&
             placedMarkTools.some((tool) => tool.kind === o.kind),

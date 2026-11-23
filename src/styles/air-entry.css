@@ -3843,6 +3843,9 @@ body:has(.pdf-workspace) > .pdf-modal-root {
   font-size: var(--air-text-meta);
   overflow-wrap: anywhere;
 }
+.pdf-annotate-tools {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 5rem), 1fr));
+}
 .pdf-annotate-icons {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -4006,4 +4009,49 @@ body:has(.pdf-workspace) > .pdf-modal-root {
     width: 100%;
     margin-inline: 0;
   }
+}
+
+.pdf-table-preview {
+  max-inline-size: 100%;
+  max-block-size: 14rem;
+  overflow: auto;
+  border: 1px solid var(--air-line);
+  border-radius: var(--air-radius-control);
+}
+.pdf-table-preview table {
+  inline-size: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--air-text-meta);
+}
+.pdf-table-preview :is(td, th) {
+  padding: 6px 10px;
+  text-align: start;
+  white-space: nowrap;
+  border-block-end: 1px solid var(--air-line);
+}
+.pdf-table-preview th {
+  position: sticky;
+  inset-block-start: 0;
+  background: var(--air-surface-soft);
+}
+.pdf-column-controls {
+  display: grid;
+  gap: 8px;
+  padding-block-start: 8px;
+}
+.pdf-column-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 8px;
+}
+.pdf-column-control label {
+  grid-column: 1 / -1;
+}
+.pdf-column-control input {
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 44px;
+  accent-color: var(--air-accent);
 }

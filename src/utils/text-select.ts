@@ -21,6 +21,19 @@ export interface SelWord {
   text: string;
 }
 
+export function readingRect(r: FracRect, rotation: number): FracRect {
+  switch (((rotation % 360) + 360) % 360) {
+    case 90:
+      return { xPct: r.yPct, yPct: 1 - r.xPct - r.wPct, wPct: r.hPct, hPct: r.wPct };
+    case 180:
+      return { ...r, xPct: 1 - r.xPct - r.wPct, yPct: 1 - r.yPct - r.hPct };
+    case 270:
+      return { xPct: 1 - r.yPct - r.hPct, yPct: r.xPct, wPct: r.hPct, hPct: r.wPct };
+    default:
+      return r;
+  }
+}
+
 /**
  * Sort positioned words into human reading order: group into rows by vertical
  * overlap (text on the same line), order rows top-to-bottom, and words
@@ -28,27 +41,17 @@ export interface SelWord {
  * retain each word's visible rectangle for hit testing and painting. Pure.
  */
 export function orderReading(words: SelWord[], rotation = 0): SelWord[] {
-  const readingRect = ({ rect: r }: SelWord) => {
-    switch (((rotation % 360) + 360) % 360) {
-      case 90:
-        return { xPct: r.yPct, yPct: 1 - r.xPct - r.wPct, wPct: r.hPct, hPct: r.wPct };
-      case 180:
-        return { ...r, xPct: 1 - r.xPct - r.wPct, yPct: 1 - r.yPct - r.hPct };
-      case 270:
-        return { xPct: 1 - r.yPct - r.hPct, yPct: r.xPct, wPct: r.hPct, hPct: r.wPct };
-      default:
-        return r;
-    }
-  };
   const ws = words.filter((w) => w.text.length > 0);
   if (ws.length === 0) return [];
-  const sorted = [...ws].sort((a, b) => readingRect(a).yPct - readingRect(b).yPct);
+  const sorted = [...ws].sort(
+    (a, b) => readingRect(a.rect, rotation).yPct - readingRect(b.rect, rotation).yPct,
+  );
   const rows: SelWord[][] = [];
   for (const w of sorted) {
     const row = rows[rows.length - 1];
     if (row) {
-      const ref = readingRect(row[0]);
-      const rect = readingRect(w);
+      const ref = readingRect(row[0].rect, rotation);
+      const rect = readingRect(w.rect, rotation);
       const tol = Math.max(ref.hPct, rect.hPct) * 0.6;
       // Same row when the vertical centres are within tolerance.
       const refMid = ref.yPct + ref.hPct / 2;
@@ -60,7 +63,11 @@ export function orderReading(words: SelWord[], rotation = 0): SelWord[] {
     }
     rows.push([w]);
   }
-  return rows.flatMap((row) => [...row].sort((a, b) => readingRect(a).xPct - readingRect(b).xPct));
+  return rows.flatMap((row) =>
+    [...row].sort(
+      (a, b) => readingRect(a.rect, rotation).xPct - readingRect(b.rect, rotation).xPct,
+    ),
+  );
 }
 
 /** Distance² from a point to the nearest spot on (or in) a rect. */
