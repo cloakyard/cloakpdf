@@ -1128,7 +1128,8 @@
         "reduced motion",
         "forced colors",
         "200% text",
-        "Immediate option selection in the editor"
+        "Immediate option selection in the editor",
+        "Keyboard option after a stationary pointer crosses a reflowed menu"
       ],
       "viewports": [
         "1440x900",
@@ -1149,7 +1150,8 @@
         "docs/air/evidence/foundation-2026-10-19.json",
         "docs/air/surface-motion-2026-11-03.md",
         "docs/air/component-consistency-2026-11-03.md",
-        "docs/air/evidence/canvas-tools-2026-11-21.json"
+        "docs/air/evidence/canvas-tools-2026-11-21.json",
+        "docs/air/evidence/canvas-table-link-2026-11-23/review.json"
       ],
       "notes": "Air N-up and shared Select implementation; 70 layouts, 23 independently compared PDF output sheets, blank/mixed/rotated/cropped/UserUnit pages, form appearances, pending draft protection, Apply/Undo and native keyboard/zoom reviewed. Physical touch/software keyboard and assistive speech acceptance remain open. Full product migration is incomplete. Fill-form checkpoint shares field rows, forwards choice errors/help and binds success feedback to the committed byte revision. Foundation checkpoint: full labels wrap, popup width is at least 15rem when space permits and clamped to the viewport; immediate pointer/keyboard opening and arrow state use the canonical Air rule. Removed animation/placement-only state. 70 layouts plus native Safari and Firefox actual 200% pass. Air 1.5.0 surface-motion software audit recorded; physical/assistive acceptance remains separate."
     },
@@ -2079,7 +2081,8 @@
         "selected link",
         "change destination",
         "delete and undo",
-        "mixed annotation apply"
+        "mixed annotation apply",
+        "Keyboard focus on entering and leaving link placement"
       ],
       "viewports": [
         "320x568",
@@ -2316,7 +2319,8 @@
         "selected link",
         "change destination",
         "delete and undo",
-        "mixed annotation apply"
+        "mixed annotation apply",
+        "Undo a reference move during destination placement"
       ],
       "viewports": [
         "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."
@@ -3016,7 +3020,8 @@
         "table selection",
         "empty region",
         "column adjustment",
-        "clipboard and manual fallback"
+        "clipboard and manual fallback",
+        "Clipboard denial announcement and manual text selection"
       ],
       "viewports": [
         "15 Chromium sizes × two themes × two text sizes, plus phone and landscape flows in WebKit and Firefox."

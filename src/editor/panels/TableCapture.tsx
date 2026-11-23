@@ -109,7 +109,12 @@ export function TablePanel({ page }: { page: TextPage }) {
         {cells.length} {cells.length === 1 ? "row" : "rows"} × {edges.length - 1}{" "}
         {edges.length === 2 ? "column" : "columns"}
       </p>
-      <div className="pdf-table-preview" tabIndex={0} role="region" aria-labelledby="capture-size">
+      <div
+        className="pdf-table-preview air-scroll"
+        tabIndex={0}
+        role="region"
+        aria-labelledby="capture-size"
+      >
         <table aria-label="Captured table">
           <thead>
             <tr>
@@ -140,25 +145,22 @@ export function TablePanel({ page }: { page: TextPage }) {
         <Copy size={16} aria-hidden="true" />
         Copy table
       </button>
-      {result &&
-        (result.ok ? (
-          <p className="air-help" role="status">
-            Table copied. Paste it into your spreadsheet.
-          </p>
-        ) : (
-          <>
-            <label className="air-label" htmlFor="capture-tsv">
-              Select and copy the table manually
-            </label>
-            <textarea
-              className="air-field"
-              id="capture-tsv"
-              readOnly
-              value={spreadsheetText(cells)}
-              onFocus={(e) => e.currentTarget.select()}
-            />
-          </>
-        ))}
+      <p id="capture-copy-status" className={result ? "air-help" : "sr-only"} role="status">
+        {result &&
+          (result.ok
+            ? "Table copied. Paste it into your spreadsheet."
+            : "Clipboard unavailable. Select and copy the table manually.")}
+      </p>
+      {result && !result.ok && (
+        <textarea
+          className="air-field"
+          id="capture-tsv"
+          aria-labelledby="capture-copy-status"
+          readOnly
+          value={spreadsheetText(cells)}
+          onFocus={(e) => e.currentTarget.select()}
+        />
+      )}
       <details className="pdf-selection-help">
         <summary>Adjust columns</summary>
         <div className="pdf-column-controls">

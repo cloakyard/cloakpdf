@@ -51,6 +51,11 @@ describe("table capture", () => {
     expect(tableCells(lines, [])[1]).toEqual(["East wing 12"]);
     expect(tableCells(lines, [0.05, ...cuts])[0]).toEqual(["", "Room", "Area", "Count"]);
   });
+  it("preserves quoted and multi-line spreadsheet cells", () => {
+    expect(spreadsheetText([['"West"', 'Room "B"', "two\tcolumns", "two\nlines"]])).toBe(
+      '"""West"""\t"Room ""B"""\t"two\tcolumns"\t"two\nlines"',
+    );
+  });
   it("supports empty areas, a single cell and literal spreadsheet expressions", () => {
     expect(suggestDividers([], visible)).toEqual([]);
     expect(tableCells([[{ text: "single cell", rect: visible }]], [])).toEqual([["single cell"]]);

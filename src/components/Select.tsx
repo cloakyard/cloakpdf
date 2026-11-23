@@ -365,7 +365,11 @@ export function Select<T extends string>({
                   role="option"
                   aria-selected={isSel}
                   aria-disabled={o.disabled || undefined}
-                  onPointerEnter={() => !o.disabled && setActiveIndex(i)}
+                  onPointerMove={(e) => {
+                    // A popup may scroll under a parked pointer during keyboard navigation.
+                    if (!o.disabled && e.pointerType !== "touch" && (e.movementX || e.movementY))
+                      setActiveIndex(i);
+                  }}
                   onClick={() => choose(i)}
                   data-highlighted={isActive || undefined}
                   data-selected={isSel || undefined}

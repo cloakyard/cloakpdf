@@ -59,9 +59,11 @@ export function spreadsheetText(rows: string[][]) {
   return rows
     .map((row) =>
       row
-        .map((cell) =>
-          /^[=+@-]/u.test(cell) && !/^[+-]?\d+(?:\.\d+)?%?$/u.test(cell) ? "'" + cell : cell,
-        )
+        .map((cell) => {
+          const value =
+            /^[=+@-]/u.test(cell) && !/^[+-]?\d+(?:\.\d+)?%?$/u.test(cell) ? "'" + cell : cell;
+          return /["\t\r\n]/u.test(value) ? '"' + value.replaceAll('"', '""') + '"' : value;
+        })
         .join("\t"),
     )
     .join("\n");

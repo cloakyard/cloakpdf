@@ -174,8 +174,28 @@ try {
     assert.ok(button);
     await button.focus();
     await page.keyboard.press("Enter");
+    const popup = '[role="listbox"][aria-label="' + name + '"]';
+    await page.waitForSelector(popup, { visible: true });
+    if (name === "Region") {
+      const south = await page.waitForSelector(popup + ' ::-p-aria(South[role="option"])');
+      await south!.hover();
+      await page.waitForFunction((el) => el?.hasAttribute("data-highlighted"), {}, south);
+    }
     await page.keyboard.press("Home");
+    // Opening or scrolling a popup can put an option under a stationary mouse.
+    // That boundary event must preserve the user's keyboard selection.
+    if (name === "Region") {
+      await page.$eval(popup + ' [role="option"]:nth-child(3)', (el) =>
+        el.dispatchEvent(new PointerEvent("pointerover", { bubbles: true, pointerType: "mouse" })),
+      );
+      await settle();
+      assert.equal(
+        await page.$eval(popup + " [data-highlighted]", (el) => el.textContent?.trim()),
+        "No selection",
+      );
+    }
     await page.keyboard.press("Enter");
+    assert.equal((await values())[name], "");
   }
   await page.click('fieldset input[type="checkbox"]');
   await field("Occupation", "Independent maker");

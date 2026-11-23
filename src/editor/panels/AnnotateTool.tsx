@@ -76,6 +76,7 @@ import {
   type StageKeyboardEvent,
   type StagePoint,
   useInlineEditor,
+  usePageHost,
   useStageProps,
 } from "../stage.tsx";
 import {
@@ -1527,9 +1528,32 @@ type NumberKey = "sizePt" | "bgOpacity" | "fillOpacity";
 type NumberDraft = { raw: string; value: number; touched?: boolean };
 
 export function Panel() {
-  return useToolSlice(TOOL_ID).mode === "link" ? <DetailLinkPanel /> : <MarkPanel />;
+  const returnFocus = useRef<"link" | "destination" | null>(null);
+  return useToolSlice(TOOL_ID).mode === "link" ? (
+    <DetailLinkPanel
+      onBack={(editing) => {
+        returnFocus.current = editing ? "destination" : "link";
+      }}
+    />
+  ) : (
+    <MarkPanel
+      restoreFocus={(control, node) => {
+        if (node && control === returnFocus.current) {
+          returnFocus.current = null;
+          node.focus({ preventScroll: true });
+        }
+      }}
+    />
+  );
 }
-function MarkPanel() {
+function MarkPanel({
+  restoreFocus,
+}: {
+  restoreFocus: (control: "link" | "destination", node: HTMLButtonElement | null) => void;
+}) {
+  const pageHost = usePageHost();
+  const focusPage = () =>
+    pageHost?.closest<HTMLElement>(".editor-paper")?.focus({ preventScroll: true });
   const { doc, selectedPage, busyLabel } = useEditorRead();
   const {
     patchToolState,
@@ -1753,17 +1777,15 @@ function MarkPanel() {
               <button
                 className="air-button"
                 type="button"
+                ref={(node) => restoreFocus("destination", node)}
                 onClick={() => {
+                  focusPage();
                   setSelectedPage(ann.target.pageIndex);
                   patchToolState(TOOL_ID, {
                     mode: "link",
                     linkPlacement: {
                       bytes: doc.bytes,
                       editingId: selected.id,
-                      source: {
-                        pageIndex: selected.pageIndex,
-                        rect: { xPct: ann.x, yPct: ann.y, wPct: ann.w, hPct: ann.h },
-                      },
                     },
                   });
                 }}
@@ -1780,10 +1802,17 @@ function MarkPanel() {
                   key={id}
                   type="button"
                   className="air-button air-button--quiet"
-                  ref={id === "select" ? selectRef : undefined}
+                  ref={
+                    id === "select"
+                      ? selectRef
+                      : id === "link"
+                        ? (node) => restoreFocus("link", node)
+                        : undefined
+                  }
                   aria-pressed={mode === id}
                   onClick={() => {
                     flush();
+                    if (id === "link") focusPage();
                     patchToolState(TOOL_ID, {
                       mode: id,
                       linkPlacement: undefined,

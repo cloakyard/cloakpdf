@@ -36,7 +36,9 @@
       "Tap reference text, place and retarget the detail, delete and undo",
       "Apply a rectangle and a link together, download PDF, independently inspect native reference and destination coordinates, undo and redo",
       "Resize and nudge the selected reference, then verify its saved bounds",
-      "Resolve the exported destination through PDF.js after rasterizing the rotated target with redaction. The output contains exactly two page objects and the destination has no text layer."
+      "Resolve the exported destination through PDF.js after rasterizing the rotated target with redaction. The output contains exactly two page objects and the destination has no text layer.",
+      "Enter link placement from the keyboard and return focus to the initiating control.",
+      "Undo a reference drag while changing the destination and verify the downloaded PDF uses the restored bounds."
     ]
   },
   "additionalBrowsers": {
@@ -50,9 +52,11 @@
     "Drop a link to a missing page without copying its excluded page object"
   ],
   "regressionChecks": [
-    "472 unit tests",
-    "22-tool Chromium layout matrix",
-    "Existing annotation, text-selection, bookmark, crop and search/scrub browser suites",
-    "Compress browser suite with the repository’s demo fixtures"
+    "474 unit tests in 50 files, including quoted and multiline TSV cells and package-script entry points.",
+    "All 52 browser suites in tests/e2e passed, including real-model Ask PDF, the PWA update flow, production offline recovery and the standalone tools. Suites supporting demo fixtures used the repository’s demo option.",
+    "1,320 canvas layout checks covering all 22 registered tools across 15 viewports, two themes and two text sizes. Table capture and detail links have a further 180 responsive cases.",
+    "The form regression reproduced a parked pointer replacing a keyboard choice with South. The repaired shared control passed the saved-PDF test and 44 Chromium and WebKit select layout and keyboard journeys.",
+    "Production Workers preview: 66 recovery layouts. WebKit downloaded a same-page link; Firefox applied a cross-page link. Both exercised mobile table capture.",
+    "The combined smoke command, formatting, lint, type check, Knip, production build and Air design checks passed."
   ]
 }

@@ -168,6 +168,18 @@ try {
   );
   await clickText("Copy table");
   await page.waitForSelector("#capture-tsv");
+  assert.match(
+    await page.$eval('#capture-copy-status[role="status"]', (e) => e.textContent ?? ""),
+    /Clipboard unavailable/,
+  );
+  await page.focus("#capture-tsv");
+  assert.equal(
+    await page.$eval("#capture-tsv", (el) => {
+      const field = el as HTMLTextAreaElement;
+      return field.selectionEnd - field.selectionStart;
+    }),
+    expected.length,
+  );
   assert.equal(await page.$eval("#capture-tsv", (e) => (e as HTMLTextAreaElement).value), expected);
   await page.locator(".pdf-selection-help summary").click();
   await clickText("Add divider");
@@ -202,7 +214,20 @@ try {
     page.locator('[aria-label="Annotation tool"] button::-p-text(' + label + ")").click();
   await annotationMode("Rectangle");
   await drag(0.05, 0.72, 0.28, 0.81);
-  await annotationMode("Link");
+  const linkMode = await page.waitForSelector('::-p-aria(Link[role="button"])');
+  await linkMode!.focus();
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.activeElement?.classList.contains("editor-paper"));
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() =>
+    document.querySelector(".pdf-detail-link")?.textContent?.includes("Choose the detail"),
+  );
+  await clickText("Back to annotations");
+  await page.waitForFunction(() => document.activeElement?.textContent?.trim() === "Link");
+  await page.keyboard.press("Enter");
   await page.waitForSelector(".pdf-detail-link");
   await page.setViewport({ width: 390, height: 844 });
   await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
@@ -228,6 +253,9 @@ try {
   await page.waitForSelector('.editor-paper[aria-label^="Page 2 "]');
   await clickText("Back to annotations");
   await page.waitForSelector(destination);
+  await page.waitForFunction(
+    () => document.activeElement?.textContent?.trim() === "Change destination",
+  );
   await clickText("Change destination");
   await page.waitForSelector('.editor-paper[aria-label^="Page 2 "]');
   await settle();
@@ -254,6 +282,14 @@ try {
   await drag(0.125, 0.083, 0.07, 0.05);
   await page.focus(paper);
   await page.keyboard.press("ArrowRight");
+  // Retarget after undoing a source drag. The exported bounds below must use the restored source.
+  await drag(0.17, 0.09, 0.41, 0.3);
+  await clickText("Change destination");
+  await page.waitForSelector('.editor-paper[aria-label^="Page 2 "]');
+  await page.locator('button[aria-label="Undo"]').click();
+  await settle();
+  await drag(0.2, 0.25, 0.8, 0.75);
+  await page.waitForSelector(destination);
   await matrix("link", destination);
   await page.setViewport({ width: 390, height: 844 });
   await page.evaluate(() => {
