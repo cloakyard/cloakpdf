@@ -44,7 +44,7 @@ patchedDependencies:
 minimumReleaseAgeExclude:
   - "@llamaindex/liteparse-wasm@2.21.1"
   - "knip@6.48.0"
-  - "lucide-react@1.78.0"
+  - lucide-react@1.78.0 || 1.79.0
   - "node-forge@1.4.4"
   - "@voidzero-dev/vite-plus-core@8.3.8001"
   - "@voidzero-dev/vite-plus-darwin-arm64@1.8.0"
@@ -56,3 +56,4 @@ minimumReleaseAgeExclude:
   - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.8.0"
   - "@voidzero-dev/vite-plus-win32-x64-msvc@1.8.0"
   - vite-plus@1.8.0
+  - "@langchain/core@1.5.1"
