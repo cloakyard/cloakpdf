@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.8.1
+version: 1.8.2
 status: approved
 date: 2026-11-24
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: 888c1edd276a693763133a153f4c99b63c5dcac4563966ecd8b27a6755cefa41
+family-contract-sha256: bde4a055f40dadd4be522eb6fac8fd4abcd020c3025c858a0a987e30025bef9e
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.8.1 — landing block reveals** · Direction: **Air** · Updated: **2026-11-24**
+Version: **1.8.2 — editor update notices** · Direction: **Air** · Updated: **2026-11-24**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -1186,6 +1186,10 @@ Public shell content follows the same recipe across the family:
   banner. Use 16px inline/bottom and 12px top padding, 20px leading icon, 14px/500
   heading, 14px/1.5 copy and 8px gaps. Cap height at 45dvh; enlarged copy scrolls
   with all actions keyboard-reachable. Do not elevate notices above modal controls.
+- In editors with a bottom tool dock or preview controls, mark the visible canvas
+  or document preview with `data-air-notice-preview`. Render the notice after the
+  preview and preserve its instance across navigation. Its inset follows the
+  preview so the dock, zoom and confirmation controls remain reachable.
 - Shared titles: **Update available**, **Updating…**, **Update paused**, **Core app
   cached**. Standard copy is shared; only blocked/error instructions may vary to
   explain actual work protection. Never imply all optional assets are cached.

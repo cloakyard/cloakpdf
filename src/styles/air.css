@@ -2044,6 +2044,22 @@ input.air-colour-brightness {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* A compact editor can reserve its toolbars by identifying the visible preview. */
+[data-air-notice-preview] {
+  anchor-name: --air-notice-preview;
+}
+:root:has([data-air-notice-preview]) .air-update {
+  inset-block-end: calc(max(5rem, 80px) + env(safe-area-inset-bottom));
+}
+@supports (bottom: anchor(bottom)) and (width: anchor-size(width)) {
+  :root:has([data-air-notice-preview]) .air-update {
+    position-anchor: --air-notice-preview;
+    right: calc(anchor(right, 0px) + 16px);
+    bottom: calc(anchor(bottom, max(4rem, 64px)) + 16px);
+    max-inline-size: calc(anchor-size(width, 100vw) - 32px);
+    max-block-size: min(45dvh, max(64px, calc(anchor-size(height, 100dvh) - 32px)));
+  }
+}
 .air-update-panel {
   padding: 12px 16px 16px;
   display: grid;

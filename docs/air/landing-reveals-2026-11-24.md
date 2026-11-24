@@ -22,3 +22,7 @@ Frozen pnpm installation, build, type/lint/format checks, Knip, package audit an
 
 This review covered the web landing and the listed regression checks on local
 builds. Physical-device and assistive-technology acceptance remain open.
+
+## Release verification
+
+Compact Export uses the primary style at every width. With JavaScript disabled, the initial viewport explains what the editor requires and links to the directory. Waiting-update feedback follows the preview. The pending worker survives editor exit and can be activated after returning home.

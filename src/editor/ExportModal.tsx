@@ -281,7 +281,7 @@ export function ExportButton() {
         title="Export document"
         className={
           compact
-            ? "air-icon-button air-button--quiet pdf-export-trigger"
+            ? "air-icon-button air-button--primary pdf-export-trigger"
             : "air-button air-button--primary pdf-export-trigger"
         }
       >
