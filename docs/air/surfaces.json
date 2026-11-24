@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.7.5",
+  "contractVersion": "1.8.1",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -3236,6 +3236,7 @@
         "native Chrome 200%"
       ],
       "evidence": [
+        "docs/air/landing-reveals-2026-11-24.md",
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",

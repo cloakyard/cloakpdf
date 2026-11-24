@@ -1,10 +1,10 @@
 {
-  "version": "1.7.5",
+  "version": "1.8.1",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "fa22bfbe5205068b70cdca8748665c0ef67c4f0129e7569dc6d19b76d5bf13bb"
+    "contractSha256": "888c1edd276a693763133a153f4c99b63c5dcac4563966ecd8b27a6755cefa41"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
@@ -26,6 +26,9 @@
     "presence.tsx": "7726021c74356931fed7614779d03b6a14568c401f8760be2a6564a854e8221d",
     "artwork.mjs": "932fc9f09a5b709e993de83296b6c8d4cdabfe6380db92124b5663088b02d7d2",
     "artwork.d.mts": "a5638e0399776647ac1ed883a2026fa94e6515d47cd6054eb63ef27184cbf30f",
+    "landing-reveal.css": "11a3cb589f8667f7314bd457e4939c36978c0d58c1cfc3d670288d1b244192ab",
+    "landing-reveal.mjs": "7e11116c19cac30465c462ce9e888915618ca4d678d73773259baa997c0fab8a",
+    "landing-reveal.d.mts": "7c48f498e20f671cc4c37b27453c6ee62e195d4f347bbf8617cd995f1da7da7c",
     "update-notice.tsx": "c5ca09aea1da55ff598cd6d22b6095b2315bc882c99cab5ea865b410346f8275",
     "privacy.tsx": "012716986f6cc8fa0059e976f7f9bfe615e763de446e7f659675e4098ef27dec",
     "colour.mjs": "4116d6738bddaeeb4992f00bdcd53851fea29e50da7d607be798e2224ff54751",
@@ -34,7 +37,7 @@
     "light-runtime.mjs": "dd8c7416bc6dd485c3b1238cff4419d5a1ee6d656d8672798f7d596a13c013be",
     "light-runtime.d.mts": "dde1dfec3b25560dabe3373a63d2964141ca258f50347d4de2fdac3620493654",
     "assets/air-light-shader.js": "7ef73ce9096a512e0bef4812caab47daa01fddf738355cdb64280b28c17817d5",
-    "assets/THIRD_PARTY_LICENSES.txt": "987053933235f31d3b1b43f63ed273c0fb5fdc60f28613426c780492e3a22364",
+    "assets/THIRD_PARTY_LICENSES.txt": "db207cb16d0a06d989e79b61b3b28c71a05c75d962711e9c7ad0d964da216df5",
     "overlays-loader.mjs": "e3fe1baeda86b7a0d12b2abae1d52c5b19ab39945222451152d122b05f024820",
     "assets/air-overlays.js": "142a144d36e2828226402e8e74fb26df6442f9996e81d2582985e419d2baae08",
     "assets/air-collections.js": "53df7d7f36b737b83faa2b26ccd370e0577f709edc135c69df417e7c1e003a0b",

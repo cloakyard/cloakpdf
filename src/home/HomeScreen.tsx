@@ -1,3 +1,5 @@
+import { mountLandingReveals } from "../../docs/air/landing-reveal.mjs";
+import "../../docs/air/landing-reveal.css";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -133,6 +135,14 @@ interface HomeScreenProps {
  * the query; returning to the home screen starts with a fresh search.
  */
 export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
+  const homeRef = useRef<HTMLDivElement>(null);
+  const stopReveals = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => {
+    if (homeRef.current)
+      stopReveals.current = mountLandingReveals(homeRef.current, { restoreFragment: true });
+    return () => stopReveals.current?.();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const activeSearchQuery = searchQuery.trim();
@@ -207,7 +217,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
   };
 
   return (
-    <div className="air-page pdf-home">
+    <div ref={homeRef} className="air-page pdf-home">
       <section className="air-page-width pdf-hero" aria-labelledby="home-title">
         <div className="pdf-hero-copy">
           <p className="air-page-eyebrow">A little space for your documents</p>
@@ -262,7 +272,10 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                 type="search"
                 name="tool-search"
                 value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
+                onChange={(event) => {
+                  stopReveals.current?.();
+                  setSearchQuery(event.target.value);
+                }}
                 placeholder="Try redact, merge, or OCR"
                 autoComplete="off"
                 spellCheck={false}
@@ -349,9 +362,10 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
                   key={category.key}
                   aria-labelledby={`category-${category.key}`}
                 >
-                  <div className="pdf-category-intro">
+                  <div className="pdf-category-intro" data-air-reveal="">
                     <h3 id={`category-${category.key}`}>{category.label}</h3>
                     <p>{category.description}</p>
+                    <span className="air-reveal-veil" aria-hidden="true" />
                   </div>
                   <div>
                     {categoryTools.map((tool) => (
@@ -366,6 +380,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
       </section>
       {!activeSearchQuery && (
         <section
+          data-air-reveal=""
           id="privacy-model"
           className="air-page-width pdf-privacy-summary"
           tabIndex={-1}
@@ -397,6 +412,7 @@ export function HomeScreen({ onSelectTool, onOpenEditor }: HomeScreenProps) {
               Explore the source <ArrowUpRight size={16} aria-hidden="true" />
             </a>
           </div>
+          <span className="air-reveal-veil" aria-hidden="true" />
         </section>
       )}
     </div>

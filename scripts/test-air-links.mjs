@@ -127,6 +127,32 @@ try {
           });
         }
       }
+      // A final section shorter than a desktop viewport must still become current.
+      const sectionLinks = await page.$$eval(".desktop-nav [data-nav-link]", (links) =>
+        links
+          .filter(
+            (link) =>
+              link.pathname === location.pathname && document.getElementById(link.hash.slice(1)),
+          )
+          .map((link) => link.hash),
+      );
+      if (sectionLinks.length >= 2) {
+        await page.setViewport({ width: 1920, height: 1080 });
+        for (const hash of [sectionLinks.at(-1), sectionLinks[0]]) {
+          const link = await page.$(`.desktop-nav [href="${hash}"]`);
+          await link.focus();
+          await page.keyboard.press("Enter");
+          await page.waitForFunction(
+            (hash) =>
+              document.activeElement?.id === hash.slice(1) &&
+              [".desktop-nav", ".mobile-nav"].every(
+                (nav) => document.querySelector(`${nav} [aria-current="location"]`)?.hash === hash,
+              ),
+            { timeout: 3000 },
+            hash,
+          );
+        }
+      }
       await page.setViewport({ width: 320, height: 568 });
       await page.evaluate(() => {
         document.documentElement.style.fontSize = "32px";
