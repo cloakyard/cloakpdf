@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.8.2",
+  "contractVersion": "1.8.3",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -1505,7 +1505,7 @@
         "reduced-motion",
         "forced-colors",
         "Touch Export, More actions, zoom and history focus across reflow",
-        "Primary compact Export icon, 44×44 target at 100% and 200% text"
+        "Quiet compact Export icon, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -1579,7 +1579,7 @@
         "reduced-motion",
         "forced-colors",
         "Review unapplied annotations, signatures and codes before download",
-        "Primary compact Export icon, 44×44 target at 100% and 200% text"
+        "Quiet compact Export icon, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -3716,7 +3716,7 @@
         "Responsive on-page fields and contextual selection controls",
         "Short landscape and keyboard-constrained picker with large text",
         "Small landscape phone split and minimum-width pagination",
-        "Primary compact Export icon, 44×44 target at 100% and 200% text",
+        "Quiet compact Export icon, 44×44 target at 100% and 200% text",
         "scrollable table preview",
         "responsive annotation picker",
         "Four mobile shortcuts at 320px and 200% text, and a responsive tool picker"

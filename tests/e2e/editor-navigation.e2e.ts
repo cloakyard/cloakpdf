@@ -113,6 +113,7 @@ try {
           const rect = button.getBoundingClientRect();
           return {
             label: button.innerText.trim(),
+            quiet: button.classList.contains("air-button--quiet"),
             primary: button.classList.contains("air-button--primary"),
             iconWidth: icon.width,
             iconHeight: icon.height,
@@ -125,7 +126,8 @@ try {
         });
         assert.deepEqual([trigger.iconWidth, trigger.iconHeight], [18, 18]);
         assert.equal(trigger.label, width < 1024 ? "" : "Export");
-        assert.ok(trigger.primary, "Export keeps its primary action style at every width");
+        assert.equal(trigger.quiet, width < 1024);
+        assert.equal(trigger.primary, width >= 1024);
         if (width < 1024) {
           assert.deepEqual([trigger.width, trigger.height], [44, 44]);
           assert.ok(trigger.centered);
