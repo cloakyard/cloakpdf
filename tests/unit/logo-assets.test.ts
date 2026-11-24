@@ -67,7 +67,7 @@ async function readMinimumAlpha(relativePath: string): Promise<number> {
 
 async function readGlyphRadiusFraction(relativePath: string): Promise<number> {
   const source = read(relativePath);
-  const backgroundOnly = source.replace(/<g stroke="white"[\s\S]*?<\/g>/, "");
+  const backgroundOnly = source.replace(/<g id="artwork"[\s\S]*<\/g>\s*<\/svg>/, "</svg>");
   expect(backgroundOnly).not.toBe(source);
 
   const size = 512;
@@ -101,31 +101,32 @@ async function readGlyphRadiusFraction(relativePath: string): Promise<number> {
 }
 
 describe("Cloakyard family logo contract", () => {
-  it("pins the circular assets to the v1 70% keyline", () => {
-    for (const path of ["public/cloakpdf-mark.svg", "public/icons/favicon.svg"]) {
-      const svg = read(path);
-      expect(svg).toContain('viewBox="0 0 64 64"');
-      expect(svg).toContain('data-logo-spec="cloakyard-mark-v1"');
-      expect(svg).toContain('data-glyph-keyline="42"');
-      expect(svg).toContain('<circle cx="32" cy="32" r="30"');
-      expect(svg).toContain('stroke-width="3"');
+  it("ships a folded report and a simplified 16px version for browser tabs", () => {
+    const mark = read("public/cloakpdf-mark.svg");
+    const tab = read("public/icons/favicon.svg");
+    expect(mark).toContain('viewBox="0 0 64 64"');
+    expect(tab).toContain('viewBox="0 0 16 16"');
+    for (const svg of [mark, tab]) {
+      expect(svg).toContain('data-logo-spec="cloakyard-mark-v2"');
+      expect(svg).toContain('id="disc"');
+      expect(svg).toContain('id="page"');
+      expect(svg).toContain('id="print"');
     }
+    expect(read("index.html")).toContain('href="/icons/favicon.svg"');
   });
 
   it("keeps the installed-app master full bleed and maskable", () => {
     const svg = read("public/icons/cloakpdf-app-icon.svg");
     expect(svg).toContain('viewBox="0 0 64 64"');
-    expect(svg).toContain('data-logo-spec="cloakyard-app-icon-v1"');
-    expect(svg).toContain('data-glyph-keyline="42"');
+    expect(svg).toContain('data-logo-spec="cloakyard-app-icon-v2"');
     expect(svg).toContain('<rect width="64" height="64"');
-    expect(svg).toContain('stroke-width="3"');
   });
 
   it("keeps the complete launcher glyph inside the maskable safe circle", async () => {
     // The Web App Manifest safe zone has radius 40% of the icon width.
-    expect(await readGlyphRadiusFraction("public/icons/cloakpdf-app-icon.svg")).toBeLessThanOrEqual(
-      0.4,
-    );
+    const radius = await readGlyphRadiusFraction("public/icons/cloakpdf-app-icon.svg");
+    expect(radius).toBeGreaterThan(0.25);
+    expect(radius).toBeLessThanOrEqual(0.4);
   });
 
   it("ships the expected raster sizes with opaque phone icons", () => {

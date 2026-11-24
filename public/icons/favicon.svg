@@ -1,25 +1,34 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cloakpdf-favicon-title" data-logo-spec="cloakyard-mark-v1" data-glyph-keyline="42">
-  <title id="cloakpdf-favicon-title">CloakPDF</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-labelledby="title description" data-logo-spec="cloakyard-mark-v2">
+  <title id="title">CloakPDF</title>
+  <desc id="description">A white folded report on a blue enamel disc, with printed lines and a two-column table.</desc>
   <defs>
-    <linearGradient id="cloakpdf-favicon-fill" x1="11" y1="6" x2="51" y2="58" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#74C7FF"/>
-      <stop offset="0.45" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#1D4ED8"/>
+    <linearGradient id="enamel" x1=".19" y1="0" x2=".75" y2="1">
+      <stop offset="0" stop-color="#83c8ff"/>
+      <stop offset=".47" stop-color="#327de5"/>
+      <stop offset="1" stop-color="#194db0"/>
     </linearGradient>
-    <radialGradient id="cloakpdf-favicon-light" cx="0" cy="0" r="1" gradientTransform="translate(20 13) rotate(48) scale(35)">
-      <stop stop-color="white" stop-opacity="0.42"/>
-      <stop offset="0.58" stop-color="white" stop-opacity="0"/>
-    </radialGradient>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        [stop-color="#83c8ff"] { stop-color: #599cce }
+        [stop-color="#327de5"] { stop-color: #285c9a }
+        [stop-color="#194db0"] { stop-color: #1c3870 }
+      }
+    </style>
   </defs>
-
-  <circle cx="32" cy="32" r="30" fill="url(#cloakpdf-favicon-fill)"/>
-  <circle cx="32" cy="32" r="29.25" fill="url(#cloakpdf-favicon-light)" stroke="white" stroke-opacity="0.28" stroke-width="1.5"/>
-
-  <!-- Family rule: glyph centre lines fit the diameter-42 keyline; the 3px stroke stays inside the PWA safe zone. -->
-  <g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M32 12.1 48.2 18.7v13.6c0 8.6-5.4 15.2-16.2 20.4-10.8-5.2-16.2-11.8-16.2-20.4V18.7L32 12.1Z"/>
-    <path d="M23.9 26.8h16.2"/>
-    <path d="M23.9 33.5h12.5" opacity="0.78"/>
-    <path d="M23.9 40.1h8.9" opacity="0.56"/>
+  <g id="disc">
+    <circle id="disc-base" cx="8" cy="8" r="7.5" fill="url(#enamel)"/>
+  </g>
+  <g id="artwork">
+    <g id="ground">
+      <path d="m3.8 4.4 5.6-1 .3 1.7 1.5.1.7 6.5-6.7 1.05Z" fill="#173a78"/>
+    </g>
+    <g id="page">
+      <path d="M5 3h4.6l2.05 2.05V13H5Z" fill="#fff"/>
+      <path d="M9.6 3.1v2.2h2" fill="#d9dfe4"/>
+    </g>
+    <g id="print">
+      <path d="M6.1 5.25h2.25M6.1 6.6h3.6" stroke="#345078" stroke-width=".75" stroke-linecap="round"/>
+      <path d="M6.1 8.1h4.5v3.5H6.1Zm2.65 0v3.5M6.1 9.8h4.5" fill="none" stroke="#315186" stroke-width=".75"/>
+    </g>
   </g>
 </svg>

@@ -1,25 +1,79 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cloakpdf-mark-title" data-logo-spec="cloakyard-mark-v1" data-glyph-keyline="42">
-  <title id="cloakpdf-mark-title">CloakPDF</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title description" data-logo-spec="cloakyard-mark-v2">
+  <title id="title">CloakPDF</title>
+  <desc id="description">A white folded report on a blue enamel disc, with printed lines and a two-column table.</desc>
   <defs>
-    <linearGradient id="cloakpdf-fill" x1="11" y1="6" x2="51" y2="58" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#74C7FF"/>
-      <stop offset="0.45" stop-color="#2563EB"/>
-      <stop offset="1" stop-color="#1D4ED8"/>
+    <linearGradient id="enamel" x1=".19" y1="0" x2=".75" y2="1">
+      <stop offset="0" stop-color="#83c8ff"/>
+      <stop offset=".47" stop-color="#327de5"/>
+      <stop offset="1" stop-color="#194db0"/>
     </linearGradient>
-    <radialGradient id="cloakpdf-light" cx="0" cy="0" r="1" gradientTransform="translate(20 13) rotate(48) scale(35)">
-      <stop stop-color="white" stop-opacity="0.42"/>
-      <stop offset="0.58" stop-color="white" stop-opacity="0"/>
+    <linearGradient id="rim" x1=".24" y1="0" x2=".76" y2="1">
+      <stop stop-color="#fff" stop-opacity=".88"/>
+      <stop offset=".39" stop-color="#fff" stop-opacity=".08"/>
+      <stop offset=".7" stop-color="#0a1540" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".46"/>
+    </linearGradient>
+    <radialGradient id="bloom" cx=".24" cy=".16" r=".8">
+      <stop stop-color="#fff" stop-opacity=".27"/>
+      <stop offset=".68" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
+    <linearGradient id="stock" x1="0" y1="0" x2=".72" y2="1">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="0.68" stop-color="#fff"/>
+      <stop offset="1" stop-color="#e6e9ec"/>
+    </linearGradient>
+    <filter id="cast" x="-25%" y="-20%" width="150%" height="155%">
+      <feGaussianBlur stdDeviation="3.2"/>
+    </filter>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        [stop-color="#83c8ff"] { stop-color: #599cce }
+        [stop-color="#327de5"] { stop-color: #285c9a }
+        [stop-color="#194db0"] { stop-color: #1c3870 }
+        [fill="#2253af"] { fill: #1d447f }
+        [stroke="#183b7b"] { stroke: #112a51 }
+        [stroke="#5989df"] { stroke: #4d79bb }
+        [stroke="#163675"] { stroke: #183970 }
+        [stroke="#6783aa"] { stroke: #637fa9 }
+        [fill="#eef4fb"] { fill: #e2ecf7 }
+        [stroke="#335da5"] { stroke: #315995 }
+        [fill="#335da5"] { fill: #315995 }
+        [stroke="#eef4fb"] { stroke: #e2ecf7 }
+      }
+    </style>
   </defs>
-
-  <circle cx="32" cy="32" r="30" fill="url(#cloakpdf-fill)"/>
-  <circle cx="32" cy="32" r="29.25" fill="url(#cloakpdf-light)" stroke="white" stroke-opacity="0.28" stroke-width="1.5"/>
-
-  <!-- Family rule: glyph centre lines fit the diameter-42 keyline; the 3px stroke stays inside the PWA safe zone. -->
-  <g stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M32 12.1 48.2 18.7v13.6c0 8.6-5.4 15.2-16.2 20.4-10.8-5.2-16.2-11.8-16.2-20.4V18.7L32 12.1Z"/>
-    <path d="M23.9 26.8h16.2"/>
-    <path d="M23.9 33.5h12.5" opacity="0.78"/>
-    <path d="M23.9 40.1h8.9" opacity="0.56"/>
+  <g id="disc">
+    <circle id="disc-base" cx="32" cy="32" r="30" fill="url(#enamel)"/>
+    <circle id="disc-rim" cx="32" cy="32" r="29.5" fill="url(#bloom)" stroke="url(#rim)" stroke-width="1"/>
+  </g>
+  <g id="artwork">
+    <g id="ground" transform="translate(32.25 32) scale(.22) translate(-128 -128)">
+      <g transform="rotate(-8 128 128)">
+        <rect x="60" y="53" width="138" height="163" rx="10" fill="#17345f" opacity=".2" filter="url(#cast)"/>
+        <rect x="59" y="49" width="137" height="164" rx="9" fill="#2253af" stroke="#183b7b" stroke-width="2"/>
+        <path d="M67 206h118" fill="none" stroke="#5989df" stroke-width="2"/>
+      </g>
+    </g>
+    <g id="page" transform="translate(32.25 32) scale(.22) translate(-128 -128)">
+      <g transform="rotate(4 128 128)">
+        <path d="M65 41h98l32 32v130a8 8 0 0 1-8 8H65a8 8 0 0 1-8-8V49a8 8 0 0 1 8-8Z" transform="translate(1 4)" fill="#142e59" opacity=".28" filter="url(#cast)"/>
+        <path d="M65 41h98l32 32v130a8 8 0 0 1-8 8H65a8 8 0 0 1-8-8V49a8 8 0 0 1 8-8Z" transform="translate(0 2)" fill="#a0a9b1" stroke="#a0a9b1" stroke-width="1.5"/>
+        <path d="M65 41h98l32 32v130a8 8 0 0 1-8 8H65a8 8 0 0 1-8-8V49a8 8 0 0 1 8-8Z" fill="url(#stock)" stroke="#a0a9b1" stroke-width="1.5"/>
+        <path d="M163 42v23a8 8 0 0 0 8 8h23" fill="#d9dfe4" stroke="#a0a9b1" stroke-width="1.5" stroke-linejoin="round"/>
+      </g>
+    </g>
+    <g id="print" transform="translate(32.25 32) scale(.22) translate(-128 -128)">
+      <g transform="rotate(4 128 128)">
+        <path d="M77 70h47" stroke="#163675" stroke-width="7" stroke-linecap="round"/>
+        <path d="M77 88h69" stroke="#6783aa" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M77 99h49" stroke="#6783aa" stroke-width="4.5" stroke-linecap="round"/>
+        <rect x="75" y="121" width="99" height="57" rx="2" fill="#eef4fb" stroke="#335da5" stroke-width="3.5"/>
+        <path d="M75 134v-11q0-2 2-2h95q2 0 2 2v11Z" fill="#335da5"/>
+        <path d="M134 134v44M75 156h99" fill="none" stroke="#335da5" stroke-width="3.5"/>
+        <path d="M134 122v12" stroke="#eef4fb" stroke-width="2.8"/>
+        <path d="M82 127.5h25.38M139 127.5h15.6" fill="none" stroke="#eef4fb" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M82 145h29.4M82 167h21.56M168 145h-12.6M168 167h-17.36" fill="none" stroke="#6783aa" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </g>
   </g>
 </svg>
