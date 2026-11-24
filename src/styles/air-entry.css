@@ -2446,6 +2446,12 @@ body:has(.pdf-workspace) > .pdf-modal-root {
     gap: 0;
   }
 }
+.editor-home-trigger {
+  width: auto;
+  min-height: 44px;
+  padding: 3px 6px;
+  gap: 4px;
+}
 .editor-document-trigger {
   position: relative;
   padding: 3px;

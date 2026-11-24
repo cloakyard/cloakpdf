@@ -108,6 +108,25 @@ try {
           {},
           mobile ? "mobile" : width < 1024 ? "tablet" : "desktop",
         );
+        const home = await page.$eval(
+          '.editor-topbar__identity button[aria-label="Back to home"]',
+          (button) => {
+            const mark = button
+              .querySelector<HTMLImageElement>(".air-page-mark")!
+              .getBoundingClientRect();
+            const target = button.getBoundingClientRect();
+            return {
+              mark: [mark.width, mark.height],
+              fits:
+                mark.left >= target.left &&
+                mark.right <= target.right &&
+                mark.top >= target.top &&
+                mark.bottom <= target.bottom,
+              usable: target.width >= 44 && target.height >= 44,
+            };
+          },
+        );
+        assert.deepEqual(home, { mark: [36, 36], fits: true, usable: true });
         const trigger = await page.$eval('button[aria-label="Export"]', (button) => {
           const icon = button.querySelector("svg")!.getBoundingClientRect();
           const rect = button.getBoundingClientRect();
