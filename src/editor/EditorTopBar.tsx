@@ -60,42 +60,30 @@ export function EditorTopBar() {
       data-layout={layout}
     >
       <div className="editor-topbar__identity">
-        {isCompact ? (
-          <button
-            type="button"
-            className={`${ICON} editor-document-trigger`}
-            onClick={exit}
-            aria-label="Back to home"
-            title="Back to home"
-          >
-            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
-            {pendingMarks > 0 && (
-              <span
-                className="editor-document-pending"
-                data-testid="pending-marks"
-                role="status"
-                aria-label={`${pendingMarks} pending marks, applied when you export`}
-              >
-                {pendingMarks}
-              </span>
-            )}
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              onClick={exit}
-              className={ICON}
-              aria-label="Back to home"
-              title="Back to home"
+        <button
+          type="button"
+          className={`${ICON} ${isCompact ? "editor-document-trigger" : "editor-home-trigger"}`}
+          onClick={exit}
+          aria-label="Back to home"
+          title="Back to home"
+        >
+          {!isCompact && <ChevronLeft aria-hidden="true" />}
+          <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
+          {isCompact && pendingMarks > 0 && (
+            <span
+              className="editor-document-pending"
+              data-testid="pending-marks"
+              role="status"
+              aria-label={`${pendingMarks} pending marks, applied when you export`}
             >
-              <ChevronLeft aria-hidden="true" />
-            </button>
-            <img src="/cloakpdf-mark.svg" alt="" width="36" height="36" className="air-page-mark" />
-            <div className="editor-topbar__file">
-              <span title={doc?.fileName}>{doc?.fileName ?? "CloakPDF"}</span>
-            </div>
-          </>
+              {pendingMarks}
+            </span>
+          )}
+        </button>
+        {!isCompact && (
+          <div className="editor-topbar__file">
+            <span title={doc?.fileName}>{doc?.fileName ?? "CloakPDF"}</span>
+          </div>
         )}
       </div>
       {doc && (

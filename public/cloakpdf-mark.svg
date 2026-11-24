@@ -71,8 +71,6 @@
         <path d="M75 134v-11q0-2 2-2h95q2 0 2 2v11Z" fill="#335da5"/>
         <path d="M134 134v44M75 156h99" fill="none" stroke="#335da5" stroke-width="3.5"/>
         <path d="M134 122v12" stroke="#eef4fb" stroke-width="2.8"/>
-        <path d="M82 127.5h25.38M139 127.5h15.6" fill="none" stroke="#eef4fb" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M82 145h29.4M82 167h21.56M168 145h-12.6M168 167h-17.36" fill="none" stroke="#6783aa" stroke-width="3" stroke-linecap="round"/>
       </g>
     </g>
   </g>
