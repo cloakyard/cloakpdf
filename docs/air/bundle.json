@@ -1,23 +1,23 @@
 {
-  "version": "1.7.5",
+  "version": "1.8.2",
   "source": {
     "repository": "https://github.com/cloakyard/cloakyard",
     "directory": "design/air",
     "status": "approved",
-    "contractSha256": "fa22bfbe5205068b70cdca8748665c0ef67c4f0129e7569dc6d19b76d5bf13bb"
+    "contractSha256": "bde4a055f40dadd4be522eb6fac8fd4abcd020c3025c858a0a987e30025bef9e"
   },
   "stylesheet": "src/styles/air.css",
   "studyAssets": {
-    "components.html": "408e9413ddd719b3c3afc36800a97fd07275109a1043c2dd77daf69277c4799e",
+    "components.html": "73e7970f9345e60a8561c16306dcc87d3f8420db53f756df4c9f6a083a571f39",
     "social.html": "441cfed178be614735d9f9b54163a07bff5b9af54a933fb55687a9357e01bd3c",
     "render-social.mjs": "c0936ee6afd53898c8dcf5cf7f71f970143108cb9a6a39b3183b493501d30974",
     "check-social.mjs": "93b4467b8ce043800a7aa7f7617f86916374a2b476bb9aa215a4492a3ce1f242",
     "social-previews.md": "89d5a5b8d9b23a09867ca0c2ab511ab5f753e142450b16136e278c2a31b27193",
-    "reading.html": "66e16262ea678bc32c53ded704f712e7bdc3d61f7a783b38a12627c9382bd580",
-    "recovery.html": "25632b2b9144a09ca8de7bd8972cbb450f998552c444362639915f06331f40f7",
+    "reading.html": "e47a8d27853cc1caba3732679a81b8f31a285316e3a33919f03e784fa092feb9",
+    "recovery.html": "af320ee8a584b8896148d30f14e0c9869eb7bc4dad27bd56ffa3172c9957b7f5",
     "pages.mjs": "11af689c60479af4e3c0a12fb85c31f2f7028ffabc79c4f05b67ee5b8a4e4824",
-    "files.html": "f0f83f31b6c12877bab00e0603dd12b83819e7b99280399295f5efbbcb5e97fb",
-    "collections.html": "46f388ac69285e096c19debc53f73459f5ddcf075152bc0c628e9d317fe484ec",
+    "files.html": "ff9e4287123deb99b2dd6001546cfa33766379cc3addc4b5400ce2715e884576",
+    "collections.html": "cae0557fb0e89532778803b490517f646b06e84fe3f89667ee5366471c6c4e43",
     "files.mjs": "7ae954ca6df8e1a1e1d4643d6a0c5d02e962b7573e36bdd99768f17fee6656ab",
     "motion.mjs": "6c0b76f8a5f3b63b68adf88588552c2a64568899b993fc9913bd84bb3859e1a2",
     "motion.d.mts": "965cc024e7727692d30340b748c65f0a84280d50dc066cbaf13c0a7447614e67",
@@ -26,6 +26,9 @@
     "presence.tsx": "7726021c74356931fed7614779d03b6a14568c401f8760be2a6564a854e8221d",
     "artwork.mjs": "932fc9f09a5b709e993de83296b6c8d4cdabfe6380db92124b5663088b02d7d2",
     "artwork.d.mts": "a5638e0399776647ac1ed883a2026fa94e6515d47cd6054eb63ef27184cbf30f",
+    "landing-reveal.css": "11a3cb589f8667f7314bd457e4939c36978c0d58c1cfc3d670288d1b244192ab",
+    "landing-reveal.mjs": "7e11116c19cac30465c462ce9e888915618ca4d678d73773259baa997c0fab8a",
+    "landing-reveal.d.mts": "7c48f498e20f671cc4c37b27453c6ee62e195d4f347bbf8617cd995f1da7da7c",
     "update-notice.tsx": "c5ca09aea1da55ff598cd6d22b6095b2315bc882c99cab5ea865b410346f8275",
     "privacy.tsx": "012716986f6cc8fa0059e976f7f9bfe615e763de446e7f659675e4098ef27dec",
     "colour.mjs": "4116d6738bddaeeb4992f00bdcd53851fea29e50da7d607be798e2224ff54751",
@@ -34,12 +37,12 @@
     "light-runtime.mjs": "dd8c7416bc6dd485c3b1238cff4419d5a1ee6d656d8672798f7d596a13c013be",
     "light-runtime.d.mts": "dde1dfec3b25560dabe3373a63d2964141ca258f50347d4de2fdac3620493654",
     "assets/air-light-shader.js": "7ef73ce9096a512e0bef4812caab47daa01fddf738355cdb64280b28c17817d5",
-    "assets/THIRD_PARTY_LICENSES.txt": "987053933235f31d3b1b43f63ed273c0fb5fdc60f28613426c780492e3a22364",
+    "assets/THIRD_PARTY_LICENSES.txt": "db207cb16d0a06d989e79b61b3b28c71a05c75d962711e9c7ad0d964da216df5",
     "overlays-loader.mjs": "e3fe1baeda86b7a0d12b2abae1d52c5b19ab39945222451152d122b05f024820",
     "assets/air-overlays.js": "142a144d36e2828226402e8e74fb26df6442f9996e81d2582985e419d2baae08",
     "assets/air-collections.js": "53df7d7f36b737b83faa2b26ccd370e0577f709edc135c69df417e7c1e003a0b",
     "assets/OVERLAY_LICENSES.txt": "ef78a704ca6d56335461411417b86d80a4e8870500365c25d1ee4c50aa1924ab"
   },
-  "sha256": "470d7e37feb7e900d64662e0e8116d67f0f9b86cfb0315d60f3f6fe7800065fe",
+  "sha256": "19df7335656519ea653ff252e44507f091e672ad8cfdda1b7a5ca08aca06f22d",
   "note": "Pinned family bundle. Runtime migration is tracked separately in surfaces.json."
 }

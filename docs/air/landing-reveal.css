@@ -1,0 +1,61 @@
+/* Opt-in on a flat Air landing page. The static document is the default. */
+[data-air-reveal] {
+  --air-motion-landing-reveal: 520ms;
+  --air-motion-landing-stagger: 240ms;
+}
+.air-reveal-veil {
+  display: none;
+}
+@media screen and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  [data-air-reveal="pending"],
+  [data-air-reveal="entering"] {
+    position: relative;
+    isolation: isolate;
+  }
+  [data-air-reveal="pending"] > :not(.air-reveal-veil) {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  :is([data-air-reveal="pending"], [data-air-reveal="entering"]) > .air-reveal-veil {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: clip;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .air-reveal-veil::before {
+    content: "";
+    position: absolute;
+    inset: -35% 0 0;
+    /* The feather ends at the block's top edge in its initial pose (35 / 135). */
+    background: linear-gradient(to bottom, transparent, var(--air-page) 25.926%);
+  }
+  [data-air-reveal="entering"] > :not(.air-reveal-veil) {
+    animation: air-landing-content var(--air-motion-landing-reveal) ease-out
+      var(--air-reveal-delay, 0ms) backwards;
+  }
+  [data-air-reveal="entering"] > .air-reveal-veil::before {
+    animation: air-landing-wipe var(--air-motion-landing-reveal) ease-out
+      var(--air-reveal-delay, 0ms) both;
+  }
+  @keyframes air-landing-content {
+    from {
+      opacity: 0.6;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes air-landing-wipe {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
+  }
+}

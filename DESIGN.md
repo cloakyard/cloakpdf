@@ -1,19 +1,19 @@
 ---
 name: CloakPDF — Cloakyard Air
-version: 1.7.5
+version: 1.8.2
 status: approved
-date: 2026-11-16
+date: 2026-11-24
 scope: complete-web-product
 source-repository: https://github.com/cloakyard/cloakyard
 source-directory: design/air
-family-contract-sha256: fa22bfbe5205068b70cdca8748665c0ef67c4f0129e7569dc6d19b76d5bf13bb
+family-contract-sha256: bde4a055f40dadd4be522eb6fac8fd4abcd020c3025c858a0a987e30025bef9e
 ---
 
 <!-- BEGIN CLOAKYARD AIR CONTRACT -->
 
 # Cloakyard Air design contract
 
-Version: **1.7.5 — consistent social previews** · Direction: **Air** · Updated: **2026-11-16**
+Version: **1.8.2 — editor update notices** · Direction: **Air** · Updated: **2026-11-24**
 
 The detailed Air system is **locked for implementation**. On 2026-10-13 the user
 authorized one final agent review followed by implementation; that review is
@@ -1186,6 +1186,10 @@ Public shell content follows the same recipe across the family:
   banner. Use 16px inline/bottom and 12px top padding, 20px leading icon, 14px/500
   heading, 14px/1.5 copy and 8px gaps. Cap height at 45dvh; enlarged copy scrolls
   with all actions keyboard-reachable. Do not elevate notices above modal controls.
+- In editors with a bottom tool dock or preview controls, mark the visible canvas
+  or document preview with `data-air-notice-preview`. Render the notice after the
+  preview and preserve its instance across navigation. Its inset follows the
+  preview so the dock, zoom and confirmation controls remain reachable.
 - Shared titles: **Update available**, **Updating…**, **Update paused**, **Core app
   cached**. Standard copy is shared; only blocked/error instructions may vary to
   explain actual work protection. Never imply all optional assets are cached.
@@ -1310,6 +1314,20 @@ performance approval.
   A landing entry may use a single 900ms light arrival. These are the moments for
   playful character. Avoid bouncing controls, moving text, repeated reveals and
   continuous decorative activity during work.
+- Public landing directories may reveal each editorial block once as it enters view.
+  Use a soft top-to-bottom wipe over a 4px upward settle and a fade from 60% to
+  full opacity. All three run together for 520ms with CSS `ease-out`. Start
+  simultaneously eligible blocks 240ms apart in reading order. The wipe uses
+  the flat page colour at 85% opacity and a feather 35% of the block height.
+  Keep each block's layout and dividers steady. Skip blocks the reader scrolls past.
+  Content is visible before enhancement. Focus, deep links, history restoration,
+  print, forced colours and reduced motion show the relevant content immediately.
+  Keep navigation, the hero, utility pages and active workspaces outside this treatment.
+  The portable `landing-reveal.css` and `landing-reveal.mjs` implement the approved
+  recipe. Client-rendered entries can request initial fragment restoration after the
+  target mounts. This also applies with reduced motion or without an observer.
+  Preserve browser history restoration and focus already placed by the reader.
+  Each landing page opts in after its responsive and accessibility review.
 - Pointer hover may move a directional arrow by 2px over 160ms. Press uses 0.98
   scale for 120ms; release is immediate. Keyboard presses never compress controls.
   Control colours, selection, focus and appearance changes are immediate. No hover

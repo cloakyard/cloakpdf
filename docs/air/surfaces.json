@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "contractVersion": "1.7.5",
+  "contractVersion": "1.8.2",
   "note": "Presence in this inventory is not audit or validation. Preserve evidence when updating.",
   "surfaces": [
     {
@@ -1505,7 +1505,7 @@
         "reduced-motion",
         "forced-colors",
         "Touch Export, More actions, zoom and history focus across reflow",
-        "Unfilled compact Export icon, 44×44 target at 100% and 200% text"
+        "Primary compact Export icon, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -1579,7 +1579,7 @@
         "reduced-motion",
         "forced-colors",
         "Review unapplied annotations, signatures and codes before download",
-        "Unfilled compact Export icon, 44×44 target at 100% and 200% text"
+        "Primary compact Export icon, 44×44 target at 100% and 200% text"
       ],
       "viewports": [
         "320x568",
@@ -3236,6 +3236,7 @@
         "native Chrome 200%"
       ],
       "evidence": [
+        "docs/air/landing-reveals-2026-11-24.md",
         "docs/air/evidence/entry-2026-10-13.json",
         "docs/air/validation.md",
         "docs/air/evidence/registry-lifecycle-2026-10-19.json",
@@ -3715,7 +3716,7 @@
         "Responsive on-page fields and contextual selection controls",
         "Short landscape and keyboard-constrained picker with large text",
         "Small landscape phone split and minimum-width pagination",
-        "Unfilled compact Export icon, 44×44 target at 100% and 200% text",
+        "Primary compact Export icon, 44×44 target at 100% and 200% text",
         "scrollable table preview",
         "responsive annotation picker",
         "Four mobile shortcuts at 320px and 200% text, and a responsive tool picker"

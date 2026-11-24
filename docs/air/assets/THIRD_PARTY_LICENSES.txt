@@ -275,7 +275,7 @@ tsover-runtime 0.0.7 (Apache-2.0)
    limitations under the License.
 
 
-typed-binary 4.3.4 (MIT)
+typed-binary 4.3.5 (MIT)
 MIT License
 
 Copyright (c) 2026 Iwo Plaza
